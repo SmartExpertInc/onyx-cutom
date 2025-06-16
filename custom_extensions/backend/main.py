@@ -2616,8 +2616,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             merged_md = _apply_title_edits_to_outline(raw_outline_cached, payload.editedOutline)
 
             template_id = await _ensure_training_plan_template(pool)
+            project_name_detected = _extract_project_name_from_markdown(merged_md) or payload.prompt
             project_request = ProjectCreateRequest(
-                projectName=payload.prompt,
+                projectName=project_name_detected,
                 design_template_id=template_id,
                 microProductName=None,
                 aiResponse=merged_md,
@@ -2707,8 +2708,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 
         # After assistant finished, push through the usual DB path
         template_id_fallback = await _ensure_training_plan_template(pool)
+        project_name_detected_fb = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
         project_request_fb = ProjectCreateRequest(
-            projectName=payload.prompt,
+            projectName=project_name_detected_fb,
             design_template_id=template_id_fallback,
             microProductName=None,
             aiResponse=assistant_reply,
@@ -2823,3 +2825,23 @@ def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, An
         out_lines.append(raw_line)
 
     return "\n".join(out_lines)
+
+# ------------------- Utility: extract project name from AI markdown header -------------------
+
+_HEADER_RE = re.compile(r"^\*\*(?P<name>[^*]+)\*\*\s*:\s*\*\*.+")
+
+
+def _extract_project_name_from_markdown(md: str) -> Optional[str]:
+    """Return the first **Project Name** element found in the Universal Product Header.
+
+    The header line looks like:
+        **Project Name** : **Course Outline** : **Course Outline**
+    We return "Project Name" (stripped).
+    """
+    if not md:
+        return None
+    first_line = md.splitlines()[0].strip()
+    m = _HEADER_RE.match(first_line)
+    if m:
+        return m.group("name").strip()
+    return None
