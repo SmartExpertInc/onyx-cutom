@@ -2347,23 +2347,9 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
     """Parse the markdown outline produced by the assistant into a lightweight
     list-of-modules representation expected by the wizard UI.
 
-    Rules we rely on (per STRICT MARKDOWN FORMATTING):
-    • Module headings begin with "## " (any language).
-    • Lesson titles are Top-level list items that appear *without* indentation
-      directly under a module and look like one of:
-          "1. **Lesson Title**"   (English/Ukr/Ukr numbered)
-          "- **Lesson Title**"    (Russian hyphen list)
-
-      Detail rows (Time, Content Coverage, etc.) are bullet items too, but they
-      are indented by two spaces in the markdown – we can tell the difference
-      by the presence of leading spaces *before* the list marker.
-
-    Approach:
-        – Preserve leading whitespace to measure indentation.
-        – Treat a line as a lesson item *only* when indentation == 0 and it
-          matches the list-item pattern.
+    Now also captures the "Total Time" line for each module and stores it as
+    `totalHours` (float).
     """
-
     modules: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
 
@@ -2398,6 +2384,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
             current = {
                 "id": f"mod{len(modules) + 1}",
                 "title": title_part,
+                "totalHours": 0.0,
                 "lessons": [],
             }
             modules.append(current)
@@ -2405,6 +2392,14 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
         # Lesson detection – only consider top-level list items (indent == 0)
         if current:
+            # Capture Total Time lines before lessons
+            m_time = re.match(r"(?:Total Time|Общее время|Загальний час)\s*:\s*([0-9]+(?:\.[0-9]+)?)", line, re.IGNORECASE)
+            if m_time:
+                try:
+                    current["totalHours"] = float(m_time.group(1))
+                except ValueError:
+                    pass  # leave default 0.0 if parsing fails
+
             if indent == 0 and list_item_regex.match(line):
                 # Starting a new top-level lesson → flush previous buffer
                 ls_string = flush_current_lesson(_buf) if '_buf' in locals() else None
@@ -2513,6 +2508,11 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         yield b" "
                         last_send = now
 
+        assistant_reply = assistant_reply  # preserve
+        # Cache full raw outline for later finalize step
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+
         modules_preview = _parse_outline_markdown(assistant_reply)
         final_json = json.dumps({"modules": modules_preview, "raw": assistant_reply}).encode()
         yield final_json
@@ -2539,11 +2539,39 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Ensure we have a chat session id (needed both for cache lookup and possible assistant fallback)
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
         persona_id = await get_contentbuilder_persona_id(cookies)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    # ---------- 1) FAST-PATH: parse locally using cached outline + user edits ----------
+    try:
+        raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
+        if raw_outline_cached:
+            merged_md = _apply_title_edits_to_outline(raw_outline_cached, payload.editedOutline)
+
+            template_id = await _ensure_training_plan_template(pool)
+            project_request = ProjectCreateRequest(
+                projectName=payload.prompt,
+                design_template_id=template_id,
+                microProductName=None,
+                aiResponse=merged_md,
+                chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+            )
+            onyx_user_id = await get_current_onyx_user_id(request)
+
+            project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+
+            # Success when we have at least one section parsed
+            if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
+                return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
+    except Exception as fast_e:
+        logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
+
+    # ---------- 2) FALLBACK: ask assistant to minimally correct ----------
     wizard_message = (
         "WIZARD_REQUEST\n" +
         json.dumps({
@@ -2557,7 +2585,6 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         })
     )
 
-    # --- collect streamed answer pieces exactly like in preview ---
     async def streamer():
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
@@ -2575,6 +2602,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 "retrieval_options": {"run_search": "always", "real_time": False},
                 "stream_response": True,
             }
+
             async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
                 async for raw_line in resp.aiter_lines():
                     if not raw_line:
@@ -2593,22 +2621,22 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 
                     now = asyncio.get_event_loop().time()
                     if now - last_send > 8:
-                        yield b" "
+                        yield b" "  # keep-alive
                         last_send = now
 
-        template_id = await _ensure_training_plan_template(pool)
-
-        project_request = ProjectCreateRequest(
+        # After assistant finished, push through the usual DB path
+        template_id_fallback = await _ensure_training_plan_template(pool)
+        project_request_fb = ProjectCreateRequest(
             projectName=payload.prompt,
-            design_template_id=template_id,
+            design_template_id=template_id_fallback,
             microProductName=None,
             aiResponse=assistant_reply,
             chatSessionId=uuid.UUID(chat_id) if chat_id else None,
         )
-        onyx_user_id = await get_current_onyx_user_id(request)
-        project_db = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore
+        onyx_user_id_fb = await get_current_onyx_user_id(request)
+        project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_fb, pool)  # type: ignore[arg-type]
 
-        yield project_db.model_dump_json().encode() if hasattr(project_db, 'model_dump_json') else project_db.json().encode()
+        yield project_db_fb.model_dump_json().encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
 
@@ -2621,3 +2649,65 @@ async def init_course_outline_chat(request: Request):
     return {"personaId": persona_id, "chatSessionId": chat_id}
 
 # ======================= End Wizard Section ==============================
+
+# === Wizard Outline helpers & cache ===
+OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
+
+def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
+    """Return a new markdown where module and lesson titles are replaced with
+    those from `edited_outline` (same ordering). Works for the three supported
+    languages by preserving the prefix before the colon (for module headers)
+    and the list marker (for lessons). If the structure diverges we leave the
+    original line unchanged."""
+
+    modules_input = edited_outline.get("modules") if isinstance(edited_outline, dict) else None
+    if modules_input is None and isinstance(edited_outline, list):
+        modules_input = edited_outline  # type: ignore
+    if not modules_input:
+        return original_md  # nothing to update
+
+    list_item_regex = re.compile(r"^(- |\* |\d+\.)")
+    lines = original_md.splitlines()
+    new_lines: List[str] = []
+    m_idx = -1
+    l_idx = -1
+
+    for raw in lines:
+        stripped = raw.lstrip()
+        indent = len(raw) - len(stripped)
+
+        # Detect module header (## )
+        if stripped.startswith("## "):
+            m_idx += 1
+            l_idx = -1
+            if m_idx < len(modules_input):
+                # Keep everything until colon
+                if ":" in stripped:
+                    prefix = stripped.split(":", 1)[0]
+                    new_title = modules_input[m_idx].get("title", "").strip()
+                    replaced = f"{prefix}: {new_title}"
+                else:
+                    replaced = stripped  # structure unexpected
+                new_lines.append(raw[:indent] + replaced)
+            else:
+                new_lines.append(raw)
+            continue
+
+        # Detect top-level lesson line
+        if m_idx >= 0 and indent == 0 and list_item_regex.match(stripped):
+            l_idx += 1
+            if m_idx < len(modules_input):
+                lessons_list = modules_input[m_idx].get("lessons", [])
+                if l_idx < len(lessons_list):
+                    list_marker = list_item_regex.match(stripped).group(0)  # type: ignore
+                    new_lesson_title = lessons_list[l_idx].strip()
+                    # ensure bold markup
+                    replaced_content = f"{list_marker} **{new_lesson_title}**"
+                    new_lines.append(replaced_content)
+                    continue
+            new_lines.append(raw)
+            continue
+
+        new_lines.append(raw)
+
+    return "\n".join(new_lines)
