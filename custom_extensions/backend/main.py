@@ -54,6 +54,8 @@ LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/comple
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
 DB_POOL = None
+# Track in-flight project creations to avoid duplicate processing (keyed by user+project)
+ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
 
 
 # --- Directory for Design Template Images ---
@@ -1262,6 +1264,11 @@ async def get_allowed_microproduct_types_list_for_design_templates():
 # --- Project and MicroProduct Endpoints ---
 @app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    # ---- Guard against duplicate concurrent submissions (same user+project name) ----
+    lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
+    if lock_key in ACTIVE_PROJECT_CREATE_KEYS:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Project creation already in progress.")
+    ACTIVE_PROJECT_CREATE_KEYS.add(lock_key)
     try:
         selected_design_template: Optional[DesignTemplateResponse] = None
         async with pool.acquire() as conn:
@@ -1746,6 +1753,9 @@ Return ONLY the JSON object.
         logger.error(f"Error inserting project: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while adding project." if IS_PRODUCTION else f"DB error on project insert: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    finally:
+        # Always release the in-flight lock
+        ACTIVE_PROJECT_CREATE_KEYS.discard(lock_key)
 
 
 @app.get("/api/custom/projects/names", response_model=List[str], summary="Get unique project names for the user")
