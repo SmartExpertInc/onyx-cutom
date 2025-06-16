@@ -893,7 +893,7 @@ Raw text to parse:
 Return ONLY the JSON object corresponding to the parsed text. Do not include any other explanatory text or markdown formatting (like ```json ... ```) around the JSON.
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
-    payload = { "model": LLM_DEFAULT_MODEL, "message": prompt_message, "temperature": 0.2 }
+    payload = { "model": LLM_DEFAULT_MODEL, "message": prompt_message, "temperature": 0.1 }
     detected_lang_by_rules = detect_language(ai_response)
     last_exception = None
 
@@ -1363,6 +1363,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
 
             **Parsing Rules & Constraints:**
++            • Except where explicit transformations are required by these instructions, reproduce every extracted text fragment verbatim — preserving spelling, punctuation, capitalisation, and line breaks. Absolutely do NOT paraphrase, translate, or autocorrect the source text.
             • Detect modules and lessons from headings, tables, or enumerations in the source text. Preserve their original order.
             • Always use dot as decimal separator for `hours` (e.g., 2.5).
             • If `hours` is written as "2 h 30 min", convert to 2.5.
