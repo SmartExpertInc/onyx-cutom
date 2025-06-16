@@ -951,7 +951,15 @@ The entire output must be a single, valid JSON object and must include all relev
                     parsed_json_data = json.loads(fixed_str)
                 except json.JSONDecodeError:
                     import ast
-                    parsed_json_data = ast.literal_eval(fixed_str)
+                    try:
+                        parsed_json_data = ast.literal_eval(fixed_str)
+                    except (ValueError, SyntaxError):
+                        # Last-ditch heuristic: convert single quotes to double and
+                        # Python constants to JSON equivalents, then try json.loads again.
+                        brute = fixed_str
+                        brute = re.sub(r"'([^']*)'", lambda m: '"' + m.group(1).replace('"', '\\"') + '"', brute)
+                        brute = brute.replace("True", "true").replace("False", "false").replace("None", "null")
+                        parsed_json_data = json.loads(brute)
 
             logger.debug(f'Cohere response: {parsed_json_data}')
 
