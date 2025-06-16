@@ -45,10 +45,13 @@ COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 
 # --- LLM Configuration for JSON Parsing ---
-LLM_API_KEY = os.getenv("COHERE_API_KEY")
-LLM_API_KEY_FALLBACK = os.getenv("COHERE_API_KEY_FALLBACK")
-LLM_API_URL = os.getenv("COHERE_API_URL", "https://api.cohere.com/v1/chat")
-LLM_DEFAULT_MODEL = os.getenv("COHERE_DEFAULT_MODEL", "command-r-plus")
+# === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
+LLM_API_KEY = os.getenv("OPENAI_API_KEY")
+LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+# Endpoint for Chat Completions
+LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+# Default model to use – gpt-4o-mini provides strong JSON adherence
+LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
 DB_POOL = None
 
@@ -893,8 +896,11 @@ Raw text to parse:
 Return ONLY the JSON object corresponding to the parsed text. Do not include any other explanatory text or markdown formatting (like ```json ... ```) around the JSON.
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
-    base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "message": prompt_message, "temperature": 0.1}
-    base_payload_with_rf = {**base_payload, "response_format": {"type": "json"}}
+    # OpenAI Chat API expects a list of chat messages
+    user_msg = {"role": "user", "content": prompt_message}
+    base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "messages": [user_msg], "temperature": 0.1}
+    # Ask the model to output pure JSON
+    base_payload_with_rf = {**base_payload, "response_format": {"type": "json_object"}}
     detected_lang_by_rules = detect_language(ai_response)
     last_exception = None
 
@@ -912,8 +918,9 @@ The entire output must be a single, valid JSON object and must include all relev
                         response.raise_for_status()
                     break  # success
                 except httpx.HTTPStatusError as he:
-                    if he.response.status_code == 422 and pf_idx == 0:
-                        logger.info("Cohere rejected response_format=json – retrying without it.")
+                    # OpenAI returns 400 when response_format isn't supported for a given model
+                    if he.response.status_code in (400, 422) and pf_idx == 0:
+                        logger.info("LLM rejected response_format – retrying without it.")
                         continue
                     raise
 
