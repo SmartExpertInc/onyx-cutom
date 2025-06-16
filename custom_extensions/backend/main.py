@@ -2714,8 +2714,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             aiResponse=assistant_reply,
             chatSessionId=uuid.UUID(chat_id) if chat_id else None,
         )
-        onyx_user_id_fb = await get_current_onyx_user_id(request)
-        project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_fb, pool)  # type: ignore[arg-type]
+        onyx_user_id_current = await get_current_onyx_user_id(request)
+        project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
 
         yield project_db_fb.model_dump_json().encode()
 
