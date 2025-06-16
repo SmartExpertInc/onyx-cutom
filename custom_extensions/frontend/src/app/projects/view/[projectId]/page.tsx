@@ -19,7 +19,7 @@ import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, MessageSquare } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen } from 'lucide-react';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -472,16 +472,6 @@ export default function ProjectInstanceViewPage() {
                 <FolderOpen size={16} className="mr-2" />
                 Open Products
             </Link>
-
-            {chatRedirectUrl && (
-                <Link
-                  href={chatRedirectUrl}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors"
-                >
-                  <MessageSquare size={16} className="mr-2" />
-                  Open Chat
-                </Link>
-            )}
           </div>
 
           <div className="flex items-center space-x-3">
