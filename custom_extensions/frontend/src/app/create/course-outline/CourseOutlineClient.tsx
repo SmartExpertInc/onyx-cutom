@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -431,6 +431,13 @@ export default function CourseOutlineClient() {
                   </div>
                 </div>
               ))}
+              {/* Add-module button */}
+              <button
+                type="button"
+                className="mt-2 flex items-center justify-center gap-1 self-start text-brand-primary hover:text-brand-primary-hover text-sm font-medium"
+              >
+                <Plus size={16} /> Add Module
+              </button>
             </div>
           )}
 
@@ -441,7 +448,7 @@ export default function CourseOutlineClient() {
           )}
         </section>
 
-        {!loading && (
+        {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3">
             <h2 className="text-xl font-semibold">Designs</h2>
             <div className="flex gap-4">
