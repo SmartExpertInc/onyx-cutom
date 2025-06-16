@@ -2631,7 +2631,26 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
                 return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
     except Exception as fast_e:
-        logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
+        # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
+        if isinstance(fast_e, HTTPException) and fast_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
+            max_wait_sec = 900  # 15 minutes
+            poll_every_sec = 5
+            waited = 0
+            while waited < max_wait_sec:
+                async with pool.acquire() as conn:
+                    row = await conn.fetchrow(
+                        "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
+                        onyx_user_id,
+                        payload.prompt,
+                    )
+                if row and row["microproduct_content"] is not None:
+                    return JSONResponse(content={"id": row["id"]})
+                await asyncio.sleep(poll_every_sec)
+                waited += poll_every_sec
+            logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
+        else:
+            logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
 
     # ---------- 2) FALLBACK: ask assistant to minimally correct ----------
     wizard_message = (
