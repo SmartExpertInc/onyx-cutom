@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -71,6 +71,17 @@ export default function CourseOutlineClient() {
 
   // Keep a reference to the current in-flight preview request so we can cancel it
   const previewAbortRef = useRef<AbortController | null>(null);
+
+  // Ref for auto-resizing the prompt textarea
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+
+  // Resize the textarea based on its content
+  useEffect(() => {
+    if (promptRef.current) {
+      promptRef.current.style.height = "auto";
+      promptRef.current.style.height = `${promptRef.current.scrollHeight}px`;
+    }
+  }, [prompt]);
 
   // Build dynamic fake-thought list based on current params
   const makeThoughts = () => {
@@ -315,6 +326,29 @@ export default function CourseOutlineClient() {
     });
   };
 
+  // Extra boolean filters (all true by default)
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    knowledgeCheck: true,
+    contentAvailability: true,
+    informationSource: true,
+    time: true,
+  });
+
+  // Ref for closing the dropdown when clicking outside
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showFilters) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showFilters]);
+
   return (
     <>
     <main
@@ -366,14 +400,53 @@ export default function CourseOutlineClient() {
             <option value="es">Spanish</option>
             <option value="ru">Russian</option>
           </select>
+
+          {/* Additional Info dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setShowFilters((prev) => !prev)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+            >
+              Additional Info <ChevronDown size={14} />
+            </button>
+
+            {showFilters && (
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
+                {[
+                  { key: "knowledgeCheck", label: "Knowledge Check" },
+                  { key: "contentAvailability", label: "Content Availability" },
+                  { key: "informationSource", label: "Information Source" },
+                  { key: "time", label: "Time" },
+                ].map(({ key, label }) => (
+                  // @ts-ignore dynamic key
+                  <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-4 w-4 text-brand-primary"
+                      // @ts-ignore dynamic key
+                      checked={filters[key]}
+                      onChange={() =>
+                        // @ts-ignore dynamic key
+                        setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                      }
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Prompt textarea */}
         <textarea
+          ref={promptRef}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-3 h-14 resize-none bg-white/90 placeholder-gray-500"
           placeholder="Describe what you'd like to make"
+          rows={1}
+          className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
         />
 
         <section className="flex flex-col gap-6">
