@@ -936,6 +936,11 @@ The entire output must be a single, valid JSON object and must include all relev
                 json_text_output = llm_api_response_data["generations"][0]["text"]
 
             if json_text_output is None:
+                # Log the raw keys of the response for easier debugging
+                logger.warning(
+                    "No 'content' field found in LLM response. Raw keys: %s" % list(llm_api_response_data.keys())
+                )
+                logger.debug("Full LLM response: %s" % json.dumps(llm_api_response_data)[:1000])
                 raise ValueError("LLM response did not contain an expected text field.")
 
             json_text_output = re.sub(r"^```json\s*|\s*```$", "", json_text_output.strip(), flags=re.MULTILINE)
