@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Inline SVG icon components
@@ -111,6 +111,15 @@ export default function GenerateProductPicker() {
   const [modulesCount, setModulesCount] = useState(4);
   const [lessonsPerModule, setLessonsPerModule] = useState("3-4");
   const [language, setLanguage] = useState("en");
+
+  // Dropdown with additional boolean filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    knowledgeCheck: true,
+    contentAvailability: true,
+    informationSource: true,
+    time: true,
+  });
 
   const allExamples = [
     "Code Optimization Course",
@@ -221,6 +230,43 @@ export default function GenerateProductPicker() {
             <option value="es">Spanish</option>
             <option value="ru">Russian</option>
           </select>
+
+          {/* Additional filters dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowFilters((prev) => !prev)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+            >
+              Additional Info <ChevronDown size={14} />
+            </button>
+
+            {showFilters && (
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
+                {[
+                  { key: "knowledgeCheck", label: "Knowledge Check" },
+                  { key: "contentAvailability", label: "Content Availability" },
+                  { key: "informationSource", label: "Information Source" },
+                  { key: "time", label: "Time" },
+                ].map(({ key, label }) => (
+                  // @ts-ignore – dynamic key access
+                  <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-4 w-4 text-brand-primary"
+                      // @ts-ignore – dynamic key access
+                      checked={filters[key]}
+                      onChange={() =>
+                        // @ts-ignore – dynamic key access
+                        setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                      }
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Prompt input */}
