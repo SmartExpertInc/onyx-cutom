@@ -1374,6 +1374,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
             **Validation Checklist BEFORE returning JSON:**
             □ Each module id follows the "№X" pattern.
+            □ No lesson titles start with "Lesson X.Y" or similar numbering patterns.
             □ Sum of `hours` in lessons equals `totalHours` if `autoCalculateHours` is false.
             □ Every `check.type` other than "none" has non-empty `text`.
             □ `detectedLanguage` is filled with a 2-letter code.
