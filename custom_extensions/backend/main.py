@@ -1377,6 +1377,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `check` (object):
                 - `type` (string): One of "test", "quiz", "practice", "none".
                 - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "None".
++                - IMPORTANT: When the raw text explicitly names the assessment (for example just "Test"), copy that word *exactly*—do not expand it to phrases such as "Knowledge Test", "Proficiency Test", or similar, and do not spell-correct it.
             * `contentAvailable` (object):
                 - `type` (string): One of "yes", "no", "percentage".
                 - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
