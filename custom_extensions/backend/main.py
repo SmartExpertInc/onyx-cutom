@@ -1334,15 +1334,51 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             default_error_instance = TrainingPlanDetails(mainTitle=f"LLM Parsing Error for {project_data.projectName}", sections=[])
             llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM
             component_specific_instructions = """
-            For 'Training Plan' content:
-            - Extract the 'mainTitle'.
-            - Each module becomes a 'section' object with 'id' (e.g., '№1'. It shouldn't be 'Module 1', strictly format it as '№X'), 'title', 'totalHours', and 'lessons' array.
-            - Each lesson in a module becomes a 'lesson' object with 'title', 'check', 'contentAvailable', 'source', and 'hours'.
-            - The 'title' of the lesson must not start with 'Lesson 1' or 'Lesson 1.1' or anything similar.
-            - For 'check' object: 'type' (e.g., 'test', 'practice', 'none') and 'text'. 'text' must be original language, default to 'Test' if no 'text' but the type is 'test'. If the 'raw text' has mentions of the knowlage assesment and it is not none, then you cannot leave this field blank.
-            - For 'contentAvailable' object: 'type' ('yes', 'no', 'percentage') and 'text'. 'text' must be original language. Default to {"type": "yes", "text": "100%"} if not mentioned.
-            - Ensure all module numbers, titles, lesson details, hours, and source texts are extracted in their original language.
-            - Ensure 'detectedLanguage' field is present (e.g., "en", "ru").
+            You are an expert text-to-JSON parsing assistant for 'Training Plan' content.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON that represents a multi-module training programme. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
+
+            **Global Fields:**
+            1.  `mainTitle` (string): Title of the whole programme. If the input lacks a clear title, use the project name given by the caller.
+            2.  `sections` (array): Ordered list of module objects.
+            3.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk", "es".
+
+            **Section Object (`sections` array items):**
+            * `id` (string): Sequential number formatted as "№1", "№2", … Always use this exact format; never "Module 1".
+            * `title` (string): Module name without the word "Module".
+            * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
+            * `lessons` (array): List of lesson objects belonging to the module.
+            * `autoCalculateHours` (boolean, default true): Leave as `true` unless the source explicitly provides `totalHours`.
+
+            **Lesson Object (`lessons` array items):**
+            * `title` (string): Lesson title WITHOUT leading numeration like "Lesson 1.1".
+            * `hours` (number): Duration in hours. If absent, default to 1.
+            * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
+            * `check` (object):
+                - `type` (string): One of "test", "quiz", "practice", "none".
+                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "None".
+            * `contentAvailable` (object):
+                - `type` (string): One of "yes", "no", "percentage".
+                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
+
+            **Parsing Rules & Constraints:**
+            • Detect modules and lessons from headings, tables, or enumerations in the source text. Preserve their original order.
+            • Always use dot as decimal separator for `hours` (e.g., 2.5).
+            • If `hours` is written as "2 h 30 min", convert to 2.5.
+            • Do not create empty arrays; if a module has no lessons, set `lessons: []`.
+            • Never output null values for required string fields; use an empty string instead.
+            • Ensure that every lesson belongs to a module; do not leave stray lessons.
+            • Preserve bold (`**`) or italic (`*`) markdown that exists inside titles or texts.
+            • Auxiliary keywords like "Goal", "Outcome", "Assessment" must be translated to the language of the content using the same localization rules described earlier.
+
+            **Validation Checklist BEFORE returning JSON:**
+            □ Each module id follows the "№X" pattern.
+            □ Sum of `hours` in lessons equals `totalHours` if `autoCalculateHours` is false.
+            □ Every `check.type` other than "none" has non-empty `text`.
+            □ `detectedLanguage` is filled with a 2-letter code.
+
+            Return ONLY the JSON object.
             """
         elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_LESSON:
             target_content_model = VideoLessonData
