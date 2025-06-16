@@ -465,7 +465,7 @@ export default function CourseOutlineClient() {
                 className="px-1 py-0.5 rounded-md focus:outline-none bg-transparent hover:opacity-80 transition-opacity"
                 title="Default design"
               >
-                <svg width="416" height="222" viewBox="0 0 416 222" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[238px] h-[129px]">
+                <svg width="416" height="222" viewBox="0 0 416 222" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[214px] h-[116px]">
                 <path d="M0 8.99999C0 4.02943 4.02944 0 9 0H407C411.971 0 416 4.02944 416 9V213C416 217.971 411.971 222 407 222H9.00001C4.02945 222 0 217.971 0 213V8.99999Z" fill="#FF1313"/>
                 <path d="M407 218V222H9V218H407ZM412 213V9C412 6.23859 409.761 4.00001 407 4H9C6.32472 4 4.14053 6.10111 4.00684 8.74316L4 9V213C4 215.761 6.23857 218 9 218V222L8.53711 221.988C3.93498 221.755 0.244876 218.065 0.0117188 213.463L0 213V9C0 4.18468 3.78166 0.252643 8.53711 0.0117188L9 0H407L407.463 0.0117188C412.218 0.252648 416 4.18469 416 9V213L415.988 213.463C415.755 218.065 412.065 221.755 407.463 221.988L407 222V218C409.761 218 412 215.761 412 213Z" fill="white"/>
                 <path d="M32 32H384V192H32V32Z" fill="#FFFCF5"/>
@@ -490,7 +490,7 @@ export default function CourseOutlineClient() {
                 className="px-1 py-0.5 rounded-md focus:outline-none bg-transparent hover:opacity-80 transition-opacity"
                 title="Blue design"
               >
-                <svg width="416" height="222" viewBox="0 0 416 222" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[238px] h-[129px]">
+                <svg width="416" height="222" viewBox="0 0 416 222" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[214px] h-[116px]">
                 <path d="M0 8.99999C0 4.02943 4.02944 0 9 0H407C411.971 0 416 4.02944 416 9V213C416 217.971 411.971 222 407 222H9.00001C4.02945 222 0 217.971 0 213V8.99999Z" fill="#528FCD"/>
                 <path d="M407 218V222H9V218H407ZM412 213V9C412 6.23859 409.761 4.00001 407 4H9C6.32472 4 4.14053 6.10111 4.00684 8.74316L4 9V213C4 215.761 6.23857 218 9 218V222L8.53711 221.988C3.93498 221.755 0.244876 218.065 0.0117188 213.463L0 213V9C0 4.18468 3.78166 0.252643 8.53711 0.0117188L9 0H407L407.463 0.0117188C412.218 0.252648 416 4.18469 416 9V213L415.988 213.463C415.755 218.065 412.065 221.755 407.463 221.988L407 222V218C409.761 218 412 215.761 412 213Z" fill="white"/>
                 <path d="M32 32H384V192H32V32Z" fill="#FFFCF5"/>
@@ -515,7 +515,7 @@ export default function CourseOutlineClient() {
                 className="px-1 py-0.5 rounded-md focus:outline-none bg-transparent hover:opacity-80 transition-opacity"
                 title="Green design"
               >
-                <svg width="416" height="222" viewBox="0 0 416 222" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[238px] h-[129px]">
+                <svg width="416" height="222" viewBox="0 0 416 222" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[214px] h-[116px]">
                 <path d="M0 8.99999C0 4.02943 4.02944 0 9 0H407C411.971 0 416 4.02944 416 9V213C416 217.971 411.971 222 407 222H9.00001C4.02945 222 0 217.971 0 213V8.99999Z" fill="#238D4A"/>
                 <path d="M407 218V222H9V218H407ZM412 213V9C412 6.23859 409.761 4.00001 407 4H9C6.32472 4 4.14053 6.10111 4.00684 8.74316L4 9V213C4 215.761 6.23857 218 9 218V222L8.53711 221.988C3.93498 221.755 0.244876 218.065 0.0117188 213.463L0 213V9C0 4.18468 3.78166 0.252643 8.53711 0.0117188L9 0H407L407.463 0.0117188C412.218 0.252648 416 4.18469 416 9V213L415.988 213.463C415.755 218.065 412.065 221.755 407.463 221.988L407 222V218C409.761 218 412 215.761 412 213Z" fill="white"/>
                 <path d="M32 32H384V192H32V32Z" fill="#FFFCF5"/>
@@ -541,15 +541,15 @@ export default function CourseOutlineClient() {
         )}
 
         {!loading && (
-          <div className="w-full flex items-center justify-between mt-6">
+          <div className="w-full flex items-center justify-center gap-12 mt-10">
             {/* Total lessons */}
-            <span className="text-sm text-gray-700 font-medium select-none">
+            <span className="text-2xl text-gray-700 font-semibold select-none">
               {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
             </span>
             <button
               type="button"
               onClick={handleGenerateFinal}
-              className="px-8 py-3 rounded-full bg-[#0066FF] text-white hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center gap-2"
+              className="px-20 py-7 rounded-full bg-[#0066FF] text-white text-2xl hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center gap-4"
               disabled={loading || isGenerating}
             >
               <span className="select-none">Generate</span>
