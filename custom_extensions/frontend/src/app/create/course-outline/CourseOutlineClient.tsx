@@ -407,12 +407,14 @@ export default function CourseOutlineClient() {
                     <ul className="flex flex-col gap-1 text-gray-900">
                       {mod.lessons.map((les: string, lessonIdx: number) => {
                          const lines = les.split(/\r?\n/);
-                         let first = (lines[0] || "").trim();
+                         // Preserve user-typed spacing by avoiding automatic trim.
+                         let first = lines[0] || "";
                          let titleLine: string;
-                         if (first === "*" || first === "-" || first === "") {
+                         if (first.trim() === "*" || first.trim() === "-" || first.trim() === "") {
                            titleLine = (lines[1] || "").trim();
                          } else {
-                           titleLine = first.replace(/^[\*\-]\s*/, "");
+                           // Remove only the leading bullet + space if present, keep trailing spaces intact.
+                           titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
                            <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
@@ -431,12 +433,13 @@ export default function CourseOutlineClient() {
                   </div>
                 </div>
               ))}
-              {/* Add-module button */}
+              {/* Add-module button – pill style, full-width */}
               <button
                 type="button"
-                className="mt-2 flex items-center justify-center gap-1 self-start text-brand-primary hover:text-brand-primary-hover text-sm font-medium"
+                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#1E3A8A] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
               >
-                <Plus size={16} /> Add Module
+                <Plus size={18} />
+                <span>Add Module</span>
               </button>
             </div>
           )}
