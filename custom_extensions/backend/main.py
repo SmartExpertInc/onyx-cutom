@@ -894,6 +894,8 @@ Return ONLY the JSON object corresponding to the parsed text. Do not include any
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
     payload = { "model": LLM_DEFAULT_MODEL, "message": prompt_message, "temperature": 0.1 }
+    # Request Cohere to respond with valid JSON only (supported in chat API)
+    payload["response_format"] = {"type": "json"}
     detected_lang_by_rules = detect_language(ai_response)
     last_exception = None
 
