@@ -923,6 +923,25 @@ The entire output must be a single, valid JSON object and must include all relev
                 raise ValueError("LLM response did not contain an expected text field.")
 
             json_text_output = re.sub(r"^```json\s*|\s*```$", "", json_text_output.strip(), flags=re.MULTILINE)
+
+            # --- Additional cleaning to handle stray explanatory text or markdown fences ---
+            cleaned_json_str = json_text_output.strip()
+
+            # Remove generic triple-backtick fences (with or without language spec)
+            cleaned_json_str = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned_json_str, flags=re.IGNORECASE | re.MULTILINE).strip()
+
+            # Trim any leading or trailing content outside the outermost JSON braces
+            first_brace = cleaned_json_str.find('{')
+            last_brace = cleaned_json_str.rfind('}')
+            if first_brace != -1 and last_brace != -1 and first_brace < last_brace:
+                cleaned_json_str = cleaned_json_str[first_brace:last_brace + 1]
+
+            # Fall back to original if brace detection failed
+            if not cleaned_json_str.startswith('{'):
+                cleaned_json_str = json_text_output.strip()
+
+            # Use the cleaned string for subsequent parsing
+            json_text_output = cleaned_json_str
             
             # --- Parse and Validate the JSON data ---
             parsed_json_data = json.loads(json_text_output)
