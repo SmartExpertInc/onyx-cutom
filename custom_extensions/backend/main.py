@@ -913,7 +913,8 @@ The entire output must be a single, valid JSON object and must include all relev
             # Try with response_format first, then without if Cohere rejects it
             for pf_idx, payload_variant in enumerate([base_payload_with_rf, base_payload]):
                 try:
-                    async with httpx.AsyncClient(timeout=120.0) as client:
+                    # Remove per-request timeout so long parses are not cut off (backend will rely on upstream timeouts)
+                    async with httpx.AsyncClient(timeout=None) as client:
                         response = await client.post(LLM_API_URL, headers=headers, json=payload_variant)
                         response.raise_for_status()
                     break  # success
