@@ -944,7 +944,13 @@ The entire output must be a single, valid JSON object and must include all relev
             json_text_output = cleaned_json_str
             
             # --- Parse and Validate the JSON data ---
-            parsed_json_data = json.loads(json_text_output)
+            try:
+                parsed_json_data = json.loads(json_text_output)
+            except json.JSONDecodeError:
+                # attempt a quick fix for trailing commas and retry
+                fixed_str = _clean_loose_json(json_text_output)
+                parsed_json_data = json.loads(fixed_str)
+
             logger.debug(f'Cohere response: {parsed_json_data}')
 
             if 'detectedLanguage' not in parsed_json_data or not parsed_json_data['detectedLanguage']:
@@ -976,6 +982,17 @@ The entire output must be a single, valid JSON object and must include all relev
     if hasattr(default_error_model_instance, 'detectedLanguage'):
         default_error_model_instance.detectedLanguage = detected_lang_by_rules
     return default_error_model_instance
+
+def _clean_loose_json(text: str) -> str:
+    """Attempt to fix common minor JSON issues produced by LLMs: trailing commas, smart quotes, etc."""
+    # remove common markdown code fences again (defensive)
+    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE | re.MULTILINE)
+    # replace smart quotes with normal quotes
+    text = text.replace(""", "\"").replace(""", "\"").replace("'", "\"").replace("'", "\"")
+    # strip trailing commas before object / array close
+    text = re.sub(r",\s*(\}|\])", r"\1", text)
+    # remove backslash escapes of newlines that aren't needed
+    return text
 
 # --- API Endpoints ---
 @app.post("/api/custom/pipelines/add", response_model=MicroproductPipelineDBRaw, status_code=status.HTTP_201_CREATED)
