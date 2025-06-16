@@ -2636,7 +2636,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         if isinstance(fast_e, HTTPException) and fast_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
             logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
             max_wait_sec = 900  # 15 minutes
-            poll_every_sec = 5
+            poll_every_sec = 1
             waited = 0
             while waited < max_wait_sec:
                 async with pool.acquire() as conn:
