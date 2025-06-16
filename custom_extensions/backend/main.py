@@ -2640,11 +2640,19 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             waited = 0
             while waited < max_wait_sec:
                 async with pool.acquire() as conn:
-                    row = await conn.fetchrow(
-                        "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
-                        onyx_user_id,
-                        payload.prompt,
-                    )
+                    if chat_id:
+                        # Prefer locating the project by the wizard chat_session_id (unique identifier per outline wizard run)
+                        row = await conn.fetchrow(
+                            "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                            uuid.UUID(chat_id),
+                        )
+                    else:
+                        # Fallback to the previous behaviour when we have no chat_id information available
+                        row = await conn.fetchrow(
+                            "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
+                            onyx_user_id,
+                            payload.prompt,
+                        )
                 if row and row["microproduct_content"] is not None:
                     return JSONResponse(content={"id": row["id"]})
                 await asyncio.sleep(poll_every_sec)
