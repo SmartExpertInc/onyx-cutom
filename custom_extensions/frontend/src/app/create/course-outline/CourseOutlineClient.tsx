@@ -221,6 +221,7 @@ export default function CourseOutlineClient() {
   };
 
   const handleGenerateFinal = async () => {
+    if (isGenerating) return; // guard against double-click / duplicate requests
     // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
@@ -478,7 +479,7 @@ export default function CourseOutlineClient() {
             type="button"
             onClick={handleGenerateFinal}
             className="self-start mt-6 px-8 py-3 rounded-md bg-[#0066FF] text-white hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50"
-            disabled={loading}
+            disabled={loading || isGenerating}
           >
             Generate
           </button>
