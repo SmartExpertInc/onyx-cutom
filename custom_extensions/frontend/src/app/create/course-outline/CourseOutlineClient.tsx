@@ -452,8 +452,14 @@ export default function CourseOutlineClient() {
         </section>
 
         {!loading && preview.length > 0 && (
-          <section className="flex flex-col gap-3">
-            <h2 className="text-xl font-semibold">Designs</h2>
+          <section className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Designs</h2>
+              <button type="button" className="flex items-center gap-1 text-brand-primary hover:text-brand-primary-hover text-sm font-medium">
+                <ArrowLeft className="rotate-180" size={14} />
+                See more
+              </button>
+            </div>
             <div className="flex gap-4">
               <button
                 className="px-1 py-0.5 rounded-md focus:outline-none bg-transparent hover:opacity-80 transition-opacity"
@@ -535,14 +541,20 @@ export default function CourseOutlineClient() {
         )}
 
         {!loading && (
-          <button
-            type="button"
-            onClick={handleGenerateFinal}
-            className="self-start mt-6 px-8 py-3 rounded-md bg-[#0066FF] text-white hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50"
-            disabled={loading || isGenerating}
-          >
-            Generate
-          </button>
+          <div className="w-full flex items-center justify-between mt-6">
+            {/* Total lessons */}
+            <span className="text-sm text-gray-700 font-medium select-none">
+              {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
+            </span>
+            <button
+              type="button"
+              onClick={handleGenerateFinal}
+              className="px-8 py-3 rounded-full bg-[#0066FF] text-white hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center gap-2"
+              disabled={loading || isGenerating}
+            >
+              <span className="select-none">Generate</span>
+            </button>
+          </div>
         )}
       </div>
 
