@@ -934,6 +934,19 @@ The entire output must be a single, valid JSON object and must include all relev
                 if last_message and "message" in last_message: json_text_output = last_message["message"]
             elif llm_api_response_data.get("generations") and isinstance(llm_api_response_data["generations"], list) and llm_api_response_data["generations"][0].get("text"):
                 json_text_output = llm_api_response_data["generations"][0]["text"]
+            elif "choices" in llm_api_response_data and isinstance(llm_api_response_data["choices"], list) and llm_api_response_data["choices"]:
+                # Support for OpenAI Chat Completions format: choices[0].message.content (or .delta.content in streaming)
+                first_choice = llm_api_response_data["choices"][0]
+                if isinstance(first_choice, dict):
+                    # Standard chat completion response
+                    if "message" in first_choice and isinstance(first_choice["message"], dict):
+                        json_text_output = first_choice["message"].get("content")
+                    # If using the delta format (streaming-style response aggregated by OpenAI)
+                    if not json_text_output and "delta" in first_choice and isinstance(first_choice["delta"], dict):
+                        json_text_output = first_choice["delta"].get("content")
+                    # Fallback to any direct text field
+                    if not json_text_output:
+                        json_text_output = first_choice.get("text")
 
             if json_text_output is None:
                 # Log the raw keys of the response for easier debugging
