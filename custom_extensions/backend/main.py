@@ -893,22 +893,30 @@ Raw text to parse:
 Return ONLY the JSON object corresponding to the parsed text. Do not include any other explanatory text or markdown formatting (like ```json ... ```) around the JSON.
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
-    payload = { "model": LLM_DEFAULT_MODEL, "message": prompt_message, "temperature": 0.1 }
-    # Request Cohere to respond with valid JSON only (supported in chat API)
-    payload["response_format"] = {"type": "json"}
+    base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "message": prompt_message, "temperature": 0.1}
+    base_payload_with_rf = {**base_payload, "response_format": {"type": "json"}}
     detected_lang_by_rules = detect_language(ai_response)
     last_exception = None
 
     for i, api_key in enumerate(api_keys_to_try):
         attempt_number = i + 1
         logger.info(f"Attempting LLM call for '{project_name}' using API key #{attempt_number}.")
-        headers = { "Authorization": f"Bearer {api_key}", "Content-Type": "application/json" }
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
         try:
-            # --- Attempt the API Call and Full Processing ---
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(LLM_API_URL, headers=headers, json=payload)
-                response.raise_for_status()
+            # Try with response_format first, then without if Cohere rejects it
+            for pf_idx, payload_variant in enumerate([base_payload_with_rf, base_payload]):
+                try:
+                    async with httpx.AsyncClient(timeout=120.0) as client:
+                        response = await client.post(LLM_API_URL, headers=headers, json=payload_variant)
+                        response.raise_for_status()
+                    break  # success
+                except httpx.HTTPStatusError as he:
+                    if he.response.status_code == 422 and pf_idx == 0:
+                        logger.info("Cohere rejected response_format=json – retrying without it.")
+                        continue
+                    raise
+
             llm_api_response_data = response.json()
 
             # --- Process the Response ---
@@ -921,37 +929,29 @@ The entire output must be a single, valid JSON object and must include all relev
                 json_text_output = llm_api_response_data["generations"][0]["text"]
 
             if json_text_output is None:
-                # If the response structure is unexpected, raise an error to be caught below
                 raise ValueError("LLM response did not contain an expected text field.")
 
             json_text_output = re.sub(r"^```json\s*|\s*```$", "", json_text_output.strip(), flags=re.MULTILINE)
 
-            # --- Additional cleaning to handle stray explanatory text or markdown fences ---
             cleaned_json_str = json_text_output.strip()
-
-            # Remove generic triple-backtick fences (with or without language spec)
             cleaned_json_str = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned_json_str, flags=re.IGNORECASE | re.MULTILINE).strip()
-
-            # Trim any leading or trailing content outside the outermost JSON braces
             first_brace = cleaned_json_str.find('{')
             last_brace = cleaned_json_str.rfind('}')
             if first_brace != -1 and last_brace != -1 and first_brace < last_brace:
                 cleaned_json_str = cleaned_json_str[first_brace:last_brace + 1]
-
-            # Fall back to original if brace detection failed
             if not cleaned_json_str.startswith('{'):
                 cleaned_json_str = json_text_output.strip()
-
-            # Use the cleaned string for subsequent parsing
             json_text_output = cleaned_json_str
-            
-            # --- Parse and Validate the JSON data ---
+
             try:
                 parsed_json_data = json.loads(json_text_output)
             except json.JSONDecodeError:
-                # attempt a quick fix for trailing commas and retry
                 fixed_str = _clean_loose_json(json_text_output)
-                parsed_json_data = json.loads(fixed_str)
+                try:
+                    parsed_json_data = json.loads(fixed_str)
+                except json.JSONDecodeError:
+                    import ast
+                    parsed_json_data = ast.literal_eval(fixed_str)
 
             logger.debug(f'Cohere response: {parsed_json_data}')
 
@@ -963,19 +963,16 @@ The entire output must be a single, valid JSON object and must include all relev
             elif target_model == PdfLessonDetails and ('lessonTitle' not in parsed_json_data or not parsed_json_data['lessonTitle']):
                 parsed_json_data['lessonTitle'] = project_name
             
-            # If everything is successful, validate and return the model
             validated_model = target_model.model_validate(parsed_json_data)
             logger.info(f"LLM parsing for '{project_name}' succeeded on attempt #{attempt_number}.")
             return validated_model
 
         except Exception as e:
-            # --- Catch ANY exception that occurs during the attempt ---
             last_exception = e
             logger.warning(
                 f"LLM parsing attempt #{attempt_number} for '{project_name}' failed with {type(e).__name__}. "
                 f"Details: {str(e)[:250]}. Trying next key if available."
             )
-            # Continue to the next iteration to try the fallback key, regardless of the error type.
             continue
 
     # --- Handle Final Failure ---
@@ -989,11 +986,13 @@ def _clean_loose_json(text: str) -> str:
     """Attempt to fix common minor JSON issues produced by LLMs: trailing commas, smart quotes, etc."""
     # remove common markdown code fences again (defensive)
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE | re.MULTILINE)
-    # replace smart quotes with normal quotes
-    text = text.replace(""", "\"").replace(""", "\"").replace("'", "\"").replace("'", "\"")
-    # strip trailing commas before object / array close
+    # replace smart quotes with standard quotes
+    for sq in ('\u201c', '\u201d', '\u2018', '\u2019'):
+        text = text.replace(sq, '"')
+    # strip trailing commas before object/array close
     text = re.sub(r",\s*(\}|\])", r"\1", text)
-    # remove backslash escapes of newlines that aren't needed
+    # remove escaped newlines that are unnecessary
+    text = text.replace('\\n', '\n')
     return text
 
 # --- API Endpoints ---
