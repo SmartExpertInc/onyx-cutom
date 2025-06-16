@@ -1,7 +1,7 @@
 "use client";
 // @ts-nocheck
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -121,6 +121,23 @@ export default function GenerateProductPicker() {
     time: true,
   });
 
+  // Ref for detecting clicks outside of the Additional Info dropdown
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close the dropdown when a user clicks outside of it
+  useEffect(() => {
+    if (!showFilters) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilters]);
+
   const allExamples = [
     "Code Optimization Course",
     "Junior AI/ML Engineer Training",
@@ -231,8 +248,8 @@ export default function GenerateProductPicker() {
             <option value="ru">Russian</option>
           </select>
 
-          {/* Additional filters dropdown */}
-          <div className="relative">
+          {/* Additional Info */}
+          <div className="relative" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setShowFilters((prev) => !prev)}
