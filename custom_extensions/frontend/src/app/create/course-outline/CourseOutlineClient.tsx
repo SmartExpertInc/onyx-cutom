@@ -540,8 +540,8 @@ export default function CourseOutlineClient() {
           </section>
         )}
 
-        {!loading && (
-          <div className="w-full flex items-center justify-center gap-8 mt-10">
+        {!loading && preview.length > 0 && (
+          <div className="w-full flex items-center justify-center gap-8 mt-10 bg-white border border-gray-300 rounded-xl py-6">
             {/* Total lessons */}
             <span className="text-base text-gray-700 font-medium select-none">
               {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
@@ -549,7 +549,7 @@ export default function CourseOutlineClient() {
             <button
               type="button"
               onClick={handleGenerateFinal}
-              className="px-32 py-4 rounded-full bg-[#0066FF] text-white text-base hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center gap-3"
+              className="px-32 py-4 rounded-full bg-[#0066FF] text-white text-base hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-3"
               disabled={loading || isGenerating}
             >
               <Sparkles size={18} />
