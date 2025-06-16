@@ -189,6 +189,19 @@ export default function GenerateProductPicker() {
 
   const router = useRouter();
 
+  // Ref for auto-resizing the prompt textarea
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+
+  // Adjust the textarea height as the prompt changes
+  useEffect(() => {
+    if (promptRef.current) {
+      // Reset height to shrink when deleting text
+      promptRef.current.style.height = "auto";
+      // Set height based on scroll height
+      promptRef.current.style.height = `${promptRef.current.scrollHeight}px`;
+    }
+  }, [prompt]);
+
   return (
     <main
       className="min-h-screen flex flex-col items-center p-6"
@@ -288,10 +301,12 @@ export default function GenerateProductPicker() {
 
         {/* Prompt input */}
         <textarea
+          ref={promptRef}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Describe what you'd like to make"
-          className="w-full border border-gray-300 rounded-md p-3 h-14 resize-none bg-white/90 placeholder-gray-500"
+          rows={1}
+          className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
         />
 
         {/* Example prompts block */}
