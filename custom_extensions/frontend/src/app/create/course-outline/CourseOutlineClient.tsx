@@ -638,7 +638,7 @@ export default function CourseOutlineClient() {
 
         {/* Advanced Mode link placed after Designs section */}
         {!loading && preview.length > 0 && (
-          <div className="w-full flex justify-center mt-4">
+          <div className="w-full flex justify-center mt-2">
             <button
               type="button"
               className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
@@ -652,7 +652,7 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="w-full flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
+        <div className="w-screen max-w-none relative left-1/2 -translate-x-1/2 flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
           <span className="text-sm text-gray-700 font-medium select-none">
             {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
           </span>
