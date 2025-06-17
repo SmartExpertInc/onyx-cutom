@@ -577,7 +577,7 @@ export default function CourseOutlineClient() {
       const newMod: ModulePreview = {
         id: `mod${nextIdx}`,
         title: `Module ${nextIdx}`,
-        lessons: [],
+        lessons: [""], // start with one empty placeholder lesson
       };
       return [...prev, newMod];
     });
