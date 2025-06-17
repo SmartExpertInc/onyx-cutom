@@ -719,16 +719,17 @@ export default function CourseOutlineClient() {
                     key={t.id}
                     type="button"
                     onClick={() => setSelectedTheme(t.id)}
-                    className={`flex flex-col items-start rounded-lg overflow-hidden border shadow-sm transition-all ${selectedTheme === t.id ? 'border-[#63A2FF] bg-[#EAF3FF]' : 'border-transparent'}`}
+                    className={`flex flex-col rounded-lg overflow-hidden border shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'border-[#63A2FF] bg-[#EAF3FF]' : 'border-transparent'}`}
                   >
                     {/* Preview */}
-                    <div className="w-[214px] h-[116px] relative flex items-center justify-center">
+                    <div className="w-[214px] h-[116px] flex items-center justify-center">
                       <ThemePreviewSvg />
-                      {selectedTheme === t.id && (
-                        <span className="absolute left-2 bottom-2 text-[#0540AB]">✔</span>
-                      )}
                     </div>
-                    <span className="px-2 py-1 text-sm text-[#20355D] font-medium select-none">{t.label}</span>
+                    {/* Label with optional checkmark */}
+                    <div className="flex items-center gap-1 px-1">
+                      {selectedTheme === t.id && <span className="text-[#0540AB]">✔</span>}
+                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
+                    </div>
                   </button>
                 ))}
               </div>
