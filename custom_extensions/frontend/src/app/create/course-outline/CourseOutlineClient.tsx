@@ -369,6 +369,44 @@ export default function CourseOutlineClient() {
     });
   };
 
+  // Split lesson into two when user presses Enter while editing the title input
+  const handleLessonTitleKeyDown = (
+    modIdx: number,
+    lessonIdx: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const input = e.currentTarget;
+      const val = input.value;
+      const caret = input.selectionStart ?? val.length;
+      const before = val.slice(0, caret).trim();
+      const after = val.slice(caret).trim();
+
+      setPreview((prev: ModulePreview[]) => {
+        const copy = [...prev];
+        const lessonLines = copy[modIdx].lessons[lessonIdx].split(/\r?\n/);
+        const details = lessonLines.slice(1); // keep any detail lines under current lesson
+
+        // Update current lesson title to the text before the caret
+        copy[modIdx].lessons[lessonIdx] = [before, ...details].join("\n");
+
+        // Insert a new lesson right after with the remaining text (or empty string)
+        const newLessonFirstLine = after || "";
+        copy[modIdx].lessons.splice(lessonIdx + 1, 0, newLessonFirstLine);
+
+        return copy;
+      });
+
+      // Focus the newly created lesson input on next tick
+      requestAnimationFrame(() => {
+        const selector = `input[data-mod='${modIdx}'][data-les='${lessonIdx + 1}']`;
+        const newInput = document.querySelector<HTMLInputElement>(selector);
+        newInput?.focus();
+      });
+    }
+  };
+
   const handleLessonDetailsChange = (modIdx: number, lessonIdx: number, detailIdx: number, newVal: string) => {
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
@@ -642,6 +680,9 @@ export default function CourseOutlineClient() {
                                type="text"
                                value={titleLine}
                                onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
+                               onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
+                               data-mod={modIdx}
+                               data-les={lessonIdx}
                                className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
                                placeholder={`Lesson ${lessonIdx + 1}`}
                              />
