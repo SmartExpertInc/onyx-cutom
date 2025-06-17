@@ -379,10 +379,18 @@ export default function CourseOutlineClient() {
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
+
+      // Build query params to encode which additional info columns should be shown in the product view
+      const qp = new URLSearchParams();
+      qp.set("knowledgeCheck", filters.knowledgeCheck ? "1" : "0");
+      qp.set("contentAvailability", filters.contentAvailability ? "1" : "0");
+      qp.set("informationSource", filters.informationSource ? "1" : "0");
+      qp.set("time", filters.time ? "1" : "0");
+
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
       // leave the custom frontend and hit the main app's /projects route.
-      router.push(`/projects/view/${data.id}`);
+      router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
       setError(e.message);
       // allow UI interaction again

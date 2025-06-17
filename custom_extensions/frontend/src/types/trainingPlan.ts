@@ -23,10 +23,18 @@ export interface Section {
   autoCalculateHours?: boolean; // Keep for TrainingPlanTable editor
 }
 
+export interface DisplayOptions {
+  knowledgeCheck: boolean;
+  contentAvailability: boolean;
+  informationSource: boolean;
+  time: boolean;
+}
+
 export interface TrainingPlanData { // This can be the generic structure for microProductContent
   mainTitle?: string | null;
   sections: Section[];
   detectedLanguage?: string | null;
+  displayOptions?: DisplayOptions; // NEW: column visibility settings chosen during creation
 }
 
 // For fetching project details for the edit page

@@ -1,12 +1,13 @@
 // custom_extensions/frontend/src/components/TrainingPlanTable.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateLessonTypeModal } from './CreateLessonTypeModal';
 import { CreateTestTypeModal } from './CreateTestTypeModal';
+import { useSearchParams } from 'next/navigation';
 
 // --- Custom SVG Icons ---
 const NewPieChartIcon = ({ color = '#FF1414', className = '' }) => (
@@ -207,6 +208,50 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return text.substring(0, maxLength) + "...";
   };
 
+  // ---- Determine column visibility based on query params OR stored displayOptions ----
+  const searchParams = useSearchParams();
+
+  const storedOpts = dataToDisplay?.displayOptions;
+
+  const visibleColumns = useMemo(() => {
+    const def = {
+      knowledgeCheck: true,
+      contentAvailability: true,
+      informationSource: true,
+      time: true,
+    };
+
+    const fromQuery = (key: keyof typeof def): boolean | undefined => {
+      const val = searchParams?.get(key);
+      if (val === '1') return true;
+      if (val === '0') return false;
+      return undefined;
+    };
+
+    return {
+      knowledgeCheck: fromQuery('knowledgeCheck') ?? storedOpts?.knowledgeCheck ?? def.knowledgeCheck,
+      contentAvailability: fromQuery('contentAvailability') ?? storedOpts?.contentAvailability ?? def.contentAvailability,
+      informationSource: fromQuery('informationSource') ?? storedOpts?.informationSource ?? def.informationSource,
+      time: fromQuery('time') ?? storedOpts?.time ?? def.time,
+    };
+  }, [searchParams, storedOpts]);
+
+  const columnOrder: Array<{key: string; width: number}> = [
+    { key: 'module', width: 4 },
+    { key: 'knowledgeCheck', width: 2 },
+    { key: 'contentAvailability', width: 1 },
+    { key: 'informationSource', width: 2 },
+    { key: 'time', width: 1 },
+  ];
+
+  const activeColumns = columnOrder.filter((c) => {
+    if (c.key === 'module') return true;
+    // @ts-ignore dynamic access
+    return visibleColumns[c.key];
+  });
+
+  const gridTemplate = activeColumns.map((c) => `${c.width}fr`).join(' ');
+
   if (!dataToDisplay) {
     return <div className="p-8 text-center">Training plan data is unavailable for display.</div>;
   }
@@ -247,19 +292,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-10 gap-0 text-gray-500 p-4 text-xs font-semibold items-center border-b border-gray-300 uppercase tracking-wider">
-          <div className="col-span-10 sm:col-span-4 pr-2 border-r border-gray-400">{localized.moduleAndLessons}</div>
-          <div className="col-span-5 sm:col-span-2 text-left px-2 border-r border-gray-400">{localized.knowledgeCheck}</div>
-          <div className="col-span-5 sm:col-span-1 text-left px-2 border-r border-gray-400">{localized.contentAvailability}</div>
-          <div className="col-span-5 sm:col-span-2 text-left px-2 border-r border-gray-400">{localized.source}</div>
-          <div className="col-span-5 sm:col-span-1 text-left px-2">{localized.time}</div>
+        {/* --- Table Header Row (dynamic columns) --- */}
+        <div
+          className="text-gray-500 p-4 text-xs font-semibold items-center border-b border-gray-300 uppercase tracking-wider"
+          style={{ display: 'grid', gridTemplateColumns: gridTemplate }}
+        >
+          {activeColumns.map((col, idx) => {
+            const borderClasses = idx < activeColumns.length - 1 ? 'border-r border-gray-400' : '';
+            const common = `px-2 ${borderClasses}`;
+            switch (col.key) {
+              case 'module':
+                return (
+                  <div key={col.key} className={`pr-2 ${borderClasses}`}>{localized.moduleAndLessons}</div>
+                );
+              case 'knowledgeCheck':
+                return <div key={col.key} className={common}>{localized.knowledgeCheck}</div>;
+              case 'contentAvailability':
+                return <div key={col.key} className={common}>{localized.contentAvailability}</div>;
+              case 'informationSource':
+                return <div key={col.key} className={common}>{localized.source}</div>;
+              case 'time':
+                return <div key={col.key} className={common}>{localized.time}</div>;
+              default:
+                return null;
+            }
+          })}
         </div>
 
         <div className="text-sm">
           {(sections || []).map((section: SectionType, sectionIdx: number) => (
             <React.Fragment key={section.id || `section-${sectionIdx}`}>
-              <div className="grid grid-cols-10 gap-0 bg-gray-100 p-4 font-semibold items-center border-t border-gray-300">
-                <div className="col-span-10 sm:col-span-9 flex items-center space-x-2 pr-2 border-r border-gray-400">
+              <div
+                className="bg-gray-100 p-4 font-semibold items-center border-t border-gray-300"
+                style={{ display: 'grid', gridTemplateColumns: gridTemplate }}
+              >
+                {/* Module column */}
+                <div className={`flex items-center space-x-2 pr-2 ${activeColumns.length > 1 ? 'border-r border-gray-400' : ''}`}>
                   {isEditing && onTextChange ? (
                     <>
                       <input type="text" value={section.id} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} className={`${editingInputSmallClass} w-24 mr-2`} placeholder="ID"/>
@@ -272,26 +340,37 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     </>
                   )}
                 </div>
-                <div className="col-span-10 sm:col-span-1 flex items-center justify-start space-x-2 font-semibold px-2">
-                  <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
-                  {isEditing && onTextChange ? (
-                      <input
-                        type="number" step="0.1"
-                        value={section.totalHours === null || section.totalHours === undefined ? '' : section.totalHours}
-                        onChange={(e) => handleNumericInputChange(
-                            ['sections', sectionIdx, 'totalHours'], e,
-                            ['sections', sectionIdx, 'autoCalculateHours']
+                {/* Render placeholder or time column for remaining active columns */}
+                {activeColumns.slice(1).map((col, idx) => {
+                  const isLast = idx === activeColumns.slice(1).length - 1;
+                  const borderClasses = isLast ? '' : 'border-r border-gray-400';
+                  if (col.key === 'time') {
+                    return (
+                      <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
+                        <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
+                        {isEditing && onTextChange ? (
+                            <input
+                              type="number" step="0.1"
+                              value={section.totalHours === null || section.totalHours === undefined ? '' : section.totalHours}
+                              onChange={(e) => handleNumericInputChange(
+                                  ['sections', sectionIdx, 'totalHours'], e,
+                                  ['sections', sectionIdx, 'autoCalculateHours']
+                              )}
+                              className={`${editingInputSmallClass} w-16 text-right`}
+                              placeholder="Hrs"
+                              title={section.autoCalculateHours ? "Auto-calculated. Editing sets to manual." : "Manual hours"}
+                            />
+                        ) : (
+                          <span style={{ color: iconBaseColor }} className="flex-grow text-left">
+                            {formatHoursDisplay(section.totalHours, lang, localized, false)}
+                          </span>
                         )}
-                        className={`${editingInputSmallClass} w-16 text-right`}
-                        placeholder="Hrs"
-                        title={section.autoCalculateHours ? "Auto-calculated. Editing sets to manual." : "Manual hours"}
-                      />
-                  ) : (
-                    <span style={{ color: iconBaseColor }} className="flex-grow text-left">
-                      {formatHoursDisplay(section.totalHours, lang, localized, false)}
-                    </span>
-                  )}
-                </div>
+                      </div>
+                    );
+                  }
+                  // other columns not used in section header => render empty cell to keep alignment
+                  return <div key={col.key} className={`px-2 ${borderClasses}`}></div>;
+                })}
               </div>
               {(section.lessons || []).map((lesson: LessonType, lessonIndex: number) => {
                 lessonCounter++;
@@ -299,8 +378,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 const matchingMicroproduct = findMicroproductByTitle(lesson.title, parentProjectName, allUserMicroproducts);
 
                 return (
-                  <div key={lesson.id || `lesson-${sectionIdx}-${lessonIndex}`} className="grid grid-cols-10 gap-0 p-4 items-center border-t border-gray-300 hover:bg-gray-50 transition-colors duration-150 min-h-[50px]">
-                    <div className="col-span-10 sm:col-span-4 text-gray-800 pr-2 border-r border-gray-400">
+                  <div
+                    key={lesson.id || `lesson-${sectionIdx}-${lessonIndex}`}
+                    className="p-4 items-center border-t border-gray-300 hover:bg-gray-50 transition-colors duration-150 min-h-[50px]"
+                    style={{ display: 'grid', gridTemplateColumns: gridTemplate }}
+                  >
+                    {/* Module + Lesson title column */}
+                    <div className={`text-gray-800 pr-2 ${activeColumns.length > 1 ? 'border-r border-gray-400' : ''}`}> 
                       {isEditing && onTextChange ? (
                         <input type="text" value={lesson.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} className={editingInputClass} placeholder="Lesson Title"/>
                       ) : matchingMicroproduct ? (
@@ -316,24 +400,49 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         </button>
                       )}
                     </div>
-                    <div className="col-span-5 sm:col-span-2 flex justify-start px-2 border-r border-gray-400">
-                      <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']}/>
-                    </div>
-                    <div className="col-span-5 sm:col-span-1 flex justify-start px-2 border-r border-gray-400">
-                      <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']}/>
-                    </div>
-                    <div className="col-span-10 sm:col-span-2 text-gray-600 px-2 border-r border-gray-400">
-                        {isEditing && onTextChange ? (
-                            <input type="text" value={lesson.source} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'source'], e)} className={editingInputSmallClass} placeholder="Source"/>
-                        ) : (
-                            <span title={lesson.source || ''}>{truncateText(lesson.source, MAX_SOURCE_LENGTH)}</span>
-                        )}
-                    </div>
-                    <div className="col-span-10 sm:col-span-1 flex items-center justify-start space-x-2 text-gray-500 px-2">
-                      <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
-                      {isEditing && onTextChange ? (<input type="number" step="0.1" value={lesson.hours || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
-                      ) : ( <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span> )}
-                    </div>
+                    {/* Other dynamic columns */}
+                    {activeColumns.slice(1).map((col, idx) => {
+                      const isLast = idx === activeColumns.slice(1).length - 1;
+                      const borderClasses = isLast ? '' : 'border-r border-gray-400';
+                      const commonCls = `px-2 ${borderClasses}`;
+                      switch (col.key) {
+                        case 'knowledgeCheck':
+                          return (
+                            <div key={col.key} className={`flex justify-start ${commonCls}`}>
+                              <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']}/>
+                            </div>
+                          );
+                        case 'contentAvailability':
+                          return (
+                            <div key={col.key} className={`flex justify-start ${commonCls}`}>
+                              <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']}/>
+                            </div>
+                          );
+                        case 'informationSource':
+                          return (
+                            <div key={col.key} className={`text-gray-600 ${commonCls}`}>
+                              {isEditing && onTextChange ? (
+                                <input type="text" value={lesson.source} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'source'], e)} className={editingInputSmallClass} placeholder="Source"/>
+                              ) : (
+                                <span title={lesson.source || ''}>{truncateText(lesson.source, MAX_SOURCE_LENGTH)}</span>
+                              )}
+                            </div>
+                          );
+                        case 'time':
+                          return (
+                            <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 ${commonCls}`}>
+                              <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
+                              {isEditing && onTextChange ? (
+                                <input type="number" step="0.1" value={lesson.hours || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
+                              ) : (
+                                <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span>
+                              )}
+                            </div>
+                          );
+                        default:
+                          return <div key={col.key} className={commonCls}></div>;
+                      }
+                    })}
                   </div>
                 );
               })}
