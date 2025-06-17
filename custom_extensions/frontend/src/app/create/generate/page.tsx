@@ -182,6 +182,11 @@ export default function GenerateProductPicker() {
       lessons: lessonsPerModule,
       lang: language,
     });
+    // Persist Additional Info selections
+    params.set("knowledgeCheck", filters.knowledgeCheck ? "1" : "0");
+    params.set("contentAvailability", filters.contentAvailability ? "1" : "0");
+    params.set("informationSource", filters.informationSource ? "1" : "0");
+    params.set("time", filters.time ? "1" : "0");
     if (chatId) params.set("chatId", chatId);
 
     router.push(`/create/course-outline?${params.toString()}`);
