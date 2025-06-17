@@ -398,38 +398,50 @@ export default function CourseOutlineClient() {
     {
       id: "peach",
       label: "Peach",
-      previewClass: "bg-[conic-gradient(at_top_left,_#FFF7CC,_#FDE4CE)]",
-      textClass: "text-[#20355D]",
+      previewClass: "bg-[conic-gradient(at_top_left,_#FFF3C4,_#FFD3E2)]", // soft yellow→pink swirl
+      titleColor: "#20355D",
+      bodyColor: "#20355D",
+      linkColor: "#0066FF",
     },
     {
       id: "mocha",
       label: "Mocha",
-      previewClass: "bg-[#3F3D3D]",
-      textClass: "text-[#D8B7A5]",
+      previewClass: "bg-[#3F3B3B]",
+      titleColor: "#E7C0A4",
+      bodyColor: "#C8B3A6",
+      linkColor: "#C8A08A",
     },
     {
       id: "coal",
       label: "Coal",
-      previewClass: "bg-black",
-      textClass: "text-gray-200",
+      previewClass: "bg-[#000000]",
+      titleColor: "#F5F5F5",
+      bodyColor: "#D1D1D1",
+      linkColor: "#D1D1D1",
     },
     {
       id: "stardust",
       label: "Stardust",
       previewClass: "bg-[url('/stars-bg.png')] bg-cover bg-center",
-      textClass: "text-white",
+      titleColor: "#FFFFFF",
+      bodyColor: "#FFFFFF",
+      linkColor: "#FF9E3D",
     },
     {
       id: "pistachio",
       label: "Pistachio",
-      previewClass: "bg-[#EAF5ED]",
-      textClass: "text-[#20355D]",
+      previewClass: "bg-[#E4F3E7]",
+      titleColor: "#20355D",
+      bodyColor: "#20355D",
+      linkColor: "#0066FF",
     },
     {
       id: "nebulae",
       label: "Nebulae",
-      previewClass: "bg-gradient-to-r from-[#06021A] via-[#120A45] to-[#000000]",
-      textClass: "text-[#5CD2FF]",
+      previewClass: "bg-gradient-to-r from-[#1A003D] via-[#120A45] to-[#000000]",
+      titleColor: "#5CC9FF",
+      bodyColor: "#FFFFFF",
+      linkColor: "#5CC9FF",
     },
   ];
 
@@ -676,8 +688,10 @@ export default function CourseOutlineClient() {
                     {/* Preview */}
                     <div className={`w-[214px] h-[116px] ${t.previewClass} relative flex items-center justify-center`}>
                       <div className="w-[154px] h-[76px] bg-white rounded-md flex flex-col justify-center px-4 py-3 gap-1">
-                        <span className="font-semibold text-[#20355D]">Title</span>
-                        <span className="text-sm text-[#20355D]">Body &amp; <span className="underline">link</span></span>
+                        <span className="font-semibold" style={{ color: t.titleColor }}>Title</span>
+                        <span className="text-sm" style={{ color: t.bodyColor }}>
+                          Body &amp; <span className="underline" style={{ color: t.linkColor }}>link</span>
+                        </span>
                       </div>
                       {selectedTheme === t.id && (
                         <span className="absolute left-2 bottom-2 text-[#0540AB]">✔</span>
