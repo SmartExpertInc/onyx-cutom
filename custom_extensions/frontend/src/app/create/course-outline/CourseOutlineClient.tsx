@@ -848,11 +848,28 @@ export default function CourseOutlineClient() {
             </div>
           )}
 
-          {!loading && preview.length === 1 && preview[0].lessons.length === 0 && rawOutline && (
-            <pre className="whitespace-pre-wrap bg-gray-50 p-4 border rounded">
-              {rawOutline}
-            </pre>
-          )}
+          {/* Add Module button & status row */}
+          <button
+            type="button"
+            onClick={handleAddModule}
+            className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
+          >
+            <Plus size={18} />
+            <span>Add Module</span>
+          </button>
+
+          <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
+            <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
+            <div className="flex-1 flex justify-center">
+              <span className="flex items-center gap-1 select-none">
+                Press <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
+              </span>
+            </div>
+            <span className="flex items-center gap-1">
+              <RadialProgress progress={charCount / 50000} />
+              {charCount}/50000
+            </span>
+          </div>
         </section>
 
         {!loading && preview.length > 0 && (
