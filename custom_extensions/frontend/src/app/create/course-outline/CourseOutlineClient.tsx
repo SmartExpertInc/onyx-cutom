@@ -413,34 +413,43 @@ export default function CourseOutlineClient() {
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center gap-2">
-          <select
-            value={modules}
-            onChange={(e) => setModules(Number(e.target.value))}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} Modules</option>
-            ))}
-          </select>
-          <select
-            value={lessonsPerModule}
-            onChange={(e) => setLessonsPerModule(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-              <option key={rng} value={rng}>{rng} per module</option>
-            ))}
-          </select>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            <option value="en">English</option>
-            <option value="uk">Ukrainian</option>
-            <option value="es">Spanish</option>
-            <option value="ru">Russian</option>
-          </select>
+          <div className="relative">
+            <select
+              value={modules}
+              onChange={(e) => setModules(Number(e.target.value))}
+              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>{n} Modules</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <select
+              value={lessonsPerModule}
+              onChange={(e) => setLessonsPerModule(e.target.value)}
+              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
+                <option key={rng} value={rng}>{rng} per module</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="en">English</option>
+              <option value="uk">Ukrainian</option>
+              <option value="es">Spanish</option>
+              <option value="ru">Russian</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+          </div>
 
           {/* Additional Info dropdown */}
           <div className="relative" ref={dropdownRef}>
