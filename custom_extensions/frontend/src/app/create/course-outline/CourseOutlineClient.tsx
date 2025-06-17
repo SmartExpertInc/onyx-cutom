@@ -8,12 +8,6 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, ChevronUp, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  type DropResult,
-} from "react-beautiful-dnd";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -601,21 +595,69 @@ export default function CourseOutlineClient() {
     });
   };
 
-  // ---- react-beautiful-dnd glue ----
-  const onDragEnd = (result: DropResult) => {
-    const { destination, source, type } = result;
-    if (!destination) return;
-    if (type === "module") {
-      moveModuleTo(source.index, destination.index);
-    } else if (type === "lesson") {
-      // droppableId format: module-<idx>
-      const fromModIdx = Number(source.droppableId.split("-")[1]);
-      const toModIdx = Number(destination.droppableId.split("-")[1]);
-      if (fromModIdx === toModIdx) {
-        moveLessonTo(fromModIdx, source.index, destination.index);
+  /* ---------- Native drag-and-drop state & handlers ---------- */
+  const [dragState, setDragState] = useState<{
+    type: "module" | "lesson" | null;
+    fromModule?: number;
+    fromLesson?: number;
+    overModule?: number;
+    overLesson?: number;
+  }>({ type: null });
+
+  // Module drag handlers
+  const handleModuleDragStart = (idx: number) => (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `module-${idx}`);
+    setDragState({ type: "module", fromModule: idx });
+  };
+  const handleModuleDragOver = (idx: number) => (e: React.DragEvent) => {
+    if (dragState.type === "module") {
+      e.preventDefault();
+      if (dragState.overModule !== idx) {
+        setDragState((s) => ({ ...s, overModule: idx }));
       }
     }
   };
+  const handleModuleDrop = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/plain");
+    const parts = data.split("-");
+    if (parts[0] === "module") {
+      const fromIdx = Number(parts[1]);
+      moveModuleTo(fromIdx, idx);
+    }
+    setDragState({ type: null });
+  };
+  const handleModuleDragEnd = () => setDragState({ type: null });
+
+  // Lesson drag handlers
+  const handleLessonDragStart = (modIdx: number, lessonIdx: number) => (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `lesson-${modIdx}-${lessonIdx}`);
+    setDragState({ type: "lesson", fromModule: modIdx, fromLesson: lessonIdx });
+  };
+  const handleLessonDragOver = (modIdx: number, lessonIdx: number) => (e: React.DragEvent) => {
+    if (dragState.type === "lesson") {
+      e.preventDefault();
+      if (dragState.overModule !== modIdx || dragState.overLesson !== lessonIdx) {
+        setDragState((s) => ({ ...s, overModule: modIdx, overLesson: lessonIdx }));
+      }
+    }
+  };
+  const handleLessonDrop = (modIdx: number, lessonIdx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/plain");
+    const parts = data.split("-");
+    if (parts[0] === "lesson") {
+      const fromMod = Number(parts[1]);
+      const fromIdx = Number(parts[2]);
+      if (fromMod === modIdx) {
+        moveLessonTo(modIdx, fromIdx, lessonIdx);
+      }
+    }
+    setDragState({ type: null });
+  };
+  const handleLessonDragEnd = () => setDragState({ type: null });
 
   return (
     <>
@@ -731,123 +773,79 @@ export default function CourseOutlineClient() {
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {!loading && preview.length > 0 && (
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="modules" type="module">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="bg-white rounded-xl p-6 flex flex-col gap-6"
-                    style={{ animation: 'fadeInDown 0.25s ease-out both' }}
-                  >
-                    {preview.map((mod: ModulePreview, modIdx: number) => (
-                      <Draggable key={mod.id} draggableId={mod.id} index={modIdx}>
-                        {(prov, snapshot) => (
+            <div className="bg-white rounded-xl p-6 flex flex-col gap-6">
+              {preview.map((mod: ModulePreview, modIdx: number) => (
+                <div
+                  key={mod.id}
+                  className={`flex rounded-xl shadow-sm overflow-hidden relative transition-colors ${
+                    dragState.type === 'module' && dragState.overModule === modIdx ? 'bg-[#F4F8FF]' : ''
+                  } ${dragState.type === 'module' && dragState.fromModule === modIdx ? 'opacity-60' : ''}`}
+                  draggable
+                  onDragStart={handleModuleDragStart(modIdx)}
+                  onDragOver={handleModuleDragOver(modIdx)}
+                  onDrop={handleModuleDrop(modIdx)}
+                  onDragEnd={handleModuleDragEnd}
+                >
+                  {/* Left colored bar with index */}
+                  <div className="w-[60px] bg-[#E5EEFF] flex items-start justify-center pt-3 select-none">
+                    <span className="text-gray-600 font-semibold text-base">{modIdx + 1}</span>
+                  </div>
+
+                  {/* Main card */}
+                  <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                    {/* Module title */}
+                    <input
+                      type="text"
+                      value={mod.title}
+                      onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                      className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
+                      placeholder={`Module ${modIdx + 1} title`}
+                    />
+
+                    {/* Lessons list */}
+                    <div className="flex flex-col gap-1 text-gray-900">
+                      {mod.lessons.map((les: string, lessonIdx: number) => {
+                        const lines = les.split(/\r?\n/);
+                        let first = lines[0] || "";
+                        let titleLine: string;
+                        if (first.trim() === "*" || first.trim() === "-" || first.trim() === "") {
+                          titleLine = (lines[1] || "").trim();
+                        } else {
+                          titleLine = first.replace(/^\s*[\*\-]\s*/, "");
+                        }
+                        return (
                           <div
-                            ref={prov.innerRef}
-                            {...prov.draggableProps}
-                            {...prov.dragHandleProps}
-                            className={`flex rounded-xl shadow-sm overflow-hidden relative ${snapshot.isDragging ? 'bg-[#F4F8FF] shadow-lg' : ''}`}
+                            key={`${mod.id}-lesson-${lessonIdx}`}
+                            className={`flex items-start gap-2 py-0.5 transition-colors ${
+                              dragState.type === 'lesson' && dragState.overModule === modIdx && dragState.overLesson === lessonIdx ? 'bg-[#F4F8FF]' : ''
+                            } ${
+                              dragState.type === 'lesson' && dragState.fromModule === modIdx && dragState.fromLesson === lessonIdx ? 'opacity-60' : ''
+                            }`}
+                            draggable
+                            onDragStart={handleLessonDragStart(modIdx, lessonIdx)}
+                            onDragOver={handleLessonDragOver(modIdx, lessonIdx)}
+                            onDrop={handleLessonDrop(modIdx, lessonIdx)}
+                            onDragEnd={handleLessonDragEnd}
                           >
-                            {/* Left colored bar with index */}
-                            <div className="w-[60px] bg-[#E5EEFF] flex items-start justify-center pt-3 select-none">
-                              <span className="text-gray-600 font-semibold text-base">{modIdx + 1}</span>
-                            </div>
-
-                            {/* Main card */}
-                            <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
-                              {/* Module title */}
-                              <input
-                                type="text"
-                                value={mod.title}
-                                onChange={(e) => handleModuleChange(modIdx, e.target.value)}
-                                className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                                placeholder={`Module ${modIdx + 1} title`}
-                              />
-
-                              {/* Lessons list */}
-                              <Droppable droppableId={`module-${modIdx}`} type="lesson">
-                                {(provList) => (
-                                  <ul
-                                    ref={provList.innerRef}
-                                    {...provList.droppableProps}
-                                    className="flex flex-col gap-1 text-gray-900"
-                                  >
-                                    {mod.lessons.map((les: string, lessonIdx: number) => {
-                                      const lines = les.split(/\r?\n/);
-                                      let first = lines[0] || "";
-                                      let titleLine: string;
-                                      if (first.trim() === "*" || first.trim() === "-" || first.trim() === "") {
-                                        titleLine = (lines[1] || "").trim();
-                                      } else {
-                                        titleLine = first.replace(/^\s*[\*\-]\s*/, "");
-                                      }
-                                      return (
-                                        <Draggable
-                                          key={`${mod.id}-lesson-${lessonIdx}`}
-                                          draggableId={`${mod.id}-lesson-${lessonIdx}`}
-                                          index={lessonIdx}
-                                        >
-                                          {(provItem, snapItem) => (
-                                            <li
-                                              ref={provItem.innerRef}
-                                              {...provItem.draggableProps}
-                                              {...provItem.dragHandleProps}
-                                              className={`flex items-start gap-2 py-0.5 ${snapItem.isDragging ? 'bg-[#F4F8FF]' : ''}`}
-                                            >
-                                              <span className="text-lg leading-none select-none">•</span>
-                                              <input
-                                                type="text"
-                                                value={titleLine}
-                                                onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
-                                                onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
-                                                data-mod={modIdx}
-                                                data-les={lessonIdx}
-                                                className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
-                                                placeholder={`Lesson ${lessonIdx + 1}`}
-                                              />
-                                            </li>
-                                          )}
-                                        </Draggable>
-                                      );
-                                    })}
-                                    {provList.placeholder}
-                                  </ul>
-                                )}
-                              </Droppable>
-                            </div>
+                            <span className="text-lg leading-none select-none">•</span>
+                            <input
+                              type="text"
+                              value={titleLine}
+                              onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
+                              onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
+                              data-mod={modIdx}
+                              data-les={lessonIdx}
+                              className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
+                              placeholder={`Lesson ${lessonIdx + 1}`}
+                            />
                           </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                    {/* Add-module button – pill style, full-width */}
-                    <button
-                      type="button"
-                      onClick={handleAddModule}
-                      className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
-                    >
-                      <Plus size={18} />
-                      <span>Add Module</span>
-                    </button>
-
-                    {/* Status row – identical style mock */}
-                    <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
-                      <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
-                      <div className="flex-1 flex justify-center">
-                        <span className="flex items-center gap-1 select-none">
-                          Press <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
-                        </span>
-                      </div>
-                      <span className="flex items-center gap-1">
-                        <RadialProgress progress={charCount / 50000} />
-                        {charCount}/50000
-                      </span>
+                        );
+                      })}
                     </div>
                   </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                </div>
+              ))}
+            </div>
           )}
 
           {!loading && preview.length === 1 && preview[0].lessons.length === 0 && rawOutline && (
