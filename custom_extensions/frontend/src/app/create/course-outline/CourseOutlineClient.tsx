@@ -834,7 +834,7 @@ export default function CourseOutlineClient() {
           <button
             type="button"
             disabled
-            className="w-9 h-9 rounded-full border border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none"
+            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
             aria-label="Help (coming soon)"
           >
             ?
