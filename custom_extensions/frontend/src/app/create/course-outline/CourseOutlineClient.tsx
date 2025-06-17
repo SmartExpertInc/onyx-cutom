@@ -120,8 +120,10 @@ export default function CourseOutlineClient() {
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params.get("lessons") || "3-4");
   const [language, setLanguage] = useState<string>(params.get("lang") || "en");
 
-  // Optional pre-created chat session id (speeds up backend)
-  const chatId = params.get("chatId");
+  // Optional pre-created chat session id (speeds up backend). If none present, we lazily
+  // call the backend to obtain one and store it both in state and the URL so subsequent
+  // preview/finalize calls can use the same cached outline.
+  const [chatId, setChatId] = useState<string | null>(params.get("chatId"));
 
   const [preview, setPreview] = useState<ModulePreview[]>([]);
   const [rawOutline, setRawOutline] = useState<string>("");
@@ -219,9 +221,38 @@ export default function CourseOutlineClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, modules, lessonsPerModule, prompt, language]);
 
+  // Kick off chat-session creation on first mount when absent.
+  useEffect(() => {
+    if (chatId) return; // already have one
+    const createChat = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/course-outline/init-chat`, {
+          method: "POST",
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to init chat session");
+        const data = await res.json();
+        if (data.chatSessionId) {
+          setChatId(data.chatSessionId);
+          // Persist in URL so refreshes keep the same session (avoid resetting preview)
+          const sp = new URLSearchParams(Array.from(params.entries()));
+          sp.set("chatId", data.chatSessionId);
+          // Don't push a new history entry; just replace current.
+          router.replace(`?${sp.toString()}`, { scroll: false });
+        }
+      } catch {
+        /* ignore – fallback will spawn a fresh session on demand */
+      }
+    };
+    createChat();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     // Skip preview fetching while the user is finalizing the outline
     if (isGenerating) return;
+    // Need a chat session id – we'll lazily request one first
+    if (!chatId) return;
 
     // Abort any previously queued/in-flight request – we only want the very latest parameters
     if (previewAbortRef.current) {
