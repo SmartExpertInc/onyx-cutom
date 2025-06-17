@@ -2745,94 +2745,57 @@ async def init_course_outline_chat(request: Request):
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
-    """Merge user-edited module & lesson titles from `edited_outline` into the
-    markdown `original_md` that came from the assistant.
+    """Return a markdown outline that reflects the *structure* provided in
+    `edited_outline` (modules & lessons) while preserving the original header.
 
-    * Accepts both keys `modules` (old) and `sections` (current frontend) or a
-      raw list of section dicts.
-    * Each section dict may contain either
-        {"title": str, "lessons": [str|dict]}  – lesson objects are allowed to
-      be dicts with a `title` key, or plain strings.
-    * Only titles are changed – any hours / check / metadata lines that follow
-      the lesson title on the same or subsequent indented lines are preserved.
-    * When structure diverges we fall back to original line untouched.
+    Instead of trying to patch-in titles at the old positions, we rebuild each
+    module's lesson list from scratch. This guarantees correctness even when
+    lessons were inserted, removed or reordered in the UI.
     """
 
-    # 1. Normalize input → list[section]
+    # ---- 1. Normalise `edited_outline` ----
     sections: Optional[List[Any]] = None
     if isinstance(edited_outline, dict):
-        sections = edited_outline.get("modules") or edited_outline.get("sections")
+        sections = edited_outline.get("sections") or edited_outline.get("modules")
     elif isinstance(edited_outline, list):
         sections = edited_outline
 
     if not sections:
-        return original_md  # nothing to merge
+        return original_md  # nothing to merge -> return original untouched
 
-    list_item_regex = re.compile(r"^(- |\* |\d+\.)")
-    bold_title_regex = re.compile(r"^(?P<marker>- |\* |\d+\.)\s*\*\*(?P<title>[^*]+)\*\*(?P<rest>.*)$")
+    # ---- 2. Preserve the very first non-empty line (usually Universal Header) ----
+    header_line = None
+    for line in original_md.splitlines():
+        if line.strip():
+            header_line = line.rstrip()
+            break
 
     out_lines: List[str] = []
-    current_section_idx = -1
-    current_lesson_idx = -1
+    if header_line:
+        out_lines.append(header_line)
+        out_lines.append("")  # spacer line to match original formatting
 
-    for raw_line in original_md.splitlines():
-        stripped = raw_line.lstrip()
-        indent = len(raw_line) - len(stripped)
+    # ---- 3. Rebuild modules & lessons ----
+    for idx, sec in enumerate(sections):
+        # Module title
+        title = sec.get("title") if isinstance(sec, dict) else str(sec)
+        out_lines.append(f"## Module {idx + 1}: {title.strip()}")
 
-        # ----- Detect section (module) header e.g. "## Module 1: Title" -----
-        if stripped.startswith("## "):
-            current_section_idx += 1
-            current_lesson_idx = -1
+        # Lessons
+        lessons_list: List[Any] = []
+        if isinstance(sec, dict):
+            lessons_list = sec.get("lessons", []) or []
+        elif isinstance(sec, list):
+            lessons_list = sec
 
-            if current_section_idx < len(sections):
-                section_item = sections[current_section_idx]
-                new_title = section_item.get("title") if isinstance(section_item, dict) else str(section_item)
-                new_title = new_title.strip()
+        for ls in lessons_list:
+            ls_title = ls.get("title") if isinstance(ls, dict) else str(ls)
+            ls_title = ls_title.split("\n", 1)[0].strip()
+            out_lines.append(f"- **{ls_title}**")
 
-                # Keep prefix (e.g. "## Module 1" or "## Module 1:"), then the new title
-                if ":" in stripped:
-                    prefix = stripped.split(":", 1)[0]
-                    replaced = f"{prefix}: {new_title}"
-                else:
-                    prefix = stripped.rstrip()
-                    replaced = f"{prefix} {new_title}"
-                out_lines.append(raw_line[:indent] + replaced)
-            else:
-                out_lines.append(raw_line)
-            continue
+        out_lines.append("")  # blank line between modules for readability
 
-        # ----- Detect top-level lesson line -----
-        if current_section_idx >= 0 and indent == 0 and list_item_regex.match(stripped):
-            current_lesson_idx += 1
-            section_item = sections[current_section_idx] if current_section_idx < len(sections) else None
-
-            lessons_list: List[Any] = []
-            if isinstance(section_item, dict):
-                lessons_list = section_item.get("lessons", []) or []
-            elif isinstance(section_item, list):
-                lessons_list = section_item
-
-            if current_lesson_idx < len(lessons_list):
-                ls_item = lessons_list[current_lesson_idx]
-                new_lesson_title = ls_item.get("title") if isinstance(ls_item, dict) else str(ls_item).split("\n", 1)[0]
-                new_lesson_title = new_lesson_title.strip()
-
-                m = bold_title_regex.match(stripped)
-                if m:
-                    marker = m.group("marker")
-                    rest = m.group("rest")
-                    replaced_line = f"{marker} **{new_lesson_title}**{rest}"
-                else:
-                    # fallback – rebuild with list marker
-                    marker = list_item_regex.match(stripped).group(0)  # type: ignore
-                    replaced_line = f"{marker} **{new_lesson_title}**"
-                out_lines.append(raw_line[:indent] + replaced_line)
-                continue
-
-        # Default: copy line verbatim
-        out_lines.append(raw_line)
-
-    return "\n".join(out_lines)
+    return "\n".join(out_lines).rstrip()  # drop trailing newline
 
 # ------------------- Utility: extract project name from AI markdown header -------------------
 
