@@ -375,7 +375,7 @@ export default function CourseOutlineClient() {
           <select
             value={modules}
             onChange={(e) => setModules(Number(e.target.value))}
-            className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black"
+            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
             {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>{n} Modules</option>
@@ -384,7 +384,7 @@ export default function CourseOutlineClient() {
           <select
             value={lessonsPerModule}
             onChange={(e) => setLessonsPerModule(e.target.value)}
-            className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black"
+            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
             {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
               <option key={rng} value={rng}>{rng} per module</option>
@@ -393,7 +393,7 @@ export default function CourseOutlineClient() {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black"
+            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
             <option value="en">English</option>
             <option value="uk">Ukrainian</option>
@@ -406,7 +406,7 @@ export default function CourseOutlineClient() {
             <button
               type="button"
               onClick={() => setShowFilters((prev) => !prev)}
-              className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black flex items-center gap-1"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
             >
               Additional Info <ChevronDown size={14} />
             </button>
@@ -528,7 +528,7 @@ export default function CourseOutlineClient() {
           <section className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
             <div className="flex flex-col">
               <h2 className="text-xl font-semibold text-[#20355D]">Designs</h2>
-              <p className="mt-1 text-[#858587] font-medium text-[26px]">Use one of our popular themes below or browse others</p>
+              <p className="mt-1 text-[#858587] font-medium text-base">Use one of our popular themes below or browse others</p>
             </div>
             <div className="flex gap-4">
               <button
