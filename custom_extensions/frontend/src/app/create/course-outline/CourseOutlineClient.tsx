@@ -564,8 +564,8 @@ export default function CourseOutlineClient() {
                   </span>
                 </div>
                 <span className="flex items-center gap-1">
-                  <RadialProgress progress={charCount / 10000} />
-                  {charCount}/10000
+                  <RadialProgress progress={charCount / 50000} />
+                  {charCount}/50000
                 </span>
               </div>
             </div>
@@ -720,7 +720,7 @@ export default function CourseOutlineClient() {
             disabled={loading || isGenerating}
           >
             <Sparkles size={16} />
-            <span className="select-none">Generate</span>
+            <span className="select-none font-semibold">Generate</span>
           </button>
         </div>
       )}
