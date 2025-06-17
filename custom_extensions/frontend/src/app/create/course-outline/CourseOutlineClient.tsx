@@ -538,9 +538,9 @@ export default function CourseOutlineClient() {
         </section>
 
         {!loading && preview.length > 0 && (
-          <>
-            <h2 className="text-sm font-medium text-[#20355D] mb-2">Set up your Contentbuilder</h2>
-            <section className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-sm font-medium text-[#20355D]">Set up your Contentbuilder</h2>
+            <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <h2 className="text-lg font-semibold text-[#20355D]">Themes</h2>
@@ -648,8 +648,8 @@ export default function CourseOutlineClient() {
                   </svg>
                 </button>
               </div>
-            </section>
-          </>
+            </div>
+          </section>
         )}
 
         {/* Advanced Mode link placed after Designs section */}
@@ -668,7 +668,7 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="-mx-4 flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
+        <div className="w-screen relative left-1/2 -translate-x-1/2 flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
           <span className="text-sm text-gray-700 font-medium select-none">
             {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
           </span>
