@@ -380,8 +380,11 @@ export default function CourseOutlineClient() {
       const input = e.currentTarget;
       const val = input.value;
       const caret = input.selectionStart ?? val.length;
-      const before = val.slice(0, caret).trim();
-      const after = val.slice(caret).trim();
+      const beforeRaw = val.slice(0, caret);
+      const afterRaw = val.slice(caret);
+
+      const before = beforeRaw.trimEnd();
+      const after = afterRaw.trimStart();
 
       setPreview((prev: ModulePreview[]) => {
         const copy = [...prev];
@@ -389,7 +392,7 @@ export default function CourseOutlineClient() {
         const details = lessonLines.slice(1); // keep any detail lines under current lesson
 
         // Update current lesson title to the text before the caret
-        copy[modIdx].lessons[lessonIdx] = [before, ...details].join("\n");
+        copy[modIdx].lessons[lessonIdx] = [before || "", ...details].join("\n");
 
         // Insert a new lesson right after with the remaining text (or empty string)
         const newLessonFirstLine = after || "";
