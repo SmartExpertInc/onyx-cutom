@@ -491,7 +491,6 @@ export default function CourseOutlineClient() {
   return (
     <>
     <main
-      /* Shared pastel gradient (identical to generate page) */
       className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
       style={{
         background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
@@ -732,12 +731,12 @@ export default function CourseOutlineClient() {
                     <div className="w-[214px] h-[116px] flex items-center justify-center">
                       <ThemePreviewSvg />
                     </div>
-                    {/* Label with optional checkmark */}
-                    <div className="flex items-center gap-1 px-2 relative">
-                      {selectedTheme === t.id && (
-                        <span className="text-[#0540AB] absolute left-0">✔</span>
-                      )}
-                      <span className={`text-sm font-medium select-none ${selectedTheme === t.id ? 'ml-4 text-[#20355D]' : 'text-[#20355D]'}`}>{t.label}</span>
+                    {/* Label with consistent padding – reserve width for checkmark */}
+                    <div className="flex items-center gap-1 px-2">
+                      <span className="inline-block w-4 text-[#0540AB] select-none">
+                        {selectedTheme === t.id ? '✔' : ''}
+                      </span>
+                      <span className="text-sm font-medium text-[#20355D] select-none">{t.label}</span>
                     </div>
                   </button>
                 ))}
