@@ -450,7 +450,7 @@ export default function CourseOutlineClient() {
         />
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-[#20355D]">Modules & Lessons</h2>
+          <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {!loading && preview.length > 0 && (
@@ -515,17 +515,17 @@ export default function CourseOutlineClient() {
                 <span>Add Module</span>
               </button>
               {/* Status row – identical style mock */}
-              <div className="mt-3 flex items-center justify-between text-sm text-gray-700">
-                <span>8 cards total</span>
-                <div className="flex items-center gap-3">
+              <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
+                <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
+                <div className="flex-1 flex justify-center">
                   <span className="flex items-center gap-1 select-none">
-                    Enter <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split cards
-                  </span>
-                  <span className="flex items-center gap-1 text-gray-500">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    981/20000
+                    Enter <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
                   </span>
                 </div>
+                <span className="flex items-center gap-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  981/20000
+                </span>
               </div>
             </div>
           )}
@@ -539,7 +539,7 @@ export default function CourseOutlineClient() {
 
         {!loading && preview.length > 0 && (
           <>
-            <h2 className="text-lg font-semibold text-[#20355D] mb-2">Set up your Contentbuilder</h2>
+            <h2 className="text-sm font-medium text-[#20355D] mb-2">Set up your Contentbuilder</h2>
             <section className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
@@ -668,7 +668,7 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="w-screen max-w-none relative left-1/2 -translate-x-1/2 flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
+        <div className="-mx-4 flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
           <span className="text-sm text-gray-700 font-medium select-none">
             {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
           </span>
