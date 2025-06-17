@@ -828,8 +828,6 @@ export default function CourseOutlineClient() {
               </div>
             </div>
           </section>
-
-          {/* Content configuration section */}
           <section className="flex flex-col gap-3 mt-3">
             <h2 className="text-sm font-medium text-[#20355D]">Content</h2>
             <div
