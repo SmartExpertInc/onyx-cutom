@@ -633,41 +633,38 @@ export default function CourseOutlineClient() {
                 </svg>
               </button>
             </div>
-            <div className="flex justify-center mt-2">
-              <button
-                type="button"
-                className="flex items-center gap-1 text-sm text-[#0066FF] hover:opacity-80 transition-opacity select-none"
-              >
-                Advanced Mode
-                <Settings size={14} />
-              </button>
-            </div>
           </section>
         )}
 
+        {/* Advanced Mode link placed after Designs section */}
         {!loading && preview.length > 0 && (
-          <div className="w-full flex items-center justify-center gap-8 mt-10 bg-white border border-gray-300 rounded-xl py-6">
-            {/* Total lessons */}
-            <span className="text-base text-gray-700 font-medium select-none">
-              {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
-            </span>
+          <div className="w-full flex justify-center mt-4">
             <button
               type="button"
-              onClick={handleGenerateFinal}
-              className="px-32 py-4 rounded-full bg-[#0540AB] text-white text-base hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-3"
-              disabled={loading || isGenerating}
+              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
             >
-              <Sparkles size={18} />
-              <span className="select-none">Generate</span>
+              Advanced Mode
+              <Settings size={14} />
             </button>
           </div>
         )}
-      </div>
+      </div> {/* end inner wrapper */}
 
-      {isGenerating && (
-        <div className="fixed inset-0 bg-white/75 flex flex-col items-center justify-center z-50">
-          <LoadingAnimation />
-          <p className="mt-4 text-gray-800 font-medium">Creating your product...</p>
+      {/* Full-width generate footer bar */}
+      {!loading && preview.length > 0 && (
+        <div className="w-full flex items-center justify-center gap-8 mt-10 bg-white border-t border-gray-300 py-4">
+          <span className="text-sm text-gray-700 font-medium select-none">
+            {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
+          </span>
+          <button
+            type="button"
+            onClick={handleGenerateFinal}
+            className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-sm hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+            disabled={loading || isGenerating}
+          >
+            <Sparkles size={16} />
+            <span className="select-none">Generate</span>
+          </button>
         </div>
       )}
     </main>
