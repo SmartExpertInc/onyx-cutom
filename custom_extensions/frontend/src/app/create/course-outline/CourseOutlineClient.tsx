@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -633,6 +633,15 @@ export default function CourseOutlineClient() {
                 </svg>
               </button>
             </div>
+            <div className="flex justify-center mt-2">
+              <button
+                type="button"
+                className="flex items-center gap-1 text-sm text-[#0066FF] hover:opacity-80 transition-opacity select-none"
+              >
+                Advanced Mode
+                <Settings size={14} />
+              </button>
+            </div>
           </section>
         )}
 
@@ -645,7 +654,7 @@ export default function CourseOutlineClient() {
             <button
               type="button"
               onClick={handleGenerateFinal}
-              className="px-32 py-4 rounded-full bg-[#0066FF] text-white text-base hover:bg-[#0054d6] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-3"
+              className="px-32 py-4 rounded-full bg-[#0540AB] text-white text-base hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-3"
               disabled={loading || isGenerating}
             >
               <Sparkles size={18} />
