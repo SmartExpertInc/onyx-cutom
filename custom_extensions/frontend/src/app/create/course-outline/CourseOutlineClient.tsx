@@ -97,6 +97,9 @@ export default function CourseOutlineClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Currently chosen theme (UI only)
+  const [selectedTheme, setSelectedTheme] = useState<string>("peach");
+
   // Track which lesson rows are expanded: key format `${modIdx}-${lessonIdx}` -> boolean
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
@@ -390,11 +393,51 @@ export default function CourseOutlineClient() {
     }, 0);
   }, [preview]);
 
+  // Predefined theme preview data to match provided mockup
+  const themeOptions = [
+    {
+      id: "peach",
+      label: "Peach",
+      previewClass: "bg-[conic-gradient(at_top_left,_#FFF7CC,_#FDE4CE)]",
+      textClass: "text-[#20355D]",
+    },
+    {
+      id: "mocha",
+      label: "Mocha",
+      previewClass: "bg-[#3F3D3D]",
+      textClass: "text-[#D8B7A5]",
+    },
+    {
+      id: "coal",
+      label: "Coal",
+      previewClass: "bg-black",
+      textClass: "text-gray-200",
+    },
+    {
+      id: "stardust",
+      label: "Stardust",
+      previewClass: "bg-[url('/stars-bg.png')] bg-cover bg-center",
+      textClass: "text-white",
+    },
+    {
+      id: "pistachio",
+      label: "Pistachio",
+      previewClass: "bg-[#EAF5ED]",
+      textClass: "text-[#20355D]",
+    },
+    {
+      id: "nebulae",
+      label: "Nebulae",
+      previewClass: "bg-gradient-to-r from-[#06021A] via-[#120A45] to-[#000000]",
+      textClass: "text-[#5CD2FF]",
+    },
+  ];
+
   return (
     <>
     <main
       /* Shared pastel gradient (identical to generate page) */
-      className="min-h-screen py-4 px-4 flex flex-col items-center"
+      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
       style={{
         background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
@@ -600,7 +643,6 @@ export default function CourseOutlineClient() {
                   type="button"
                   className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
                 >
-                  <span>See more</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -619,9 +661,35 @@ export default function CourseOutlineClient() {
                     <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
                     <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
                   </svg>
+                  <span>View more</span>
                 </button>
               </div>
-              <div className="flex gap-4">
+              {/* New themes grid */}
+              <div className="grid grid-cols-3 gap-5">
+                {themeOptions.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setSelectedTheme(t.id)}
+                    className={`flex flex-col items-start rounded-lg overflow-hidden border shadow-sm transition-all ${selectedTheme === t.id ? 'border-[#63A2FF] bg-[#EAF3FF]' : 'border-transparent'}`}
+                  >
+                    {/* Preview */}
+                    <div className={`w-[214px] h-[116px] ${t.previewClass} relative flex items-center justify-center`}>
+                      <div className="w-[154px] h-[76px] bg-white rounded-md flex flex-col justify-center px-4 py-3 gap-1">
+                        <span className="font-semibold text-[#20355D]">Title</span>
+                        <span className="text-sm text-[#20355D]">Body &amp; <span className="underline">link</span></span>
+                      </div>
+                      {selectedTheme === t.id && (
+                        <span className="absolute left-2 bottom-2 text-[#0540AB]">✔</span>
+                      )}
+                    </div>
+                    <span className="px-2 py-1 text-sm text-[#20355D] font-medium select-none">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* old placeholder hidden */}
+              <div className="flex gap-4 hidden">
                 <button
                   className="px-1 py-0.5 rounded-md focus:outline-none bg-transparent hover:opacity-80 transition-opacity"
                   title="Default design"
@@ -718,7 +786,7 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="w-screen relative left-1/2 -translate-x-1/2 flex items-center justify-center gap-12 mt-10 bg-white border-t border-gray-300 py-4">
+        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-center gap-12 bg-white border-t border-gray-300 py-4">
           <span className="text-base text-gray-700 font-medium select-none">
             {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
           </span>
