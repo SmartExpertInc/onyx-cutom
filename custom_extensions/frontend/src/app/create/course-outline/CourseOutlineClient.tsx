@@ -565,35 +565,72 @@ export default function CourseOutlineClient() {
       const newModule: ModulePreview = {
         id: `mod${Date.now()}`,
         title: "",
-        lessons: [],
+        lessons: [""] // start with one empty lesson for immediate editing
       };
       copy.push(newModule);
       return copy;
     });
   };
 
-  const moveModule = (fromIdx: number, dir: -1 | 1) => {
+  /* ---------- Drag–drop reorder helpers ---------- */
+  const moveModuleTo = (fromIdx: number, toIdx: number) => {
     setPreview((prev: ModulePreview[]) => {
+      if (fromIdx === toIdx) return prev;
       const copy = [...prev];
-      const toIdx = fromIdx + dir;
-      if (toIdx < 0 || toIdx >= copy.length) return prev;
       const [item] = copy.splice(fromIdx, 1);
       copy.splice(toIdx, 0, item);
       return copy;
     });
   };
 
-  const moveLesson = (modIdx: number, lessonIdx: number, dir: -1 | 1) => {
+  const moveLessonTo = (modIdx: number, fromIdx: number, toIdx: number) => {
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
       const lessonsArr = [...copy[modIdx].lessons];
-      const toIdx = lessonIdx + dir;
-      if (toIdx < 0 || toIdx >= lessonsArr.length) return prev;
-      const [ls] = lessonsArr.splice(lessonIdx, 1);
+      if (fromIdx === toIdx) return prev;
+      const [ls] = lessonsArr.splice(fromIdx, 1);
       lessonsArr.splice(toIdx, 0, ls);
       copy[modIdx].lessons = lessonsArr;
       return copy;
     });
+  };
+
+  // Drag event handlers for modules
+  const handleModuleDragStart = (idx: number) => (e: React.DragEvent) => {
+    e.dataTransfer.setData("text/plain", `module-${idx}`);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleModuleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // allow drop
+  };
+
+  const handleModuleDrop = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/plain");
+    if (data.startsWith("module-")) {
+      const fromIdx = Number(data.split("-" )[1]);
+      moveModuleTo(fromIdx, idx);
+    }
+  };
+
+  // Drag handlers for lessons (within the same module)
+  const handleLessonDragStart = (modIdx:number, lessonIdx:number) => (e:React.DragEvent) => {
+    e.dataTransfer.setData("text/plain", `lesson-${modIdx}-${lessonIdx}`);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleLessonDrop = (modIdx:number, lessonIdx:number) => (e:React.DragEvent) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/plain");
+    const parts = data.split("-");
+    if (parts[0]==="lesson") {
+      const fromMod = Number(parts[1]);
+      const fromIdx = Number(parts[2]);
+      if (fromMod===modIdx) {
+        moveLessonTo(modIdx, fromIdx, lessonIdx);
+      }
+    }
   };
 
   return (
@@ -715,7 +752,14 @@ export default function CourseOutlineClient() {
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
               {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex rounded-xl shadow-sm overflow-hidden relative">
+                <div
+                  key={mod.id}
+                  className="flex rounded-xl shadow-sm overflow-hidden relative cursor-move"
+                  draggable
+                  onDragStart={handleModuleDragStart(modIdx)}
+                  onDragOver={handleModuleDragOver}
+                  onDrop={handleModuleDrop(modIdx)}
+                >
                   {/* Left colored bar with index */}
                   <div className="w-[60px] bg-[#E5EEFF] flex items-start justify-center pt-3">
                     <span className="text-gray-600 font-semibold text-base select-none">{modIdx + 1}</span>
@@ -732,15 +776,8 @@ export default function CourseOutlineClient() {
                       placeholder={`Module ${modIdx + 1} title`}
                     />
 
-                    {/* Up/Down controls for module */}
-                    <div className="absolute right-3 top-3 flex flex-col gap-1">
-                      <button type="button" onClick={() => moveModule(modIdx, -1)} disabled={modIdx === 0} className="disabled:opacity-20">
-                        <ChevronUp size={16} />
-                      </button>
-                      <button type="button" onClick={() => moveModule(modIdx, 1)} disabled={modIdx === preview.length -1} className="disabled:opacity-20">
-                        <ChevronDown size={16} />
-                      </button>
-                    </div>
+                    {/* drag handle hint */}
+                    <span className="absolute right-3 top-3 text-gray-400 select-none text-xs">☰</span>
 
                     {/* Lessons list */}
                     <ul className="flex flex-col gap-1 text-gray-900">
@@ -756,7 +793,14 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
+                           <li
+                             key={lessonIdx}
+                             className="flex items-start gap-2 py-0.5 cursor-move"
+                             draggable
+                             onDragStart={handleLessonDragStart(modIdx, lessonIdx)}
+                             onDragOver={(e)=>{e.preventDefault();}}
+                             onDrop={handleLessonDrop(modIdx, lessonIdx)}
+                           >
                              <span className="text-lg leading-none select-none">•</span>
                              <input
                                type="text"
@@ -768,11 +812,8 @@ export default function CourseOutlineClient() {
                                className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
                                placeholder={`Lesson ${lessonIdx + 1}`}
                              />
-                             {/* lesson up/down */}
-                             <div className="flex flex-col ml-1">
-                               <button type="button" onClick={() => moveLesson(modIdx, lessonIdx, -1)} disabled={lessonIdx===0} className="p-0.5 disabled:opacity-20"><ChevronUp size={14}/></button>
-                               <button type="button" onClick={() => moveLesson(modIdx, lessonIdx, 1)} disabled={lessonIdx===mod.lessons.length-1} className="p-0.5 disabled:opacity-20"><ChevronDown size={14}/></button>
-                             </div>
+                             {/* drag handle */}
+                             <span className="text-gray-400 select-none text-sm ml-1">↕︎</span>
                            </li>
                          );
                        })}
