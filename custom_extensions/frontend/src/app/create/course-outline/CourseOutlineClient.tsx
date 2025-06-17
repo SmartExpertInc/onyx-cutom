@@ -449,7 +449,7 @@ export default function CourseOutlineClient() {
           className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
         />
 
-        <section className="flex flex-col gap-6">
+        <section className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold text-[#20355D]">Modules & Lessons</h2>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
@@ -535,18 +535,18 @@ export default function CourseOutlineClient() {
                 type="button"
                 className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
               >
-                See more
+                <span>See more</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  className="lucide lucide-palette-icon lucide-palette w-5 h-5"
+                  className="lucide lucide-palette-icon lucide-palette w-4 h-4"
                 >
                   <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
                   <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
