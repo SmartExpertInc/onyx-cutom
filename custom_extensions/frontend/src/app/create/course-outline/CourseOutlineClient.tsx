@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, Coins } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -392,6 +392,10 @@ export default function CourseOutlineClient() {
       return sum + mod.title.length + lessonChars;
     }, 0);
   }, [preview]);
+
+  // Total lessons & credit cost (2 credits per lesson)
+  const lessonsTotal = useMemo(() => preview.reduce((sum, m) => sum + m.lessons.length, 0), [preview]);
+  const creditsRequired = lessonsTotal * 2;
 
   // Predefined theme preview data to match provided mockup
   const themeOptions = [
@@ -800,19 +804,40 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-center gap-12 bg-white border-t border-gray-300 py-4">
-          <span className="text-base text-gray-700 font-medium select-none">
-            {preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total
-          </span>
-          <button
-            type="button"
-            onClick={handleGenerateFinal}
-            className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-base hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-            disabled={loading || isGenerating}
-          >
-            <Sparkles size={16} />
-            <span className="select-none font-semibold">Generate</span>
-          </button>
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4">
+          <div className="max-w-6xl mx-auto w-full flex items-center justify-between px-6">
+            {/* Credits required */}
+            <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+              <Coins size={18} className="text-[#20355D]" />
+              <span>{creditsRequired} credits</span>
+            </div>
+
+            {/* Lessons total + generate */}
+            <div className="flex items-center gap-12">
+              <span className="text-base text-gray-700 font-medium select-none">
+                {lessonsTotal} lessons total
+              </span>
+              <button
+                type="button"
+                onClick={handleGenerateFinal}
+                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-base font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || isGenerating}
+              >
+                <Sparkles size={16} />
+                <span className="select-none font-semibold">Generate</span>
+              </button>
+            </div>
+
+            {/* Help button (disabled) */}
+            <button
+              type="button"
+              disabled
+              className="w-9 h-9 rounded-full border border-[#63A2FF] text-[#63A2FF] flex items-center justify-center opacity-60 cursor-not-allowed select-none"
+              aria-label="Help (coming soon)"
+            >
+              ?
+            </button>
+          </div>
         </div>
       )}
     </main>
