@@ -2609,12 +2609,33 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         persona_id = await get_contentbuilder_persona_id(cookies)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-    # ---------- 1) FAST-PATH: parse locally using cached outline + user edits ----------
-    try:
-        raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
-        if raw_outline_cached:
-            merged_md = _apply_title_edits_to_outline(raw_outline_cached, payload.editedOutline)
+    # Helper: check whether the user inserted new modules or lessons
+    def _structure_changed(orig_modules: List[Dict[str, Any]], edited: Dict[str, Any]) -> bool:
+        try:
+            edited_sections = edited.get("sections") or edited.get("modules") or []
+            if len(orig_modules) != len(edited_sections):
+                return True
+            for o, e in zip(orig_modules, edited_sections):
+                e_lessons = e.get("lessons", []) if isinstance(e, dict) else []
+                if len(o.get("lessons", [])) != len(e_lessons):
+                    return True
+            return False
+        except Exception:
+            # On any parsing issue assume structure changed so we fall back safely
+            return True
 
+    # ---------- 1) Decide strategy ----------
+    use_fast_path = True
+    raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
+    if raw_outline_cached:
+        parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        if _structure_changed(parsed_orig, payload.editedOutline):
+            use_fast_path = False
+
+    # ---------- 2) FAST-PATH: parse locally using cached outline + user edits ----------
+    if use_fast_path:
+        try:
+            merged_md = _apply_title_edits_to_outline(raw_outline_cached, payload.editedOutline) if raw_outline_cached else ""
             template_id = await _ensure_training_plan_template(pool)
             project_name_detected = _extract_project_name_from_markdown(merged_md) or payload.prompt
             project_request = ProjectCreateRequest(
@@ -2631,35 +2652,35 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Success when we have at least one section parsed
             if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
                 return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
-    except Exception as fast_e:
-        # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
-        if isinstance(fast_e, HTTPException) and fast_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
-            max_wait_sec = 900  # 15 minutes
-            poll_every_sec = 1
-            waited = 0
-            while waited < max_wait_sec:
-                async with pool.acquire() as conn:
-                    if chat_id:
-                        # Prefer locating the project by the wizard chat_session_id (unique identifier per outline wizard run)
-                        row = await conn.fetchrow(
-                            "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
-                            uuid.UUID(chat_id),
-                        )
-                    else:
-                        # Fallback to the previous behaviour when we have no chat_id information available
-                        row = await conn.fetchrow(
-                            "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
-                            onyx_user_id,
-                            payload.prompt,
-                        )
-                if row and row["microproduct_content"] is not None:
-                    return JSONResponse(content={"id": row["id"]})
-                await asyncio.sleep(poll_every_sec)
-                waited += poll_every_sec
-            logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
-        else:
-            logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
+        except Exception as fast_e:
+            # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
+            if isinstance(fast_e, HTTPException) and fast_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+                logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
+                max_wait_sec = 900  # 15 minutes
+                poll_every_sec = 1
+                waited = 0
+                while waited < max_wait_sec:
+                    async with pool.acquire() as conn:
+                        if chat_id:
+                            # Prefer locating the project by the wizard chat_session_id (unique identifier per outline wizard run)
+                            row = await conn.fetchrow(
+                                "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                                uuid.UUID(chat_id),
+                            )
+                        else:
+                            # Fallback to the previous behaviour when we have no chat_id information available
+                            row = await conn.fetchrow(
+                                "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
+                                onyx_user_id,
+                                payload.prompt,
+                            )
+                    if row and row["microproduct_content"] is not None:
+                        return JSONResponse(content={"id": row["id"]})
+                    await asyncio.sleep(poll_every_sec)
+                    waited += poll_every_sec
+                logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
+            else:
+                logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
 
     # ---------- 2) FALLBACK: ask assistant to minimally correct ----------
     wizard_message = (
