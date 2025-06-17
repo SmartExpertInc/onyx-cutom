@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, GripHorizontal, AlignCenter, AlignJustify } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -481,6 +481,13 @@ export default function CourseOutlineClient() {
     },
   ];
 
+  // Content settings UI state (local only)
+  const [textDensity, setTextDensity] = useState<'brief' | 'medium' | 'detailed'>(
+    'medium',
+  );
+  const [imageSource, setImageSource] = useState('ai');
+  const [imageModel, setImageModel] = useState('Flux Kontext Fast');
+
   return (
     <>
     <main
@@ -726,9 +733,11 @@ export default function CourseOutlineClient() {
                       <ThemePreviewSvg />
                     </div>
                     {/* Label with optional checkmark */}
-                    <div className="flex items-center gap-1 px-2">
-                      {selectedTheme === t.id && <span className="text-[#0540AB]">✔</span>}
-                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
+                    <div className="flex items-center gap-1 px-2 relative">
+                      {selectedTheme === t.id && (
+                        <span className="text-[#0540AB] absolute left-0">✔</span>
+                      )}
+                      <span className={`text-sm font-medium select-none ${selectedTheme === t.id ? 'ml-4 text-[#20355D]' : 'text-[#20355D]'}`}>{t.label}</span>
                     </div>
                   </button>
                 ))}
@@ -817,6 +826,74 @@ export default function CourseOutlineClient() {
                   <path d="M65.8415 86.4407V81.3273H92.7073V86.4407H82.2997V115H76.2491V86.4407H65.8415Z" fill="#295873"/>
                   </svg>
                 </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Content configuration section */}
+          <section className="flex flex-col gap-3 mt-3">
+            <h2 className="text-sm font-medium text-[#20355D]">Content</h2>
+            <div
+              className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-6"
+              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+            >
+              <p className="text-sm text-[#20355D] select-none">Adjust text and image styles for your gamma</p>
+
+              {/* Amount of text per card */}
+              <div className="flex flex-col gap-2 select-none">
+                <span className="text-sm font-medium text-[#20355D]">Amount of text per card</span>
+                <div className="flex border border-[#D5DDF8] rounded-full overflow-hidden">
+                  {[
+                    { id: 'brief', label: 'Brief', Icon: GripHorizontal },
+                    { id: 'medium', label: 'Medium', Icon: AlignCenter },
+                    { id: 'detailed', label: 'Detailed', Icon: AlignJustify },
+                  ].map(({ id, label, Icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setTextDensity(id as any)}
+                      className={`flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium transition-colors ${
+                        textDensity === id ? 'bg-[#DCE9FF] text-[#20355D]' : 'text-[#20355D]'
+                      }`}
+                    >
+                      <Icon size={14} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Image source */}
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-[#20355D] select-none">Image source</span>
+                <div className="relative w-full">
+                  <select
+                    value={imageSource}
+                    onChange={(e) => setImageSource(e.target.value)}
+                    className="appearance-none pr-8 pl-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-[#20355D] w-full"
+                  >
+                    <option value="ai">AI images</option>
+                    <option value="stock">Stock images</option>
+                    <option value="none">None</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* AI image model */}
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-[#20355D] select-none">AI image model</span>
+                <div className="relative w-full">
+                  <select
+                    value={imageModel}
+                    onChange={(e) => setImageModel(e.target.value)}
+                    className="appearance-none pr-8 pl-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-[#20355D] w-full"
+                  >
+                    <option value="Flux Kontext Fast">Flux Kontext Fast</option>
+                    <option value="Flux Kontext HQ">Flux Kontext HQ</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                </div>
               </div>
             </div>
           </section>
