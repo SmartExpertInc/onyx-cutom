@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, ChevronUp, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -251,6 +251,12 @@ export default function CourseOutlineClient() {
   useEffect(() => {
     // Skip preview fetching while the user is finalizing the outline
     if (isGenerating) return;
+    // If the last operation intentionally asked to skip preview – just reset the
+    // flag and bail out.
+    if (skipNextPreviewRef.current) {
+      skipNextPreviewRef.current = false;
+      return;
+    }
     // Need a chat session id – we'll lazily request one first
     if (!chatId) return;
 
@@ -558,106 +564,34 @@ export default function CourseOutlineClient() {
   const [imageSource, setImageSource] = useState<string>("ai");
   const [aiModel, setAiModel] = useState<string>("flux-fast");
 
-  // ---- Add / Move helper functions ----
+  // When we perform local edits that change module count (e.g., Add Module) we
+  // don't want the automatic preview refetch to overwrite the user-edited copy
+  // right away.  We flip this ref before changing `modules`; the preview effect
+  // checks it and skips one cycle.
+  const skipNextPreviewRef = useRef(false);
+
+  // Add a brand-new module to the editable preview list
   const handleAddModule = () => {
     setPreview((prev: ModulePreview[]) => {
-      const copy = [...prev];
-      const newModule: ModulePreview = {
-        id: `mod${Date.now()}`,
-        title: "",
-        lessons: [""] // start with one empty lesson for immediate editing
+      const nextIdx = prev.length + 1;
+      const newMod: ModulePreview = {
+        id: `mod${nextIdx}`,
+        title: `Module ${nextIdx}`,
+        lessons: [],
       };
-      copy.push(newModule);
-      return copy;
+      return [...prev, newMod];
+    });
+
+    // Prevent backend autofetch from clobbering the locally added module
+    skipNextPreviewRef.current = true;
+    setModules((c) => c + 1);
+
+    // Focus the new module title field on the next tick
+    requestAnimationFrame(() => {
+      const input = document.querySelector<HTMLInputElement>(`input[data-modtitle='${modules}']`);
+      input?.focus();
     });
   };
-
-  /* ---------- Drag–drop reorder helpers ---------- */
-  const moveModuleTo = (fromIdx: number, toIdx: number) => {
-    setPreview((prev: ModulePreview[]) => {
-      if (fromIdx === toIdx) return prev;
-      const copy = [...prev];
-      const [item] = copy.splice(fromIdx, 1);
-      copy.splice(toIdx, 0, item);
-      return copy;
-    });
-  };
-
-  const moveLessonTo = (modIdx: number, fromIdx: number, toIdx: number) => {
-    setPreview((prev: ModulePreview[]) => {
-      const copy = [...prev];
-      const lessonsArr = [...copy[modIdx].lessons];
-      if (fromIdx === toIdx) return prev;
-      const [ls] = lessonsArr.splice(fromIdx, 1);
-      lessonsArr.splice(toIdx, 0, ls);
-      copy[modIdx].lessons = lessonsArr;
-      return copy;
-    });
-  };
-
-  /* ---------- Native drag-and-drop state & handlers ---------- */
-  const [dragState, setDragState] = useState<{
-    type: "module" | "lesson" | null;
-    fromModule?: number;
-    fromLesson?: number;
-    overModule?: number;
-    overLesson?: number;
-  }>({ type: null });
-
-  // Module drag handlers
-  const handleModuleDragStart = (idx: number) => (e: React.DragEvent) => {
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", `module-${idx}`);
-    setDragState({ type: "module", fromModule: idx });
-  };
-  const handleModuleDragOver = (idx: number) => (e: React.DragEvent) => {
-    if (dragState.type === "module") {
-      e.preventDefault();
-      if (dragState.overModule !== idx) {
-        setDragState((s) => ({ ...s, overModule: idx }));
-      }
-    }
-  };
-  const handleModuleDrop = (idx: number) => (e: React.DragEvent) => {
-    e.preventDefault();
-    const data = e.dataTransfer.getData("text/plain");
-    const parts = data.split("-");
-    if (parts[0] === "module") {
-      const fromIdx = Number(parts[1]);
-      moveModuleTo(fromIdx, idx);
-    }
-    setDragState({ type: null });
-  };
-  const handleModuleDragEnd = () => setDragState({ type: null });
-
-  // Lesson drag handlers
-  const handleLessonDragStart = (modIdx: number, lessonIdx: number) => (e: React.DragEvent) => {
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", `lesson-${modIdx}-${lessonIdx}`);
-    setDragState({ type: "lesson", fromModule: modIdx, fromLesson: lessonIdx });
-  };
-  const handleLessonDragOver = (modIdx: number, lessonIdx: number) => (e: React.DragEvent) => {
-    if (dragState.type === "lesson") {
-      e.preventDefault();
-      if (dragState.overModule !== modIdx || dragState.overLesson !== lessonIdx) {
-        setDragState((s) => ({ ...s, overModule: modIdx, overLesson: lessonIdx }));
-      }
-    }
-  };
-  const handleLessonDrop = (modIdx: number, lessonIdx: number) => (e: React.DragEvent) => {
-    e.preventDefault();
-    const data = e.dataTransfer.getData("text/plain");
-    const parts = data.split("-");
-    if (parts[0] === "lesson") {
-      const fromMod = Number(parts[1]);
-      const fromIdx = Number(parts[2]);
-      if (fromMod === modIdx) {
-        moveLessonTo(modIdx, fromIdx, lessonIdx);
-      }
-    }
-    setDragState({ type: null });
-  };
-  const handleLessonDragEnd = () => setDragState({ type: null });
 
   return (
     <>
@@ -688,7 +622,7 @@ export default function CourseOutlineClient() {
             onChange={(e) => setModules(Number(e.target.value))}
               className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+            {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>{n} Modules</option>
             ))}
           </select>
@@ -773,22 +707,15 @@ export default function CourseOutlineClient() {
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {!loading && preview.length > 0 && (
-            <div className="bg-white rounded-xl p-6 flex flex-col gap-6">
+            <div
+              className="bg-white rounded-xl p-6 flex flex-col gap-6"
+              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+            >
               {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div
-                  key={mod.id}
-                  className={`flex rounded-xl shadow-sm overflow-hidden relative transition-colors ${
-                    dragState.type === 'module' && dragState.overModule === modIdx ? 'bg-[#F4F8FF]' : ''
-                  } ${dragState.type === 'module' && dragState.fromModule === modIdx ? 'opacity-60' : ''}`}
-                  draggable
-                  onDragStart={handleModuleDragStart(modIdx)}
-                  onDragOver={handleModuleDragOver(modIdx)}
-                  onDrop={handleModuleDrop(modIdx)}
-                  onDragEnd={handleModuleDragEnd}
-                >
+                <div key={mod.id} className="flex rounded-xl shadow-sm overflow-hidden">
                   {/* Left colored bar with index */}
-                  <div className="w-[60px] bg-[#E5EEFF] flex items-start justify-center pt-3 select-none">
-                    <span className="text-gray-600 font-semibold text-base">{modIdx + 1}</span>
+                  <div className="w-[60px] bg-[#E5EEFF] flex items-start justify-center pt-3">
+                    <span className="text-gray-600 font-semibold text-base select-none">{modIdx + 1}</span>
                   </div>
 
                   {/* Main card */}
@@ -798,78 +725,74 @@ export default function CourseOutlineClient() {
                       type="text"
                       value={mod.title}
                       onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                      data-modtitle={modIdx}
                       className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
                       placeholder={`Module ${modIdx + 1} title`}
                     />
 
                     {/* Lessons list */}
-                    <div className="flex flex-col gap-1 text-gray-900">
+                    <ul className="flex flex-col gap-1 text-gray-900">
                       {mod.lessons.map((les: string, lessonIdx: number) => {
-                        const lines = les.split(/\r?\n/);
-                        let first = lines[0] || "";
-                        let titleLine: string;
-                        if (first.trim() === "*" || first.trim() === "-" || first.trim() === "") {
-                          titleLine = (lines[1] || "").trim();
-                        } else {
-                          titleLine = first.replace(/^\s*[\*\-]\s*/, "");
-                        }
-                        return (
-                          <div
-                            key={`${mod.id}-lesson-${lessonIdx}`}
-                            className={`flex items-start gap-2 py-0.5 transition-colors ${
-                              dragState.type === 'lesson' && dragState.overModule === modIdx && dragState.overLesson === lessonIdx ? 'bg-[#F4F8FF]' : ''
-                            } ${
-                              dragState.type === 'lesson' && dragState.fromModule === modIdx && dragState.fromLesson === lessonIdx ? 'opacity-60' : ''
-                            }`}
-                            draggable
-                            onDragStart={handleLessonDragStart(modIdx, lessonIdx)}
-                            onDragOver={handleLessonDragOver(modIdx, lessonIdx)}
-                            onDrop={handleLessonDrop(modIdx, lessonIdx)}
-                            onDragEnd={handleLessonDragEnd}
-                          >
-                            <span className="text-lg leading-none select-none">•</span>
-                            <input
-                              type="text"
-                              value={titleLine}
-                              onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
-                              onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
-                              data-mod={modIdx}
-                              data-les={lessonIdx}
-                              className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
-                              placeholder={`Lesson ${lessonIdx + 1}`}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
+                         const lines = les.split(/\r?\n/);
+                         // Preserve user-typed spacing by avoiding automatic trim.
+                         let first = lines[0] || "";
+                         let titleLine: string;
+                         if (first.trim() === "*" || first.trim() === "-" || first.trim() === "") {
+                           titleLine = (lines[1] || "").trim();
+                         } else {
+                           // Remove only the leading bullet + space if present, keep trailing spaces intact.
+                           titleLine = first.replace(/^\s*[\*\-]\s*/, "");
+                         }
+                         return (
+                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
+                             <span className="text-lg leading-none select-none">•</span>
+                             <input
+                               type="text"
+                               value={titleLine}
+                               onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
+                               onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
+                               data-mod={modIdx}
+                               data-les={lessonIdx}
+                               className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
+                               placeholder={`Lesson ${lessonIdx + 1}`}
+                             />
+                           </li>
+                         );
+                       })}
+                    </ul>
                   </div>
                 </div>
               ))}
+              {/* Add-module button – pill style, full-width */}
+              <button
+                type="button"
+                onClick={handleAddModule}
+                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
+              >
+                <Plus size={18} />
+                <span>Add Module</span>
+              </button>
+              {/* Status row – identical style mock */}
+              <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
+                <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
+                <div className="flex-1 flex justify-center">
+                  <span className="flex items-center gap-1 select-none">
+                    Press <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
+                  </span>
+                </div>
+                <span className="flex items-center gap-1">
+                  <RadialProgress progress={charCount / 50000} />
+                  {charCount}/50000
+                </span>
+              </div>
             </div>
           )}
 
-          {/* Add Module button & status row */}
-          <button
-            type="button"
-            onClick={handleAddModule}
-            className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
-          >
-            <Plus size={18} />
-            <span>Add Module</span>
-          </button>
-
-          <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
-            <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
-            <div className="flex-1 flex justify-center">
-              <span className="flex items-center gap-1 select-none">
-                Press <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
-              </span>
-            </div>
-            <span className="flex items-center gap-1">
-              <RadialProgress progress={charCount / 50000} />
-              {charCount}/50000
-            </span>
-          </div>
+          {!loading && preview.length === 1 && preview[0].lessons.length === 0 && rawOutline && (
+            <pre className="whitespace-pre-wrap bg-gray-50 p-4 border rounded">
+              {rawOutline}
+            </pre>
+          )}
         </section>
 
         {!loading && preview.length > 0 && (
