@@ -628,7 +628,7 @@ export default function CourseOutlineClient() {
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
                 <div className="flex-1 flex justify-center">
                   <span className="flex items-center gap-1 select-none">
-                    Enter <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
+                    Press <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
                   </span>
                 </div>
                 <span className="flex items-center gap-1">
@@ -804,43 +804,41 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4">
-          <div className="max-w-6xl mx-auto w-full flex items-center justify-between px-6">
-            {/* Credits required */}
-            <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-              {/* custom stacked-coins svg */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>{creditsRequired} credits</span>
-            </div>
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+          {/* Credits required */}
+          <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+            {/* custom stacked-coins svg */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{creditsRequired} credits</span>
+          </div>
 
-            {/* Lessons total + generate */}
-            <div className="flex items-center gap-[7.5rem]">
-              <span className="text-base text-gray-700 font-medium select-none">
-                {lessonsTotal} lessons total
-              </span>
-              <button
-                type="button"
-                onClick={handleGenerateFinal}
-                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-base font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                disabled={loading || isGenerating}
-              >
-                <Sparkles size={16} />
-                <span className="select-none font-semibold">Generate</span>
-              </button>
-            </div>
-
-            {/* Help button (disabled) */}
+          {/* Lessons total + generate */}
+          <div className="flex items-center gap-[7.5rem]">
+            <span className="text-lg text-gray-700 font-medium select-none">
+              {lessonsTotal} lessons total
+            </span>
             <button
               type="button"
-              disabled
-              className="w-9 h-9 rounded-full border border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none"
-              aria-label="Help (coming soon)"
+              onClick={handleGenerateFinal}
+              className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+              disabled={loading || isGenerating}
             >
-              ?
+              <Sparkles size={18} />
+              <span className="select-none font-semibold">Generate</span>
             </button>
           </div>
+
+          {/* Help button (disabled) */}
+          <button
+            type="button"
+            disabled
+            className="w-9 h-9 rounded-full border border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none"
+            aria-label="Help (coming soon)"
+          >
+            ?
+          </button>
         </div>
       )}
     </main>
