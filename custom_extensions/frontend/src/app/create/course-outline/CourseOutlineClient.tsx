@@ -450,7 +450,7 @@ export default function CourseOutlineClient() {
         />
 
         <section className="flex flex-col gap-6">
-          <h2 className="text-xl font-semibold text-[#20355D]">Moudules & Lessons</h2>
+          <h2 className="text-lg font-semibold text-[#20355D]">Modules & Lessons</h2>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {!loading && preview.length > 0 && (
@@ -526,9 +526,35 @@ export default function CourseOutlineClient() {
 
         {!loading && preview.length > 0 && (
           <section className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-            <div className="flex flex-col">
-              <h2 className="text-xl font-semibold text-[#20355D]">Designs</h2>
-              <p className="mt-1 text-[#858587] font-medium text-base">Use one of our popular themes below or browse others</p>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <h2 className="text-lg font-semibold text-[#20355D]">Designs</h2>
+                <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+              </div>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
+              >
+                See more
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-palette-icon lucide-palette w-5 h-5"
+                >
+                  <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
+                  <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+                  <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+                  <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+                  <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+                </svg>
+              </button>
             </div>
             <div className="flex gap-4">
               <button
