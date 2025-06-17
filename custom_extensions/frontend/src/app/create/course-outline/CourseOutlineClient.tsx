@@ -353,7 +353,7 @@ export default function CourseOutlineClient() {
     <>
     <main
       /* Shared pastel gradient (identical to generate page) */
-      className="min-h-screen py-12 px-4 flex flex-col items-center"
+      className="min-h-screen py-4 px-4 flex flex-col items-center"
       style={{
         background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
@@ -368,14 +368,14 @@ export default function CourseOutlineClient() {
         </Link>
 
         {/* Page title */}
-        <h1 className="text-3xl font-semibold text-center text-black mt-10">Generate</h1>
+        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center gap-2">
           <select
             value={modules}
             onChange={(e) => setModules(Number(e.target.value))}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black"
           >
             {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>{n} Modules</option>
@@ -384,7 +384,7 @@ export default function CourseOutlineClient() {
           <select
             value={lessonsPerModule}
             onChange={(e) => setLessonsPerModule(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black"
           >
             {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
               <option key={rng} value={rng}>{rng} per module</option>
@@ -393,7 +393,7 @@ export default function CourseOutlineClient() {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black"
           >
             <option value="en">English</option>
             <option value="uk">Ukrainian</option>
@@ -406,7 +406,7 @@ export default function CourseOutlineClient() {
             <button
               type="button"
               onClick={() => setShowFilters((prev) => !prev)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+              className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-black flex items-center gap-1"
             >
               Additional Info <ChevronDown size={14} />
             </button>
@@ -450,7 +450,7 @@ export default function CourseOutlineClient() {
         />
 
         <section className="flex flex-col gap-6">
-          <h2 className="text-xl font-semibold">Outline</h2>
+          <h2 className="text-xl font-semibold text-[#20355D]">Moudules & Lessons</h2>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {!loading && preview.length > 0 && (
@@ -509,7 +509,7 @@ export default function CourseOutlineClient() {
               {/* Add-module button – pill style, full-width */}
               <button
                 type="button"
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#1E3A8A] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
+                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
               >
                 <Plus size={18} />
                 <span>Add Module</span>
@@ -526,12 +526,9 @@ export default function CourseOutlineClient() {
 
         {!loading && preview.length > 0 && (
           <section className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Designs</h2>
-              <button type="button" className="flex items-center gap-1 text-brand-primary hover:text-brand-primary-hover text-sm font-medium">
-                <ArrowLeft className="rotate-180" size={14} />
-                See more
-              </button>
+            <div className="flex flex-col">
+              <h2 className="text-xl font-semibold text-[#20355D]">Designs</h2>
+              <p className="mt-1 text-[#858587] font-medium text-[26px]">Use one of our popular themes below or browse others</p>
             </div>
             <div className="flex gap-4">
               <button
