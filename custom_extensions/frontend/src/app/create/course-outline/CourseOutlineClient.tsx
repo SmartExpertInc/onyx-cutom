@@ -867,6 +867,16 @@ export default function CourseOutlineClient() {
         to { opacity: 1; transform: translateY(0); }
       }
     `}</style>
+    {/* Make cursor a pointer (hand) over all obvious clickable elements */}
+    <style jsx global>{`
+      button,
+      select,
+      input[type="checkbox"],
+      label[role="button"],
+      label[for] {
+        cursor: pointer;
+      }
+    `}</style>
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
         <LoadingAnimation message="Finalizing product..." />
