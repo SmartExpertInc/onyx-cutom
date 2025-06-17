@@ -731,6 +731,11 @@ export default function CourseOutlineClient() {
         to { opacity: 1; transform: translateY(0); }
       }
     `}</style>
+    {isGenerating && (
+      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
+        <LoadingAnimation message="Finalizing product..." />
+      </div>
+    )}
     </>
   );
 } 
