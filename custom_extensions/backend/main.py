@@ -2789,9 +2789,18 @@ def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, An
             lessons_list = sec
 
         for ls in lessons_list:
-            ls_title = ls.get("title") if isinstance(ls, dict) else str(ls)
-            ls_title = ls_title.split("\n", 1)[0].strip()
-            out_lines.append(f"- **{ls_title}**")
+            ls_raw = ls.get("title") if isinstance(ls, dict) else str(ls)
+            if not isinstance(ls_raw, str):
+                ls_raw = str(ls_raw)
+
+            segments = ls_raw.split("\n")
+            main_line = segments[0].strip()
+            out_lines.append(f"- **{main_line}**")
+
+            for extra in segments[1:]:
+                extra = extra.rstrip()
+                if extra:
+                    out_lines.append(f"  {extra}")
 
         out_lines.append("")  # blank line between modules for readability
 
