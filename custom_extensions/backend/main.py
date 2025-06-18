@@ -313,10 +313,18 @@ class SectionDetail(BaseModel):
     autoCalculateHours: bool = True
     model_config = {"from_attributes": True}
 
+class DisplayOptions(BaseModel):
+    knowledgeCheck: Optional[bool] = True
+    contentAvailability: Optional[bool] = True
+    informationSource: Optional[bool] = True
+    time: Optional[bool] = True
+    model_config = {"from_attributes": True}
+
 class TrainingPlanDetails(BaseModel):
     mainTitle: Optional[str] = None
     sections: List[SectionDetail] = Field(default_factory=list)
     detectedLanguage: Optional[str] = None
+    displayOptions: Optional[DisplayOptions] = None
     model_config = {"from_attributes": True}
 
 AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
