@@ -327,7 +327,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 style={{ display: 'grid', gridTemplateColumns: gridTemplate }}
               >
                 {/* Module column */}
-                <div className="flex items-center space-x-2 pr-2">
+                <div className={`flex items-center space-x-2 pr-2 ${activeColumns.length > 1 ? 'border-r border-gray-400' : ''}`}>
                   {isEditing && onTextChange ? (
                     <>
                       <input type="text" value={section.id} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} className={`${editingInputSmallClass} w-24 mr-2`} placeholder="ID"/>
