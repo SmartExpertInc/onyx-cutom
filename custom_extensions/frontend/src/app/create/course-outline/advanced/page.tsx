@@ -81,8 +81,8 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
       return;
     }
 
-    if (!current) {
-      current = { id: "mod1", title: "Outline", lessons: [] };
+    if (!current && (indent === 0 && listItemRegex.test(line))) {
+      current = { id: `mod${modules.length + 1}`, title: "Module", lessons: [] };
       modules.push(current);
     }
 
@@ -655,7 +655,11 @@ export default function CourseOutlineAdvancedPage() {
             </div>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500">
-              {loadingPreview ? <LoadingAnimation message="Updating…" /> : <p>Loading outline preview...</p>}
+              {loadingPreview ? (
+                <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
+                  <LoadingAnimation message="Updating…" />
+                </div>
+              ) : <p>Loading outline preview...</p>}
             </div>
           )}
         </div>
@@ -736,12 +740,6 @@ export default function CourseOutlineAdvancedPage() {
           border-top: none;
         }
     `}</style>
-    {isGenerating && (
-      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing product..." />
-      </div>
-    )}
-    {loadingPreview && <LoadingAnimation message="Updating…" />}
     </>
   );
 } 

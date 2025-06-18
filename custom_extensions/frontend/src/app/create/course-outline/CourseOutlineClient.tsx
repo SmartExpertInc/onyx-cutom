@@ -145,8 +145,12 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
       return;
     }
 
-    if (!current) {
-      current = { id: "mod1", title: "Outline", lessons: [] };
+    // Delay creating a module until we actually encounter either a heading or
+    // at least one top-level list item. This prevents the temporary
+    // "Outline" placeholder from flashing before the first real module
+    // heading arrives in the stream.
+    if (!current && (indent === 0 && listItemRegex.test(line))) {
+      current = { id: `mod${modules.length + 1}`, title: "Module", lessons: [] };
       modules.push(current);
     }
 
