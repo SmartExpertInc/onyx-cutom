@@ -112,10 +112,104 @@ export default function CourseOutlineAdvancedPage() {
               </div>
             </div>
           </div>
-          {/* Re-use card blocks to match the rest of sidebar – skeleton only */}
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="bg-white rounded-[12px] border border-[#D9E1FF] h-[160px] shadow-[0_1px_2px_rgba(0,0,0,0.06)]" />
-          ))}
+
+          {/* Image Section */}
+          <div className="bg-white rounded-[12px] border border-[#CED9FF] shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex flex-col">
+            {/* Accordion header */}
+            <button className="flex items-center justify-between w-full px-[20px] py-[14px] select-none">
+              <div className="flex items-center gap-[8px]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3C1.89543 3 1 3.89543 1 5V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V5C23 3.89543 22.1046 3 21 3ZM3 19V5H21V19H3Z" fill="#20355D"/><path d="M8 9C7.44772 9 7 9.44772 7 10C7 10.5523 7.44772 11 8 11C8.55228 11 9 10.5523 9 10C9 9.44772 8.55228 9 8 9Z" fill="#20355D"/><path d="M11 16L7 12L4 15V18H20V12L16 8L11 16Z" fill="#20355D"/></svg>
+                <span className="text-[#20355D] text-[18px] font-medium">Зображення</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 9L12 15L6 9"/></svg>
+            </button>
+            <div className="border-t border-[#E7ECFF] px-[20px] pb-[24px] flex flex-col gap-[20px] pt-[12px]">
+              {/* Image source */}
+              <div className="flex flex-col gap-[6px]">
+                <span className="text-[13px] text-[#20355D] font-medium">Джерело зображення</span>
+                <button className="h-[36px] w-full rounded-[6px] border border-[#CED9FF] px-[12px] bg-white text-[13px] text-[#20355D] flex items-center justify-between">
+                  <div className="flex items-center gap-[8px]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L14.09 8.26L20.5 9.17L15.68 13.34L17.18 19.82L12 16.77L6.82 19.82L8.32 13.34L3.5 9.17L9.91 8.26L12 2Z" fill="#2A4FFF"/></svg>
+                    <span>Зображення зі штучним інтелектом</span>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9L12 15L18 9"/></svg>
+                </button>
+              </div>
+              {/* Image style */}
+              <div className="flex flex-col gap-[6px]">
+                <span className="text-[13px] text-[#20355D] font-medium">Стиль зображення</span>
+                <textarea placeholder="Необов'язково: опишіть кольори, стиль або настрій, які потрібно використати" className="h-[80px] w-full rounded-[6px] border border-[#CED9FF] bg-white px-[12px] py-[8px] text-[13px] resize-none placeholder:text-[#818E9F]" />
+              </div>
+              {/* AI image model */}
+              <div className="flex flex-col gap-[6px]">
+                <span className="text-[13px] text-[#20355D] font-medium">Модель зображення ШІ</span>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-[12px] pointer-events-none">
+                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21H23L12 2Z" fill="#20355D"/></svg>
+                  </div>
+                  <select className="h-[36px] w-full appearance-none rounded-[6px] border border-[#CED9FF] pl-[36px] pr-[36px] bg-white text-[13px] text-[#20355D]">
+                      <option>Flux Kontext Fast</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-[12px] pointer-events-none">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9L12 15L18 9"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Format Section */}
+          <div className="bg-white rounded-[12px] border border-[#CED9FF] shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex flex-col">
+            {/* Accordion header */}
+            <button className="flex items-center justify-between w-full px-[20px] py-[14px] select-none">
+              <div className="flex items-center gap-[8px]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#20355D"><path d="M10 4H4v6h6V4zm-2 4H6V6h2v2zm8-4h-6v6h6V4zm-2 4h-2V6h2v2zM8 12H4v6h6v-6zm-2 4H6v-2h2v2zm8-4h-6v6h6v-6zm-2 4h-2v-2h2v2z"/></svg>
+                <span className="text-[#20355D] text-[18px] font-medium">Формат</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 9L12 15L6 9"/></svg>
+            </button>
+            <div className="border-t border-[#E7ECFF] px-[20px] pb-[24px] flex flex-col gap-[12px] pt-[12px]">
+              {/* Grid */}
+              <div className="grid grid-cols-2 gap-[8px]">
+                {/* Presentation - selected */}
+                <button className="relative rounded-[6px] border-2 border-[#2A4FFF] bg-[#F0F4FF] p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
+                  <div className="absolute top-[8px] left-[8px]">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="#2A4FFF" stroke="white" strokeWidth="1"/><path d="m5 8 2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm0 2v8h16V5H4zm8 10l-4 4h8l-4-4z" fill="#2A4FFF"/></svg>
+                  <span className="text-[13px] font-medium text-[#20355D]">Презентація</span>
+                </button>
+                {/* Web page */}
+                <button className="relative rounded-[6px] border border-[#D9E1FF] bg-white p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
+                  <div className="absolute top-[8px] left-[8px]">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="white" stroke="#D9E1FF" strokeWidth="1"/></svg>
+                  </div>
+                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M20 4H4a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM5 19V7h14v12H5zm0-14h14v1H5V5z" fill="#A5B4FF"/></svg>
+                  <span className="text-[13px] font-medium text-[#20355D]">Веб-сторінка</span>
+                </button>
+                {/* Document */}
+                <button className="relative rounded-[6px] border border-[#D9E1FF] bg-white p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
+                   <div className="absolute top-[8px] left-[8px]">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="white" stroke="#D9E1FF" strokeWidth="1"/></svg>
+                  </div>
+                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M6 2h10l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 2v4h8V4H7z" fill="#A5B4FF"/></svg>
+                  <span className="text-[13px] font-medium text-[#20355D]">Документ</span>
+                </button>
+                {/* Social */}
+                <button className="relative rounded-[6px] border border-[#D9E1FF] bg-white p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
+                   <div className="absolute top-[8px] left-[8px]">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="white" stroke="#D9E1FF" strokeWidth="1"/></svg>
+                  </div>
+                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 2v14h8V4H8zm3 15a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="#A5B4FF"/></svg>
+                  <span className="text-[13px] font-medium text-[#20355D]">Соціальний</span>
+                </button>
+              </div>
+              {/* Default settings dropdown */}
+              <select className="h-[36px] rounded-[6px] border border-[#CED9FF] px-[12px] bg-white text-[13px] text-[#20355D]">
+                  <option>За замовчуванням</option>
+              </select>
+            </div>
+          </div>
         </aside>
 
         {/* CENTER – editable document */}
