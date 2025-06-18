@@ -122,12 +122,7 @@ export default function CourseOutlineAdvancedPage() {
   const [lessonsPerModule, setLessonsPerModule] = useState<string>("3-4");
   const [language, setLanguage] = useState<string>("en");
   const [chatId, setChatId] = useState<string | null>(null);
-  const [filters, setFilters] = useState(() => ({
-    knowledgeCheck: true,
-    contentAvailability: true,
-    informationSource: true,
-    time: true,
-  }));
+  const [filters, setFilters] = useState({ knowledgeCheck: true, contentAvailability: true, informationSource: true, time: true });
   const [rawOutline, setRawOutline] = useState<string>("");
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -136,9 +131,6 @@ export default function CourseOutlineAdvancedPage() {
   // ===== New state for incremental 'edit' prompt =====
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
-
-  // Ref to the scrollable center editor so we can auto-scroll as new lines arrive
-  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -357,11 +349,6 @@ export default function CourseOutlineAdvancedPage() {
             const parsed = parseOutlineMarkdown(accRaw);
             setPreview(parsed);
             setRawOutline(accRaw);
-            // Auto-scroll to bottom so newest content is visible
-            requestAnimationFrame(() => {
-              const el = editorRef.current;
-              if (el) el.scrollTo({ top: el.scrollHeight });
-            });
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -613,7 +600,7 @@ export default function CourseOutlineAdvancedPage() {
         </aside>
 
         {/* CENTER – editable document */}
-        <div ref={editorRef} className="flex-1 bg-white rounded-[12px] border border-[#D9E1FF] shadow-[0_2px_4px_rgba(0,0,0,0.05)] p-[40px] overflow-auto min-h-[640px]">
+        <div className="flex-1 bg-white rounded-[12px] border border-[#D9E1FF] shadow-[0_2px_4px_rgba(0,0,0,0.05)] p-[40px] overflow-auto min-h-[640px]">
           {preview.length > 0 ? (
             <div className="bg-white flex flex-col gap-6">
               {preview.map((mod: ModulePreview, modIdx: number) => (
@@ -754,15 +741,14 @@ export default function CourseOutlineAdvancedPage() {
           border-top: none;
         }
     `}</style>
-
     {/* Global overlays */}
     {loadingPreview && (
-      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-[100]">
+      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50 pointer-events-none">
         <LoadingAnimation message="Updating…" />
       </div>
     )}
     {isGenerating && (
-      <div className="fixed inset-0 bg-white/80 flex flex-col items-center justify-center z-[100]">
+      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
         <LoadingAnimation message="Generating product…" />
       </div>
     )}
