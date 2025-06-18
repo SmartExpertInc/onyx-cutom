@@ -236,6 +236,13 @@ export default function CourseOutlineClient() {
         setFilters(parsedData.filters);
         setRawOutline(parsedData.rawOutline || "");
         skipNextPreviewRef.current = true; // Set flag to skip fetch
+        cameFromAdvancedRef.current = true;
+        advancedInitialParamsRef.current = {
+          prompt: parsedData.prompt,
+          modules: parsedData.modules,
+          lessonsPerModule: parsedData.lessonsPerModule,
+          language: parsedData.language,
+        };
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
       } finally {
@@ -271,41 +278,36 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
-    // Skip preview fetching while the user is finalizing the outline or if we need to skip
-    if (isGenerating || skipNextPreviewRef.current) {
-        if (skipNextPreviewRef.current) {
-            // Reset the flag after checking it
-            skipNextPreviewRef.current = false;
-        }
-        return;
+    // If we navigated back from Advanced page, skip fetching until user changes params
+    if (cameFromAdvancedRef.current) {
+      const sameAsInitial = advancedInitialParamsRef.current &&
+        advancedInitialParamsRef.current.prompt === prompt &&
+        advancedInitialParamsRef.current.modules === modules &&
+        advancedInitialParamsRef.current.lessonsPerModule === lessonsPerModule &&
+        advancedInitialParamsRef.current.language === language;
+      if (sameAsInitial) {
+        return; // Do nothing – keep preview as-is
+      }
+      // Params changed – user interacted, allow future fetches
+      cameFromAdvancedRef.current = false;
     }
 
-    const handler = setTimeout(() => {
-      // Don't auto-fetch if prompt is empty or we're already loading
-      if (prompt.length === 0 || loading) return;
-      // If the last operation intentionally asked to skip preview – just reset the
-      // flag and bail out.
-      if (skipNextPreviewRef.current) {
-        skipNextPreviewRef.current = false;
-        return;
-      }
-      // Need a chat session id – we'll lazily request one first
-      if (!chatId) return;
+    // Skip preview fetching while finalizing
+    if (isGenerating) return;
 
-      // Abort any previously queued/in-flight request – we only want the very latest parameters
+    const handler = setTimeout(() => {
+      if (prompt.length === 0 || loading) return;
+      if (!chatId) return;
       if (previewAbortRef.current) {
         previewAbortRef.current.abort();
       }
-
       const abortController = new AbortController();
       previewAbortRef.current = abortController;
-
       const fetchPreview = async () => {
         setLoading(true);
         setError(null);
         setPreview([]);
         setRawOutline("");
-
         try {
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",
@@ -313,34 +315,22 @@ export default function CourseOutlineClient() {
             body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
             signal: abortController.signal,
           });
-
-          if (!res.ok) {
-            throw new Error(`Bad response ${res.status}`);
-          }
-
+          if (!res.ok) throw new Error(`Bad response ${res.status}`);
           const data = await res.json();
-          // Backend returns {{modules, raw}}
           setPreview(Array.isArray(data.modules) ? data.modules : []);
           setRawOutline(typeof data.raw === "string" ? data.raw : "");
         } catch (e: any) {
-          if (e.name === "AbortError") return; // request was cancelled – ignore
+          if (e.name === "AbortError") return;
           setError(e.message);
         } finally {
-          // Only clear loading if THIS request wasn't aborted; another newer request may be in-flight.
           if (!abortController.signal.aborted) {
             setLoading(false);
           }
         }
       };
-
       fetchPreview();
-
-      // Cleanup: abort the request if the component unmounts or deps change before completion
-      return () => {
-        abortController.abort();
-      };
+      return () => abortController.abort();
     }, 500);
-
     return () => clearTimeout(handler);
   }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
 
@@ -634,6 +624,14 @@ export default function CourseOutlineClient() {
       input?.focus();
     });
   };
+
+  const cameFromAdvancedRef = useRef(false);
+  const advancedInitialParamsRef = useRef<{
+    prompt: string;
+    modules: number;
+    lessonsPerModule: string;
+    language: string;
+  } | null>(null);
 
   return (
     <>
