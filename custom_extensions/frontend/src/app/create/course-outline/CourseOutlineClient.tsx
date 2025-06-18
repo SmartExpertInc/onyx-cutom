@@ -236,7 +236,6 @@ export default function CourseOutlineClient() {
         setFilters(parsedData.filters);
         setRawOutline(parsedData.rawOutline || "");
         skipNextPreviewRef.current = true; // Set flag to skip fetch
-        cameFromAdvancedRef.current = true;
         advancedInitialParamsRef.current = {
           prompt: parsedData.prompt,
           modules: parsedData.modules,
@@ -278,18 +277,18 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
-    // If we navigated back from Advanced page, skip fetching until user changes params
-    if (cameFromAdvancedRef.current) {
+    // Skip preview fetching on first mount after returning from Advanced page
+    if (skipNextPreviewRef.current) {
       const sameAsInitial = advancedInitialParamsRef.current &&
         advancedInitialParamsRef.current.prompt === prompt &&
         advancedInitialParamsRef.current.modules === modules &&
         advancedInitialParamsRef.current.lessonsPerModule === lessonsPerModule &&
         advancedInitialParamsRef.current.language === language;
       if (sameAsInitial) {
-        return; // Do nothing – keep preview as-is
+        return; // Keep current preview, no fetch
       }
-      // Params changed – user interacted, allow future fetches
-      cameFromAdvancedRef.current = false;
+      // Params have changed – clear the flag and allow fetching
+      skipNextPreviewRef.current = false;
     }
 
     // Skip preview fetching while finalizing
@@ -625,7 +624,6 @@ export default function CourseOutlineClient() {
     });
   };
 
-  const cameFromAdvancedRef = useRef(false);
   const advancedInitialParamsRef = useRef<{
     prompt: string;
     modules: number;
