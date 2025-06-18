@@ -483,10 +483,10 @@ export default function CourseOutlineClient() {
   // Extra boolean filters (all true by default)
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState(() => ({
-    knowledgeCheck: params.get("knowledgeCheck") !== "0",
-    contentAvailability: params.get("contentAvailability") !== "0",
-    informationSource: params.get("informationSource") !== "0",
-    time: params.get("time") !== "0",
+    knowledgeCheck: params.get("knowledgeCheck") === "0" ? false : true,
+    contentAvailability: params.get("contentAvailability") === "0" ? false : true,
+    informationSource: params.get("informationSource") === "0" ? false : true,
+    time: params.get("time") === "0" ? false : true,
   }));
 
   // Ref for closing the dropdown when clicking outside

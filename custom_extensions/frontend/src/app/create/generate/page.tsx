@@ -181,14 +181,11 @@ export default function GenerateProductPicker() {
       modules: String(modulesCount),
       lessons: lessonsPerModule,
       lang: language,
+      knowledgeCheck: filters.knowledgeCheck ? '1' : '0',
+      contentAvailability: filters.contentAvailability ? '1' : '0',
+      informationSource: filters.informationSource ? '1' : '0',
+      time: filters.time ? '1' : '0',
     });
-
-    // Encode additional info selections (1 = shown, 0 = hidden)
-    params.set("knowledgeCheck", filters.knowledgeCheck ? "1" : "0");
-    params.set("contentAvailability", filters.contentAvailability ? "1" : "0");
-    params.set("informationSource", filters.informationSource ? "1" : "0");
-    params.set("time", filters.time ? "1" : "0");
-
     if (chatId) params.set("chatId", chatId);
 
     router.push(`/create/course-outline?${params.toString()}`);
