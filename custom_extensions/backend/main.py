@@ -2572,7 +2572,15 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     try:
                         pkt = json.loads(line)
                         if "answer_piece" in pkt:
-                            assistant_reply += pkt["answer_piece"].replace("\\n", "\n")
+                            # Forward each assistant chunk directly to the client instead of
+                            # waiting for the whole answer. This lets the UI render a live
+                            # streaming preview.
+                            delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                            assistant_reply += delta_text
+
+                            # Send newline-delimited JSON so the frontend can parse chunks
+                            # with a simple TextDecoder / line splitter.
+                            yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     except Exception:
                         continue
 
@@ -2588,8 +2596,9 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
 
         modules_preview = _parse_outline_markdown(assistant_reply)
-        final_json = json.dumps({"modules": modules_preview, "raw": assistant_reply}).encode()
-        yield final_json
+        # Send completion packet with the parsed outline.
+        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+        yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
 
@@ -2738,7 +2747,15 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     try:
                         pkt = json.loads(line)
                         if "answer_piece" in pkt:
-                            assistant_reply += pkt["answer_piece"].replace("\\n", "\n")
+                            # Forward each assistant chunk directly to the client instead of
+                            # waiting for the whole answer. This lets the UI render a live
+                            # streaming preview.
+                            delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                            assistant_reply += delta_text
+
+                            # Send newline-delimited JSON so the frontend can parse chunks
+                            # with a simple TextDecoder / line splitter.
+                            yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     except Exception:
                         continue
 

@@ -207,7 +207,32 @@ export default function CourseOutlineAdvancedPage() {
         console.error("Finalize error:", errorText);
         throw new Error(errorText || `Request failed with status ${res.status}`);
       }
-      const data = await res.json();
+
+      // Stream response lines until we receive a JSON with {id}
+      const decoder = new TextDecoder();
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream body");
+
+      let buf = "";
+      let projectId: number | null = null;
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const ln of lines) {
+          if (!ln.trim()) continue;
+          try {
+            const obj = JSON.parse(ln);
+            if (obj.id) projectId = obj.id;
+          } catch { /* ignore */ }
+        }
+      }
+
+      if (!projectId) throw new Error("Project creation failed");
+      const data = { id: projectId };
       
       const qp = new URLSearchParams();
       Object.entries(filters).forEach(([key, val]) => qp.set(key, val ? "1" : "0"));
@@ -282,13 +307,34 @@ export default function CourseOutlineAdvancedPage() {
         }),
       });
       if (!res.ok) throw new Error(`Bad response ${res.status}`);
-      const data = await res.json();
 
-      // Update UI with new preview & prompt
-      setPreview(Array.isArray(data.modules) ? data.modules : []);
-      setRawOutline(typeof data.raw === "string" ? data.raw : "");
-      setPrompt(combined);
-      setEditPrompt("");
+      const decoder = new TextDecoder();
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream body");
+
+      let buf = "";
+      let accRaw = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const ln of lines) {
+          if (!ln.trim()) continue;
+          const pkt = JSON.parse(ln);
+          if (pkt.type === "delta") {
+            accRaw += pkt.text;
+            setRawOutline(accRaw);
+          } else if (pkt.type === "done") {
+            setPreview(Array.isArray(pkt.modules) ? pkt.modules : []);
+            setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
+            setPrompt(combined);
+            setEditPrompt("");
+          }
+        }
+      }
     } catch (e: any) {
       setError(e.message || "Failed to fetch outline");
     } finally {

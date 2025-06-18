@@ -308,11 +308,33 @@ export default function CourseOutlineClient() {
           signal: abortController.signal,
         });
         if (!res.ok) throw new Error(`Bad response ${res.status}`);
-        const data = await res.json();
-        setPreview(Array.isArray(data.modules) ? data.modules : []);
-        setRawOutline(typeof data.raw === "string" ? data.raw : "");
-        // record params of fetched preview
-        lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+        const decoder = new TextDecoder();
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No stream body");
+
+        let buffer = "";
+        let accumulatedRaw = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || ""; // keep incomplete line
+          for (const ln of lines) {
+            if (!ln.trim()) continue;
+            const pkt = JSON.parse(ln);
+            if (pkt.type === "delta") {
+              accumulatedRaw += pkt.text;
+              setRawOutline(accumulatedRaw);
+            } else if (pkt.type === "done") {
+              setPreview(Array.isArray(pkt.modules) ? pkt.modules : []);
+              setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
+              // record params of fetched preview
+              lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+            }
+          }
+        }
       } catch (e: any) {
         if (e.name !== "AbortError") setError(e.message);
       } finally {
@@ -393,7 +415,33 @@ export default function CourseOutlineClient() {
         }),
       });
       if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
+
+      const decoder = new TextDecoder();
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream body");
+
+      let buf = "";
+      let projectId: number | null = null;
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const ln of lines) {
+          if (!ln.trim()) continue;
+          try {
+            const obj = JSON.parse(ln);
+            if (obj.id) projectId = obj.id;
+          } catch {
+            /* swallow */
+          }
+        }
+      }
+
+      if (!projectId) throw new Error("Project creation failed");
+      const data = { id: projectId };
 
       // Build query params to encode which additional info columns should be shown in the product view
       const qp = new URLSearchParams();
