@@ -932,6 +932,7 @@ export default function CourseOutlineClient() {
           <div className="w-full flex justify-center mt-0 mb-12">
             <button
               type="button"
+              onClick={() => router.push('/create/course-outline/advanced')}
               className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
             >
               Advanced Mode
