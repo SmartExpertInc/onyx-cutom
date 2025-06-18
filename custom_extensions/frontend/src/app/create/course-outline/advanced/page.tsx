@@ -208,31 +208,7 @@ export default function CourseOutlineAdvancedPage() {
         throw new Error(errorText || `Request failed with status ${res.status}`);
       }
 
-      // Stream response lines until we receive a JSON with {id}
-      const decoder = new TextDecoder();
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error("No stream body");
-
-      let buf = "";
-      let projectId: number | null = null;
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split("\n");
-        buf = lines.pop() || "";
-        for (const ln of lines) {
-          if (!ln.trim()) continue;
-          try {
-            const obj = JSON.parse(ln);
-            if (obj.id) projectId = obj.id;
-          } catch { /* ignore */ }
-        }
-      }
-
-      if (!projectId) throw new Error("Project creation failed");
-      const data = { id: projectId };
+      const data = await res.json();
       
       const qp = new URLSearchParams();
       Object.entries(filters).forEach(([key, val]) => qp.set(key, val ? "1" : "0"));
@@ -714,6 +690,16 @@ export default function CourseOutlineAdvancedPage() {
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
         <LoadingAnimation message="Finalizing product..." />
       </div>
+    )}
+    {loadingPreview && (
+      <>
+        <LoadingAnimation message="Updating…" />
+        {rawOutline && (
+          <pre className="whitespace-pre-wrap mt-4 bg-gray-50 p-4 border rounded max-h-96 overflow-auto text-xs">
+            {rawOutline}
+          </pre>
+        )}
+      </>
     )}
     </>
   );

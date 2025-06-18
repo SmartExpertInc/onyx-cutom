@@ -2747,15 +2747,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     try:
                         pkt = json.loads(line)
                         if "answer_piece" in pkt:
-                            # Forward each assistant chunk directly to the client instead of
-                            # waiting for the whole answer. This lets the UI render a live
-                            # streaming preview.
-                            delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                            assistant_reply += delta_text
-
-                            # Send newline-delimited JSON so the frontend can parse chunks
-                            # with a simple TextDecoder / line splitter.
-                            yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            assistant_reply += pkt["answer_piece"].replace("\\n", "\n")
                     except Exception:
                         continue
 

@@ -416,32 +416,7 @@ export default function CourseOutlineClient() {
       });
       if (!res.ok) throw new Error(await res.text());
 
-      const decoder = new TextDecoder();
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error("No stream body");
-
-      let buf = "";
-      let projectId: number | null = null;
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split("\n");
-        buf = lines.pop() || "";
-        for (const ln of lines) {
-          if (!ln.trim()) continue;
-          try {
-            const obj = JSON.parse(ln);
-            if (obj.id) projectId = obj.id;
-          } catch {
-            /* swallow */
-          }
-        }
-      }
-
-      if (!projectId) throw new Error("Project creation failed");
-      const data = { id: projectId };
+      const data = await res.json();
 
       // Build query params to encode which additional info columns should be shown in the product view
       const qp = new URLSearchParams();
@@ -772,7 +747,16 @@ export default function CourseOutlineClient() {
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
-          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+          {loading && (
+            <>
+              <LoadingAnimation message={thoughts[thoughtIdx]} />
+              {rawOutline && (
+                <pre className="whitespace-pre-wrap mt-4 bg-gray-50 p-4 border rounded max-h-96 overflow-auto text-xs">
+                  {rawOutline}
+                </pre>
+              )}
+            </>
+          )}
           {error && <p className="text-red-600">{error}</p>}
           {!loading && preview.length > 0 && (
             <div
