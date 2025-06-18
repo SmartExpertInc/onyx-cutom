@@ -156,7 +156,11 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
 
     if (indent === 0 && listItemRegex.test(line)) {
       flushLesson();
-      const titleLine = line.replace(listItemRegex, "").trim();
+      let titleLine = line.replace(listItemRegex, "").trim();
+      // Remove Markdown bold markers **title** → title
+      if (titleLine.startsWith("**") && titleLine.includes("**", 2)) {
+        titleLine = titleLine.split("**")[1].trim();
+      }
       lessonBuf.push(titleLine);
     } else if (indent > 0) {
       lessonBuf.push(line);
@@ -164,7 +168,8 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
   });
 
   flushLesson();
-  return modules;
+  // Filter out rare placeholder module produced by backend fallback
+  return modules.filter((m) => m.title.toLowerCase() !== "outline");
 }
 // -----------------------------------------------------------------
 

@@ -88,7 +88,10 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
 
     if (indent === 0 && listItemRegex.test(line)) {
       flushLesson();
-      const titleLine = line.replace(listItemRegex, "").trim();
+      let titleLine = line.replace(listItemRegex, "").trim();
+      if (titleLine.startsWith("**") && titleLine.includes("**", 2)) {
+        titleLine = titleLine.split("**")[1].trim();
+      }
       lessonBuf.push(titleLine);
     } else if (indent > 0) {
       lessonBuf.push(line);
@@ -96,7 +99,7 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
   });
 
   flushLesson();
-  return modules;
+  return modules.filter((m) => m.title.toLowerCase() !== "outline");
 }
 // ---------------------------------------------------------------------------
 
@@ -308,12 +311,6 @@ export default function CourseOutlineAdvancedPage() {
     if (combined && !/[.!?]$/.test(combined)) combined += "."; // ensure sentence break
     combined = combined ? `${combined} ${trimmed}` : trimmed;
 
-    const chat = await ensureChatSession();
-    if (!chat) {
-      setError("Unable to create chat session");
-      return;
-    }
-
     setLoadingPreview(true);
     setError(null);
     try {
@@ -325,7 +322,7 @@ export default function CourseOutlineAdvancedPage() {
           modules,
           lessonsPerModule,
           language,
-          chatSessionId: chat,
+          chatSessionId: chatId,
           originalOutline: rawOutline,
         }),
       });
@@ -624,6 +621,9 @@ export default function CourseOutlineAdvancedPage() {
                          const lines = les.split(/\r?\n/);
                          let first = lines[0] || "";
                          let titleLine = first.replace(/^\s*[\*\-]\s*/, "");
+                         if (titleLine.startsWith("**") && titleLine.includes("**", 2)) {
+                           titleLine = titleLine.split("**")[1].trim();
+                         }
                          return (
                            <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
                              <span className="text-lg leading-none select-none">•</span>
