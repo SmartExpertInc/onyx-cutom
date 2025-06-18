@@ -930,14 +930,13 @@ export default function CourseOutlineClient() {
         {/* Advanced Mode link placed after Designs section */}
         {!loading && preview.length > 0 && (
           <div className="w-full flex justify-center mt-0 mb-12">
-            <button
-              type="button"
-              onClick={() => router.push('/create/course-outline/advanced')}
+            <Link
+              href="/create/course-outline/advanced"
               className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
             >
               Advanced Mode
               <Settings size={14} />
-            </button>
+            </Link>
           </div>
         )}
       </div> {/* end inner wrapper */}
