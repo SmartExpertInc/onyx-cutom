@@ -113,7 +113,7 @@
     {% set MAX_SOURCE_LENGTH = 19 %} {# Define max length for single-word source text #}
 
     {# ---- Column visibility flags ---- #}
-    {% set opts = details.displayOptions if details.displayOptions is defined else {} %}
+    {% set opts = details.details.displayOptions if details.details.displayOptions is defined else {} %}
     {% set show_knowledge_check = opts.get('knowledgeCheck', True) %}
     {% set show_content_availability = opts.get('contentAvailability', True) %}
     {% set show_information_source = opts.get('informationSource', True) %}
