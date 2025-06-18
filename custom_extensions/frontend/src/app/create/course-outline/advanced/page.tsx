@@ -349,6 +349,10 @@ export default function CourseOutlineAdvancedPage() {
             const parsed = parseOutlineMarkdown(accRaw);
             setPreview(parsed);
             setRawOutline(accRaw);
+            // As soon as we have at least one module heading, hide the overlay
+            if (loadingPreview && parsed.length > 0) {
+              setLoadingPreview(false);
+            }
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
