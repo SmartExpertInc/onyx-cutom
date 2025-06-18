@@ -188,6 +188,8 @@ export default function CourseOutlineClient() {
   const [preview, setPreview] = useState<ModulePreview[]>([]);
   const [rawOutline, setRawOutline] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  // True once the first delta packet arrives so we can hide fake-thought text
+  const [streamingStarted, setStreamingStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
