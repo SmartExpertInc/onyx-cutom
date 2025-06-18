@@ -204,7 +204,7 @@ export default function ProjectInstanceViewPage() {
     if (!projectId || !editableData || !projectInstanceData) return;
     if (projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN) return;
 
-    const paramVal = (key: string): string | null => params?.get(key) ?? null;
+    const paramVal = (key: string): string | null => searchParams?.get(key) ?? null;
 
     const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","time"].some(k => paramVal(k) !== null);
     if (!hasExplicitParams) return; // nothing to persist
@@ -244,7 +244,7 @@ export default function ProjectInstanceViewPage() {
     };
 
     saveOpts();
-  }, [displayOptsSynced, projectId, editableData, projectInstanceData, params]);
+  }, [displayOptsSynced, projectId, editableData, projectInstanceData, searchParams]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
     setEditableData(currentData => {
