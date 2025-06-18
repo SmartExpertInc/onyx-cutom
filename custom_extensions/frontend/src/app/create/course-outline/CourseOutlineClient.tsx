@@ -242,6 +242,7 @@ export default function CourseOutlineClient() {
           lessonsPerModule: parsedData.lessonsPerModule,
           language: parsedData.language,
         };
+        didRestoreRef.current = true;
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
       } finally {
@@ -298,9 +299,15 @@ export default function CourseOutlineClient() {
         console.log("[PreviewEffect] Skipping fetch – params unchanged after Advanced return");
         return; // Keep current preview, no fetch
       }
-      // Params have changed – clear the flag and allow fetching
-      skipNextPreviewRef.current = false;
-      console.log("[PreviewEffect] Params changed – clearing skip flag, will fetch");
+      if (didRestoreRef.current) {
+        // Params have changed AFTER restore – clear skip flag to allow fetching
+        skipNextPreviewRef.current = false;
+        console.log("[PreviewEffect] Params changed post-restore – clearing skip flag, will fetch");
+      } else {
+        // Still in first render cycle before restored state applied; wait one more render
+        console.log("[PreviewEffect] Waiting one render for restored state to settle");
+        return;
+      }
     }
 
     // Skip preview fetching while finalizing
@@ -645,6 +652,8 @@ export default function CourseOutlineClient() {
     lessonsPerModule: string;
     language: string;
   } | null>(null);
+
+  const didRestoreRef = useRef(false);
 
   return (
     <>
