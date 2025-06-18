@@ -235,14 +235,12 @@ export default function CourseOutlineClient() {
         setChatId(parsedData.chatId);
         setFilters(parsedData.filters);
         setRawOutline(parsedData.rawOutline || "");
-        skipNextPreviewRef.current = true; // Set flag to skip fetch
-        advancedInitialParamsRef.current = {
+        lastPreviewParamsRef.current = {
           prompt: parsedData.prompt,
           modules: parsedData.modules,
           lessonsPerModule: parsedData.lessonsPerModule,
           language: parsedData.language,
         };
-        didRestoreRef.current = true;
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
       } finally {
@@ -278,81 +276,53 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
-    console.log("[PreviewEffect] trigger", {
-      skipFlag: skipNextPreviewRef.current,
-      prompt,
-      modules,
-      lessonsPerModule,
-      language,
-      loading,
-      isGenerating,
-    });
-
-    // Skip preview fetching on first mount after returning from Advanced page
-    if (skipNextPreviewRef.current) {
-      const sameAsInitial = advancedInitialParamsRef.current &&
-        advancedInitialParamsRef.current.prompt === prompt &&
-        advancedInitialParamsRef.current.modules === modules &&
-        advancedInitialParamsRef.current.lessonsPerModule === lessonsPerModule &&
-        advancedInitialParamsRef.current.language === language;
-      if (sameAsInitial) {
-        console.log("[PreviewEffect] Skipping fetch – params unchanged after Advanced return");
-        return; // Keep current preview, no fetch
-      }
-      if (didRestoreRef.current) {
-        // Params have changed AFTER restore – clear skip flag to allow fetching
-        skipNextPreviewRef.current = false;
-        console.log("[PreviewEffect] Params changed post-restore – clearing skip flag, will fetch");
-      } else {
-        // Still in first render cycle before restored state applied; wait one more render
-        console.log("[PreviewEffect] Waiting one render for restored state to settle");
-        return;
-      }
-    }
-
-    // Skip preview fetching while finalizing
+    // Skip while finalizing
     if (isGenerating) return;
 
-    const handler = setTimeout(() => {
-      if (prompt.length === 0 || loading) return;
-      if (!chatId) return;
-      if (previewAbortRef.current) {
-        previewAbortRef.current.abort();
+    // If params unchanged from last preview, skip fetch
+    const same = lastPreviewParamsRef.current &&
+      lastPreviewParamsRef.current.prompt === prompt &&
+      lastPreviewParamsRef.current.modules === modules &&
+      lastPreviewParamsRef.current.lessonsPerModule === lessonsPerModule &&
+      lastPreviewParamsRef.current.language === language;
+
+    if (same) return;
+
+    if (prompt.length === 0 || loading) return;
+    if (!chatId) return;
+
+    const abortController = new AbortController();
+    if (previewAbortRef.current) previewAbortRef.current.abort();
+    previewAbortRef.current = abortController;
+
+    const fetchPreview = async () => {
+      setLoading(true);
+      setError(null);
+      setPreview([]);
+      setRawOutline("");
+      try {
+        const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
+          signal: abortController.signal,
+        });
+        if (!res.ok) throw new Error(`Bad response ${res.status}`);
+        const data = await res.json();
+        setPreview(Array.isArray(data.modules) ? data.modules : []);
+        setRawOutline(typeof data.raw === "string" ? data.raw : "");
+        // record params of fetched preview
+        lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+      } catch (e: any) {
+        if (e.name !== "AbortError") setError(e.message);
+      } finally {
+        if (!abortController.signal.aborted) setLoading(false);
       }
-      const abortController = new AbortController();
-      previewAbortRef.current = abortController;
-      console.log("[PreviewEffect] Fetching preview from backend...");
-      const fetchPreview = async () => {
-        setLoading(true);
-        setError(null);
-        setPreview([]);
-        setRawOutline("");
-        try {
-          const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
-            signal: abortController.signal,
-          });
-          if (!res.ok) throw new Error(`Bad response ${res.status}`);
-          const data = await res.json();
-          setPreview(Array.isArray(data.modules) ? data.modules : []);
-          setRawOutline(typeof data.raw === "string" ? data.raw : "");
-          console.log("[PreviewEffect] Preview fetched", data);
-        } catch (e: any) {
-          if (e.name === "AbortError") return;
-          setError(e.message);
-          console.error("[PreviewEffect] Error fetching preview", e);
-        } finally {
-          if (!abortController.signal.aborted) {
-            setLoading(false);
-          }
-        }
-      };
-      fetchPreview();
-      return () => abortController.abort();
-    }, 500);
-    return () => clearTimeout(handler);
+    };
+
+    fetchPreview();
+
+    return () => abortController.abort();
   }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
 
   const handleModuleChange = (index: number, value: string) => {
@@ -617,11 +587,12 @@ export default function CourseOutlineClient() {
   const [imageSource, setImageSource] = useState<string>("ai");
   const [aiModel, setAiModel] = useState<string>("flux-fast");
 
-  // When we perform local edits that change module count (e.g., Add Module) we
-  // don't want the automatic preview refetch to overwrite the user-edited copy
-  // right away.  We flip this ref before changing `modules`; the preview effect
-  // checks it and skips one cycle.
-  const skipNextPreviewRef = useRef(false);
+  const lastPreviewParamsRef = useRef<{
+    prompt: string;
+    modules: number;
+    lessonsPerModule: string;
+    language: string;
+  } | null>(null);
 
   // Add a brand-new module to the editable preview list
   const handleAddModule = () => {
@@ -635,25 +606,12 @@ export default function CourseOutlineClient() {
       return [...prev, newMod];
     });
 
-    // Prevent backend autofetch from clobbering the locally added module
-    skipNextPreviewRef.current = true;
-    setModules((c) => c + 1);
-
     // Focus the new module title field on the next tick
     requestAnimationFrame(() => {
       const input = document.querySelector<HTMLInputElement>(`input[data-modtitle='${modules}']`);
       input?.focus();
     });
   };
-
-  const advancedInitialParamsRef = useRef<{
-    prompt: string;
-    modules: number;
-    lessonsPerModule: string;
-    language: string;
-  } | null>(null);
-
-  const didRestoreRef = useRef(false);
 
   return (
     <>
