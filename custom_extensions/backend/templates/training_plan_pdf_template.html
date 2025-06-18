@@ -120,13 +120,11 @@
     {% set show_time = opts.get('time', True) %}
 
     {# Build grid-template-columns string dynamically (Module column + optional others) #}
-    {% set cols_list = [] %}
-    {% do cols_list.append('8fr') %} {# Module & Lessons – wider #}
-    {% if show_knowledge_check %}{% do cols_list.append('4fr') %}{% endif %}
-    {% if show_content_availability %}{% do cols_list.append('3fr') %}{% endif %}
-    {% if show_information_source %}{% do cols_list.append('5fr') %}{% endif %}
-    {% if show_time %}{% do cols_list.append('3fr') %}{% endif %}
-    {% set grid_template_dynamic = cols_list | join(' ') %}
+    {% set grid_template_dynamic = '8fr' %} {# Module & Lessons – wider #}
+    {% if show_knowledge_check %}{% set grid_template_dynamic = grid_template_dynamic ~ ' 4fr' %}{% endif %}
+    {% if show_content_availability %}{% set grid_template_dynamic = grid_template_dynamic ~ ' 3fr' %}{% endif %}
+    {% if show_information_source %}{% set grid_template_dynamic = grid_template_dynamic ~ ' 5fr' %}{% endif %}
+    {% if show_time %}{% set grid_template_dynamic = grid_template_dynamic ~ ' 3fr' %}{% endif %}
 
     <div class="p-4 md:p-8">
         <div class="shadow-lg rounded-lg overflow-hidden border border-gray-200 bg-white w-full">
