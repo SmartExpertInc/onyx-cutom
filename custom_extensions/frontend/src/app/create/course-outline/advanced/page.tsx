@@ -169,38 +169,42 @@ export default function CourseOutlineAdvancedPage() {
     setIsGenerating(true);
     setError(null);
     try {
-      const outlineForBackend = {
-        mainTitle: prompt,
-        sections: preview.map((m, idx) => ({
-          id: `№${idx + 1}`,
-          title: m.title,
-          totalHours: 0,
-          lessons: m.lessons.map((les) => ({
-            title: les.split(/\r?\n/)[0],
-            check: { type: "no", text: "" },
-            contentAvailable: { type: "no", text: "" },
-            source: "",
-            hours: 0,
-          })),
-        })),
-        detectedLanguage: language,
-      };
+      // If we have a raw outline text from a previous run, use it. Otherwise,
+      // join the structured preview data into a markdown-like string.
+      const outlineText =
+        rawOutline ||
+        preview
+          .map(
+            (mod, i) =>
+              `Module ${i + 1}: ${mod.title}\n${mod.lessons
+                .map((lesson, j) => `  - Lesson ${j + 1}: ${lesson}`)
+                .join("\n")}`
+          )
+          .join("\n\n");
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt, modules, lessonsPerModule, language, chatId: chatId, editedOutline: outlineForBackend,
+          chatId,
+          outline: outlineText,
+          theme: 'peach', // Using default theme from original page
         }),
       });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      const qp = new URLSearchParams();
-      Object.entries(filters).forEach(([key, val]) => qp.set(key, val ? "1" : "0"));
-      router.push(`/projects/view/${data.id}?${qp.toString()}`);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({
+          error: "An unknown error occurred",
+        }));
+        throw new Error(
+          errorData.error || `Request failed with status ${res.status}`
+        );
+      }
+      const { productId } = await res.json();
+      router.push(`/products/${productId}`);
     } catch (e: any) {
-      setError(e.message);
-      setIsGenerating(false);
+      setError(e.message || "Failed to generate course");
+    } finally {
+        setIsGenerating(false);
     }
   };
   
