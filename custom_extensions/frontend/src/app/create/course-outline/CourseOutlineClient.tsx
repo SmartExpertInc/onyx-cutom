@@ -188,8 +188,6 @@ export default function CourseOutlineClient() {
   const [preview, setPreview] = useState<ModulePreview[]>([]);
   const [rawOutline, setRawOutline] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  // True once the first delta packet arrives so we can hide fake-thought text
-  const [streamingStarted, setStreamingStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -406,7 +404,6 @@ export default function CourseOutlineClient() {
             if (!ln.trim()) continue;
             const pkt = JSON.parse(ln);
             if (pkt.type === "delta") {
-              if (!streamingStarted) setStreamingStarted(true);
               accumulatedRaw += pkt.text;
               // Parse progressively and update preview so UI replaces old markdown
               const parsed = parseOutlineMarkdown(accumulatedRaw);
@@ -424,17 +421,14 @@ export default function CourseOutlineClient() {
       } catch (e: any) {
         if (e.name !== "AbortError") setError(e.message);
       } finally {
-        if (!abortController.signal.aborted) {
-          setLoading(false);
-          setStreamingStarted(false);
-        }
+        if (!abortController.signal.aborted) setLoading(false);
       }
     };
 
     fetchPreview();
 
     return () => abortController.abort();
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, streamingStarted]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {
@@ -836,7 +830,7 @@ export default function CourseOutlineClient() {
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
-          {loading && !streamingStarted && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div
