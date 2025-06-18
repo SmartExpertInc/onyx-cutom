@@ -317,6 +317,8 @@ class TrainingPlanDetails(BaseModel):
     mainTitle: Optional[str] = None
     sections: List[SectionDetail] = Field(default_factory=list)
     detectedLanguage: Optional[str] = None
+    # Store user preferences on which optional columns to show in UI (frontend reads this)
+    displayOptions: Optional[Dict[str, bool]] = None  # e.g., {"knowledgeCheck": true, "contentAvailability": false}
     model_config = {"from_attributes": True}
 
 AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
@@ -575,6 +577,7 @@ ProjectDB.model_rebuild()
 MicroProductApiResponse.model_rebuild()
 ProjectDetailForEditResponse.model_rebuild()
 ProjectUpdateRequest.model_rebuild()
+TrainingPlanDetails.model_rebuild()
 
 class ErrorDetail(BaseModel):
     detail: str
@@ -2294,6 +2297,7 @@ ProjectDB.model_rebuild()
 MicroProductApiResponse.model_rebuild()
 ProjectDetailForEditResponse.model_rebuild()
 ProjectUpdateRequest.model_rebuild()
+TrainingPlanDetails.model_rebuild()
 
 # ========================= Wizard Course Outline Endpoints =========================
 

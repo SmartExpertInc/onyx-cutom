@@ -88,6 +88,9 @@ export default function ProjectInstanceViewPage() {
   // State for the absolute chat URL
   const [chatRedirectUrl, setChatRedirectUrl] = useState<string | null>(null);
 
+  /* --- Persist column visibility (displayOptions) once after creation --- */
+  const [displayOptsSynced, setDisplayOptsSynced] = useState(false);
+
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
     setPageState('fetching');
     setErrorMessage(null);
@@ -196,6 +199,52 @@ export default function ProjectInstanceViewPage() {
     }
   }, [projectId, params, fetchPageData, pageState, projectInstanceData]);
 
+  useEffect(() => {
+    if (displayOptsSynced) return;
+    if (!projectId || !editableData || !projectInstanceData) return;
+    if (projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN) return;
+
+    const paramVal = (key: string): string | null => params?.get(key) ?? null;
+
+    const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","time"].some(k => paramVal(k) !== null);
+    if (!hasExplicitParams) return; // nothing to persist
+
+    const desired = {
+      knowledgeCheck: paramVal("knowledgeCheck") === "0" ? false : true,
+      contentAvailability: paramVal("contentAvailability") === "0" ? false : true,
+      informationSource: paramVal("informationSource") === "0" ? false : true,
+      time: paramVal("time") === "0" ? false : true,
+    } as const;
+
+    // @ts-ignore – runtime check only
+    const currentStored = (editableData as any)?.displayOptions || {};
+
+    if (JSON.stringify(currentStored) === JSON.stringify(desired)) {
+      setDisplayOptsSynced(true);
+      return;
+    }
+
+    const mergedContent = { ...(editableData as any), displayOptions: desired };
+
+    const saveOpts = async () => {
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== 'undefined' ? sessionStorage.getItem('dev_user_id') : null;
+      if (devUserId && process.env.NODE_ENV === 'development') headers['X-Dev-Onyx-User-ID'] = devUserId;
+
+      try {
+        await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ microProductContent: mergedContent }),
+        });
+        setDisplayOptsSynced(true);
+      } catch (e) {
+        console.warn('Could not persist displayOptions', e);
+      }
+    };
+
+    saveOpts();
+  }, [displayOptsSynced, projectId, editableData, projectInstanceData, params]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
     setEditableData(currentData => {
