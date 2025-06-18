@@ -137,9 +137,9 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
     const indent = raw.match(/^\s*/)?.[0].length ?? 0;
     const line = raw.trim();
 
-    if (line.startsWith("## ")) {
+    if (/^#+\s+/.test(line)) {
       flushLesson();
-      const title = line.replace(/^##\s*/, "").split(":").pop()?.trim() || "Module";
+      const title = line.replace(/^#+\s*/, "").split(":").pop()?.trim() || "Module";
       current = { id: `mod${modules.length + 1}`, title, lessons: [] };
       modules.push(current);
       return;
@@ -410,7 +410,8 @@ export default function CourseOutlineClient() {
               setPreview(parsed);
               setRawOutline(accumulatedRaw); // still keep full text for advanced mode
             } else if (pkt.type === "done") {
-              const finalMods = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
+              const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
+              const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
               setPreview(finalMods);
               setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
               lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
