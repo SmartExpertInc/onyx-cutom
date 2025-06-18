@@ -78,6 +78,10 @@ export default function CourseOutlineAdvancedPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // ===== New state for incremental 'edit' prompt =====
+  const [editPrompt, setEditPrompt] = useState("");
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
   useEffect(() => {
     try {
       const data = sessionStorage.getItem('advanced-mode-data');
@@ -226,6 +230,70 @@ export default function CourseOutlineAdvancedPage() {
   const lessonsTotal = useMemo(() => preview.reduce((sum, m) => sum + m.lessons.length, 0), [preview]);
   const creditsRequired = lessonsTotal * 2;
 
+  // Helper: lazily create chat session if we don't have one yet (copied from wizard page)
+  const ensureChatSession = async () => {
+    if (chatId) return chatId;
+    try {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/course-outline/init-chat`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to init chat session");
+      const data = await res.json();
+      if (data.chatSessionId) {
+        setChatId(data.chatSessionId);
+        return data.chatSessionId as string;
+      }
+    } catch {
+      /* swallow */
+    }
+    return null;
+  };
+
+  // ===== Submit incremental edit =====
+  const handleEditOutline = async () => {
+    const trimmed = editPrompt.trim();
+    if (!trimmed) return;
+
+    // Combine previous prompt with the newly entered edit instruction.
+    let combined = prompt.trim();
+    if (combined && !/[.!?]$/.test(combined)) combined += "."; // ensure sentence break
+    combined = combined ? `${combined} ${trimmed}` : trimmed;
+
+    const chat = await ensureChatSession();
+    if (!chat) {
+      setError("Unable to create chat session");
+      return;
+    }
+
+    setLoadingPreview(true);
+    setError(null);
+    try {
+      const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: combined,
+          modules,
+          lessonsPerModule,
+          language,
+          chatSessionId: chat,
+        }),
+      });
+      if (!res.ok) throw new Error(`Bad response ${res.status}`);
+      const data = await res.json();
+
+      // Update UI with new preview & prompt
+      setPreview(Array.isArray(data.modules) ? data.modules : []);
+      setRawOutline(typeof data.raw === "string" ? data.raw : "");
+      setPrompt(combined);
+      setEditPrompt("");
+    } catch (e: any) {
+      setError(e.message || "Failed to fetch outline");
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
 
   return (
     <>
@@ -305,7 +373,11 @@ export default function CourseOutlineAdvancedPage() {
                 {/* Prompt textarea */}
                 <div className="flex flex-col gap-[4px]">
                   <span className="text-[13px] text-[#20355D]">Write for…</span>
-                  <textarea className="h-[80px] rounded-[6px] border border-[#CED9FF] bg-white px-[10px] py-[8px] text-[13px] text-[#20355D] resize-none" />
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="h-[80px] rounded-[6px] border border-[#CED9FF] bg-white px-[10px] py-[8px] text-[13px] text-[#20355D] resize-none"
+                  />
                 </div>
 
                 {/* Audience chips */}
@@ -517,9 +589,22 @@ export default function CourseOutlineAdvancedPage() {
 
         {/* RIGHT SIDEBAR – instructions & tips */}
         <aside className="w-[260px] shrink-0 flex flex-col gap-[24px]">
-          <div className="bg-white rounded-[12px] border border-[#D9E1FF] p-[16px] shadow">
-            <h3 className="text-[14px] font-medium text-[#20355D] mb-[8px]">Additional&nbsp;instructions</h3>
-            <div className="h-[240px] bg-[#F9FAFF] rounded-[6px]" />
+          <div className="bg-white rounded-[12px] border border-[#D9E1FF] p-[16px] shadow flex flex-col gap-3">
+            <h3 className="text-[14px] font-medium text-[#20355D]">Additional&nbsp;instructions</h3>
+            <textarea
+              value={editPrompt}
+              onChange={(e) => setEditPrompt(e.target.value)}
+              placeholder="e.g. Adapt this course for the US market"
+              className="w-full h-[120px] rounded-[6px] border border-[#CED9FF] bg-[#F9FAFF] px-[10px] py-[8px] text-[13px] text-[#20355D] resize-none placeholder:text-[#818E9F]"
+            />
+            <button
+              type="button"
+              onClick={handleEditOutline}
+              disabled={loadingPreview || !editPrompt.trim()}
+              className="self-end px-6 py-2 rounded-full bg-[#2A4FFF] text-white text-sm font-medium hover:bg-[#2040d0] disabled:opacity-50"
+            >
+              {loadingPreview ? "Editing…" : "Edit"}
+            </button>
           </div>
           <div className="bg-white rounded-[12px] border border-[#D9E1FF] p-[16px] shadow">
             <h3 className="text-[14px] font-medium text-[#20355D] mb-[8px]">Tips</h3>
