@@ -363,12 +363,6 @@ export default function CourseOutlineClient() {
           })),
         })),
         detectedLanguage: language,
-        displayOptions: {
-          knowledgeCheck: filters.knowledgeCheck,
-          contentAvailability: filters.contentAvailability,
-          informationSource: filters.informationSource,
-          time: filters.time,
-        },
       };
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {
