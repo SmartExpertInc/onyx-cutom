@@ -234,6 +234,7 @@ export default function CourseOutlineClient() {
         setLanguage(parsedData.language);
         setChatId(parsedData.chatId);
         setFilters(parsedData.filters);
+        setRawOutline(parsedData.rawOutline || "");
         skipNextPreviewRef.current = true;
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
@@ -268,66 +269,75 @@ export default function CourseOutlineClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
-    // Skip preview fetching while the user is finalizing the outline
-    if (isGenerating) return;
-    // If the last operation intentionally asked to skip preview – just reset the
-    // flag and bail out.
+    // skip initial fetch if data is loaded from session storage
     if (skipNextPreviewRef.current) {
       skipNextPreviewRef.current = false;
       return;
     }
-    // Need a chat session id – we'll lazily request one first
-    if (!chatId) return;
-
-    // Abort any previously queued/in-flight request – we only want the very latest parameters
-    if (previewAbortRef.current) {
-      previewAbortRef.current.abort();
-    }
-
-    const abortController = new AbortController();
-    previewAbortRef.current = abortController;
-
-    const fetchPreview = async () => {
-      setLoading(true);
-      setError(null);
-      setPreview([]);
-      setRawOutline("");
-
-      try {
-        const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
-          signal: abortController.signal,
-        });
-
-        if (!res.ok) {
-          throw new Error(`Bad response ${res.status}`);
-        }
-
-        const data = await res.json();
-        // Backend returns {{modules, raw}}
-        setPreview(Array.isArray(data.modules) ? data.modules : []);
-        setRawOutline(typeof data.raw === "string" ? data.raw : "");
-      } catch (e: any) {
-        if (e.name === "AbortError") return; // request was cancelled – ignore
-        setError(e.message);
-      } finally {
-        // Only clear loading if THIS request wasn't aborted; another newer request may be in-flight.
-        if (!abortController.signal.aborted) {
-          setLoading(false);
-        }
+    const handler = setTimeout(() => {
+      // Don't auto-fetch if prompt is empty or we're already loading
+      if (prompt.length === 0 || loading) return;
+      // If the last operation intentionally asked to skip preview – just reset the
+      // flag and bail out.
+      if (skipNextPreviewRef.current) {
+        skipNextPreviewRef.current = false;
+        return;
       }
-    };
+      // Need a chat session id – we'll lazily request one first
+      if (!chatId) return;
 
-    fetchPreview();
+      // Abort any previously queued/in-flight request – we only want the very latest parameters
+      if (previewAbortRef.current) {
+        previewAbortRef.current.abort();
+      }
 
-    // Cleanup: abort the request if the component unmounts or deps change before completion
-    return () => {
-      abortController.abort();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      const abortController = new AbortController();
+      previewAbortRef.current = abortController;
+
+      const fetchPreview = async () => {
+        setLoading(true);
+        setError(null);
+        setPreview([]);
+        setRawOutline("");
+
+        try {
+          const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
+            signal: abortController.signal,
+          });
+
+          if (!res.ok) {
+            throw new Error(`Bad response ${res.status}`);
+          }
+
+          const data = await res.json();
+          // Backend returns {{modules, raw}}
+          setPreview(Array.isArray(data.modules) ? data.modules : []);
+          setRawOutline(typeof data.raw === "string" ? data.raw : "");
+        } catch (e: any) {
+          if (e.name === "AbortError") return; // request was cancelled – ignore
+          setError(e.message);
+        } finally {
+          // Only clear loading if THIS request wasn't aborted; another newer request may be in-flight.
+          if (!abortController.signal.aborted) {
+            setLoading(false);
+          }
+        }
+      };
+
+      fetchPreview();
+
+      // Cleanup: abort the request if the component unmounts or deps change before completion
+      return () => {
+        abortController.abort();
+      };
+    }, 500);
+
+    return () => clearTimeout(handler);
   }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
 
   const handleModuleChange = (index: number, value: string) => {
