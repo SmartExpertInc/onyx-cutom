@@ -137,9 +137,9 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
     const indent = raw.match(/^\s*/)?.[0].length ?? 0;
     const line = raw.trim();
 
-    if (/^#+\s+/.test(line)) {
+    if (line.startsWith("## ")) {
       flushLesson();
-      const title = line.replace(/^#+\s*/, "").split(":").pop()?.trim() || "Module";
+      const title = line.replace(/^##\s*/, "").split(":").pop()?.trim() || "Module";
       current = { id: `mod${modules.length + 1}`, title, lessons: [] };
       modules.push(current);
       return;

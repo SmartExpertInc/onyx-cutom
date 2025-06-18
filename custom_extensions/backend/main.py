@@ -2439,7 +2439,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
         line = raw_line.lstrip()
 
         # Module detection
-        if re.match(r"^#+\s+", line):
+        if line.startswith("## "):
             # flush any buffered lesson into previous module before switching
             if current:
                 last_lesson = flush_current_lesson(_buf)
