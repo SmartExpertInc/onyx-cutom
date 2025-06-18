@@ -6,7 +6,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Filter, Lock } from "lucide-react";
+import { Sparkles, Filter, Lock, ListOrdered, Presentation, Video, ClipboardCheck } from "lucide-react";
 
 export default function CourseOutlineAdvancedPage() {
   const [textAction, setTextAction] = useState('generate');
@@ -14,6 +14,16 @@ export default function CourseOutlineAdvancedPage() {
   const [outputLanguage, setOutputLanguage] = useState('en');
   const [imageSource, setImageSource] = useState('ai');
   const [imageModel, setImageModel] = useState('flux-fast');
+  const [openSections, setOpenSections] = useState({
+    text: true,
+    image: true,
+    format: true,
+  });
+  const [format, setFormat] = useState('course-outline');
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   return (
     <main
@@ -40,23 +50,27 @@ export default function CourseOutlineAdvancedPage() {
           {/* Text content card – pixel-match */}
           <div className="bg-white rounded-[12px] border border-[#CED9FF] shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex flex-col">
             {/* Accordion header */}
-            <button className="flex items-center justify-between px-[20px] py-[14px] select-none">
+            <button 
+              onClick={() => toggleSection('text')}
+              className="flex items-center justify-between px-[20px] py-[14px] select-none"
+            >
               <span className="text-[#20355D] text-[18px] font-medium">Text content</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${openSections.text ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
             </button>
 
+            {openSections.text && (
             <div className="border-t border-[#E7ECFF] px-[20px] pb-[24px] flex flex-col gap-[20px]">
               {/* Text actions */}
               <div className="flex justify-center gap-[4px] mt-[12px]">
                 {[
-                  { id: 'generate', label: 'Generate', color: 'bg-[#2A4FFF]', icon: <Sparkles size={14} /> },
-                  { id: 'condense', label: 'Condense', color: 'bg-[#F3F6FF]', icon: <Filter size={14} /> },
-                  { id: 'reserve', label: 'Reserve', color: 'bg-[#F3F6FF]', icon: <Lock size={14} /> },
+                  { id: 'generate', label: 'Generate', color: 'bg-[#2A4FFF]', icon: <Sparkles size={12} /> },
+                  { id: 'condense', label: 'Condense', color: 'bg-[#F3F6FF]', icon: <Filter size={12} /> },
+                  { id: 'reserve', label: 'Reserve', color: 'bg-[#F3F6FF]', icon: <Lock size={12} /> },
                 ].map((b) => (
                   <button
                     key={b.id}
                     onClick={() => setTextAction(b.id)}
-                    className={`h-[36px] px-[14px] flex items-center justify-center gap-[6px] rounded-[6px] text-[13px] font-medium transition-colors ${textAction === b.id && b.id === 'generate' ? 'bg-[#2A4FFF] text-white' : 'bg-[#F3F6FF] text-[#20355D]'}`}
+                    className={`h-[30px] px-[12px] flex items-center justify-center gap-[5px] rounded-[6px] text-[12px] font-medium transition-colors ${textAction === b.id && b.id === 'generate' ? 'bg-[#2A4FFF] text-white' : 'bg-[#F3F6FF] text-[#20355D]'}`}
                   >
                     {b.icon}
                     {b.label}
@@ -126,18 +140,23 @@ export default function CourseOutlineAdvancedPage() {
                 </select>
               </div>
             </div>
+            )}
           </div>
 
           {/* Image Section */}
           <div className="bg-white rounded-[12px] border border-[#CED9FF] shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex flex-col">
             {/* Accordion header */}
-            <button className="flex items-center justify-between w-full px-[20px] py-[14px] select-none">
+            <button 
+              onClick={() => toggleSection('image')}
+              className="flex items-center justify-between w-full px-[20px] py-[14px] select-none"
+            >
               <div className="flex items-center gap-[8px]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3C1.89543 3 1 3.89543 1 5V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V5C23 3.89543 22.1046 3 21 3ZM3 19V5H21V19H3Z" fill="#20355D"/><path d="M8 9C7.44772 9 7 9.44772 7 10C7 10.5523 7.44772 11 8 11C8.55228 11 9 10.5523 9 10C9 9.44772 8.55228 9 8 9Z" fill="#20355D"/><path d="M11 16L7 12L4 15V18H20V12L16 8L11 16Z" fill="#20355D"/></svg>
                 <span className="text-[#20355D] text-[18px] font-medium">Image</span>
               </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 9L12 15L6 9"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${openSections.image ? 'rotate-180' : ''}`}><path d="M18 9L12 15L6 9"/></svg>
             </button>
+            {openSections.image && (
             <div className="border-t border-[#E7ECFF] px-[20px] pb-[24px] flex flex-col gap-[20px] pt-[12px]">
               {/* Image source */}
               <div className="flex flex-col gap-[6px]">
@@ -184,59 +203,53 @@ export default function CourseOutlineAdvancedPage() {
                 </div>
               </div>
             </div>
+            )}
           </div>
 
           {/* Format Section */}
           <div className="bg-white rounded-[12px] border border-[#CED9FF] shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex flex-col">
             {/* Accordion header */}
-            <button className="flex items-center justify-between w-full px-[20px] py-[14px] select-none">
+            <button 
+              onClick={() => toggleSection('format')}
+              className="flex items-center justify-between w-full px-[20px] py-[14px] select-none"
+            >
               <div className="flex items-center gap-[8px]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#20355D"><path d="M10 4H4v6h6V4zm-2 4H6V6h2v2zm8-4h-6v6h6V4zm-2 4h-2V6h2v2zM8 12H4v6h6v-6zm-2 4H6v-2h2v2zm8-4h-6v6h6v-6zm-2 4h-2v-2h2v2z"/></svg>
                 <span className="text-[#20355D] text-[18px] font-medium">Format</span>
               </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 9L12 15L6 9"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${openSections.format ? 'rotate-180' : ''}`}><path d="M18 9L12 15L6 9"/></svg>
             </button>
+            {openSections.format && (
             <div className="border-t border-[#E7ECFF] px-[20px] pb-[24px] flex flex-col gap-[12px] pt-[12px]">
               {/* Grid */}
               <div className="grid grid-cols-2 gap-[8px]">
-                {/* Presentation - selected */}
-                <button className="relative rounded-[6px] border-2 border-[#2A4FFF] bg-[#F0F4FF] p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
-                  <div className="absolute top-[8px] left-[8px]">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="#2A4FFF" stroke="white" strokeWidth="1"/><path d="m5 8 2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  </div>
-                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm0 2v8h16V5H4zm8 10l-4 4h8l-4-4z" fill="#2A4FFF"/></svg>
-                  <span className="text-[13px] font-medium text-[#20355D]">Presentation</span>
-                </button>
-                {/* Web page */}
-                <button className="relative rounded-[6px] border border-[#D9E1FF] bg-white p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
-                  <div className="absolute top-[8px] left-[8px]">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="white" stroke="#D9E1FF" strokeWidth="1"/></svg>
-                  </div>
-                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M20 4H4a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM5 19V7h14v12H5zm0-14h14v1H5V5z" fill="#A5B4FF"/></svg>
-                  <span className="text-[13px] font-medium text-[#20355D]">Web page</span>
-                </button>
-                {/* Document */}
-                <button className="relative rounded-[6px] border border-[#D9E1FF] bg-white p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
-                   <div className="absolute top-[8px] left-[8px]">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="white" stroke="#D9E1FF" strokeWidth="1"/></svg>
-                  </div>
-                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M6 2h10l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 2v4h8V4H7z" fill="#A5B4FF"/></svg>
-                  <span className="text-[13px] font-medium text-[#20355D]">Document</span>
-                </button>
-                {/* Social */}
-                <button className="relative rounded-[6px] border border-[#D9E1FF] bg-white p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center">
-                   <div className="absolute top-[8px] left-[8px]">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill="white" stroke="#D9E1FF" strokeWidth="1"/></svg>
-                  </div>
-                  <svg width="32" height="32" viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 2v14h8V4H8zm3 15a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="#A5B4FF"/></svg>
-                  <span className="text-[13px] font-medium text-[#20355D]">Social</span>
-                </button>
+                {[
+                  { id: 'course-outline', label: 'Course Outline', icon: <ListOrdered size={32} /> },
+                  { id: 'lesson-presentation', label: 'Lesson Presentation', icon: <Presentation size={32} /> },
+                  { id: 'video-script', label: 'Video Lesson Script', icon: <Video size={32} /> },
+                  { id: 'quiz', label: 'Quiz', icon: <ClipboardCheck size={32} /> },
+                ].map(item => (
+                  <button 
+                    key={item.id}
+                    onClick={() => setFormat(item.id)}
+                    className={`relative rounded-[6px] border p-[12px] flex flex-col items-center justify-center gap-[8px] h-[90px] text-center transition-colors ${format === item.id ? 'border-2 border-[#2A4FFF] bg-[#F0F4FF]' : 'border border-[#D9E1FF] bg-white'}`}
+                  >
+                    <div className="absolute top-[8px] left-[8px]">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" fill={format === item.id ? '#2A4FFF' : 'white'} stroke={format === item.id ? 'white' : '#D9E1FF'} strokeWidth="1"/><path d="m5 8 2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: format === item.id ? 'block' : 'none' }}/></svg>
+                    </div>
+                    <div className={format === item.id ? 'text-[#2A4FFF]' : 'text-[#A5B4FF]'}>
+                      {item.icon}
+                    </div>
+                    <span className="text-[13px] font-medium text-[#20355D]">{item.label}</span>
+                  </button>
+                ))}
               </div>
               {/* Default settings dropdown */}
               <select className="h-[36px] rounded-[6px] border border-[#CED9FF] px-[12px] bg-white text-[13px] text-[#20355D]">
                   <option>Default</option>
               </select>
             </div>
+            )}
           </div>
         </aside>
 
