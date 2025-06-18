@@ -404,6 +404,7 @@ export default function CourseOutlineClient() {
             if (!ln.trim()) continue;
             const pkt = JSON.parse(ln);
             if (pkt.type === "delta") {
+              if (!streamingStarted) setStreamingStarted(true);
               accumulatedRaw += pkt.text;
               // Parse progressively and update preview so UI replaces old markdown
               const parsed = parseOutlineMarkdown(accumulatedRaw);
@@ -421,14 +422,17 @@ export default function CourseOutlineClient() {
       } catch (e: any) {
         if (e.name !== "AbortError") setError(e.message);
       } finally {
-        if (!abortController.signal.aborted) setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+          setStreamingStarted(false);
+        }
       }
     };
 
     fetchPreview();
 
     return () => abortController.abort();
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, streamingStarted]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {
@@ -830,7 +834,7 @@ export default function CourseOutlineClient() {
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
-          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+          {loading && !streamingStarted && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div

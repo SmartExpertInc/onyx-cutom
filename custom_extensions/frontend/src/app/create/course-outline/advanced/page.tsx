@@ -132,6 +132,8 @@ export default function CourseOutlineAdvancedPage() {
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
 
+  const docRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     try {
       const data = sessionStorage.getItem('advanced-mode-data');
@@ -349,6 +351,11 @@ export default function CourseOutlineAdvancedPage() {
             const parsed = parseOutlineMarkdown(accRaw);
             setPreview(parsed);
             setRawOutline(accRaw);
+            // Auto-scroll to bottom to keep the newest modules in view
+            if (docRef.current) {
+              const el = docRef.current;
+              el.scrollTop = el.scrollHeight;
+            }
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -600,7 +607,7 @@ export default function CourseOutlineAdvancedPage() {
         </aside>
 
         {/* CENTER – editable document */}
-        <div className="flex-1 bg-white rounded-[12px] border border-[#D9E1FF] shadow-[0_2px_4px_rgba(0,0,0,0.05)] p-[40px] overflow-auto min-h-[640px]">
+        <div ref={docRef} className="flex-1 bg-white rounded-[12px] border border-[#D9E1FF] shadow-[0_2px_4px_rgba(0,0,0,0.05)] p-[40px] overflow-auto min-h-[640px]">
           {preview.length > 0 ? (
             <div className="bg-white flex flex-col gap-6">
               {preview.map((mod: ModulePreview, modIdx: number) => (
