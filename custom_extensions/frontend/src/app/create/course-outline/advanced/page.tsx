@@ -4,10 +4,17 @@
 // This page is a static, pixel-perfect replica of the Figma frame "FULL_ADNVACED_PAGE".
 // Functionality wires will be added later – for now we only mirror layout & visual styling.
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { Sparkles, Filter, Lock } from "lucide-react";
 
 export default function CourseOutlineAdvancedPage() {
+  const [textAction, setTextAction] = useState('generate');
+  const [textAmount, setTextAmount] = useState('detailed');
+  const [outputLanguage, setOutputLanguage] = useState('en');
+  const [imageSource, setImageSource] = useState('ai');
+  const [imageModel, setImageModel] = useState('flux-fast');
+
   return (
     <main
       className="min-h-screen w-full flex flex-col items-center bg-[linear-gradient(180deg,_#FFFFFF_0%,_#CBDAFB_35%,_#AEE5FA_70%,_#FFFFFF_100%)]"
@@ -40,18 +47,18 @@ export default function CourseOutlineAdvancedPage() {
 
             <div className="border-t border-[#E7ECFF] px-[20px] pb-[24px] flex flex-col gap-[20px]">
               {/* Text actions */}
-              <div className="flex gap-[4px] mt-[12px]">
+              <div className="flex justify-center gap-[4px] mt-[12px]">
                 {[
-                  { label: 'Generate', color: 'bg-[#2A4FFF]', icon: 'sparkles' },
-                  { label: 'Condense', color: 'bg-[#F3F6FF]', icon: 'filter' },
-                  { label: 'Reserve', color: 'bg-[#F3F6FF]', icon: 'lock' },
-                ].map((b, idx) => (
+                  { id: 'generate', label: 'Generate', color: 'bg-[#2A4FFF]', icon: <Sparkles size={14} /> },
+                  { id: 'condense', label: 'Condense', color: 'bg-[#F3F6FF]', icon: <Filter size={14} /> },
+                  { id: 'reserve', label: 'Reserve', color: 'bg-[#F3F6FF]', icon: <Lock size={14} /> },
+                ].map((b) => (
                   <button
-                    key={idx}
-                    className={`h-[36px] px-[12px] flex-1 flex items-center justify-center gap-[6px] rounded-[6px] text-[13px] font-medium ${b.color} ${idx===0?'text-white':'text-[#20355D]'}`}
+                    key={b.id}
+                    onClick={() => setTextAction(b.id)}
+                    className={`h-[36px] px-[14px] flex items-center justify-center gap-[6px] rounded-[6px] text-[13px] font-medium transition-colors ${textAction === b.id && b.id === 'generate' ? 'bg-[#2A4FFF] text-white' : 'bg-[#F3F6FF] text-[#20355D]'}`}
                   >
-                    {/* simple inline icon placeholder */}
-                    <span className="w-[14px] h-[14px] inline-block bg-current opacity-70" />
+                    {b.icon}
                     {b.label}
                   </button>
                 ))}
@@ -60,17 +67,18 @@ export default function CourseOutlineAdvancedPage() {
               {/* Text length */}
               <div className="flex flex-col gap-[8px]">
                 <span className="text-[13px] text-[#20355D]">Amount of text per card</span>
-                <div className="flex gap-[4px]">
+                <div className="flex justify-center gap-[4px]">
                   {[
-                    { label: 'Short', icon: '=' },
-                    { label: 'Medium', icon: 'filter' },
-                    { label: 'Detailed', icon: 'align' },
-                  ].map((o, idx) => (
+                    { id: 'short', label: 'Short' },
+                    { id: 'medium', label: 'Medium' },
+                    { id: 'detailed', label: 'Detailed' },
+                  ].map((o) => (
                     <button
-                      key={idx}
-                      className={`h-[36px] px-[12px] flex-1 flex items-center justify-center gap-[6px] rounded-[6px] text-[13px] font-medium ${idx===2?'bg-[#2A4FFF] text-white':'bg-[#F3F6FF] text-[#20355D]'}`}
+                      key={o.id}
+                      onClick={() => setTextAmount(o.id)}
+                      className={`h-[36px] px-[14px] flex items-center justify-center gap-[6px] rounded-[6px] text-[13px] font-medium transition-colors ${textAmount === o.id ?'bg-[#2A4FFF] text-white':'bg-[#F3F6FF] text-[#20355D]'}`}
                     >
-                      <span className="w-[14px] h-[14px] inline-block bg-current opacity-70" />
+                      <span className="w-3 h-3 inline-block bg-current opacity-70 rounded-sm" />
                       {o.label}
                     </button>
                   ))}
@@ -80,7 +88,7 @@ export default function CourseOutlineAdvancedPage() {
               {/* Prompt textarea */}
               <div className="flex flex-col gap-[4px]">
                 <span className="text-[13px] text-[#20355D]">Write for…</span>
-                <textarea className="h-[80px] rounded-[6px] border border-[#CED9FF] bg-white px-[10px] py-[8px] text-[13px] resize-none" />
+                <textarea className="h-[80px] rounded-[6px] border border-[#CED9FF] bg-white px-[10px] py-[8px] text-[13px] text-[#20355D] resize-none" />
               </div>
 
               {/* Audience chips */}
@@ -93,7 +101,7 @@ export default function CourseOutlineAdvancedPage() {
               {/* Tone*/}
               <div className="flex flex-col gap-[4px]">
                 <span className="text-[13px] text-[#20355D]">Tone</span>
-                <textarea className="h-[60px] rounded-[6px] border border-[#CED9FF] bg-white px-[10px] py-[8px] text-[13px] resize-none" />
+                <textarea className="h-[60px] rounded-[6px] border border-[#CED9FF] bg-white px-[10px] py-[8px] text-[13px] text-[#20355D] resize-none" />
               </div>
 
               {/* Tone chips */}
@@ -106,8 +114,15 @@ export default function CourseOutlineAdvancedPage() {
               {/* Output language */}
               <div className="flex flex-col gap-[6px]">
                 <span className="text-[13px] text-[#20355D]">Output language</span>
-                <select className="h-[36px] rounded-[6px] border border-[#CED9FF] px-[10px] bg-white text-[13px] text-[#20355D]">
-                  <option>English</option>
+                <select 
+                  value={outputLanguage}
+                  onChange={(e) => setOutputLanguage(e.target.value)}
+                  className="h-[36px] rounded-[6px] border border-[#CED9FF] px-[10px] bg-white text-[13px] text-[#20355D]"
+                >
+                  <option value="en">English</option>
+                  <option value="uk">Ukrainian</option>
+                  <option value="es">Spanish</option>
+                  <option value="ru">Russian</option>
                 </select>
               </div>
             </div>
@@ -127,18 +142,25 @@ export default function CourseOutlineAdvancedPage() {
               {/* Image source */}
               <div className="flex flex-col gap-[6px]">
                 <span className="text-[13px] text-[#20355D] font-medium">Image source</span>
-                <button className="h-[36px] w-full rounded-[6px] border border-[#CED9FF] px-[12px] bg-white text-[13px] text-[#20355D] flex items-center justify-between">
-                  <div className="flex items-center gap-[8px]">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L14.09 8.26L20.5 9.17L15.68 13.34L17.18 19.82L12 16.77L6.82 19.82L8.32 13.34L3.5 9.17L9.91 8.26L12 2Z" fill="#2A4FFF"/></svg>
-                    <span>AI-generated image</span>
+                <div className="relative">
+                  <select 
+                    value={imageSource}
+                    onChange={(e) => setImageSource(e.target.value)}
+                    className="h-[36px] w-full appearance-none rounded-[6px] border border-[#CED9FF] px-[12px] bg-white text-[13px] text-[#20355D]"
+                  >
+                    <option value="ai">AI images</option>
+                    <option value="stock">Stock images</option>
+                    <option value="none">No images</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-[12px] pointer-events-none">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9L12 15L18 9"/></svg>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9L12 15L18 9"/></svg>
-                </button>
+                </div>
               </div>
               {/* Image style */}
               <div className="flex flex-col gap-[6px]">
                 <span className="text-[13px] text-[#20355D] font-medium">Image style</span>
-                <textarea placeholder="Optional: describe colors, style, or mood to use" className="h-[80px] w-full rounded-[6px] border border-[#CED9FF] bg-white px-[12px] py-[8px] text-[13px] resize-none placeholder:text-[#818E9F]" />
+                <textarea placeholder="Optional: describe colors, style, or mood to use" className="h-[80px] w-full rounded-[6px] border border-[#CED9FF] bg-white px-[12px] py-[8px] text-[13px] text-[#20355D] resize-none placeholder:text-[#818E9F]" />
               </div>
               {/* AI image model */}
               <div className="flex flex-col gap-[6px]">
@@ -147,8 +169,14 @@ export default function CourseOutlineAdvancedPage() {
                   <div className="absolute inset-y-0 left-0 flex items-center pl-[12px] pointer-events-none">
                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21H23L12 2Z" fill="#20355D"/></svg>
                   </div>
-                  <select className="h-[36px] w-full appearance-none rounded-[6px] border border-[#CED9FF] pl-[36px] pr-[36px] bg-white text-[13px] text-[#20355D]">
-                      <option>Flux Kontext Fast</option>
+                  <select 
+                    value={imageModel}
+                    onChange={(e) => setImageModel(e.target.value)}
+                    className="h-[36px] w-full appearance-none rounded-[6px] border border-[#CED9FF] pl-[36px] pr-[36px] bg-white text-[13px] text-[#20355D]"
+                  >
+                      <option value="flux-fast">Flux Kontext Fast</option>
+                      <option value="flux-quality">Flux Kontext HQ</option>
+                      <option value="stable">Stable Diffusion 2.1</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-[12px] pointer-events-none">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9L12 15L18 9"/></svg>
