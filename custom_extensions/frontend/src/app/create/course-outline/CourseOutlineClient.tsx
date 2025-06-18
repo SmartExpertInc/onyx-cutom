@@ -235,13 +235,13 @@ export default function CourseOutlineClient() {
         setChatId(parsedData.chatId);
         setFilters(parsedData.filters);
         setRawOutline(parsedData.rawOutline || "");
-        skipNextPreviewRef.current = true;
+        skipNextPreviewRef.current = true; // Set flag to skip fetch
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
       } finally {
         sessionStorage.removeItem('advanced-mode-data-return');
       }
-      return;
+      return; // End effect here for this case
     }
 
     if (chatId) return; // already have one
@@ -271,11 +271,15 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
-    // skip initial fetch if data is loaded from session storage
-    if (skipNextPreviewRef.current) {
-      skipNextPreviewRef.current = false;
-      return;
+    // Skip preview fetching while the user is finalizing the outline or if we need to skip
+    if (isGenerating || skipNextPreviewRef.current) {
+        if (skipNextPreviewRef.current) {
+            // Reset the flag after checking it
+            skipNextPreviewRef.current = false;
+        }
+        return;
     }
+
     const handler = setTimeout(() => {
       // Don't auto-fetch if prompt is empty or we're already loading
       if (prompt.length === 0 || loading) return;
