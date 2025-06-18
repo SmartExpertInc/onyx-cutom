@@ -277,6 +277,16 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
+    console.log("[PreviewEffect] trigger", {
+      skipFlag: skipNextPreviewRef.current,
+      prompt,
+      modules,
+      lessonsPerModule,
+      language,
+      loading,
+      isGenerating,
+    });
+
     // Skip preview fetching on first mount after returning from Advanced page
     if (skipNextPreviewRef.current) {
       const sameAsInitial = advancedInitialParamsRef.current &&
@@ -285,10 +295,12 @@ export default function CourseOutlineClient() {
         advancedInitialParamsRef.current.lessonsPerModule === lessonsPerModule &&
         advancedInitialParamsRef.current.language === language;
       if (sameAsInitial) {
+        console.log("[PreviewEffect] Skipping fetch – params unchanged after Advanced return");
         return; // Keep current preview, no fetch
       }
       // Params have changed – clear the flag and allow fetching
       skipNextPreviewRef.current = false;
+      console.log("[PreviewEffect] Params changed – clearing skip flag, will fetch");
     }
 
     // Skip preview fetching while finalizing
@@ -302,6 +314,7 @@ export default function CourseOutlineClient() {
       }
       const abortController = new AbortController();
       previewAbortRef.current = abortController;
+      console.log("[PreviewEffect] Fetching preview from backend...");
       const fetchPreview = async () => {
         setLoading(true);
         setError(null);
@@ -318,9 +331,11 @@ export default function CourseOutlineClient() {
           const data = await res.json();
           setPreview(Array.isArray(data.modules) ? data.modules : []);
           setRawOutline(typeof data.raw === "string" ? data.raw : "");
+          console.log("[PreviewEffect] Preview fetched", data);
         } catch (e: any) {
           if (e.name === "AbortError") return;
           setError(e.message);
+          console.error("[PreviewEffect] Error fetching preview", e);
         } finally {
           if (!abortController.signal.aborted) {
             setLoading(false);
