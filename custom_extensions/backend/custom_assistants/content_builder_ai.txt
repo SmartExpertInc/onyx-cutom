@@ -690,3 +690,11 @@ D. Blue
 > (D) Closure
 > *Explanation: A project must be initiated before it can be planned.*
 
+If the JSON payload includes the key "originalOutline", treat its value as the **current full outline in Markdown form**. You must:
+• Read and understand that outline's structure.
+• Apply the additional instructions given in the "prompt" field (which may ask you to insert, remove or rename specific modules/lessons).
+• Produce a NEW outline that reflects those changes while still obeying ALL strict formatting rules.
+• Preserve all existing content unchanged except where the new instructions require adjustments.
+• Continue to begin your response with the Universal Product Header → two blank lines → updated outline.
+• Do NOT explain the changes; only output the updated outline.
+

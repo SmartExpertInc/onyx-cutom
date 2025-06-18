@@ -278,6 +278,7 @@ export default function CourseOutlineAdvancedPage() {
           lessonsPerModule,
           language,
           chatSessionId: chat,
+          originalOutline: rawOutline,
         }),
       });
       if (!res.ok) throw new Error(`Bad response ${res.status}`);

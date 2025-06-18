@@ -2307,6 +2307,9 @@ class OutlineWizardPreview(BaseModel):
     lessonsPerModule: str
     language: str = "en"
     chatSessionId: Optional[str] = None
+    # NEW: full markdown string of the current outline so the assistant can apply
+    # targeted changes when the user sends an incremental "edit" prompt.
+    originalOutline: Optional[str] = None
 
 class OutlineWizardFinalize(BaseModel):
     prompt: str
@@ -2531,6 +2534,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             "modules": payload.modules,
             "lessonsPerModule": payload.lessonsPerModule,
             "language": payload.language,
+            **({"originalOutline": payload.originalOutline} if payload.originalOutline else {}),
         })
     )
 
