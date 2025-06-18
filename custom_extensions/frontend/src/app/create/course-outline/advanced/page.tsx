@@ -53,6 +53,53 @@ async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
+// ----------- Local markdown parser (see wizard page for comments) ------------
+function parseOutlineMarkdown(md: string): ModulePreview[] {
+  const modules: ModulePreview[] = [];
+  let current: ModulePreview | null = null;
+  let lessonBuf: string[] = [];
+
+  const flushLesson = () => {
+    if (lessonBuf.length && current) {
+      current.lessons.push(lessonBuf.join("\n"));
+      lessonBuf = [];
+    }
+  };
+
+  const listItemRegex = /^(?:- |\* |\d+\.)/;
+
+  md.split(/\r?\n/).forEach((raw) => {
+    if (!raw.trim()) return;
+    const indent = raw.match(/^\s*/)?.[0].length ?? 0;
+    const line = raw.trim();
+
+    if (line.startsWith("## ")) {
+      flushLesson();
+      const title = line.replace(/^##\s*/, "").split(":").pop()?.trim() || "Module";
+      current = { id: `mod${modules.length + 1}`, title, lessons: [] };
+      modules.push(current);
+      return;
+    }
+
+    if (!current) {
+      current = { id: "mod1", title: "Outline", lessons: [] };
+      modules.push(current);
+    }
+
+    if (indent === 0 && listItemRegex.test(line)) {
+      flushLesson();
+      const titleLine = line.replace(listItemRegex, "").trim();
+      lessonBuf.push(titleLine);
+    } else if (indent > 0) {
+      lessonBuf.push(line);
+    }
+  });
+
+  flushLesson();
+  return modules;
+}
+// ---------------------------------------------------------------------------
+
 export default function CourseOutlineAdvancedPage() {
   const router = useRouter();
 
@@ -302,9 +349,12 @@ export default function CourseOutlineAdvancedPage() {
           const pkt = JSON.parse(ln);
           if (pkt.type === "delta") {
             accRaw += pkt.text;
+            const parsed = parseOutlineMarkdown(accRaw);
+            setPreview(parsed);
             setRawOutline(accRaw);
           } else if (pkt.type === "done") {
-            setPreview(Array.isArray(pkt.modules) ? pkt.modules : []);
+            const finalMods = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
+            setPreview(finalMods);
             setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
             setPrompt(combined);
             setEditPrompt("");
@@ -605,7 +655,7 @@ export default function CourseOutlineAdvancedPage() {
             </div>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500">
-              <p>Loading outline preview...</p>
+              {loadingPreview ? <LoadingAnimation message="Updating…" /> : <p>Loading outline preview...</p>}
             </div>
           )}
         </div>
@@ -691,16 +741,7 @@ export default function CourseOutlineAdvancedPage() {
         <LoadingAnimation message="Finalizing product..." />
       </div>
     )}
-    {loadingPreview && (
-      <>
-        <LoadingAnimation message="Updating…" />
-        {rawOutline && (
-          <pre className="whitespace-pre-wrap mt-4 bg-gray-50 p-4 border rounded max-h-96 overflow-auto text-xs">
-            {rawOutline}
-          </pre>
-        )}
-      </>
-    )}
+    {loadingPreview && <LoadingAnimation message="Updating…" />}
     </>
   );
 } 

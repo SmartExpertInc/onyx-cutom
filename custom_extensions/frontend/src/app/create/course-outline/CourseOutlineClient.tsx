@@ -113,6 +113,57 @@ const ThemePreviewSvg: React.FC = () => (
   </svg>
 );
 
+// ---------------- Markdown → ModulePreview parser ----------------
+// A very small subset of the Python _parse_outline_markdown logic. Good enough
+// for live preview during streaming – it detects "## " headings as modules and
+// top-level list items as lessons. Indented lines are kept under the current
+// lesson so we preserve detail blocks.
+function parseOutlineMarkdown(md: string): ModulePreview[] {
+  const modules: ModulePreview[] = [];
+  let current: ModulePreview | null = null;
+  let lessonBuf: string[] = [];
+
+  const flushLesson = () => {
+    if (lessonBuf.length && current) {
+      current.lessons.push(lessonBuf.join("\n"));
+      lessonBuf = [];
+    }
+  };
+
+  const listItemRegex = /^(?:- |\* |\d+\.)/;
+
+  md.split(/\r?\n/).forEach((raw) => {
+    if (!raw.trim()) return;
+    const indent = raw.match(/^\s*/)?.[0].length ?? 0;
+    const line = raw.trim();
+
+    if (line.startsWith("## ")) {
+      flushLesson();
+      const title = line.replace(/^##\s*/, "").split(":").pop()?.trim() || "Module";
+      current = { id: `mod${modules.length + 1}`, title, lessons: [] };
+      modules.push(current);
+      return;
+    }
+
+    if (!current) {
+      current = { id: "mod1", title: "Outline", lessons: [] };
+      modules.push(current);
+    }
+
+    if (indent === 0 && listItemRegex.test(line)) {
+      flushLesson();
+      const titleLine = line.replace(listItemRegex, "").trim();
+      lessonBuf.push(titleLine);
+    } else if (indent > 0) {
+      lessonBuf.push(line);
+    }
+  });
+
+  flushLesson();
+  return modules;
+}
+// -----------------------------------------------------------------
+
 export default function CourseOutlineClient() {
   const params = useSearchParams();
   const [prompt, setPrompt] = useState(params.get("prompt") || "");
@@ -161,10 +212,31 @@ export default function CourseOutlineClient() {
     list.push(`Planning ${modules} module${modules > 1 ? "s" : ""} with ${lessonsPerModule} lessons each...`);
     // shuffle little filler line
     list.push("Consulting training knowledge base...");
-    for (let i = 0; i < modules; i++) {
-      list.push(`Building Module ${i + 1}...`);
-    }
-    list.push("Finalizing outline...");
+
+    // Add a diverse set of informative yet playful status lines (20 new ones)
+    const extra = [
+      "Refining learning objectives...",
+      "Mapping Bloom's taxonomy levels...",
+      "Selecting engaging examples...",
+      "Integrating industry insights...",
+      "Balancing difficulty curve...",
+      "Cross-checking domain prerequisites...",
+      "Curating knowledge checkpoints...",
+      "Weaving narrative flow...",
+      "Injecting practical exercises...",
+      "Sequencing content logically...",
+      "Optimizing cognitive load...",
+      "Aligning verbs with outcomes...",
+      "Ensuring inclusive language...",
+      "Connecting theory and practice...",
+      "Drafting assessment prompts...",
+      "Incorporating spaced repetition...",
+      "Adding real-world case studies...",
+      "Scanning latest research papers...",
+      "Validating terminology consistency...",
+      "Polishing section transitions...",
+    ];
+    list.push(...extra);
     return list;
   };
 
@@ -175,13 +247,11 @@ export default function CourseOutlineClient() {
   const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
   const delayForThought = (text: string): number => {
-    if (text.startsWith("Analyzing")) return rand(3000, 8000);
-    if (text.startsWith("Detected language")) return rand(1500, 2500);
-    if (text.startsWith("Planning")) return rand(6000, 10000);
-    if (text.startsWith("Consulting")) return rand(5000, 8000);
-    if (text.startsWith("Building Module")) return rand(2000, 3000);
-    // Finalizing outline – stay until done
-    return 99999;
+    if (text.startsWith("Analyzing")) return rand(2500, 5000);
+    if (text.startsWith("Detected language")) return rand(1200, 2000);
+    if (text.startsWith("Planning")) return rand(4000, 7000);
+    if (text.startsWith("Consulting")) return rand(3500, 6000);
+    return rand(2000, 4000);
   };
 
   // Cycle through thoughts whenever loading=true
@@ -326,11 +396,14 @@ export default function CourseOutlineClient() {
             const pkt = JSON.parse(ln);
             if (pkt.type === "delta") {
               accumulatedRaw += pkt.text;
-              setRawOutline(accumulatedRaw);
+              // Parse progressively and update preview so UI replaces old markdown
+              const parsed = parseOutlineMarkdown(accumulatedRaw);
+              setPreview(parsed);
+              setRawOutline(accumulatedRaw); // still keep full text for advanced mode
             } else if (pkt.type === "done") {
-              setPreview(Array.isArray(pkt.modules) ? pkt.modules : []);
+              const finalMods = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
+              setPreview(finalMods);
               setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-              // record params of fetched preview
               lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
             }
           }
@@ -747,18 +820,9 @@ export default function CourseOutlineClient() {
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
-          {loading && (
-            <>
-              <LoadingAnimation message={thoughts[thoughtIdx]} />
-              {rawOutline && (
-                <pre className="whitespace-pre-wrap mt-4 bg-gray-50 p-4 border rounded max-h-96 overflow-auto text-xs">
-                  {rawOutline}
-                </pre>
-              )}
-            </>
-          )}
+          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
-          {!loading && preview.length > 0 && (
+          {preview.length > 0 && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
