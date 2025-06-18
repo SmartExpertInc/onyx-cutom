@@ -317,6 +317,8 @@ class TrainingPlanDetails(BaseModel):
     mainTitle: Optional[str] = None
     sections: List[SectionDetail] = Field(default_factory=list)
     detectedLanguage: Optional[str] = None
+    # Column visibility flags coming from UI (all optional – default True when missing)
+    displayOptions: Optional[Dict[str, bool]] = None
     model_config = {"from_attributes": True}
 
 AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
@@ -2648,6 +2650,19 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             onyx_user_id = await get_current_onyx_user_id(request)
 
             project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+
+            # Merge column-display preferences (if provided) into stored microproduct_content
+            if project_db_candidate.microproduct_content and isinstance(project_db_candidate.microproduct_content, dict):
+                disp_opts = payload.editedOutline.get("displayOptions") if isinstance(payload.editedOutline, dict) else None
+                if disp_opts:
+                    project_db_candidate.microproduct_content["displayOptions"] = disp_opts  # type: ignore[index]
+                    # Persist into DB so subsequent PDF exports respect the settings
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                            json.dumps(project_db_candidate.microproduct_content),
+                            project_db_candidate.id,
+                        )
 
             # Success when we have at least one section parsed
             if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
