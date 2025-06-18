@@ -2526,17 +2526,21 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         persona_id = await get_contentbuilder_persona_id(cookies)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-    wizard_message = (
-        "WIZARD_REQUEST\n" +
-        json.dumps({
-            "product": "Course Outline",
-            "prompt": payload.prompt,
+    wiz_payload = {
+        "product": "Course Outline",
+        "prompt": payload.prompt,
+        "language": payload.language,
+    }
+
+    if payload.originalOutline:
+        wiz_payload["originalOutline"] = payload.originalOutline
+    else:
+        wiz_payload.update({
             "modules": payload.modules,
             "lessonsPerModule": payload.lessonsPerModule,
-            "language": payload.language,
-            **({"originalOutline": payload.originalOutline} if payload.originalOutline else {}),
         })
-    )
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
