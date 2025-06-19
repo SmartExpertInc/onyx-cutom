@@ -127,6 +127,7 @@ export default function LessonPresentationClient() {
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
+  const [streamDone, setStreamDone] = useState(false);
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -178,6 +179,8 @@ export default function LessonPresentationClient() {
     }
 
     const startPreview = (attempt: number = 0) => {
+      // Reset stream completion flag for new preview
+      setStreamDone(false);
       const abortController = new AbortController();
       if (previewAbortRef.current) previewAbortRef.current.abort();
       previewAbortRef.current = abortController;
@@ -218,6 +221,8 @@ export default function LessonPresentationClient() {
           while (true) {
             const { done, value } = await reader.read();
             if (done) {
+              // Streaming finished successfully
+              setStreamDone(true);
               break;
             }
             gotFirstChunk = true;
@@ -409,24 +414,24 @@ export default function LessonPresentationClient() {
           )}
         </section>
 
-        {/* Designs Section */}
-        {!loading && content && (
+        {/* Themes Section */}
+        {streamDone && content && (
           <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-[#20355D]">Designs</h2>
+              <div className="flex flex-col">
+                <h2 className="text-xl font-semibold text-[#20355D]">Themes</h2>
+                <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+              </div>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
+              >
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                <span>View more</span>
+              </button>
             </div>
             
             <div className="flex flex-col gap-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-[#20355D]">Themes</h3>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
-                >
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                  <span>View more</span>
-              </button>
-            </div>
               {/* Themes grid */}
               <div className="grid grid-cols-3 gap-5 justify-items-center">
                 {themeOptions.map((t) => (
@@ -485,7 +490,7 @@ export default function LessonPresentationClient() {
           </section>
         )}
 
-        {!loading && content && (
+        {streamDone && content && (
           <div className="w-full flex justify-center mt-0 mb-12">
             <button
               type="button"
@@ -505,7 +510,7 @@ export default function LessonPresentationClient() {
         )}
       </div>
 
-      {!loading && content && (
+      {streamDone && content && (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
             {/* Credits can be a placeholder or dynamic */}
