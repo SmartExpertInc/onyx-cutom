@@ -41,7 +41,7 @@ const Sidebar = () => (
     <nav className="flex flex-col gap-1">
       <Link href="#" className="flex items-center gap-3 p-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">
         <Home size={18} />
-        <span>Gammas</span>
+        <span>Prodcuts</span>
       </Link>
       <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
         <Users size={18} />
@@ -62,7 +62,7 @@ const Sidebar = () => (
         <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" />
       </div>
       <div className="bg-gray-100 p-4 rounded-lg text-center">
-        <p className="mb-2 text-gray-700">Organize your gammas by topic and share them with your team</p>
+        <p className="mb-2 text-gray-700">Organize your products by topic and share them with your team</p>
         <button className="font-semibold text-blue-600 hover:underline">Create or join a folder</button>
       </div>
     </div>
