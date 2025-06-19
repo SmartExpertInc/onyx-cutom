@@ -4,14 +4,10 @@
 // app dir, so local tsconfig paths/types do not apply. Disable type-checking to
 // avoid IDE / build noise until shared tsconfig is wired up.
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-
-// Load RichMarkdownEditor lazily to avoid SSR issues
-const RichMarkdownEditor = dynamic(() => import("@/components/RichMarkdownEditor"), { ssr: false });
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -137,6 +133,7 @@ export default function LessonPresentationClient() {
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null); // For the content
 
   // Fetch all outlines on initial load
   useEffect(() => {
@@ -282,6 +279,14 @@ export default function LessonPresentationClient() {
     };
   }, [selectedOutlineId, selectedLesson, lengthOption, language]);
 
+  // Auto-scroll textarea as new content streams in
+  useEffect(() => {
+    if (textareaVisible && textareaRef.current) {
+      // Scroll to bottom to keep newest text in view
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+    }
+  }, [content, textareaVisible]);
+
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
@@ -422,13 +427,19 @@ export default function LessonPresentationClient() {
           {loading && <LoadingAnimation message="Generating lesson content..." />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
-          {/* Main content display - Rich Markdown editor */}
+          {/* Main content display - Textarea instead of module list */}
           {textareaVisible && (
             <div
-              className="bg-white rounded-xl p-4"
+              className="bg-white rounded-xl p-6 flex flex-col gap-6"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
-              <RichMarkdownEditor value={content} onChange={setContent} />
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Lesson content will appear here..."
+                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[50vh]"
+              />
             </div>
           )}
         </section>
