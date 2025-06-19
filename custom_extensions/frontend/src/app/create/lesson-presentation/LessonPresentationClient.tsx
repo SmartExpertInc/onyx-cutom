@@ -435,6 +435,7 @@ export default function LessonPresentationClient() {
               className="bg-white rounded-xl p-6 flex flex-col gap-6"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
+              <h2 className="text-sm font-medium text-[#20355D]">Lesson Content</h2>
               <textarea
                 ref={textareaRef}
                 value={content}
@@ -445,6 +446,31 @@ export default function LessonPresentationClient() {
             </div>
           )}
         </section>
+
+        {/* Advanced Mode link – now placed directly beneath the preview content */}
+        {streamDone && content && (
+          <div className="w-full flex justify-center mt-0 mb-12">
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem('advanced-mode-data-lesson', JSON.stringify({
+                  selectedOutlineId,
+                  selectedLesson,
+                  lengthOption,
+                  language,
+                  chatId,
+                  content,
+                  prompt: params.get('prompt') || "",
+                }));
+                router.push('/create/lesson-presentation/advanced');
+              }}
+              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+            >
+              Advanced Mode
+              <Settings size={14} />
+            </button>
+          </div>
+        )}
 
         {/* Themes Section */}
         {streamDone && content && (
@@ -526,19 +552,14 @@ export default function LessonPresentationClient() {
           <div className="w-full flex justify-center mt-0 mb-12">
             <button
               type="button"
-              onClick={() => {
-                sessionStorage.setItem('advanced-mode-data-lesson', JSON.stringify({
-                  selectedOutlineId, selectedLesson, lengthOption, language, chatId, content,
-                }));
-                // You would navigate to a new advanced page for lessons here
-                // router.push('/create/lesson-presentation/advanced');
-              }}
-              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+              onClick={handleGenerateFinal}
+              className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+              disabled={loading || isGenerating}
             >
-              Advanced Mode
-              <Settings size={14} />
+              <Sparkles size={18} />
+              <span className="select-none font-semibold">Generate</span>
             </button>
-          </div>
+      </div>
         )}
       </div>
 
@@ -549,21 +570,6 @@ export default function LessonPresentationClient() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>10 credits</span>
           </div>
-          <div className="flex items-center gap-[7.5rem]">
-            <span className="text-lg text-gray-700 font-medium select-none">
-              {/* This can be word count or removed */}
-              {content.split(/\s+/).length} words
-            </span>
-            <button
-              type="button"
-              onClick={handleGenerateFinal}
-              className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-              disabled={loading || isGenerating}
-            >
-              <Sparkles size={18} />
-              <span className="select-none font-semibold">Generate</span>
-            </button>
-      </div>
           <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
         </div>
       )}

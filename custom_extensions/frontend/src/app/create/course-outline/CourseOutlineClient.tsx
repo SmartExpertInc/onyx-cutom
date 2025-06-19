@@ -1086,7 +1086,7 @@ export default function CourseOutlineClient() {
           </section>
         )}
 
-        {/* Advanced Mode link placed after Designs section */}
+        {/* Advanced Mode link – moved directly beneath the preview content */}
         {!loading && preview.length > 0 && (
           <div className="w-full flex justify-center mt-0 mb-12">
             <button
