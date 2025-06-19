@@ -83,9 +83,19 @@ const projects = [
   }
 ];
 
-const ProjectCard = ({ project }) => {
+interface Project {
+  id: number;
+  title: string;
+  imageUrl: string;
+  lastViewed: string;
+  createdBy: string;
+  isPrivate: boolean;
+  isGamma?: boolean;
+}
+
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
     // A simple hash function to get a color from the title
-    const stringToColor = (str) => {
+    const stringToColor = (str: string): string => {
         let hash = 0;
         if (!str) return '#CCCCCC';
         for (let i = 0; i < str.length; i++) {
@@ -102,23 +112,23 @@ const ProjectCard = ({ project }) => {
     const bgColor = stringToColor(project.title);
     const avatarColor = stringToColor(project.createdBy);
 
-    return (
+  return (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden group transition-all duration-200 hover:shadow-lg border border-gray-200">
             <Link href={`/projects/view/${project.id}`} className="block">
                 <div className="relative h-40" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
                         <div className="p-4 text-white flex flex-col justify-between h-full">
-                            <div>
+    <div>
                                 <div className="text-xs font-semibold">GAMMA</div>
                                 <h3 className="font-bold text-2xl mt-2">Tips and tricks ⚡️</h3>
-                            </div>
+      </div>
                             <p className="text-xs">Ready to learn how to take your gammas to the next level?</p>
                         </div>
                     ) : (
                         <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
                             <h3 className="font-bold text-lg text-center">{project.title}</h3>
-                        </div>
-                    )}
+                                  </div>
+                                )}
                 </div>
                 <div className="p-3">
                     <h3 className="font-semibold text-gray-900 mb-2 truncate text-sm">{project.title}</h3>
@@ -128,7 +138,7 @@ const ProjectCard = ({ project }) => {
                                 <Lock size={12} />
                                 <span>Private</span>
                             </div>
-                        )}
+                          )}
                     </div>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -143,8 +153,8 @@ const ProjectCard = ({ project }) => {
                     </div>
                 </div>
             </Link>
-        </div>
-    );
+    </div>
+  );
 };
 
 const ProjectsTable = () => {
