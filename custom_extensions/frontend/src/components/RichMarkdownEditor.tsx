@@ -50,27 +50,38 @@ export default function RichMarkdownEditor({ value, onChange, className }: RichM
 
   // ---- 3. Initialise editor when script is ready ----
   useEffect(() => {
-    if (!holderRef.current) return;
-    if (editorRef.current) return; // already created
-    if (!(window as any).toastui?.Editor) return; // script still loading
+    const init = () => {
+      if (!holderRef.current) return;
+      if (editorRef.current) return;
+      const lib = (window as any).toastui?.Editor;
+      if (!lib) return;
 
-    const EditorConstructor = (window as any).toastui.Editor;
-    editorRef.current = new EditorConstructor({
-      el: holderRef.current,
-      initialEditType: "wysiwyg",
-      height: "auto",
-      toolbarItems: [], // hide toolbar
-      hideModeSwitch: true,
-      previewStyle: "vertical",
-      placeholder: "Edit your lesson content…",
-      usageStatistics: false,
-      initialValue: value ?? "",
-    });
+      editorRef.current = new lib({
+        el: holderRef.current,
+        initialEditType: "wysiwyg",
+        height: "auto",
+        toolbarItems: [],
+        hideModeSwitch: true,
+        previewStyle: "vertical",
+        placeholder: "Edit your lesson content…",
+        usageStatistics: false,
+        initialValue: value ?? "",
+      });
 
-    editorRef.current.on("change", () => {
-      const md = editorRef.current.getMarkdown();
-      onChange(md);
-    });
+      editorRef.current.on("change", () => {
+        onChange(editorRef.current.getMarkdown());
+      });
+    };
+
+    // Attempt immediately in case script already present
+    init();
+
+    // Also attempt after script loads
+    const scriptEl = document.getElementById("toastui-editor-js") as HTMLScriptElement | null;
+    if (scriptEl) {
+      scriptEl.addEventListener("load", init);
+      return () => scriptEl.removeEventListener("load", init);
+    }
   }, [value, onChange]);
 
   // ---- 4. Keep external value in sync ----
