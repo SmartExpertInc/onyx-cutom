@@ -214,20 +214,16 @@ export default function LessonPresentationClient() {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
           
-          const loop = async () => {
-            const { value, done } = await reader.read();
+          let buffer = "";
+          while (true) {
+            const { done, value } = await reader.read();
             if (done) {
-              return;
+              break;
             }
             gotFirstChunk = true;
-            const chunk = decoder.decode(value, { stream: true });
-            setContent(prev => prev + chunk);
-            
-            // Continue reading the stream
-            await loop();
+            buffer += decoder.decode(value, { stream: true });
+            setContent(buffer);
           }
-
-          await loop();
 
         } catch (e: any) {
           if (e.name === "AbortError") return;
