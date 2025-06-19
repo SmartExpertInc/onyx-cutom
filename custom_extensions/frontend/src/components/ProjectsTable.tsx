@@ -4,7 +4,30 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Lock, MoreHorizontal, Home, Clock, User, Star, ArrowUpDown, LayoutGrid, List, Plus, ChevronsUpDown } from 'lucide-react';
+import { 
+  Lock, 
+  MoreHorizontal, 
+  Home, 
+  Clock, 
+  User, 
+  Star, 
+  ArrowUpDown, 
+  LayoutGrid, 
+  List, 
+  Plus, 
+  ChevronsUpDown,
+  LucideIcon
+} from 'lucide-react';
+
+interface Project {
+  id: number;
+  title: string;
+  imageUrl: string;
+  lastViewed: string;
+  createdBy: string;
+  isPrivate: boolean;
+  isGamma?: boolean;
+}
 
 // Hardcoded data based on the provided image
 const projects = [
@@ -162,7 +185,7 @@ const ProjectsTable = () => {
     const [viewMode, setViewMode] = useState('Grid');
 
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
-    const filterIcons = {
+    const filterIcons: Record<string, LucideIcon> = {
         'All': Home,
         'Recently viewed': Clock,
         'Created by you': User,
@@ -229,7 +252,9 @@ const ProjectsTable = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {projects.map(p => <ProjectCard key={p.id} project={p} />)}
+                {projects.map((p: Project) => (
+                   <ProjectCard key={p.id} project={p} />
+                ))}
             </div>
         </div>
     );
