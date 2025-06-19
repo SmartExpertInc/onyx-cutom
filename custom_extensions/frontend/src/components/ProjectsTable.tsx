@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProjectsTable.tsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -16,7 +16,9 @@ import {
   List, 
   Plus, 
   ChevronsUpDown,
-  LucideIcon
+  LucideIcon,
+  Share2,
+  Trash2
 } from 'lucide-react';
 
 interface Project {
@@ -29,7 +31,31 @@ interface Project {
   isGamma?: boolean;
 }
 
-const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
+const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }> = ({ project, onDelete }) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        if (window.confirm('Are you sure you want to delete this project?')) {
+            onDelete(project.id);
+        }
+    };
+    
     // A simple hash function to get a color from the title
     const stringToColor = (str: string): string => {
         let hash = 0;
@@ -49,7 +75,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
     const avatarColor = stringToColor(project.createdBy);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden group transition-all duration-200 hover:shadow-lg border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
             <Link href={`/projects/view/${project.id}`} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
@@ -85,10 +111,36 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
                             <span className="text-gray-400">•</span>
                             <span>{project.lastViewed}</span>
                         </div>
-                        <MoreHorizontal size={16} className="text-gray-500 invisible group-hover:visible" />
                     </div>
                 </div>
             </Link>
+            <div ref={menuRef}>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(prev => !prev);
+                    }}
+                    className="absolute top-2 right-2 p-2 rounded-full text-gray-500 invisible group-hover:visible hover:bg-gray-100 transition-colors"
+                >
+                    <MoreHorizontal size={16} />
+                </button>
+                {menuOpen && (
+                    <div className="absolute top-10 right-2 w-40 bg-[#2C2C2C] rounded-lg shadow-xl z-10 py-1">
+                        <button className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700/50">
+                            <Share2 size={14} />
+                            <span>Share</span>
+                        </button>
+                        <button 
+                            onClick={handleDelete}
+                            className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700/50"
+                        >
+                            <Trash2 size={14} />
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
@@ -126,6 +178,37 @@ const ProjectsTable = () => {
             return Math.floor(interval) + " minutes ago";
         }
         return "just now";
+    };
+
+    const handleDeleteProject = async (projectId: number) => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const deleteApiUrl = `${CUSTOM_BACKEND_URL}/projects/${projectId}`;
+        
+        const originalProjects = [...projects];
+        
+        // Optimistically update UI
+        setProjects(currentProjects => currentProjects.filter(p => p.id !== projectId));
+
+        try {
+            const headers: HeadersInit = {};
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            const response = await fetch(deleteApiUrl, { method: 'DELETE', headers });
+            
+            if (!response.ok) {
+                // Revert if API call fails
+                setProjects(originalProjects);
+                const errorText = await response.text();
+                throw new Error(`Failed to delete project: ${response.status} ${errorText}`);
+            }
+        } catch (error) {
+            console.error(error);
+            // Optionally show an error message to the user
+            alert((error as Error).message);
+            setProjects(originalProjects);
+        }
     };
 
     useEffect(() => {
@@ -244,7 +327,7 @@ const ProjectsTable = () => {
             {projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {projects.map((p: Project) => (
-                       <ProjectCard key={p.id} project={p} />
+                       <ProjectCard key={p.id} project={p} onDelete={handleDeleteProject} />
                     ))}
                 </div>
             ) : (
