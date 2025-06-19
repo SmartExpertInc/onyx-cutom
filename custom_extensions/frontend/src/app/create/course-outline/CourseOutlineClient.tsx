@@ -1086,9 +1086,9 @@ export default function CourseOutlineClient() {
           </section>
         )}
 
-        {/* Advanced Mode link – moved directly beneath the preview content */}
+        {/* Advanced Mode link placed directly under outline preview */}
         {!loading && preview.length > 0 && (
-          <div className="w-full flex justify-center mt-0 mb-12">
+          <div className="w-full flex justify-center mt-2 mb-6">
             <button
               type="button"
               onClick={() => {
