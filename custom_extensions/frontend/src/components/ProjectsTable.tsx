@@ -84,7 +84,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
     const avatarColor = stringToColor(project.createdBy);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden group transition-all duration-200 hover:shadow-lg border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
             <Link href={`/projects/view/${project.id}`} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
@@ -112,72 +112,74 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                         )}
                     </div>
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs" style={{backgroundColor: avatarColor}}>
                                 {project.createdBy.slice(0, 1).toUpperCase()}
                             </div>
-                            <span>Created by you</span>
-                            <span className="text-gray-400">•</span>
-                            <span>{project.lastViewed}</span>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-900">Created by you</span>
+                                <span className="text-xs text-gray-500">{project.lastViewed}</span>
+                            </div>
                         </div>
-                        <div className="relative" ref={menuRef}>
-                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setMenuOpen(prev => !prev);
-                                }}
-                                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-                            >
-                                <MoreHorizontal size={16} />
-                            </button>
-                            {menuOpen && (
-                                <div className="absolute bottom-full right-0 mb-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
-                                    <div className="px-3 py-2 border-b border-gray-100">
-                                        <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Created {formatDate(project.createdAt)}
-                                            <br/>
-                                            by Mykola Volynets
-                                        </p>
-                                    </div>
-                                    <div className="py-1">
-                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                            <Share2 size={16} className="text-gray-500" />
-                                            <span>Share...</span>
-                                        </button>
-                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                            <PenLine size={16} className="text-gray-500"/>
-                                            <span>Rename...</span>
-                                        </button>
-                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                            <Star size={16} className="text-gray-500"/>
-                                            <span>Add to favorites</span>
-                                        </button>
-                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                            <Copy size={16} className="text-gray-500"/>
-                                            <span>Duplicate</span>
-                                        </button>
-                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                            <LinkIcon size={16} className="text-gray-500"/>
-                                            <span>Copy link</span>
-                                        </button>
-                                    </div>
-                                    <div className="py-1 border-t border-gray-100">
-                                        <button 
-                                            onClick={handleDelete}
-                                            className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
-                                        >
-                                            <Trash2 size={14} />
-                                            <span>Send to trash</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        <div className="w-7 h-7" />
                     </div>
                 </div>
             </Link>
+            <div className="absolute bottom-4 right-3" ref={menuRef}>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(prev => !prev);
+                    }}
+                    className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+                >
+                    <MoreHorizontal size={16} />
+                </button>
+                {menuOpen && (
+                    <div className="absolute bottom-0 left-full ml-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
+                        <div className="px-3 py-2 border-b border-gray-100">
+                            <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Created {formatDate(project.createdAt)}
+                                <br/>
+                                by Mykola Volynets
+                            </p>
+                        </div>
+                        <div className="py-1">
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <Share2 size={16} className="text-gray-500" />
+                                <span>Share...</span>
+                            </button>
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <PenLine size={16} className="text-gray-500"/>
+                                <span>Rename...</span>
+                            </button>
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <Star size={16} className="text-gray-500"/>
+                                <span>Add to favorites</span>
+                            </button>
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <Copy size={16} className="text-gray-500"/>
+                                <span>Duplicate</span>
+                            </button>
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <LinkIcon size={16} className="text-gray-500"/>
+                                <span>Copy link</span>
+                            </button>
+                        </div>
+                        <div className="py-1 border-t border-gray-100">
+                            <button 
+                                onClick={handleDelete}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                            >
+                                <Trash2 size={14} />
+                                <span>Send to trash</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
