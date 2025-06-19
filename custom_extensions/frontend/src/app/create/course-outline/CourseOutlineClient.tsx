@@ -370,64 +370,105 @@ export default function CourseOutlineClient() {
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
 
-    const abortController = new AbortController();
-    if (previewAbortRef.current) previewAbortRef.current.abort();
-    previewAbortRef.current = abortController;
+    const startPreview = (attempt: number = 0) => {
+      const abortController = new AbortController();
+      if (previewAbortRef.current) previewAbortRef.current.abort();
+      previewAbortRef.current = abortController;
 
-    const fetchPreview = async () => {
-      setLoading(true);
-      setError(null);
-      setPreview([]);
-      setRawOutline("");
-      try {
-        const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
-          signal: abortController.signal,
-        });
-        if (!res.ok) throw new Error(`Bad response ${res.status}`);
-        const decoder = new TextDecoder();
-        const reader = res.body?.getReader();
-        if (!reader) throw new Error("No stream body");
+      const fetchPreview = async () => {
+        setLoading(true);
+        setError(null);
+        setPreview([]);
+        setRawOutline("");
 
-        let buffer = "";
-        let accumulatedRaw = "";
+        let gotFirstChunk = false;
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || ""; // keep incomplete line
-          for (const ln of lines) {
-            if (!ln.trim()) continue;
-            const pkt = JSON.parse(ln);
-            if (pkt.type === "delta") {
-              accumulatedRaw += pkt.text;
-              // Parse progressively and update preview so UI replaces old markdown
-              const parsed = parseOutlineMarkdown(accumulatedRaw);
-              setPreview(parsed);
-              setRawOutline(accumulatedRaw); // still keep full text for advanced mode
-            } else if (pkt.type === "done") {
-              const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
-              const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
-              setPreview(finalMods);
-              setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-              lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+        try {
+          const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
+            signal: abortController.signal,
+          });
+          if (!res.ok) throw new Error(`Bad response ${res.status}`);
+          const decoder = new TextDecoder();
+          const reader = res.body?.getReader();
+          if (!reader) throw new Error("No stream body");
+
+          let buffer = "";
+          let accumulatedRaw = "";
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            for (const ln of lines) {
+              if (!ln.trim()) continue;
+              const pkt = JSON.parse(ln);
+              gotFirstChunk = true;
+              if (pkt.type === "delta") {
+                accumulatedRaw += pkt.text;
+                const parsed = parseOutlineMarkdown(accumulatedRaw);
+                setPreview(parsed);
+                setRawOutline(accumulatedRaw);
+              } else if (pkt.type === "done") {
+                const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
+                const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
+                setPreview(finalMods);
+                setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
+                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+              }
+            }
+          }
+
+          if (buffer.trim()) {
+            try {
+              const pkt = JSON.parse(buffer.trim());
+              gotFirstChunk = true;
+              if (pkt.type === "delta") {
+                accumulatedRaw += pkt.text;
+                const parsed = parseOutlineMarkdown(accumulatedRaw);
+                setPreview(parsed);
+                setRawOutline(accumulatedRaw);
+              } else if (pkt.type === "done") {
+                const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
+                const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
+                setPreview(finalMods);
+                setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
+                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+              }
+            } catch {/* ignore */}
+          }
+        } catch (e: any) {
+          if (e.name !== "AbortError") {
+            console.error("preview request failed", e);
+            // only schedule retry if not exceeded attempts and parameters unchanged
+            if (!abortController.signal.aborted && attempt < 3) {
+              setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+              return;
+            }
+            setError(e.message);
+          }
+        } finally {
+          if (!abortController.signal.aborted) {
+            setLoading(false);
+            if (!gotFirstChunk && attempt >= 3) {
+              setError("Failed to generate outline – please try again later.");
             }
           }
         }
-      } catch (e: any) {
-        if (e.name !== "AbortError") setError(e.message);
-      } finally {
-        if (!abortController.signal.aborted) setLoading(false);
-      }
+      };
+
+      fetchPreview();
     };
 
-    fetchPreview();
+    startPreview();
 
-    return () => abortController.abort();
+    return () => {
+      if (previewAbortRef.current) previewAbortRef.current.abort();
+    };
   }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
 
   const handleModuleChange = (index: number, value: string) => {
