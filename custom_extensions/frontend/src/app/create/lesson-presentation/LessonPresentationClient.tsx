@@ -292,7 +292,9 @@ export default function LessonPresentationClient() {
     if (streamDone && !firstLineRemoved) {
       const parts = content.split('\n');
       if (parts.length > 1) {
-        const trimmed = parts.slice(1).join('\n');
+        let trimmed = parts.slice(1).join('\n');
+        // Remove leading blank lines (one or more) at the very start
+        trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setContent(trimmed);
       }
       setFirstLineRemoved(true);
