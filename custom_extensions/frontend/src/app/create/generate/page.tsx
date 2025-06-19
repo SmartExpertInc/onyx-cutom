@@ -447,7 +447,11 @@ export default function GenerateProductPicker() {
 
         {/* Example prompts block */}
         <div
-          className={`transition-all duration-300 origin-top ${prompt.trim().length === 0 ? 'opacity-100 translate-y-0 max-h-[500px]' : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'}`}
+          className={`transition-all duration-300 origin-top ${
+            prompt.trim().length === 0 && (activeProduct === "Course Outline" || !selectedOutlineId || !selectedLesson)
+              ? 'opacity-100 translate-y-0 max-h-[500px]'
+              : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'
+          }`}
         >
           <div className="flex items-center gap-4 text-gray-600 font-medium text-base mt-2">
             <hr className="flex-grow border-gray-300" />
@@ -482,7 +486,11 @@ export default function GenerateProductPicker() {
 
         {/* Generate button block */}
         <div
-          className={`flex justify-center mt-6 transition-all duration-300 ${prompt.trim().length > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'} z-10`}
+          className={`flex justify-center mt-6 transition-all duration-300 ${
+            prompt.trim().length > 0 || (activeProduct === 'Lesson Presentation' && selectedOutlineId && selectedLesson)
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-2 pointer-events-none'
+          } z-10`}
         >
           <button
             type="button"
@@ -490,7 +498,7 @@ export default function GenerateProductPicker() {
             className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
             style={{ backgroundColor: '#0076FF' }}
           >
-            <Sparkles size={18} /> Generate outline
+            <Sparkles size={18} /> Generate
           </button>
         </div>
       </div>
