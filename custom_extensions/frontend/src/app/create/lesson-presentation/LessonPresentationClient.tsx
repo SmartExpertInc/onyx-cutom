@@ -129,6 +129,7 @@ export default function LessonPresentationClient() {
   const [aiModel, setAiModel] = useState("flux-fast");
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
+  const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -182,6 +183,7 @@ export default function LessonPresentationClient() {
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
       setTextareaVisible(false);
+      setFirstLineRemoved(false);
       // Reset stream completion flag for new preview
       setStreamDone(false);
       const abortController = new AbortController();
@@ -284,6 +286,18 @@ export default function LessonPresentationClient() {
       textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
     }
   }, [content, textareaVisible]);
+
+  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  useEffect(() => {
+    if (streamDone && !firstLineRemoved) {
+      const parts = content.split('\n');
+      if (parts.length > 1) {
+        const trimmed = parts.slice(1).join('\n');
+        setContent(trimmed);
+      }
+      setFirstLineRemoved(true);
+    }
+  }, [streamDone, firstLineRemoved, content]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
