@@ -92,7 +92,8 @@ const Sidebar = () => (
 );
 
 const Header = () => (
-  <header className="flex items-center justify-end p-2 border-b border-gray-200 bg-white sticky top-0 z-10">
+  <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
+    <h1 className="text-3xl font-bold text-gray-900">Gammas</h1>
     <div className="flex items-center gap-4">
       <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
         <Sparkles size={16} className="text-yellow-500" />
