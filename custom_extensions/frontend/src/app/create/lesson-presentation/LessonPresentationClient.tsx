@@ -223,6 +223,9 @@ export default function LessonPresentationClient() {
             gotFirstChunk = true;
             buffer += decoder.decode(value, { stream: true });
             setContent(buffer);
+            if (loading) {
+              setLoading(false); // reveal textarea as soon as first chunk arrives
+            }
           }
 
         } catch (e: any) {
@@ -245,6 +248,8 @@ export default function LessonPresentationClient() {
               setError("Failed to generate lesson – please try again later.");
             }
           }
+          // ensure loading false when finished (in case no chunk)
+          if (loading) setLoading(false);
         }
       };
 
