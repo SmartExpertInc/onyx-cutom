@@ -206,6 +206,79 @@ export default function GenerateProductPicker() {
     }
   }, [prompt]);
 
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation">("Course Outline");
+
+  // --- Lesson Presentation specific state ---
+  const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
+  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(null);
+  const [lessonsForOutline, setLessonsForOutline] = useState<string[]>([]);
+  const [selectedLesson, setSelectedLesson] = useState<string>("");
+  const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
+
+  // Fetch outlines when switching to Lesson Presentation tab
+  useEffect(() => {
+    if (activeProduct !== "Lesson Presentation") return;
+    const fetchOutlines = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
+        setOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+      } catch (_) {}
+    };
+    fetchOutlines();
+  }, [activeProduct]);
+
+  // Fetch lessons when outline changes
+  useEffect(() => {
+    if (activeProduct !== "Lesson Presentation" || selectedOutlineId == null) return;
+    const fetchLessons = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedOutlineId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const sections = data?.details?.sections || [];
+        const lessons: string[] = [];
+        sections.forEach((sec: any) => {
+          (sec.lessons || []).forEach((ls: any) => lessons.push(ls.title || ""));
+        });
+        setLessonsForOutline(lessons);
+      } catch (_) {}
+    };
+    fetchLessons();
+  }, [selectedOutlineId, activeProduct]);
+
+  // Helper to map length option to words
+  const lengthRangeForOption = (opt: string) => {
+    switch (opt) {
+      case "Short":
+        return "400-500 words";
+      case "Medium":
+        return "600-800 words";
+      case "Long":
+        return "800+ words";
+      default:
+        return "600-800 words";
+    }
+  };
+
+  const handleLessonPresentationStart = () => {
+    // If both outline and lesson selected we can skip prompt
+    if (!selectedOutlineId || !selectedLesson) {
+      if (!prompt.trim()) return;
+    }
+
+    const params = new URLSearchParams();
+    if (selectedOutlineId) params.set("outlineId", String(selectedOutlineId));
+    if (selectedLesson) params.set("lesson", selectedLesson);
+    params.set("length", lengthRangeForOption(lengthOption));
+    if (prompt.trim()) params.set("prompt", prompt.trim());
+    params.set("lang", language);
+
+    router.push(`/create/lesson-presentation?${params.toString()}`);
+  };
+
   return (
     <main
       className="min-h-screen flex flex-col items-center p-6"
@@ -228,90 +301,149 @@ export default function GenerateProductPicker() {
 
         {/* Tab selector */}
         <div className="flex justify-center gap-4 mb-4">
-          <TabButton label="Course Outline" Icon={CourseOutlineIcon} active />
-          <TabButton label="Lesson Presentation" Icon={LessonPresentationIcon} />
+          <TabButton
+            label="Course Outline"
+            Icon={CourseOutlineIcon}
+            active={activeProduct === "Course Outline"}
+            onClick={() => setActiveProduct("Course Outline")}
+          />
+          <TabButton
+            label="Lesson Presentation"
+            Icon={LessonPresentationIcon}
+            active={activeProduct === "Lesson Presentation"}
+            onClick={() => setActiveProduct("Lesson Presentation")}
+          />
           <TabButton label="Video Lesson Script" Icon={VideoScriptIcon} />
           <TabButton label="Quiz" Icon={QuizIcon} />
         </div>
 
         {/* Dropdown chips */}
-        <div className="flex flex-wrap justify-center gap-2 mb-2">
-          <select
-            value={modulesCount}
-            onChange={(e) => setModulesCount(Number(e.target.value))}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} Modules</option>
-            ))}
-          </select>
-          <select
-            value={lessonsPerModule}
-            onChange={(e) => setLessonsPerModule(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-              <option key={rng} value={rng}>{rng} per module</option>
-            ))}
-          </select>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            <option value="en">English</option>
-            <option value="uk">Ukrainian</option>
-            <option value="es">Spanish</option>
-            <option value="ru">Russian</option>
-          </select>
-
-          {/* Additional Info */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setShowFilters((prev) => !prev)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+        {activeProduct === "Course Outline" && (
+          <div className="flex flex-wrap justify-center gap-2 mb-2">
+            <select
+              value={modulesCount}
+              onChange={(e) => setModulesCount(Number(e.target.value))}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
-              Additional Info <ChevronDown size={14} />
-            </button>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>{n} Modules</option>
+              ))}
+            </select>
+            <select
+              value={lessonsPerModule}
+              onChange={(e) => setLessonsPerModule(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
+                <option key={rng} value={rng}>{rng} per module</option>
+              ))}
+            </select>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="en">English</option>
+              <option value="uk">Ukrainian</option>
+              <option value="es">Spanish</option>
+              <option value="ru">Russian</option>
+            </select>
 
-            {showFilters && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
-                {[
-                  { key: "knowledgeCheck", label: "Knowledge Check" },
-                  { key: "contentAvailability", label: "Content Availability" },
-                  { key: "informationSource", label: "Information Source" },
-                  { key: "time", label: "Time" },
-                ].map(({ key, label }) => (
-                  // @ts-ignore – dynamic key access
-                  <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-4 w-4 text-brand-primary"
-                      // @ts-ignore – dynamic key access
-                      checked={filters[key]}
-                      onChange={() =>
+            {/* Additional Info */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setShowFilters((prev) => !prev)}
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+              >
+                Additional Info <ChevronDown size={14} />
+              </button>
+
+              {showFilters && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
+                  {[
+                    { key: "knowledgeCheck", label: "Knowledge Check" },
+                    { key: "contentAvailability", label: "Content Availability" },
+                    { key: "informationSource", label: "Information Source" },
+                    { key: "time", label: "Time" },
+                  ].map(({ key, label }) => (
+                    // @ts-ignore – dynamic key access
+                    <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="form-checkbox h-4 w-4 text-brand-primary"
                         // @ts-ignore – dynamic key access
-                        setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
-                      }
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-            )}
+                        checked={filters[key]}
+                        onChange={() =>
+                          // @ts-ignore – dynamic key access
+                          setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                        }
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeProduct === "Lesson Presentation" && (
+          <div className="flex flex-wrap justify-center gap-2 mb-2">
+            {/* Outline dropdown */}
+            <select
+              value={selectedOutlineId ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedOutlineId(val ? Number(val) : null);
+                setSelectedLesson("");
+              }}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="">Select Outline</option>
+              {outlines.map((o) => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </select>
+
+            {/* Lesson dropdown – appears only when outline chosen */}
+            {selectedOutlineId && (
+              <select
+                value={selectedLesson}
+                onChange={(e) => setSelectedLesson(e.target.value)}
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              >
+                <option value="">Select Lesson</option>
+                {lessonsForOutline.map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+            )}
+
+            {/* Length dropdown */}
+            <select
+              value={lengthOption}
+              onChange={(e) => setLengthOption(e.target.value as any)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              {(["Short", "Medium", "Long"] as const).map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Prompt input */}
-        <textarea
-          ref={promptRef}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe what you'd like to make"
-          rows={1}
-          className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-        />
+        {(activeProduct === "Course Outline" || (!selectedOutlineId || !selectedLesson)) && (
+          <textarea
+            ref={promptRef}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Describe what you'd like to make"
+            rows={1}
+            className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
+          />
+        )}
 
         {/* Example prompts block */}
         <div
@@ -354,7 +486,7 @@ export default function GenerateProductPicker() {
         >
           <button
             type="button"
-            onClick={handleCourseOutlineStart}
+            onClick={activeProduct === "Course Outline" ? handleCourseOutlineStart : handleLessonPresentationStart}
             className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
             style={{ backgroundColor: '#0076FF' }}
           >

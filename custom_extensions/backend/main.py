@@ -2867,3 +2867,141 @@ def _extract_project_name_from_markdown(md: str) -> Optional[str]:
     if m:
         return m.group("name").strip()
     return None
+
+# --- PDF Lesson helper and wizard endpoints ---
+
+# Ensure a design template for PDF Lesson exists, return its ID
+async def _ensure_pdf_lesson_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_PDF_LESSON)
+        if row:
+            return row["id"]
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "PDF Lesson", DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM, "PDF Lesson", COMPONENT_NAME_PDF_LESSON,
+        )
+        return row["id"]
+
+
+# -------- Lesson Presentation (PDF Lesson) Wizard ---------
+
+class LessonWizardPreview(BaseModel):
+    outlineProjectId: Optional[int] = None  # Parent Training Plan project id
+    lessonTitle: Optional[str] = None      # Specific lesson to generate, optional when prompt-based
+    lengthRange: Optional[str] = None      # e.g. "400-500 words"
+    prompt: Optional[str] = None           # Fallback free-form prompt
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+
+
+class LessonWizardFinalize(BaseModel):
+    outlineProjectId: Optional[int] = None
+    lessonTitle: str
+    lengthRange: Optional[str] = None
+    aiResponse: str                        # User-edited markdown / plain text
+    chatSessionId: Optional[str] = None
+
+
+@app.post("/api/custom/lesson-presentation/preview")
+async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    if not cookies[ONYX_SESSION_COOKIE_NAME]:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Ensure chat session
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+    else:
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    # Build wizard request for assistant persona
+    wizard_dict: Dict[str, Any] = {
+        "product": "PDF Lesson",
+        "action": "preview",
+        "language": payload.language,
+        "lengthRange": payload.lengthRange,
+    }
+    if payload.outlineProjectId is not None:
+        wizard_dict["outlineProjectId"] = payload.outlineProjectId
+    if payload.lessonTitle:
+        wizard_dict["lessonTitle"] = payload.lessonTitle
+    if payload.prompt:
+        wizard_dict["prompt"] = payload.prompt
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
+
+    async def streamer():
+        last_send = asyncio.get_event_loop().time()
+        async with httpx.AsyncClient(timeout=None) as client:
+            send_payload = {
+                "chat_session_id": chat_id,
+                "message": wizard_message,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": [],
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "always", "real_time": False},
+                "stream_response": True,
+            }
+
+            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                async for raw_line in resp.aiter_lines():
+                    if not raw_line:
+                        continue
+                    line = raw_line.strip()
+                    if line.startswith("data:"):
+                        line = line.split("data:", 1)[1].strip()
+                    if line == "[DONE]":
+                        break
+                    try:
+                        pkt = json.loads(line)
+                        if "answer_piece" in pkt:
+                            text_piece = pkt["answer_piece"].replace("\\n", "\n")
+                            yield text_piece.encode()
+                    except Exception:
+                        continue
+
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "  # keep-alive
+                        last_send = now
+
+    return StreamingResponse(streamer(), media_type="text/plain")
+
+
+@app.post("/api/custom/lesson-presentation/finalize")
+async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    if not cookies[ONYX_SESSION_COOKIE_NAME]:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Fetch parent outline project name if provided
+    parent_project_name: Optional[str] = None
+    if payload.outlineProjectId is not None:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT project_name FROM projects WHERE id = $1", payload.outlineProjectId)
+            if row:
+                parent_project_name = row["project_name"]
+
+    project_name_final = parent_project_name or payload.lessonTitle
+
+    template_id = await _ensure_pdf_lesson_template(pool)
+
+    project_request = ProjectCreateRequest(
+        projectName=project_name_final,
+        design_template_id=template_id,
+        microProductName=payload.lessonTitle,
+        aiResponse=payload.aiResponse,
+        chatSessionId=uuid.UUID(payload.chatSessionId) if payload.chatSessionId else None,
+    )
+
+    onyx_user_id = await get_current_onyx_user_id(request)
+    project_db = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+
+    return JSONResponse(content=json.loads(project_db.model_dump_json()))
