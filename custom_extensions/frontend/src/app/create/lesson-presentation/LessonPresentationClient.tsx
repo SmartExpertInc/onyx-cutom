@@ -128,6 +128,7 @@ export default function LessonPresentationClient() {
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
   const [streamDone, setStreamDone] = useState(false);
+  const [textareaVisible, setTextareaVisible] = useState(false);
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -179,6 +180,8 @@ export default function LessonPresentationClient() {
     }
 
     const startPreview = (attempt: number = 0) => {
+      // Reset visibility states for a fresh preview run
+      setTextareaVisible(false);
       // Reset stream completion flag for new preview
       setStreamDone(false);
       const abortController = new AbortController();
@@ -227,9 +230,16 @@ export default function LessonPresentationClient() {
             }
             gotFirstChunk = true;
             buffer += decoder.decode(value, { stream: true });
+
+            // Determine if this buffer now contains some real (non-whitespace) text
+            const hasMeaningfulText = /\S/.test(buffer);
+
+            // Update the React state before toggling UI visibility
             setContent(buffer);
-            if (loading) {
-              setLoading(false); // reveal textarea as soon as first chunk arrives
+
+            if (hasMeaningfulText && !textareaVisible) {
+              setTextareaVisible(true);
+              setLoading(false); // Hide spinner & show textarea
             }
           }
 
@@ -248,13 +258,12 @@ export default function LessonPresentationClient() {
           }
         } finally {
           if (!abortController.signal.aborted) {
-            setLoading(false);
+            // If the stream ended but we never displayed content, remove spinner anyway
+            if (loading) setLoading(false);
             if (!gotFirstChunk && attempt >= 3) {
               setError("Failed to generate lesson – please try again later.");
             }
           }
-          // ensure loading false when finished (in case no chunk)
-          if (loading) setLoading(false);
         }
       };
 
@@ -268,6 +277,13 @@ export default function LessonPresentationClient() {
     };
   }, [selectedOutlineId, selectedLesson, lengthOption, language]);
 
+  // Auto-scroll textarea as new content streams in
+  useEffect(() => {
+    if (textareaVisible && textareaRef.current) {
+      // Scroll to bottom to keep newest text in view
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+    }
+  }, [content, textareaVisible]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
@@ -398,7 +414,7 @@ export default function LessonPresentationClient() {
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
           {/* Main content display - Textarea instead of module list */}
-          {content && !loading && (
+          {textareaVisible && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
