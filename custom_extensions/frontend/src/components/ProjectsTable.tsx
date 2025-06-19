@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProjectsTable.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -28,83 +28,6 @@ interface Project {
   isPrivate: boolean;
   isGamma?: boolean;
 }
-
-// Hardcoded data based on the provided image
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "MamaRika Speaks Out About Her Breakup with Stas Shurins",
-    imageUrl: "/placeholder.png",
-    lastViewed: "20 minutes ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 2,
-    title: "Strategic Session: A Powerful Tool for Organizational...",
-    imageUrl: "/placeholder.png",
-    lastViewed: "4 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 3,
-    title: "AI Trends 2025: The Accelerating Evolution",
-    imageUrl: "/placeholder.png",
-    lastViewed: "5 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 4,
-    title: "Smolinsk Uranium Mine Incident",
-    imageUrl: "/placeholder.png",
-    lastViewed: "5 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 5,
-    title: "Shaping Tomorrow's Workforce: AI in Corporate...",
-    imageUrl: "/placeholder.png",
-    lastViewed: "5 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 6,
-    title: "10 Trends in AI Corporate Employee Training For 2025",
-    imageUrl: "/placeholder.png",
-    lastViewed: "11 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 7,
-    title: "RevolutionEd: Transforming Corporate Learning",
-    imageUrl: "/placeholder.png",
-    lastViewed: "12 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 8,
-    title: "Результаты внедрения системы управления...",
-    imageUrl: "/placeholder.png",
-    lastViewed: "12 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  },
-  {
-    id: 9,
-    title: "Gamma Tips & Tricks",
-    imageUrl: "/placeholder.png",
-    isGamma: true,
-    lastViewed: "12 days ago",
-    createdBy: "Vitaliy Tymoshenko",
-    isPrivate: true,
-  }
-];
 
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
     // A simple hash function to get a color from the title
@@ -156,7 +79,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-gray-600">
                             <div className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs" style={{backgroundColor: avatarColor}}>
-                                {project.createdBy.split(' ').map(n=>n[0]).join('')}
+                                {project.createdBy.slice(0, 1).toUpperCase()}
                             </div>
                             <span>Created by you</span>
                             <span className="text-gray-400">•</span>
@@ -171,8 +94,76 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
 };
 
 const ProjectsTable = () => {
-    const [activeFilter, setActiveFilter] = useState('Recently viewed');
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [activeFilter, setActiveFilter] = useState('All');
     const [viewMode, setViewMode] = useState('Grid');
+
+    const timeAgo = (dateString: string): string => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        let interval = seconds / 31536000;
+        if (interval > 1) {
+            return Math.floor(interval) + " years ago";
+        }
+        interval = seconds / 2592000;
+        if (interval > 1) {
+            return Math.floor(interval) + " months ago";
+        }
+        interval = seconds / 86400;
+        if (interval > 1) {
+            return Math.floor(interval) + " days ago";
+        }
+        interval = seconds / 3600;
+        if (interval > 1) {
+            return Math.floor(interval) + " hours ago";
+        }
+        interval = seconds / 60;
+        if (interval > 1) {
+            return Math.floor(interval) + " minutes ago";
+        }
+        return "just now";
+    };
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            setLoading(true);
+            setError(null);
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const projectsApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
+            try {
+                const headers: HeadersInit = {};
+                const devUserId = "dummy-onyx-user-id-for-testing";
+                if (devUserId && process.env.NODE_ENV === 'development') {
+                    headers['X-Dev-Onyx-User-ID'] = devUserId;
+                }
+                const response = await fetch(projectsApiUrl, { headers, cache: 'no-store' });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
+                }
+                const data = await response.json();
+                const mappedProjects: Project[] = data.map((p: any) => ({
+                    id: p.id,
+                    title: p.projectName,
+                    imageUrl: "/placeholder.png", // Missing from DB
+                    lastViewed: timeAgo(p.created_at),
+                    createdBy: "you", // From DB context
+                    isPrivate: true, // Missing from DB
+                }));
+                setProjects(mappedProjects);
+            } catch (e: any) {
+                setError(e.message || "Failed to load projects.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProjects();
+    }, []);
 
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
     const filterIcons: Record<string, LucideIcon> = {
@@ -181,6 +172,14 @@ const ProjectsTable = () => {
         'Created by you': User,
         'Favorites': Star,
     };
+
+    if (loading) {
+        return <div className="text-center p-8">Loading projects...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center p-8 text-red-500">Error: {error}</div>;
+    }
 
     return (
         <div>
@@ -242,11 +241,17 @@ const ProjectsTable = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {projects.map((p: Project) => (
-                   <ProjectCard key={p.id} project={p} />
-                ))}
-            </div>
+            {projects.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {projects.map((p: Project) => (
+                       <ProjectCard key={p.id} project={p} />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center p-8 bg-gray-50 rounded-lg">
+                    <p className="text-gray-600">No products found.</p>
+                </div>
+            )}
         </div>
     );
 }
