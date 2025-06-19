@@ -93,7 +93,7 @@ const Sidebar = () => (
 
 const Header = () => (
   <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-    <h1 className="text-3xl font-bold text-gray-900">Gammas</h1>
+    <h1 className="text-3xl font-bold text-gray-900">Products</h1>
     <div className="flex items-center gap-4">
       <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
         <Sparkles size={16} className="text-yellow-500" />
@@ -118,8 +118,8 @@ export default function ProjectsPage() {
             </Suspense>
         </main>
         <div className="fixed bottom-4 right-4">
-            <button className="w-10 h-10 bg-black rounded-full text-white flex items-center justify-center shadow-lg">
-                <HelpCircle size={24} />
+            <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-blue-100">
+                <HelpCircle size={28} className="text-blue-900" strokeWidth={2.5} />
             </button>
         </div>
       </div>

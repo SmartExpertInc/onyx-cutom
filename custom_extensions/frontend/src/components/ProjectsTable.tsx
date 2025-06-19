@@ -186,10 +186,12 @@ const ProjectsTable = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
-                        <Plus size={16} />
-                        Create new AI
-                    </button>
+                    <Link href="/create">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+                            <Plus size={16} />
+                            Create new AI
+                        </button>
+                    </Link>
                     <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-50 transition-colors shadow-sm">
                         <Plus size={16} />
                         New from blank
