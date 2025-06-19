@@ -18,7 +18,10 @@ import {
   ChevronsUpDown,
   LucideIcon,
   Share2,
-  Trash2
+  Trash2,
+  PenLine,
+  Copy,
+  Link as LinkIcon
 } from 'lucide-react';
 
 interface Project {
@@ -26,6 +29,7 @@ interface Project {
   title: string;
   imageUrl: string;
   lastViewed: string;
+  createdAt: string;
   createdBy: string;
   isPrivate: boolean;
   isGamma?: boolean;
@@ -51,10 +55,15 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
-        if (window.confirm('Are you sure you want to delete this project?')) {
+        if (window.confirm('Are you sure you want to send this project to the trash?')) {
             onDelete(project.id);
         }
     };
+    
+    const formatDate = (dateString: string) => {
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
     
     // A simple hash function to get a color from the title
     const stringToColor = (str: string): string => {
@@ -75,7 +84,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
     const avatarColor = stringToColor(project.createdBy);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden group transition-all duration-200 hover:shadow-lg border border-gray-200">
             <Link href={`/projects/view/${project.id}`} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
@@ -111,36 +120,64 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                             <span className="text-gray-400">•</span>
                             <span>{project.lastViewed}</span>
                         </div>
+                        <div className="relative" ref={menuRef}>
+                             <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setMenuOpen(prev => !prev);
+                                }}
+                                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+                            >
+                                <MoreHorizontal size={16} />
+                            </button>
+                            {menuOpen && (
+                                <div className="absolute bottom-full right-0 mb-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
+                                    <div className="px-3 py-2 border-b border-gray-100">
+                                        <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Created {formatDate(project.createdAt)}
+                                            <br/>
+                                            by Mykola Volynets
+                                        </p>
+                                    </div>
+                                    <div className="py-1">
+                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                            <Share2 size={16} className="text-gray-500" />
+                                            <span>Share...</span>
+                                        </button>
+                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                            <PenLine size={16} className="text-gray-500"/>
+                                            <span>Rename...</span>
+                                        </button>
+                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                            <Star size={16} className="text-gray-500"/>
+                                            <span>Add to favorites</span>
+                                        </button>
+                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                            <Copy size={16} className="text-gray-500"/>
+                                            <span>Duplicate</span>
+                                        </button>
+                                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                            <LinkIcon size={16} className="text-gray-500"/>
+                                            <span>Copy link</span>
+                                        </button>
+                                    </div>
+                                    <div className="py-1 border-t border-gray-100">
+                                        <button 
+                                            onClick={handleDelete}
+                                            className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                                        >
+                                            <Trash2 size={14} />
+                                            <span>Send to trash</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </Link>
-            <div ref={menuRef}>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(prev => !prev);
-                    }}
-                    className="absolute top-2 right-2 p-2 rounded-full text-gray-500 invisible group-hover:visible hover:bg-gray-100 transition-colors"
-                >
-                    <MoreHorizontal size={16} />
-                </button>
-                {menuOpen && (
-                    <div className="absolute top-10 right-2 w-40 bg-[#2C2C2C] rounded-lg shadow-xl z-10 py-1">
-                        <button className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700/50">
-                            <Share2 size={14} />
-                            <span>Share</span>
-                        </button>
-                        <button 
-                            onClick={handleDelete}
-                            className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700/50"
-                        >
-                            <Trash2 size={14} />
-                            <span>Delete</span>
-                        </button>
-                    </div>
-                )}
-            </div>
         </div>
     );
 };
@@ -234,6 +271,7 @@ const ProjectsTable = () => {
                     title: p.projectName,
                     imageUrl: "/placeholder.png", // Missing from DB
                     lastViewed: timeAgo(p.created_at),
+                    createdAt: p.created_at,
                     createdBy: "you", // From DB context
                     isPrivate: true, // Missing from DB
                 }));
