@@ -4,25 +4,124 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
 import ProjectsTable from '../../components/ProjectsTable';
+import { 
+  Search, 
+  ChevronsUpDown, 
+  Home, 
+  Users, 
+  Globe, 
+  ImageIcon,
+  FolderPlus,
+  LayoutTemplate,
+  Sparkles,
+  Palette,
+  Type,
+  Trash2,
+  Plus,
+  Bell,
+  HelpCircle
+} from 'lucide-react';
+
+const Sidebar = () => (
+  <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
+    <div className="flex items-center mb-6">
+      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm mr-2">V</div>
+      <span className="font-semibold">Vitaliy Tymoshenko's ...</span>
+      <ChevronsUpDown size={16} className="ml-auto text-gray-500 cursor-pointer" />
+    </div>
+    <div className="relative mb-4">
+      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+      <input
+        type="text"
+        placeholder="Jump to"
+        className="w-full bg-gray-100 rounded-md pl-8 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">⌘+K</div>
+    </div>
+    <nav className="flex flex-col gap-1">
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">
+        <Home size={18} />
+        <span>Gammas</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Users size={18} />
+        <span>Shared with you</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Globe size={18} />
+        <span>Sites</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <ImageIcon size={18} />
+        <span>AI Images</span>
+      </Link>
+    </nav>
+    <div className="mt-4">
+      <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
+        <span>Folders</span>
+        <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" />
+      </div>
+      <div className="bg-gray-100 p-4 rounded-lg text-center">
+        <p className="mb-2">Organize your gammas by topic and share them with your team</p>
+        <button className="font-semibold text-blue-600 hover:underline">Create or join a folder</button>
+      </div>
+    </div>
+    <nav className="flex flex-col gap-1 mt-auto">
+       <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <LayoutTemplate size={18} />
+        <span>Templates</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Sparkles size={18} />
+        <span>Inspiration</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Palette size={18} />
+        <span>Themes</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Type size={18} />
+        <span>Custom fonts</span>
+      </Link>
+      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Trash2 size={18} />
+        <span>Trash</span>
+      </Link>
+    </nav>
+  </aside>
+);
+
+const Header = () => (
+  <header className="flex items-center justify-end p-2 border-b border-gray-200 bg-white sticky top-0 z-10">
+    <div className="flex items-center gap-4">
+      <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
+        <Sparkles size={16} className="text-yellow-500" />
+        Get unlimited AI
+      </Link>
+      <span className="text-sm font-semibold">80 credits</span>
+      <Bell size={20} className="text-gray-600 cursor-pointer" />
+      <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">VT</div>
+    </div>
+  </header>
+);
 
 export default function ProjectsPage() {
-  // Any additional client-side logic for this page can go here in future if needed.
-
   return (
-    <main className="p-4 md:p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto w-full">
-        <div className="mb-6 flex justify-end flex-wrap gap-4">
-          <Link
-            href="/create"
-            className="text-sm flex items-center px-4 py-2 w-fit bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 transition-colors"
-          >
-            + Create New (AI)
-          </Link>
+    <div className="bg-[#F7F7F7] min-h-screen font-sans">
+      <Sidebar />
+      <div className="ml-64 flex flex-col h-screen">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-8">
+            <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
+                <ProjectsTable />
+            </Suspense>
+        </main>
+        <div className="fixed bottom-4 right-4">
+            <button className="w-10 h-10 bg-black rounded-full text-white flex items-center justify-center shadow-lg">
+                <HelpCircle size={24} />
+            </button>
         </div>
-        <Suspense fallback={<div className="p-8 text-center font-['Inter',_sans-serif]">Loading Projects...</div>}>
-            <ProjectsTable />
-        </Suspense>
       </div>
-    </main>
+    </div>
   );
 }
