@@ -26,7 +26,7 @@ const Sidebar = () => (
   <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
     <div className="flex items-center mb-6">
       <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm mr-2">V</div>
-      <span className="font-semibold">Vitaliy Tymoshenko's ...</span>
+      <span className="font-semibold text-gray-800">Vitaliy Tymoshenko's ...</span>
       <ChevronsUpDown size={16} className="ml-auto text-gray-500 cursor-pointer" />
     </div>
     <div className="relative mb-4">
@@ -62,7 +62,7 @@ const Sidebar = () => (
         <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" />
       </div>
       <div className="bg-gray-100 p-4 rounded-lg text-center">
-        <p className="mb-2">Organize your gammas by topic and share them with your team</p>
+        <p className="mb-2 text-gray-700">Organize your gammas by topic and share them with your team</p>
         <button className="font-semibold text-blue-600 hover:underline">Create or join a folder</button>
       </div>
     </div>
@@ -99,7 +99,7 @@ const Header = () => (
         <Sparkles size={16} className="text-yellow-500" />
         Get unlimited AI
       </Link>
-      <span className="text-sm font-semibold">80 credits</span>
+      <span className="text-sm font-semibold text-gray-800">80 credits</span>
       <Bell size={20} className="text-gray-600 cursor-pointer" />
       <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">VT</div>
     </div>

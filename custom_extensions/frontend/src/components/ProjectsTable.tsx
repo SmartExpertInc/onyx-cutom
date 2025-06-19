@@ -219,7 +219,7 @@ const ProjectsTable = () => {
                     })}
                 </div>
                 <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-800 hover:text-black">
+                    <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700">
                         <ArrowUpDown size={16} />
                         Sort
                     </button>
