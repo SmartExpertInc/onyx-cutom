@@ -498,7 +498,10 @@ export default function GenerateProductPicker() {
             className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
             style={{ backgroundColor: '#0076FF' }}
           >
-            <Sparkles size={18} /> Generate
+            <Sparkles size={18} />
+            <span>
+              {activeProduct === 'Course Outline' ? 'Generate outline' : 'Generate'}
+            </span>
           </button>
         </div>
       </div>
