@@ -149,7 +149,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                             <p className="text-xs text-gray-500 mt-1">
                                 Created {formatDate(project.createdAt)}
                                 <br/>
-                                by Mykola Volynets
+                                by Vitaliy Tymoshenko
                             </p>
                         </div>
                         <div className="py-1">

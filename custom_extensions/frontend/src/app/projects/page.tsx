@@ -18,8 +18,7 @@ import {
   Type,
   Trash2,
   Plus,
-  Bell,
-  HelpCircle
+  Bell
 } from 'lucide-react';
 
 const Sidebar = () => (
@@ -41,7 +40,7 @@ const Sidebar = () => (
     <nav className="flex flex-col gap-1">
       <Link href="#" className="flex items-center gap-3 p-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">
         <Home size={18} />
-        <span>Prodcuts</span>
+        <span>Products</span>
       </Link>
       <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
         <Users size={18} />
@@ -118,8 +117,12 @@ export default function ProjectsPage() {
             </Suspense>
         </main>
         <div className="fixed bottom-4 right-4">
-            <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-blue-100">
-                <HelpCircle size={28} className="text-blue-900" strokeWidth={2.5} />
+            <button
+              type="button"
+              className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
+              aria-label="Help"
+            >
+              ?
             </button>
         </div>
       </div>
