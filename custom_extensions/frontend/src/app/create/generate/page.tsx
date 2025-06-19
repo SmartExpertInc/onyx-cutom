@@ -253,13 +253,13 @@ export default function GenerateProductPicker() {
   const lengthRangeForOption = (opt: string) => {
     switch (opt) {
       case "Short":
-        return "400-500 words";
+        return "100-200 words";
       case "Medium":
-        return "600-800 words";
+        return "300-400 words";
       case "Long":
-        return "800+ words";
+        return "500+ words";
       default:
-        return "600-800 words";
+        return "300-400 words";
     }
   };
 
@@ -429,6 +429,17 @@ export default function GenerateProductPicker() {
               {(["Short", "Medium", "Long"] as const).map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
+            </select>
+            {/* Language dropdown */}
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="en">English</option>
+              <option value="uk">Ukrainian</option>
+              <option value="es">Spanish</option>
+              <option value="ru">Russian</option>
             </select>
           </div>
         )}

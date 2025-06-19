@@ -90,11 +90,13 @@ const optionForRange = (range?: string): "Short" | "Medium" | "Long" => {
 const lengthRangeForOption = (opt: string) => {
   switch (opt) {
     case "Short":
-      return "400-500 words";
+      return "100-200 words";
+    case "Medium":
+      return "300-400 words";
     case "Long":
-      return "800+ words";
+      return "500+ words";
     default:
-      return "600-800 words";
+      return "300-400 words";
   }
 };
 
@@ -212,14 +214,20 @@ export default function LessonPresentationClient() {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
           
-          while (true) {
+          const loop = async () => {
             const { value, done } = await reader.read();
-            if (done) break;
-            
+            if (done) {
+              return;
+            }
             gotFirstChunk = true;
-            const textChunk = decoder.decode(value, { stream: true });
-            setContent(prev => prev + textChunk);
+            const chunk = decoder.decode(value, { stream: true });
+            setContent(prev => prev + chunk);
+            
+            // Continue reading the stream
+            await loop();
           }
+
+          await loop();
 
         } catch (e: any) {
           if (e.name === "AbortError") return;
