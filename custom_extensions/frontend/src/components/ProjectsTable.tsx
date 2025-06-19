@@ -37,6 +37,7 @@ interface Project {
 
 const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }> = ({ project, onDelete }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -51,13 +52,18 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
         };
     }, []);
 
-    const handleDelete = async (e: React.MouseEvent) => {
+    const handleOpenDeleteConfirm = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
-        if (window.confirm('Are you sure you want to send this project to the trash?')) {
-            onDelete(project.id);
-        }
+        setDeleteConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setDeleteConfirmOpen(false);
+        onDelete(project.id);
     };
 
     const formatDate = (dateString: string) => {
@@ -170,7 +176,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                         </div>
                         <div className="py-1 border-t border-gray-100">
                             <button 
-                                onClick={handleDelete}
+                                onClick={handleOpenDeleteConfirm}
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                             >
                                 <Trash2 size={14} />
@@ -180,6 +186,39 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                     </div>
                 )}
             </div>
+            {deleteConfirmOpen && (
+                <div 
+                    className="absolute inset-0 bg-black/40 flex items-center justify-center z-30 rounded-xl"
+                    onClick={() => setDeleteConfirmOpen(false)}
+                >
+                    <div 
+                        className="bg-white p-6 rounded-lg shadow-xl text-center w-80"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                           <Trash2 className="h-6 w-6 text-red-600" aria-hidden="true" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mt-4">Delete Project</h3>
+                        <p className="text-sm text-gray-500 mt-2">
+                            Are you sure you want to delete this project? This action cannot be undone.
+                        </p>
+                        <div className="mt-6 flex justify-center gap-4">
+                            <button
+                                onClick={() => setDeleteConfirmOpen(false)}
+                                className="px-4 py-2 bg-white text-gray-700 rounded-md font-semibold border border-gray-300 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700"
+                            >
+                                Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
