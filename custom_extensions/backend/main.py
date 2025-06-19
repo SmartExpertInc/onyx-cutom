@@ -2920,7 +2920,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
 
     # Build wizard request for assistant persona
     wizard_dict: Dict[str, Any] = {
-        "product": "PDF Lesson",
+        "product": "Lesson Presentation",
         "action": "preview",
         "language": payload.language,
         "lengthRange": payload.lengthRange,
