@@ -426,9 +426,6 @@ export default function LessonPresentationClient() {
         )}
 
         <section className="flex flex-col gap-3">
-          {textareaVisible && (
-            <h2 className="text-sm font-medium text-[#20355D]">Lesson Content</h2>
-          )}
           {loading && <LoadingAnimation message="Generating lesson content..." />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
@@ -445,25 +442,6 @@ export default function LessonPresentationClient() {
                 placeholder="Lesson content will appear here..."
                 className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[50vh]"
               />
-            </div>
-          )}
-
-          {/* Advanced mode button now directly under preview */}
-          {streamDone && textareaVisible && (
-            <div className="w-full flex justify-center mt-0 mb-0">
-              <button
-                type="button"
-                onClick={() => {
-                  sessionStorage.setItem('advanced-mode-data-lesson', JSON.stringify({
-                    selectedOutlineId, selectedLesson, lengthOption, language, chatId, content,
-                  }));
-                  router.push('/create/lesson-presentation/advanced');
-                }}
-                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
-              >
-                Advanced Mode
-                <Settings size={14} />
-              </button>
             </div>
           )}
         </section>
@@ -542,6 +520,25 @@ export default function LessonPresentationClient() {
               </div>
             </div>
           </section>
+        )}
+
+        {streamDone && content && (
+          <div className="w-full flex justify-center mt-0 mb-12">
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem('advanced-mode-data-lesson', JSON.stringify({
+                  selectedOutlineId, selectedLesson, lengthOption, language, chatId, content,
+                }));
+                // You would navigate to a new advanced page for lessons here
+                // router.push('/create/lesson-presentation/advanced');
+              }}
+              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+            >
+              Advanced Mode
+              <Settings size={14} />
+            </button>
+          </div>
         )}
       </div>
 
