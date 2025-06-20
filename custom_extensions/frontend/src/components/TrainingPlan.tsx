@@ -82,6 +82,7 @@ interface TrainingPlanTableProps {
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
+  outlineProjectId?: number;
 }
 
 // --- CHANGE: Restructured localizationConfig ---
@@ -169,6 +170,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   allUserMicroproducts,
   parentProjectName,
   sourceChatSessionId,
+  outlineProjectId,
 }) => {
   const [lessonModalState, setLessonModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
@@ -237,6 +239,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         moduleName={lessonModalState.moduleName}
         lessonNumber={lessonModalState.lessonNumber}
         sourceChatSessionId={sourceChatSessionId}
+        outlineProjectId={outlineProjectId}
       />
       <CreateTestTypeModal
         isOpen={testModalState.isOpen}

@@ -12,7 +12,7 @@ interface CreateLessonTypeModalProps {
   moduleName: string;      // Added for context
   lessonNumber: number;    // Added for context
   sourceChatSessionId: string | null | undefined;
-  outlineProjectId: number | undefined; // NEW: parent Training Plan project id
+  outlineProjectId?: number; // NEW: parent Training Plan project id (optional for backward compatibility)
   detectedLanguage?: 'en' | 'ru' | 'uk';
 }
 
