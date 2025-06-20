@@ -995,7 +995,7 @@ export default function CourseOutlineClient() {
                     {/* Preview */}
                     <div className="w-[214px] h-[116px] flex items-center justify-center">
                       {(() => {
-                        const Svg = ThemeSvgs[t.id] || ThemeSvgs.default;
+                        const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
                         return <Svg />;
                       })()}
                     </div>
