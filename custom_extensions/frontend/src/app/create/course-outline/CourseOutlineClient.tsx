@@ -173,6 +173,9 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
 }
 // -----------------------------------------------------------------
 
+// Add ThemeSvgs import after existing imports
+import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
+
 export default function CourseOutlineClient() {
   const params = useSearchParams();
   const [prompt, setPrompt] = useState(params.get("prompt") || "");
@@ -192,7 +195,7 @@ export default function CourseOutlineClient() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Currently chosen theme (UI only)
-  const [selectedTheme, setSelectedTheme] = useState<string>("peach");
+  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
 
   // Track which lesson rows are expanded: key format `${modIdx}-${lessonIdx}` -> boolean
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -679,54 +682,12 @@ export default function CourseOutlineClient() {
 
   // Predefined theme preview data to match provided mockup
   const themeOptions = [
-    {
-      id: "peach",
-      label: "Peach",
-      previewClass: "bg-[conic-gradient(at_top_left,_#FFF3C4,_#FFD3E2)]", // soft yellow→pink swirl
-      titleColor: "#20355D",
-      bodyColor: "#20355D",
-      linkColor: "#0066FF",
-    },
-    {
-      id: "mocha",
-      label: "Mocha",
-      previewClass: "bg-[#3F3B3B]",
-      titleColor: "#E7C0A4",
-      bodyColor: "#C8B3A6",
-      linkColor: "#C8A08A",
-    },
-    {
-      id: "coal",
-      label: "Coal",
-      previewClass: "bg-[#000000]",
-      titleColor: "#F5F5F5",
-      bodyColor: "#D1D1D1",
-      linkColor: "#D1D1D1",
-    },
-    {
-      id: "stardust",
-      label: "Stardust",
-      previewClass: "bg-[url('/stars-bg.png')] bg-cover bg-center",
-      titleColor: "#FFFFFF",
-      bodyColor: "#FFFFFF",
-      linkColor: "#FF9E3D",
-    },
-    {
-      id: "pistachio",
-      label: "Pistachio",
-      previewClass: "bg-[#E4F3E7]",
-      titleColor: "#20355D",
-      bodyColor: "#20355D",
-      linkColor: "#0066FF",
-    },
-    {
-      id: "nebulae",
-      label: "Nebulae",
-      previewClass: "bg-gradient-to-r from-[#1A003D] via-[#120A45] to-[#000000]",
-      titleColor: "#5CC9FF",
-      bodyColor: "#FFFFFF",
-      linkColor: "#5CC9FF",
-    },
+    { id: "wine", label: "Wine" },
+    { id: "cherry", label: "Cherry" },
+    { id: "vanilla", label: "Vanilla" },
+    { id: "terracotta", label: "Terracotta" },
+    { id: "lunaria", label: "Lunaria" },
+    { id: "zephyr", label: "Zephyr" },
   ];
 
   // Content section selections (UI-only)
@@ -1033,7 +994,10 @@ export default function CourseOutlineClient() {
                   >
                     {/* Preview */}
                     <div className="w-[214px] h-[116px] flex items-center justify-center">
-                      <ThemePreviewSvg />
+                      {(() => {
+                        const Svg = ThemeSvgs[t.id] || ThemeSvgs.default;
+                        return <Svg />;
+                      })()}
                     </div>
                     {/* Label with optional checkmark */}
                     <div className="flex items-center gap-1 px-2">

@@ -8,6 +8,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -123,7 +124,7 @@ export default function LessonPresentationClient() {
   );
   
   // UI state
-  const [selectedTheme, setSelectedTheme] = useState<string>("peach");
+  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
@@ -335,8 +336,12 @@ export default function LessonPresentationClient() {
   };
 
   const themeOptions = [
-    { id: "peach", label: "Peach" }, { id: "forest", label: "Forest" }, { id: "ocean", label: "Ocean" },
-    { id: "lavender", label: "Lavender" }, { id: "charcoal", label: "Charcoal" }, { id: "ruby", label: "Ruby" },
+    { id: "wine", label: "Wine" },
+    { id: "cherry", label: "Cherry" },
+    { id: "vanilla", label: "Vanilla" },
+    { id: "terracotta", label: "Terracotta" },
+    { id: "lunaria", label: "Lunaria" },
+    { id: "zephyr", label: "Zephyr" },
   ];
 
   return (
@@ -493,7 +498,12 @@ export default function LessonPresentationClient() {
                     onClick={() => setSelectedTheme(t.id)}
                     className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
                   >
-                    <div className="w-[214px] h-[116px] flex items-center justify-center"><ThemePreviewSvg /></div>
+                    <div className="w-[214px] h-[116px] flex items-center justify-center">
+                      {(() => {
+                        const Svg = ThemeSvgs[t.id] || ThemeSvgs.default;
+                        return <Svg />;
+                      })()}
+                    </div>
                     <div className="flex items-center gap-1 px-2">
                       <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
                       <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
