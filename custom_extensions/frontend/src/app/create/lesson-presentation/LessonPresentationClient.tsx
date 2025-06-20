@@ -115,7 +115,9 @@ export default function LessonPresentationClient() {
   
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
-  const [lessonsForOutline, setLessonsForOutline] = useState<string[]>([]);
+  const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
+  const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params.get("outlineId") ? Number(params.get("outlineId")) : null);
   const [selectedLesson, setSelectedLesson] = useState<string>(params.get("lesson") || "");
   const [language, setLanguage] = useState<string>(params.get("lang") || "en");
@@ -211,7 +213,10 @@ export default function LessonPresentationClient() {
   // Fetch lessons when a course outline is selected
   useEffect(() => {
     if (selectedOutlineId == null) {
-      setLessonsForOutline([]);
+      setModulesForOutline([]);
+      setSelectedModuleIndex(null);
+      setLessonsForModule([]);
+      setSelectedLesson("");
       return;
     };
     const fetchLessons = async () => {
@@ -220,11 +225,15 @@ export default function LessonPresentationClient() {
         if (!res.ok) return;
         const data = await res.json();
         const sections = data?.details?.sections || [];
-        const lessons: string[] = [];
-        sections.forEach((sec: any) => {
-          (sec.lessons || []).forEach((ls: any) => lessons.push(ls.title || ""));
-        });
-        setLessonsForOutline(lessons);
+        const modules = sections.map((sec: any) => ({
+          name: sec.title || "Unnamed module",
+          lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+        }));
+        setModulesForOutline(modules);
+        // reset downstream selections
+        setSelectedModuleIndex(null);
+        setLessonsForModule([]);
+        setSelectedLesson("");
       } catch (_) {}
     };
     fetchLessons();
@@ -526,16 +535,39 @@ export default function LessonPresentationClient() {
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
           </div>
 
+          {/* Module Dropdown */}
+          {selectedOutlineId && (
+            <div className="relative">
+              <select
+                value={selectedModuleIndex ?? ""}
+                onChange={(e) => {
+                  const idx = e.target.value ? Number(e.target.value) : null;
+                  setSelectedModuleIndex(idx);
+                  setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                  setSelectedLesson("");
+                }}
+                disabled={modulesForOutline.length === 0}
+                className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              >
+                <option value="">Select Module</option>
+                {modulesForOutline.map((m, idx) => (
+                  <option key={idx} value={idx}>{m.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+            </div>
+          )}
+
           {/* Lesson Dropdown */}
           <div className="relative">
             <select
               value={selectedLesson}
               onChange={(e) => setSelectedLesson(e.target.value)}
-              disabled={!selectedOutlineId || lessonsForOutline.length === 0}
+              disabled={!selectedOutlineId || selectedModuleIndex === null || lessonsForModule.length === 0}
               className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
               <option value="">Select Lesson</option>
-              {lessonsForOutline.map((l) => (<option key={l} value={l}>{l}</option>))}
+              {lessonsForModule.map((l) => (<option key={l} value={l}>{l}</option>))}
             </select>
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
           </div>
