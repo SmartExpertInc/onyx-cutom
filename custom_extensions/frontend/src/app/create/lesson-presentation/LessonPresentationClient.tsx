@@ -180,7 +180,13 @@ export default function LessonPresentationClient() {
     setSelectedExamples((prev) => {
       if (prev.includes(ex.short)) {
         const updated = prev.filter((s) => s !== ex.short);
-        setEditPrompt((p) => p.replace(ex.detailed + "\n", ""));
+        setEditPrompt((p) => {
+          return p
+            .split("\n")
+            .filter((line) => line.trim() !== ex.detailed)
+            .join("\n")
+            .replace(/^\n+|\n+$/g, "");
+        });
         return updated;
       }
       setEditPrompt((p) => (p ? p + "\n" + ex.detailed : ex.detailed));

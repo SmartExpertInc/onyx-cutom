@@ -852,8 +852,14 @@ export default function CourseOutlineClient() {
       if (prev.includes(ex.short)) {
         // remove
         const updated = prev.filter((s) => s !== ex.short);
-        // remove its detailed text from prompt
-        setEditPrompt((p) => p.replace(ex.detailed + "\n", ""));
+        // remove its detailed text line(s) from textarea
+        setEditPrompt((p) => {
+          return p
+            .split("\n")
+            .filter((line) => line.trim() !== ex.detailed)
+            .join("\n")
+            .replace(/^\n+|\n+$/g, "");
+        });
         return updated;
       }
       // add
