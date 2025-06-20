@@ -532,40 +532,40 @@ export default function LessonPresentationClient() {
           )}
         </section>
 
-        {/* Advanced Mode link placed directly under lesson preview */}
+        {/* Inline Advanced section & button */}
         {streamDone && content && (
-          <div className="w-full flex justify-center mt-2 mb-6">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced((prev) => !prev)}
-              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
-            >
-              Advanced Mode
-              <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
-            </button>
-          </div>
-        )}
-
-        {/* Inline Advanced Section for Lesson edits */}
-        {showAdvanced && (
-          <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-6" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-            <textarea
-              value={editPrompt}
-              onChange={(e) => setEditPrompt(e.target.value)}
-              placeholder="Describe how you'd like to modify the lesson..."
-              className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px]"
-            />
-            <div className="flex justify-end">
+          <>
+            {showAdvanced && (
+              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  placeholder="Describe how you'd like to modify the lesson..."
+                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={loadingEdit || !editPrompt.trim()}
+                    onClick={handleApplyLessonEdit}
+                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="w-full flex justify-center mt-2 mb-6">
               <button
                 type="button"
-                disabled={loadingEdit || !editPrompt.trim()}
-                onClick={handleApplyLessonEdit}
-                className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
               >
-                {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+                Advanced Mode
+                <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
               </button>
             </div>
-          </div>
+          </>
         )}
 
         {/* Themes Section */}

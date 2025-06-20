@@ -994,18 +994,40 @@ export default function CourseOutlineClient() {
           )}
         </section>
 
-        {/* Advanced Mode button placed directly under Modules & Lessons */}
+        {/* Inline Advanced section & button */}
         {!loading && preview.length > 0 && (
-          <div className="w-full flex justify-center mt-2 mb-6">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced((prev) => !prev)}
-              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
-            >
-              Advanced Mode
-              <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
-            </button>
-          </div>
+          <>
+            {showAdvanced && (
+              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  placeholder="Describe how you'd like to modify the outline..."
+                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={loadingPreview || !editPrompt.trim()}
+                    onClick={handleApplyEdit}
+                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="w-full flex justify-center mt-2 mb-6">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+              >
+                Advanced Mode
+                <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+              </button>
+            </div>
+          </>
         )}
 
         {!loading && preview.length > 0 && (
@@ -1134,32 +1156,6 @@ export default function CourseOutlineClient() {
             </div>
           </section>
         )}
-
-        {/* Advanced Mode button (moved here from below) */}
-        {false && preview.length > 0 && (
-          <div className="w-full flex justify-center mt-2 mb-6">
-            <button
-              type="button"
-              onClick={() => {
-                sessionStorage.setItem('advanced-mode-data', JSON.stringify({
-                  prompt,
-                  modules,
-                  lessonsPerModule,
-                  language,
-                  chatId,
-                  preview,
-                  filters,
-                  rawOutline,
-                }));
-                router.push('/create/course-outline/advanced');
-              }}
-              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
-            >
-              Advanced Mode
-              <Settings size={14} />
-            </button>
-          </div>
-        )}
       </div> {/* end inner wrapper */}
 
       {/* Full-width generate footer bar */}
@@ -1221,27 +1217,6 @@ export default function CourseOutlineClient() {
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
         <LoadingAnimation message="Finalizing product..." />
-      </div>
-    )}
-    {/* Inline Advanced Section */}
-    {showAdvanced && (
-      <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-6" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-        <textarea
-          value={editPrompt}
-          onChange={(e) => setEditPrompt(e.target.value)}
-          placeholder="Describe how you'd like to modify the outline..."
-          className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px]"
-        />
-        <div className="flex justify-end">
-          <button
-            type="button"
-            disabled={loadingPreview || !editPrompt.trim()}
-            onClick={handleApplyEdit}
-            className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
-          >
-            {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
-          </button>
-        </div>
       </div>
     )}
     </>
