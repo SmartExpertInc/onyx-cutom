@@ -351,9 +351,10 @@ export default function LessonPresentationClient() {
     if (combined && !/[.!?]$/.test(combined)) combined += ".";
     combined = combined ? `${combined} ${trimmed}` : trimmed;
 
-    // Update URL param so refreshes keep context
-    params.set("prompt", combined);
-    router.replace(`?${params.toString()}`, { scroll: false });
+    // Update URL param so refreshes keep context (ReadonlyURLSearchParams is immutable)
+    const sp = new URLSearchParams(params.toString());
+    sp.set("prompt", combined);
+    router.replace(`?${sp.toString()}`, { scroll: false });
 
     // Start streaming preview similar to startPreview but on demand
     if (previewAbortRef.current) previewAbortRef.current.abort();
