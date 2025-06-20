@@ -770,6 +770,7 @@ export default function CourseOutlineClient() {
             const parsed = parseOutlineMarkdown(accRaw);
             setPreview(parsed);
             setRawOutline(accRaw);
+            if (loadingPreview) setLoadingPreview(false); // hide "Applying" once stream starts
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
