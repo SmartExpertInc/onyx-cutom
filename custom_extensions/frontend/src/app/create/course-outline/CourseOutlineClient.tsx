@@ -942,10 +942,10 @@ export default function CourseOutlineClient() {
             {showFilters && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
                 {[
-                  { key: "knowledgeCheck", label: "Knowledge Check" },
-                  { key: "contentAvailability", label: "Content Availability" },
-                  { key: "informationSource", label: "Information Source" },
-                  { key: "time", label: "Time" },
+                  { key: "knowledgeCheck", label: "Assessment Type" },
+                  { key: "contentAvailability", label: "Content Volume" },
+                  { key: "informationSource", label: "Source" },
+                  { key: "time", label: "Production Hours" },
                 ].map(({ key, label }) => (
                   // @ts-ignore dynamic key
                   <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
@@ -1083,7 +1083,7 @@ export default function CourseOutlineClient() {
                 <textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder="Describe how you'd like to modify the outline..."
+                  placeholder="Describe what you'd like to improve..."
                   className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
                 />
 

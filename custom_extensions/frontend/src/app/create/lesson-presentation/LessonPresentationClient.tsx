@@ -657,7 +657,7 @@ export default function LessonPresentationClient() {
                 <textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder="Describe how you'd like to modify the lesson..."
+                  placeholder="Describe what you'd like to improve..."
                   className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
                 />
 
