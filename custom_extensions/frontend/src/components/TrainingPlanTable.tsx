@@ -86,7 +86,7 @@ interface TrainingPlanTableProps {
 
 const localizationConfig = {
   ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Время", timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", },
-  en: { moduleAndLessons: "Module and Lessons", knowledgeCheck: "Knowledge Check", contentAvailability: "Content Availability", source: "Information Source", time: "Time", timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", },
+  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Production Hours", timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", },
   uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Час", timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год", },
 };
 
