@@ -22,7 +22,6 @@ const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
     <path d="M0 0 C-0.625 1.875 -0.625 1.875 -2 4 C-3.97746603 4.73080266 -5.98072489 5.39421747 -8 6 C-8.721875 6.556875 -9.44375 7.11375 -10.1875 7.6875 C-10.785625 8.120625 -11.38375 8.55375 -12 9 C-12.99 8.67 -13.98 8.34 -15 8 C-12.61753661 5.31874582 -10.1454496 3.88576541 -6.9375 2.3125 C-5.62072266 1.65701172 -5.62072266 1.65701172 -4.27734375 0.98828125 C-2 0 -2 0 0 0 Z " fill="#F8E4BF" transform="translate(131,37)"/>
     <path d="M0 0 C2.62986812 2.62986812 2.821272 4.76228325 3.625 8.375 C3.88539063 9.51710937 4.14578125 10.65921875 4.4140625 11.8359375 C5 15 5 15 5 19 C4.01 18.67 3.02 18.34 2 18 C1.34 12.06 0.68 6.12 0 0 Z " fill="#F6E7C7" transform="translate(378,150)"/>
     <path d="M0 0 C0.33 0 0.66 0 1 0 C1.63019694 8.19256018 1.63019694 8.19256018 -1 11.5625 C-1.99 12.2740625 -1.99 12.2740625 -3 13 C-2.68991116 11.39536551 -2.37683713 9.79130769 -2.0625 8.1875 C-1.88847656 7.29417969 -1.71445312 6.40085938 -1.53515625 5.48046875 C-1 3 -1 3 0 0 Z " fill="#F8E7C7" transform="translate(36,139)"/>
-    <path d="M0 0 C0.66 0.33 1.32 0.66 2 1 C-1.75 4 -1.75 4 -4 4 C-4.33 4.99 -4.66 5.98 -5 7 C-8.0625 8.1875 -8.0625 8.1875 -11 9 C-7.56638098 5.36440339 -4.2026393 2.63886654 0 0 Z " fill="#F5E7C4" transform="translate(109,48)"/>
     <path d="M0 0 C0.66 0 1.32 0 2 0 C5.42857143 7.28571429 5.42857143 7.28571429 5 12 C1.66226291 8.35883227 1.02135098 4.71392758 0 0 Z " fill="#F6E7C6" transform="translate(37,261)"/>
     <path d="M0 0 C0 0.66 0 1.32 0 2 C-0.9590625 2.433125 -0.9590625 2.433125 -1.9375 2.875 C-4.15206079 3.82823451 -4.15206079 3.82823451 -5 6 C-5.66 6 -6.32 6 -7 6 C-7 4.68 -7 3.36 -7 2 C-4.35261084 0.5393715 -3.10551666 0 0 0 Z " fill="#F1DFB8" transform="translate(167,153)"/>
   </svg>
@@ -211,7 +210,9 @@ export default function GenerateProductPicker() {
   // --- Lesson Presentation specific state ---
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(null);
-  const [lessonsForOutline, setLessonsForOutline] = useState<string[]>([]);
+  const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
+  const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
 
@@ -239,11 +240,15 @@ export default function GenerateProductPicker() {
         if (!res.ok) return;
         const data = await res.json();
         const sections = data?.details?.sections || [];
-        const lessons: string[] = [];
-        sections.forEach((sec: any) => {
-          (sec.lessons || []).forEach((ls: any) => lessons.push(ls.title || ""));
-        });
-        setLessonsForOutline(lessons);
+        const modules = sections.map((sec: any) => ({
+          name: sec.title || "Unnamed module",
+          lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+        }));
+        setModulesForOutline(modules);
+        // reset downstream selections
+        setSelectedModuleIndex(null);
+        setLessonsForModule([]);
+        setSelectedLesson("");
       } catch (_) {}
     };
     fetchLessons();
@@ -396,6 +401,9 @@ export default function GenerateProductPicker() {
               onChange={(e) => {
                 const val = e.target.value;
                 setSelectedOutlineId(val ? Number(val) : null);
+                // clear module & lesson selections when outline changes
+                setSelectedModuleIndex(null);
+                setLessonsForModule([]);
                 setSelectedLesson("");
               }}
               className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
@@ -406,15 +414,34 @@ export default function GenerateProductPicker() {
               ))}
             </select>
 
-            {/* Lesson dropdown – appears only when outline chosen */}
+            {/* Module dropdown – appears once outline is selected */}
             {selectedOutlineId && (
+              <select
+                value={selectedModuleIndex ?? ""}
+                onChange={(e) => {
+                  const idx = e.target.value ? Number(e.target.value) : null;
+                  setSelectedModuleIndex(idx);
+                  setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                  setSelectedLesson("");
+                }}
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              >
+                <option value="">Select Module</option>
+                {modulesForOutline.map((m, idx) => (
+                  <option key={idx} value={idx}>{m.name}</option>
+                ))}
+              </select>
+            )}
+
+            {/* Lesson dropdown – appears when module chosen */}
+            {selectedModuleIndex !== null && (
               <select
                 value={selectedLesson}
                 onChange={(e) => setSelectedLesson(e.target.value)}
                 className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
               >
                 <option value="">Select Lesson</option>
-                {lessonsForOutline.map((l) => (
+                {lessonsForModule.map((l) => (
                   <option key={l} value={l}>{l}</option>
                 ))}
               </select>
@@ -445,7 +472,7 @@ export default function GenerateProductPicker() {
         )}
 
         {/* Prompt input */}
-        {(activeProduct === "Course Outline" || (!selectedOutlineId || !selectedLesson)) && (
+        {(activeProduct === "Course Outline" || !selectedOutlineId || selectedModuleIndex === null || !selectedLesson) && (
           <textarea
             ref={promptRef}
             value={prompt}
@@ -459,7 +486,7 @@ export default function GenerateProductPicker() {
         {/* Example prompts block */}
         <div
           className={`transition-all duration-300 origin-top ${
-            prompt.trim().length === 0 && (activeProduct === "Course Outline" || !selectedOutlineId || !selectedLesson)
+            prompt.trim().length === 0 && (activeProduct === "Course Outline" || !selectedOutlineId || selectedModuleIndex === null || !selectedLesson)
               ? 'opacity-100 translate-y-0 max-h-[500px]'
               : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'
           }`}
