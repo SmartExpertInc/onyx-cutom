@@ -12,26 +12,29 @@ interface CreateLessonTypeModalProps {
   moduleName: string;      // Added for context
   lessonNumber: number;    // Added for context
   sourceChatSessionId: string | null | undefined;
-  outlineProjectId?: number; // NEW: parent Training Plan project id (optional for backward compatibility)
+  outlineProjectId: number | string | undefined; // NEW: id of the Training Plan project
   detectedLanguage?: 'en' | 'ru' | 'uk';
 }
 
+// List of selectable lesson types in the modal.
+// NOTE: "Video Lesson Script" is disabled for now as per requirements.
 const lessonTypes = [
-  { 
-    name: "lessonPresentation", 
-    icon: <BookText className="w-6 h-6" />, 
-    disabled: false 
+  {
+    name: "lessonPresentation",
+    icon: <BookText className="w-6 h-6" />,
+    disabled: false,
   },
-  { 
-    name: "videoLessonScript", 
-    icon: <Video className="w-6 h-6" />, 
-    disabled: true // Temporarily disabled per requirements 
+  {
+    name: "videoLessonScript",
+    icon: <Video className="w-6 h-6" />,
+    disabled: true, // Disabled per request
+    tooltipKey: "comingSoon",
   },
-  { 
-    name: "videoLesson", 
-    icon: <Film className="w-6 h-6" />, 
+  {
+    name: "videoLesson",
+    icon: <Film className="w-6 h-6" />,
     disabled: true,
-    tooltipKey: "comingSoon"
+    tooltipKey: "comingSoon",
   },
 ];
 
@@ -94,27 +97,26 @@ export const CreateLessonTypeModal = ({
 }: CreateLessonTypeModalProps) => {
   const localized = locales[detectedLanguage as keyof typeof locales].modals.createLesson;
 
-  const handleLessonCreate = (typeName: string) => {
-    if (typeName === "lessonPresentation") {
-      // Redirect to product picker with Lesson Presentation pre-selected
+  const handleLessonCreate = (typeKey: string) => {
+    // If user selects Lesson Presentation we redirect to generator with pre-selected params
+    if (typeKey === "lessonPresentation") {
       const params = new URLSearchParams();
       params.set("product", "lessonPresentation");
-      if (outlineProjectId) params.set("outlineId", String(outlineProjectId));
+      if (outlineProjectId !== undefined) params.set("outlineId", String(outlineProjectId));
       params.set("lesson", lessonTitle);
       window.location.href = `/create/generate?${params.toString()}`;
       onClose();
       return;
     }
 
-    // Fallback (legacy) – send to chat for other lesson types
+    // Fallback – existing behaviour (chat) for other types still enabled
     if (!sourceChatSessionId) {
       alert(localized.errorNoSessionId);
       onClose();
       return;
     }
 
-    const message = `Please create a ${localized[typeName as keyof typeof localized]} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
-
+    const message = `Please create a ${typeKey} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
     const chatUrl = `/chat?chatId=${sourceChatSessionId}&user-prompt=${encodeURIComponent(message)}&send-on-load=true`;
     window.location.href = chatUrl;
     onClose();

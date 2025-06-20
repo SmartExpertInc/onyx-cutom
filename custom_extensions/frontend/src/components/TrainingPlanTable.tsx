@@ -82,7 +82,7 @@ interface TrainingPlanTableProps {
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
-  outlineProjectId?: number;
+  outlineProjectId?: number | string;
 }
 
 const localizationConfig = {
