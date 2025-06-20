@@ -763,6 +763,7 @@ export default function CourseOutlineClient() {
 
       let buf = "";
       let accRaw = "";
+      let hasFirstData = false;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -775,10 +776,18 @@ export default function CourseOutlineClient() {
           const pkt = JSON.parse(ln);
           if (pkt.type === "delta") {
             accRaw += pkt.text;
+
+            // Only update preview after we've received enough data to parse at least one module
             const parsed = parseOutlineMarkdown(accRaw);
-            setPreview(parsed);
-            setRawOutline(accRaw);
-            if (loadingPreview) setLoadingPreview(false); // hide "Applying" once stream starts
+            if (!hasFirstData && parsed.length > 0) {
+              hasFirstData = true;
+              setPreview(parsed);
+              setRawOutline(accRaw);
+              if (loadingPreview) setLoadingPreview(false); // hide overlay once stream starts
+            } else if (hasFirstData) {
+              setPreview(parsed);
+              setRawOutline(accRaw);
+            }
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -786,12 +795,14 @@ export default function CourseOutlineClient() {
             setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
             setPrompt(combined);
             setEditPrompt("");
+            setLoadingPreview(false);
           }
         }
       }
     } catch (e: any) {
       setError(e.message || "Failed to apply edit");
     } finally {
+      // Ensure overlay is removed in case of error
       setLoadingPreview(false);
     }
   };
@@ -916,9 +927,14 @@ export default function CourseOutlineClient() {
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6"
+              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
+              {loadingPreview && (
+                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                  <LoadingAnimation message="Applying edit..." />
+                </div>
+              )}
               {preview.map((mod: ModulePreview, modIdx: number) => (
                 <div key={mod.id} className="flex rounded-xl shadow-sm overflow-hidden">
                   {/* Left colored bar with index */}
