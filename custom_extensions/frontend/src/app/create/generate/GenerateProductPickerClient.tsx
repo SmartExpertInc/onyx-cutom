@@ -38,26 +38,29 @@ const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
-// Simple tab button
-interface TabButtonProps {
+// Product tab component with proper styling
+interface ProductTabProps {
   label: string;
-  Icon?: React.ElementType;
-  active?: boolean;
-  onClick?: () => void;
+  Icon: React.ElementType;
+  active: boolean;
+  onClick: () => void;
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) => (
+const ProductTab: React.FC<ProductTabProps> = ({ label, Icon, active, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
+    className={`relative flex flex-col items-center justify-center p-4 rounded-lg transition-all duration-200 min-w-[140px] h-[120px] ${
       active
-        ? "bg-white shadow text-brand-primary border border-brand-primary"
-        : "bg-white/70 text-gray-700 hover:bg-white"
+        ? "bg-white shadow-lg border-2 border-blue-500 text-blue-600"
+        : "bg-gray-50 hover:bg-white hover:shadow-md border-2 border-transparent text-gray-700"
     }`}
   >
-    {Icon && <Icon size={64} />}
-    <span className="text-sm font-medium leading-tight">{label}</span>
+    <Icon size={48} />
+    <span className="text-sm font-medium mt-2 text-center leading-tight">{label}</span>
+    {active && (
+      <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full"></div>
+    )}
   </button>
 );
 
@@ -264,266 +267,295 @@ export default function GenerateProductPickerClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50 font-['Inter',_sans-serif]">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center justify-between mb-8">
           <Link
             href="/projects"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
           >
             <ArrowLeft size={20} />
             <span>Back to Projects</span>
           </Link>
+          <div className="text-sm text-gray-500">
+            Choose a product type to get started
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        {/* Main Content Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-12 text-white text-center">
+            <h1 className="text-4xl font-bold mb-3">
               Create New Product
             </h1>
-            <p className="text-gray-600">
-              Choose a product type and describe what you want to create
+            <p className="text-blue-100 text-lg max-w-2xl mx-auto">
+              Generate high-quality educational content using AI. Choose your product type and describe what you want to create.
             </p>
           </div>
 
           {/* Product Type Selection */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Choose Product Type
-            </h2>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <TabButton
+          <div className="px-8 py-10">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Choose Product Type
+              </h2>
+              <p className="text-gray-600">
+                Select the type of educational content you want to create
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto mb-10">
+              <ProductTab
                 label="Course Outline"
                 Icon={CourseOutlineIcon}
                 active={activeProduct === "Course Outline"}
                 onClick={() => setActiveProduct("Course Outline")}
               />
-              <TabButton
+              <ProductTab
                 label="Lesson Presentation"
                 Icon={LessonPresentationIcon}
                 active={activeProduct === "Lesson Presentation"}
                 onClick={() => setActiveProduct("Lesson Presentation")}
               />
-              <TabButton
+              <ProductTab
                 label="Quiz"
                 Icon={QuizIcon}
                 active={activeProduct === "Quiz"}
                 onClick={() => setActiveProduct("Quiz")}
               />
-              <TabButton
+              <ProductTab
                 label="Video Lesson Script"
                 Icon={VideoScriptIcon}
                 active={activeProduct === "Video Lesson Script"}
                 onClick={() => setActiveProduct("Video Lesson Script")}
               />
             </div>
-          </div>
 
-          {/* Lesson Presentation specific options */}
-          {activeProduct === "Lesson Presentation" && (
-            <div className="mb-6 p-4 bg-purple-50 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-3">Lesson Presentation Options</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Training Plan
-                  </label>
-                  <select
-                    value={selectedOutlineId}
-                    onChange={(e) => {
-                      setSelectedOutlineId(e.target.value);
-                      setSelectedLesson(""); // Reset lesson when outline changes
-                    }}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    <option value="">Choose a training plan...</option>
-                    {outlines.map((outline) => (
-                      <option key={outline.id} value={outline.id}>
-                        {outline.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Lesson
-                  </label>
-                  <select
-                    value={selectedLesson}
-                    onChange={(e) => setSelectedLesson(e.target.value)}
-                    disabled={!selectedOutlineId}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-                  >
-                    <option value="">Choose a lesson...</option>
-                    {lessons.map((lesson, index) => (
-                      <option key={index} value={lesson.title}>
-                        {lesson.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Prompt Input */}
-          <div className="mb-6">
-            <label className="block text-lg font-semibold text-gray-900 mb-3">
-              Describe your {activeProduct.toLowerCase()}
-            </label>
-            <textarea
-              ref={promptRef}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder={`Describe what you want to create...`}
-              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none min-h-[120px]"
-              rows={4}
-            />
-          </div>
-
-          {/* Examples */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-gray-700">
-                Need inspiration? Try these examples:
-              </h3>
-              <button
-                onClick={shuffleExamples}
-                className="flex items-center gap-1 text-purple-600 hover:text-purple-700 text-sm"
-              >
-                <Shuffle size={16} />
-                Shuffle
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {examples.map((example, index) => (
-                <button
-                  key={index}
-                  onClick={() => setPrompt(example)}
-                  className="text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-md text-sm text-gray-700 transition-colors"
-                >
-                  {example}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Course Outline specific options */}
-          {activeProduct === "Course Outline" && (
-            <>
-              {/* Configuration Options */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Modules
-                  </label>
-                  <select
-                    value={modulesCount}
-                    onChange={(e) => setModulesCount(Number(e.target.value))}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    {[2, 3, 4, 5, 6, 7, 8].map((num) => (
-                      <option key={num} value={num}>
-                        {num} modules
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lessons per Module
-                  </label>
-                  <select
-                    value={lessonsPerModule}
-                    onChange={(e) => setLessonsPerModule(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    {["2-3", "3-4", "4-5", "5-6"].map((range) => (
-                      <option key={range} value={range}>
-                        {lengthRangeForOption(range)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Language
-                  </label>
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    <option value="en">English</option>
-                    <option value="ru">Russian</option>
-                    <option value="uk">Ukrainian</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Additional Information Dropdown */}
-              <div className="mb-6" ref={dropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center justify-between w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-left transition-colors"
-                >
-                  <span className="text-sm font-medium text-gray-700">
-                    Additional Information to Include
-                  </span>
-                  <ChevronDown
-                    size={20}
-                    className={`text-gray-500 transition-transform ${
-                      showFilters ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {showFilters && (
-                  <div className="mt-2 p-4 bg-white border border-gray-200 rounded-lg">
-                    <div className="grid grid-cols-2 gap-4">
-                      {Object.entries(filters).map(([key, value]) => (
-                        <label key={key} className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={value}
-                            onChange={(e) =>
-                              setFilters((prev) => ({
-                                ...prev,
-                                [key]: e.target.checked,
-                              }))
-                            }
-                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {key === "knowledgeCheck" && "Knowledge Check"}
-                            {key === "contentAvailability" && "Content Availability"}
-                            {key === "informationSource" && "Information Source"}
-                            {key === "time" && "Time Estimates"}
-                          </span>
-                        </label>
-                      ))}
+            {/* Content Section */}
+            <div className="max-w-4xl mx-auto">
+              {/* Lesson Presentation specific options */}
+              {activeProduct === "Lesson Presentation" && (
+                <div className="mb-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <LessonPresentationIcon size={24} />
+                    Lesson Presentation Options
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Select Training Plan
+                      </label>
+                      <select
+                        value={selectedOutlineId}
+                        onChange={(e) => {
+                          setSelectedOutlineId(e.target.value);
+                          setSelectedLesson(""); // Reset lesson when outline changes
+                        }}
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                      >
+                        <option value="">Choose a training plan...</option>
+                        {outlines.map((outline) => (
+                          <option key={outline.id} value={outline.id}>
+                            {outline.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Select Lesson
+                      </label>
+                      <select
+                        value={selectedLesson}
+                        onChange={(e) => setSelectedLesson(e.target.value)}
+                        disabled={!selectedOutlineId}
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:border-gray-200 transition-all duration-200"
+                      >
+                        <option value="">Choose a lesson...</option>
+                        {lessons.map((lesson, index) => (
+                          <option key={index} value={lesson.title}>
+                            {lesson.title}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                )}
-              </div>
-            </>
-          )}
+                </div>
+              )}
 
-          {/* Start Button */}
-          <div className="text-center">
-            <button
-              onClick={handleStart}
-              disabled={isStartButtonDisabled()}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-            >
-              <Sparkles size={20} />
-              Start Creating
-            </button>
+              {/* Prompt Input */}
+              <div className="mb-8">
+                <label className="block text-xl font-bold text-gray-900 mb-4">
+                  Describe your {activeProduct.toLowerCase()}
+                </label>
+                <textarea
+                  ref={promptRef}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={`Describe what you want to create in detail...`}
+                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none min-h-[140px] text-gray-800 placeholder-gray-400 transition-all duration-200"
+                  rows={5}
+                />
+                <div className="flex justify-between items-center mt-2 text-sm text-gray-500">
+                  <span>Be as specific as possible for better results</span>
+                  <span>{prompt.length} characters</span>
+                </div>
+              </div>
+
+              {/* Examples */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    💡 Need inspiration? Try these examples:
+                  </h3>
+                  <button
+                    onClick={shuffleExamples}
+                    className="flex items-center gap-2 px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg text-sm font-medium transition-all duration-200"
+                  >
+                    <Shuffle size={16} />
+                    Shuffle
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {examples.map((example, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setPrompt(example)}
+                      className="text-left p-4 bg-gradient-to-br from-gray-50 to-gray-100 hover:from-blue-50 hover:to-blue-100 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-800 transition-all duration-200 hover:shadow-md"
+                    >
+                      <div className="font-medium">{example}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Course Outline specific options */}
+              {activeProduct === "Course Outline" && (
+                <>
+                  {/* Configuration Options */}
+                  <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                      <CourseOutlineIcon size={24} />
+                      Course Configuration
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          Number of Modules
+                        </label>
+                        <select
+                          value={modulesCount}
+                          onChange={(e) => setModulesCount(Number(e.target.value))}
+                          className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        >
+                          {[2, 3, 4, 5, 6, 7, 8].map((num) => (
+                            <option key={num} value={num}>
+                              {num} modules
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          Lessons per Module
+                        </label>
+                        <select
+                          value={lessonsPerModule}
+                          onChange={(e) => setLessonsPerModule(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        >
+                          {["2-3", "3-4", "4-5", "5-6"].map((range) => (
+                            <option key={range} value={range}>
+                              {lengthRangeForOption(range)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          Language
+                        </label>
+                        <select
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        >
+                          <option value="en">English</option>
+                          <option value="ru">Russian</option>
+                          <option value="uk">Ukrainian</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Information Dropdown */}
+                  <div className="mb-8" ref={dropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-xl text-left transition-all duration-200 border border-gray-200"
+                    >
+                      <span className="text-lg font-semibold text-gray-800">
+                        ⚙️ Additional Information to Include
+                      </span>
+                      <ChevronDown
+                        size={24}
+                        className={`text-gray-600 transition-transform duration-200 ${
+                          showFilters ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {showFilters && (
+                      <div className="mt-3 p-6 bg-white border-2 border-gray-200 rounded-xl shadow-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {Object.entries(filters).map(([key, value]) => (
+                            <label key={key} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={value}
+                                onChange={(e) =>
+                                  setFilters((prev) => ({
+                                    ...prev,
+                                    [key]: e.target.checked,
+                                  }))
+                                }
+                                className="w-5 h-5 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                              />
+                              <span className="text-sm font-medium text-gray-700">
+                                {key === "knowledgeCheck" && "Knowledge Check Questions"}
+                                {key === "contentAvailability" && "Content Availability Notes"}
+                                {key === "informationSource" && "Information Source References"}
+                                {key === "time" && "Time Duration Estimates"}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Start Button */}
+              <div className="text-center mt-10">
+                <button
+                  onClick={handleStart}
+                  disabled={isStartButtonDisabled()}
+                  className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                >
+                  <Sparkles size={24} />
+                  Start Creating
+                </button>
+                <p className="text-gray-500 text-sm mt-3">
+                  Your content will be generated using advanced AI
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
