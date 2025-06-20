@@ -206,7 +206,7 @@ export default function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams({ suspense: false });
   const initialProductParam = searchParams.get("product");
   const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation">(
     initialProductParam === "lessonPresentation" ? "Lesson Presentation" : "Course Outline"
