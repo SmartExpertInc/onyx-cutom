@@ -233,7 +233,7 @@ export default function LessonPresentationClient() {
 
         // If a lesson was pre-selected via query params, attempt to locate its module
         if (selectedLesson) {
-          const modIdx = modules.findIndex((m) => m.lessons.includes(selectedLesson));
+          const modIdx = modules.findIndex((m: { lessons: string[] }) => m.lessons.includes(selectedLesson));
           if (modIdx !== -1) {
             setSelectedModuleIndex(modIdx);
             setLessonsForModule(modules[modIdx].lessons);
