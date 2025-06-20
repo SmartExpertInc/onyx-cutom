@@ -15,7 +15,7 @@ export const en = {
     rendering: "Rendering content..."
   },
   trainingPlan: {
-    moduleAndLessons: "Module and Lessons",
+    moduleAndLessons: "Module / Lesson",
     knowledgeCheck: "Knowledge Check",
     contentAvailability: "Content Availability",
     source: "Information Source",
