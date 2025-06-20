@@ -363,10 +363,10 @@ export default function LessonPresentationClient() {
 
     setLoadingEdit(true);
     setError(null);
-    setTextareaVisible(false);
+    // Keep existing content visible during edit - only reset streaming states
     setFirstLineRemoved(false);
     setStreamDone(false);
-    setContent("");
+    // Don't clear content - keep sections visible
 
     try {
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -393,14 +393,26 @@ export default function LessonPresentationClient() {
       const decoder = new TextDecoder();
       let buffer = "";
 
+      // Clear content only when we start receiving new data
+      let hasReceivedData = false;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) { setStreamDone(true); break; }
-        buffer += decoder.decode(value, { stream: true });
+        
+        const chunk = decoder.decode(value, { stream: true });
+        if (!hasReceivedData && chunk.trim()) {
+          // First meaningful chunk - now clear old content and start fresh
+          hasReceivedData = true;
+          buffer = chunk;
+          setLoadingEdit(false); // Stop showing "Applying" once stream starts
+        } else {
+          buffer += chunk;
+        }
+        
         if (/\S/.test(buffer) && !textareaVisible) {
           setTextareaVisible(true);
           setLoading(false);
-          setLoadingEdit(false);
         }
         setContent(buffer);
       }
@@ -518,15 +530,21 @@ export default function LessonPresentationClient() {
           {/* Main content display - Textarea instead of module list */}
           {textareaVisible && (
             <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6"
+              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
+              {loadingEdit && (
+                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                  <LoadingAnimation message="Applying edit..." />
+                </div>
+              )}
               <textarea
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Lesson content will appear here..."
                 className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[50vh]"
+                disabled={loadingEdit}
               />
             </div>
           )}

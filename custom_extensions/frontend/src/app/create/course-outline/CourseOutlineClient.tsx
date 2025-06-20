@@ -734,6 +734,14 @@ export default function CourseOutlineClient() {
     setLoadingPreview(true);
     setError(null);
 
+    // Prevent the auto preview effect from immediately firing a redundant request
+    lastPreviewParamsRef.current = {
+      prompt: combined,
+      modules,
+      lessonsPerModule,
+      language,
+    };
+
     try {
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
         method: "POST",
