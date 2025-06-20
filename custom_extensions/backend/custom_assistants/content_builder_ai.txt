@@ -695,6 +695,7 @@ If the JSON payload includes the key "originalOutline", treat its value as the *
 • Apply the additional instructions given in the "prompt" field (which may ask you to insert, remove or rename specific modules/lessons).
 • Produce a NEW outline that reflects those changes while still obeying ALL strict formatting rules.
 • Preserve all existing content unchanged except where the new instructions require adjustments.
+• Maintain the original number of modules and the original number of lessons within each module **unless** the new instructions in the "prompt" field explicitly ask to add, remove, or rearrange modules or lessons. If the prompt does **not** mention structural changes, your updated outline **must** keep exactly the same counts and distribution.
 • Continue to begin your response with the Universal Product Header → two blank lines → updated outline.
 • Do NOT explain the changes; only output the updated outline.
 

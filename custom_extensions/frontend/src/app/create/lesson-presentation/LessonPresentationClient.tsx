@@ -141,6 +141,15 @@ export default function LessonPresentationClient() {
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
 
+  const editExamples = [
+    "Adapt to U.S. industry specifics",
+    "Adopt trends and latest practices",
+    "Incorporate top industry examples",
+    "Simplify and restructure the content",
+    "Increase value and depth of content",
+    "Add case studies and applications",
+  ];
+
   // Fetch all outlines on initial load
   useEffect(() => {
     const fetchOutlines = async () => {
@@ -561,6 +570,21 @@ export default function LessonPresentationClient() {
                   placeholder="Describe how you'd like to modify the lesson..."
                   className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
                 />
+
+                {/* Example prompts */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                  {editExamples.map((ex) => (
+                    <button
+                      key={ex}
+                      type="button"
+                      onClick={() => setEditPrompt(ex)}
+                      className="relative text-left border border-gray-200 rounded-md bg-[#D9ECFF] px-4 py-3 text-sm hover:bg-white w-full cursor-pointer"
+                    >
+                      {ex}
+                      <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                    </button>
+                  ))}
+                </div>
                 <div className="flex justify-end">
                   <button
                     type="button"
