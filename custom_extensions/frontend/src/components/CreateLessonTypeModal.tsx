@@ -12,6 +12,7 @@ interface CreateLessonTypeModalProps {
   moduleName: string;      // Added for context
   lessonNumber: number;    // Added for context
   sourceChatSessionId: string | null | undefined;
+  outlineProjectId: number | undefined; // NEW: parent Training Plan project id
   detectedLanguage?: 'en' | 'ru' | 'uk';
 }
 
@@ -24,7 +25,7 @@ const lessonTypes = [
   { 
     name: "videoLessonScript", 
     icon: <Video className="w-6 h-6" />, 
-    disabled: false 
+    disabled: true // Temporarily disabled per requirements 
   },
   { 
     name: "videoLesson", 
@@ -88,21 +89,33 @@ export const CreateLessonTypeModal = ({
   moduleName,
   lessonNumber,
   sourceChatSessionId,
+  outlineProjectId,
   detectedLanguage = 'en'
 }: CreateLessonTypeModalProps) => {
   const localized = locales[detectedLanguage as keyof typeof locales].modals.createLesson;
 
-  const handleLessonCreate = (lessonType: string) => {
+  const handleLessonCreate = (typeName: string) => {
+    if (typeName === "lessonPresentation") {
+      // Redirect to product picker with Lesson Presentation pre-selected
+      const params = new URLSearchParams();
+      params.set("product", "lessonPresentation");
+      if (outlineProjectId) params.set("outlineId", String(outlineProjectId));
+      params.set("lesson", lessonTitle);
+      window.location.href = `/create/generate?${params.toString()}`;
+      onClose();
+      return;
+    }
+
+    // Fallback (legacy) – send to chat for other lesson types
     if (!sourceChatSessionId) {
       alert(localized.errorNoSessionId);
       onClose();
       return;
     }
 
-    const message = `Please create a ${lessonType} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
-    
+    const message = `Please create a ${localized[typeName as keyof typeof localized]} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
+
     const chatUrl = `/chat?chatId=${sourceChatSessionId}&user-prompt=${encodeURIComponent(message)}&send-on-load=true`;
-    
     window.location.href = chatUrl;
     onClose();
   };
@@ -123,7 +136,7 @@ export const CreateLessonTypeModal = ({
           {lessonTypes.map((type) => (
             <StyledButton
               key={type.name}
-              onClick={() => handleLessonCreate(localized[type.name as keyof typeof localized])}
+              onClick={() => handleLessonCreate(type.name)}
               disabled={type.disabled}
               title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
             >
