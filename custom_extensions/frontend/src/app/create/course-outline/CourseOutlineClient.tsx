@@ -812,14 +812,55 @@ export default function CourseOutlineClient() {
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  const editExamples = [
-    "Adapt to U.S. industry specifics",
-    "Adopt trends and latest practices",
-    "Incorporate top industry examples",
-    "Simplify and restructure the content",
-    "Increase value and depth of content",
-    "Add case studies and applications",
+  const outlineExamples: { short: string; detailed: string }[] = [
+    {
+      short: "Adapt to U.S. industry specifics",
+      detailed:
+        "Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don't align with the American context.",
+    },
+    {
+      short: "Adopt trends and latest practices",
+      detailed:
+        "Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+    },
+    {
+      short: "Incorporate top industry examples",
+      detailed:
+        "Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.",
+    },
+    {
+      short: "Simplify and restructure the content",
+      detailed:
+        "Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.",
+    },
+    {
+      short: "Increase value and depth of content",
+      detailed:
+        "Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+    },
+    {
+      short: "Add case studies and applications",
+      detailed:
+        "Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+    },
   ];
+
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+
+  const toggleExample = (ex: typeof outlineExamples[number]) => {
+    setSelectedExamples((prev) => {
+      if (prev.includes(ex.short)) {
+        // remove
+        const updated = prev.filter((s) => s !== ex.short);
+        // remove its detailed text from prompt
+        setEditPrompt((p) => p.replace(ex.detailed + "\n", ""));
+        return updated;
+      }
+      // add
+      setEditPrompt((p) => (p ? p + "\n" + ex.detailed : ex.detailed));
+      return [...prev, ex.short];
+    });
+  };
 
   return (
     <>
@@ -1042,14 +1083,18 @@ export default function CourseOutlineClient() {
 
                 {/* Example prompts */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                  {editExamples.map((ex) => (
+                  {outlineExamples.map((ex) => (
                     <button
-                      key={ex}
+                      key={ex.short}
                       type="button"
-                      onClick={() => setEditPrompt(ex)}
-                      className="relative text-left border border-gray-200 rounded-md bg-[#D9ECFF] px-4 py-3 text-sm hover:bg-white w-full cursor-pointer"
+                      onClick={() => toggleExample(ex)}
+                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${
+                        selectedExamples.includes(ex.short)
+                          ? 'bg-white shadow'
+                          : 'bg-[#D9ECFF] hover:bg-white'
+                      }`}
                     >
-                      {ex}
+                      {ex.short}
                       <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
                     </button>
                   ))}

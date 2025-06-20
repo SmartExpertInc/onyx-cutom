@@ -141,14 +141,52 @@ export default function LessonPresentationClient() {
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  const editExamples = [
-    "Adapt to U.S. industry specifics",
-    "Adopt trends and latest practices",
-    "Incorporate top industry examples",
-    "Simplify and restructure the content",
-    "Increase value and depth of content",
-    "Add case studies and applications",
+  const lessonExamples: { short: string; detailed: string }[] = [
+    {
+      short: "Adapt to U.S. industry specifics",
+      detailed:
+        "Update the Lesson's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context.",
+    },
+    {
+      short: "Adopt trends and latest practices",
+      detailed:
+        "Update the lesson's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+    },
+    {
+      short: "Incorporate top industry examples",
+      detailed:
+        "Analyze the best lessons on the market in this topic and restructure our lesson accordingly: change or add content which others present more effectively. Focus on content flow and clarity.",
+    },
+    {
+      short: "Simplify and restructure the content",
+      detailed:
+        "Rewrite the lesson's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity.",
+    },
+    {
+      short: "Increase value and depth of content",
+      detailed:
+        "Strengthen the lesson by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+    },
+    {
+      short: "Add case studies and applications",
+      detailed:
+        "Revise the lesson's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+    },
   ];
+
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+
+  const toggleExample = (ex: typeof lessonExamples[number]) => {
+    setSelectedExamples((prev) => {
+      if (prev.includes(ex.short)) {
+        const updated = prev.filter((s) => s !== ex.short);
+        setEditPrompt((p) => p.replace(ex.detailed + "\n", ""));
+        return updated;
+      }
+      setEditPrompt((p) => (p ? p + "\n" + ex.detailed : ex.detailed));
+      return [...prev, ex.short];
+    });
+  };
 
   // Fetch all outlines on initial load
   useEffect(() => {
@@ -573,14 +611,16 @@ export default function LessonPresentationClient() {
 
                 {/* Example prompts */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                  {editExamples.map((ex) => (
+                  {lessonExamples.map((ex) => (
                     <button
-                      key={ex}
+                      key={ex.short}
                       type="button"
-                      onClick={() => setEditPrompt(ex)}
-                      className="relative text-left border border-gray-200 rounded-md bg-[#D9ECFF] px-4 py-3 text-sm hover:bg-white w-full cursor-pointer"
+                      onClick={() => toggleExample(ex)}
+                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${
+                        selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                      }`}
                     >
-                      {ex}
+                      {ex.short}
                       <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
                     </button>
                   ))}
