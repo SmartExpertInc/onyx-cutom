@@ -498,7 +498,7 @@ export default function LessonPresentationClient() {
                     onClick={() => setSelectedTheme(t.id)}
                     className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
                   >
-                    <div className="w-[214px] h-[116px] flex items-center justify-center">
+                    <div className="w-[54px] h-[29px] flex items-center justify-center">
                       {(() => {
                         const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
                         return <Svg />;
