@@ -91,7 +91,7 @@ const localizationConfig = {
         timeUnits: { singular: "ч", decimalPlural: "ч", generalPlural: "ч" }
     },
     en: {
-        headers: { moduleAndLessons: "Module and Lessons", knowledgeCheck: "Knowledge Check", contentAvailability: "Content Availability", source: "Information Source", time: "Time" },
+        headers: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Knowledge Check", contentAvailability: "Content Availability", source: "Information Source", time: "Time" },
         timeUnits: { singular: "h", decimalPlural: "h", generalPlural: "h" }
     },
     uk: {
