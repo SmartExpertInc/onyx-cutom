@@ -32,12 +32,17 @@ interface Project {
   createdAt: string;
   createdBy: string;
   isPrivate: boolean;
+  /** Micro-product type returned from backend design template (e.g. "Training Plan", "PDF Lesson") */
+  designMicroproductType?: string;
   isGamma?: boolean;
 }
 
 const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }> = ({ project, onDelete }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [alignLeft, setAlignLeft] = useState(false);
+
+    const cardRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -51,6 +56,16 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    // Re-compute alignment whenever the menu opens
+    useEffect(() => {
+        if (menuOpen && cardRef.current) {
+            const rect = cardRef.current.getBoundingClientRect();
+            const menuApproxWidth = 260; // ≈ w-60 in Tailwind (15rem)
+            const spaceRight = window.innerWidth - rect.right;
+            setAlignLeft(spaceRight < menuApproxWidth);
+        }
+    }, [menuOpen]);
 
     const handleOpenDeleteConfirm = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -90,7 +105,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
     const avatarColor = stringToColor(project.createdBy);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
+        <div ref={cardRef} className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
             <Link href={`/projects/view/${project.id}`} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
@@ -143,7 +158,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                     <MoreHorizontal size={16} />
                 </button>
                 {menuOpen && (
-                    <div className="absolute bottom-0 left-full ml-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
+                    <div className={`absolute bottom-0 ${alignLeft ? 'right-full mr-2' : 'left-full ml-2'} w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1`}>
                         <div className="px-3 py-2 border-b border-gray-100">
                             <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                             <p className="text-xs text-gray-500 mt-1">
@@ -321,8 +336,41 @@ const ProjectsTable = () => {
                     createdAt: p.created_at,
                     createdBy: "you", // From DB context
                     isPrivate: true, // Missing from DB
+                    designMicroproductType: p.design_microproduct_type,
                 }));
-                setProjects(mappedProjects);
+
+                // ---- Filter lessons when their parent course outline (Training Plan) exists ----
+                const deduplicateProjects = (projectsArr: Project[]): Project[] => {
+                    const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
+                    projectsArr.forEach((proj) => {
+                        if (!grouped[proj.title]) {
+                            grouped[proj.title] = { outline: null, others: [] };
+                        }
+
+                        const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                        if (isOutline) {
+                            // Keep the first outline we encounter for this project title
+                            if (!grouped[proj.title].outline) {
+                                grouped[proj.title].outline = proj;
+                            }
+                        } else {
+                            grouped[proj.title].others.push(proj);
+                        }
+                    });
+
+                    const finalList: Project[] = [];
+                    Object.values(grouped).forEach(({ outline, others }) => {
+                        if (outline) {
+                            finalList.push(outline);
+                        } else {
+                            finalList.push(...others);
+                        }
+                    });
+
+                    return finalList;
+                };
+
+                setProjects(deduplicateProjects(mappedProjects));
     } catch (e: any) {
                 setError(e.message || "Failed to load projects.");
     } finally {
