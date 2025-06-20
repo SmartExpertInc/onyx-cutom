@@ -12,29 +12,25 @@ interface CreateLessonTypeModalProps {
   moduleName: string;      // Added for context
   lessonNumber: number;    // Added for context
   sourceChatSessionId: string | null | undefined;
-  outlineProjectId: number | string | undefined; // NEW: id of the Training Plan project
   detectedLanguage?: 'en' | 'ru' | 'uk';
 }
 
-// List of selectable lesson types in the modal.
-// NOTE: "Video Lesson Script" is disabled for now as per requirements.
 const lessonTypes = [
-  {
-    name: "lessonPresentation",
-    icon: <BookText className="w-6 h-6" />,
-    disabled: false,
+  { 
+    name: "lessonPresentation", 
+    icon: <BookText className="w-6 h-6" />, 
+    disabled: false 
   },
-  {
-    name: "videoLessonScript",
-    icon: <Video className="w-6 h-6" />,
-    disabled: true, // Disabled per request
-    tooltipKey: "comingSoon",
+  { 
+    name: "videoLessonScript", 
+    icon: <Video className="w-6 h-6" />, 
+    disabled: false 
   },
-  {
-    name: "videoLesson",
-    icon: <Film className="w-6 h-6" />,
+  { 
+    name: "videoLesson", 
+    icon: <Film className="w-6 h-6" />, 
     disabled: true,
-    tooltipKey: "comingSoon",
+    tooltipKey: "comingSoon"
   },
 ];
 
@@ -92,32 +88,21 @@ export const CreateLessonTypeModal = ({
   moduleName,
   lessonNumber,
   sourceChatSessionId,
-  outlineProjectId,
   detectedLanguage = 'en'
 }: CreateLessonTypeModalProps) => {
   const localized = locales[detectedLanguage as keyof typeof locales].modals.createLesson;
 
-  const handleLessonCreate = (typeKey: string) => {
-    // If user selects Lesson Presentation we redirect to generator with pre-selected params
-    if (typeKey === "lessonPresentation") {
-      const params = new URLSearchParams();
-      params.set("product", "lessonPresentation");
-      if (outlineProjectId !== undefined) params.set("outlineId", String(outlineProjectId));
-      params.set("lesson", lessonTitle);
-      window.location.href = `/create/generate?${params.toString()}`;
-      onClose();
-      return;
-    }
-
-    // Fallback – existing behaviour (chat) for other types still enabled
+  const handleLessonCreate = (lessonType: string) => {
     if (!sourceChatSessionId) {
       alert(localized.errorNoSessionId);
       onClose();
       return;
     }
 
-    const message = `Please create a ${typeKey} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
+    const message = `Please create a ${lessonType} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
+    
     const chatUrl = `/chat?chatId=${sourceChatSessionId}&user-prompt=${encodeURIComponent(message)}&send-on-load=true`;
+    
     window.location.href = chatUrl;
     onClose();
   };
@@ -138,7 +123,7 @@ export const CreateLessonTypeModal = ({
           {lessonTypes.map((type) => (
             <StyledButton
               key={type.name}
-              onClick={() => handleLessonCreate(type.name)}
+              onClick={() => handleLessonCreate(localized[type.name as keyof typeof localized])}
               disabled={type.disabled}
               title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
             >

@@ -136,6 +136,11 @@ export default function LessonPresentationClient() {
   const previewAbortRef = useRef<AbortController | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null); // For the content
 
+  // ---- Inline Advanced Mode ----
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [editPrompt, setEditPrompt] = useState("");
+  const [loadingEdit, setLoadingEdit] = useState(false);
+
   // Fetch all outlines on initial load
   useEffect(() => {
     const fetchOutlines = async () => {
@@ -335,6 +340,80 @@ export default function LessonPresentationClient() {
     }
   };
 
+  // ===== Apply incremental edit to lesson =====
+  const handleApplyLessonEdit = async () => {
+    const trimmed = editPrompt.trim();
+    if (!trimmed || loadingEdit || !selectedOutlineId || !selectedLesson) return;
+
+    // Combine existing prompt (if any) with new instruction
+    const basePrompt = params.get("prompt") || "";
+    let combined = basePrompt.trim();
+    if (combined && !/[.!?]$/.test(combined)) combined += ".";
+    combined = combined ? `${combined} ${trimmed}` : trimmed;
+
+    // Update URL param so refreshes keep context
+    params.set("prompt", combined);
+    router.replace(`?${params.toString()}`, { scroll: false });
+
+    // Start streaming preview similar to startPreview but on demand
+    if (previewAbortRef.current) previewAbortRef.current.abort();
+    const abortController = new AbortController();
+    previewAbortRef.current = abortController;
+
+    setLoadingEdit(true);
+    setError(null);
+    setTextareaVisible(false);
+    setFirstLineRemoved(false);
+    setStreamDone(false);
+    setContent("");
+
+    try {
+      const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          outlineProjectId: selectedOutlineId,
+          lessonTitle: selectedLesson,
+          lengthRange: lengthRangeForOption(lengthOption),
+          language,
+          prompt: combined,
+          chatSessionId: chatId || undefined,
+        }),
+        signal: abortController.signal,
+      });
+
+      if (!res.ok || !res.body) throw new Error(`Failed to apply edit: ${res.status}`);
+
+      if (res.headers.get("X-Chat-Session-Id")) {
+        setChatId(res.headers.get("X-Chat-Session-Id"));
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) { setStreamDone(true); break; }
+        buffer += decoder.decode(value, { stream: true });
+        if (/\S/.test(buffer) && !textareaVisible) {
+          setTextareaVisible(true);
+          setLoading(false);
+          setLoadingEdit(false);
+        }
+        setContent(buffer);
+      }
+    } catch (e: any) {
+      if (e.name !== "AbortError") {
+        setError(e.message || "Failed to apply edit");
+      }
+    } finally {
+      setLoading(false);
+      setLoadingEdit(false);
+      setEditPrompt("");
+    }
+  };
+
   const themeOptions = [
     { id: "wine", label: "Wine" },
     { id: "cherry", label: "Cherry" },
@@ -457,17 +536,34 @@ export default function LessonPresentationClient() {
           <div className="w-full flex justify-center mt-2 mb-6">
             <button
               type="button"
-              onClick={() => {
-                sessionStorage.setItem('advanced-mode-data-lesson', JSON.stringify({
-                  selectedOutlineId, selectedLesson, lengthOption, language, chatId, content,
-                }));
-                // router.push('/create/lesson-presentation/advanced');
-              }}
+              onClick={() => setShowAdvanced((prev) => !prev)}
               className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
             >
               Advanced Mode
-              <Settings size={14} />
+              <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
             </button>
+          </div>
+        )}
+
+        {/* Inline Advanced Section for Lesson edits */}
+        {showAdvanced && (
+          <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-6" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+            <textarea
+              value={editPrompt}
+              onChange={(e) => setEditPrompt(e.target.value)}
+              placeholder="Describe how you'd like to modify the lesson..."
+              className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px]"
+            />
+            <div className="flex justify-end">
+              <button
+                type="button"
+                disabled={loadingEdit || !editPrompt.trim()}
+                onClick={handleApplyLessonEdit}
+                className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+              >
+                {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+              </button>
+            </div>
           </div>
         )}
 

@@ -721,6 +721,77 @@ export default function CourseOutlineClient() {
     });
   };
 
+  // ===== Submit incremental edit (inline Advanced section) =====
+  const handleApplyEdit = async () => {
+    const trimmed = editPrompt.trim();
+    if (!trimmed || loadingPreview) return;
+
+    // Combine previous prompt with the newly entered edit instruction.
+    let combined = prompt.trim();
+    if (combined && !/[.!?]$/.test(combined)) combined += "."; // ensure sentence break
+    combined = combined ? `${combined} ${trimmed}` : trimmed;
+
+    setLoadingPreview(true);
+    setError(null);
+
+    try {
+      const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: combined,
+          modules,
+          lessonsPerModule,
+          language,
+          chatSessionId: chatId || undefined,
+          originalOutline: rawOutline,
+        }),
+      });
+      if (!res.ok) throw new Error(`Bad response ${res.status}`);
+
+      const decoder = new TextDecoder();
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream body");
+
+      let buf = "";
+      let accRaw = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const ln of lines) {
+          if (!ln.trim()) continue;
+          const pkt = JSON.parse(ln);
+          if (pkt.type === "delta") {
+            accRaw += pkt.text;
+            const parsed = parseOutlineMarkdown(accRaw);
+            setPreview(parsed);
+            setRawOutline(accRaw);
+          } else if (pkt.type === "done") {
+            const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
+            const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
+            setPreview(finalMods);
+            setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
+            setPrompt(combined);
+            setEditPrompt("");
+          }
+        }
+      }
+    } catch (e: any) {
+      setError(e.message || "Failed to apply edit");
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
+  // ---- Inline Advanced Mode ----
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [editPrompt, setEditPrompt] = useState("");
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
   return (
     <>
     <main
@@ -928,23 +999,11 @@ export default function CourseOutlineClient() {
           <div className="w-full flex justify-center mt-2 mb-6">
             <button
               type="button"
-              onClick={() => {
-                sessionStorage.setItem('advanced-mode-data', JSON.stringify({
-                  prompt,
-                  modules,
-                  lessonsPerModule,
-                  language,
-                  chatId,
-                  preview,
-                  filters,
-                  rawOutline,
-                }));
-                router.push('/create/course-outline/advanced');
-              }}
+              onClick={() => setShowAdvanced((prev) => !prev)}
               className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
             >
               Advanced Mode
-              <Settings size={14} />
+              <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
             </button>
           </div>
         )}
@@ -1162,6 +1221,27 @@ export default function CourseOutlineClient() {
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
         <LoadingAnimation message="Finalizing product..." />
+      </div>
+    )}
+    {/* Inline Advanced Section */}
+    {showAdvanced && (
+      <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-6" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+        <textarea
+          value={editPrompt}
+          onChange={(e) => setEditPrompt(e.target.value)}
+          placeholder="Describe how you'd like to modify the outline..."
+          className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px]"
+        />
+        <div className="flex justify-end">
+          <button
+            type="button"
+            disabled={loadingPreview || !editPrompt.trim()}
+            onClick={handleApplyEdit}
+            className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+          >
+            {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+          </button>
+        </div>
       </div>
     )}
     </>

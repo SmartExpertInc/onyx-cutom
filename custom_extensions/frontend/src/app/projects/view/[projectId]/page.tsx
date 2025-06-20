@@ -446,7 +446,6 @@ export default function ProjectInstanceViewPage() {
             sourceChatSessionId={projectInstanceData.sourceChatSessionId}
             allUserMicroproducts={allUserMicroproducts}
             parentProjectName={parentProjectNameForCurrentView}
-            outlineProjectId={projectInstanceData.project_id}
           />
         );
       case COMPONENT_NAME_PDF_LESSON:
