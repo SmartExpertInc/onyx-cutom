@@ -962,6 +962,32 @@ export default function CourseOutlineClient() {
           )}
         </section>
 
+        {/* Advanced Mode button placed directly under Modules & Lessons */}
+        {!loading && preview.length > 0 && (
+          <div className="w-full flex justify-center mt-2 mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem('advanced-mode-data', JSON.stringify({
+                  prompt,
+                  modules,
+                  lessonsPerModule,
+                  language,
+                  chatId,
+                  preview,
+                  filters,
+                  rawOutline,
+                }));
+                router.push('/create/course-outline/advanced');
+              }}
+              className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+            >
+              Advanced Mode
+              <Settings size={14} />
+            </button>
+          </div>
+        )}
+
         {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-medium text-[#20355D]">Set up your Contentbuilder</h2>
@@ -1086,8 +1112,8 @@ export default function CourseOutlineClient() {
           </section>
         )}
 
-        {/* Advanced Mode link placed directly under Modules & Lessons */}
-        {!loading && preview.length > 0 && (
+        {/* Advanced Mode button (moved here from below) */}
+        {false && preview.length > 0 && (
           <div className="w-full flex justify-center mt-2 mb-6">
             <button
               type="button"
