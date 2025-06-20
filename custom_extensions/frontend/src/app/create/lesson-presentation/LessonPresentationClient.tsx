@@ -230,10 +230,24 @@ export default function LessonPresentationClient() {
           lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
         }));
         setModulesForOutline(modules);
-        // reset downstream selections
-        setSelectedModuleIndex(null);
-        setLessonsForModule([]);
-        setSelectedLesson("");
+
+        // If a lesson was pre-selected via query params, attempt to locate its module
+        if (selectedLesson) {
+          const modIdx = modules.findIndex((m) => m.lessons.includes(selectedLesson));
+          if (modIdx !== -1) {
+            setSelectedModuleIndex(modIdx);
+            setLessonsForModule(modules[modIdx].lessons);
+          } else {
+            // lesson not found in fetched data – clear it
+            setSelectedModuleIndex(null);
+            setLessonsForModule([]);
+            setSelectedLesson("");
+          }
+        } else {
+          // No lesson selected yet – clear downstream selections
+          setSelectedModuleIndex(null);
+          setLessonsForModule([]);
+        }
       } catch (_) {}
     };
     fetchLessons();
