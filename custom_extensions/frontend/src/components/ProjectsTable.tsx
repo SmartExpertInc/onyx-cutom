@@ -376,10 +376,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                 throw new Error(`Failed to delete project: ${response.status} ${errorText}`);
             }
 
-            // If only outline was moved (scope self) and user is in products view, refresh list
-            if (scope === 'self') {
-                router.refresh();
-            }
+            // Refresh list so user sees updated projects
+            router.refresh();
         } catch (error) {
             console.error(error);
             // Optionally show an error message to the user

@@ -2284,33 +2284,27 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
             # If scope is 'all', find all associated lesson projects for any Training Plans
             if delete_request.scope == 'all':
                 for project_id in delete_request.project_ids:
-                    # Fetch the project to check its type and get its content
-                    project_row = await conn.fetchrow(
-                        "SELECT project_name, microproduct_type, microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                    # Fetch outline project name
+                    row = await conn.fetchrow(
+                        "SELECT project_name, microproduct_type FROM projects WHERE id=$1 AND onyx_user_id=$2",
                         project_id, onyx_user_id
                     )
-                    if project_row and project_row['microproduct_type'] == 'Training Plan' and project_row['microproduct_content']:
-                        training_plan_name = project_row['project_name']
-                        content = project_row['microproduct_content']
-                        
-                        # Use Pydantic model to safely parse and access lesson titles
-                        try:
-                            plan_details = TrainingPlanDetails.model_validate(content)
-                            lesson_titles = [lesson.title for section in plan_details.sections for lesson in section.lessons]
-                            
-                            # Fragile: assumes lesson project names are derived from the plan name
-                            lesson_project_names = [f"{training_plan_name}: {title}" for title in lesson_titles]
+                    if not row:
+                        continue
+                    outline_name: str = row["project_name"]
+                    # Treat both 'Training Plan' and 'Course Outline' as outline types
+                    if row["microproduct_type"] not in ("Training Plan", "Course Outline"):
+                        # Not an outline – nothing extra to move
+                        continue
 
-                            if lesson_project_names:
-                                # Find the IDs of these lesson projects
-                                lesson_rows = await conn.fetch(
-                                    "SELECT id FROM projects WHERE project_name = ANY($1::text[]) AND onyx_user_id = $2",
-                                    lesson_project_names, onyx_user_id
-                                )
-                                for row in lesson_rows:
-                                    project_ids_to_trash.add(row['id'])
-                        except Exception as e:
-                            logger.warning(f"Could not parse training plan content for project {project_id} to find lessons: {e}")
+                    # Select IDs of all projects whose name equals outline_name OR starts with outline_name + ': '
+                    pattern = outline_name + ":%"
+                    lesson_rows = await conn.fetch(
+                        "SELECT id FROM projects WHERE onyx_user_id=$1 AND (project_name = $2 OR project_name LIKE $3)",
+                        onyx_user_id, outline_name, pattern
+                    )
+                    for lr in lesson_rows:
+                        project_ids_to_trash.add(lr["id"])
 
             if not project_ids_to_trash:
                  return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to move to trash."})
