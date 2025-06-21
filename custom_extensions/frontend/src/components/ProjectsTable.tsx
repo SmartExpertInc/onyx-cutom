@@ -252,7 +252,7 @@ const ProjectCard: React.FC<{
             </div>
 
             {permanentDeleteConfirmOpen && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setPermanentDeleteConfirmOpen(false); }}>
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setPermanentDeleteConfirmOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <h4 className="font-semibold text-lg mb-2 text-gray-900">Are you sure?</h4>
                         <p className="text-sm text-gray-600 mb-4">This action is permanent and cannot be undone. The project will be deleted forever.</p>
@@ -270,7 +270,7 @@ const ProjectCard: React.FC<{
             )}
 
             {trashConfirmOpen && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setTrashConfirmOpen(false); }}>
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setTrashConfirmOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <h4 className="font-semibold text-lg mb-2 text-gray-900">Move to Trash</h4>
                         <p className="text-sm text-gray-600 mb-4">This is a Training Plan. Do you want to move just the plan, or the plan and all its lessons?</p>
@@ -284,21 +284,25 @@ const ProjectCard: React.FC<{
             )}
             
             {showRestorePrompt && (
-                <div className="absolute inset-0 bg-orange-100 bg-opacity-95 flex flex-col items-center justify-center p-4 rounded-xl z-20 text-center">
-                    <div className="flex items-center gap-2 font-semibold text-orange-900">
-                        <AlertTriangle size={20} className="text-orange-600" />
-                        <p>Want to edit this?</p>
-                    </div>
-                    <p className="text-sm text-orange-800 mt-1">It's in the trash.</p>
-                    <button 
-                        onClick={(e) => {
-                            onRestore(project.id);
-                            setShowRestorePrompt(false);
-                        }} 
-                        className="mt-3 font-bold text-orange-900 underline hover:text-red-700 transition"
+                 <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center p-4 rounded-xl z-30" onClick={() => setShowRestorePrompt(false)}>
+                    <div 
+                        className="bg-orange-100 border border-orange-200 rounded-lg py-3 px-4 shadow-lg flex items-center gap-3" 
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        Restore it
-                    </button>
+                        <AlertTriangle className="text-orange-500 flex-shrink-0" size={20} />
+                        <p className="text-sm text-orange-900">
+                            Want to edit this? It's in the trash.&nbsp;
+                            <button
+                                onClick={() => {
+                                    onRestore(project.id);
+                                    setShowRestorePrompt(false);
+                                }}
+                                className="font-semibold underline hover:text-orange-700"
+                            >
+                                Restore it
+                            </button>
+                        </p>
+                    </div>
                 </div>
             )}
         </div>
