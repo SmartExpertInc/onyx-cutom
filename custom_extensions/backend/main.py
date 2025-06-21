@@ -591,6 +591,7 @@ class ErrorDetail(BaseModel):
 
 class ProjectsDeleteRequest(BaseModel):
     project_ids: List[int]
+    scope: Optional[str] = 'self'
 
 class MicroproductPipelineBase(BaseModel):
     pipeline_name: str
@@ -2274,34 +2275,65 @@ async def download_project_instance_pdf(
 @app.post("/api/custom/projects/delete-multiple", status_code=status.HTTP_200_OK)
 async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     if not delete_request.project_ids:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for deletion."})
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided."})
+
+    project_ids_to_trash = set(delete_request.project_ids)
 
     try:
         async with pool.acquire() as conn:
+            # If scope is 'all', find all associated lesson projects for any Training Plans
+            if delete_request.scope == 'all':
+                for project_id in delete_request.project_ids:
+                    # Fetch the project to check its type and get its content
+                    project_row = await conn.fetchrow(
+                        "SELECT project_name, microproduct_type, microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        project_id, onyx_user_id
+                    )
+                    if project_row and project_row['microproduct_type'] == 'Training Plan' and project_row['microproduct_content']:
+                        training_plan_name = project_row['project_name']
+                        content = project_row['microproduct_content']
+                        
+                        # Use Pydantic model to safely parse and access lesson titles
+                        try:
+                            plan_details = TrainingPlanDetails.model_validate(content)
+                            lesson_titles = [lesson.title for section in plan_details.sections for lesson in section.lessons]
+                            
+                            # Fragile: assumes lesson project names are derived from the plan name
+                            lesson_project_names = [f"{training_plan_name}: {title}" for title in lesson_titles]
+
+                            if lesson_project_names:
+                                # Find the IDs of these lesson projects
+                                lesson_rows = await conn.fetch(
+                                    "SELECT id FROM projects WHERE project_name = ANY($1::text[]) AND onyx_user_id = $2",
+                                    lesson_project_names, onyx_user_id
+                                )
+                                for row in lesson_rows:
+                                    project_ids_to_trash.add(row['id'])
+                        except Exception as e:
+                            logger.warning(f"Could not parse training plan content for project {project_id} to find lessons: {e}")
+
+            if not project_ids_to_trash:
+                 return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to move to trash."})
+
             async with conn.transaction():
-                # 1) Move rows to trash (soft delete)
                 await conn.execute(
                     """
-                    INSERT INTO trashed_projects
-                    SELECT * FROM projects
-                    WHERE id = ANY($1::int[]) AND onyx_user_id = $2;
+                    INSERT INTO trashed_projects SELECT * FROM projects 
+                    WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
                     """,
-                    delete_request.project_ids,
-                    onyx_user_id,
+                    list(project_ids_to_trash), onyx_user_id
                 )
-
-                # 2) Remove from active projects table
                 result_status = await conn.execute(
-                    "DELETE FROM projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2",
-                    delete_request.project_ids,
-                    onyx_user_id,
+                    "DELETE FROM projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
+                    list(project_ids_to_trash), onyx_user_id
                 )
+        
+        deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status)
+        deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
+        
+        logger.info(f"User {onyx_user_id} moved IDs {list(project_ids_to_trash)} to trash. Count: {deleted_count}.")
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully moved {deleted_count} project(s) to trash."})
 
-                deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status)
-                deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
-
-                logger.info(f"User {onyx_user_id} moved IDs {delete_request.project_ids} to trash. Count: {deleted_count}.")
-                return {"detail": f"Successfully moved {deleted_count} project(s) to trash."}
     except Exception as e:
         logger.error(f"Error moving projects to trash for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while sending projects to trash." if IS_PRODUCTION else f"Database error during trash operation: {str(e)}"
