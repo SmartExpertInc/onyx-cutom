@@ -24,7 +24,6 @@ import {
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface Project {
   id: number;
@@ -318,7 +317,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
     const [error, setError] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState('All');
     const [viewMode, setViewMode] = useState('Grid');
-    const router = useRouter();
 
     const timeAgo = (dateString: string): string => {
         const date = new Date(dateString);
@@ -383,8 +381,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            // Always refresh to ensure page reflects backend state or rollback
-            router.refresh();
+            window.location.reload();
         }
     };
 
@@ -416,8 +413,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            // Always refresh to ensure page reflects backend state or rollback
-            router.refresh();
+            window.location.reload();
         }
     };
 
@@ -449,8 +445,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            // Always refresh to ensure page reflects backend state or rollback
-            router.refresh();
+            window.location.reload();
         }
     };
 
