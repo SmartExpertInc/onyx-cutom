@@ -256,10 +256,14 @@ export default function LessonPresentationClient() {
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
-    // Don't run on initial render if key params are missing
-    if (!selectedOutlineId || !selectedLesson) {
-        setLoading(false);
-        return;
+    // Start preview when one of the following is true:
+    //   • a lesson was chosen from the outline (old behaviour)
+    //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
+    const promptQuery = params.get("prompt")?.trim() || "";
+    if (!selectedLesson && !promptQuery) {
+      // Nothing to preview yet – wait for user input
+      setLoading(false);
+      return;
     }
 
     const startPreview = (attempt: number = 0) => {
@@ -283,11 +287,14 @@ export default function LessonPresentationClient() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              outlineProjectId: selectedOutlineId,
-              lessonTitle: selectedLesson,
+              // Only send outlineProjectId when the user actually selected one
+              outlineProjectId: selectedOutlineId || undefined,
+              // If no lesson was picked, derive a temporary title from the prompt or fallback
+              lessonTitle: selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson"),
               lengthRange: lengthRangeForOption(lengthOption),
-              language: language,
-              prompt: params.get("prompt") || undefined, // Pass prompt from picker if present
+              language,
+              // Always forward the prompt (if any) so backend can generate content
+              prompt: promptQuery || undefined,
               chatSessionId: chatId || undefined,
             }),
             signal: abortController.signal,
@@ -394,12 +401,16 @@ export default function LessonPresentationClient() {
     setLoading(false);
     setError(null);
     try {
+      // Re-use the same fallback title logic we applied in preview
+      const promptQuery = params.get("prompt")?.trim() || "";
+      const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
+
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          outlineProjectId: selectedOutlineId,
-          lessonTitle: selectedLesson || "Untitled Lesson",
+          outlineProjectId: selectedOutlineId || undefined,
+          lessonTitle: derivedTitle,
           lengthRange: lengthRangeForOption(lengthOption),
           aiResponse: content,
           chatSessionId: chatId || undefined,
