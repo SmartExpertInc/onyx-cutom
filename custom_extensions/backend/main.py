@@ -3067,3 +3067,65 @@ async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx
         logger.error(f"Error fetching trashed projects list: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+# --- Restore trashed projects ---
+
+@app.post("/api/custom/projects/restore-multiple", status_code=status.HTTP_200_OK)
+async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    if not delete_request.project_ids:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for restore."})
+    try:
+        async with pool.acquire() as conn:
+            async with conn.transaction():
+                # Move rows back to active projects, avoiding ID collision
+                await conn.execute(
+                    """
+                    INSERT INTO projects (id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                                            microproduct_content, design_template_id, created_at, source_chat_session_id)
+                    SELECT id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                           microproduct_content, design_template_id, created_at, source_chat_session_id
+                    FROM trashed_projects
+                    WHERE id = ANY($1::int[]) AND onyx_user_id = $2
+                    ON CONFLICT (id) DO NOTHING;
+                    """,
+                    delete_request.project_ids,
+                    onyx_user_id,
+                )
+
+                result_status = await conn.execute(
+                    "DELETE FROM trashed_projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2",
+                    delete_request.project_ids,
+                    onyx_user_id,
+                )
+
+                restored_count_match = re.search(r"DELETE\s+(\d+)", result_status)
+                restored_count = int(restored_count_match.group(1)) if restored_count_match else 0
+                logger.info(f"User {onyx_user_id} restored IDs {delete_request.project_ids}. Count: {restored_count}.")
+                return {"detail": f"Successfully restored {restored_count} project(s)."}
+    except Exception as e:
+        logger.error(f"Error restoring projects for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred during restore." if IS_PRODUCTION else f"Database error during restore: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+
+# --- Delete permanently from trash ---
+
+@app.post("/api/custom/projects/delete-permanently", status_code=status.HTTP_200_OK)
+async def delete_permanently_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    if not delete_request.project_ids:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided."})
+    try:
+        async with pool.acquire() as conn:
+            result_status = await conn.execute(
+                "DELETE FROM trashed_projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2",
+                delete_request.project_ids,
+                onyx_user_id,
+            )
+            deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status)
+            deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
+            logger.info(f"User {onyx_user_id} permanently deleted IDs {delete_request.project_ids}. Count: {deleted_count}.")
+            return {"detail": f"Successfully deleted {deleted_count} project(s) permanently."}
+    except Exception as e:
+        logger.error(f"Error deleting permanently for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred during permanent deletion." if IS_PRODUCTION else f"Database error during permanent deletion: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
