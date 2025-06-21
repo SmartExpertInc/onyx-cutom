@@ -558,16 +558,6 @@ export default function ProjectInstanceViewPage() {
                    <ArrowDownToLine size={16} className="mr-2" /> Download PDF
                   </button>
             )}
-            {/* Move to Trash button for non-outline microproducts */}
-            {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
-              <button
-                onClick={handleMoveToTrash}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
-                title="Move this product to Trash"
-              >
-                <Trash2 size={16} className="mr-2" /> Move to Trash
-              </button>
-            )}
             {canEditContent && projectId && (
               <button
                 onClick={handleToggleEdit}
@@ -581,6 +571,16 @@ export default function ProjectInstanceViewPage() {
                 ) : (
                   <> <Edit size={16} className="mr-2" /> Edit Content </>
                 )}
+              </button>
+            )}
+            {/* Move to Trash button for non-outline microproducts placed as right-most */}
+            {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
+              <button
+                onClick={handleMoveToTrash}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
+                title="Move this product to Trash"
+              >
+                <Trash2 size={16} className="mr-2" /> Move to Trash
               </button>
             )}
           </div>

@@ -37,6 +37,7 @@ interface Project {
   /** Micro-product type returned from backend design template (e.g. "Training Plan", "PDF Lesson") */
   designMicroproductType?: string;
   isGamma?: boolean;
+  instanceName?: string;
 }
 
 interface ProjectsTableProps {
@@ -127,7 +128,8 @@ const ProjectCard: React.FC<{
         return color;
     };
     
-    const bgColor = stringToColor(project.title);
+    const displayTitle = (project.designMicroproductType && project.designMicroproductType.toLowerCase() !== 'training plan' && project.instanceName) ? `${project.title}: ${project.instanceName}` : project.title;
+    const bgColor = stringToColor(displayTitle);
     const avatarColor = stringToColor(project.createdBy);
 
     return (
@@ -144,12 +146,12 @@ const ProjectCard: React.FC<{
                         </div>
                     ) : (
                         <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
-                            <h3 className="font-bold text-lg text-center">{project.title}</h3>
+                            <h3 className="font-bold text-lg text-center">{displayTitle}</h3>
                         </div>
                     )}
                 </div>
                 <div className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-2 truncate text-sm">{project.title}</h3>
+                    <h3 className="font-semibold text-gray-800 mb-2 truncate text-sm">{displayTitle}</h3>
                     <div className="flex items-center text-xs text-gray-500 mb-3">
                         {project.isPrivate && (
                             <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
@@ -475,6 +477,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                     createdBy: "you", // From DB context
                     isPrivate: true, // Missing from DB
                     designMicroproductType: p.design_microproduct_type,
+                    instanceName: p.instance_name,
                 }));
 
                 // ---- Filter lessons when their parent course outline (Training Plan) exists ----
