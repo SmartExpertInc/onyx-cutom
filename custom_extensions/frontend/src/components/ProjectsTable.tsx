@@ -24,6 +24,7 @@ import {
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface Project {
   id: number;
@@ -315,6 +316,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
     const [error, setError] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState('All');
     const [viewMode, setViewMode] = useState('Grid');
+    const router = useRouter();
 
     const timeAgo = (dateString: string): string => {
         const date = new Date(dateString);
@@ -372,6 +374,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                 setProjects(originalProjects);
                 const errorText = await response.text();
                 throw new Error(`Failed to delete project: ${response.status} ${errorText}`);
+            }
+
+            // If only outline was moved (scope self) and user is in products view, refresh list
+            if (scope === 'self') {
+                router.refresh();
             }
         } catch (error) {
             console.error(error);
