@@ -377,14 +377,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                 const errorText = await response.text();
                 throw new Error(`Failed to delete project: ${response.status} ${errorText}`);
             }
-
-            // Refresh list so user sees updated projects
-            router.refresh();
         } catch (error) {
             console.error(error);
             // Optionally show an error message to the user
             alert((error as Error).message);
             setProjects(originalProjects);
+        } finally {
+            // Always refresh to ensure page reflects backend state or rollback
+            router.refresh();
         }
     };
 
@@ -411,12 +411,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                 const errorText = await response.text();
                 throw new Error(`Failed to restore project: ${response.status} ${errorText}`);
             }
-            // refresh list
-            router.refresh();
         } catch (error) {
             console.error(error);
             alert((error as Error).message);
             setProjects(originalProjects);
+        } finally {
+            // Always refresh to ensure page reflects backend state or rollback
+            router.refresh();
         }
     };
 
@@ -447,6 +448,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             console.error(error);
             alert((error as Error).message);
             setProjects(originalProjects);
+        } finally {
+            // Always refresh to ensure page reflects backend state or rollback
+            router.refresh();
         }
     };
 
