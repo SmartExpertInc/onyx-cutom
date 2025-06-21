@@ -252,7 +252,7 @@ const ProjectCard: React.FC<{
             </div>
 
             {permanentDeleteConfirmOpen && (
-                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setPermanentDeleteConfirmOpen(false); }}>
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setPermanentDeleteConfirmOpen(false)}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <h4 className="font-semibold text-lg mb-2 text-gray-900">Are you sure?</h4>
                         <p className="text-sm text-gray-600 mb-4">This action is permanent and cannot be undone. The project will be deleted forever.</p>
@@ -270,7 +270,7 @@ const ProjectCard: React.FC<{
             )}
 
             {trashConfirmOpen && (
-                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setTrashConfirmOpen(false); }}>
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setTrashConfirmOpen(false)}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <h4 className="font-semibold text-lg mb-2 text-gray-900">Move to Trash</h4>
                         <p className="text-sm text-gray-600 mb-4">This is a Training Plan. Do you want to move just the plan, or the plan and all its lessons?</p>
@@ -284,7 +284,7 @@ const ProjectCard: React.FC<{
             )}
             
             {showRestorePrompt && (
-                 <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center p-4 rounded-xl z-30" onClick={() => setShowRestorePrompt(false)}>
+                 <div className="fixed inset-0 bg-black/10 flex items-center justify-center p-4 z-40" onClick={() => setShowRestorePrompt(false)}>
                     <div 
                         className="bg-orange-100 border border-orange-200 rounded-lg py-3 px-4 shadow-lg flex items-center gap-3" 
                         onClick={(e) => e.stopPropagation()}
