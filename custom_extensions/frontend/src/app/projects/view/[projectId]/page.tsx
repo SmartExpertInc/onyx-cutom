@@ -19,7 +19,7 @@ import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2 } from 'lucide-react';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -412,6 +412,30 @@ export default function ProjectInstanceViewPage() {
     window.open(pdfUrl, '_blank');
   };
 
+  /* --- Send single non-outline item to trash --- */
+  const handleMoveToTrash = async () => {
+    if (!projectInstanceData) return;
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    const devUserId = typeof window !== 'undefined' ? sessionStorage.getItem('dev_user_id') : null;
+    if (devUserId && process.env.NODE_ENV === 'development') headers['X-Dev-Onyx-User-ID'] = devUserId;
+
+    try {
+      const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/delete-multiple`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ project_ids: [projectInstanceData.project_id], scope: 'self' })
+      });
+      if (!resp.ok) {
+        const t = await resp.text();
+        throw new Error(`Failed to move to trash: ${resp.status} ${t.slice(0,200)}`);
+      }
+      // redirect to products
+      router.push('/projects');
+    } catch (e:any) {
+      alert(e.message || 'Could not move to trash');
+    }
+  };
+
   if (pageState === 'initial_loading' || pageState === 'fetching') {
     return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">Loading project details...</div></div>;
   }
@@ -533,6 +557,16 @@ export default function ProjectInstanceViewPage() {
                   >
                    <ArrowDownToLine size={16} className="mr-2" /> Download PDF
                   </button>
+            )}
+            {/* Move to Trash button for non-outline microproducts */}
+            {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
+              <button
+                onClick={handleMoveToTrash}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
+                title="Move this product to Trash"
+              >
+                <Trash2 size={16} className="mr-2" /> Move to Trash
+              </button>
             )}
             {canEditContent && projectId && (
               <button
