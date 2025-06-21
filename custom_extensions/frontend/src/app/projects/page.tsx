@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
-const Sidebar = () => (
+const Sidebar = ({ currentTab }: { currentTab: string }) => (
   <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
     <div className="flex items-center mb-6">
       <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm mr-2">V</div>
@@ -39,7 +39,7 @@ const Sidebar = () => (
       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">⌘+K</div>
     </div>
     <nav className="flex flex-col gap-1">
-      <Link href="/projects" className="flex items-center gap-3 p-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">
+      <Link href="/projects" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
         <Home size={18} />
         <span>Products</span>
       </Link>
@@ -83,7 +83,7 @@ const Sidebar = () => (
         <Type size={18} />
         <span>Custom fonts</span>
       </Link>
-      <Link href="/projects?tab=trash" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+      <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
         <Trash2 size={18} />
         <span>Trash</span>
       </Link>
@@ -114,7 +114,7 @@ const ProjectsPageInner: React.FC = () => {
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
-      <Sidebar />
+      <Sidebar currentTab={currentTab} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">

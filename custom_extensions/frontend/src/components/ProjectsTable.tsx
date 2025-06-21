@@ -51,7 +51,7 @@ const ProjectCard: React.FC<{
     isTrashMode: boolean;
 }> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [alignLeft, setAlignLeft] = useState(false);
     const [showRestorePrompt, setShowRestorePrompt] = useState(false);
 
@@ -84,13 +84,13 @@ const ProjectCard: React.FC<{
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
-        setDeleteConfirmOpen(true);
+        setPermanentDeleteConfirmOpen(true);
     };
 
     const handleConfirmDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        setDeleteConfirmOpen(false);
+        setPermanentDeleteConfirmOpen(false);
         onDelete(project.id);
     };
 
@@ -99,13 +99,6 @@ const ProjectCard: React.FC<{
         e.preventDefault();
         setMenuOpen(false);
         onRestore(project.id);
-    };
-
-    const handleDeletePermanently = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setMenuOpen(false);
-        onDeletePermanently(project.id);
     };
 
     const handleCardClick = (e: React.MouseEvent) => {
@@ -210,7 +203,12 @@ const ProjectCard: React.FC<{
                                     <span>Restore</span>
                                 </button>
                                 <button
-                                    onClick={handleDeletePermanently}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setMenuOpen(false);
+                                        setPermanentDeleteConfirmOpen(true);
+                                    }}
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
                                     <Trash2 size={14} />
                                     <span>Delete permanently</span>
@@ -242,7 +240,12 @@ const ProjectCard: React.FC<{
                                 </div>
                                 <div className="py-1 border-t border-gray-100">
                                     <button 
-                                        onClick={handleOpenDeleteConfirm}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setMenuOpen(false);
+                                            onDelete(project.id);
+                                        }}
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                                     >
                                         <Trash2 size={14} />
@@ -255,14 +258,19 @@ const ProjectCard: React.FC<{
                 )}
             </div>
 
-            {deleteConfirmOpen && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(false); }}>
+            {permanentDeleteConfirmOpen && (
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setPermanentDeleteConfirmOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <h4 className="font-semibold text-lg mb-2">Are you sure?</h4>
-                        <p className="text-sm text-gray-600 mb-4">This will send the project to the trash.</p>
+                        <p className="text-sm text-gray-600 mb-4">This action is permanent and cannot be undone. The project will be deleted forever.</p>
                         <div className="flex justify-center gap-4">
-                            <button onClick={() => setDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200">Cancel</button>
-                            <button onClick={handleConfirmDelete} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete</button>
+                            <button onClick={() => setPermanentDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200">Cancel</button>
+                            <button onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                onDeletePermanently(project.id);
+                                setPermanentDeleteConfirmOpen(false);
+                            }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete Permanently</button>
                         </div>
                     </div>
                 </div>
@@ -394,10 +402,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
     };
 
     const handleDeletePermanently = async (projectId: number) => {
-        if (!window.confirm("This action is permanent and cannot be undone. Are you sure you want to delete this project forever?")) {
-            return;
-        }
-
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
         const deleteApiUrl = `${CUSTOM_BACKEND_URL}/projects/delete-permanently`;
         
