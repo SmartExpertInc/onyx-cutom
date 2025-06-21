@@ -402,13 +402,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             const response = await fetch(restoreApiUrl, { 
                 method: 'POST', 
                 headers,
-                body: JSON.stringify({ project_ids: [projectId] })
+                body: JSON.stringify({ project_ids: [projectId], scope: (projects.find(p=>p.id===projectId)?.designMicroproductType?.toLowerCase().includes('plan') ? 'all' : 'self') })
             });
             if (!response.ok) {
                 setProjects(originalProjects);
                 const errorText = await response.text();
                 throw new Error(`Failed to restore project: ${response.status} ${errorText}`);
             }
+            // refresh list
+            router.refresh();
         } catch (error) {
             console.error(error);
             alert((error as Error).message);

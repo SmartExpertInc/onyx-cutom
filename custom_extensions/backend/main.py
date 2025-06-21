@@ -3100,23 +3100,45 @@ async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx
 async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     if not delete_request.project_ids:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for restore."})
+
+    ids_to_restore: set[int] = set(delete_request.project_ids)
+
     try:
         async with pool.acquire() as conn:
+            # Expand scope to related lessons when requested
+            if delete_request.scope == 'all':
+                for pid in delete_request.project_ids:
+                    row = await conn.fetchrow(
+                        "SELECT project_name, microproduct_type FROM trashed_projects WHERE id=$1 AND onyx_user_id=$2",
+                        pid, onyx_user_id
+                    )
+                    if not row:
+                        continue
+                    pname: str = row["project_name"]
+                    if row["microproduct_type"] not in ("Training Plan", "Course Outline"):
+                        continue
+                    pattern = pname + ":%"
+                    lesson_rows = await conn.fetch(
+                        "SELECT id FROM trashed_projects WHERE onyx_user_id=$1 AND (project_name=$2 OR project_name LIKE $3)",
+                        onyx_user_id, pname, pattern
+                    )
+                    for lr in lesson_rows:
+                        ids_to_restore.add(lr["id"])
+
+            if not ids_to_restore:
+                return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to restore."})
+
             async with conn.transaction():
-                # Note: This assumes IDs from trashed_projects do not yet exist in projects,
-                # which is true since we move-and-delete, and BIGSERIAL doesn't reuse IDs typically.
                 await conn.execute(
-                    """
-                    INSERT INTO projects SELECT * FROM trashed_projects 
-                    WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
-                    """,
-                    delete_request.project_ids, onyx_user_id
+                    "INSERT INTO projects SELECT * FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2",
+                    list(ids_to_restore), onyx_user_id
                 )
                 await conn.execute(
-                    "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
-                    delete_request.project_ids, onyx_user_id
+                    "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2",
+                    list(ids_to_restore), onyx_user_id
                 )
-        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully restored {len(delete_request.project_ids)} project(s)."})
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully restored {len(ids_to_restore)} project(s)."})
     except Exception as e:
         logger.error(f"Error restoring projects: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while restoring projects." if IS_PRODUCTION else f"DB error while restoring projects: {str(e)}"
