@@ -3077,55 +3077,76 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
     try:
         async with pool.acquire() as conn:
             async with conn.transaction():
-                # Move rows back to active projects, avoiding ID collision
+                # Note: This assumes IDs from trashed_projects do not yet exist in projects,
+                # which is true since we move-and-delete, and BIGSERIAL doesn't reuse IDs typically.
                 await conn.execute(
                     """
-                    INSERT INTO projects (id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                                            microproduct_content, design_template_id, created_at, source_chat_session_id)
-                    SELECT id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                           microproduct_content, design_template_id, created_at, source_chat_session_id
-                    FROM trashed_projects
-                    WHERE id = ANY($1::int[]) AND onyx_user_id = $2
-                    ON CONFLICT (id) DO NOTHING;
+                    INSERT INTO projects SELECT * FROM trashed_projects 
+                    WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
                     """,
-                    delete_request.project_ids,
-                    onyx_user_id,
+                    delete_request.project_ids, onyx_user_id
                 )
-
-                result_status = await conn.execute(
-                    "DELETE FROM trashed_projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2",
-                    delete_request.project_ids,
-                    onyx_user_id,
+                await conn.execute(
+                    "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
+                    delete_request.project_ids, onyx_user_id
                 )
-
-                restored_count_match = re.search(r"DELETE\s+(\d+)", result_status)
-                restored_count = int(restored_count_match.group(1)) if restored_count_match else 0
-                logger.info(f"User {onyx_user_id} restored IDs {delete_request.project_ids}. Count: {restored_count}.")
-                return {"detail": f"Successfully restored {restored_count} project(s)."}
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully restored {len(delete_request.project_ids)} project(s)."})
     except Exception as e:
-        logger.error(f"Error restoring projects for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred during restore." if IS_PRODUCTION else f"Database error during restore: {str(e)}"
+        logger.error(f"Error restoring projects: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while restoring projects." if IS_PRODUCTION else f"DB error while restoring projects: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 
-# --- Delete permanently from trash ---
+# --- Permanently delete trashed projects ---
 
 @app.post("/api/custom/projects/delete-permanently", status_code=status.HTTP_200_OK)
-async def delete_permanently_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+async def delete_permanently(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     if not delete_request.project_ids:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided."})
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for permanent deletion."})
     try:
         async with pool.acquire() as conn:
-            result_status = await conn.execute(
-                "DELETE FROM trashed_projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2",
-                delete_request.project_ids,
-                onyx_user_id,
+            result = await conn.execute(
+                "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
+                delete_request.project_ids, onyx_user_id
             )
-            deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status)
-            deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
-            logger.info(f"User {onyx_user_id} permanently deleted IDs {delete_request.project_ids}. Count: {deleted_count}.")
-            return {"detail": f"Successfully deleted {deleted_count} project(s) permanently."}
+        # result is like 'DELETE 5'
+        deleted_count = int(result.split(" ")[1]) if result else 0
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully deleted {deleted_count} project(s) permanently."})
     except Exception as e:
-        logger.error(f"Error deleting permanently for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred during permanent deletion." if IS_PRODUCTION else f"Database error during permanent deletion: {str(e)}"
+        logger.error(f"Error permanently deleting projects: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred during permanent deletion." if IS_PRODUCTION else f"DB error during permanent deletion: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+
+@app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
+async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Return projects that were moved to trash (soft-deleted)."""
+    query = """
+        SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+               dt.template_name as design_template_name,
+               dt.microproduct_type as design_microproduct_type
+        FROM trashed_projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.onyx_user_id = $1 ORDER BY p.created_at DESC;
+    """
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, onyx_user_id)
+        resp: List[ProjectApiResponse] = []
+        for row in rows:
+            row_d = dict(row)
+            resp.append(ProjectApiResponse(
+                id=row_d["id"],
+                projectName=row_d["project_name"],
+                projectSlug=create_slug(row_d["project_name"]),
+                microproduct_name=row_d.get("microproduct_name"),
+                design_template_name=row_d.get("design_template_name"),
+                design_microproduct_type=row_d.get("design_microproduct_type"),
+                created_at=row_d["created_at"],
+                design_template_id=row_d.get("design_template_id")
+            ))
+        return resp
+    except Exception as e:
+        logger.error(f"Error fetching trashed projects list: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)

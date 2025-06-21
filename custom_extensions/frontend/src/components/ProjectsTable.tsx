@@ -1,9 +1,8 @@
 // custom_extensions/frontend/src/components/ProjectsTable.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   Lock, 
   MoreHorizontal, 
@@ -21,7 +20,9 @@ import {
   Trash2,
   PenLine,
   Copy,
-  Link as LinkIcon
+  Link as LinkIcon,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 
 interface Project {
@@ -42,10 +43,17 @@ interface ProjectsTableProps {
     trashMode?: boolean;
 }
 
-const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }> = ({ project, onDelete }) => {
+const ProjectCard: React.FC<{ 
+    project: Project;
+    onDelete: (id: number) => void;
+    onRestore: (id: number) => void;
+    onDeletePermanently: (id: number) => void;
+    isTrashMode: boolean;
+}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [alignLeft, setAlignLeft] = useState(false);
+    const [showRestorePrompt, setShowRestorePrompt] = useState(false);
 
     const cardRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -86,6 +94,27 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
         onDelete(project.id);
     };
 
+    const handleRestoreProject = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        onRestore(project.id);
+    };
+
+    const handleDeletePermanently = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        onDeletePermanently(project.id);
+    };
+
+    const handleCardClick = (e: React.MouseEvent) => {
+        if (isTrashMode) {
+            e.preventDefault();
+            setShowRestorePrompt(true);
+        }
+    }
+
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('en-US', options);
@@ -111,7 +140,7 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
 
     return (
         <div ref={cardRef} className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
-            <Link href={`/projects/view/${project.id}`} className="block">
+            <Link href={isTrashMode ? '#' : `/projects/view/${project.id}`} onClick={handleCardClick} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
                         <div className="p-4 text-white flex flex-col justify-between h-full">
@@ -172,71 +201,89 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
                                 by Vitaliy Tymoshenko
                             </p>
                         </div>
-                        <div className="py-1">
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                <Share2 size={16} className="text-gray-500" />
-                                <span>Share...</span>
-                            </button>
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                <PenLine size={16} className="text-gray-500"/>
-                                <span>Rename...</span>
-                            </button>
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                <Star size={16} className="text-gray-500"/>
-                                <span>Add to favorites</span>
-                            </button>
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                <Copy size={16} className="text-gray-500"/>
-                                <span>Duplicate</span>
-                            </button>
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                <LinkIcon size={16} className="text-gray-500"/>
-                                <span>Copy link</span>
-                            </button>
-                        </div>
-                        <div className="py-1 border-t border-gray-100">
-                            <button 
-                                onClick={handleOpenDeleteConfirm}
-                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
-                            >
-                                <Trash2 size={14} />
-                                <span>Send to trash</span>
-                            </button>
-                        </div>
+                        {isTrashMode ? (
+                            <div className="py-1">
+                                <button
+                                    onClick={handleRestoreProject}
+                                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <RefreshCw size={14} />
+                                    <span>Restore</span>
+                                </button>
+                                <button
+                                    onClick={handleDeletePermanently}
+                                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
+                                    <Trash2 size={14} />
+                                    <span>Delete permanently</span>
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="py-1">
+                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                        <Share2 size={16} className="text-gray-500" />
+                                        <span>Share...</span>
+                                    </button>
+                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                        <PenLine size={16} className="text-gray-500"/>
+                                        <span>Rename...</span>
+                                    </button>
+                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                        <Star size={16} className="text-gray-500"/>
+                                        <span>Add to favorites</span>
+                                    </button>
+                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                        <Copy size={16} className="text-gray-500"/>
+                                        <span>Duplicate</span>
+                                    </button>
+                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                        <LinkIcon size={16} className="text-gray-500"/>
+                                        <span>Copy link</span>
+                                    </button>
+                                </div>
+                                <div className="py-1 border-t border-gray-100">
+                                    <button 
+                                        onClick={handleOpenDeleteConfirm}
+                                        className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                                    >
+                                        <Trash2 size={14} />
+                                        <span>Send to trash</span>
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
+
             {deleteConfirmOpen && (
-                <div 
-                    className="absolute inset-0 bg-black/40 flex items-center justify-center z-30 rounded-xl"
-                    onClick={() => setDeleteConfirmOpen(false)}
-                >
-                    <div 
-                        className="bg-white p-6 rounded-lg shadow-xl text-center w-80"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                           <Trash2 className="h-6 w-6 text-red-600" aria-hidden="true" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mt-4">Delete Project</h3>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Are you sure you want to delete this project? This action cannot be undone.
-                        </p>
-                        <div className="mt-6 flex justify-center gap-4">
-                            <button
-                                onClick={() => setDeleteConfirmOpen(false)}
-                                className="px-4 py-2 bg-white text-gray-700 rounded-md font-semibold border border-gray-300 hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleConfirmDelete}
-                                className="px-4 py-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700"
-                            >
-                                Yes, Delete
-                            </button>
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 rounded-xl z-20" onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-2">Are you sure?</h4>
+                        <p className="text-sm text-gray-600 mb-4">This will send the project to the trash.</p>
+                        <div className="flex justify-center gap-4">
+                            <button onClick={() => setDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200">Cancel</button>
+                            <button onClick={handleConfirmDelete} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete</button>
                         </div>
                     </div>
+                </div>
+            )}
+            
+            {showRestorePrompt && (
+                <div className="absolute inset-0 bg-orange-100 bg-opacity-95 flex flex-col items-center justify-center p-4 rounded-xl z-20 text-center">
+                    <div className="flex items-center gap-2 font-semibold text-orange-900">
+                        <AlertTriangle size={20} className="text-orange-600" />
+                        <p>Want to edit this?</p>
+                    </div>
+                    <p className="text-sm text-orange-800 mt-1">It's in the trash.</p>
+                    <button 
+                        onClick={(e) => {
+                            onRestore(project.id);
+                            setShowRestorePrompt(false);
+                        }} 
+                        className="mt-3 font-bold text-orange-900 underline hover:text-red-700 transition"
+                    >
+                        Restore it
+                    </button>
                 </div>
             )}
         </div>
@@ -311,6 +358,70 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
         } catch (error) {
             console.error(error);
             // Optionally show an error message to the user
+            alert((error as Error).message);
+            setProjects(originalProjects);
+        }
+    };
+
+    const handleRestoreProject = async (projectId: number) => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const restoreApiUrl = `${CUSTOM_BACKEND_URL}/projects/restore-multiple`;
+        
+        const originalProjects = [...projects];
+        setProjects(currentProjects => currentProjects.filter(p => p.id !== projectId));
+
+        try {
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            const response = await fetch(restoreApiUrl, { 
+                method: 'POST', 
+                headers,
+                body: JSON.stringify({ project_ids: [projectId] })
+            });
+            if (!response.ok) {
+                setProjects(originalProjects);
+                const errorText = await response.text();
+                throw new Error(`Failed to restore project: ${response.status} ${errorText}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert((error as Error).message);
+            setProjects(originalProjects);
+        }
+    };
+
+    const handleDeletePermanently = async (projectId: number) => {
+        if (!window.confirm("This action is permanent and cannot be undone. Are you sure you want to delete this project forever?")) {
+            return;
+        }
+
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const deleteApiUrl = `${CUSTOM_BACKEND_URL}/projects/delete-permanently`;
+        
+        const originalProjects = [...projects];
+        setProjects(currentProjects => currentProjects.filter(p => p.id !== projectId));
+
+        try {
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            const response = await fetch(deleteApiUrl, { 
+                method: 'POST', 
+                headers,
+                body: JSON.stringify({ project_ids: [projectId] })
+            });
+            if (!response.ok) {
+                setProjects(originalProjects);
+                const errorText = await response.text();
+                throw new Error(`Failed to delete project permanently: ${response.status} ${errorText}`);
+            }
+        } catch (error) {
+            console.error(error);
             alert((error as Error).message);
             setProjects(originalProjects);
         }
@@ -481,7 +592,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             {projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {projects.map((p: Project) => (
-                        <ProjectCard key={p.id} project={p} onDelete={handleDeleteProject} />
+                        <ProjectCard 
+                            key={p.id} 
+                            project={p} 
+                            onDelete={handleDeleteProject}
+                            onRestore={handleRestoreProject}
+                            onDeletePermanently={handleDeletePermanently}
+                            isTrashMode={trashMode}
+                        />
                     ))}
                 </div>
             ) : (
