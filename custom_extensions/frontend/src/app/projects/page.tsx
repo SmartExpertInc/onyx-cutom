@@ -87,6 +87,10 @@ const Sidebar = ({ currentTab }: { currentTab: string }) => (
         <Trash2 size={18} />
         <span>Trash</span>
       </Link>
+      <Link href="/chat" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Sparkles size={18} />
+        <span>Chats</span>
+      </Link>
     </nav>
   </aside>
 );
