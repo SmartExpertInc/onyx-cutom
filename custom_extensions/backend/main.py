@@ -263,6 +263,13 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
 
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
         logger.info("Custom DB pool initialized & tables ensured.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -2268,16 +2275,36 @@ async def download_project_instance_pdf(
 async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     if not delete_request.project_ids:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for deletion."})
+
     try:
         async with pool.acquire() as conn:
             async with conn.transaction():
-                result_status = await conn.execute("DELETE FROM projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2", delete_request.project_ids, onyx_user_id)
-                deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status); deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
-                logger.info(f"User {onyx_user_id} deleted IDs: {delete_request.project_ids}. Count: {deleted_count}.")
-                return {"detail": f"Successfully deleted {deleted_count} project(s)."}
+                # 1) Move rows to trash (soft delete)
+                await conn.execute(
+                    """
+                    INSERT INTO trashed_projects
+                    SELECT * FROM projects
+                    WHERE id = ANY($1::int[]) AND onyx_user_id = $2;
+                    """,
+                    delete_request.project_ids,
+                    onyx_user_id,
+                )
+
+                # 2) Remove from active projects table
+                result_status = await conn.execute(
+                    "DELETE FROM projects WHERE id = ANY($1::int[]) AND onyx_user_id = $2",
+                    delete_request.project_ids,
+                    onyx_user_id,
+                )
+
+                deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status)
+                deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
+
+                logger.info(f"User {onyx_user_id} moved IDs {delete_request.project_ids} to trash. Count: {deleted_count}.")
+                return {"detail": f"Successfully moved {deleted_count} project(s) to trash."}
     except Exception as e:
-        logger.error(f"Error deleting projects for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred during project deletion." if IS_PRODUCTION else f"Database error during deletion: {str(e)}"
+        logger.error(f"Error moving projects to trash for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while sending projects to trash." if IS_PRODUCTION else f"Database error during trash operation: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 @app.get("/api/custom/health")
@@ -3005,3 +3032,38 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
     project_db = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
 
     return JSONResponse(content=json.loads(project_db.model_dump_json()))
+
+# --- New endpoint: list trashed projects for user ---
+
+@app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
+async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Return projects that were moved to trash (soft-deleted)."""
+    query = """
+        SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+               dt.template_name as design_template_name,
+               dt.microproduct_type as design_microproduct_type
+        FROM trashed_projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.onyx_user_id = $1 ORDER BY p.created_at DESC;
+    """
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, onyx_user_id)
+        resp: List[ProjectApiResponse] = []
+        for row in rows:
+            row_d = dict(row)
+            resp.append(ProjectApiResponse(
+                id=row_d["id"],
+                projectName=row_d["project_name"],
+                projectSlug=create_slug(row_d["project_name"]),
+                microproduct_name=row_d.get("microproduct_name"),
+                design_template_name=row_d.get("design_template_name"),
+                design_microproduct_type=row_d.get("design_microproduct_type"),
+                created_at=row_d["created_at"],
+                design_template_id=row_d.get("design_template_id")
+            ))
+        return resp
+    except Exception as e:
+        logger.error(f"Error fetching trashed projects list: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)

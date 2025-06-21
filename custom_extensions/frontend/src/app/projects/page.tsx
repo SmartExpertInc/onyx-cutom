@@ -20,6 +20,7 @@ import {
   Plus,
   Bell
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 const Sidebar = () => (
   <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
@@ -38,7 +39,7 @@ const Sidebar = () => (
       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">⌘+K</div>
     </div>
     <nav className="flex flex-col gap-1">
-      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">
+      <Link href="/projects" className="flex items-center gap-3 p-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">
         <Home size={18} />
         <span>Products</span>
       </Link>
@@ -82,7 +83,7 @@ const Sidebar = () => (
         <Type size={18} />
         <span>Custom fonts</span>
       </Link>
-      <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+      <Link href="/projects?tab=trash" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
         <Trash2 size={18} />
         <span>Trash</span>
       </Link>
@@ -90,9 +91,9 @@ const Sidebar = () => (
   </aside>
 );
 
-const Header = () => (
+const Header = ({ isTrash }: { isTrash: boolean }) => (
   <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-    <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+    <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
     <div className="flex items-center gap-4">
       <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
         <Sparkles size={16} className="text-yellow-500" />
@@ -106,14 +107,18 @@ const Header = () => (
 );
 
 export default function ProjectsPage() {
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'products';
+  const isTrash = currentTab === 'trash';
+
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar />
       <div className="ml-64 flex flex-col h-screen">
-        <Header />
+        <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
             <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
-                <ProjectsTable />
+                <ProjectsTable trashMode={isTrash} />
             </Suspense>
         </main>
         <div className="fixed bottom-4 right-4">

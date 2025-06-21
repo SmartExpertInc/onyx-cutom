@@ -37,6 +37,11 @@ interface Project {
   isGamma?: boolean;
 }
 
+interface ProjectsTableProps {
+    /** If true – table displays items from Trash and hides create/filter toolbars */
+    trashMode?: boolean;
+}
+
 const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }> = ({ project, onDelete }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -238,10 +243,10 @@ const ProjectCard: React.FC<{ project: Project; onDelete: (id: number) => void }
     );
 };
 
-const ProjectsTable = () => {
+const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState('All');
     const [viewMode, setViewMode] = useState('Grid');
 
@@ -274,6 +279,7 @@ const ProjectsTable = () => {
     };
 
     const handleDeleteProject = async (projectId: number) => {
+        if (trashMode) return; // no-op in trash view for now
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
         const deleteApiUrl = `${CUSTOM_BACKEND_URL}/projects/delete-multiple`;
         
@@ -311,22 +317,22 @@ const ProjectsTable = () => {
     };
 
     useEffect(() => {
-  const fetchProjects = async () => {
-    setLoading(true);
-    setError(null);
+        const fetchProjects = async () => {
+            setLoading(true);
+            setError(null);
             const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-    const projectsApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
-    try {
-      const headers: HeadersInit = {};
-      const devUserId = "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === 'development') {
-        headers['X-Dev-Onyx-User-ID'] = devUserId;
-      }
-      const response = await fetch(projectsApiUrl, { headers, cache: 'no-store' });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
-      }
+            const projectsApiUrl = `${CUSTOM_BACKEND_URL}${trashMode ? '/projects/trash' : '/projects'}`;
+            try {
+                const headers: HeadersInit = {};
+                const devUserId = "dummy-onyx-user-id-for-testing";
+                if (devUserId && process.env.NODE_ENV === 'development') {
+                    headers['X-Dev-Onyx-User-ID'] = devUserId;
+                }
+                const response = await fetch(projectsApiUrl, { headers, cache: 'no-store' });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
+                }
                 const data = await response.json();
                 const mappedProjects: Project[] = data.map((p: any) => ({
                     id: p.id,
@@ -371,15 +377,15 @@ const ProjectsTable = () => {
                 };
 
                 setProjects(deduplicateProjects(mappedProjects));
-    } catch (e: any) {
+            } catch (e: any) {
                 setError(e.message || "Failed to load projects.");
-    } finally {
-      setLoading(false);
-    }
-  };
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    fetchProjects();
-  }, []);
+        fetchProjects();
+    }, [trashMode]);
 
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
     const filterIcons: Record<string, LucideIcon> = {
@@ -397,9 +403,10 @@ const ProjectsTable = () => {
         return <div className="text-center p-8 text-red-500">Error: {error}</div>;
     }
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    return (
+        <div>
+            { !trashMode && (
+            <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     <Link href="/create">
                         <button
@@ -428,13 +435,15 @@ const ProjectsTable = () => {
                         <ChevronsUpDown size={16} className="text-gray-500" />
                     </button>
                 </div>
-      </div>
+            </div>
+            ) }
 
+            { !trashMode && (
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     {filters.map(filter => {
                         const Icon = filterIcons[filter];
-                    return (
+                        return (
                             <button 
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
@@ -445,7 +454,7 @@ const ProjectsTable = () => {
                             </button>
                         )
                     })}
-                                  </div>
+                </div>
                 <div className="flex items-center gap-4">
                     <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700">
                         <ArrowUpDown size={16} />
@@ -458,29 +467,30 @@ const ProjectsTable = () => {
                         >
                             <LayoutGrid size={16} />
                         </button>
-                                <button
+                        <button
                             onClick={() => setViewMode('List')}
                             className={`p-1.5 rounded-md ${viewMode === 'List' ? 'bg-white shadow-sm' : ''}`}
-                                >
+                        >
                             <List size={16} />
-                                </button>
+                        </button>
                     </div>
                 </div>
             </div>
+            ) }
 
             {projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {projects.map((p: Project) => (
-                       <ProjectCard key={p.id} project={p} onDelete={handleDeleteProject} />
+                        <ProjectCard key={p.id} project={p} onDelete={handleDeleteProject} />
                     ))}
                 </div>
             ) : (
                 <div className="text-center p-8 bg-gray-50 rounded-lg">
-                    <p className="text-gray-600">No products found.</p>
-                            </div>
-                          )}
+                    <p className="text-gray-600">{trashMode ? 'No items in trash.' : 'No projects to display.'}</p>
+                </div>
+            )}
         </div>
-  );
+    );
 }
 
 export default ProjectsTable;
