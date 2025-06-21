@@ -3156,25 +3156,25 @@ async def delete_permanently(delete_request: ProjectsDeleteRequest, onyx_user_id
 
     try:
         async with pool.acquire() as conn:
-            if delete_request.scope == 'all':
-                for pid in delete_request.project_ids:
-                    row = await conn.fetchrow(
-                        "SELECT project_name, microproduct_type FROM trashed_projects WHERE id=$1 AND onyx_user_id=$2",
-                        pid, onyx_user_id
-                    )
-                    if not row:
-                        continue
-                    pname: str = row['project_name']
-                    if row['microproduct_type'] not in ("Training Plan", "Course Outline"):
-                        continue
+            for pid in delete_request.project_ids:
+                row = await conn.fetchrow(
+                    "SELECT project_name, microproduct_type FROM trashed_projects WHERE id=$1 AND onyx_user_id=$2",
+                    pid, onyx_user_id
+                )
+                if not row:
+                    continue
+                pname: str = row["project_name"]
+                # If this is an outline, cascade to its lessons
+                if row["microproduct_type"] in ("Training Plan", "Course Outline"):
                     pattern = pname + ":%"
                     lesson_rows = await conn.fetch(
                         "SELECT id FROM trashed_projects WHERE onyx_user_id=$1 AND (project_name=$2 OR project_name LIKE $3)",
                         onyx_user_id, pname, pattern
                     )
                     for lr in lesson_rows:
-                        ids_to_delete.add(lr['id'])
+                        ids_to_delete.add(lr["id"])
 
+            # Perform deletion of all collected ids
             result = await conn.execute(
                 "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2",
                 list(ids_to_delete), onyx_user_id
