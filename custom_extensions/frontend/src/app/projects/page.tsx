@@ -18,7 +18,8 @@ import {
   Type,
   Trash2,
   Plus,
-  Bell
+  Bell,
+  MessageSquare
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
@@ -87,10 +88,14 @@ const Sidebar = ({ currentTab }: { currentTab: string }) => (
         <Trash2 size={18} />
         <span>Trash</span>
       </Link>
-      <Link href="/chat" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-        <Sparkles size={18} />
+      <button
+        type="button"
+        onClick={() => { if (typeof window !== 'undefined') window.location.href = '/chat'; }}
+        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+      >
+        <MessageSquare size={18} />
         <span>Chats</span>
-      </Link>
+      </button>
     </nav>
   </aside>
 );
