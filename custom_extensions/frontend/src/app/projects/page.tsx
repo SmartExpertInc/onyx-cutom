@@ -106,7 +106,8 @@ const Header = ({ isTrash }: { isTrash: boolean }) => (
   </header>
 );
 
-export default function ProjectsPage() {
+// --- Inner client component that can read search params ---
+const ProjectsPageInner: React.FC = () => {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
@@ -117,20 +118,26 @@ export default function ProjectsPage() {
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
-            <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
-                <ProjectsTable trashMode={isTrash} />
-            </Suspense>
+          <ProjectsTable trashMode={isTrash} />
         </main>
         <div className="fixed bottom-4 right-4">
-            <button
-              type="button"
-              className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
-              aria-label="Help"
-            >
-              ?
-            </button>
+          <button
+            type="button"
+            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
+            aria-label="Help"
+          >
+            ?
+          </button>
         </div>
       </div>
     </div>
+  );
+};
+
+export default function ProjectsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
+      <ProjectsPageInner />
+    </Suspense>
   );
 }
