@@ -430,7 +430,7 @@ export default function LessonPresentationClient() {
   // ===== Apply incremental edit to lesson =====
   const handleApplyLessonEdit = async () => {
     const trimmed = editPrompt.trim();
-    if (!trimmed || loadingEdit || !selectedOutlineId || !selectedLesson) return;
+    if (!trimmed || loadingEdit) return;
 
     // Combine existing prompt (if any) with new instruction
     const basePrompt = params.get("prompt") || "";
@@ -456,15 +456,18 @@ export default function LessonPresentationClient() {
     // Don't clear content - keep sections visible
 
     try {
+      const promptQuery = combined; // already merged new edit into existing prompt
+      const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
+
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          outlineProjectId: selectedOutlineId,
-          lessonTitle: selectedLesson,
+          outlineProjectId: selectedOutlineId || undefined,
+          lessonTitle: derivedTitle,
           lengthRange: lengthRangeForOption(lengthOption),
           language,
-          prompt: combined,
+          prompt: promptQuery,
           chatSessionId: chatId || undefined,
         }),
         signal: abortController.signal,
@@ -624,13 +627,6 @@ export default function LessonPresentationClient() {
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
           </div>
         </div>
-
-        {/* Prompt is not directly editable on this page, but we show a placeholder if no lesson is selected */}
-        {!selectedLesson && !loading && (
-            <div className="w-full text-center text-gray-500 py-12">
-                Please select an outline and a lesson to generate content.
-            </div>
-        )}
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Lesson Content</h2>
