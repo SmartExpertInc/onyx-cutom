@@ -477,7 +477,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                     createdBy: "you", // From DB context
                     isPrivate: true, // Missing from DB
                     designMicroproductType: p.design_microproduct_type,
-                    instanceName: p.instance_name,
+                    instanceName: p.microproduct_name,
                 }));
 
                 // ---- Filter lessons when their parent course outline (Training Plan) exists ----
