@@ -273,7 +273,7 @@ const ProjectCard: React.FC<{
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setTrashConfirmOpen(false)}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <h4 className="font-semibold text-lg mb-2 text-gray-900">Move to Trash</h4>
-                        <p className="text-sm text-gray-600 mb-4">This is a Training Plan. Do you want to move just the plan, or the plan and all its lessons?</p>
+                        <p className="text-sm text-gray-600 mb-4">This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?</p>
                         <div className="flex justify-center gap-3">
                             <button onClick={() => setTrashConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">Cancel</button>
                             <button onClick={() => { onDelete(project.id, 'self'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">Outline Only</button>
