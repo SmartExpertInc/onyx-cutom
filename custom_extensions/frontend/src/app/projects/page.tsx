@@ -91,7 +91,7 @@ const Sidebar = ({ currentTab }: { currentTab: string }) => (
       <button
         type="button"
         onClick={() => { if (typeof window !== 'undefined') window.location.href = '/chat'; }}
-        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600 cursor-pointer"
       >
         <MessageSquare size={18} />
         <span>Chats</span>
