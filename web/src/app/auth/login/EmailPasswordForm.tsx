@@ -105,7 +105,7 @@ export function EmailPasswordForm({
               // and has just completed verification
               window.location.href = nextUrl
                 ? encodeURI(nextUrl)
-                : `/chat${isSignup && !isJoin ? "?new_team=true" : ""}`;
+                : `/custom-projects-ui/projects${isSignup && !isJoin ? "?new_team=true" : ""}`;
             }
           } else {
             setIsWorking(false);
@@ -154,7 +154,7 @@ export function EmailPasswordForm({
             </Button>
             {user?.is_anonymous_user && (
               <Link
-                href="/chat"
+                href="/custom-projects-ui/projects"
                 className="text-xs text-blue-500  cursor-pointer text-center w-full text-link font-medium mx-auto"
               >
                 <span className="hover:border-b hover:border-dotted hover:border-blue-500">
