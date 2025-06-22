@@ -351,34 +351,47 @@ const ProjectCard: React.FC<{
                                     setIsRenaming(true);
                                     try {
                                         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-                                        const updateApiUrl = `${CUSTOM_BACKEND_URL}/projects/update/${project.id}`;
-
-                                        const payload: any = {};
-                                        if (isOutline) {
-                                            payload.projectName = newName;
-                                        } else {
-                                            payload.microProductName = newName;
-                                        }
-
                                         const headers: HeadersInit = { 'Content-Type': 'application/json' };
                                         const devUserId = "dummy-onyx-user-id-for-testing";
                                         if (devUserId && process.env.NODE_ENV === 'development') {
                                             headers['X-Dev-Onyx-User-ID'] = devUserId;
                                         }
 
-                                        const response = await fetch(updateApiUrl, {
-                                            method: 'PUT',
-                                            headers,
-                                            body: JSON.stringify(payload)
-                                        });
+                                        const updateProject = async (id: number, bodyPayload: any) => {
+                                            const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${id}`, {
+                                                method: 'PUT',
+                                                headers,
+                                                body: JSON.stringify(bodyPayload)
+                                            });
+                                            if (!resp.ok) {
+                                                const errTxt = await resp.text();
+                                                throw new Error(`Failed to update project ${id}: ${resp.status} ${errTxt}`);
+                                            }
+                                        };
 
-                                        if (!response.ok) {
-                                            const errorText = await response.text();
-                                            throw new Error(`Failed to update project: ${response.status} ${errorText}`);
+                                        const tasks: Promise<void>[] = [];
+                                        const oldProjectName = project.title;
+
+                                        if (isOutline) {
+                                            // 1) Update outline itself
+                                            tasks.push(updateProject(project.id, { projectName: newName }));
+
+                                            // 2) Fetch all user projects to find ones with same old project name (lessons/tests)
+                                            const listResp = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store' });
+                                            if (listResp.ok) {
+                                                const listData: any[] = await listResp.json();
+                                                listData
+                                                    .filter((p) => p.projectName === oldProjectName && p.id !== project.id)
+                                                    .forEach((p) => tasks.push(updateProject(p.id, { projectName: newName })));
+                                            }
+                                        } else {
+                                            // Stand-alone lesson/test
+                                            tasks.push(updateProject(project.id, { microProductName: newName }));
                                         }
 
+                                        await Promise.all(tasks);
+
                                         setRenameModalOpen(false);
-                                        // Optimistic UI update (optional): refresh page for simplicity
                                         window.location.reload();
                                     } catch (error) {
                                         console.error(error);
