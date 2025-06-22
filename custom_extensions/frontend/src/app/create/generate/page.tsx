@@ -268,7 +268,7 @@ export default function GenerateProductPicker() {
     }
   };
 
-  const handleLessonPresentationStart = () => {
+  const handleSlideDeckStart = () => {
     // If both outline and lesson selected we can skip prompt
     if (!selectedOutlineId || !selectedLesson) {
       if (!prompt.trim()) return;
@@ -313,7 +313,7 @@ export default function GenerateProductPicker() {
             onClick={() => setActiveProduct("Course Outline")}
           />
           <TabButton
-            label="Lesson Presentation"
+            label="Slide Deck"
             Icon={LessonPresentationIcon}
             active={activeProduct === "Lesson Presentation"}
             onClick={() => setActiveProduct("Lesson Presentation")}
@@ -532,7 +532,7 @@ export default function GenerateProductPicker() {
         >
           <button
             type="button"
-            onClick={activeProduct === "Course Outline" ? handleCourseOutlineStart : handleLessonPresentationStart}
+            onClick={activeProduct === "Course Outline" ? handleCourseOutlineStart : handleSlideDeckStart}
             className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
             style={{ backgroundColor: '#0076FF' }}
           >

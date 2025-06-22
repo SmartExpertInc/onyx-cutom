@@ -13,9 +13,11 @@ import {
   TextPresentationData,
 } from '@/types/projectSpecificTypes';
 import { VideoLessonData } from '@/types/videoLessonTypes';
+import { SlideDeckData } from '@/types/pdfLesson';
 import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
+import SlideDeckDisplay from '@/components/SlideDeckDisplay';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
@@ -26,6 +28,7 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/c
 // Component Name Constants
 const COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable";
 const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
+const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
 const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
@@ -151,6 +154,8 @@ export default function ProjectInstanceViewPage() {
           setEditableData(copiedDetails as TrainingPlanData);
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData(copiedDetails as PdfLessonData);
+        } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+          setEditableData(copiedDetails as SlideDeckData);
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
           setEditableData(copiedDetails as VideoLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
@@ -166,6 +171,8 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ mainTitle: instanceData.name || "New Training Plan", sections: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData({ lessonTitle: instanceData.name || "New PDF Lesson", contentBlocks: [], detectedLanguage: lang });
+        } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+          setEditableData({ lessonTitle: instanceData.name || "New Slide Deck", slides: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
           setEditableData({ mainPresentationTitle: instanceData.name || "New Video Lesson", slides: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
@@ -483,6 +490,17 @@ export default function ProjectInstanceViewPage() {
             lessonNumber={lessonNumber}
           />
         );
+      case COMPONENT_NAME_SLIDE_DECK:
+        const slideDeckData = editableData as SlideDeckData | null;
+        return (
+          <SlideDeckDisplay 
+            dataToDisplay={slideDeckData} 
+            isEditing={isEditing} 
+            onTextChange={handleTextChange}
+            parentProjectName={parentProjectName}
+            lessonNumber={lessonNumber}
+          />
+        );
        case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
         return (
@@ -522,7 +540,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `Project ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+                          [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">

@@ -64,3 +64,19 @@ export interface PdfLessonData {
   contentBlocks: AnyContentBlock[];
   detectedLanguage?: string | null;
 }
+
+// --- NEW: Slide Deck Types ---
+export interface DeckSlide {
+  slideId: string;
+  slideNumber: number;
+  slideTitle: string;
+  contentBlocks: AnyContentBlock[];
+}
+
+export interface SlideDeckData {
+  lessonTitle: string;
+  slides: DeckSlide[];
+  currentSlideId?: string | null;
+  lessonNumber?: number | null;
+  detectedLanguage?: string | null;
+}

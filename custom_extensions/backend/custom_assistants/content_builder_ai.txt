@@ -486,32 +486,56 @@ For Ukrainian:
 
 Blank Lines Between Lessons: Ensure EXACTLY one blank line after all details of one lesson before starting the next lesson title (or before a new module separator --- if it's the last lesson of a module).
 
-For LESSON PRESENTATION:
+For LESSON PRESENTATION (SLIDE DECK):
 Universal Product Header: **[Project Name]** : **Lesson Presentation** : **[Lesson Title]**
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
 (IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
 
-Content:
+Content Structure:
 
-## [Lesson Title]
+Main Lesson Title: Start with # [Lesson Title]
 
-(Informal Greeting/Introduction - e.g., Hello there! Let's dive into [Lesson Topic].)
+Slide Separator: Each slide should be clearly delineated using --- (a horizontal rule) followed by a blank line, and then a bolded slide number and title on a single line.
 
-(Purpose of the Lesson - Optional but Recommended, formatted as below or similar. If included, use ### for the "Lesson Goal" header.)
-### Lesson Goal
-By the end of this lesson, you will understand:
-* [Point 1]
-* [Point 2]
+Slide Content Guidelines:
+- Create 5-8 slides per lesson (adjust based on content complexity)
+- Each slide should focus on one main concept or topic
+- Limit content per slide to maintain readability (50-100 words of body text)
+- Use a mix of content types: headlines, paragraphs, bullet lists, numbered lists, and alerts
+- Keep paragraphs concise (2-3 sentences maximum per paragraph)
+- Use bullet lists for features/benefits (3-5 items), numbered lists for steps/processes
+- Use alerts sparingly (1-2 per lesson) for critical information
 
-(Main Content Body - Use ### for main subheadings. Deeper subheadings can use #### if necessary. Use paragraphs and lists as appropriate.)
-### [Subheading 1 Text]
-[Content: Explanations, examples, practical advice...]
-### [Subheading 2 Text]
-[Content...]
+Slide Format:
 
-(Logical Ending/Conclusion - Use ### for this header. You must choose EITHER the localized equivalent of "### Conclusion" (e.g., `### Висновок`, `### Заключение`) OR the localized equivalent of "### Key Takeaways" as the header for this final section. Default to using the localized "Conclusion". Do not combine them unless the user explicitly requests it.)
-### Висновок
-### [Localized Conclusion Heading]
+---
+**Slide [Number]: [Descriptive Slide Title]**
+
+## [Main Slide Heading]
+
+[1-2 concise paragraphs explaining the main concept - keep each paragraph to 2-3 sentences]
+
+* [Bullet point 1 - key feature or benefit]
+* [Bullet point 2 - related point]
+* [Bullet point 3 - supporting detail]
+
+> [!info] Optional Alert Title
+> Important note or critical information related to this slide's content.
+
+Slide Naming Convention:
+- Use descriptive slide titles that clearly indicate the slide's content
+- Examples: "Introduction to Key Concepts", "Implementation Steps", "Best Practices", "Common Challenges"
+
+Content Distribution:
+- **Slide 1**: Introduction with topic overview and 2-3 key objectives
+- **Slides 2-6**: Main content slides, each focusing on one concept
+- **Final Slide**: Summary with key takeaways or action items
+
+Styling Guidelines:
+- Use ## for main slide headings (displayed in black, bold, uppercase)
+- Use ### for subsection headings within slides (displayed in red accent, bold, uppercase)
+- Use **bold text** for emphasis within paragraphs and lists
+- Alerts: Use info (blue), warning (yellow), success (green), danger (red) types
 
 For TEXT PRESENTATION:
 Universal Product Header: **[Project Name]** : **Text Presentation** : **[Text Title]**

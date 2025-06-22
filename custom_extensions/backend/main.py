@@ -40,6 +40,7 @@ ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersau
 # Component name constants
 COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
 COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
+COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
 COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
@@ -154,6 +155,49 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
     },
     { "type": "section_break", "style": "dashed" }
   ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Slide Deck Lesson",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
+        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Key point 1",
+            "Key point 2",
+            "Key point 3"
+          ]
+        }
+      ]
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        {
+          "type": "numbered_list",
+          "items": [
+            "First important concept",
+            "Second important concept"
+          ]
+        },
+        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ]
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
   "detectedLanguage": "en"
 }
 """
@@ -405,6 +449,22 @@ class VideoLessonData(BaseModel):
     detectedLanguage: Optional[str] = None
     model_config = {"from_attributes": True}
 
+# --- NEW: Slide-based Lesson Presentation Models ---
+class DeckSlide(BaseModel):
+    slideId: str               # "slide_1_intro"
+    slideNumber: int           # 1, 2, 3, ...
+    slideTitle: str            # "Introduction to Key Concepts"
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    model_config = {"from_attributes": True}
+
+class SlideDeckDetails(BaseModel):
+    lessonTitle: str
+    slides: List[DeckSlide] = Field(default_factory=list)
+    currentSlideId: Optional[str] = None  # To store the active slide from frontend
+    lessonNumber: Optional[int] = None    # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
 # --- Start: Add New Quiz Models ---
 
 class QuizQuestionOption(BaseModel):
@@ -487,7 +547,7 @@ class TextPresentationDetails(BaseModel):
     model_config = {"from_attributes": True}
 # +++ END NEW MODEL +++
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 
 class DesignTemplateBase(BaseModel):
     template_name: str
@@ -1265,7 +1325,7 @@ async def delete_design_template(template_id: int, pool: asyncpg.Pool = Depends(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
-    "Training Plan", "PDF Lesson", "Text Presentation"
+    "Training Plan", "PDF Lesson", "Slide Deck", "Text Presentation"
 ]
 
 @app.get("/api/custom/microproduct_types", response_model=List[str])
@@ -1469,6 +1529,57 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             □ Sum of `hours` in lessons equals `totalHours` if `autoCalculateHours` is false.
             □ Every `check.type` other than "none" has non-empty `text`.
             □ `detectedLanguage` is filled with a 2-letter code.
+
+            Return ONLY the JSON object.
+            """
+        elif selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK:
+            target_content_model = SlideDeckDetails
+            default_error_instance = SlideDeckDetails(
+                lessonTitle=f"LLM Parsing Error for {project_data.projectName}",
+                slides=[]
+            )
+            llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
+            component_specific_instructions = """
+            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
+
+            **Global Fields:**
+            1.  `lessonTitle` (string): Main title of the lesson/presentation.
+            2.  `slides` (array): Ordered list of slide objects.
+            3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
+            4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
+            5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
+
+            **Slide Object (`slides` array items):**
+            * `slideId` (string): Unique identifier like "slide_1_intro", "slide_2_concepts".
+            * `slideNumber` (integer): Sequential slide number (1, 2, 3, ...).
+            * `slideTitle` (string): Descriptive title for the slide.
+            * `contentBlocks` (array): List of content block objects for this slide.
+
+            **Content Block Instructions (same as PDF lesson but applied per slide):**
+            Parse each slide's content into appropriate content blocks:
+            - Headlines (levels 2-4 with optional icons and isImportant flags)
+            - Paragraphs (with optional isRecommendation flag)
+            - Bullet lists and numbered lists (with nesting support)
+            - Alerts (info, warning, success, danger)
+            - Section breaks
+
+            **Slide Parsing Rules:**
+            * Each slide should be separated by `---` in the input markdown
+            * Extract slide titles from `**Slide N: Title**` format
+            * Convert slide content following the same content block rules as PDF lessons
+            * Generate appropriate `slideId` values based on slide number and title
+            * Preserve all formatting, bold text (**text**), and original language
+
+            **Content Guidelines per Slide:**
+            * Keep content focused - each slide should cover one main concept
+            * Limit text per slide for readability
+            * Use mix of content types for visual variety
+            * Maintain logical flow between slides
+
+            Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
             Return ONLY the JSON object.
             """
@@ -2938,6 +3049,21 @@ async def _ensure_pdf_lesson_template(pool: asyncpg.Pool) -> int:
         )
         return row["id"]
 
+# Ensure a design template for Slide Deck exists, return its ID
+async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_SLIDE_DECK)
+        if row:
+            return row["id"]
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "Slide Deck", DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM, "Slide Deck", COMPONENT_NAME_SLIDE_DECK,
+        )
+        return row["id"]
+
 
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
 
@@ -3044,7 +3170,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
 
     project_name_final = parent_project_name or payload.lessonTitle
 
-    template_id = await _ensure_pdf_lesson_template(pool)
+    template_id = await _ensure_slide_deck_template(pool)
 
     project_request = ProjectCreateRequest(
         projectName=project_name_final,
@@ -3220,3 +3346,5 @@ async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx
         logger.error(f"Error fetching trashed projects list: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+
