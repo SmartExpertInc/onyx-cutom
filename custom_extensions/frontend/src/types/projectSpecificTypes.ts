@@ -1,6 +1,7 @@
 // custom_extensions/frontend/src/types/projectSpecificTypes.ts
 import {
   PdfLessonData as PdfLessonDataType,
+  SlideDeckData,
   type AnyContentBlock as ContentBlockType,
   type HeadlineBlock as HeadlineBlockType,
   type ParagraphBlock as ParagraphBlockType,
@@ -47,8 +48,8 @@ export interface TrainingPlanData {
 
 
 // Generic Content Type for MicroProducts
-// UPDATED to include VideoLessonData
-export type MicroProductContentData = TrainingPlanData | PdfLessonDataType | VideoLessonData | QuizData | TextPresentationDataType | null;
+// UPDATED to include VideoLessonData and SlideDeckData
+export type MicroProductContentData = TrainingPlanData | PdfLessonDataType | SlideDeckData | VideoLessonData | QuizData | TextPresentationDataType | null;
 
 
 // For fetching project details for the edit page
@@ -104,6 +105,7 @@ export interface DesignTemplateResponse {
 // Re-export PdfLessonData and its supporting types using "export type"
 export type {
   PdfLessonDataType as PdfLessonData, // Re-export with the original name
+  SlideDeckData,
   ContentBlockType as ContentBlock,
   HeadlineBlockType as HeadlineBlock,
   ParagraphBlockType as ParagraphBlock,
