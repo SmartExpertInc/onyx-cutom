@@ -54,8 +54,10 @@ const ProjectCard: React.FC<{
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
+    const [renameModalOpen, setRenameModalOpen] = useState(false);
     const [alignLeft, setAlignLeft] = useState(false);
     const [showRestorePrompt, setShowRestorePrompt] = useState(false);
+    const [isRenaming, setIsRenaming] = useState(false);
 
     const cardRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -130,6 +132,10 @@ const ProjectCard: React.FC<{
     const displayTitle = (project.designMicroproductType && project.designMicroproductType.toLowerCase() !== 'training plan' && project.instanceName) ? `${project.title}: ${project.instanceName}` : project.title;
     const bgColor = stringToColor(displayTitle);
     const avatarColor = stringToColor(project.createdBy);
+
+    const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
+    const [newProjectName, setNewProjectName] = useState(project.title);
+    const [newInstanceName, setNewInstanceName] = useState(project.instanceName || "");
 
     return (
         <div ref={cardRef} className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
@@ -221,7 +227,15 @@ const ProjectCard: React.FC<{
                                         <Share2 size={16} className="text-gray-500" />
                                         <span>Share...</span>
                                     </button>
-                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setMenuOpen(false);
+                                            setRenameModalOpen(true);
+                                        }}
+                                        className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                    >
                                         <PenLine size={16} className="text-gray-500"/>
                                         <span>Rename...</span>
                                     </button>
@@ -304,6 +318,94 @@ const ProjectCard: React.FC<{
                                 Restore it
                             </button>
                         </p>
+                    </div>
+                </div>
+            )}
+
+            {/* ---------------- Rename Modal ---------------- */}
+            {renameModalOpen && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename {isOutline ? "Project & Instance" : "Instance"}</h4>
+
+                        {isOutline && (
+                            <div className="mb-4">
+                                <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                                <input
+                                    id="projectName"
+                                    type="text"
+                                    value={newProjectName}
+                                    onChange={(e) => setNewProjectName(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        )}
+
+                        <div className="mb-6">
+                            <label htmlFor="instanceName" className="block text-sm font-medium text-gray-700 mb-1">Instance Name</label>
+                            <input
+                                id="instanceName"
+                                type="text"
+                                value={newInstanceName}
+                                onChange={(e) => setNewInstanceName(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
+                                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                                disabled={isRenaming}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    setIsRenaming(true);
+                                    try {
+                                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                                        const updateApiUrl = `${CUSTOM_BACKEND_URL}/projects/update/${project.id}`;
+
+                                        const payload: any = {};
+                                        if (isOutline) {
+                                            payload.projectName = newProjectName;
+                                        }
+                                        payload.microProductName = newInstanceName;
+
+                                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                        const devUserId = "dummy-onyx-user-id-for-testing";
+                                        if (devUserId && process.env.NODE_ENV === 'development') {
+                                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                                        }
+
+                                        const response = await fetch(updateApiUrl, {
+                                            method: 'PUT',
+                                            headers,
+                                            body: JSON.stringify(payload)
+                                        });
+
+                                        if (!response.ok) {
+                                            const errorText = await response.text();
+                                            throw new Error(`Failed to update project: ${response.status} ${errorText}`);
+                                        }
+
+                                        setRenameModalOpen(false);
+                                        // Optimistic UI update (optional): refresh page for simplicity
+                                        window.location.reload();
+                                    } catch (error) {
+                                        console.error(error);
+                                        alert((error as Error).message);
+                                    } finally {
+                                        setIsRenaming(false);
+                                    }
+                                }}
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                                disabled={isRenaming || (isOutline ? (!newProjectName.trim() && !newInstanceName.trim()) : !newInstanceName.trim())}
+                            >
+                                {isRenaming ? 'Saving...' : 'Rename'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
