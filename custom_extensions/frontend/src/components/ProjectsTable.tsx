@@ -134,8 +134,7 @@ const ProjectCard: React.FC<{
     const avatarColor = stringToColor(project.createdBy);
 
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
-    const [newProjectName, setNewProjectName] = useState(project.title);
-    const [newInstanceName, setNewInstanceName] = useState(project.instanceName || "");
+    const [newName, setNewName] = useState(isOutline ? project.title : (project.instanceName || ""));
 
     return (
         <div ref={cardRef} className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
@@ -326,29 +325,16 @@ const ProjectCard: React.FC<{
             {renameModalOpen && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename {isOutline ? "Project & Instance" : "Instance"}</h4>
-
-                        {isOutline && (
-                            <div className="mb-4">
-                                <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                                <input
-                                    id="projectName"
-                                    type="text"
-                                    value={newProjectName}
-                                    onChange={(e) => setNewProjectName(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                        )}
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
 
                         <div className="mb-6">
-                            <label htmlFor="instanceName" className="block text-sm font-medium text-gray-700 mb-1">Instance Name</label>
+                            <label htmlFor="newName" className="block text-sm font-medium text-gray-700 mb-1">New Name:</label>
                             <input
-                                id="instanceName"
+                                id="newName"
                                 type="text"
-                                value={newInstanceName}
-                                onChange={(e) => setNewInstanceName(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                             />
                         </div>
 
@@ -369,9 +355,10 @@ const ProjectCard: React.FC<{
 
                                         const payload: any = {};
                                         if (isOutline) {
-                                            payload.projectName = newProjectName;
+                                            payload.projectName = newName;
+                                        } else {
+                                            payload.microProductName = newName;
                                         }
-                                        payload.microProductName = newInstanceName;
 
                                         const headers: HeadersInit = { 'Content-Type': 'application/json' };
                                         const devUserId = "dummy-onyx-user-id-for-testing";
@@ -401,7 +388,7 @@ const ProjectCard: React.FC<{
                                     }
                                 }}
                                 className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
-                                disabled={isRenaming || (isOutline ? (!newProjectName.trim() && !newInstanceName.trim()) : !newInstanceName.trim())}
+                                disabled={isRenaming || !newName.trim()}
                             >
                                 {isRenaming ? 'Saving...' : 'Rename'}
                             </button>
