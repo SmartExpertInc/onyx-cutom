@@ -35,7 +35,7 @@ const Page = async (props: {
 
   // simply take the user to the home page if Auth is disabled
   if (authTypeMetadata?.authType === "disabled") {
-    return redirect("/chat");
+    return redirect("/custom-projects-ui/projects");
   }
 
   // if user is already logged in, take them to the main app page
@@ -52,7 +52,7 @@ const Page = async (props: {
 
     // Add a query parameter to indicate this is a redirect from login
     // This will help prevent redirect loops
-    return redirect("/chat?from=login");
+    return redirect("/custom-projects-ui/projects?from=login");
   }
 
   // get where to send the user to authenticate

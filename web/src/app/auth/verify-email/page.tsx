@@ -23,7 +23,7 @@ export default async function Page() {
   }
 
   if (!authTypeMetadata?.requiresVerification || currentUser?.is_verified) {
-    return redirect("/chat");
+    return redirect("/custom-projects-ui/projects");
   }
 
   return <Verify user={currentUser} />;
