@@ -322,14 +322,14 @@ export default function GenerateProductPicker() {
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
+          <TabButton label="Video Lesson" Icon={VideoScriptIcon} />
+          <TabButton label="Quiz" Icon={QuizIcon} />
           <TabButton
-            label="Slide Deck"
+            label="Lesson"
             Icon={LessonPresentationIcon}
             active={activeProduct === "Lesson Presentation"}
             onClick={() => setActiveProduct("Lesson Presentation")}
           />
-          <TabButton label="Video Lesson Script" Icon={VideoScriptIcon} />
-          <TabButton label="Quiz" Icon={QuizIcon} />
         </div>
 
         {/* Dropdown chips */}
