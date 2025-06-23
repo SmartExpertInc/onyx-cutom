@@ -3079,8 +3079,7 @@ async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
 class LessonWizardPreview(BaseModel):
     outlineProjectId: Optional[int] = None  # Parent Training Plan project id
     lessonTitle: Optional[str] = None      # Specific lesson to generate, optional when prompt-based
-    lengthRange: Optional[str] = None      # e.g. "400-500 words" (deprecated, use slideCount)
-    slideCount: Optional[int] = None       # Desired number of slides (2-10)
+    lengthRange: Optional[str] = None      # e.g. "400-500 words"
     prompt: Optional[str] = None           # Fallback free-form prompt
     language: str = "en"
     chatSessionId: Optional[str] = None
@@ -3089,8 +3088,7 @@ class LessonWizardPreview(BaseModel):
 class LessonWizardFinalize(BaseModel):
     outlineProjectId: Optional[int] = None
     lessonTitle: str
-    lengthRange: Optional[str] = None      # kept for backward-compat
-    slideCount: Optional[int] = None
+    lengthRange: Optional[str] = None
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
 
@@ -3114,7 +3112,6 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
         "action": "preview",
         "language": payload.language,
         "lengthRange": payload.lengthRange,
-        "slideCount": payload.slideCount,
     }
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
