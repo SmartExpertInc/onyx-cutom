@@ -1,5 +1,6 @@
 /* Slide Deck Viewer Styles */
-.slide-deck-viewer {
+.slide-deck-viewer,
+.slide-deck-viewer-vertical {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -636,4 +637,115 @@ deckgo-slide-split {
   background-color: #d4edda;
   border-color: #28a745;
   color: #155724;
+}
+
+/* Vertical Slides Layout */
+.slides-container-vertical {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8f9fa;
+  padding: 2rem 0;
+}
+
+.slides-presentation-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.slide-item-vertical {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.slide-item-vertical:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.slide-number-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #007bff;
+  color: #ffffff;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+}
+
+.slide-content-vertical {
+  padding: 3rem 4rem;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.slide-title-vertical {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+  margin: 0 0 2rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #007bff;
+  line-height: 1.2;
+}
+
+.slide-body-vertical {
+  flex: 1;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #34495e;
+}
+
+/* Responsive adjustments for vertical layout */
+@media (max-width: 1024px) {
+  .slides-presentation-view {
+    padding: 0 1rem;
+  }
+  
+  .slide-content-vertical {
+    padding: 2rem 2.5rem;
+    min-height: 400px;
+  }
+  
+  .slide-title-vertical {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .slide-content-vertical {
+    padding: 1.5rem 2rem;
+    min-height: 350px;
+  }
+  
+  .slide-title-vertical {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .slide-body-vertical {
+    font-size: 1rem;
+  }
+  
+  .slide-number-badge {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.8rem;
+  }
 } 

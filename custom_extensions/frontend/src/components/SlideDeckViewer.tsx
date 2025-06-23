@@ -1,12 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
-
-// Dynamic import to avoid SSR issues
-const DynamicSlideDeck = dynamic(() => import('./DeckDeckGoRenderer'), {
-  ssr: false,
-  loading: () => <div className="loading-slides">Loading presentation...</div>
-});
 
 interface SlideDeckViewerProps {
   deck: SlideDeckData;
@@ -21,7 +14,6 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
 }) => {
   const [currentDeck, setCurrentDeck] = useState<SlideDeckData>(deck);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   // Update deck when prop changes
   useEffect(() => {
@@ -78,21 +70,171 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
         }))
     };
     setCurrentDeck(updatedDeck);
-    
-    // Adjust current slide index if needed
-    if (currentSlideIndex >= updatedDeck.slides.length) {
-      setCurrentSlideIndex(updatedDeck.slides.length - 1);
+  };
+
+  const renderContentBlock = (block: AnyContentBlock, index: number): React.ReactNode => {
+    switch (block.type) {
+      case 'headline':
+        const headlineBlock = block as any;
+        const level = Math.min(Math.max(headlineBlock.level || 2, 1), 6);
+        return React.createElement(
+          `h${level}`,
+          {
+            key: index,
+            className: `slide-heading level-${level} ${headlineBlock.isImportant ? 'important' : ''}`,
+            style: {
+              color: headlineBlock.textColor || '#2c3e50',
+              backgroundColor: headlineBlock.backgroundColor || 'transparent',
+              margin: '0.8em 0 0.5em 0',
+              fontSize: level === 1 ? '2.2em' : level === 2 ? '1.8em' : level === 3 ? '1.4em' : '1.2em',
+              fontWeight: level <= 2 ? '700' : '600',
+              lineHeight: '1.3',
+            }
+          },
+          headlineBlock.iconName && React.createElement('span', { 
+            className: `icon icon-${headlineBlock.iconName}`,
+            style: { marginRight: '0.5em' }
+          }),
+          headlineBlock.text
+        );
+
+      case 'paragraph':
+        const paragraphBlock = block as any;
+        return React.createElement('p', {
+          key: index,
+          className: `slide-paragraph ${paragraphBlock.isRecommendation ? 'recommendation' : ''}`,
+          style: {
+            margin: '0.8em 0',
+            lineHeight: '1.6',
+            fontSize: '1.1em',
+            color: '#34495e',
+            textAlign: 'left',
+          }
+        }, paragraphBlock.text);
+
+      case 'bullet_list':
+        const bulletBlock = block as any;
+        return React.createElement('ul', {
+          key: index,
+          className: 'slide-bullet-list',
+          style: {
+            margin: '1em 0',
+            paddingLeft: '1.5em',
+            fontSize: '1.05em',
+            lineHeight: '1.5',
+            color: '#34495e',
+          }
+        }, bulletBlock.items.map((item: any, itemIndex: number) => 
+          React.createElement('li', {
+            key: itemIndex,
+            style: { 
+              margin: '0.4em 0',
+              listStyleType: 'disc',
+            }
+          }, typeof item === 'string' ? item : JSON.stringify(item))
+        ));
+
+      case 'numbered_list':
+        const numberedBlock = block as any;
+        return React.createElement('ol', {
+          key: index,
+          className: 'slide-numbered-list',
+          style: {
+            margin: '1em 0',
+            paddingLeft: '1.5em',
+            fontSize: '1.05em',
+            lineHeight: '1.5',
+            color: '#34495e',
+          }
+        }, numberedBlock.items.map((item: any, itemIndex: number) => 
+          React.createElement('li', {
+            key: itemIndex,
+            style: { 
+              margin: '0.4em 0',
+              listStyleType: 'decimal',
+            }
+          }, typeof item === 'string' ? item : JSON.stringify(item))
+        ));
+
+      case 'alert':
+        const alertBlock = block as any;
+        const alertStyles = {
+          info: { bg: '#e7f3ff', border: '#007bff', color: '#004085' },
+          warning: { bg: '#fff3cd', border: '#ffc107', color: '#856404' },
+          danger: { bg: '#f8d7da', border: '#dc3545', color: '#721c24' },
+          success: { bg: '#d4edda', border: '#28a745', color: '#155724' },
+        };
+        const alertStyle = alertStyles[alertBlock.alertType as keyof typeof alertStyles] || alertStyles.info;
+        
+        return React.createElement('div', {
+          key: index,
+          className: `slide-alert alert-${alertBlock.alertType}`,
+          style: {
+            backgroundColor: alertBlock.backgroundColor || alertStyle.bg,
+            borderLeft: `4px solid ${alertBlock.borderColor || alertStyle.border}`,
+            color: alertBlock.textColor || alertStyle.color,
+            padding: '1em',
+            margin: '1em 0',
+            borderRadius: '4px',
+            fontSize: '1em',
+            lineHeight: '1.4',
+          }
+        }, [
+          alertBlock.iconName && React.createElement('span', {
+            key: 'icon',
+            className: `alert-icon icon-${alertBlock.iconName}`,
+            style: { marginRight: '0.5em', fontWeight: 'bold' }
+          }),
+          alertBlock.title && React.createElement('div', {
+            key: 'title',
+            className: 'alert-title',
+            style: { fontWeight: 'bold', marginBottom: '0.3em' }
+          }, alertBlock.title),
+          React.createElement('div', {
+            key: 'text',
+            className: 'alert-text'
+          }, alertBlock.text)
+        ].filter(Boolean));
+
+      case 'section_break':
+        return React.createElement('hr', {
+          key: index,
+          className: 'slide-section-break',
+          style: {
+            border: 'none',
+            borderTop: '2px solid #bdc3c7',
+            margin: '1.5em 0',
+            width: '50%',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }
+        });
+
+      default:
+        return React.createElement('div', {
+          key: index,
+          className: 'unknown-block',
+          style: {
+            backgroundColor: '#f8f9fa',
+            padding: '0.8em',
+            border: '2px dashed #dee2e6',
+            margin: '0.8em 0',
+            borderRadius: '4px',
+            fontSize: '0.9em',
+            color: '#6c757d',
+          }
+        }, `Unsupported block type: ${(block as any).type}`);
     }
   };
 
   return (
-    <div className="slide-deck-viewer">
+    <div className="slide-deck-viewer-vertical">
       {/* Header with controls */}
       <div className="slide-deck-header">
         <div className="deck-title">
           <h1>{currentDeck.lessonTitle}</h1>
           <span className="slide-counter">
-            {currentSlideIndex + 1} / {currentDeck.slides.length}
+            {currentDeck.slides.length} slide{currentDeck.slides.length !== 1 ? 's' : ''}
           </span>
         </div>
         
@@ -118,54 +260,33 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
         )}
       </div>
 
-      {/* Main presentation area */}
-      <div className="slide-deck-content">
+      {/* Vertical slides container */}
+      <div className="slides-container-vertical">
         {isEditing ? (
           <SlideEditor
             deck={currentDeck}
-            currentSlideIndex={currentSlideIndex}
             onSlideUpdate={handleSlideUpdate}
-            onSlideChange={setCurrentSlideIndex}
             onDeleteSlide={deleteSlide}
           />
         ) : (
-          <DynamicSlideDeck 
-            deck={currentDeck}
-            onSlideChange={setCurrentSlideIndex}
-          />
+          <div className="slides-presentation-view">
+            {currentDeck.slides.map((slide, index) => (
+              <div key={slide.slideId} className="slide-item-vertical">
+                <div className="slide-number-badge">
+                  {slide.slideNumber}
+                </div>
+                <div className="slide-content-vertical">
+                  <h1 className="slide-title-vertical">
+                    {slide.slideTitle}
+                  </h1>
+                  <div className="slide-body-vertical">
+                    {slide.contentBlocks.map((block, idx) => renderContentBlock(block, idx))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </div>
-
-      {/* Navigation */}
-      <div className="slide-navigation">
-        <button
-          onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
-          disabled={currentSlideIndex === 0}
-          className="nav-button prev"
-        >
-          ← Previous
-        </button>
-        
-        <div className="slide-thumbnails">
-          {currentDeck.slides.map((slide, index) => (
-            <div
-              key={slide.slideId}
-              className={`thumbnail ${index === currentSlideIndex ? 'active' : ''}`}
-              onClick={() => setCurrentSlideIndex(index)}
-            >
-              <div className="thumbnail-number">{slide.slideNumber}</div>
-              <div className="thumbnail-title">{slide.slideTitle}</div>
-            </div>
-          ))}
-        </div>
-        
-        <button
-          onClick={() => setCurrentSlideIndex(Math.min(currentDeck.slides.length - 1, currentSlideIndex + 1))}
-          disabled={currentSlideIndex === currentDeck.slides.length - 1}
-          className="nav-button next"
-        >
-          Next →
-        </button>
       </div>
     </div>
   );
@@ -174,24 +295,21 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
 // Slide Editor Component
 interface SlideEditorProps {
   deck: SlideDeckData;
-  currentSlideIndex: number;
   onSlideUpdate: (slideIndex: number, updatedSlide: DeckSlide) => void;
-  onSlideChange: (index: number) => void;
   onDeleteSlide: (index: number) => void;
 }
 
 const SlideEditor: React.FC<SlideEditorProps> = ({
   deck,
-  currentSlideIndex,
   onSlideUpdate,
-  onSlideChange,
   onDeleteSlide
 }) => {
-  const currentSlide = deck.slides[currentSlideIndex];
+  const [selectedSlideIndex, setSelectedSlideIndex] = useState(0);
+  const currentSlide = deck.slides[selectedSlideIndex] || deck.slides[0];
   
   const updateSlideTitle = (newTitle: string) => {
     const updatedSlide = { ...currentSlide, slideTitle: newTitle };
-    onSlideUpdate(currentSlideIndex, updatedSlide);
+    onSlideUpdate(selectedSlideIndex, updatedSlide);
   };
 
   const updateContentBlock = (blockIndex: number, updatedBlock: AnyContentBlock) => {
@@ -201,7 +319,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({
         index === blockIndex ? updatedBlock : block
       )
     };
-    onSlideUpdate(currentSlideIndex, updatedSlide);
+    onSlideUpdate(selectedSlideIndex, updatedSlide);
   };
 
   const addContentBlock = (type: AnyContentBlock['type']) => {
@@ -228,7 +346,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({
       ...currentSlide,
       contentBlocks: [...currentSlide.contentBlocks, newBlock]
     };
-    onSlideUpdate(currentSlideIndex, updatedSlide);
+    onSlideUpdate(selectedSlideIndex, updatedSlide);
   };
 
   const deleteContentBlock = (blockIndex: number) => {
@@ -236,7 +354,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({
       ...currentSlide,
       contentBlocks: currentSlide.contentBlocks.filter((_, index) => index !== blockIndex)
     };
-    onSlideUpdate(currentSlideIndex, updatedSlide);
+    onSlideUpdate(selectedSlideIndex, updatedSlide);
   };
 
   return (
@@ -246,8 +364,8 @@ const SlideEditor: React.FC<SlideEditorProps> = ({
         {deck.slides.map((slide, index) => (
           <div
             key={slide.slideId}
-            className={`slide-item ${index === currentSlideIndex ? 'active' : ''}`}
-            onClick={() => onSlideChange(index)}
+            className={`slide-item ${index === selectedSlideIndex ? 'active' : ''}`}
+            onClick={() => setSelectedSlideIndex(index)}
           >
             <span className="slide-number">{slide.slideNumber}</span>
             <span className="slide-title-preview">{slide.slideTitle}</span>
@@ -256,6 +374,9 @@ const SlideEditor: React.FC<SlideEditorProps> = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   onDeleteSlide(index);
+                  if (selectedSlideIndex >= index && selectedSlideIndex > 0) {
+                    setSelectedSlideIndex(selectedSlideIndex - 1);
+                  }
                 }}
                 className="delete-slide"
               >
