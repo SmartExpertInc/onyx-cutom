@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   SlideDeckData,
-  ContentBlockWithPosition,
+  AnyContentBlock,
   BulletListBlock,
   NumberedListBlock,
   HeadlineBlock,
@@ -42,7 +42,7 @@ const renderListItem = (item: any, index: number): React.ReactNode => {
 };
 
 /* -------- Render one content block to JSX ---------- */
-const renderBlock = (blk: ContentBlockWithPosition, index: number) => {
+const renderBlock = (blk: AnyContentBlock, index: number) => {
   switch (blk.type) {
     case 'headline':
       const headlineBlock = blk as HeadlineBlock;
@@ -119,8 +119,15 @@ const renderBlock = (blk: ContentBlockWithPosition, index: number) => {
 };
 
 /* -------- Determine slide template based on content ------------- */
-const getSlideTemplate = (contentBlocks: ContentBlockWithPosition[]): 'content' | 'split' => {
-  if (contentBlocks.length > 3) return 'split';
+const getSlideTemplate = (contentBlocks: AnyContentBlock[]) => {
+  // Use split template if we have a good mix of content
+  const hasHeadlines = contentBlocks.some(block => block.type === 'headline');
+  const hasLists = contentBlocks.some(block => block.type === 'bullet_list' || block.type === 'numbered_list');
+  
+  if (hasHeadlines && hasLists && contentBlocks.length >= 3) {
+    return 'split';
+  }
+  
   return 'content';
 };
 
@@ -170,9 +177,4 @@ export const deckgoFromJson = (deck: SlideDeckData) => {
       })}
     </div>
   );
-};
-
-// Helper function to render content blocks for DeckDeckGo slides
-const renderContentBlocks = (blocks: ContentBlockWithPosition[]): React.ReactNode => {
-  return blocks.map((block, index) => renderBlock(block, index));
 }; 

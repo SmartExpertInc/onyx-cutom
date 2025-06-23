@@ -215,10 +215,12 @@ export default function GenerateProductPicker() {
   const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
+  const [slidesCount, setSlidesCount] = useState<number>(5);
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(null);
 
-  // Fetch outlines when switching to Lesson Presentation tab
+  // Fetch outlines when switching to Lesson Presentation tab and user chooses to use existing outline
   useEffect(() => {
-    if (activeProduct !== "Lesson Presentation") return;
+    if (activeProduct !== "Lesson Presentation" || useExistingOutline !== true) return;
     const fetchOutlines = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
@@ -229,11 +231,11 @@ export default function GenerateProductPicker() {
       } catch (_) {}
     };
     fetchOutlines();
-  }, [activeProduct]);
+  }, [activeProduct, useExistingOutline]);
 
   // Fetch lessons when outline changes
   useEffect(() => {
-    if (activeProduct !== "Lesson Presentation" || selectedOutlineId == null) return;
+    if (activeProduct !== "Lesson Presentation" || selectedOutlineId == null || useExistingOutline !== true) return;
     const fetchLessons = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedOutlineId}`);
@@ -252,7 +254,7 @@ export default function GenerateProductPicker() {
       } catch (_) {}
     };
     fetchLessons();
-  }, [selectedOutlineId, activeProduct]);
+  }, [selectedOutlineId, activeProduct, useExistingOutline]);
 
   // Helper to map length option to words
   const lengthRangeForOption = (opt: string) => {
@@ -269,15 +271,23 @@ export default function GenerateProductPicker() {
   };
 
   const handleSlideDeckStart = () => {
-    // If both outline and lesson selected we can skip prompt
-    if (!selectedOutlineId || !selectedLesson) {
+    // If using existing outline, check if outline and lesson selected
+    if (useExistingOutline === true) {
+      if (!selectedOutlineId || !selectedLesson) return;
+    } else {
+      // If standalone lesson, check if prompt entered
       if (!prompt.trim()) return;
     }
 
     const params = new URLSearchParams();
-    if (selectedOutlineId) params.set("outlineId", String(selectedOutlineId));
-    if (selectedLesson) params.set("lesson", selectedLesson);
+    if (useExistingOutline === true && selectedOutlineId) {
+      params.set("outlineId", String(selectedOutlineId));
+    }
+    if (useExistingOutline === true && selectedLesson) {
+      params.set("lesson", selectedLesson);
+    }
     params.set("length", lengthRangeForOption(lengthOption));
+    params.set("slidesCount", String(slidesCount));
     if (prompt.trim()) params.set("prompt", prompt.trim());
     params.set("lang", language);
 
@@ -394,85 +404,158 @@ export default function GenerateProductPicker() {
         )}
 
         {activeProduct === "Lesson Presentation" && (
-          <div className="flex flex-wrap justify-center gap-2 mb-2">
-            {/* Outline dropdown */}
-            <select
-              value={selectedOutlineId ?? ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedOutlineId(val ? Number(val) : null);
-                // clear module & lesson selections when outline changes
-                setSelectedModuleIndex(null);
-                setLessonsForModule([]);
-                setSelectedLesson("");
-              }}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              <option value="">Select Outline</option>
-              {outlines.map((o) => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
-            </select>
-
-            {/* Module dropdown – appears once outline is selected */}
-            {selectedOutlineId && (
-              <select
-                value={selectedModuleIndex ?? ""}
-                onChange={(e) => {
-                  const idx = e.target.value ? Number(e.target.value) : null;
-                  setSelectedModuleIndex(idx);
-                  setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                  setSelectedLesson("");
-                }}
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-              >
-                <option value="">Select Module</option>
-                {modulesForOutline.map((m, idx) => (
-                  <option key={idx} value={idx}>{m.name}</option>
-                ))}
-              </select>
+          <div className="flex flex-col items-center gap-4 mb-4">
+            {/* Step 1: Choose source */}
+            {useExistingOutline === null && (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-lg font-medium text-gray-700">Do you want to create a lesson from an existing Course Outline?</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setUseExistingOutline(true)}
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
+                  >
+                    Yes, content for the lesson from the outline
+                  </button>
+                  <button
+                    onClick={() => setUseExistingOutline(false)}
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                  >
+                    No, I want standalone lesson
+                  </button>
+                </div>
+              </div>
             )}
 
-            {/* Lesson dropdown – appears when module chosen */}
-            {selectedModuleIndex !== null && (
-              <select
-                value={selectedLesson}
-                onChange={(e) => setSelectedLesson(e.target.value)}
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-              >
-                <option value="">Select Lesson</option>
-                {lessonsForModule.map((l) => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
-              </select>
-            )}
+            {/* Step 2+: Show dropdowns based on choice */}
+            {useExistingOutline !== null && (
+              <div className="flex flex-wrap justify-center gap-2">
+                {/* Show outline flow if user chose existing outline */}
+                {useExistingOutline === true && (
+                  <>
+                    {/* Outline dropdown */}
+                    <select
+                      value={selectedOutlineId ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedOutlineId(val ? Number(val) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedModuleIndex(null);
+                        setLessonsForModule([]);
+                        setSelectedLesson("");
+                      }}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="">Select Outline</option>
+                      {outlines.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
 
-            {/* Length dropdown */}
-            <select
-              value={lengthOption}
-              onChange={(e) => setLengthOption(e.target.value as any)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              {(["Short", "Medium", "Long"] as const).map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
-            {/* Language dropdown */}
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedOutlineId && (
+                      <select
+                        value={selectedModuleIndex ?? ""}
+                        onChange={(e) => {
+                          const idx = e.target.value ? Number(e.target.value) : null;
+                          setSelectedModuleIndex(idx);
+                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          setSelectedLesson("");
+                        }}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Module</option>
+                        {modulesForOutline.map((m, idx) => (
+                          <option key={idx} value={idx}>{m.name}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedModuleIndex !== null && (
+                      <select
+                        value={selectedLesson}
+                        onChange={(e) => setSelectedLesson(e.target.value)}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Lesson</option>
+                        {lessonsForModule.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Show final dropdowns when lesson is selected */}
+                    {selectedLesson && (
+                      <>
+                        <select
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
+                        <select
+                          value={slidesCount}
+                          onChange={(e) => setSlidesCount(Number(e.target.value))}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                            <option key={n} value={n}>{n} slides</option>
+                          ))}
+                        </select>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Show standalone lesson dropdowns if user chose standalone */}
+                {useExistingOutline === false && (
+                  <>
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
+                    <select
+                      value={slidesCount}
+                      onChange={(e) => setSlidesCount(Number(e.target.value))}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                        <option key={n} value={n}>{n} slides</option>
+                      ))}
+                    </select>
+                  </>
+                )}
+
+                {/* Reset button */}
+                <button
+                  onClick={() => {
+                    setUseExistingOutline(null);
+                    setSelectedOutlineId(null);
+                    setSelectedModuleIndex(null);
+                    setLessonsForModule([]);
+                    setSelectedLesson("");
+                  }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* Prompt input */}
-        {(activeProduct === "Course Outline" || !selectedOutlineId || selectedModuleIndex === null || !selectedLesson) && (
+        {(activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
           <textarea
             ref={promptRef}
             value={prompt}
@@ -486,7 +569,7 @@ export default function GenerateProductPicker() {
         {/* Example prompts block */}
         <div
           className={`transition-all duration-300 origin-top ${
-            prompt.trim().length === 0 && (activeProduct === "Course Outline" || !selectedOutlineId || selectedModuleIndex === null || !selectedLesson)
+            prompt.trim().length === 0 && (activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false))
               ? 'opacity-100 translate-y-0 max-h-[500px]'
               : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'
           }`}
@@ -525,7 +608,9 @@ export default function GenerateProductPicker() {
         {/* Generate button block */}
         <div
           className={`flex justify-center mt-6 transition-all duration-300 ${
-            prompt.trim().length > 0 || (activeProduct === 'Lesson Presentation' && selectedOutlineId && selectedLesson)
+            (activeProduct === 'Course Outline' && prompt.trim().length > 0) ||
+            (activeProduct === 'Lesson Presentation' && useExistingOutline === false && prompt.trim().length > 0) ||
+            (activeProduct === 'Lesson Presentation' && useExistingOutline === true && selectedOutlineId && selectedLesson)
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-2 pointer-events-none'
           } z-10`}

@@ -124,6 +124,9 @@ export default function LessonPresentationClient() {
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">(
     optionForRange(params?.get("length") || "600-800 words")
   );
+  const [slidesCount, setSlidesCount] = useState<number>(
+    params?.get("slidesCount") ? Number(params.get("slidesCount")) : 5
+  );
   
   // UI state
   const [selectedTheme, setSelectedTheme] = useState<string>("wine");
@@ -296,6 +299,7 @@ export default function LessonPresentationClient() {
               // Always forward the prompt (if any) so backend can generate content
               prompt: promptQuery || undefined,
               chatSessionId: chatId || undefined,
+              slidesCount: slidesCount,
             }),
             signal: abortController.signal,
           });
@@ -414,6 +418,7 @@ export default function LessonPresentationClient() {
           lengthRange: lengthRangeForOption(lengthOption),
           aiResponse: content,
           chatSessionId: chatId || undefined,
+          slidesCount: slidesCount,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -469,6 +474,7 @@ export default function LessonPresentationClient() {
           language,
           prompt: promptQuery,
           chatSessionId: chatId || undefined,
+          slidesCount: slidesCount,
         }),
         signal: abortController.signal,
       });

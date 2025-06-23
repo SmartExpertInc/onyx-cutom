@@ -3083,6 +3083,7 @@ class LessonWizardPreview(BaseModel):
     prompt: Optional[str] = None           # Fallback free-form prompt
     language: str = "en"
     chatSessionId: Optional[str] = None
+    slidesCount: Optional[int] = 5         # Number of slides to generate
 
 
 class LessonWizardFinalize(BaseModel):
@@ -3091,6 +3092,7 @@ class LessonWizardFinalize(BaseModel):
     lengthRange: Optional[str] = None
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
+    slidesCount: Optional[int] = 5         # Number of slides to generate
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -3112,6 +3114,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
         "action": "preview",
         "language": payload.language,
         "lengthRange": payload.lengthRange,
+        "slidesCount": payload.slidesCount or 5,
     }
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
