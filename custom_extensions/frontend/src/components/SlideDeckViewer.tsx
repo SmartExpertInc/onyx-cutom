@@ -312,30 +312,64 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
         case 'headline':
           const headlineBlock = block as any;
           const level = Math.min(Math.max(headlineBlock.level || 2, 1), 6);
+          
+          // Enhanced styling with icons and backgrounds
+          const headlineStyle = {
+            color: headlineBlock.textColor || '#2c3e50',
+            background: level <= 2 ? 
+              'linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%)' : 
+              'linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, rgba(255, 255, 255, 0.8) 100%)',
+            margin: '0.4em 0 0.3em 0',
+            padding: '0.4rem 0.6rem',
+            borderRadius: '8px',
+            borderLeft: level <= 2 ? '4px solid #3498db' : '3px solid #2ecc71',
+            fontSize: level === 1 ? '1.6em' : level === 2 ? '1.3em' : level === 3 ? '1.1em' : '1em',
+            fontWeight: level <= 2 ? '700' : '600',
+            lineHeight: '1.2',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5em',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+            backdropFilter: 'blur(5px)',
+          };
+
+          // Add icons based on level and content
+          const getHeadlineIcon = () => {
+            const iconStyle = { 
+              fontSize: '1.2em', 
+              color: level <= 2 ? '#3498db' : '#2ecc71',
+              opacity: 0.8 
+            };
+            
+            if (level === 1) return React.createElement('span', { style: iconStyle }, '🎯');
+            if (level === 2) return React.createElement('span', { style: iconStyle }, '📊');
+            if (level === 3) return React.createElement('span', { style: iconStyle }, '🔸');
+            return React.createElement('span', { style: iconStyle }, '▪');
+          };
+
           return React.createElement(
             `h${level}`,
-            {
-              style: {
-                color: headlineBlock.textColor || '#2c3e50',
-                backgroundColor: headlineBlock.backgroundColor || 'transparent',
-                margin: '0.8em 0 0.5em 0',
-                fontSize: level === 1 ? '2.2em' : level === 2 ? '1.8em' : level === 3 ? '1.4em' : '1.2em',
-                fontWeight: level <= 2 ? '700' : '600',
-                lineHeight: '1.3',
-              }
-            },
-            headlineBlock.text
+            { style: headlineStyle },
+            [
+              getHeadlineIcon(),
+              React.createElement('span', { key: 'text' }, headlineBlock.text)
+            ]
           );
 
         case 'paragraph':
           const paragraphBlock = block as any;
           return React.createElement('p', {
             style: {
-              margin: '0.8em 0',
-              lineHeight: '1.6',
-              fontSize: '1.1em',
-              color: '#34495e',
+              margin: '0.4em 0',
+              lineHeight: '1.4',
+              fontSize: '0.95em',
+              color: '#2c3e50',
               textAlign: 'left',
+              padding: '0.3rem 0.5rem',
+              background: 'linear-gradient(135deg, rgba(236, 240, 241, 0.3) 0%, rgba(255, 255, 255, 0.6) 100%)',
+              borderRadius: '6px',
+              borderLeft: '2px solid #bdc3c7',
+              backdropFilter: 'blur(3px)',
             }
           }, paragraphBlock.text);
 
@@ -345,21 +379,38 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           return React.createElement('ul', {
             className: `list-grid list-grid-${bulletListLayout}`,
             style: {
-              margin: '1em 0',
-              paddingLeft: bulletListLayout.includes('grid') ? '0' : '1.5em',
-              fontSize: '1.05em',
-              lineHeight: '1.5',
-              color: '#34495e',
+              margin: '0.5em 0',
+              paddingLeft: bulletListLayout.includes('grid') ? '0' : '0.8em',
+              fontSize: '0.9em',
+              lineHeight: '1.3',
+              color: '#2c3e50',
             }
           }, bulletBlock.items.map((item: any, itemIndex: number) => 
             React.createElement('li', {
               key: itemIndex,
               className: 'list-item-styled',
               style: { 
-                margin: '0.4em 0',
-                listStyleType: bulletListLayout.includes('grid') ? 'none' : 'disc',
+                margin: '0.2em 0',
+                listStyleType: bulletListLayout.includes('grid') ? 'none' : 'none',
+                position: 'relative',
+                paddingLeft: bulletListLayout.includes('grid') ? '0' : '1.2em',
               }
-            }, typeof item === 'string' ? item : JSON.stringify(item))
+            }, [
+              !bulletListLayout.includes('grid') && React.createElement('span', {
+                key: 'bullet',
+                style: {
+                  position: 'absolute',
+                  left: '0',
+                  top: '0.1em',
+                  color: '#3498db',
+                  fontSize: '1.2em',
+                  fontWeight: 'bold',
+                }
+              }, '•'),
+              React.createElement('span', { 
+                key: 'content'
+              }, typeof item === 'string' ? item : JSON.stringify(item))
+            ].filter(Boolean))
           ));
 
         case 'numbered_list':
@@ -368,21 +419,45 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           return React.createElement('ol', {
             className: `list-grid list-grid-${numberedListLayout}`,
             style: {
-              margin: '1em 0',
-              paddingLeft: numberedListLayout.includes('grid') ? '0' : '1.5em',
-              fontSize: '1.05em',
-              lineHeight: '1.5',
-              color: '#34495e',
+              margin: '0.5em 0',
+              paddingLeft: numberedListLayout.includes('grid') ? '0' : '0.8em',
+              fontSize: '0.9em',
+              lineHeight: '1.3',
+              color: '#2c3e50',
             }
           }, numberedBlock.items.map((item: any, itemIndex: number) => 
             React.createElement('li', {
               key: itemIndex,
               className: 'list-item-styled',
               style: { 
-                margin: '0.4em 0',
-                listStyleType: numberedListLayout.includes('grid') ? 'none' : 'decimal',
+                margin: '0.2em 0',
+                listStyleType: numberedListLayout.includes('grid') ? 'none' : 'none',
+                position: 'relative',
+                paddingLeft: numberedListLayout.includes('grid') ? '0' : '1.5em',
               }
-            }, typeof item === 'string' ? item : JSON.stringify(item))
+            }, [
+              !numberedListLayout.includes('grid') && React.createElement('span', {
+                key: 'number',
+                style: {
+                  position: 'absolute',
+                  left: '0',
+                  top: '0',
+                  background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '1.2em',
+                  height: '1.2em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.8em',
+                  fontWeight: 'bold',
+                }
+              }, (itemIndex + 1).toString()),
+              React.createElement('span', { 
+                key: 'content'
+              }, typeof item === 'string' ? item : JSON.stringify(item))
+            ].filter(Boolean))
           ));
 
         case 'alert':
@@ -395,39 +470,70 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           };
           const alertStyle = alertStyles[alertBlock.alertType as keyof typeof alertStyles] || alertStyles.info;
           
+          // Enhanced alert styling with icons
+          const alertIcons = {
+            info: '💡',
+            warning: '⚠️',
+            danger: '❌',
+            success: '✅'
+          };
+
           return React.createElement('div', {
             style: {
-              backgroundColor: alertBlock.backgroundColor || alertStyle.bg,
+              background: `linear-gradient(135deg, ${alertBlock.backgroundColor || alertStyle.bg} 0%, rgba(255, 255, 255, 0.9) 100%)`,
               borderLeft: `4px solid ${alertBlock.borderColor || alertStyle.border}`,
               color: alertBlock.textColor || alertStyle.color,
-              padding: '1em',
-              margin: '1em 0',
-              borderRadius: '4px',
-              fontSize: '1em',
-              lineHeight: '1.4',
+              padding: '0.6em 0.8em',
+              margin: '0.5em 0',
+              borderRadius: '8px',
+              fontSize: '0.9em',
+              lineHeight: '1.3',
+              boxShadow: '0 3px 8px rgba(0, 0, 0, 0.12)',
+              backdropFilter: 'blur(5px)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.6em',
             }
           }, [
-            alertBlock.title && React.createElement('div', {
-              key: 'title',
-              style: { fontWeight: 'bold', marginBottom: '0.3em' }
-            }, alertBlock.title),
+            React.createElement('span', {
+              key: 'icon',
+              style: { 
+                fontSize: '1.3em',
+                flexShrink: 0,
+                marginTop: '0.1em'
+              }
+            }, alertIcons[alertBlock.alertType as keyof typeof alertIcons] || '🔔'),
             React.createElement('div', {
-              key: 'text'
-            }, alertBlock.text)
-          ].filter(Boolean));
+              key: 'content',
+              style: { flex: 1 }
+            }, [
+              alertBlock.title && React.createElement('div', {
+                key: 'title',
+                style: { 
+                  fontWeight: 'bold', 
+                  marginBottom: '0.2em',
+                  fontSize: '1.05em'
+                }
+              }, alertBlock.title),
+              React.createElement('div', {
+                key: 'text'
+              }, alertBlock.text)
+            ].filter(Boolean))
+          ]);
 
         default:
           return React.createElement('div', {
             style: {
-              backgroundColor: '#f8f9fa',
-              padding: '0.8em',
+              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+              padding: '0.4em 0.6em',
               border: '2px dashed #dee2e6',
-              margin: '0.8em 0',
-              borderRadius: '4px',
-              fontSize: '0.9em',
+              margin: '0.3em 0',
+              borderRadius: '6px',
+              fontSize: '0.8em',
               color: '#6c757d',
+              textAlign: 'center',
             }
-          }, `Unsupported block type: ${(block as any).type}`);
+          }, `⚠️ Unsupported: ${(block as any).type}`);
       }
     })();
 

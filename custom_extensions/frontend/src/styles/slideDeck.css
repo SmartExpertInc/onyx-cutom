@@ -4,112 +4,108 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #fff;
 }
 
 /* New layout with sidebar */
 .slide-deck-viewer-with-sidebar {
   display: flex;
   height: 100vh;
-  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #fff;
 }
 
-/* Vertical sidebar */
+/* Vertical sidebar - MUCH SMALLER */
 .slide-deck-sidebar {
-  width: 280px;
-  min-width: 280px;
-  background: #ffffff;
-  border-right: 1px solid #dee2e6;
+  width: 60px;
+  min-width: 60px;
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  border-right: 1px solid #34495e;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #dee2e6;
-  background: #f8f9fa;
+  padding: 0.5rem;
+  border-bottom: 1px solid #34495e;
+  background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%);
 }
 
 .sidebar-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #343a40;
+  display: none; /* Hide title text in small sidebar */
 }
 
 .add-slide-sidebar {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #28a745;
-  border-radius: 6px;
-  background: #28a745;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #27ae60;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .add-slide-sidebar:hover {
-  background: #218838;
-  border-color: #218838;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  transform: scale(1.1);
 }
 
 .sidebar-slides {
   flex: 1;
   overflow-y: auto;
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
 }
 
 .sidebar-slide-item {
   display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 0.25rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   border-left: 3px solid transparent;
+  margin-bottom: 0.25rem;
 }
 
 .sidebar-slide-item:hover {
-  background: #f8f9fa;
-  border-left-color: #007bff;
+  background: rgba(52, 152, 219, 0.2);
+  border-left-color: #3498db;
 }
 
 .sidebar-slide-number {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: #e9ecef;
-  color: #6c757d;
-  font-size: 0.8rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: #ffffff;
+  font-size: 0.75rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar-slide-item:hover .sidebar-slide-number {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-slide-title {
-  font-size: 0.85rem;
-  color: #495057;
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  display: none; /* Hide title text in small sidebar */
 }
 
 /* Main content area */
@@ -123,19 +119,19 @@
 /* Slide Layout Variations */
 .slide-layout-left-aligned .slide-body-vertical {
   text-align: left;
-  padding-right: 20%;
+  padding-right: 7%;
   justify-content: center;
 }
 
 .slide-layout-right-aligned .slide-body-vertical {
   text-align: left;
-  padding-left: 20%;
+  padding-left: 7%;
   justify-content: center;
 }
 
 .slide-layout-center-aligned .slide-body-vertical {
   text-align: center;
-  padding: 0 10%;
+  padding: 0 3%;
   justify-content: center;
   align-items: center;
 }
@@ -143,7 +139,7 @@
 .slide-layout-split-layout .slide-body-vertical {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 0.5rem;
   align-items: center;
   justify-content: center;
 }
@@ -151,7 +147,7 @@
 .slide-layout-grid-layout .slide-body-vertical {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.25rem;
   justify-content: center;
 }
 
@@ -159,14 +155,14 @@
 .list-grid-single-column {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.27rem;
 }
 
 .list-grid-grid-2x2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 0.5rem;
   align-items: start;
 }
 
@@ -174,40 +170,42 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 0.5rem;
   align-items: start;
 }
 
 .list-grid-grid-2x4 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.33rem;
   align-items: start;
 }
 
 .list-grid-multi-column {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.33rem;
   align-items: start;
 }
 
-/* Styled List Items */
+/* Styled List Items with enhanced visuals */
 .list-item-styled {
   position: relative;
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-  border-left: 3px solid #007bff;
-  font-size: 0.9rem;
-  line-height: 1.3;
+  padding: 0.4rem 0.6rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 4px solid #007bff;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  backdrop-filter: blur(10px);
 }
 
 .list-item-styled:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(240, 242, 245, 0.95) 100%);
 }
 
 .list-grid-grid-2x2 .list-item-styled,
@@ -232,14 +230,35 @@
   border-radius: 0 4px 4px 0;
 }
 
-/* Different border colors for variety */
-.list-item-styled:nth-child(1) { border-left-color: #007bff; }
-.list-item-styled:nth-child(2) { border-left-color: #28a745; }
-.list-item-styled:nth-child(3) { border-left-color: #ffc107; }
-.list-item-styled:nth-child(4) { border-left-color: #dc3545; }
-.list-item-styled:nth-child(5) { border-left-color: #6f42c1; }
-.list-item-styled:nth-child(6) { border-left-color: #fd7e14; }
-.list-item-styled:nth-child(n+7) { border-left-color: #6c757d; }
+/* Enhanced color variety with gradients */
+.list-item-styled:nth-child(1) { 
+  border-left-color: #007bff; 
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+.list-item-styled:nth-child(2) { 
+  border-left-color: #28a745; 
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+.list-item-styled:nth-child(3) { 
+  border-left-color: #ffc107; 
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+.list-item-styled:nth-child(4) { 
+  border-left-color: #dc3545; 
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+.list-item-styled:nth-child(5) { 
+  border-left-color: #6f42c1; 
+  background: linear-gradient(135deg, rgba(111, 66, 193, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+.list-item-styled:nth-child(6) { 
+  border-left-color: #fd7e14; 
+  background: linear-gradient(135deg, rgba(253, 126, 20, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+.list-item-styled:nth-child(n+7) { 
+  border-left-color: #6c757d; 
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
 
 /* Numbered list styling for grids */
 .list-grid ol.list-grid-grid-2x2,
@@ -268,25 +287,54 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Enhanced slide content styling */
-.slide-content-vertical h1,
-.slide-content-vertical h2,
-.slide-content-vertical h3,
-.slide-content-vertical h4 {
-  background: linear-gradient(135deg, #2c3e50, #34495e);
+/* Enhanced slide content styling with modern gradients */
+.slide-content-vertical h1 {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
+  font-size: 1.3rem;
+  margin: 0.2rem 0;
+  text-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+}
+
+.slide-content-vertical h2 {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
   font-size: 1.1rem;
-  margin: 0.25rem 0 0.25rem 0;
+  margin: 0.2rem 0;
+  text-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+}
+
+.slide-content-vertical h3 {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.2rem 0;
+}
+
+.slide-content-vertical h4 {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
 }
 
 .slide-content-vertical p {
-  font-size: 0.95rem;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  line-height: 1.3;
   color: #2c3e50;
-  margin: 0.25rem 0;
+  margin: 0.2rem 0;
   text-align: left;
 }
 
@@ -882,7 +930,7 @@ deckgo-slide-split {
   --slide-color: #333333;
 }
 
-/* Slide Content Styling */
+/* Enhanced Slide Content Styling */
 .slide-content h1,
 .slide-content h2,
 .slide-content h3,
@@ -890,23 +938,27 @@ deckgo-slide-split {
 .slide-content h5,
 .slide-content h6 {
   color: #2c3e50;
-  margin: 0.5em 0;
+  margin: 0.25em 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .slide-content ul,
 .slide-content ol {
-  margin: 0.75em 0;
-  padding-left: 1.5em;
+  margin: 0.4em 0;
+  padding-left: 0.8em;
 }
 
 .slide-content li {
-  margin: 0.5em 0;
-  line-height: 1.6;
+  margin: 0.25em 0;
+  line-height: 1.3;
+  font-size: 0.9em;
 }
 
 .slide-content p {
-  margin: 0.75em 0;
-  line-height: 1.6;
+  margin: 0.35em 0;
+  line-height: 1.4;
+  font-size: 0.9em;
 }
 
 .slide-alert {
@@ -944,61 +996,65 @@ deckgo-slide-split {
 .slides-container-vertical {
   flex: 1;
   overflow-y: auto;
-  background: #f8f9fa;
-  padding: 2rem 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0.67rem 0;
 }
 
 /* Full-height slides container for new layout */
 .slides-container-full-height {
   flex: 1;
   overflow-y: auto;
-  background: #f8f9fa;
-  padding: 2rem 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0.67rem 0;
 }
 
 .slides-presentation-view {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 0.67rem;
 }
 
 .slide-item-vertical {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  margin-bottom: 2rem;
-  padding: 2rem;
   position: relative;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  transition: all 0.4s ease;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
   backdrop-filter: blur(10px);
 }
 
 .slide-item-vertical:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  transform: translateY(-4px);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f2f5 100%);
 }
 
 .slide-number-badge {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: #007bff;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: #ffffff;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   z-index: 10;
-  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
 }
 
 .slide-content-vertical {
-  padding: 2rem 3rem;
+  padding: 0.67rem 1rem;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -1008,13 +1064,13 @@ deckgo-slide-split {
 
 .slide-body-vertical {
   flex: 1;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  color: #34495e;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  color: #2c3e50;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.17rem;
   justify-content: flex-start;
   align-items: stretch;
 }
@@ -1022,10 +1078,10 @@ deckgo-slide-split {
 /* Slide Controls */
 .slide-controls {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.33rem;
+  right: 0.33rem;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.17rem;
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 20;
@@ -1036,20 +1092,20 @@ deckgo-slide-split {
 }
 
 .slide-control-btn {
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border: 1px solid #dee2e6;
-  border-radius: 4px;
-  background: #ffffff;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   color: #6c757d;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .slide-control-btn:hover {
@@ -1076,20 +1132,23 @@ deckgo-slide-split {
   border-color: #dc3545;
 }
 
-/* Editable Content Blocks */
+/* Enhanced Editable Content Blocks */
 .content-block-editable {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
   position: relative;
-  transition: all 0.2s ease-in-out;
+  padding: 0.4rem 0.6rem;
+  margin: 0.15rem 0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 250, 0.6) 100%);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(233, 236, 239, 0.3);
 }
 
 .content-block-editable:hover {
-  background: rgba(0, 123, 255, 0.05);
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.08) 0%, rgba(255, 255, 255, 0.9) 100%);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .content-block-editable.drag-over {
@@ -1105,10 +1164,10 @@ deckgo-slide-split {
 /* Block Controls */
 .block-controls {
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
+  top: 0.1rem;
+  right: 0.1rem;
   display: flex;
-  gap: 0.25rem;
+  gap: 0.1rem;
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 10;
@@ -1119,19 +1178,19 @@ deckgo-slide-split {
 }
 
 .block-control-btn {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.2rem;
+  height: 1.2rem;
   border: 1px solid #dee2e6;
-  border-radius: 3px;
-  background: #ffffff;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   color: #6c757d;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .block-control-btn:hover {
@@ -1332,11 +1391,11 @@ deckgo-slide-split {
 /* Responsive adjustments for vertical layout */
 @media (max-width: 1024px) {
   .slides-presentation-view {
-    padding: 0 1rem;
+    padding: 0 0.33rem;
   }
   
   .slide-content-vertical {
-    padding: 1.5rem 2rem;
+    padding: 0.5rem 0.67rem;
   }
   
   .add-content-buttons {
@@ -1408,7 +1467,7 @@ deckgo-slide-split {
   }
 
   .slide-content-vertical {
-    padding: 1rem 1.5rem;
+    padding: 0.33rem 0.5rem;
   }
   
   .slide-body-vertical {
