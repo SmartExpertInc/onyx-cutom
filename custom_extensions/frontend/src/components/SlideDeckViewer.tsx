@@ -257,6 +257,22 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     setDragOverBlock(null);
   };
 
+  // Helper function to determine slide layout based on slide number and content
+  const getSlideLayout = (slideIndex: number, contentBlocks: AnyContentBlock[]) => {
+    const layouts = ['left-aligned', 'right-aligned', 'center-aligned', 'split-layout', 'grid-layout'];
+    return layouts[slideIndex % layouts.length];
+  };
+
+  // Helper function to determine list layout based on item count
+  const getListLayout = (items: any[], slideIndex: number) => {
+    const itemCount = items.length;
+    if (itemCount <= 3) return 'single-column';
+    if (itemCount === 4) return 'grid-2x2';
+    if (itemCount === 6) return 'grid-3x2';
+    if (itemCount <= 8) return 'grid-2x4';
+    return 'multi-column';
+  };
+
   const renderContentBlock = (block: AnyContentBlock, slideIndex: number, blockIndex: number): React.ReactNode => {
     const isEditing = editingBlock?.slideIndex === slideIndex && editingBlock?.blockIndex === blockIndex;
     const isDragOver = dragOverBlock?.slideIndex === slideIndex && dragOverBlock?.blockIndex === blockIndex;
@@ -325,10 +341,12 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
 
         case 'bullet_list':
           const bulletBlock = block as any;
+          const bulletListLayout = getListLayout(bulletBlock.items, slideIndex);
           return React.createElement('ul', {
+            className: `list-grid list-grid-${bulletListLayout}`,
             style: {
               margin: '1em 0',
-              paddingLeft: '1.5em',
+              paddingLeft: bulletListLayout.includes('grid') ? '0' : '1.5em',
               fontSize: '1.05em',
               lineHeight: '1.5',
               color: '#34495e',
@@ -336,19 +354,22 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           }, bulletBlock.items.map((item: any, itemIndex: number) => 
             React.createElement('li', {
               key: itemIndex,
+              className: 'list-item-styled',
               style: { 
                 margin: '0.4em 0',
-                listStyleType: 'disc',
+                listStyleType: bulletListLayout.includes('grid') ? 'none' : 'disc',
               }
             }, typeof item === 'string' ? item : JSON.stringify(item))
           ));
 
         case 'numbered_list':
           const numberedBlock = block as any;
+          const numberedListLayout = getListLayout(numberedBlock.items, slideIndex);
           return React.createElement('ol', {
+            className: `list-grid list-grid-${numberedListLayout}`,
             style: {
               margin: '1em 0',
-              paddingLeft: '1.5em',
+              paddingLeft: numberedListLayout.includes('grid') ? '0' : '1.5em',
               fontSize: '1.05em',
               lineHeight: '1.5',
               color: '#34495e',
@@ -356,9 +377,10 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           }, numberedBlock.items.map((item: any, itemIndex: number) => 
             React.createElement('li', {
               key: itemIndex,
+              className: 'list-item-styled',
               style: { 
                 margin: '0.4em 0',
-                listStyleType: 'decimal',
+                listStyleType: numberedListLayout.includes('grid') ? 'none' : 'decimal',
               }
             }, typeof item === 'string' ? item : JSON.stringify(item))
           ));
@@ -542,7 +564,7 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
                   </div>
                 )}
 
-                <div className="slide-content-vertical">
+                <div className={`slide-content-vertical slide-layout-${getSlideLayout(slideIndex, slide.contentBlocks)}`}>
                   {/* Editable title */}
                   {editingTitle === slideIndex ? (
                     <input

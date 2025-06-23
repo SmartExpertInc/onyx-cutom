@@ -655,7 +655,7 @@ export default function LessonPresentationClient() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Lesson content will appear here..."
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[50vh]"
+                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
                 disabled={loadingEdit}
               />
             </div>
