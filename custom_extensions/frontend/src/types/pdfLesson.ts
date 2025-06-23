@@ -1,5 +1,11 @@
 // custom_extensions/frontend/src/types/pdfLesson.ts
 
+// --- Layout Configuration ---
+export interface ContentLayout {
+  position: 'left' | 'right' | 'center';
+  width: 'full' | 'half';
+}
+
 // --- Base Block Types ---
 export interface HeadlineBlock {
   type: 'headline';
@@ -9,12 +15,14 @@ export interface HeadlineBlock {
   backgroundColor?: string | null;
   textColor?: string | null;
   isImportant?: boolean | null;
+  layout?: ContentLayout;
 }
 
 export interface ParagraphBlock {
   type: 'paragraph';
   text: string;
   isRecommendation?: boolean | null;
+  layout?: ContentLayout;
 }
 
 export interface AlertBlock {
@@ -27,11 +35,13 @@ export interface AlertBlock {
   borderColor?: string | null;
   textColor?: string | null;
   iconColor?: string | null;
+  layout?: ContentLayout;
 }
 
 export interface SectionBreakBlock {
   type: 'section_break';
   style?: 'dashed' | 'solid' | 'none' | null;
+  layout?: ContentLayout;
 }
 
 // --- List Block Types ---
@@ -50,12 +60,14 @@ export interface BulletListBlock {
   type: 'bullet_list';
   items: ListItem[];
   iconName?: string | null; // Specific to BulletListBlock
+  layout?: ContentLayout;
 }
 
 export interface NumberedListBlock {
   type: 'numbered_list';
   items: ListItem[];
   // NumberedListBlock does not have its own iconName in the Pydantic model.
+  layout?: ContentLayout;
 }
 
 // --- Main Data Structure ---
