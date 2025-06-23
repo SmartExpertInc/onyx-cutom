@@ -78,11 +78,38 @@ export interface PdfLessonData {
 }
 
 // --- NEW: Slide Deck Types ---
+export interface BlockPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface ContentBlockWithPosition {
+  type: 'headline' | 'paragraph' | 'bullet_list' | 'numbered_list' | 'alert' | 'section_break';
+  position?: BlockPosition;
+  formation?: 'vertical' | 'grid-2x2' | 'grid-3x2' | 'grid-2x3' | 'horizontal';
+  // Common properties that all content blocks might have
+  text?: string;
+  level?: 1 | 2 | 3 | 4;
+  items?: any[];
+  alertType?: 'info' | 'warning' | 'success' | 'danger';
+  title?: string;
+  style?: string;
+  iconName?: string | null;
+  backgroundColor?: string | null;
+  textColor?: string | null;
+  borderColor?: string | null;
+  iconColor?: string | null;
+  isImportant?: boolean | null;
+  isRecommendation?: boolean | null;
+}
+
 export interface DeckSlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
-  contentBlocks: AnyContentBlock[];
+  contentBlocks: ContentBlockWithPosition[];
 }
 
 export interface SlideDeckData {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SlideDeckData, DeckSlide, AnyContentBlock, ContentLayout } from '@/types/pdfLesson';
+import { SlideDeckData, DeckSlide, ContentBlockWithPosition, BlockPosition } from '@/types/pdfLesson';
 
 interface SlideDeckViewerProps {
   deck: SlideDeckData;
@@ -7,25 +7,55 @@ interface SlideDeckViewerProps {
   onSave?: (updatedDeck: SlideDeckData) => void;
 }
 
+// Smart formation logic for different content types
+const getRandomFormation = (blockType: string, itemCount?: number): 'vertical' | 'grid-2x2' | 'grid-3x2' | 'grid-2x3' | 'horizontal' => {
+  const formations = {
+    bullet_list: itemCount && itemCount > 4 ? 
+      ['vertical', 'grid-2x2', 'grid-3x2', 'grid-2x3'] as const : 
+      ['vertical', 'horizontal'] as const,
+    numbered_list: itemCount && itemCount > 4 ? 
+      ['vertical', 'grid-2x2', 'grid-3x2'] as const : 
+      ['vertical', 'horizontal'] as const,
+    paragraph: ['vertical'] as const,
+    headline: ['vertical'] as const,
+    alert: ['vertical'] as const
+  };
+  
+  const availableFormations = formations[blockType as keyof typeof formations] || ['vertical'] as const;
+  return availableFormations[Math.floor(Math.random() * availableFormations.length)];
+};
+
 export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
   deck,
   isEditable = false,
   onSave
-}) => {
+}): React.ReactElement => {
   const [currentDeck, setCurrentDeck] = useState<SlideDeckData>(deck);
   const [isEditing, setIsEditing] = useState(false);
   const [editingBlock, setEditingBlock] = useState<{slideIndex: number, blockIndex: number} | null>(null);
   const [editingTitle, setEditingTitle] = useState<number | null>(null);
-  const [draggedSlide, setDraggedSlide] = useState<number | null>(null);
-  const [dragOverSlide, setDragOverSlide] = useState<number | null>(null);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [draggedBlock, setDraggedBlock] = useState<{slideIndex: number, blockIndex: number} | null>(null);
-  const [dragOverBlock, setDragOverBlock] = useState<{slideIndex: number, blockIndex: number, position: 'top' | 'bottom' | 'left' | 'right'} | null>(null);
-  const [selectedSlide, setSelectedSlide] = useState<number>(0);
+  const [dragPosition, setDragPosition] = useState<{x: number, y: number} | null>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Update deck when prop changes
   useEffect(() => {
     setCurrentDeck(deck);
   }, [deck]);
+
+  // Handle scroll to update current slide
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const slideHeight = window.innerHeight;
+      const newSlideIndex = Math.floor(scrollPosition / slideHeight);
+      setCurrentSlideIndex(Math.min(newSlideIndex, currentDeck.slides.length - 1));
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentDeck.slides.length]);
 
   const handleSlideUpdate = (slideIndex: number, updatedSlide: DeckSlide) => {
     const updatedDeck = {
@@ -57,7 +87,7 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
         {
           type: 'paragraph',
           text: 'Click to add content',
-          layout: { position: 'center', width: 'full' }
+          position: { x: 10, y: 20, width: 80, height: 15 }
         }
       ]
     };
@@ -75,7 +105,10 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
       slides: renumberedSlides
     });
 
-    setSelectedSlide(insertIndex);
+    // Scroll to new slide
+    setTimeout(() => {
+      scrollToSlide(insertIndex);
+    }, 100);
   };
 
   const deleteSlide = (slideIndex: number) => {
@@ -92,8 +125,8 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
       slides: updatedSlides
     });
 
-    if (selectedSlide >= slideIndex && selectedSlide > 0) {
-      setSelectedSlide(selectedSlide - 1);
+    if (currentSlideIndex >= slideIndex && currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
     }
   };
 
@@ -120,50 +153,10 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     });
   };
 
-  // Slide drag and drop
-  const handleSlideDragStart = (e: React.DragEvent, slideIndex: number) => {
-    setDraggedSlide(slideIndex);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleSlideDragOver = (e: React.DragEvent, slideIndex: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverSlide(slideIndex);
-  };
-
-  const handleSlideDrop = (e: React.DragEvent, targetIndex: number) => {
-    e.preventDefault();
-    if (draggedSlide === null || draggedSlide === targetIndex) {
-      setDraggedSlide(null);
-      setDragOverSlide(null);
-      return;
-    }
-
-    const slides = [...currentDeck.slides];
-    const draggedSlideData = slides[draggedSlide];
-    
-    // Remove dragged slide
-    slides.splice(draggedSlide, 1);
-    
-    // Insert at new position
-    const insertIndex = draggedSlide < targetIndex ? targetIndex - 1 : targetIndex;
-    slides.splice(insertIndex, 0, draggedSlideData);
-    
-    // Renumber slides
-    const renumberedSlides = slides.map((slide, index) => ({
-      ...slide,
-      slideNumber: index + 1
-    }));
-
-    setCurrentDeck({
-      ...currentDeck,
-      slides: renumberedSlides
-    });
-
-    setSelectedSlide(insertIndex);
-    setDraggedSlide(null);
-    setDragOverSlide(null);
+  const scrollToSlide = (slideIndex: number) => {
+    const targetY = slideIndex * window.innerHeight;
+    window.scrollTo({ top: targetY, behavior: 'smooth' });
+    setCurrentSlideIndex(slideIndex);
   };
 
   const updateSlideTitle = (slideIndex: number, newTitle: string) => {
@@ -174,7 +167,7 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     handleSlideUpdate(slideIndex, updatedSlide);
   };
 
-  const updateContentBlock = (slideIndex: number, blockIndex: number, updatedBlock: AnyContentBlock) => {
+  const updateContentBlock = (slideIndex: number, blockIndex: number, updatedBlock: ContentBlockWithPosition) => {
     const slide = currentDeck.slides[slideIndex];
     const updatedSlide = {
       ...slide,
@@ -185,14 +178,11 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     handleSlideUpdate(slideIndex, updatedSlide);
   };
 
-  const addContentBlock = (slideIndex: number, type: AnyContentBlock['type'], position?: 'left' | 'right' | 'center', afterIndex?: number) => {
+  const addContentBlock = (slideIndex: number, type: ContentBlockWithPosition['type'], x: number = 10, y: number = 30) => {
     const slide = currentDeck.slides[slideIndex];
-    let newBlock: AnyContentBlock;
+    let newBlock: ContentBlockWithPosition;
     
-    const layout: ContentLayout = {
-      position: position || 'center',
-      width: (position === 'left' || position === 'right' ? 'half' : 'full') as 'full' | 'half'
-    };
+    const defaultPosition: BlockPosition = { x, y, width: 40, height: 20 };
     
     switch (type) {
       case 'headline':
@@ -200,28 +190,32 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           type: 'headline', 
           text: 'Click to edit headline', 
           level: 2,
-          layout 
+          position: { ...defaultPosition, height: 15 }
         };
         break;
       case 'paragraph':
         newBlock = { 
           type: 'paragraph', 
           text: 'Click to edit paragraph',
-          layout 
+          position: defaultPosition
         };
         break;
       case 'bullet_list':
+        const bulletItems = ['Click to edit', 'Add more items', 'Drag to reposition'];
         newBlock = { 
           type: 'bullet_list', 
-          items: ['Click to edit'],
-          layout 
+          items: bulletItems,
+          position: { ...defaultPosition, height: 25 },
+          formation: getRandomFormation('bullet_list', bulletItems.length)
         };
         break;
       case 'numbered_list':
+        const numberedItems = ['First item', 'Second item', 'Third item', 'Fourth item'];
         newBlock = { 
           type: 'numbered_list', 
-          items: ['Click to edit'],
-          layout 
+          items: numberedItems,
+          position: { ...defaultPosition, height: 30 },
+          formation: getRandomFormation('numbered_list', numberedItems.length)
         };
         break;
       case 'alert':
@@ -230,21 +224,18 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           text: 'Click to edit alert',
           alertType: 'info',
           title: 'Alert Title',
-          layout 
+          position: { ...defaultPosition, height: 25 }
         };
         break;
       default:
         newBlock = { 
           type: 'paragraph', 
           text: 'Click to edit',
-          layout 
+          position: defaultPosition
         };
     }
 
-    const insertIndex = afterIndex !== undefined ? afterIndex + 1 : slide.contentBlocks.length;
-    const updatedBlocks = [...slide.contentBlocks];
-    updatedBlocks.splice(insertIndex, 0, newBlock);
-
+    const updatedBlocks = [...slide.contentBlocks, newBlock];
     const updatedSlide = {
       ...slide,
       contentBlocks: updatedBlocks
@@ -261,115 +252,58 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     handleSlideUpdate(slideIndex, updatedSlide);
   };
 
-  const duplicateContentBlock = (slideIndex: number, blockIndex: number) => {
-    const slide = currentDeck.slides[slideIndex];
-    const blockToDuplicate = slide.contentBlocks[blockIndex];
-    const updatedBlocks = [...slide.contentBlocks];
-    
-    // Ensure layout has proper defaults
-    const defaultLayout: ContentLayout = { position: 'center', width: 'full' };
-    const blockLayout = (blockToDuplicate as any).layout || defaultLayout;
-    
-    updatedBlocks.splice(blockIndex + 1, 0, { 
-      ...blockToDuplicate,
-      layout: { 
-        position: blockLayout.position || 'center',
-        width: blockLayout.width || 'full'
-      } as ContentLayout
-    });
-
-    const updatedSlide = {
-      ...slide,
-      contentBlocks: updatedBlocks
-    };
-    handleSlideUpdate(slideIndex, updatedSlide);
-  };
-
-  const moveBlockToPosition = (slideIndex: number, blockIndex: number, newPosition: 'left' | 'right' | 'center') => {
-    const slide = currentDeck.slides[slideIndex];
-    const block = slide.contentBlocks[blockIndex];
-    const updatedBlock = {
-      ...block,
-      layout: {
-        position: newPosition,
-        width: (newPosition === 'center' ? 'full' : 'half') as 'full' | 'half'
-      } as ContentLayout
-    };
-    updateContentBlock(slideIndex, blockIndex, updatedBlock);
-  };
-
-  // Content block drag and drop with positioning
+  // Drag and drop for content blocks
   const handleBlockDragStart = (e: React.DragEvent, slideIndex: number, blockIndex: number) => {
     setDraggedBlock({ slideIndex, blockIndex });
     e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleBlockDragOver = (e: React.DragEvent, slideIndex: number, blockIndex: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
     
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const width = rect.width;
-    const height = rect.height;
-    
-    let position: 'top' | 'bottom' | 'left' | 'right' = 'bottom';
-    
-    if (y < height * 0.25) position = 'top';
-    else if (y > height * 0.75) position = 'bottom';
-    else if (x < width * 0.5) position = 'left';
-    else position = 'right';
-    
-    setDragOverBlock({ slideIndex, blockIndex, position });
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    e.dataTransfer.setData('text/plain', JSON.stringify({ offsetX, offsetY }));
   };
 
-  const handleBlockDrop = (e: React.DragEvent, targetSlideIndex: number, targetBlockIndex: number) => {
+  const handleSlideDrop = (e: React.DragEvent, slideIndex: number) => {
     e.preventDefault();
-    if (!draggedBlock || !dragOverBlock) return;
+    if (!draggedBlock) return;
+
+    const slideElement = slideRefs.current[slideIndex];
+    if (!slideElement) return;
+
+    const slideRect = slideElement.getBoundingClientRect();
+    const offsetData = JSON.parse(e.dataTransfer.getData('text/plain') || '{"offsetX":0,"offsetY":0}');
+    
+    // Calculate position as percentage
+    const x = ((e.clientX - slideRect.left - offsetData.offsetX) / slideRect.width) * 100;
+    const y = ((e.clientY - slideRect.top - offsetData.offsetY) / slideRect.height) * 100;
 
     const { slideIndex: sourceSlideIndex, blockIndex: sourceBlockIndex } = draggedBlock;
-    const { position } = dragOverBlock;
-    
-    if (sourceSlideIndex === targetSlideIndex && sourceBlockIndex === targetBlockIndex) {
-      setDraggedBlock(null);
-      setDragOverBlock(null);
-      return;
-    }
-
-    // Get the block being moved
     const sourceSlide = currentDeck.slides[sourceSlideIndex];
     const blockToMove = { ...sourceSlide.contentBlocks[sourceBlockIndex] };
 
-    // Update layout based on drop position
-    if (position === 'left' || position === 'right') {
-      blockToMove.layout = {
-        position: position,
-        width: 'half'
-      } as ContentLayout;
-    }
+    // Update position
+    blockToMove.position = {
+      x: Math.max(0, Math.min(90, x)),
+      y: Math.max(0, Math.min(85, y)),
+      width: blockToMove.position?.width || 40,
+      height: blockToMove.position?.height || 20
+    };
 
-    // Remove from source
+    // Remove from source slide
     const updatedSourceBlocks = sourceSlide.contentBlocks.filter((_, index) => index !== sourceBlockIndex);
     
-    // Add to target
-    const targetSlide = currentDeck.slides[targetSlideIndex];
-    const updatedTargetBlocks = [...(sourceSlideIndex === targetSlideIndex ? updatedSourceBlocks : targetSlide.contentBlocks)];
-    
-    let insertIndex = targetBlockIndex;
-    if (position === 'bottom') insertIndex = targetBlockIndex + 1;
-    if (sourceSlideIndex === targetSlideIndex && sourceBlockIndex < targetBlockIndex) {
-      insertIndex = insertIndex - 1;
-    }
-    
-    updatedTargetBlocks.splice(insertIndex, 0, blockToMove);
+    // Add to target slide
+    const targetSlide = currentDeck.slides[slideIndex];
+    const updatedTargetBlocks = sourceSlideIndex === slideIndex ? 
+      updatedSourceBlocks : [...targetSlide.contentBlocks];
+    updatedTargetBlocks.push(blockToMove);
 
     // Update slides
     const updatedSlides = currentDeck.slides.map((slide, index) => {
       if (index === sourceSlideIndex) {
-        return { ...slide, contentBlocks: sourceSlideIndex === targetSlideIndex ? updatedTargetBlocks : updatedSourceBlocks };
+        return { ...slide, contentBlocks: sourceSlideIndex === slideIndex ? updatedTargetBlocks : updatedSourceBlocks };
       }
-      if (index === targetSlideIndex && sourceSlideIndex !== targetSlideIndex) {
+      if (index === slideIndex && sourceSlideIndex !== slideIndex) {
         return { ...slide, contentBlocks: updatedTargetBlocks };
       }
       return slide;
@@ -381,28 +315,38 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     });
 
     setDraggedBlock(null);
-    setDragOverBlock(null);
   };
 
-  const renderContentBlock = (block: AnyContentBlock, slideIndex: number, blockIndex: number): React.ReactNode => {
+  const handleBlockResize = (slideIndex: number, blockIndex: number, newPosition: BlockPosition) => {
+    const slide = currentDeck.slides[slideIndex];
+    const block = slide.contentBlocks[blockIndex];
+    const updatedBlock = {
+      ...block,
+      position: newPosition
+    };
+    updateContentBlock(slideIndex, blockIndex, updatedBlock);
+  };
+
+  const renderContentBlock = (block: ContentBlockWithPosition, slideIndex: number, blockIndex: number): React.ReactNode => {
     const isEditing = editingBlock?.slideIndex === slideIndex && editingBlock?.blockIndex === blockIndex;
-    const isDragOver = dragOverBlock?.slideIndex === slideIndex && dragOverBlock?.blockIndex === blockIndex;
     const isDragging = draggedBlock?.slideIndex === slideIndex && draggedBlock?.blockIndex === blockIndex;
     
-    const layout = (block as any).layout || { position: 'center', width: 'full' };
+    const position = block.position || { x: 10, y: 20, width: 40, height: 20 };
     
-    const blockClasses = [
-      'content-block-smart',
-      `position-${layout.position}`,
-      `width-${layout.width}`,
-      isDragOver ? `drag-over-${dragOverBlock?.position}` : '',
-      isDragging ? 'dragging' : '',
-      isEditable ? 'editable' : ''
-    ].filter(Boolean).join(' ');
+    const blockStyle: React.CSSProperties = {
+      position: 'absolute',
+      left: `${position.x}%`,
+      top: `${position.y}%`,
+      width: `${position.width}%`,
+      minHeight: `${position.height}%`,
+      cursor: isEditable && !isEditing ? 'move' : 'pointer',
+      opacity: isDragging ? 0.5 : 1,
+      zIndex: isEditing ? 1000 : 1
+    };
 
     if (isEditing) {
       return (
-        <div key={blockIndex} className={blockClasses}>
+        <div key={blockIndex} style={blockStyle} className="content-block-gamma editing">
           <InlineContentEditor
             block={block}
             onSave={(updatedBlock) => {
@@ -423,10 +367,14 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
           return React.createElement(
             `h${level}`,
             {
-              className: `smart-headline level-${level}`,
+              className: `gamma-headline level-${level}`,
               style: {
-                color: headlineBlock.textColor || '#2c3e50',
+                color: headlineBlock.textColor || '#1a202c',
                 backgroundColor: headlineBlock.backgroundColor || 'transparent',
+                margin: 0,
+                fontSize: level === 1 ? '3rem' : level === 2 ? '2.5rem' : level === 3 ? '2rem' : '1.5rem',
+                fontWeight: level <= 2 ? '700' : '600',
+                lineHeight: 1.2
               }
             },
             headlineBlock.text
@@ -435,49 +383,154 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
         case 'paragraph':
           const paragraphBlock = block as any;
           return React.createElement('p', {
-            className: 'smart-paragraph'
+            className: 'gamma-paragraph',
+            style: {
+              margin: 0,
+              fontSize: '1.2rem',
+              lineHeight: 1.6,
+              color: '#4a5568'
+            }
           }, paragraphBlock.text);
 
         case 'bullet_list':
           const bulletBlock = block as any;
+          const bulletFormation = block.formation || 'vertical';
           return React.createElement('ul', {
-            className: 'smart-bullet-list'
+            className: `gamma-bullet-list formation-${bulletFormation}`,
+            style: {
+              margin: 0,
+              padding: 0,
+              listStyle: 'none',
+              display: bulletFormation.includes('grid') ? 'grid' : 'flex',
+              flexDirection: bulletFormation === 'horizontal' ? 'row' : 'column',
+              gridTemplateColumns: bulletFormation === 'grid-2x2' ? 'repeat(2, 1fr)' :
+                                   bulletFormation === 'grid-3x2' ? 'repeat(3, 1fr)' :
+                                   bulletFormation === 'grid-2x3' ? 'repeat(2, 1fr)' : 'none',
+              gap: '0.5rem',
+              flexWrap: 'wrap'
+            }
           }, bulletBlock.items.map((item: any, itemIndex: number) => 
             React.createElement('li', {
               key: itemIndex,
-              className: 'smart-list-item'
-            }, typeof item === 'string' ? item : JSON.stringify(item))
+              className: 'gamma-list-item',
+              style: {
+                position: 'relative',
+                paddingLeft: '1.5rem',
+                fontSize: '1.1rem',
+                lineHeight: 1.5,
+                color: '#4a5568',
+                marginBottom: bulletFormation === 'vertical' ? '0.5rem' : '0'
+              }
+            }, [
+              React.createElement('span', {
+                key: 'bullet',
+                style: {
+                  position: 'absolute',
+                  left: '0',
+                  top: '0.1rem',
+                  width: '0.5rem',
+                  height: '0.5rem',
+                  backgroundColor: '#4299e1',
+                  borderRadius: '50%'
+                }
+              }),
+              typeof item === 'string' ? item : JSON.stringify(item)
+            ])
           ));
 
         case 'numbered_list':
           const numberedBlock = block as any;
+          const numberedFormation = block.formation || 'vertical';
           return React.createElement('ol', {
-            className: 'smart-numbered-list'
+            className: `gamma-numbered-list formation-${numberedFormation}`,
+            style: {
+              margin: 0,
+              padding: 0,
+              listStyle: 'none',
+              display: numberedFormation.includes('grid') ? 'grid' : 'flex',
+              flexDirection: numberedFormation === 'horizontal' ? 'row' : 'column',
+              gridTemplateColumns: numberedFormation === 'grid-2x2' ? 'repeat(2, 1fr)' :
+                                   numberedFormation === 'grid-3x2' ? 'repeat(3, 1fr)' : 'none',
+              gap: '0.5rem',
+              flexWrap: 'wrap'
+            }
           }, numberedBlock.items.map((item: any, itemIndex: number) => 
             React.createElement('li', {
               key: itemIndex,
-              className: 'smart-list-item'
-            }, typeof item === 'string' ? item : JSON.stringify(item))
+              className: 'gamma-numbered-item',
+              style: {
+                position: 'relative',
+                paddingLeft: '2rem',
+                fontSize: '1.1rem',
+                lineHeight: 1.5,
+                color: '#4a5568',
+                marginBottom: numberedFormation === 'vertical' ? '0.5rem' : '0'
+              }
+            }, [
+              React.createElement('span', {
+                key: 'number',
+                style: {
+                  position: 'absolute',
+                  left: '0',
+                  top: '0',
+                  width: '1.5rem',
+                  height: '1.5rem',
+                  backgroundColor: '#4299e1',
+                  color: 'white',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
+                }
+              }, itemIndex + 1),
+              typeof item === 'string' ? item : JSON.stringify(item)
+            ])
           ));
 
         case 'alert':
           const alertBlock = block as any;
+          const alertColors = {
+            info: { bg: '#ebf8ff', border: '#3182ce', color: '#2a4365' },
+            warning: { bg: '#fffbeb', border: '#d69e2e', color: '#744210' },
+            danger: { bg: '#fed7d7', border: '#e53e3e', color: '#742a2a' },
+            success: { bg: '#f0fff4', border: '#38a169', color: '#22543d' }
+          };
+          const alertStyle = alertColors[alertBlock.alertType as keyof typeof alertColors] || alertColors.info;
+          
           return React.createElement('div', {
-            className: `smart-alert alert-${alertBlock.alertType}`
+            className: `gamma-alert alert-${alertBlock.alertType}`,
+            style: {
+              backgroundColor: alertStyle.bg,
+              borderLeft: `4px solid ${alertStyle.border}`,
+              color: alertStyle.color,
+              padding: '1rem',
+              borderRadius: '8px',
+              margin: 0
+            }
           }, [
             alertBlock.title && React.createElement('div', {
               key: 'title',
-              className: 'alert-title'
+              style: { fontWeight: '600', marginBottom: '0.5rem', fontSize: '1.1rem' }
             }, alertBlock.title),
             React.createElement('div', {
               key: 'text',
-              className: 'alert-text'
+              style: { lineHeight: 1.5 }
             }, alertBlock.text)
           ].filter(Boolean));
 
         default:
           return React.createElement('div', {
-            className: 'unknown-block'
+            className: 'gamma-unknown',
+            style: {
+              backgroundColor: '#f8f9fa',
+              padding: '1rem',
+              border: '2px dashed #dee2e6',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              color: '#6c757d'
+            }
           }, `Unsupported block type: ${(block as any).type}`);
       }
     })();
@@ -485,134 +538,104 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
     return (
       <div 
         key={blockIndex} 
-        className={blockClasses}
+        style={blockStyle}
+        className={`content-block-gamma ${isEditable ? 'editable' : ''}`}
         draggable={isEditable && !isEditing}
         onDragStart={(e) => handleBlockDragStart(e, slideIndex, blockIndex)}
-        onDragOver={(e) => handleBlockDragOver(e, slideIndex, blockIndex)}
-        onDragLeave={() => setDragOverBlock(null)}
-        onDrop={(e) => handleBlockDrop(e, slideIndex, blockIndex)}
         onClick={() => {
-          if (isEditable && isEditing && editingBlock?.slideIndex !== slideIndex || editingBlock?.blockIndex !== blockIndex) {
+          if (isEditable && !isEditing) {
             setEditingBlock({ slideIndex, blockIndex });
           }
         }}
       >
         {blockContent}
-        {isEditable && isEditing && (
-          <div className="block-controls">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                moveBlockToPosition(slideIndex, blockIndex, 'left');
-              }}
-              className="position-btn left"
-              title="Move left"
-            >
-              ←
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                moveBlockToPosition(slideIndex, blockIndex, 'center');
-              }}
-              className="position-btn center"
-              title="Center"
-            >
-              ↕
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                moveBlockToPosition(slideIndex, blockIndex, 'right');
-              }}
-              className="position-btn right"
-              title="Move right"
-            >
-              →
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                duplicateContentBlock(slideIndex, blockIndex);
-              }}
-              className="block-control-btn duplicate"
-              title="Duplicate"
-            >
-              ⧉
-            </button>
+        {isEditable && !isEditing && (
+          <div className="block-controls-gamma">
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 deleteContentBlock(slideIndex, blockIndex);
               }}
-              className="block-control-btn delete"
+              className="control-btn delete"
               title="Delete"
             >
               ×
             </button>
-            <div className="drag-handle" title="Drag to reorder">
+            <div className="drag-handle-gamma" title="Drag to move">
               ⋮⋮
             </div>
+          </div>
+        )}
+        {isEditable && !isEditing && (
+          <div className="resize-handles">
+            <div className="resize-handle bottom-right"></div>
           </div>
         )}
       </div>
     );
   };
 
-  const scrollToSlide = (slideIndex: number) => {
-    const slideElement = document.getElementById(`slide-${slideIndex}`);
-    if (slideElement) {
-      slideElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    setSelectedSlide(slideIndex);
+  // Generate slide preview for sidebar
+  const generateSlidePreview = (slide: DeckSlide, slideIndex: number) => {
+    return (
+      <div className="slide-preview-canvas">
+        <div className="preview-title">{slide.slideTitle}</div>
+        <div className="preview-content">
+          {slide.contentBlocks.slice(0, 3).map((block, idx) => {
+            const blockPos = block.position || { x: 10, y: 30, width: 80, height: 20 };
+            return (
+              <div 
+                key={idx} 
+                className={`preview-block ${block.type}`}
+                style={{
+                  position: 'absolute',
+                  left: `${blockPos.x * 0.8}%`,
+                  top: `${blockPos.y * 0.8 + 20}%`,
+                  width: `${blockPos.width * 0.8}%`,
+                  height: `${blockPos.height * 0.6}%`,
+                  fontSize: '0.6rem',
+                  overflow: 'hidden'
+                }}
+              >
+                {block.type === 'headline' ? '■' : 
+                 block.type === 'bullet_list' ? '• • •' :
+                 block.type === 'numbered_list' ? '1 2 3' :
+                 block.type === 'alert' ? '⚠' : '—'}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="slide-deck-gamma-layout">
-      {/* Left Sidebar Menu */}
-      <div className="slides-sidebar">
+    <div className="gamma-presentation-container">
+      {/* Fixed Sidebar */}
+      <div className="gamma-sidebar">
         <div className="sidebar-header">
           <h3>{currentDeck.lessonTitle}</h3>
           <span className="slide-count">{currentDeck.slides.length} slides</span>
         </div>
         
-        <div className="slides-menu">
+        <div className="slides-thumbnails">
           {currentDeck.slides.map((slide, index) => (
             <div
               key={slide.slideId}
-              className={`slide-menu-item ${index === selectedSlide ? 'active' : ''} ${draggedSlide === index ? 'dragging' : ''} ${dragOverSlide === index ? 'drag-over' : ''}`}
-              draggable={isEditable && isEditing}
-              onDragStart={(e) => handleSlideDragStart(e, index)}
-              onDragOver={(e) => handleSlideDragOver(e, index)}
-              onDragLeave={() => setDragOverSlide(null)}
-              onDrop={(e) => handleSlideDrop(e, index)}
+              className={`slide-thumbnail ${index === currentSlideIndex ? 'active' : ''}`}
               onClick={() => scrollToSlide(index)}
             >
-              <div className="slide-thumbnail">
-                <div className="slide-number">{slide.slideNumber}</div>
-                <div className="slide-preview">
-                  <div className="slide-title-preview">{slide.slideTitle}</div>
-                  <div className="slide-content-preview">
-                    {slide.contentBlocks.slice(0, 2).map((block, idx) => (
-                      <div key={idx} className={`preview-block ${block.type}`}>
-                        {block.type === 'headline' ? '■' : 
-                         block.type === 'bullet_list' ? '• • •' :
-                         block.type === 'numbered_list' ? '1 2 3' :
-                         '—'}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <div className="thumbnail-number">{slide.slideNumber}</div>
+              {generateSlidePreview(slide, index)}
               
               {isEditable && isEditing && (
-                <div className="slide-menu-controls">
+                <div className="thumbnail-controls">
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       addNewSlide(index);
                     }}
-                    className="menu-btn add"
+                    className="thumb-btn add"
                     title="Add slide after"
                   >
                     +
@@ -622,7 +645,7 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
                       e.stopPropagation();
                       duplicateSlide(index);
                     }}
-                    className="menu-btn duplicate"
+                    className="thumb-btn duplicate"
                     title="Duplicate slide"
                   >
                     ⧉
@@ -633,7 +656,7 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
                         e.stopPropagation();
                         deleteSlide(index);
                       }}
-                      className="menu-btn delete"
+                      className="thumb-btn delete"
                       title="Delete slide"
                     >
                       ×
@@ -667,81 +690,77 @@ export const SlideDeckViewer: React.FC<SlideDeckViewerProps> = ({
         )}
       </div>
 
-      {/* Main Content Area */}
-      <div className="slides-main-content">
-        <div className="slides-container-smart">
-          {currentDeck.slides.map((slide, slideIndex) => (
-            <div 
-              key={slide.slideId} 
-              id={`slide-${slideIndex}`}
-              className="slide-item-smart"
-              onClick={() => setSelectedSlide(slideIndex)}
-            >
-              <div className="slide-content-smart">
-                {/* Editable title */}
-                {editingTitle === slideIndex ? (
-                  <input
-                    type="text"
-                    value={slide.slideTitle}
-                    onChange={(e) => updateSlideTitle(slideIndex, e.target.value)}
-                    onBlur={() => setEditingTitle(null)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') setEditingTitle(null);
-                    }}
-                    className="slide-title-input-smart"
-                    autoFocus
-                  />
-                ) : (
-                  <h1 
-                    className="slide-title-smart"
-                    onClick={() => {
-                      if (isEditable && isEditing) {
-                        setEditingTitle(slideIndex);
-                      }
-                    }}
-                  >
-                    {slide.slideTitle}
-                  </h1>
-                )}
-                
-                <div className="slide-body-smart">
-                  {slide.contentBlocks.map((block, blockIndex) => 
-                    renderContentBlock(block, slideIndex, blockIndex)
-                  )}
-                  
-                  {/* Add content zone */}
-                  {isEditable && isEditing && (
-                    <div className="add-content-zone-smart">
-                      <div className="add-content-grid">
-                        <button onClick={() => addContentBlock(slideIndex, 'headline')}>+ Headline</button>
-                        <button onClick={() => addContentBlock(slideIndex, 'paragraph')}>+ Text</button>
-                        <button onClick={() => addContentBlock(slideIndex, 'bullet_list')}>+ Bullets</button>
-                        <button onClick={() => addContentBlock(slideIndex, 'numbered_list')}>+ Numbers</button>
-                        <button onClick={() => addContentBlock(slideIndex, 'alert')}>+ Alert</button>
-                        <button onClick={() => addContentBlock(slideIndex, 'paragraph', 'left')}>+ Left Text</button>
-                        <button onClick={() => addContentBlock(slideIndex, 'paragraph', 'right')}>+ Right Text</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Fixed Top Bar */}
+      {isEditing && (
+        <div className="gamma-top-bar">
+          <div className="content-tools">
+            <button onClick={() => addContentBlock(currentSlideIndex, 'headline')}>+ Headline</button>
+            <button onClick={() => addContentBlock(currentSlideIndex, 'paragraph')}>+ Text</button>
+            <button onClick={() => addContentBlock(currentSlideIndex, 'bullet_list')}>+ Bullets</button>
+            <button onClick={() => addContentBlock(currentSlideIndex, 'numbered_list')}>+ Numbers</button>
+            <button onClick={() => addContentBlock(currentSlideIndex, 'alert')}>+ Alert</button>
+          </div>
         </div>
+      )}
+
+      {/* Full-Screen Slides */}
+      <div className="gamma-slides-container">
+        {currentDeck.slides.map((slide, slideIndex) => (
+          <div 
+            key={slide.slideId} 
+            ref={(el) => { slideRefs.current[slideIndex] = el; }}
+            className="gamma-slide"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleSlideDrop(e, slideIndex)}
+          >
+            {/* Editable title */}
+            {editingTitle === slideIndex ? (
+              <input
+                type="text"
+                value={slide.slideTitle}
+                onChange={(e) => updateSlideTitle(slideIndex, e.target.value)}
+                onBlur={() => setEditingTitle(null)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') setEditingTitle(null);
+                }}
+                className="gamma-title-input"
+                autoFocus
+              />
+            ) : (
+              <h1 
+                className="gamma-slide-title"
+                onClick={() => {
+                  if (isEditable && isEditing) {
+                    setEditingTitle(slideIndex);
+                  }
+                }}
+              >
+                {slide.slideTitle}
+              </h1>
+            )}
+            
+            {/* Content blocks with absolute positioning */}
+            <div className="gamma-slide-content">
+              {slide.contentBlocks.map((block, blockIndex) => 
+                renderContentBlock(block, slideIndex, blockIndex)
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-// Simplified Inline Content Editor (no save/cancel buttons)
+// Simplified Inline Content Editor
 interface InlineContentEditorProps {
-  block: AnyContentBlock;
-  onSave: (updatedBlock: AnyContentBlock) => void;
+  block: ContentBlockWithPosition;
+  onSave: (updatedBlock: ContentBlockWithPosition) => void;
   onCancel: () => void;
 }
 
 const InlineContentEditor: React.FC<InlineContentEditorProps> = ({ block, onSave, onCancel }) => {
-  const [editedBlock, setEditedBlock] = useState<AnyContentBlock>(block);
+  const [editedBlock, setEditedBlock] = useState<ContentBlockWithPosition>(block);
 
   const handleSave = () => {
     onSave(editedBlock);
@@ -764,7 +783,7 @@ const InlineContentEditor: React.FC<InlineContentEditorProps> = ({ block, onSave
     case 'headline':
       const headlineBlock = editedBlock as any;
       return (
-        <div className="inline-editor-smart headline-editor">
+        <div className="gamma-inline-editor headline-editor">
           <select
             value={headlineBlock.level || 2}
             onChange={(e) => setEditedBlock({ ...headlineBlock, level: parseInt(e.target.value) })}
@@ -791,7 +810,7 @@ const InlineContentEditor: React.FC<InlineContentEditorProps> = ({ block, onSave
     case 'paragraph':
       const paragraphBlock = editedBlock as any;
       return (
-        <div className="inline-editor-smart paragraph-editor">
+        <div className="gamma-inline-editor paragraph-editor">
           <textarea
             value={paragraphBlock.text}
             onChange={(e) => setEditedBlock({ ...paragraphBlock, text: e.target.value })}
@@ -809,10 +828,22 @@ const InlineContentEditor: React.FC<InlineContentEditorProps> = ({ block, onSave
     case 'numbered_list':
       const listBlock = editedBlock as any;
       return (
-        <div className="inline-editor-smart list-editor">
-          <div className="list-items-smart">
+        <div className="gamma-inline-editor list-editor">
+          <div className="formation-selector">
+            <select
+              value={listBlock.formation || 'vertical'}
+              onChange={(e) => setEditedBlock({ ...listBlock, formation: e.target.value })}
+            >
+              <option value="vertical">Vertical</option>
+              <option value="horizontal">Horizontal</option>
+              <option value="grid-2x2">2×2 Grid</option>
+              <option value="grid-3x2">3×2 Grid</option>
+              <option value="grid-2x3">2×3 Grid</option>
+            </select>
+          </div>
+          <div className="list-items-editor">
             {listBlock.items.map((item: string, index: number) => (
-              <div key={index} className="list-item-editor-smart">
+              <div key={index} className="list-item-editor">
                 <input
                   type="text"
                   value={item}
@@ -845,7 +876,7 @@ const InlineContentEditor: React.FC<InlineContentEditorProps> = ({ block, onSave
     case 'alert':
       const alertBlock = editedBlock as any;
       return (
-        <div className="inline-editor-smart alert-editor">
+        <div className="gamma-inline-editor alert-editor">
           <select
             value={alertBlock.alertType || 'info'}
             onChange={(e) => setEditedBlock({ ...alertBlock, alertType: e.target.value })}
@@ -879,7 +910,7 @@ const InlineContentEditor: React.FC<InlineContentEditorProps> = ({ block, onSave
 
     default:
       return (
-        <div className="inline-editor-smart">
+        <div className="gamma-inline-editor">
           <input
             type="text"
             value="Unsupported content type"

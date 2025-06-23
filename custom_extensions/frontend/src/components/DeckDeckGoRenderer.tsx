@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SlideDeckData, AnyContentBlock } from '@/types/pdfLesson';
+import { SlideDeckData, ContentBlockWithPosition } from '@/types/pdfLesson';
 
 interface DeckDeckGoRendererProps {
   deck: SlideDeckData;
@@ -11,6 +11,8 @@ const DeckDeckGoRenderer: React.FC<DeckDeckGoRendererProps> = ({ deck, onSlideCh
   const [isFullscreen, setIsFullscreen] = useState(false);
   const deckRef = useRef<HTMLDivElement>(null);
 
+  const currentSlide = deck.slides[currentSlideIndex];
+
   useEffect(() => {
     if (onSlideChange) {
       onSlideChange(currentSlideIndex);
@@ -20,9 +22,9 @@ const DeckDeckGoRenderer: React.FC<DeckDeckGoRendererProps> = ({ deck, onSlideCh
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight' || event.key === ' ') {
+      if (event.key === 'ArrowRight' && currentSlideIndex < deck.slides.length - 1) {
         nextSlide();
-      } else if (event.key === 'ArrowLeft') {
+      } else if (event.key === 'ArrowLeft' && currentSlideIndex > 0) {
         prevSlide();
       } else if (event.key === 'Escape') {
         setIsFullscreen(false);
@@ -33,27 +35,25 @@ const DeckDeckGoRenderer: React.FC<DeckDeckGoRendererProps> = ({ deck, onSlideCh
       document.addEventListener('keydown', handleKeyPress);
       return () => document.removeEventListener('keydown', handleKeyPress);
     }
-  }, [isFullscreen, currentSlideIndex]);
+  }, [currentSlideIndex, deck.slides.length, isFullscreen]);
 
   const nextSlide = () => {
-    setCurrentSlideIndex(prev => 
-      prev < deck.slides.length - 1 ? prev + 1 : prev
-    );
+    setCurrentSlideIndex(prev => Math.min(prev + 1, deck.slides.length - 1));
   };
 
   const prevSlide = () => {
-    setCurrentSlideIndex(prev => prev > 0 ? prev - 1 : prev);
+    setCurrentSlideIndex(prev => Math.max(prev - 1, 0));
   };
 
   const goToSlide = (index: number) => {
-    setCurrentSlideIndex(Math.max(0, Math.min(index, deck.slides.length - 1)));
+    setCurrentSlideIndex(index);
   };
 
   const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+    setIsFullscreen(prev => !prev);
   };
 
-  const renderContentBlock = (block: AnyContentBlock, index: number): React.ReactNode => {
+  const renderContentBlock = (block: ContentBlockWithPosition, index: number): React.ReactNode => {
     switch (block.type) {
       case 'headline':
         const headlineBlock = block as any;
@@ -227,7 +227,6 @@ const DeckDeckGoRenderer: React.FC<DeckDeckGoRendererProps> = ({ deck, onSlideCh
     );
   }
 
-  const currentSlide = deck.slides[currentSlideIndex];
   const containerClass = isFullscreen ? 'slide-deck-fullscreen' : 'slide-deck-embedded';
 
   return (

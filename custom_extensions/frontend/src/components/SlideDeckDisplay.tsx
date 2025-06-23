@@ -2,12 +2,13 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
+import { SlideDeckData, ContentBlockWithPosition } from '@/types/pdfLesson';
 import { locales } from '@/locales';
 import {
   AlertCircle, CheckCircle, Info, XCircle, Minus, Type, List, ListOrdered,
   Award, Brain, BookOpen, Edit3, Lightbulb, Search, Compass, CloudDrizzle, EyeOff,
   ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
 // --- Theme Colors (consistent with other displays) ---
@@ -85,7 +86,7 @@ const getAlertColors = (alertType: string) => {
 };
 
 interface RenderBlockProps { 
-  block: AnyContentBlock;
+  block: ContentBlockWithPosition;
   depth?: number;
   isEditing?: boolean;
   onTextChange?: (path: (string | number)[], newText: string) => void;
@@ -159,9 +160,13 @@ const RenderBlock: React.FC<RenderBlockProps> = ({
       const isNumbered = block.type === 'numbered_list';
       const ListTag = isNumbered ? 'ol' : 'ul';
 
+      if (!items || !Array.isArray(items)) {
+        return null;
+      }
+
       return (
         <ListTag className={`${isNumbered ? 'list-decimal' : 'list-disc'} pl-6 mb-3 space-y-1`}>
-          {items.map((item, index) => (
+          {items.map((item: any, index: number) => (
             <li key={index} className="text-sm text-gray-700">
               {typeof item === 'string' ? parseAndStyleText(item) : (
                 <RenderBlock 
@@ -180,7 +185,7 @@ const RenderBlock: React.FC<RenderBlockProps> = ({
     
     case 'alert': {
       const { title, text, alertType } = block;
-      const { bgColor, borderColor, textColor, iconColorClass, Icon } = getAlertColors(alertType);
+      const { bgColor, borderColor, textColor, iconColorClass, Icon } = getAlertColors(alertType || 'info');
       
       return (
         <div className={`${bgColor} ${borderColor} border-l-4 p-4 mb-4 rounded-r-md`}>
@@ -202,7 +207,7 @@ const RenderBlock: React.FC<RenderBlockProps> = ({
               <p className={`text-sm ${textColor}`}>
                 {isEditing && onTextChange ? (
                   <textarea 
-                    value={text}
+                    value={text || ''}
                     onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
                     className={editingInputClass('', 'textarea')}
                   />
