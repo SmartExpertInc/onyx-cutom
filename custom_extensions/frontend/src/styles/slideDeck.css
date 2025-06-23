@@ -4,16 +4,18 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
 }
 
 /* New layout with sidebar */
 .slide-deck-viewer-with-sidebar {
   display: flex;
   height: 100vh;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
 }
 
 /* Vertical sidebar */
@@ -961,17 +963,15 @@ deckgo-slide-split {
 }
 
 .slide-item-vertical {
-  position: relative;
-  background: #ffffff;
-  border: 1px solid #dee2e6;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  margin-bottom: 3rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 2rem;
+  padding: 2rem;
+  position: relative;
   transition: all 0.3s ease;
-  aspect-ratio: 16 / 9;
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .slide-item-vertical:hover {
@@ -1005,8 +1005,6 @@ deckgo-slide-split {
   overflow: hidden;
   height: 100%;
 }
-
-
 
 .slide-body-vertical {
   flex: 1;
@@ -1080,12 +1078,13 @@ deckgo-slide-split {
 
 /* Editable Content Blocks */
 .content-block-editable {
-  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
   padding: 0.5rem;
-  margin: 0.25rem 0;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  cursor: pointer;
+  margin-bottom: 1rem;
+  position: relative;
+  transition: all 0.2s ease-in-out;
 }
 
 .content-block-editable:hover {
@@ -1172,8 +1171,6 @@ deckgo-slide-split {
 .drag-handle:active {
   cursor: grabbing;
 }
-
-
 
 /* Add Content Zone */
 .add-content-zone {
@@ -1342,8 +1339,6 @@ deckgo-slide-split {
     padding: 1.5rem 2rem;
   }
   
-
-
   .add-content-buttons {
     gap: 0.5rem;
   }
@@ -1415,8 +1410,6 @@ deckgo-slide-split {
   .slide-content-vertical {
     padding: 1rem 1.5rem;
   }
-  
-
   
   .slide-body-vertical {
     font-size: 1rem;

@@ -498,29 +498,29 @@ Main Lesson Title: Start with # [Lesson Title]
 Slide Separator: Each slide should be clearly delineated using --- (a horizontal rule) followed by a blank line, and then a bolded slide number and title on a single line.
 
 Slide Content Guidelines:
-- Create 6-10 slides per lesson (more slides with less content each)
+- Create 5-8 slides per lesson (adjust based on content complexity)
 - Each slide should focus on one main concept or topic
-- Limit content per slide to maintain readability (30-60 words of body text maximum)
+- Limit content per slide to maintain readability (50-100 words of body text)
 - Use a mix of content types: headlines, paragraphs, bullet lists, numbered lists, and alerts
-- Keep paragraphs very concise (1-2 sentences maximum per paragraph)
-- Use bullet lists for features/benefits (2-4 items maximum), numbered lists for steps/processes (2-4 items maximum)
-- Use alerts sparingly (maximum 1 per lesson) for critical information
-- Prioritize breaking complex topics into multiple slides rather than cramming content
+- Keep paragraphs concise (2-3 sentences maximum per paragraph)
+- Use bullet lists for features/benefits (3-5 items), numbered lists for steps/processes
+- Use alerts sparingly (1-2 per lesson) for critical information
 
 Slide Format:
 
 ---
+**Slide [Number]: [Descriptive Slide Title]**
 
 ## [Main Slide Heading]
 
-[1 concise paragraph explaining the main concept - keep to 1-2 sentences maximum]
+[1-2 concise paragraphs explaining the main concept - keep each paragraph to 2-3 sentences]
 
 * [Bullet point 1 - key feature or benefit]
 * [Bullet point 2 - related point]
-* [Bullet point 3 - supporting detail (maximum 4 items)]
+* [Bullet point 3 - supporting detail]
 
 > [!info] Optional Alert Title
-> Important note or critical information related to this slide's content (use sparingly).
+> Important note or critical information related to this slide's content.
 
 Slide Naming Convention:
 - Use descriptive slide titles that clearly indicate the slide's content
