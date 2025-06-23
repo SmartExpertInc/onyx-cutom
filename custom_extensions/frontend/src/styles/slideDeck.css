@@ -7,6 +7,7 @@
   overflow: hidden;
   background: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
 }
 
 /* === FIXED SIDEBAR === */
@@ -18,7 +19,7 @@
   height: 100vh;
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
-  z-index: 1000;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -169,6 +170,7 @@
   gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
+  z-index: 10;
 }
 
 .slide-thumbnail:hover .thumbnail-controls {
@@ -287,7 +289,7 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #e2e8f0;
-  z-index: 999;
+  z-index: 90;
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -316,7 +318,7 @@
   color: #2d3748;
 }
 
-/* === FULL-SCREEN SLIDES === */
+/* === MAIN CONTENT AREA === */
 .gamma-slides-container {
   margin-left: 280px;
   width: calc(100vw - 280px);
@@ -325,27 +327,31 @@
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  padding-top: 0;
 }
 
 .gamma-slides-container::-webkit-scrollbar {
   display: none;
 }
 
+/* === INDIVIDUAL SLIDES === */
 .gamma-slide {
   position: relative;
   width: 100%;
   height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* === SLIDE TITLE === */
 .gamma-slide-title {
   position: absolute;
-  top: 80px;
+  top: 100px;
   left: 60px;
   right: 60px;
   font-size: 3.5rem;
@@ -353,10 +359,12 @@
   line-height: 1.1;
   color: white;
   margin: 0;
-  z-index: 10;
+  z-index: 20;
   cursor: pointer;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
+  max-height: 200px;
+  overflow: hidden;
 }
 
 .gamma-slide-title:hover {
@@ -366,7 +374,7 @@
 
 .gamma-title-input {
   position: absolute;
-  top: 80px;
+  top: 100px;
   left: 60px;
   right: 60px;
   font-size: 3.5rem;
@@ -379,6 +387,7 @@
   padding: 20px;
   z-index: 100;
   backdrop-filter: blur(10px);
+  max-height: 200px;
 }
 
 .gamma-title-input:focus {
@@ -390,15 +399,17 @@
 /* === SLIDE CONTENT AREA === */
 .gamma-slide-content {
   position: absolute;
-  top: 200px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0 60px 60px;
+  top: 320px;
+  left: 60px;
+  right: 60px;
+  bottom: 60px;
+  overflow: visible;
+  z-index: 10;
 }
 
 /* === CONTENT BLOCKS === */
 .content-block-gamma {
+  position: absolute;
   border-radius: 12px;
   padding: 24px;
   background: rgba(255, 255, 255, 0.95);
@@ -408,11 +419,16 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   overflow: hidden;
+  box-sizing: border-box;
+  z-index: 15;
+  min-width: 200px;
+  min-height: 100px;
 }
 
 .content-block-gamma:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  z-index: 25;
 }
 
 .content-block-gamma.editable {
@@ -427,7 +443,7 @@
 .content-block-gamma.editing {
   border-color: #3182ce;
   box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.3);
-  z-index: 1000;
+  z-index: 50;
 }
 
 /* === CONTENT STYLING === */
@@ -438,28 +454,28 @@
 }
 
 .gamma-headline.level-1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: #1a202c;
 }
 
 .gamma-headline.level-2 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   color: #2d3748;
 }
 
 .gamma-headline.level-3 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: #4a5568;
 }
 
 .gamma-headline.level-4 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: #4a5568;
 }
 
 .gamma-paragraph {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1.6;
   color: #4a5568;
 }
@@ -503,7 +519,7 @@
 .gamma-list-item,
 .gamma-numbered-item {
   position: relative;
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: #4a5568;
   padding: 0.5rem 0;
@@ -550,6 +566,7 @@
   gap: 8px;
   opacity: 0;
   transition: opacity 0.2s ease;
+  z-index: 30;
 }
 
 .content-block-gamma:hover .block-controls-gamma {
@@ -607,6 +624,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 20;
 }
 
 .resize-handle {
@@ -638,6 +656,8 @@
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 60;
+  position: relative;
 }
 
 .headline-editor {
@@ -762,7 +782,8 @@
   }
   
   .gamma-slide-content {
-    padding: 0 40px 40px;
+    left: 40px;
+    right: 40px;
   }
 }
 
@@ -794,12 +815,13 @@
     font-size: 2rem;
     left: 24px;
     right: 24px;
-    top: 60px;
+    top: 80px;
   }
   
   .gamma-slide-content {
-    top: 140px;
-    padding: 0 24px 24px;
+    top: 200px;
+    left: 24px;
+    right: 24px;
   }
 }
 
@@ -821,9 +843,10 @@
 
 /* === DRAG AND DROP STATES === */
 .content-block-gamma.dragging {
-  opacity: 0.5;
-  transform: rotate(5deg);
-  z-index: 1000;
+  opacity: 0.7;
+  transform: rotate(2deg) scale(1.02);
+  z-index: 100;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .gamma-slide.drag-over {
@@ -840,5 +863,5 @@
   font-weight: 600;
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  z-index: 100;
+  z-index: 80;
 }

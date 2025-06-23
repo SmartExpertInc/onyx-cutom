@@ -1,396 +1,731 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { SlideDeckData, ContentBlockWithPosition } from '@/types/pdfLesson';
-import { locales } from '@/locales';
-import {
-  AlertCircle, CheckCircle, Info, XCircle, Minus, Type, List, ListOrdered,
-  Award, Brain, BookOpen, Edit3, Lightbulb, Search, Compass, CloudDrizzle, EyeOff,
-  ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle,
-  ChevronLeft, ChevronRight,
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { SlideDeckData, DeckSlide, ContentBlockWithPosition } from '../types/pdfLesson';
+import '../styles/slideDeck.css';
 
-// --- Theme Colors (consistent with other displays) ---
-const THEME_COLORS = {
-  primaryText: 'text-gray-800',
-  headingText: 'text-black',
-  accentRed: 'text-[#FF1414]',
-  accentRedFill: '#FF1414',
-  activeNavBg: 'bg-[#FFF5F5]', // Lighter red for active nav item background
-  activeNavText: 'text-[#FF1414]',
-  activeNavBorder: 'border-[#FF1414]',
-  navText: 'text-gray-600 hover:text-gray-900',
-  navBorder: 'border-gray-200',
-  contentBg: 'bg-white',
-  contentBoxBg: 'bg-gray-50',
-  contentPlaceholderText: 'text-gray-500 italic text-sm',
-  lightBorder: 'border-gray-300',
-  mutedText: 'text-gray-600',
-  editableBg: 'bg-yellow-50',
-  editableBorder: 'border-yellow-400 focus:ring-1 focus:ring-yellow-500',
-};
-
-const editingInputClass = (baseClasses: string = "", type: 'input' | 'textarea' = 'input') => {
-  const common = `w-full ${THEME_COLORS.editableBg} ${THEME_COLORS.editableBorder} rounded-md outline-none placeholder-gray-400 text-sm`;
-  if (type === 'textarea') {
-    return `${common} ${baseClasses} p-3 leading-relaxed`;
-  }
-  return `${common} ${baseClasses} p-2`;
-};
-
-// --- SVG Icon Components ---
-const SlidePresentationIcon = () => (
-  <svg width="20" height="21" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 flex-shrink-0 h-5 w-5">
-    <g clipPath="url(#clip0_SlideLesson_13)">
-      <path d="M0 16.5H15.5789V4.71053H0V16.5ZM4.21053 15.2368H2.94737C2.71579 15.2368 2.52632 15.0474 2.52632 14.8158C2.52632 14.5842 2.71579 14.3947 2.94737 14.3947H4.21053C4.44211 14.3947 4.63158 14.5842 4.63158 14.8158C4.63158 15.0474 4.44211 15.2368 4.21053 15.2368ZM4.21053 13.1316H2.94737C2.71579 13.1316 2.52632 12.9421 2.52632 12.7105C2.52632 12.4789 2.71579 12.2895 2.94737 12.2895H4.21053C4.44211 12.2895 4.63158 12.4789 4.63158 12.7105C4.63158 12.9421 4.44211 13.1316 4.21053 13.1316ZM4.21053 11.0263H2.94737C2.71579 11.0263 2.52632 10.8368 2.52632 10.6053C2.52632 10.3737 2.71579 10.1842 2.94737 10.1842H4.21053C4.44211 10.1842 4.63158 10.3737 4.63158 10.6053C4.63158 10.8368 4.44211 11.0263 4.21053 11.0263ZM4.21053 8.92105H2.94737C2.71579 8.92105 2.52632 8.73158 2.52632 8.5C2.52632 8.26842 2.71579 8.07895 2.94737 8.07895H4.21053C4.44211 8.07895 4.63158 8.26842 4.63158 8.5C4.63158 8.73158 4.44211 8.92105 4.21053 8.92105ZM12.6316 15.2368H6.31579C6.08421 15.2368 5.89474 15.0474 5.89474 14.8158C5.89474 14.5842 6.08421 14.3947 6.31579 14.3947H12.6316C12.8632 14.3947 13.0526 14.5842 13.0526 14.8158C13.0526 15.0474 12.8632 15.2368 12.6316 15.2368ZM12.6316 13.1316H6.31579C6.08421 13.1316 5.89474 12.9421 5.89474 12.7105C5.89474 12.4789 6.08421 12.2895 6.31579 12.2895H12.6316C12.8632 12.2895 13.0526 12.4789 13.0526 12.7105C13.0526 12.9421 12.8632 13.1316 12.6316 13.1316ZM12.6316 11.0263H6.31579C6.08421 11.0263 5.89474 10.8368 5.89474 10.6053C5.89474 10.3737 6.08421 10.1842 6.31579 10.1842H12.6316C12.8632 10.1842 13.0526 10.3737 13.0526 10.6053C13.0526 10.8368 12.8632 11.0263 12.6316 11.0263ZM12.6316 8.92105H6.31579C6.08421 8.92105 5.89474 8.73158 5.89474 8.5C5.89474 8.26842 6.08421 8.07895 6.31579 8.07895H12.6316C12.8632 8.07895 13.0526 8.26842 13.0526 8.5C13.0526 8.73158 12.8632 8.92105 12.6316 8.92105ZM1.68421 5.97368H13.8947C14.1263 5.97368 14.3158 6.16316 14.3158 6.39474C14.3158 6.62632 14.1263 6.81579 13.8947 6.81579H1.68421C1.45263 6.81579 1.26316 6.62632 1.26316 6.39474C1.26316 6.16316 1.45263 5.97368 1.68421 5.97368ZM15.5789 0.5V3.86842H0V0.5H15.5789Z" fill={THEME_COLORS.accentRedFill}/>
-    </g>
-    <defs>
-      <clipPath id="clip0_SlideLesson_13">
-        <rect y="0.5" width="15.5789" height="16" rx="0.888889" fill="white"/>
-      </clipPath>
-    </defs>
-  </svg>
-);
-
-// Content rendering components (similar to PdfLessonDisplay)
-const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] => {
-  if (!text) return [];
-  const segments = text.split(/\*\*(.*?)\*\*/g); 
-  return segments.map((segment, index) => {
-    if (index % 2 === 1) { 
-      return <span key={index} className="font-medium text-black">{segment}</span>;
-    }
-    return segment; 
-  }).filter(segment => segment !== ""); 
-};
-
-const iconMap: { [key: string]: React.ElementType } = {
-  alertCircle: AlertCircle, checkCircle: CheckCircle, info: Info, xCircle: XCircle,
-  type: Type, list: List, listOrdered: ListOrdered,
-  award: Award, brain: Brain, bookOpen: Edit3, lightbulb: Lightbulb,
-  search: Search, compass: Compass, cloudDrizzle: CloudDrizzle, eyeOff: EyeOff,
-  clipboardCheck: ClipboardCheck, alertTriangle: AlertTriangle,
-  star: Star, arrowRight: ArrowRight, circle: Circle,
-  default: Minus,
-};
-
-const getAlertColors = (alertType: string) => {
-    switch (alertType) {
-        case 'info': return { bgColor: 'bg-blue-50', borderColor: 'border-blue-400', textColor: 'text-gray-700', iconColorClass: 'text-blue-500', Icon: Info };
-        case 'success': return { bgColor: 'bg-green-50', borderColor: 'border-green-400', textColor: 'text-gray-700', iconColorClass: 'text-green-500', Icon: CheckCircle };
-        case 'warning': return { bgColor: 'bg-yellow-50', borderColor: 'border-yellow-400', textColor: 'text-gray-700', iconColorClass: 'text-yellow-500', Icon: AlertTriangle };
-        case 'danger': return { bgColor: 'bg-red-50', borderColor: 'border-red-400', textColor: 'text-gray-700', iconColorClass: 'text-red-500', Icon: XCircle };
-        default: return { bgColor: 'bg-blue-50', borderColor: 'border-blue-400', textColor: 'text-gray-700', iconColorClass: 'text-blue-500', Icon: Info };
-    }
-};
-
-interface RenderBlockProps { 
-  block: ContentBlockWithPosition;
-  depth?: number;
-  isEditing?: boolean;
-  onTextChange?: (path: (string | number)[], newText: string) => void;
-  basePath?: (string | number)[];
+interface SlideDeckDisplayProps {
+  data: SlideDeckData;
+  onUpdate?: (updatedData: SlideDeckData) => void;
 }
 
-const RenderBlock: React.FC<RenderBlockProps> = ({ 
-  block, depth = 0, isEditing, onTextChange, basePath = []
-}) => {
-  const fieldPath = (fieldKey: string) => [...basePath, fieldKey];
-  
-  const handleInputChangeEvent = (
-    pathForData: (string | number)[], 
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> 
-  ) => {
-    if (onTextChange) {
-      onTextChange(pathForData, event.target.value);
+const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingBlock, setEditingBlock] = useState<string | null>(null);
+  const [draggedBlock, setDraggedBlock] = useState<{ blockId: string; slideId: string } | null>(null);
+  const [draggedSlide, setDraggedSlide] = useState<string | null>(null);
+  const [currentSlideId, setCurrentSlideId] = useState<string>(data.slides[0]?.slideId || '');
+  const [slides, setSlides] = useState<DeckSlide[]>(data.slides);
+  const [editingTitle, setEditingTitle] = useState<string | null>(null);
+
+  // Initialize content blocks with proper positioning
+  useEffect(() => {
+    const updatedSlides = slides.map(slide => ({
+      ...slide,
+      contentBlocks: slide.contentBlocks.map((block, index) => ({
+        ...block,
+        position: block.position || {
+          x: 100 + (index % 2) * 400,
+          y: 100 + Math.floor(index / 2) * 200,
+          width: 400,
+          height: 150
+        }
+      }))
+    }));
+    setSlides(updatedSlides);
+  }, []);
+
+  const updateSlides = (newSlides: DeckSlide[]) => {
+    setSlides(newSlides);
+    if (onUpdate) {
+      onUpdate({
+        ...data,
+        slides: newSlides,
+        currentSlideId: currentSlideId
+      });
     }
   };
-  
-  switch (block.type) {
-    case 'headline': {
-      const { level, text } = block;
-      const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
+
+  const addSlide = (afterSlideId?: string) => {
+    const newSlideId = `slide-${Date.now()}`;
+    const insertIndex = afterSlideId 
+      ? slides.findIndex(s => s.slideId === afterSlideId) + 1 
+      : slides.length;
+    
+    const newSlide: DeckSlide = {
+      slideId: newSlideId,
+      slideNumber: insertIndex + 1,
+      slideTitle: `New Slide ${insertIndex + 1}`,
+      contentBlocks: []
+    };
+
+    const newSlides = [...slides];
+    newSlides.splice(insertIndex, 0, newSlide);
+    
+    // Renumber slides
+    const renumberedSlides = newSlides.map((slide, index) => ({
+      ...slide,
+      slideNumber: index + 1
+    }));
+
+    updateSlides(renumberedSlides);
+    setCurrentSlideId(newSlideId);
+  };
+
+  const duplicateSlide = (slideId: string) => {
+    const slideIndex = slides.findIndex(s => s.slideId === slideId);
+    if (slideIndex === -1) return;
+
+    const originalSlide = slides[slideIndex];
+    const newSlideId = `slide-${Date.now()}`;
+    const duplicatedSlide: DeckSlide = {
+      ...originalSlide,
+      slideId: newSlideId,
+      slideNumber: slideIndex + 2,
+      slideTitle: `${originalSlide.slideTitle} (Copy)`,
+      contentBlocks: originalSlide.contentBlocks.map((block) => ({
+        ...block,
+        position: block.position ? {
+          ...block.position,
+          x: block.position.x + 10,
+          y: block.position.y + 10
+        } : undefined
+      }))
+    };
+
+    const newSlides = [...slides];
+    newSlides.splice(slideIndex + 1, 0, duplicatedSlide);
+    
+    const renumberedSlides = newSlides.map((slide, index) => ({
+      ...slide,
+      slideNumber: index + 1
+    }));
+
+    updateSlides(renumberedSlides);
+  };
+
+  const deleteSlide = (slideId: string) => {
+    if (slides.length <= 1) return;
+    
+    const newSlides = slides.filter(s => s.slideId !== slideId);
+    const renumberedSlides = newSlides.map((slide, index) => ({
+      ...slide,
+      slideNumber: index + 1
+    }));
+
+    updateSlides(renumberedSlides);
+    
+    if (currentSlideId === slideId) {
+      setCurrentSlideId(renumberedSlides[0]?.slideId || '');
+    }
+  };
+
+  const updateSlideTitle = (slideId: string, newTitle: string) => {
+    const newSlides = slides.map(slide =>
+      slide.slideId === slideId
+        ? { ...slide, slideTitle: newTitle }
+        : slide
+    );
+    updateSlides(newSlides);
+  };
+
+  const addContentBlock = (slideId: string, type: ContentBlockWithPosition['type']) => {
+    const slide = slides.find(s => s.slideId === slideId);
+    if (!slide) return;
+
+    const existingBlocks = slide.contentBlocks.length;
+    
+    const newBlock: ContentBlockWithPosition = {
+      type,
+      position: {
+        x: 100 + (existingBlocks % 2) * 400,
+        y: 100 + Math.floor(existingBlocks / 2) * 200,
+        width: 400,
+        height: 150
+      },
+      ...getDefaultContentByType(type)
+    };
+
+    const newSlides = slides.map(s =>
+      s.slideId === slideId
+        ? { ...s, contentBlocks: [...s.contentBlocks, newBlock] }
+        : s
+    );
+
+    updateSlides(newSlides);
+    setEditingBlock(`${slideId}-${existingBlocks}`);
+  };
+
+  const getDefaultContentByType = (type: ContentBlockWithPosition['type']) => {
+    switch (type) {
+      case 'headline':
+        return { text: 'New Headline', level: 2 as const };
+      case 'paragraph':
+        return { text: 'New paragraph content...' };
+      case 'bullet_list':
+        return { items: ['New bullet point'], formation: 'vertical' as const };
+      case 'numbered_list':
+        return { items: ['New numbered point'], formation: 'vertical' as const };
+      case 'alert':
+        return { 
+          alertType: 'info' as const, 
+          title: 'Alert Title', 
+          text: 'Alert message...' 
+        };
+      default:
+        return {};
+    }
+  };
+
+  const updateContentBlock = (slideId: string, blockIndex: number, updates: Partial<ContentBlockWithPosition>) => {
+    const newSlides = slides.map(slide =>
+      slide.slideId === slideId
+        ? {
+            ...slide,
+            contentBlocks: slide.contentBlocks.map((block, index) =>
+              index === blockIndex ? { ...block, ...updates } : block
+            )
+          }
+        : slide
+    );
+    updateSlides(newSlides);
+  };
+
+  const deleteContentBlock = (slideId: string, blockIndex: number) => {
+    const newSlides = slides.map(slide =>
+      slide.slideId === slideId
+        ? {
+            ...slide,
+            contentBlocks: slide.contentBlocks.filter((_, index) => index !== blockIndex)
+          }
+        : slide
+    );
+    updateSlides(newSlides);
+  };
+
+  const moveContentBlock = (
+    fromSlideId: string,
+    toSlideId: string,
+    blockIndex: number,
+    newPosition: { x: number; y: number }
+  ) => {
+    const fromSlide = slides.find(s => s.slideId === fromSlideId);
+    const block = fromSlide?.contentBlocks[blockIndex];
+    
+    if (!block || !block.position) return;
+
+    const updatedBlock: ContentBlockWithPosition = {
+      ...block,
+      position: {
+        ...block.position,
+        x: Math.max(0, Math.min(800, newPosition.x)),
+        y: Math.max(0, Math.min(500, newPosition.y))
+      }
+    };
+
+    const newSlides = slides.map(slide => {
+      if (slide.slideId === fromSlideId) {
+        return {
+          ...slide,
+          contentBlocks: slide.contentBlocks.filter((_, index) => index !== blockIndex)
+        };
+      }
+      if (slide.slideId === toSlideId) {
+        return {
+          ...slide,
+          contentBlocks: [...slide.contentBlocks, updatedBlock]
+        };
+      }
+      return slide;
+    });
+
+    updateSlides(newSlides);
+  };
+
+  // Drag and Drop Handlers
+  const handleBlockDragStart = (e: React.DragEvent, blockIndex: number, slideId: string) => {
+    setDraggedBlock({ blockId: blockIndex.toString(), slideId });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', JSON.stringify({ blockIndex, slideId }));
+  };
+
+  const handleBlockDragEnd = () => {
+    setDraggedBlock(null);
+  };
+
+  const handleSlideDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleSlideDrop = (e: React.DragEvent, targetSlideId: string) => {
+    e.preventDefault();
+    
+    if (!draggedBlock) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const contentRect = e.currentTarget.querySelector('.gamma-slide-content')?.getBoundingClientRect();
+    
+    if (contentRect) {
+      const x = e.clientX - contentRect.left;
+      const y = e.clientY - contentRect.top;
       
-      let textStyleClass = 'uppercase '; 
-      if (level === 1) { textStyleClass += `text-lg lg:text-xl font-semibold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-base lg:text-lg font-semibold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-base lg:text-lg font-semibold ${THEME_COLORS.accentRed}`; } 
-      else if (level === 4) { textStyleClass += `text-sm lg:text-base font-medium text-gray-700`; }
-      else { textStyleClass += `text-base font-medium text-gray-700`; }
-
-      const styledText = parseAndStyleText(text);
-
-      return (
-        <Tag className={`${textStyleClass} mb-3`}>
-          {isEditing && onTextChange ? (
-            <input 
-              type="text" 
-              value={text}
-              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-              className={`${editingInputClass()} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
-              style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
-            />
-          ) : ( styledText )}
-        </Tag>
+      moveContentBlock(
+        draggedBlock.slideId,
+        targetSlideId,
+        parseInt(draggedBlock.blockId),
+        { x, y }
       );
     }
     
-    case 'paragraph': { 
-      const { text } = block;
-      const styledText = parseAndStyleText(text);
+    setDraggedBlock(null);
+  };
 
-      if (isEditing && onTextChange) {
+  const handleSlideDragStart = (e: React.DragEvent, slideId: string) => {
+    setDraggedSlide(slideId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleSlideDragEnd = () => {
+    setDraggedSlide(null);
+  };
+
+  const handleThumbnailDrop = (e: React.DragEvent, targetSlideId: string) => {
+    e.preventDefault();
+    
+    if (!draggedSlide || draggedSlide === targetSlideId) return;
+    
+    const draggedIndex = slides.findIndex(s => s.slideId === draggedSlide);
+    const targetIndex = slides.findIndex(s => s.slideId === targetSlideId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    
+    const newSlides = [...slides];
+    const [draggedSlideData] = newSlides.splice(draggedIndex, 1);
+    newSlides.splice(targetIndex, 0, draggedSlideData);
+    
+    const renumberedSlides = newSlides.map((slide, index) => ({
+      ...slide,
+      slideNumber: index + 1
+    }));
+    
+    updateSlides(renumberedSlides);
+    setDraggedSlide(null);
+  };
+
+  const renderContentBlock = (block: ContentBlockWithPosition, slideId: string, blockIndex: number) => {
+    const isCurrentlyEditing = editingBlock === `${slideId}-${blockIndex}`;
+    const isDragging = draggedBlock?.blockId === blockIndex.toString() && draggedBlock?.slideId === slideId;
+    
+    const blockStyle: React.CSSProperties = {
+      left: `${block.position?.x || 0}px`,
+      top: `${block.position?.y || 0}px`,
+      width: `${block.position?.width || 400}px`,
+      minHeight: `${block.position?.height || 150}px`,
+    };
+
+    if (isCurrentlyEditing) {
+      return (
+        <div 
+          className="content-block-gamma editing"
+          style={blockStyle}
+          key={blockIndex}
+        >
+          {renderInlineEditor(block, slideId, blockIndex)}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={blockIndex}
+        className={`content-block-gamma ${isEditing ? 'editable' : ''} ${isDragging ? 'dragging' : ''}`}
+        style={blockStyle}
+        draggable={isEditing}
+        onDragStart={(e) => handleBlockDragStart(e, blockIndex, slideId)}
+        onDragEnd={handleBlockDragEnd}
+        onClick={() => isEditing && setEditingBlock(`${slideId}-${blockIndex}`)}
+      >
+        {renderBlockContent(block)}
+        
+        {isEditing && (
+          <div className="block-controls-gamma">
+            <button
+              className="control-btn delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteContentBlock(slideId, blockIndex);
+              }}
+            >
+              ×
+            </button>
+            <div 
+              className="drag-handle-gamma"
+              onMouseDown={() => setEditingBlock(`${slideId}-${blockIndex}`)}
+            >
+              ⋮⋮
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderBlockContent = (block: ContentBlockWithPosition) => {
+    switch (block.type) {
+      case 'headline':
         return (
-          <div className="mb-3">
-            <textarea 
-              value={text} 
-              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-              className={`${editingInputClass('', 'textarea')} w-full text-sm leading-normal text-gray-700`} 
+          <h1 className={`gamma-headline level-${block.level || 2}`}>
+            {block.text}
+          </h1>
+        );
+      case 'paragraph':
+        return <p className="gamma-paragraph">{block.text}</p>;
+      case 'bullet_list':
+        return (
+          <ul className={`gamma-bullet-list formation-${block.formation || 'vertical'}`}>
+            {block.items?.map((item, index) => (
+              <li key={index} className="gamma-list-item">• {typeof item === 'string' ? item : 'Complex item'}</li>
+            ))}
+          </ul>
+        );
+      case 'numbered_list':
+        return (
+          <ol className={`gamma-numbered-list formation-${block.formation || 'vertical'}`}>
+            {block.items?.map((item, index) => (
+              <li key={index} className="gamma-numbered-item">{index + 1}. {typeof item === 'string' ? item : 'Complex item'}</li>
+            ))}
+          </ol>
+        );
+      case 'alert':
+        return (
+          <div className={`gamma-alert alert-${block.alertType || 'info'}`}>
+            <strong>{block.title}</strong>
+            <p>{block.text}</p>
+          </div>
+        );
+      default:
+        return <div>Unknown content type</div>;
+    }
+  };
+
+  const renderInlineEditor = (block: ContentBlockWithPosition, slideId: string, blockIndex: number) => {
+    const handleSave = (updates: Partial<ContentBlockWithPosition>) => {
+      updateContentBlock(slideId, blockIndex, updates);
+      setEditingBlock(null);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setEditingBlock(null);
+      }
+    };
+
+    switch (block.type) {
+      case 'headline':
+        return (
+          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+            <div className="headline-editor">
+              <select
+                className="level-selector"
+                value={block.level || 2}
+                onChange={(e) => handleSave({ level: parseInt(e.target.value) as 1 | 2 | 3 | 4 })}
+              >
+                <option value={1}>H1</option>
+                <option value={2}>H2</option>
+                <option value={3}>H3</option>
+                <option value={4}>H4</option>
+              </select>
+              <input
+                className="headline-input"
+                type="text"
+                value={block.text || ''}
+                onChange={(e) => handleSave({ text: e.target.value })}
+                onBlur={() => setEditingBlock(null)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setEditingBlock(null);
+                  }
+                }}
+                autoFocus
+                placeholder="Enter headline..."
+              />
+            </div>
+          </div>
+        );
+
+      case 'paragraph':
+        return (
+          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+            <textarea
+              className="paragraph-textarea"
+              value={block.text || ''}
+              onChange={(e) => handleSave({ text: e.target.value })}
+              onBlur={() => setEditingBlock(null)}
+              autoFocus
+              placeholder="Enter paragraph text..."
             />
           </div>
         );
-      }
-      return ( <p className={`${THEME_COLORS.primaryText} text-sm leading-normal mb-3`}>{styledText}</p> );
-    }
-    
-    case 'bullet_list': 
-    case 'numbered_list': {
-      const { items } = block; 
-      const isNumbered = block.type === 'numbered_list';
-      const ListTag = isNumbered ? 'ol' : 'ul';
 
-      if (!items || !Array.isArray(items)) {
-        return null;
-      }
-
-      return (
-        <ListTag className={`${isNumbered ? 'list-decimal' : 'list-disc'} pl-6 mb-3 space-y-1`}>
-          {items.map((item: any, index: number) => (
-            <li key={index} className="text-sm text-gray-700">
-              {typeof item === 'string' ? parseAndStyleText(item) : (
-                <RenderBlock 
-                  block={item} 
-                  depth={depth + 1} 
-                  isEditing={isEditing}
-                  onTextChange={onTextChange}
-                  basePath={[...basePath, 'items', index]}
-                />
-              )}
-            </li>
-          ))}
-        </ListTag>
-      );
-    }
-    
-    case 'alert': {
-      const { title, text, alertType } = block;
-      const { bgColor, borderColor, textColor, iconColorClass, Icon } = getAlertColors(alertType || 'info');
-      
-      return (
-        <div className={`${bgColor} ${borderColor} border-l-4 p-4 mb-4 rounded-r-md`}>
-          <div className="flex items-start">
-            <Icon className={`${iconColorClass} h-5 w-5 mr-3 mt-0.5 flex-shrink-0`} />
-            <div className="flex-1">
-              {title && (
-                <h4 className={`font-medium ${textColor} mb-1`}>
-                  {isEditing && onTextChange ? (
-                    <input 
-                      type="text" 
-                      value={title}
-                      onChange={(e) => handleInputChangeEvent(fieldPath('title'), e)}
-                      className={editingInputClass()}
-                    />
-                  ) : title}
-                </h4>
-              )}
-              <p className={`text-sm ${textColor}`}>
-                {isEditing && onTextChange ? (
-                  <textarea 
-                    value={text || ''}
-                    onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                    className={editingInputClass('', 'textarea')}
+      case 'bullet_list':
+      case 'numbered_list':
+        return (
+          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+            <div className="formation-selector">
+              <select
+                value={block.formation || 'vertical'}
+                onChange={(e) => handleSave({ formation: e.target.value as any })}
+              >
+                <option value="vertical">Vertical</option>
+                <option value="horizontal">Horizontal</option>
+                <option value="grid-2x2">Grid 2x2</option>
+                <option value="grid-3x2">Grid 3x2</option>
+                <option value="grid-2x3">Grid 2x3</option>
+              </select>
+            </div>
+            <div className="list-items-editor">
+              {(block.items || []).map((item, index) => (
+                <div key={index} className="list-item-editor">
+                  <input
+                    className="list-item-input"
+                    type="text"
+                    value={typeof item === 'string' ? item : ''}
+                    onChange={(e) => {
+                      const newItems = [...(block.items || [])];
+                      newItems[index] = e.target.value;
+                      handleSave({ items: newItems });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const newItems = [...(block.items || [])];
+                        newItems.splice(index + 1, 0, '');
+                        handleSave({ items: newItems });
+                      } else if (e.key === 'Backspace' && typeof item === 'string' && item === '' && (block.items || []).length > 1) {
+                        const newItems = [...(block.items || [])];
+                        newItems.splice(index, 1);
+                        handleSave({ items: newItems });
+                      }
+                    }}
+                    placeholder={`Item ${index + 1}`}
                   />
-                ) : parseAndStyleText(text)}
-              </p>
+                </div>
+              ))}
+              <button
+                onClick={() => handleSave({ items: [...(block.items || []), ''] })}
+                style={{ padding: '8px', marginTop: '8px', background: '#48bb78', color: 'white', border: 'none', borderRadius: '4px' }}
+              >
+                Add Item
+              </button>
             </div>
           </div>
+        );
+
+      case 'alert':
+        return (
+          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+            <div className="alert-editor">
+              <select
+                className="alert-type-selector"
+                value={block.alertType || 'info'}
+                onChange={(e) => handleSave({ alertType: e.target.value as 'info' | 'warning' | 'success' | 'danger' })}
+              >
+                <option value="info">Info</option>
+                <option value="warning">Warning</option>
+                <option value="danger">Danger</option>
+                <option value="success">Success</option>
+              </select>
+              <input
+                className="alert-title-input"
+                type="text"
+                value={block.title || ''}
+                onChange={(e) => handleSave({ title: e.target.value })}
+                placeholder="Alert title..."
+              />
+              <textarea
+                className="alert-text-textarea"
+                value={block.text || ''}
+                onChange={(e) => handleSave({ text: e.target.value })}
+                onBlur={() => setEditingBlock(null)}
+                placeholder="Alert message..."
+              />
+            </div>
+          </div>
+        );
+
+      default:
+        return <div>Unknown content type</div>;
+    }
+  };
+
+  const renderSlidePreview = (slide: DeckSlide) => {
+    return (
+      <div className="slide-preview-canvas">
+        <div className="preview-title">{slide.slideTitle}</div>
+        <div className="preview-content">
+          {slide.contentBlocks.slice(0, 3).map((block, index) => (
+            <div
+              key={index}
+              className={`preview-block ${block.type}`}
+              style={{
+                position: 'absolute',
+                left: `${10 + (index % 2) * 45}%`,
+                top: `${30 + Math.floor(index / 2) * 30}%`,
+                width: '40%',
+                height: '20%',
+                fontSize: '8px'
+              }}
+            >
+              {block.type}
+            </div>
+          ))}
         </div>
-      );
-    }
-    
-    case 'section_break': {
-      const { style = 'solid' } = block;
-      if (style === 'none') return <div className="mb-4"></div>;
-      return (
-        <hr className={`my-4 ${style === 'dashed' ? 'border-dashed' : 'border-solid'} border-gray-300`} />
-      );
-    }
-    
-    default:
-      return null;
-  }
-};
-
-interface SlideDeckDisplayProps {
-  dataToDisplay: SlideDeckData | null;
-  isEditing?: boolean;
-  onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
-  className?: string;
-  parentProjectName?: string;
-  lessonNumber?: number;
-}
-
-const SlideDeckDisplay = ({
-  dataToDisplay,
-  isEditing,
-  onTextChange,
-  className = "",
-  parentProjectName,
-  lessonNumber,
-}: SlideDeckDisplayProps): React.JSX.Element | null => {
-  const searchParams = useSearchParams();
-  const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (dataToDisplay?.slides && dataToDisplay.slides.length > 0) {
-      setActiveSlideId(dataToDisplay.currentSlideId || dataToDisplay.slides[0].slideId);
-    } else {
-      setActiveSlideId(null);
-    }
-  }, [dataToDisplay]);
-
-  const handleSlideNavClick = (slideId: string) => {
-    setActiveSlideId(slideId);
-    if (onTextChange && dataToDisplay) {
-      onTextChange(['currentSlideId'], slideId);
-    }
+      </div>
+    );
   };
-
-  const currentSlide = useMemo(() => {
-    if (!activeSlideId || !dataToDisplay?.slides) return null;
-    return dataToDisplay.slides.find(s => s.slideId === activeSlideId) || null;
-  }, [activeSlideId, dataToDisplay?.slides]);
-
-  const handleSlideTitleChange = (slideId: string, value: string) => {
-    if (!onTextChange || !dataToDisplay) return;
-    const slideIndex = dataToDisplay.slides.findIndex(s => s.slideId === slideId);
-    if (slideIndex !== -1) {
-      onTextChange(['slides', slideIndex, 'slideTitle'], value);
-    }
-  };
-
-  const handleMainTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (onTextChange) {
-      onTextChange(['lessonTitle'], event.target.value);
-    }
-  };
-
-  if (!dataToDisplay) {
-    return <div className="p-6 text-center text-gray-500 text-sm">No lesson data available.</div>;
-  }
-
-  const { lessonTitle, slides = [] } = dataToDisplay;
-
-  const lang = dataToDisplay.detectedLanguage || 'en';
-  const t = locales[lang as keyof typeof locales];
 
   return (
-    <div className={`font-['Inter',_sans-serif] ${THEME_COLORS.contentBg} shadow-xl rounded-lg max-w-5xl mx-auto my-8 border ${THEME_COLORS.lightBorder} ${className}`}>
-      <div className="p-6 pb-4">
-        {isEditing && onTextChange ? (
-          <input
-            type="text"
-            value={lessonTitle}
-            onChange={handleMainTitleChange}
-            placeholder="Edit lesson title..."
-            className={`w-full text-xl md:text-2xl font-semibold ${THEME_COLORS.headingText} ${editingInputClass('border-b text-center')}`}
-          />
-        ) : (
-          (parentProjectName && lessonNumber) ? (
-            <div className="text-left">
-              <div className="pl-2.5 border-l-[3px] border-[#FF1414] py-1 mb-2">
-                  <span className={`uppercase text-lg sm:text-xl font-medium ${THEME_COLORS.headingText}`}>
-                      <span style={{ color: '#FF1414' }}>{t.common.course}:</span> {decodeURIComponent(parentProjectName)}
-                  </span>
+    <div className="gamma-presentation-container">
+      {/* Left Sidebar */}
+      <div className="gamma-sidebar">
+        <div className="sidebar-header">
+          <h3>{data.lessonTitle}</h3>
+          <div className="slide-count">{slides.length} slides</div>
+        </div>
+
+        <div className="slides-thumbnails">
+          {slides.map((slide) => (
+            <div
+              key={slide.slideId}
+              className={`slide-thumbnail ${currentSlideId === slide.slideId ? 'active' : ''}`}
+              draggable
+              onDragStart={(e) => handleSlideDragStart(e, slide.slideId)}
+              onDragEnd={handleSlideDragEnd}
+              onDragOver={handleSlideDragOver}
+              onDrop={(e) => handleThumbnailDrop(e, slide.slideId)}
+              onClick={() => setCurrentSlideId(slide.slideId)}
+            >
+              <div className="thumbnail-number">{slide.slideNumber}</div>
+              {renderSlidePreview(slide)}
+              
+              <div className="thumbnail-controls">
+                <button
+                  className="thumb-btn add"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addSlide(slide.slideId);
+                  }}
+                >
+                  +
+                </button>
+                <button
+                  className="thumb-btn duplicate"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    duplicateSlide(slide.slideId);
+                  }}
+                >
+                  ⧉
+                </button>
+                <button
+                  className="thumb-btn delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSlide(slide.slideId);
+                  }}
+                >
+                  ×
+                </button>
               </div>
-              <h1 className={`uppercase text-2xl sm:text-3xl font-medium ${THEME_COLORS.headingText}`}>
-                  <span style={{ color: '#FF1414' }}>{t.common.lesson} №{lessonNumber}:</span> {lessonTitle}
-              </h1>
             </div>
-          ) : (
-            <h1 className={`text-xl md:text-2xl font-semibold ${THEME_COLORS.headingText} text-center`}>
-              {lessonTitle}
-            </h1>
-          )
-        )}
+          ))}
+        </div>
+
+        <div className="sidebar-controls">
+          <button
+            className={`edit-toggle ${isEditing ? 'active' : ''}`}
+            onClick={() => setIsEditing(!isEditing)}
+          >
+            {isEditing ? 'Preview' : 'Edit'}
+          </button>
+          
+          <button
+            className="add-slide"
+            onClick={() => addSlide()}
+          >
+            Add Slide
+          </button>
+          
+          <button
+            className="save-deck"
+            onClick={() => onUpdate && onUpdate({ ...data, slides, currentSlideId })}
+          >
+            Save Changes
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row min-h-[calc(100vh-220px)] md:min-h-[600px]">
-        {/* Left Navigation Pane */}
-        <div className={`w-full md:w-1/3 lg:w-1/4 ${THEME_COLORS.contentBoxBg} p-3 md:p-4 border-b md:border-b-0 md:border-r ${THEME_COLORS.navBorder} flex-shrink-0 md:overflow-y-auto`}>
-          <nav>
-            <ul className="space-y-1">
-              {slides.map((slide) => (
-                <li key={slide.slideId}>
-                  <button
-                    onClick={() => handleSlideNavClick(slide.slideId)}
-                    className={`
-                      w-full text-left px-3 py-2 rounded-md text-xs sm:text-sm transition-colors duration-150
-                      flex items-center group border-l-4
-                      ${slide.slideId === activeSlideId
-                        ? `${THEME_COLORS.activeNavBg} ${THEME_COLORS.activeNavText} font-semibold ${THEME_COLORS.activeNavBorder}`
-                        : `border-transparent ${THEME_COLORS.navText} hover:${THEME_COLORS.activeNavBg}`
-                      }
-                    `}
-                  >
-                    <span className={`mr-2 font-medium ${slide.slideId === activeSlideId ? THEME_COLORS.accentRed : 'text-gray-500 group-hover:text-gray-600'}`}>№{slide.slideNumber}</span>
-                    <span className="truncate" title={slide.slideTitle}>{slide.slideTitle}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
+      {/* Top Bar */}
+      {isEditing && (
+        <div className="gamma-top-bar">
+          <div className="content-tools">
+            <button onClick={() => addContentBlock(currentSlideId, 'headline')}>
+              Add Headline
+            </button>
+            <button onClick={() => addContentBlock(currentSlideId, 'paragraph')}>
+              Add Paragraph
+            </button>
+            <button onClick={() => addContentBlock(currentSlideId, 'bullet_list')}>
+              Add Bullet List
+            </button>
+            <button onClick={() => addContentBlock(currentSlideId, 'numbered_list')}>
+              Add Numbered List
+            </button>
+            <button onClick={() => addContentBlock(currentSlideId, 'alert')}>
+              Add Alert
+            </button>
+          </div>
         </div>
+      )}
 
-        {/* Right Content Pane */}
-        <div className="w-full md:w-2/3 lg:w-3/4 p-4 sm:p-6 md:p-8 overflow-y-auto">
-          {!currentSlide && slides.length > 0 && (
-             <div className={`text-center ${THEME_COLORS.mutedText} pt-10`}>No slide selected</div>
-          )}
-          {currentSlide && (
-            <article className="space-y-5">
-              <header className={`pb-3 border-b ${THEME_COLORS.lightBorder} flex items-center`}>
-                <SlidePresentationIcon />
-                {isEditing && onTextChange ? (
-                    <input
-                      type="text"
-                      value={currentSlide.slideTitle}
-                      onChange={(e) => handleSlideTitleChange(currentSlide.slideId, e.target.value)}
-                      placeholder="Edit slide title..."
-                      className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText} ${editingInputClass()}`}
-                    />
-                ) : (
-                  <h2 className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText}`}>
-                    {currentSlide.slideTitle}
-                  </h2>
-                )}
-              </header>
+      {/* Main Slides Container */}
+      <div className="gamma-slides-container">
+        {slides.map((slide) => (
+          <div
+            key={slide.slideId}
+            className={`gamma-slide ${draggedBlock && currentSlideId === slide.slideId ? 'drag-over' : ''}`}
+            onDragOver={handleSlideDragOver}
+            onDrop={(e) => handleSlideDrop(e, slide.slideId)}
+          >
+            {/* Slide Title */}
+            {editingTitle === slide.slideId ? (
+              <input
+                className="gamma-title-input"
+                type="text"
+                value={slide.slideTitle}
+                onChange={(e) => updateSlideTitle(slide.slideId, e.target.value)}
+                onBlur={() => setEditingTitle(null)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') setEditingTitle(null);
+                  if (e.key === 'Escape') setEditingTitle(null);
+                }}
+                autoFocus
+              />
+            ) : (
+              <h1
+                className="gamma-slide-title"
+                onClick={() => isEditing && setEditingTitle(slide.slideId)}
+              >
+                {slide.slideTitle}
+              </h1>
+            )}
 
-              <div className="space-y-4">
-                {currentSlide.contentBlocks.map((block, index) => (
-                  <RenderBlock 
-                    key={index} 
-                    block={block} 
-                    isEditing={isEditing}
-                    onTextChange={onTextChange}
-                    basePath={['slides', dataToDisplay.slides.findIndex(s => s.slideId === currentSlide.slideId), 'contentBlocks', index]}
-                  />
-                ))}
-              </div>
-            </article>
-          )}
-        </div>
+            {/* Slide Content */}
+            <div className="gamma-slide-content">
+              {slide.contentBlocks.map((block, index) => renderContentBlock(block, slide.slideId, index))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
