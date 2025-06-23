@@ -12,7 +12,7 @@ interface SlideDeckDisplayProps {
 const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
-  const [draggedBlock, setDraggedBlock] = useState<{ blockId: string; slideId: string } | null>(null);
+  const [draggedBlock, setDraggedBlock] = useState<{ blockIndex: number; slideId: string } | null>(null);
   const [draggedSlide, setDraggedSlide] = useState<string | null>(null);
   const [currentSlideId, setCurrentSlideId] = useState<string>(data.slides[0]?.slideId || '');
   const [slides, setSlides] = useState<DeckSlide[]>(data.slides);
@@ -25,10 +25,10 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
       contentBlocks: slide.contentBlocks.map((block, index) => ({
         ...block,
         position: block.position || {
-          x: 100 + (index % 2) * 400,
-          y: 100 + Math.floor(index / 2) * 200,
-          width: 400,
-          height: 150
+          x: 50 + (index % 3) * 250,
+          y: 50 + Math.floor(index / 3) * 150,
+          width: 200,
+          height: 120
         }
       }))
     }));
@@ -138,10 +138,10 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
     const newBlock: ContentBlockWithPosition = {
       type,
       position: {
-        x: 100 + (existingBlocks % 2) * 400,
-        y: 100 + Math.floor(existingBlocks / 2) * 200,
-        width: 400,
-        height: 150
+        x: 50 + (existingBlocks % 3) * 250,
+        y: 50 + Math.floor(existingBlocks / 3) * 150,
+        width: 200,
+        height: 120
       },
       ...getDefaultContentByType(type)
     };
@@ -218,8 +218,8 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
       ...block,
       position: {
         ...block.position,
-        x: Math.max(0, Math.min(800, newPosition.x)),
-        y: Math.max(0, Math.min(500, newPosition.y))
+        x: Math.max(0, Math.min(700, newPosition.x)),
+        y: Math.max(0, Math.min(300, newPosition.y))
       }
     };
 
@@ -244,9 +244,16 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
 
   // Drag and Drop Handlers
   const handleBlockDragStart = (e: React.DragEvent, blockIndex: number, slideId: string) => {
-    setDraggedBlock({ blockId: blockIndex.toString(), slideId });
+    setDraggedBlock({ blockIndex, slideId });
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', JSON.stringify({ blockIndex, slideId }));
+    
+    // Create a custom drag image
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.opacity = '0.8';
+    dragImage.style.transform = 'rotate(2deg)';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 50, 50);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
   };
 
   const handleBlockDragEnd = () => {
@@ -263,18 +270,19 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
     
     if (!draggedBlock) return;
     
-    const rect = e.currentTarget.getBoundingClientRect();
-    const contentRect = e.currentTarget.querySelector('.gamma-slide-content')?.getBoundingClientRect();
+    const slideElement = e.currentTarget as HTMLElement;
+    const contentElement = slideElement.querySelector('.slide-content') as HTMLElement;
     
-    if (contentRect) {
-      const x = e.clientX - contentRect.left;
-      const y = e.clientY - contentRect.top;
+    if (contentElement) {
+      const contentRect = contentElement.getBoundingClientRect();
+      const x = e.clientX - contentRect.left - 100; // Offset for better positioning
+      const y = e.clientY - contentRect.top - 60;
       
       moveContentBlock(
         draggedBlock.slideId,
         targetSlideId,
-        parseInt(draggedBlock.blockId),
-        { x, y }
+        draggedBlock.blockIndex,
+        { x: Math.max(0, x), y: Math.max(0, y) }
       );
     }
     
@@ -315,19 +323,19 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
 
   const renderContentBlock = (block: ContentBlockWithPosition, slideId: string, blockIndex: number) => {
     const isCurrentlyEditing = editingBlock === `${slideId}-${blockIndex}`;
-    const isDragging = draggedBlock?.blockId === blockIndex.toString() && draggedBlock?.slideId === slideId;
+    const isDragging = draggedBlock?.blockIndex === blockIndex && draggedBlock?.slideId === slideId;
     
     const blockStyle: React.CSSProperties = {
       left: `${block.position?.x || 0}px`,
       top: `${block.position?.y || 0}px`,
-      width: `${block.position?.width || 400}px`,
-      minHeight: `${block.position?.height || 150}px`,
+      width: `${block.position?.width || 200}px`,
+      minHeight: `${block.position?.height || 120}px`,
     };
 
     if (isCurrentlyEditing) {
       return (
         <div 
-          className="content-block-gamma editing"
+          className="content-block editing"
           style={blockStyle}
           key={blockIndex}
         >
@@ -339,7 +347,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
     return (
       <div
         key={blockIndex}
-        className={`content-block-gamma ${isEditing ? 'editable' : ''} ${isDragging ? 'dragging' : ''}`}
+        className={`content-block ${isEditing ? 'editable' : ''} ${isDragging ? 'dragging' : ''}`}
         style={blockStyle}
         draggable={isEditing}
         onDragStart={(e) => handleBlockDragStart(e, blockIndex, slideId)}
@@ -349,7 +357,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
         {renderBlockContent(block)}
         
         {isEditing && (
-          <div className="block-controls-gamma">
+          <div className="block-controls">
             <button
               className="control-btn delete"
               onClick={(e) => {
@@ -360,7 +368,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
               ×
             </button>
             <div 
-              className="drag-handle-gamma"
+              className="drag-handle"
               onMouseDown={() => setEditingBlock(`${slideId}-${blockIndex}`)}
             >
               ⋮⋮
@@ -375,33 +383,37 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
     switch (block.type) {
       case 'headline':
         return (
-          <h1 className={`gamma-headline level-${block.level || 2}`}>
+          <h1 className={`block-headline level-${block.level || 2}`}>
             {block.text}
           </h1>
         );
       case 'paragraph':
-        return <p className="gamma-paragraph">{block.text}</p>;
+        return <p className="block-paragraph">{block.text}</p>;
       case 'bullet_list':
         return (
-          <ul className={`gamma-bullet-list formation-${block.formation || 'vertical'}`}>
+          <ul className={`block-list formation-${block.formation || 'vertical'}`}>
             {block.items?.map((item, index) => (
-              <li key={index} className="gamma-list-item">• {typeof item === 'string' ? item : 'Complex item'}</li>
+              <li key={index} className="block-list-item">
+                • {typeof item === 'string' ? item : 'Complex item'}
+              </li>
             ))}
           </ul>
         );
       case 'numbered_list':
         return (
-          <ol className={`gamma-numbered-list formation-${block.formation || 'vertical'}`}>
+          <ol className={`block-list formation-${block.formation || 'vertical'}`}>
             {block.items?.map((item, index) => (
-              <li key={index} className="gamma-numbered-item">{index + 1}. {typeof item === 'string' ? item : 'Complex item'}</li>
+              <li key={index} className="block-list-item">
+                {index + 1}. {typeof item === 'string' ? item : 'Complex item'}
+              </li>
             ))}
           </ol>
         );
       case 'alert':
         return (
-          <div className={`gamma-alert alert-${block.alertType || 'info'}`}>
-            <strong>{block.title}</strong>
-            <p>{block.text}</p>
+          <div className={`block-alert alert-${block.alertType || 'info'}`}>
+            <div className="block-alert-title">{block.title}</div>
+            <div className="block-alert-text">{block.text}</div>
           </div>
         );
       default:
@@ -424,7 +436,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
     switch (block.type) {
       case 'headline':
         return (
-          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+          <div className="inline-editor" onKeyDown={handleKeyDown}>
             <div className="headline-editor">
               <select
                 className="level-selector"
@@ -456,7 +468,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
 
       case 'paragraph':
         return (
-          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+          <div className="inline-editor" onKeyDown={handleKeyDown}>
             <textarea
               className="paragraph-textarea"
               value={block.text || ''}
@@ -471,7 +483,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
       case 'bullet_list':
       case 'numbered_list':
         return (
-          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+          <div className="inline-editor" onKeyDown={handleKeyDown}>
             <div className="formation-selector">
               <select
                 value={block.formation || 'vertical'}
@@ -523,7 +535,7 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
 
       case 'alert':
         return (
-          <div className="gamma-inline-editor" onKeyDown={handleKeyDown}>
+          <div className="inline-editor" onKeyDown={handleKeyDown}>
             <div className="alert-editor">
               <select
                 className="alert-type-selector"
@@ -585,9 +597,9 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
   };
 
   return (
-    <div className="gamma-presentation-container">
+    <div className="slide-deck-container">
       {/* Left Sidebar */}
-      <div className="gamma-sidebar">
+      <div className="slide-deck-sidebar">
         <div className="sidebar-header">
           <h3>{data.lessonTitle}</h3>
           <div className="slide-count">{slides.length} slides</div>
@@ -665,67 +677,74 @@ const SlideDeckDisplay: React.FC<SlideDeckDisplayProps> = ({ data, onUpdate }) =
         </div>
       </div>
 
-      {/* Top Bar */}
-      {isEditing && (
-        <div className="gamma-top-bar">
-          <div className="content-tools">
-            <button onClick={() => addContentBlock(currentSlideId, 'headline')}>
-              Add Headline
-            </button>
-            <button onClick={() => addContentBlock(currentSlideId, 'paragraph')}>
-              Add Paragraph
-            </button>
-            <button onClick={() => addContentBlock(currentSlideId, 'bullet_list')}>
-              Add Bullet List
-            </button>
-            <button onClick={() => addContentBlock(currentSlideId, 'numbered_list')}>
-              Add Numbered List
-            </button>
-            <button onClick={() => addContentBlock(currentSlideId, 'alert')}>
-              Add Alert
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Slides Container */}
-      <div className="gamma-slides-container">
-        {slides.map((slide) => (
-          <div
-            key={slide.slideId}
-            className={`gamma-slide ${draggedBlock && currentSlideId === slide.slideId ? 'drag-over' : ''}`}
-            onDragOver={handleSlideDragOver}
-            onDrop={(e) => handleSlideDrop(e, slide.slideId)}
-          >
-            {/* Slide Title */}
-            {editingTitle === slide.slideId ? (
-              <input
-                className="gamma-title-input"
-                type="text"
-                value={slide.slideTitle}
-                onChange={(e) => updateSlideTitle(slide.slideId, e.target.value)}
-                onBlur={() => setEditingTitle(null)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') setEditingTitle(null);
-                  if (e.key === 'Escape') setEditingTitle(null);
-                }}
-                autoFocus
-              />
-            ) : (
-              <h1
-                className="gamma-slide-title"
-                onClick={() => isEditing && setEditingTitle(slide.slideId)}
-              >
-                {slide.slideTitle}
-              </h1>
-            )}
-
-            {/* Slide Content */}
-            <div className="gamma-slide-content">
-              {slide.contentBlocks.map((block, index) => renderContentBlock(block, slide.slideId, index))}
+      {/* Main Content Area */}
+      <div className="slide-deck-main">
+        {/* Top Toolbar */}
+        {isEditing && (
+          <div className="slide-deck-toolbar">
+            <div className="content-tools">
+              <button onClick={() => addContentBlock(currentSlideId, 'headline')}>
+                Add Headline
+              </button>
+              <button onClick={() => addContentBlock(currentSlideId, 'paragraph')}>
+                Add Paragraph
+              </button>
+              <button onClick={() => addContentBlock(currentSlideId, 'bullet_list')}>
+                Add Bullet List
+              </button>
+              <button onClick={() => addContentBlock(currentSlideId, 'numbered_list')}>
+                Add Numbered List
+              </button>
+              <button onClick={() => addContentBlock(currentSlideId, 'alert')}>
+                Add Alert
+              </button>
             </div>
           </div>
-        ))}
+        )}
+
+        {/* Slides Container */}
+        <div className="slides-container">
+          {slides.map((slide) => (
+            <div
+              key={slide.slideId}
+              className={`slide-item ${draggedBlock ? 'drag-over' : ''}`}
+              onDragOver={handleSlideDragOver}
+              onDrop={(e) => handleSlideDrop(e, slide.slideId)}
+            >
+              {/* Slide Header */}
+              <div className="slide-header">
+                <div className="slide-number-badge">{slide.slideNumber}</div>
+                
+                {editingTitle === slide.slideId ? (
+                  <input
+                    className="slide-title-input"
+                    type="text"
+                    value={slide.slideTitle}
+                    onChange={(e) => updateSlideTitle(slide.slideId, e.target.value)}
+                    onBlur={() => setEditingTitle(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setEditingTitle(null);
+                      if (e.key === 'Escape') setEditingTitle(null);
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  <h1
+                    className="slide-title"
+                    onClick={() => isEditing && setEditingTitle(slide.slideId)}
+                  >
+                    {slide.slideTitle}
+                  </h1>
+                )}
+              </div>
+
+              {/* Slide Content */}
+              <div className="slide-content">
+                {slide.contentBlocks.map((block, index) => renderContentBlock(block, slide.slideId, index))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
