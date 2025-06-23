@@ -526,3 +526,5 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
     />
   );
 }
+
+export { SlideDeckViewer };
