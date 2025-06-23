@@ -433,7 +433,7 @@ export interface TextPresentationDisplayProps {
 
 const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName }: TextPresentationDisplayProps): React.JSX.Element | null => {
   const searchParams = useSearchParams();
-  const lang = dataToDisplay?.detectedLanguage || searchParams.get('lang') || 'en';
+  const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
   const locale = locales[lang as keyof typeof locales] || locales.en;
 
   if (!dataToDisplay) {

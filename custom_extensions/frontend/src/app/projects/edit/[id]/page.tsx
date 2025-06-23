@@ -35,7 +35,7 @@ const createEmptyTrainingPlan = (initialProjectName?: string): TrainingPlanData 
 const EditProjectPageComponent = () => {
   const params = useParams();
   const router = useRouter();
-  const projectId = params.id ? (Array.isArray(params.id) ? params.id[0] : params.id) : null;
+  const projectId = params?.id ? (Array.isArray(params.id) ? params.id[0] : params.id) : null;
 
   const [projectName, setProjectName] = useState('');
   const [microProductName, setMicroProductName] = useState(''); 

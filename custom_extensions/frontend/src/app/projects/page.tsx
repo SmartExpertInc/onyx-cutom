@@ -118,7 +118,7 @@ const Header = ({ isTrash }: { isTrash: boolean }) => (
 // --- Inner client component that can read search params ---
 const ProjectsPageInner: React.FC = () => {
   const searchParams = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'products';
+  const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
 
   return (

@@ -75,7 +75,7 @@ export default function ProjectInstanceViewPage() {
   const params = useParams<ProjectViewParams>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { projectId } = params;
+  const { projectId } = params || {};
 
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
@@ -399,8 +399,8 @@ export default function ProjectInstanceViewPage() {
     const docNameSlug = slugify(nameForSlug);
     const pdfProjectId = projectInstanceData.project_id;
 
-    const parentProjectName = searchParams.get('parentProjectName');
-    const lessonNumber = searchParams.get('lessonNumber');
+    const parentProjectName = searchParams?.get('parentProjectName');
+    const lessonNumber = searchParams?.get('lessonNumber');
 
     let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/${pdfProjectId}/${docNameSlug}`;
     
@@ -459,8 +459,8 @@ export default function ProjectInstanceViewPage() {
       return null; 
     }
 
-    const parentProjectName = searchParams.get('parentProjectName') || parentProjectNameForCurrentView;
-    const lessonNumberStr = searchParams.get('lessonNumber');
+    const parentProjectName = searchParams?.get('parentProjectName') || parentProjectNameForCurrentView;
+    const lessonNumberStr = searchParams?.get('lessonNumber');
     let lessonNumber: number | undefined = lessonNumberStr ? parseInt(lessonNumberStr, 10) : undefined;
     
     if (lessonNumber === undefined && projectInstanceData.details && 'lessonNumber' in projectInstanceData.details && typeof projectInstanceData.details.lessonNumber === 'number') {

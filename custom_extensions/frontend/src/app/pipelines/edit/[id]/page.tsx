@@ -16,7 +16,7 @@ import NextImage from 'next/image'; // Using NextImage alias for clarity with HT
 const EditPipelinePageComponent = () => {
   const router = useRouter();
   const params = useParams();
-  const pipelineId = params.id ? parseInt(params.id as string) : null;
+  const pipelineId = params?.id ? parseInt(params.id as string) : null;
 
   // --- Base Class Definitions ---
   const inputBaseClasses = "block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black";

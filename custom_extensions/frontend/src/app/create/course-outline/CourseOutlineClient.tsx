@@ -186,7 +186,7 @@ export default function CourseOutlineClient() {
   // Optional pre-created chat session id (speeds up backend). If none present, we lazily
   // call the backend to obtain one and store it both in state and the URL so subsequent
   // preview/finalize calls can use the same cached outline.
-  const [chatId, setChatId] = useState<string | null>(params.get("chatId"));
+  const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
 
   const [preview, setPreview] = useState<ModulePreview[]>([]);
   const [rawOutline, setRawOutline] = useState<string>("");
@@ -343,7 +343,7 @@ export default function CourseOutlineClient() {
         if (data.chatSessionId) {
           setChatId(data.chatSessionId);
           // Persist in URL so refreshes keep the same session (avoid resetting preview)
-          const sp = new URLSearchParams(Array.from(params.entries()));
+          const sp = new URLSearchParams(Array.from(params?.entries() || []));
           sp.set("chatId", data.chatSessionId);
           // Don't push a new history entry; just replace current.
           router.replace(`?${sp.toString()}`, { scroll: false });
@@ -648,10 +648,10 @@ export default function CourseOutlineClient() {
   // Extra boolean filters (all true by default)
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState(() => ({
-    knowledgeCheck: params.get("knowledgeCheck") === "0" ? false : true,
-    contentAvailability: params.get("contentAvailability") === "0" ? false : true,
-    informationSource: params.get("informationSource") === "0" ? false : true,
-    time: params.get("time") === "0" ? false : true,
+    knowledgeCheck: params?.get("knowledgeCheck") === "0" ? false : true,
+    contentAvailability: params?.get("contentAvailability") === "0" ? false : true,
+    informationSource: params?.get("informationSource") === "0" ? false : true,
+    time: params?.get("time") === "0" ? false : true,
   }));
 
   // Ref for closing the dropdown when clicking outside

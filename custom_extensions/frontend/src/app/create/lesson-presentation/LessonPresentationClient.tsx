@@ -111,18 +111,18 @@ export default function LessonPresentationClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
-  const [chatId, setChatId] = useState<string | null>(params.get("chatId"));
+  const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
   
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
   const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
   const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
   const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
-  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params.get("outlineId") ? Number(params.get("outlineId")) : null);
-  const [selectedLesson, setSelectedLesson] = useState<string>(params.get("lesson") || "");
-  const [language, setLanguage] = useState<string>(params.get("lang") || "en");
+  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params?.get("outlineId") ? Number(params.get("outlineId")) : null);
+  const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
+  const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">(
-    optionForRange(params.get("length") || "600-800 words")
+    optionForRange(params?.get("length") || "600-800 words")
   );
   
   // UI state
@@ -259,7 +259,7 @@ export default function LessonPresentationClient() {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
-    const promptQuery = params.get("prompt")?.trim() || "";
+    const promptQuery = params?.get("prompt")?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
       setLoading(false);
@@ -402,7 +402,7 @@ export default function LessonPresentationClient() {
     setError(null);
     try {
       // Re-use the same fallback title logic we applied in preview
-      const promptQuery = params.get("prompt")?.trim() || "";
+      const promptQuery = params?.get("prompt")?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
@@ -433,13 +433,13 @@ export default function LessonPresentationClient() {
     if (!trimmed || loadingEdit) return;
 
     // Combine existing prompt (if any) with new instruction
-    const basePrompt = params.get("prompt") || "";
+    const basePrompt = params?.get("prompt") || "";
     let combined = basePrompt.trim();
     if (combined && !/[.!?]$/.test(combined)) combined += ".";
     combined = combined ? `${combined} ${trimmed}` : trimmed;
 
     // Update URL param so refreshes keep context (ReadonlyURLSearchParams is immutable)
-    const sp = new URLSearchParams(params.toString());
+    const sp = new URLSearchParams(params?.toString() || "");
     sp.set("prompt", combined);
     router.replace(`?${sp.toString()}`, { scroll: false });
 

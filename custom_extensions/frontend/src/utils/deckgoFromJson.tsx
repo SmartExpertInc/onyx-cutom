@@ -142,7 +142,7 @@ export const deckgoFromJson = (deck: SlideDeckData) => {
   }
 
   return (
-    <deckgo-deck embedded keyboard navigation>
+    <div className="deckgo-deck" data-embedded data-keyboard data-navigation>
       {deck.slides.map(slide => {
         const template = getSlideTemplate(slide.contentBlocks);
         
@@ -153,28 +153,28 @@ export const deckgoFromJson = (deck: SlideDeckData) => {
           const rightBlocks = slide.contentBlocks.slice(midPoint);
           
           return (
-            <deckgo-slide-split key={slide.slideId}>
-              <h1 slot="title">{slide.slideTitle}</h1>
-              <div slot="start" className="slide-column">
+            <div key={slide.slideId} className="deckgo-slide-split">
+              <h1 className="slide-title">{slide.slideTitle}</h1>
+              <div className="slide-column slide-start">
                 {leftBlocks.map((blk, idx) => renderBlock(blk, idx))}
               </div>
-              <div slot="end" className="slide-column">
+              <div className="slide-column slide-end">
                 {rightBlocks.map((blk, idx) => renderBlock(blk, idx + midPoint))}
               </div>
-            </deckgo-slide-split>
+            </div>
           );
         }
         
         // Default content template
         return (
-          <deckgo-slide-content key={slide.slideId}>
-            <h1 slot="title">{slide.slideTitle}</h1>
+          <div key={slide.slideId} className="deckgo-slide-content">
+            <h1 className="slide-title">{slide.slideTitle}</h1>
             <div className="slide-content">
               {slide.contentBlocks.map((blk, idx) => renderBlock(blk, idx))}
             </div>
-          </deckgo-slide-content>
+          </div>
         );
       })}
-    </deckgo-deck>
+    </div>
   );
 }; 
