@@ -106,7 +106,7 @@ const AddToProjectPageComponent = () => {
   }, [selectedDesignTemplateId]);
 
   useEffect(() => {
-    const responseKey = searchParams.get('responseKey');
+    const responseKey = searchParams?.get('responseKey');
     if (responseKey) {
       try {
         const storedResponse = sessionStorage.getItem(decodeURIComponent(responseKey));

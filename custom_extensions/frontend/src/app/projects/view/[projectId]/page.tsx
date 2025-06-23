@@ -17,11 +17,12 @@ import { SlideDeckData } from '@/types/pdfLesson';
 import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
-import SlideDeckDisplay from '@/components/SlideDeckDisplay';
+import { SlideDeckViewer } from '@/components/SlideDeckViewer';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2 } from 'lucide-react';
+import '@/styles/slideDeck.css';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -492,13 +493,17 @@ export default function ProjectInstanceViewPage() {
         );
       case COMPONENT_NAME_SLIDE_DECK:
         const slideDeckData = editableData as SlideDeckData | null;
+        if (!slideDeckData) {
+          return <div className="p-6 text-center text-gray-500">No slide deck data available</div>;
+        }
         return (
-          <SlideDeckDisplay 
-            dataToDisplay={slideDeckData} 
-            isEditing={isEditing} 
-            onTextChange={handleTextChange}
-            parentProjectName={parentProjectName}
-            lessonNumber={lessonNumber}
+          <SlideDeckViewer 
+            deck={slideDeckData} 
+            isEditable={true}
+            onSave={(updatedDeck) => {
+              setEditableData(updatedDeck);
+              handleSave();
+            }}
           />
         );
        case COMPONENT_NAME_TEXT_PRESENTATION:

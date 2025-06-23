@@ -178,10 +178,10 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 
 export default function CourseOutlineClient() {
   const params = useSearchParams();
-  const [prompt, setPrompt] = useState(params.get("prompt") || "");
-  const [modules, setModules] = useState<number>(Number(params.get("modules") || 4));
-  const [lessonsPerModule, setLessonsPerModule] = useState<string>(params.get("lessons") || "3-4");
-  const [language, setLanguage] = useState<string>(params.get("lang") || "en");
+  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
+  const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
+  const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
+  const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
 
   // Optional pre-created chat session id (speeds up backend). If none present, we lazily
   // call the backend to obtain one and store it both in state and the URL so subsequent

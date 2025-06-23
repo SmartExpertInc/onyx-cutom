@@ -25,7 +25,7 @@ import { Save, AlertCircle } from 'lucide-react';
 const EditDesignTemplatePageComponent = () => {
   const router = useRouter();
   const params = useParams();
-  const templateId = params.id ? parseInt(params.id as string) : null;
+  const templateId = params?.id ? parseInt(params.id as string) : null;
 
   const [formData, setFormData] = useState<Partial<DesignTemplateUpdateData>>({ // Use partial for initial state
     template_name: '',
