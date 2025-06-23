@@ -81,6 +81,8 @@ const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
+const QuizIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
+  <svg width={size} height={size * 0.97} viewBox="0 0 413 401" xmlns="http://www.w3.org/2000/svg">
 // Simple tab button
 interface TabButtonProps {
   label: string;
