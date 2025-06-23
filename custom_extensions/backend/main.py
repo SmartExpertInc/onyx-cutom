@@ -166,40 +166,62 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
-      "slideTitle": "Introduction",
       "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
-        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        { 
+          "type": "headline", 
+          "level": 2, 
+          "text": "Introduction",
+          "position": { "x": 50, "y": 10 }
+        },
+        { 
+          "type": "paragraph", 
+          "text": "Brief overview of the topic.",
+          "position": { "x": 20, "y": 30 }
+        },
         {
           "type": "bullet_list",
           "items": [
             "Key point 1",
-            "Key point 2",
-            "Key point 3"
-          ]
+            "Key point 2"
+          ],
+          "position": { "x": 60, "y": 50 }
         }
       ]
     },
     {
       "slideId": "slide_2_main",
       "slideNumber": 2,
-      "slideTitle": "Main Concepts",
       "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        { 
+          "type": "headline", 
+          "level": 2, 
+          "text": "Core Concepts",
+          "position": { "x": 30, "y": 15 }
+        },
         {
           "type": "numbered_list",
           "items": [
-            "First important concept",
-            "Second important concept"
-          ]
-        },
-        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+            "First concept",
+            "Second concept"
+          ],
+          "position": { "x": 40, "y": 40 }
+        }
       ]
     }
   ],
   "currentSlideId": "slide_1_intro",
   "detectedLanguage": "en"
 }
+
+IMPORTANT SLIDE GENERATION RULES:
+- Keep slides MINIMAL: Maximum 2-3 content blocks per slide
+- Lists should have maximum 3-4 items to fit in slide bounds
+- Paragraphs should be 1-2 sentences maximum
+- Use concise headlines (3-6 words)
+- Position blocks using x,y coordinates (0-100% of slide area)
+- Vary positioning: some blocks left (x: 10-30), center (x: 40-60), right (x: 70-90)
+- Vertical spacing: top (y: 10-25), middle (y: 30-60), bottom (y: 70-90)
+- NEVER exceed slide boundaries - content must fit within 16:9 aspect ratio
 """
 
 async def get_db_pool():
@@ -375,8 +397,14 @@ class TrainingPlanDetails(BaseModel):
 AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
 ListItem = Union[str, AnyContentBlock, List[AnyContentBlock]]
 
+class BlockPosition(BaseModel):
+    x: float = Field(ge=0, le=100, description="X position as percentage (0-100)")
+    y: float = Field(ge=0, le=100, description="Y position as percentage (0-100)")
+    model_config = {"from_attributes": True}
+
 class BaseContentBlock(BaseModel):
     type: str
+    position: Optional[BlockPosition] = None
     model_config = {"from_attributes": True}
 
 class HeadlineBlock(BaseContentBlock):
@@ -453,7 +481,6 @@ class VideoLessonData(BaseModel):
 class DeckSlide(BaseModel):
     slideId: str               # "slide_1_intro"
     slideNumber: int           # 1, 2, 3, ...
-    slideTitle: str            # "Introduction to Key Concepts"
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
     model_config = {"from_attributes": True}
 

@@ -154,7 +154,11 @@ export const deckgoFromJson = (deck: SlideDeckData) => {
           
           return (
             <div key={slide.slideId} className="deckgo-slide-split">
-              <h1 className="slide-title">{slide.slideTitle}</h1>
+              <h1 className="slide-title">
+                {slide.contentBlocks.find(block => block.type === 'headline')?.type === 'headline' 
+                  ? slide.contentBlocks.find(block => block.type === 'headline')?.text 
+                  : `Slide ${slide.slideNumber}`}
+              </h1>
               <div className="slide-column slide-start">
                 {leftBlocks.map((blk, idx) => renderBlock(blk, idx))}
               </div>
@@ -168,7 +172,11 @@ export const deckgoFromJson = (deck: SlideDeckData) => {
         // Default content template
         return (
           <div key={slide.slideId} className="deckgo-slide-content">
-            <h1 className="slide-title">{slide.slideTitle}</h1>
+            <h1 className="slide-title">
+          {slide.contentBlocks.find(block => block.type === 'headline')?.type === 'headline' 
+            ? slide.contentBlocks.find(block => block.type === 'headline')?.text 
+            : `Slide ${slide.slideNumber}`}
+        </h1>
             <div className="slide-content">
               {slide.contentBlocks.map((blk, idx) => renderBlock(blk, idx))}
             </div>

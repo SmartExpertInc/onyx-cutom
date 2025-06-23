@@ -267,12 +267,10 @@ const SlideDeckDisplay = ({
     return dataToDisplay.slides.find(s => s.slideId === activeSlideId) || null;
   }, [activeSlideId, dataToDisplay?.slides]);
 
-  const handleSlideTitleChange = (slideId: string, value: string) => {
-    if (!onTextChange || !dataToDisplay) return;
-    const slideIndex = dataToDisplay.slides.findIndex(s => s.slideId === slideId);
-    if (slideIndex !== -1) {
-      onTextChange(['slides', slideIndex, 'slideTitle'], value);
-    }
+  const getSlideTitle = (slide: DeckSlide): string => {
+    // Find the first headline block to use as title
+    const titleBlock = slide.contentBlocks.find(block => block.type === 'headline');
+    return titleBlock?.type === 'headline' ? titleBlock.text : `Slide ${slide.slideNumber}`;
   };
 
   const handleMainTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -340,7 +338,11 @@ const SlideDeckDisplay = ({
                     `}
                   >
                     <span className={`mr-2 font-medium ${slide.slideId === activeSlideId ? THEME_COLORS.accentRed : 'text-gray-500 group-hover:text-gray-600'}`}>№{slide.slideNumber}</span>
-                    <span className="truncate" title={slide.slideTitle}>{slide.slideTitle}</span>
+                    <span className="truncate" title={slide.contentBlocks.find(block => block.type === 'headline')?.type === 'headline' ? slide.contentBlocks.find(block => block.type === 'headline')?.text : `Slide ${slide.slideNumber}`}>
+                      {slide.contentBlocks.find(block => block.type === 'headline')?.type === 'headline' 
+                        ? slide.contentBlocks.find(block => block.type === 'headline')?.text 
+                        : `Slide ${slide.slideNumber}`}
+                    </span>
                   </button>
                 </li>
               ))}
@@ -357,19 +359,9 @@ const SlideDeckDisplay = ({
             <article className="space-y-5">
               <header className={`pb-3 border-b ${THEME_COLORS.lightBorder} flex items-center`}>
                 <SlidePresentationIcon />
-                {isEditing && onTextChange ? (
-                    <input
-                      type="text"
-                      value={currentSlide.slideTitle}
-                      onChange={(e) => handleSlideTitleChange(currentSlide.slideId, e.target.value)}
-                      placeholder="Edit slide title..."
-                      className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText} ${editingInputClass()}`}
-                    />
-                ) : (
-                  <h2 className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText}`}>
-                    {currentSlide.slideTitle}
-                  </h2>
-                )}
+                <h2 className={`text-lg sm:text-xl font-semibold ${THEME_COLORS.headingText}`}>
+                  {getSlideTitle(currentSlide)}
+                </h2>
               </header>
 
               <div className="space-y-4">

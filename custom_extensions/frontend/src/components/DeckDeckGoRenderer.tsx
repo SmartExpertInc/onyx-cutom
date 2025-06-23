@@ -273,7 +273,9 @@ const DeckDeckGoRenderer: React.FC<DeckDeckGoRendererProps> = ({ deck, onSlideCh
           borderBottom: '3px solid #3498db',
           paddingBottom: '0.5em',
         }}>
-          {currentSlide.slideTitle}
+          {currentSlide.contentBlocks.find(block => block.type === 'headline')?.type === 'headline' 
+            ? currentSlide.contentBlocks.find(block => block.type === 'headline')?.text 
+            : `Slide ${currentSlide.slideNumber}`}
         </h1>
 
         {/* Slide Content */}
@@ -436,7 +438,9 @@ const DeckDeckGoRenderer: React.FC<DeckDeckGoRendererProps> = ({ deck, onSlideCh
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
             }}>
-              {slide.slideTitle}
+              {slide.contentBlocks.find(block => block.type === 'headline')?.type === 'headline' 
+                ? slide.contentBlocks.find(block => block.type === 'headline')?.text 
+                : `Slide ${slide.slideNumber}`}
             </div>
           </div>
         ))}
