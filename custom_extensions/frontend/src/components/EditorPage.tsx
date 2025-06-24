@@ -578,14 +578,35 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (hasTopBanner) return 'content-layout-avoid-top';
     if (hasBottomBanner) return 'content-layout-avoid-bottom';
     
-    // Handle corner positions more specifically
+    // Handle corner positions - only apply top margin for split templates or when text is on same side
+    const isSplitTemplate = slide.deckgoTemplate === 'deckgo-slide-split';
+    
     if (hasTopLeft || hasTopRight) {
-      const layoutClass = 'content-layout-with-top-corners';
-      return layoutClass;
+      // For split templates, always apply top margin
+      if (isSplitTemplate) {
+        return 'content-layout-with-top-corners';
+      }
+      // For non-split templates, only apply side restrictions
+      if (hasTopLeft) {
+        return 'content-layout-avoid-left';
+      }
+      if (hasTopRight) {
+        return 'content-layout-avoid-right';
+      }
     }
+    
     if (hasBottomLeft || hasBottomRight) {
-      const layoutClass = 'content-layout-with-bottom-corners';
-      return layoutClass;
+      // For split templates, always apply bottom margin
+      if (isSplitTemplate) {
+        return 'content-layout-with-bottom-corners';
+      }
+      // For non-split templates, only apply side restrictions
+      if (hasBottomLeft) {
+        return 'content-layout-avoid-left';
+      }
+      if (hasBottomRight) {
+        return 'content-layout-avoid-right';
+      }
     }
     
     return 'content-layout-default';
