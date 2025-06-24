@@ -3,7 +3,46 @@ import './EditorPage.css';
 
 interface EditorPageProps {}
 
+// Sample slide data
+const sampleSlides = [
+  {
+    id: 1,
+    title: "Introduction to React Development",
+    content: "React is a powerful JavaScript library for building user interfaces. It allows developers to create interactive and dynamic web applications with ease.",
+    author: "Sarah Johnson",
+    lastEdited: "2 hours ago",
+    type: "title"
+  },
+  {
+    id: 2,
+    title: "Component Architecture",
+    content: "• Functional Components\n• Class Components\n• Props and State\n• Component Lifecycle",
+    author: "Sarah Johnson",
+    lastEdited: "2 hours ago",
+    type: "bullets"
+  },
+  {
+    id: 3,
+    title: "State Management",
+    content: "• useState Hook\n• useEffect Hook\n• Context API\n• Redux Integration\n• State Best Practices",
+    author: "Sarah Johnson",
+    lastEdited: "2 hours ago",
+    type: "bullets"
+  },
+  {
+    id: 4,
+    title: "Modern React Patterns",
+    content: "1. Custom Hooks\n2. Higher-Order Components\n3. Render Props\n4. Compound Components\n5. Error Boundaries",
+    author: "Sarah Johnson",
+    lastEdited: "2 hours ago",
+    type: "numbered"
+  }
+];
+
 const EditorPage: React.FC<EditorPageProps> = () => {
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const slide = sampleSlides[currentSlide];
+
   return (
     <div className="editor-page">
       {/* Top Navigation Bar */}
@@ -11,7 +50,7 @@ const EditorPage: React.FC<EditorPageProps> = () => {
         <div className="nav-left">
           <div className="nav-icon">🏠</div>
           <div className="breadcrumb">
-            <span>Understanding Global Warming: A Critical ...</span>
+            <span>{slide.title}</span>
           </div>
         </div>
         <div className="nav-right">
@@ -54,61 +93,23 @@ const EditorPage: React.FC<EditorPageProps> = () => {
             </button>
 
             <div className="slide-thumbnails">
-              {/* Slide 1 - Active */}
-              <div className="slide-thumbnail active">
-                <div className="slide-number">1</div>
-                <div className="slide-preview">
-                  <div className="slide-content">
-                    <div className="slide-title-small">Understanding Global Warming: A Critical Overview</div>
-                    <div className="slide-image-placeholder earth-image"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Slide 2 */}
-              <div className="slide-thumbnail">
-                <div className="slide-number">2</div>
-                <div className="slide-preview">
-                  <div className="slide-content">
-                    <div className="slide-title-small">Understanding the Root Causes</div>
-                    <div className="slide-text-small">
-                      • Greenhouse gas emissions
-                      • Industrial activities
-                      • Deforestation
+              {sampleSlides.map((slideItem, index) => (
+                <div
+                  key={slideItem.id}
+                  className={`slide-thumbnail ${currentSlide === index ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                >
+                  <div className="slide-number">{slideItem.id}</div>
+                  <div className="slide-preview">
+                    <div className="slide-content">
+                      <div className="slide-title-small">{slideItem.title}</div>
+                      <div className="slide-text-small">
+                        {slideItem.content.substring(0, 80)}...
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Slide 3 */}
-              <div className="slide-thumbnail">
-                <div className="slide-number">3</div>
-                <div className="slide-preview">
-                  <div className="slide-content">
-                    <div className="slide-title-small">Greenhouse Impacts and Consequences</div>
-                    <div className="slide-text-small">
-                      • Rising sea levels
-                      • Extreme weather
-                      • Ecosystem disruption
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Slide 4 */}
-              <div className="slide-thumbnail">
-                <div className="slide-number">4</div>
-                <div className="slide-preview">
-                  <div className="slide-content">
-                    <div className="slide-title-small">The Urgency of Global Action</div>
-                    <div className="slide-text-small">
-                      • International cooperation
-                      • Policy changes
-                      • Individual responsibility
-                    </div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -125,23 +126,34 @@ const EditorPage: React.FC<EditorPageProps> = () => {
             <div className="main-slide">
               <div className="slide-content-main">
                 <div className="slide-text-area">
-                  <h1 className="main-title">Understanding Global Warming: A Critical Overview</h1>
-                  <p className="main-description">
-                    Global warming is the gradual, long-term increase in Earth's average 
-                    surface temperature. It is primarily driven by human activities that 
-                    enhance the natural greenhouse effect. This phenomenon traps the 
-                    sun's heat, warming our planet.
-                  </p>
+                  <h1 className="main-title">{slide.title}</h1>
+                  <div className="main-description">
+                    {slide.type === 'bullets' ? (
+                      <ul className="slide-bullet-list">
+                        {slide.content.split('\n').map((item, index) => (
+                          <li key={index}>{item.replace('•', '').trim()}</li>
+                        ))}
+                      </ul>
+                    ) : slide.type === 'numbered' ? (
+                      <ol className="slide-numbered-list">
+                        {slide.content.split('\n').map((item, index) => (
+                          <li key={index}>{item.replace(/^\d+\.\s*/, '').trim()}</li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p>{slide.content}</p>
+                    )}
+                  </div>
                   <div className="author-info">
-                    <div className="author-avatar">M</div>
+                    <div className="author-avatar">{slide.author.charAt(0)}</div>
                     <div className="author-details">
-                      <div className="author-name">by Mykola Volynets</div>
-                      <div className="last-edited">Last edited 1 day ago</div>
+                      <div className="author-name">by {slide.author}</div>
+                      <div className="last-edited">Last edited {slide.lastEdited}</div>
                     </div>
                   </div>
                 </div>
                 <div className="slide-image-area">
-                  <div className="earth-globe-image"></div>
+                  <div className="slide-visual-element"></div>
                 </div>
               </div>
             </div>

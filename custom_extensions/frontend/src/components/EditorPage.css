@@ -349,6 +349,50 @@
   margin: 0;
 }
 
+.main-description p {
+  margin: 0;
+}
+
+.slide-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slide-bullet-list li {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 12px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.slide-bullet-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #1a73e8;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.slide-numbered-list {
+  padding-left: 24px;
+  margin: 0;
+}
+
+.slide-numbered-list li {
+  margin-bottom: 12px;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #5f6368;
+}
+
+.slide-numbered-list li::marker {
+  color: #1a73e8;
+  font-weight: bold;
+}
+
 .author-info {
   display: flex;
   align-items: center;
@@ -393,6 +437,24 @@
   align-items: center;
   justify-content: center;
   position: relative;
+}
+
+.slide-visual-element {
+  width: 300px;
+  height: 300px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-visual-element::before {
+  content: '⚛️';
+  font-size: 120px;
+  opacity: 0.8;
 }
 
 .earth-globe-image {
