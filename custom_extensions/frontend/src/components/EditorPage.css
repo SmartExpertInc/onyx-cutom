@@ -497,14 +497,14 @@
 /* Banners - truly full width */
 .placeholder-top-banner {
   top: 20px;
-  left: 0;
+  left: 30;
   right: 0;
   height: 160px; /* 2x bigger: 80px * 2 */
 }
 
 .placeholder-bottom-banner {
   bottom: 20px;
-  left: 0;
+  left: 30;
   right: 0;
   height: 160px; /* 2x bigger: was smaller, now 160px */
 }

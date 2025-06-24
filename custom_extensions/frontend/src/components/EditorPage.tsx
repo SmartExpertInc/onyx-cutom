@@ -295,59 +295,57 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     };
   };
 
+  // Function to parse and render bold text from markdown
+  const parseTextWithBold = (text: string) => {
+    // Split text by **bold** markers
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        // Remove ** markers and make bold
+        const boldText = part.slice(2, -2);
+        return <strong key={index}>{boldText}</strong>;
+      }
+      return part;
+    });
+  };
+
+  // Function to render content block with bold text support
   const renderContentBlock = (block: AnyContentBlock, slideIndex: number, blockIndex: number) => {
     switch (block.type) {
       case 'headline':
         const HeadlineComponent = ({ level, text }: { level: number, text: string }) => {
+          const headingLevel = Math.min(level + 1, 6);
           const className = `content-headline level-${level} editable-text`;
-          const props = {
-            className,
-            contentEditable: true,
-            suppressContentEditableWarning: true,
-            onBlur: (e: React.FocusEvent<HTMLElement>) => {
-              const newText = e.target.textContent || '';
-              updateTextContent(slideIndex, blockIndex, newText);
-              saveChanges();
-            },
-            onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                (e.currentTarget as HTMLElement).blur();
-              }
-            }
+          const handleBlur = (e: React.FocusEvent<HTMLHeadingElement>) => {
+            updateTextContent(slideIndex, blockIndex, e.currentTarget.textContent || '');
           };
           
-          switch (Math.min(level, 6)) {
-            case 1: return <h1 {...props}>{text}</h1>;
-            case 2: return <h2 {...props}>{text}</h2>;
-            case 3: return <h3 {...props}>{text}</h3>;
-            case 4: return <h4 {...props}>{text}</h4>;
-            case 5: return <h5 {...props}>{text}</h5>;
-            case 6: return <h6 {...props}>{text}</h6>;
-            default: return <h2 {...props}>{text}</h2>;
+          const content = parseTextWithBold(text);
+          
+          switch (headingLevel) {
+            case 1: return <h1 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h1>;
+            case 2: return <h2 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h2>;
+            case 3: return <h3 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h3>;
+            case 4: return <h4 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h4>;
+            case 5: return <h5 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h5>;
+            case 6: return <h6 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h6>;
+            default: return <h2 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h2>;
           }
         };
-        return <HeadlineComponent level={block.level} text={block.text} />;
+        return <HeadlineComponent key={blockIndex} level={block.level} text={block.text} />;
       
       case 'paragraph':
         return (
           <p 
+            key={blockIndex} 
             className="content-paragraph editable-text"
-            contentEditable={true}
+            onClick={() => {}}
+            onBlur={(e: React.FocusEvent<HTMLParagraphElement>) => updateTextContent(slideIndex, blockIndex, e.currentTarget.textContent || '')}
+            contentEditable
             suppressContentEditableWarning={true}
-            onBlur={(e) => {
-              const newText = e.target.textContent || '';
-              updateTextContent(slideIndex, blockIndex, newText);
-              saveChanges();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                (e.currentTarget as HTMLElement).blur();
-              }
-            }}
           >
-            {block.text}
+            {parseTextWithBold(block.text)}
           </p>
         );
       

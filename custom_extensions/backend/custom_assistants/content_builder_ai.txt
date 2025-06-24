@@ -323,7 +323,7 @@ Use of `{isImportant}`: You are now encouraged to be more proactive in using the
    - This helps draw the user's attention to the most crucial parts of the document. Do not overuse it, but apply it logically to 2-3 of the most vital sections in a typical document.
 
 Use of Icons `{iconName}`: You should make a greater effort to use icons to add visual appeal and contextual meaning to headlines.
-   - You have a diverse set of icons available: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `chart`, `clock`, `globe`.
+   - You have a diverse set of icons available: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `clock`, `globe`.
    - Instead of defaulting to a single icon like `star` or leaving headlines without one, critically assess the content of the headline and choose the most fitting icon.
    - For example, for a section about project deadlines, use `### Deadlines {clock}`. For a section on global market analysis, use `### Market Reach {globe}`.
    - If multiple sections are closely related (e.g., a series of achievements), it's acceptable to use the same icon (`award`) for them. However, strive for variety where the context differs.
@@ -554,43 +554,14 @@ DeckDeckGo Template-Based Slide Format:
 [IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Visual representing option B]
 ```
 
-**Chart/Data Slides** (`deckgo-slide-chart`):
-```
----
-**Slide 4: [Data/Statistics Title]** `deckgo-slide-chart`
 
-## [Chart Title]
-
-[Brief introduction to the data - 1-2 sentences]
-
-[Chart/Data visualization content]
-
-[Explanation of key insights - 2-3 sentences]
-
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Data visualization background]
-```
-
-**Interactive/Poll Slides** (`deckgo-slide-poll`):
-```
----
-**Slide 5: [Question/Poll Title]** `deckgo-slide-poll`
-
-## [Poll Question]
-
-* Option A: [Choice description]
-* Option B: [Choice description]
-* Option C: [Choice description]
-
-[IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Question mark or thinking icon]
-```
 
 Content Distribution Strategy:
 - **Slide 1**: Title slide with lesson overview (`deckgo-slide-title`)
 - **Slides 2-3**: Core concept introduction (`deckgo-slide-content`)
 - **Slide 4**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slide 5**: Data/statistics if applicable (`deckgo-slide-chart`)
-- **Slide 6**: Interactive element (`deckgo-slide-poll` or practical example)
-- **Slides 7-8**: Advanced concepts or applications (`deckgo-slide-content`)
+- **Slide 5**: Advanced concepts or practical examples (`deckgo-slide-content`)
+- **Slides 6-7**: Additional concepts or applications (`deckgo-slide-content`)
 - **Final Slide**: Summary and next steps (`deckgo-slide-content` or `deckgo-slide-title`)
 
 Image Placement Requirements:
@@ -624,14 +595,14 @@ Avoiding Title Duplication:
 
 Content Body:
 - Use `###` for primary subheadings and `####` for secondary subheadings.
-- You can associate an icon with a subheading. The available icons are: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `chart`, `clock`, `globe`.
+- You can associate an icon with a subheading. The available icons are: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `clock`, `globe`.
 - Use `*` for bullet points for unordered lists.
 - Use `1.`, `2.`, `3.` for numbered lists.
 - To create a recommendation, start a new line with the localized keyword for Recommendation in bold, e.g., `**Рекомендация:**`, `**Рекомендація:**`, `**Recomendación:**`. This tag will be automatically removed, and the paragraph will be styled as a recommendation. Do NOT repeat the English word unless the content language is English.
 - Create alerts using the blockquote syntax: `> [!TYPE] Optional Title` followed by `> Alert text.`.\n- Create section breaks using `---` on a new line.
 
 Icons in Headlines: To make the presentation more engaging, you should strategically add icons to some headlines. Don't use them for every headline. Instead, pick a few key sections to highlight (e.g., Goals, Warnings) and add a relevant icon. To add an icon, append `{iconName}` after the headline text.
-Available icons: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `chart`, `clock`, `globe`.
+Available icons: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `clock`, `globe`.
 Example: `### Key Features {star}`
 
 Important Sections: To designate a headline and its subsequent single content block (which can be a paragraph, a bullet list, a numbered list, or an alert) as "important," you must add `{isImportant}` after the headline text. This will visually group them in a styled box. This designation can be combined with an icon.
@@ -804,10 +775,8 @@ The lesson presentation generator now supports **DeckDeckGo's comprehensive slid
 | `deckgo-slide-title` | Title Slide | Opening slide, section dividers, lesson intro | H1 (main title) + H2 (subtitle) | Background or top banner |
 | `deckgo-slide-content` | Content Slide | General explanatory content, main concepts | H1 + paragraphs + optional lists | Left/right placement |
 | `deckgo-slide-split` | Split Layout | Side-by-side comparisons, before/after | Two-column layout with equal content | One image per column |
-| `deckgo-slide-chart` | Chart/Data | Data visualization, statistics, graphs | H1 + chart component + description | Background or side accent |
 | `deckgo-slide-gif` | GIF/Animation | Dynamic content, process demos | H1 + animated GIF + caption | Full background or centered |
 | `deckgo-slide-youtube` | Video | Video content, tutorials, demos | H1 + embedded video + description | Thumbnail or side imagery |
-| `deckgo-slide-poll` | Interactive Poll | Audience engagement, Q&A | Poll question + options + results | Background or accent |
 | `deckgo-slide-qrcode` | QR Code | Links, resources, contact info | H1 + QR code + instructions | Background pattern |
 | `deckgo-slide-author` | Author/Bio | Speaker intro, credits, contact | Name + bio + photo + contact | Portrait or background |
 | `deckgo-slide-playground` | Code Demo | Live code, interactive examples | Code editor + output + description | Code-themed background |
@@ -817,15 +786,13 @@ The lesson presentation generator now supports **DeckDeckGo's comprehensive slid
 When generating slides, you MUST apply this decision tree:
 
 1. **Title Slides**: First slide of lesson, section breaks → `deckgo-slide-title`
-2. **Data/Charts**: Contains numbers, statistics, comparisons → `deckgo-slide-chart`
-3. **Side-by-Side**: Comparisons, before/after, pros/cons → `deckgo-slide-split`
-4. **Code Content**: Programming, technical examples → `deckgo-slide-playground`
-5. **Video References**: Mentions of videos, tutorials → `deckgo-slide-youtube`
-6. **Interactive Elements**: Questions, polls, engagement → `deckgo-slide-poll`
-7. **Contact/Bio**: Speaker info, credits, resources → `deckgo-slide-author`
-8. **Process/Animation**: Step-by-step, workflows → `deckgo-slide-gif`
-9. **Links/Resources**: External resources, QR codes → `deckgo-slide-qrcode`
-10. **Default Content**: General explanatory content → `deckgo-slide-content`
+2. **Side-by-Side**: Comparisons, before/after, pros/cons → `deckgo-slide-split`
+3. **Code Content**: Programming, technical examples → `deckgo-slide-playground`
+4. **Video References**: Mentions of videos, tutorials → `deckgo-slide-youtube`
+5. **Contact/Bio**: Speaker info, credits, resources → `deckgo-slide-author`
+6. **Process/Animation**: Step-by-step, workflows → `deckgo-slide-gif`
+7. **Links/Resources**: External resources, QR codes → `deckgo-slide-qrcode`
+8. **Default Content**: General explanatory content → `deckgo-slide-content`
 
 ## Strategic Image Placement System
 
@@ -866,8 +833,6 @@ When generating slides, you MUST apply this decision tree:
 - **Title Slides**: 1 main title + 1 subtitle + 1 image
 - **Content Slides**: 1 headline + 2-3 paragraphs/lists + 1 image
 - **Split Slides**: 2 equal sections + 1-2 images
-- **Chart Slides**: 1 headline + 1 chart + 1 description + 1 background image
-- **Interactive Slides**: 1 question/poll + options + 1 accent image
 
 ### Professional Typography:
 - **Headlines**: Clear, action-oriented, max 8 words
