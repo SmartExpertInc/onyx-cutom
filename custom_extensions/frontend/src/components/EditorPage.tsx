@@ -145,54 +145,20 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
-  // Handle scroll to update active slide - COMPLETELY REMADE NAVIGATION
+  // Handle scroll to update active slide - COMPLETELY FIXED NAVIGATION
   useEffect(() => {
     if (!slideDeckData || !scrollContainerRef.current) return;
 
     const container = scrollContainerRef.current;
     
-    // Create intersection observer for more reliable detection
-    const observer = new IntersectionObserver(
-      (entries) => {
-        let mostVisibleSlide = { index: 0, ratio: 0 };
-        
-        entries.forEach((entry) => {
-          const slideIndex = parseInt(entry.target.getAttribute('data-slide-index') || '0');
-          
-          // Track the slide with highest intersection ratio
-          if (entry.intersectionRatio > mostVisibleSlide.ratio) {
-            mostVisibleSlide = { index: slideIndex, ratio: entry.intersectionRatio };
-          }
-        });
-        
-        // Update active slide if we have significant visibility (>30%)
-        if (mostVisibleSlide.ratio > 0.3) {
-          setActiveSlideIndex(mostVisibleSlide.index);
-        }
-      },
-      {
-        root: container,
-        rootMargin: '0px',
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-      }
-    );
-
-    // Observe all slides
-    slideRefs.current.forEach((slideRef, index) => {
-      if (slideRef) {
-        slideRef.setAttribute('data-slide-index', index.toString());
-        observer.observe(slideRef);
-      }
-    });
-
-    // Fallback scroll detection for immediate updates
     const handleScroll = () => {
-      if (!container || !slideDeckData) return;
+      if (!container || !slideDeckData || slideRefs.current.length === 0) return;
       
       const containerRect = container.getBoundingClientRect();
       const containerCenter = containerRect.top + containerRect.height / 2;
       
-      let closestSlide = { index: 0, distance: Infinity };
+      let activeIndex = 0;
+      let minDistance = Infinity;
       
       slideRefs.current.forEach((slideRef, index) => {
         if (slideRef) {
@@ -200,24 +166,28 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           const slideCenter = slideRect.top + slideRect.height / 2;
           const distance = Math.abs(slideCenter - containerCenter);
           
-          if (distance < closestSlide.distance) {
-            closestSlide = { index, distance };
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = index;
           }
         }
       });
       
-      setActiveSlideIndex(closestSlide.index);
+      setActiveSlideIndex(activeIndex);
     };
 
-    // Add scroll listener as fallback
+    // Add scroll listener with immediate execution
     container.addEventListener('scroll', handleScroll, { passive: true });
     
     // Initial detection
-    setTimeout(handleScroll, 100);
+    handleScroll();
+    
+    // Additional detection after a short delay to ensure refs are ready
+    const timeoutId = setTimeout(handleScroll, 100);
     
     return () => {
-      observer.disconnect();
       container.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
     };
   }, [slideDeckData]);
 
