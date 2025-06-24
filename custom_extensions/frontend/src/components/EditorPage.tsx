@@ -110,8 +110,6 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           case 2: return <h2 className="content-headline level-2">{block.text}</h2>;
           case 3: return <h3 className="content-headline level-3">{block.text}</h3>;
           case 4: return <h4 className="content-headline level-4">{block.text}</h4>;
-          case 5: return <h5 className="content-headline level-5">{block.text}</h5>;
-          case 6: return <h6 className="content-headline level-6">{block.text}</h6>;
           default: return <h2 className="content-headline level-2">{block.text}</h2>;
         }
       
