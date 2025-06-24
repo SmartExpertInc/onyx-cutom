@@ -105,17 +105,32 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           if (currentMicroproductInList?.projectName) {
             setParentProjectName(currentMicroproductInList.projectName);
             
-            // We need to find the parent training plan by checking all projects with the same project name
-            // and looking for the TrainingPlanTable component through their details
+            // Find the parent training plan by looking for projects with the same project name
+            // and checking if they are TrainingPlanTable components
             const potentialParents = allMicroproductsData.filter(mp => 
               mp.projectName === currentMicroproductInList.projectName && 
               mp.id !== projectData.project_id
             );
             
-            // For now, we'll set the first one as parent if it exists
-            // In a real implementation, you'd want to fetch each project's details to check component_name
-            if (potentialParents.length > 0) {
-              setParentProjectId(potentialParents[0].id);
+            // Try to find the TrainingPlanTable component by checking each potential parent
+            for (const parent of potentialParents) {
+              try {
+                const parentRes = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${parent.id}`, {
+                  cache: 'no-store',
+                  headers: commonHeaders
+                });
+                
+                if (parentRes.ok) {
+                  const parentData = await parentRes.json();
+                  if (parentData.component_name === 'TrainingPlanTable') {
+                    setParentProjectId(parent.id);
+                    break; // Found the training plan, stop searching
+                  }
+                }
+              } catch (err) {
+                console.warn(`Failed to check parent project ${parent.id}:`, err);
+                continue;
+              }
             }
           }
         }
@@ -200,13 +215,19 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   // Function to scroll to specific slide - FIXED
   const scrollToSlide = (index: number) => {
     const slideRef = slideRefs.current[index];
-    if (slideRef && scrollContainerRef.current) {
-      // Temporarily set active index to prevent flicker
+    const container = scrollContainerRef.current;
+    
+    if (slideRef && container) {
+      // Immediately set active index
       setActiveSlideIndex(index);
       
-      slideRef.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+      // Calculate the scroll position relative to the container
+      const slideTop = slideRef.offsetTop;
+      
+      // Scroll to the slide position within the container
+      container.scrollTo({
+        top: slideTop,
+        behavior: 'smooth'
       });
     }
   };
