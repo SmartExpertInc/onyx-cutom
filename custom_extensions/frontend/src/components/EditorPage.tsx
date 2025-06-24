@@ -14,8 +14,8 @@ import {
   ZoomIn,
   ZoomOut,
   HelpCircle,
-  Save,
-  Edit3
+  FileText,
+  Clipboard
 } from 'lucide-react';
 import './EditorPage.css';
 
@@ -31,7 +31,6 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [editingSlideDeckData, setEditingSlideDeckData] = useState<SlideDeckData | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -182,84 +181,73 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     setEditingSlideDeckData(updatedData);
   };
 
-  // Toggle editing mode
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
-  };
-
-  // Save changes
+  // Auto-save changes
   const saveChanges = () => {
     if (editingSlideDeckData) {
       setSlideDeckData(editingSlideDeckData);
-      setIsEditing(false);
       // Here you would typically save to backend
-      console.log("Saving changes:", editingSlideDeckData);
+      console.log("Auto-saving changes:", editingSlideDeckData);
     }
   };
 
   // Render content block to text for thumbnails
   const renderContentToText = (blocks: AnyContentBlock[]): string => {
-    return blocks
-      .map(block => {
-        switch (block.type) {
-          case 'headline':
-            return block.text;
-          case 'paragraph':
-            return block.text.substring(0, 100) + (block.text.length > 100 ? '...' : '');
-          case 'bullet_list':
-            return block.items.map(item => 
-              typeof item === 'string' ? `• ${item}` : '• Content'
-            ).join('\n');
-          case 'numbered_list':
-            return block.items.map((item, index) => 
-              typeof item === 'string' ? `${index + 1}. ${item}` : `${index + 1}. Content`
-            ).join('\n');
-          default:
-            return '';
-        }
-      })
-      .join('\n');
+    return blocks.map(block => {
+      switch (block.type) {
+        case 'headline':
+        case 'paragraph':
+          return block.text;
+        case 'bullet_list':
+        case 'numbered_list':
+          return block.items.join(', ');
+        case 'alert':
+          return `${block.title}: ${block.text}`;
+        case 'section_break':
+          return '---';
+        default:
+          return '';
+      }
+    }).join(' ');
   };
 
-  // Get main slide content for display
   const getMainSlideContent = (slide: DeckSlide) => {
-    const titleBlock = slide.contentBlocks.find(block => block.type === 'headline');
-    const contentBlocks = slide.contentBlocks.filter(block => block.type !== 'headline');
-    
+    const contentText = renderContentToText(slide.contentBlocks);
     return {
-      title: titleBlock ? titleBlock.text : slide.slideTitle,
-      content: renderContentToText(contentBlocks)
+      title: slide.slideTitle,
+      content: contentText
     };
   };
 
-  // Render individual content blocks with editing capability
   const renderContentBlock = (block: AnyContentBlock, slideIndex: number, blockIndex: number) => {
-    const isBlockEditable = isEditing;
-    
     switch (block.type) {
       case 'headline':
         const HeadlineComponent = ({ level, text }: { level: number, text: string }) => {
-          const className = `content-headline level-${level} ${isBlockEditable ? 'editable' : ''}`;
-          const props = isBlockEditable ? {
+          const className = `content-headline level-${level} editable-text`;
+          const props = {
+            className,
             contentEditable: true,
             suppressContentEditableWarning: true,
             onBlur: (e: React.FocusEvent<HTMLElement>) => {
-              updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+              const newText = e.target.textContent || '';
+              updateTextContent(slideIndex, blockIndex, newText);
+              saveChanges();
             },
-                         onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-               if (e.key === 'Enter') {
-                 e.preventDefault();
-                 (e.currentTarget as HTMLElement).blur();
-               }
-             }
-          } : {};
+            onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).blur();
+              }
+            }
+          };
           
-          switch (level) {
-            case 1: return <h1 className={className} {...props}>{text}</h1>;
-            case 2: return <h2 className={className} {...props}>{text}</h2>;
-            case 3: return <h3 className={className} {...props}>{text}</h3>;
-            case 4: return <h4 className={className} {...props}>{text}</h4>;
-            default: return <h2 className={className} {...props}>{text}</h2>;
+          switch (Math.min(level, 6)) {
+            case 1: return <h1 {...props}>{text}</h1>;
+            case 2: return <h2 {...props}>{text}</h2>;
+            case 3: return <h3 {...props}>{text}</h3>;
+            case 4: return <h4 {...props}>{text}</h4>;
+            case 5: return <h5 {...props}>{text}</h5>;
+            case 6: return <h6 {...props}>{text}</h6>;
+            default: return <h2 {...props}>{text}</h2>;
           }
         };
         return <HeadlineComponent level={block.level} text={block.text} />;
@@ -267,18 +255,20 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       case 'paragraph':
         return (
           <p 
-            className={`content-paragraph ${isBlockEditable ? 'editable' : ''}`}
-            contentEditable={isBlockEditable}
-            suppressContentEditableWarning={isBlockEditable}
-            onBlur={isBlockEditable ? (e) => {
-              updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
-            } : undefined}
-            onKeyDown={isBlockEditable ? (e) => {
+            className="content-paragraph editable-text"
+            contentEditable={true}
+            suppressContentEditableWarning={true}
+            onBlur={(e) => {
+              const newText = e.target.textContent || '';
+              updateTextContent(slideIndex, blockIndex, newText);
+              saveChanges();
+            }}
+            onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                e.currentTarget.blur();
+                (e.currentTarget as HTMLElement).blur();
               }
-            } : undefined}
+            }}
           >
             {block.text}
           </p>
@@ -287,19 +277,33 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       case 'bullet_list':
         return (
           <ul className="content-bullet-list">
-            {block.items.map((item, index) => (
+            {block.items.map((item, itemIndex) => (
               <li 
-                key={index} 
-                className={`bullet-item ${isBlockEditable ? 'editable' : ''}`}
-                contentEditable={isBlockEditable && typeof item === 'string'}
-                suppressContentEditableWarning={isBlockEditable}
-                onBlur={isBlockEditable ? (e) => {
-                  if (typeof item === 'string') {
-                    updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+                key={itemIndex} 
+                className="bullet-item editable-text"
+                contentEditable={true}
+                suppressContentEditableWarning={true}
+                onBlur={(e) => {
+                  const newText = e.target.textContent || '';
+                  if (editingSlideDeckData) {
+                    const updatedData = { ...editingSlideDeckData };
+                    const slide = updatedData.slides[slideIndex];
+                    const listBlock = slide.contentBlocks[blockIndex];
+                    if (listBlock.type === 'bullet_list' || listBlock.type === 'numbered_list') {
+                      listBlock.items[itemIndex] = newText;
+                      setEditingSlideDeckData(updatedData);
+                      saveChanges();
+                    }
                   }
-                } : undefined}
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    (e.currentTarget as HTMLElement).blur();
+                  }
+                }}
               >
-                {typeof item === 'string' ? item : 'Complex item'}
+                {typeof item === 'string' ? item : JSON.stringify(item)}
               </li>
             ))}
           </ul>
@@ -308,19 +312,33 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       case 'numbered_list':
         return (
           <ol className="content-numbered-list">
-            {block.items.map((item, index) => (
+            {block.items.map((item, itemIndex) => (
               <li 
-                key={index} 
-                className={`numbered-item ${isBlockEditable ? 'editable' : ''}`}
-                contentEditable={isBlockEditable && typeof item === 'string'}
-                suppressContentEditableWarning={isBlockEditable}
-                onBlur={isBlockEditable ? (e) => {
-                  if (typeof item === 'string') {
-                    updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+                key={itemIndex} 
+                className="numbered-item editable-text"
+                contentEditable={true}
+                suppressContentEditableWarning={true}
+                onBlur={(e) => {
+                  const newText = e.target.textContent || '';
+                  if (editingSlideDeckData) {
+                    const updatedData = { ...editingSlideDeckData };
+                    const slide = updatedData.slides[slideIndex];
+                    const listBlock = slide.contentBlocks[blockIndex];
+                    if (listBlock.type === 'bullet_list' || listBlock.type === 'numbered_list') {
+                      listBlock.items[itemIndex] = newText;
+                      setEditingSlideDeckData(updatedData);
+                      saveChanges();
+                    }
                   }
-                } : undefined}
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    (e.currentTarget as HTMLElement).blur();
+                  }
+                }}
               >
-                {typeof item === 'string' ? item : 'Complex item'}
+                {typeof item === 'string' ? item : JSON.stringify(item)}
               </li>
             ))}
           </ol>
@@ -329,25 +347,55 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       case 'alert':
         return (
           <div className={`content-alert alert-${block.alertType}`}>
-            {block.title && (
-              <div 
-                className={`alert-title ${isBlockEditable ? 'editable' : ''}`}
-                contentEditable={isBlockEditable}
-                suppressContentEditableWarning={isBlockEditable}
-                onBlur={isBlockEditable ? (e) => {
-                  // Update alert title logic would go here
-                } : undefined}
-              >
-                {block.title}
-              </div>
-            )}
             <div 
-              className={`alert-text ${isBlockEditable ? 'editable' : ''}`}
-              contentEditable={isBlockEditable}
-              suppressContentEditableWarning={isBlockEditable}
-              onBlur={isBlockEditable ? (e) => {
-                updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
-              } : undefined}
+              className="alert-title editable-text"
+              contentEditable={true}
+              suppressContentEditableWarning={true}
+              onBlur={(e) => {
+                const newTitle = e.target.textContent || '';
+                if (editingSlideDeckData) {
+                  const updatedData = { ...editingSlideDeckData };
+                  const slide = updatedData.slides[slideIndex];
+                  const alertBlock = slide.contentBlocks[blockIndex];
+                  if (alertBlock.type === 'alert') {
+                    alertBlock.title = newTitle;
+                    setEditingSlideDeckData(updatedData);
+                    saveChanges();
+                  }
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  (e.currentTarget as HTMLElement).blur();
+                }
+              }}
+            >
+              {block.title}
+            </div>
+            <div 
+              className="alert-text editable-text"
+              contentEditable={true}
+              suppressContentEditableWarning={true}
+              onBlur={(e) => {
+                const newText = e.target.textContent || '';
+                if (editingSlideDeckData) {
+                  const updatedData = { ...editingSlideDeckData };
+                  const slide = updatedData.slides[slideIndex];
+                  const alertBlock = slide.contentBlocks[blockIndex];
+                  if (alertBlock.type === 'alert') {
+                    alertBlock.text = newText;
+                    setEditingSlideDeckData(updatedData);
+                    saveChanges();
+                  }
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  (e.currentTarget as HTMLElement).blur();
+                }
+              }}
             >
               {block.text}
             </div>
@@ -358,15 +406,15 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         return <hr className="content-section-break" />;
       
       default:
-        return <div className="content-unknown">Unknown content type</div>;
+        return <div className="content-unknown">Unknown content type: {(block as any).type}</div>;
     }
   };
 
   if (loading) {
     return (
       <div className="editor-page">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="p-8 text-center text-lg text-gray-600">Loading slide deck...</div>
+        <div className="loading-container">
+          <div className="p-8 text-center text-gray-500">Loading slide deck...</div>
         </div>
       </div>
     );
@@ -375,17 +423,17 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   if (error) {
     return (
       <div className="editor-page">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="p-8 text-center text-red-600">Error: {error}</div>
+        <div className="error-container">
+          <div className="p-8 text-center text-red-500">Error: {error}</div>
         </div>
       </div>
     );
   }
 
-  if (!slideDeckData || !slideDeckData.slides.length) {
+  if (!slideDeckData || !slideDeckData.slides || slideDeckData.slides.length === 0) {
     return (
       <div className="editor-page">
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="no-slides-container">
           <div className="p-8 text-center text-gray-500">No slides found</div>
         </div>
       </div>
@@ -394,8 +442,6 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
   // Use editing data if available, otherwise use original data
   const displayData = editingSlideDeckData || slideDeckData;
-  const currentSlide = displayData.slides[0]; // Display first slide by default
-  const mainContent = getMainSlideContent(currentSlide);
 
   return (
     <div className="editor-page">
@@ -410,23 +456,6 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           </div>
         </div>
         <div className="nav-right">
-          <button 
-            className={`nav-button edit-button ${isEditing ? 'active' : ''}`}
-            onClick={toggleEditMode}
-          >
-            <span className="button-icon">
-              <Edit3 size={16} />
-            </span>
-            {isEditing ? 'Exit Edit' : 'Edit'}
-          </button>
-          {isEditing && (
-            <button className="nav-button save-button" onClick={saveChanges}>
-              <span className="button-icon">
-                <Save size={16} />
-              </span>
-              Save
-            </button>
-          )}
           <button className="nav-button theme-button">
             <span className="button-icon">
               <Palette size={16} />
@@ -467,8 +496,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           
           <div className="slides-panel">
             <div className="panel-controls">
-              <button className="control-icon">📄</button>
-              <button className="control-icon">📋</button>
+              <button className="control-icon">
+                <FileText size={16} />
+              </button>
+              <button className="control-icon">
+                <Clipboard size={16} />
+              </button>
             </div>
             
             <button className="new-slide-button">
@@ -515,21 +548,22 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
               >
                 <div className="slide-header">
                   <h2 
-                    className={`slide-title ${isEditing ? 'editable' : ''}`}
-                    contentEditable={isEditing}
-                    suppressContentEditableWarning={isEditing}
-                    onBlur={isEditing ? (e) => {
+                    className="slide-title editable-text"
+                    contentEditable={true}
+                    suppressContentEditableWarning={true}
+                    onBlur={(e) => {
                       const newTitle = e.target.textContent || '';
                       // Extract title without the "Slide X:" prefix
                       const titleWithoutPrefix = newTitle.replace(/^Slide \d+:\s*/, '');
                       updateSlideTitle(index, titleWithoutPrefix);
-                    } : undefined}
-                    onKeyDown={isEditing ? (e) => {
+                      saveChanges();
+                    }}
+                    onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         (e.currentTarget as HTMLElement).blur();
                       }
-                    } : undefined}
+                    }}
                   >
                     Slide {slide.slideNumber}: {slide.slideTitle}
                   </h2>
