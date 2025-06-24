@@ -517,7 +517,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       'TOP_BANNER': 'placeholder-top-banner',
       'BOTTOM_BANNER': 'placeholder-bottom-banner', 
       'BACKGROUND': 'placeholder-background-pos',
-      'CENTER': 'placeholder-center'
+      'CENTER': 'placeholder-center',
+      'TOP_LEFT': 'placeholder-top-left',
+      'TOP_RIGHT': 'placeholder-top-right',
+      'BOTTOM_LEFT': 'placeholder-bottom-left',
+      'BOTTOM_RIGHT': 'placeholder-bottom-right'
     };
 
     return (
@@ -546,6 +550,10 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const hasTopBanner = slide.imagePlaceholders.some(p => p.position === 'TOP_BANNER');
     const hasBottomBanner = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_BANNER');
     const hasBackground = slide.imagePlaceholders.some(p => p.position === 'BACKGROUND');
+    const hasTopLeft = slide.imagePlaceholders.some(p => p.position === 'TOP_LEFT');
+    const hasTopRight = slide.imagePlaceholders.some(p => p.position === 'TOP_RIGHT');
+    const hasBottomLeft = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_LEFT');
+    const hasBottomRight = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_RIGHT');
 
     if (hasBackground) return 'content-layout-with-background';
     if (hasLeftImage && hasRightImage) return 'content-layout-center-column';
@@ -553,6 +561,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (hasRightImage) return 'content-layout-avoid-right';
     if (hasTopBanner) return 'content-layout-avoid-top';
     if (hasBottomBanner) return 'content-layout-avoid-bottom';
+    
+    // Corner positions typically don't need major layout adjustments for small/medium images
+    // but we can add subtle padding if needed
+    if (hasTopLeft || hasTopRight || hasBottomLeft || hasBottomRight) {
+      return 'content-layout-with-corners';
+    }
     
     return 'content-layout-default';
   };

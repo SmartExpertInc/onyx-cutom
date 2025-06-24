@@ -527,6 +527,27 @@
   left: 0;
 }
 
+/* Corner positions */
+.placeholder-top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.placeholder-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.placeholder-bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+.placeholder-bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
 .slide-title {
   font-size: 24px;
   font-weight: 500;
@@ -1120,6 +1141,11 @@
   padding: 24px;
   margin: 16px;
   backdrop-filter: blur(2px);
+}
+
+.content-layout-with-corners .slide-content-blocks {
+  padding: 16px 24px; /* Add subtle padding to avoid corner images */
+  margin: 8px;
 }
 
 .content-layout-default .slide-content-blocks {
