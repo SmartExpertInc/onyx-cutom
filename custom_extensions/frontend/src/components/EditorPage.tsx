@@ -45,8 +45,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const isManualScrolling = useRef(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const isScrollingToSlide = useRef(false);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch slide deck data and parent project information
   useEffect(() => {
@@ -154,89 +154,81 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     }
   }, [slideDeckData?.slides?.length]);
 
-  // BULLETPROOF Navigation using Intersection Observer
+  // Smart navigation: detect which slide is most visible
   useEffect(() => {
-    if (!slideDeckData?.slides?.length || !scrollContainerRef.current) return;
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer || !slideDeckData?.slides?.length) return;
 
-    // Clean up previous observer
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
+    const handleScroll = () => {
+      // Don't update active slide if we're programmatically scrolling
+      if (isScrollingToSlide.current) return;
 
-    // Create intersection observer with optimal settings
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (isManualScrolling.current) return;
+      // Clear any existing timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
 
-        // Find the slide with the highest intersection ratio
-        let maxRatio = 0;
-        let activeIndex = 0;
+      // Debounce the scroll detection
+      scrollTimeout.current = setTimeout(() => {
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const containerCenter = containerRect.top + containerRect.height / 2;
+        
+        let closestSlideIndex = 0;
+        let smallestDistance = Infinity;
 
-        entries.forEach((entry) => {
-          const slideIndex = slideRefs.current.findIndex(ref => ref === entry.target);
-          if (slideIndex !== -1 && entry.intersectionRatio > maxRatio) {
-            maxRatio = entry.intersectionRatio;
-            activeIndex = slideIndex;
+        slideRefs.current.forEach((slideRef, index) => {
+          if (!slideRef) return;
+          
+          const slideRect = slideRef.getBoundingClientRect();
+          const slideCenter = slideRect.top + slideRect.height / 2;
+          const distance = Math.abs(slideCenter - containerCenter);
+          
+          if (distance < smallestDistance) {
+            smallestDistance = distance;
+            closestSlideIndex = index;
           }
         });
 
-        // Only update if we have a significant intersection (> 0.1)
-        if (maxRatio > 0.1) {
-          setActiveSlideIndex(activeIndex);
-        }
-      },
-      {
-        root: scrollContainerRef.current,
-        rootMargin: '-10% 0px -10% 0px', // Only consider slides that are significantly visible
-        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1.0] // Multiple thresholds for precise detection
-      }
-    );
+        setActiveSlideIndex(closestSlideIndex);
+      }, 100); // 100ms debounce
+    };
 
-    // Observe all slides
-    slideRefs.current.forEach((slideRef) => {
-      if (slideRef && observerRef.current) {
-        observerRef.current.observe(slideRef);
-      }
-    });
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Initial detection
+    handleScroll();
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+      scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
       }
     };
   }, [slideDeckData?.slides?.length]);
 
-  // Handle thumbnail click navigation - GUARANTEED TO WORK
+  // Handle thumbnail click navigation
   const handleThumbnailClick = (slideIndex: number) => {
     const slideRef = slideRefs.current[slideIndex];
     const scrollContainer = scrollContainerRef.current;
     
     if (!slideRef || !scrollContainer) return;
 
-    // Prevent observer updates during manual scrolling
-    isManualScrolling.current = true;
+    // Set flag to prevent scroll detection during programmatic scrolling
+    isScrollingToSlide.current = true;
     
-    // Immediately update active index for instant visual feedback
+    // Immediately update active index
     setActiveSlideIndex(slideIndex);
 
-    // Calculate exact scroll position
-    const containerRect = scrollContainer.getBoundingClientRect();
-    const slideRect = slideRef.getBoundingClientRect();
-    const scrollTop = scrollContainer.scrollTop;
-    
-    // Calculate target scroll position to center the slide
-    const targetScrollTop = scrollTop + slideRect.top - containerRect.top - (containerRect.height / 2) + (slideRect.height / 2);
-
-    // Smooth scroll to exact position
-    scrollContainer.scrollTo({
-      top: targetScrollTop,
-      behavior: 'smooth'
+    // Scroll to the slide
+    slideRef.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
     });
 
-    // Re-enable observer after scroll completes
+    // Reset flag after scroll animation completes
     setTimeout(() => {
-      isManualScrolling.current = false;
-    }, 1500); // Longer timeout to ensure scroll completes
+      isScrollingToSlide.current = false;
+    }, 1000);
   };
 
   // Navigation functions for breadcrumb
@@ -522,7 +514,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       'TOP_BANNER': 'placeholder-top-banner',
       'BOTTOM_BANNER': 'placeholder-bottom-banner', 
       'BACKGROUND': 'placeholder-background-pos',
-      'CENTER': 'placeholder-center'
+      'CENTER': 'placeholder-center',
+      'TOP_LEFT': 'placeholder-top-left',
+      'TOP_RIGHT': 'placeholder-top-right',
+      'BOTTOM_LEFT': 'placeholder-bottom-left',
+      'BOTTOM_RIGHT': 'placeholder-bottom-right'
     };
 
     return (
@@ -551,6 +547,10 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const hasTopBanner = slide.imagePlaceholders.some(p => p.position === 'TOP_BANNER');
     const hasBottomBanner = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_BANNER');
     const hasBackground = slide.imagePlaceholders.some(p => p.position === 'BACKGROUND');
+    const hasTopLeft = slide.imagePlaceholders.some(p => p.position === 'TOP_LEFT');
+    const hasTopRight = slide.imagePlaceholders.some(p => p.position === 'TOP_RIGHT');
+    const hasBottomLeft = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_LEFT');
+    const hasBottomRight = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_RIGHT');
 
     if (hasBackground) return 'content-layout-with-background';
     if (hasLeftImage && hasRightImage) return 'content-layout-center-column';
@@ -558,6 +558,37 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (hasRightImage) return 'content-layout-avoid-right';
     if (hasTopBanner) return 'content-layout-avoid-top';
     if (hasBottomBanner) return 'content-layout-avoid-bottom';
+    
+    // Handle corner positions - only apply top margin for split templates or when text is on same side
+    const isSplitTemplate = slide.deckgoTemplate === 'deckgo-slide-split';
+    
+    if (hasTopLeft || hasTopRight) {
+      // For split templates, always apply top margin
+      if (isSplitTemplate) {
+        return 'content-layout-with-top-corners';
+      }
+      // For non-split templates, only apply side restrictions
+      if (hasTopLeft) {
+        return 'content-layout-avoid-left';
+      }
+      if (hasTopRight) {
+        return 'content-layout-avoid-right';
+      }
+    }
+    
+    if (hasBottomLeft || hasBottomRight) {
+      // For split templates, always apply bottom margin
+      if (isSplitTemplate) {
+        return 'content-layout-with-bottom-corners';
+      }
+      // For non-split templates, only apply side restrictions
+      if (hasBottomLeft) {
+        return 'content-layout-avoid-left';
+      }
+      if (hasBottomRight) {
+        return 'content-layout-avoid-right';
+      }
+    }
     
     return 'content-layout-default';
   };

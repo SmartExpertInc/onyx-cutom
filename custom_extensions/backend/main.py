@@ -175,7 +175,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "type": "bullet_list",
           "items": [
             "Key point 1",
-            "Key point 2", 
+            "Key point 2",
             "Key point 3"
           ]
         }
