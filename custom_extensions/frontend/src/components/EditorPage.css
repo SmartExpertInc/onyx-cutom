@@ -417,6 +417,41 @@
   color: #5f6368;
 }
 
+/* Editable Content Styles */
+.editable {
+  cursor: text;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.editable:hover {
+  background: rgba(26, 115, 232, 0.08);
+  outline: 1px solid rgba(26, 115, 232, 0.2);
+}
+
+.editable:focus {
+  background: rgba(26, 115, 232, 0.08);
+  outline: 2px solid #1a73e8;
+  outline-offset: 1px;
+}
+
+/* Edit/Save Button Styles */
+.edit-button.active {
+  background: #e8f0fe !important;
+  color: #1a73e8 !important;
+}
+
+.save-button {
+  background: #34a853 !important;
+  color: white !important;
+}
+
+.save-button:hover {
+  background: #2d8f47 !important;
+}
+
 .slide-container {
   flex: 1;
   display: flex;

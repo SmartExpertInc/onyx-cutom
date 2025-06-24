@@ -13,7 +13,9 @@ import {
   Plus,
   ZoomIn,
   ZoomOut,
-  HelpCircle
+  HelpCircle,
+  Save,
+  Edit3
 } from 'lucide-react';
 import './EditorPage.css';
 
@@ -28,6 +30,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [editingSlideDeckData, setEditingSlideDeckData] = useState<SlideDeckData | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -68,7 +72,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         }
 
         if (projectData.details) {
-          setSlideDeckData(projectData.details as SlideDeckData);
+          const data = projectData.details as SlideDeckData;
+          setSlideDeckData(data);
+          setEditingSlideDeckData(JSON.parse(JSON.stringify(data))); // Deep copy for editing
         } else {
           throw new Error("No slide deck data found");
         }
@@ -91,34 +97,46 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       const container = scrollContainerRef.current;
       const containerTop = container.scrollTop;
       const containerHeight = container.clientHeight;
-      const containerCenter = containerTop + containerHeight / 2;
+      const viewportTop = containerTop;
+      const viewportBottom = containerTop + containerHeight;
 
-      let closestSlide = 0;
-      let closestDistance = Infinity;
+      let newActiveIndex = 0;
 
       slideRefs.current.forEach((slideRef, index) => {
         if (slideRef) {
           const slideTop = slideRef.offsetTop;
           const slideHeight = slideRef.offsetHeight;
-          const slideCenter = slideTop + slideHeight / 2;
-          const distance = Math.abs(containerCenter - slideCenter);
+          const slideBottom = slideTop + slideHeight;
 
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestSlide = index;
+          // If slide is visible in viewport
+          if (slideTop < viewportBottom && slideBottom > viewportTop) {
+            // Calculate how much of the slide is visible
+            const visibleTop = Math.max(slideTop, viewportTop);
+            const visibleBottom = Math.min(slideBottom, viewportBottom);
+            const visibleHeight = visibleBottom - visibleTop;
+            const visibilityRatio = visibleHeight / slideHeight;
+
+            // If more than 50% of slide is visible, make it active
+            if (visibilityRatio > 0.5) {
+              newActiveIndex = index;
+            }
           }
         }
       });
 
-      setActiveSlideIndex(closestSlide);
+      if (newActiveIndex !== activeSlideIndex) {
+        setActiveSlideIndex(newActiveIndex);
+      }
     };
 
     const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
+    if (container && slideDeckData) {
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      // Call once to set initial state
+      handleScroll();
       return () => container.removeEventListener('scroll', handleScroll);
     }
-  }, [slideDeckData]);
+  }, [slideDeckData, activeSlideIndex]);
 
   // Initialize slide refs array
   useEffect(() => {
@@ -132,6 +150,50 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const slideRef = slideRefs.current[index];
     if (slideRef && scrollContainerRef.current) {
       slideRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  // Function to update text content
+  const updateTextContent = (slideIndex: number, blockIndex: number, newText: string) => {
+    if (!editingSlideDeckData) return;
+
+    const updatedData = { ...editingSlideDeckData };
+    const slide = updatedData.slides[slideIndex];
+    const block = slide.contentBlocks[blockIndex];
+
+    if (block.type === 'headline' || block.type === 'paragraph') {
+      block.text = newText;
+    } else if (block.type === 'bullet_list' || block.type === 'numbered_list') {
+      // For lists, we'll update the first item for simplicity
+      if (block.items.length > 0 && typeof block.items[0] === 'string') {
+        block.items[0] = newText;
+      }
+    }
+
+    setEditingSlideDeckData(updatedData);
+  };
+
+  // Function to update slide title
+  const updateSlideTitle = (slideIndex: number, newTitle: string) => {
+    if (!editingSlideDeckData) return;
+
+    const updatedData = { ...editingSlideDeckData };
+    updatedData.slides[slideIndex].slideTitle = newTitle;
+    setEditingSlideDeckData(updatedData);
+  };
+
+  // Toggle editing mode
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
+
+  // Save changes
+  const saveChanges = () => {
+    if (editingSlideDeckData) {
+      setSlideDeckData(editingSlideDeckData);
+      setIsEditing(false);
+      // Here you would typically save to backend
+      console.log("Saving changes:", editingSlideDeckData);
     }
   };
 
@@ -170,26 +232,73 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     };
   };
 
-  // Render individual content blocks
-  const renderContentBlock = (block: AnyContentBlock) => {
+  // Render individual content blocks with editing capability
+  const renderContentBlock = (block: AnyContentBlock, slideIndex: number, blockIndex: number) => {
+    const isBlockEditable = isEditing;
+    
     switch (block.type) {
       case 'headline':
-        switch (block.level) {
-          case 1: return <h1 className="content-headline level-1">{block.text}</h1>;
-          case 2: return <h2 className="content-headline level-2">{block.text}</h2>;
-          case 3: return <h3 className="content-headline level-3">{block.text}</h3>;
-          case 4: return <h4 className="content-headline level-4">{block.text}</h4>;
-          default: return <h2 className="content-headline level-2">{block.text}</h2>;
-        }
+        const HeadlineComponent = ({ level, text }: { level: number, text: string }) => {
+          const className = `content-headline level-${level} ${isBlockEditable ? 'editable' : ''}`;
+          const props = isBlockEditable ? {
+            contentEditable: true,
+            suppressContentEditableWarning: true,
+            onBlur: (e: React.FocusEvent<HTMLElement>) => {
+              updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+            },
+                         onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+               if (e.key === 'Enter') {
+                 e.preventDefault();
+                 (e.currentTarget as HTMLElement).blur();
+               }
+             }
+          } : {};
+          
+          switch (level) {
+            case 1: return <h1 className={className} {...props}>{text}</h1>;
+            case 2: return <h2 className={className} {...props}>{text}</h2>;
+            case 3: return <h3 className={className} {...props}>{text}</h3>;
+            case 4: return <h4 className={className} {...props}>{text}</h4>;
+            default: return <h2 className={className} {...props}>{text}</h2>;
+          }
+        };
+        return <HeadlineComponent level={block.level} text={block.text} />;
       
       case 'paragraph':
-        return <p className="content-paragraph">{block.text}</p>;
+        return (
+          <p 
+            className={`content-paragraph ${isBlockEditable ? 'editable' : ''}`}
+            contentEditable={isBlockEditable}
+            suppressContentEditableWarning={isBlockEditable}
+            onBlur={isBlockEditable ? (e) => {
+              updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+            } : undefined}
+            onKeyDown={isBlockEditable ? (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.currentTarget.blur();
+              }
+            } : undefined}
+          >
+            {block.text}
+          </p>
+        );
       
       case 'bullet_list':
         return (
           <ul className="content-bullet-list">
             {block.items.map((item, index) => (
-              <li key={index} className="bullet-item">
+              <li 
+                key={index} 
+                className={`bullet-item ${isBlockEditable ? 'editable' : ''}`}
+                contentEditable={isBlockEditable && typeof item === 'string'}
+                suppressContentEditableWarning={isBlockEditable}
+                onBlur={isBlockEditable ? (e) => {
+                  if (typeof item === 'string') {
+                    updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+                  }
+                } : undefined}
+              >
                 {typeof item === 'string' ? item : 'Complex item'}
               </li>
             ))}
@@ -200,7 +309,17 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         return (
           <ol className="content-numbered-list">
             {block.items.map((item, index) => (
-              <li key={index} className="numbered-item">
+              <li 
+                key={index} 
+                className={`numbered-item ${isBlockEditable ? 'editable' : ''}`}
+                contentEditable={isBlockEditable && typeof item === 'string'}
+                suppressContentEditableWarning={isBlockEditable}
+                onBlur={isBlockEditable ? (e) => {
+                  if (typeof item === 'string') {
+                    updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+                  }
+                } : undefined}
+              >
                 {typeof item === 'string' ? item : 'Complex item'}
               </li>
             ))}
@@ -210,8 +329,28 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       case 'alert':
         return (
           <div className={`content-alert alert-${block.alertType}`}>
-            {block.title && <div className="alert-title">{block.title}</div>}
-            <div className="alert-text">{block.text}</div>
+            {block.title && (
+              <div 
+                className={`alert-title ${isBlockEditable ? 'editable' : ''}`}
+                contentEditable={isBlockEditable}
+                suppressContentEditableWarning={isBlockEditable}
+                onBlur={isBlockEditable ? (e) => {
+                  // Update alert title logic would go here
+                } : undefined}
+              >
+                {block.title}
+              </div>
+            )}
+            <div 
+              className={`alert-text ${isBlockEditable ? 'editable' : ''}`}
+              contentEditable={isBlockEditable}
+              suppressContentEditableWarning={isBlockEditable}
+              onBlur={isBlockEditable ? (e) => {
+                updateTextContent(slideIndex, blockIndex, e.target.textContent || '');
+              } : undefined}
+            >
+              {block.text}
+            </div>
           </div>
         );
       
@@ -253,7 +392,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     );
   }
 
-  const currentSlide = slideDeckData.slides[0]; // Display first slide by default
+  // Use editing data if available, otherwise use original data
+  const displayData = editingSlideDeckData || slideDeckData;
+  const currentSlide = displayData.slides[0]; // Display first slide by default
   const mainContent = getMainSlideContent(currentSlide);
 
   return (
@@ -265,10 +406,27 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             <Home size={16} />
           </div>
           <div className="breadcrumb">
-            <span>{slideDeckData.lessonTitle.length > 50 ? slideDeckData.lessonTitle.substring(0, 47) + '...' : slideDeckData.lessonTitle}</span>
+            <span>{displayData.lessonTitle.length > 50 ? displayData.lessonTitle.substring(0, 47) + '...' : displayData.lessonTitle}</span>
           </div>
         </div>
         <div className="nav-right">
+          <button 
+            className={`nav-button edit-button ${isEditing ? 'active' : ''}`}
+            onClick={toggleEditMode}
+          >
+            <span className="button-icon">
+              <Edit3 size={16} />
+            </span>
+            {isEditing ? 'Exit Edit' : 'Edit'}
+          </button>
+          {isEditing && (
+            <button className="nav-button save-button" onClick={saveChanges}>
+              <span className="button-icon">
+                <Save size={16} />
+              </span>
+              Save
+            </button>
+          )}
           <button className="nav-button theme-button">
             <span className="button-icon">
               <Palette size={16} />
@@ -322,7 +480,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             </button>
 
             <div className="slide-thumbnails">
-              {slideDeckData.slides.map((slide, index) => {
+              {displayData.slides.map((slide, index) => {
                 const slideContent = getMainSlideContent(slide);
                 return (
                   <div 
@@ -349,19 +507,37 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         {/* Center - Real Slides Display */}
         <div className="center-content">
           <div className="slides-scroll-container" ref={scrollContainerRef}>
-            {slideDeckData.slides.map((slide, index) => (
+            {displayData.slides.map((slide, index) => (
               <div 
                 key={slide.slideId} 
                 className="real-slide"
                 ref={(el) => { slideRefs.current[index] = el; }}
               >
                 <div className="slide-header">
-                  <h2 className="slide-title">Slide {slide.slideNumber}: {slide.slideTitle}</h2>
+                  <h2 
+                    className={`slide-title ${isEditing ? 'editable' : ''}`}
+                    contentEditable={isEditing}
+                    suppressContentEditableWarning={isEditing}
+                    onBlur={isEditing ? (e) => {
+                      const newTitle = e.target.textContent || '';
+                      // Extract title without the "Slide X:" prefix
+                      const titleWithoutPrefix = newTitle.replace(/^Slide \d+:\s*/, '');
+                      updateSlideTitle(index, titleWithoutPrefix);
+                    } : undefined}
+                    onKeyDown={isEditing ? (e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        (e.currentTarget as HTMLElement).blur();
+                      }
+                    } : undefined}
+                  >
+                    Slide {slide.slideNumber}: {slide.slideTitle}
+                  </h2>
                 </div>
                 <div className="slide-content-blocks">
                   {slide.contentBlocks.map((block, blockIndex) => (
                     <div key={blockIndex} className="content-block">
-                      {renderContentBlock(block)}
+                      {renderContentBlock(block, index, blockIndex)}
                     </div>
                   ))}
                 </div>
