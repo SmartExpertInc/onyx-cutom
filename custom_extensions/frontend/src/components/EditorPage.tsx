@@ -145,81 +145,83 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
-  // Handle scroll to update active slide - FIXED NAVIGATION
+  // Handle scroll to update active slide - COMPLETELY REMADE NAVIGATION
   useEffect(() => {
-    let scrollTimeout: NodeJS.Timeout;
-    
-    const handleScroll = () => {
-      if (!scrollContainerRef.current || !slideDeckData) return;
-
-      // Clear existing timeout
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-
-      // Debounce scroll detection
-      scrollTimeout = setTimeout(() => {
-        if (!scrollContainerRef.current || !slideDeckData) return;
-
-        const container = scrollContainerRef.current;
-        const containerTop = container.scrollTop;
-        const containerHeight = container.clientHeight;
-        const viewportTop = containerTop;
-        const viewportBottom = containerTop + containerHeight;
-
-        let newActiveIndex = 0;
-        let maxVisibilityRatio = 0;
-
-        slideRefs.current.forEach((slideRef, index) => {
-          if (slideRef) {
-            const slideTop = slideRef.offsetTop;
-            const slideHeight = slideRef.offsetHeight;
-            const slideBottom = slideTop + slideHeight;
-
-            // If slide is visible in viewport
-            if (slideTop < viewportBottom && slideBottom > viewportTop) {
-              // Calculate how much of the slide is visible
-              const visibleTop = Math.max(slideTop, viewportTop);
-              const visibleBottom = Math.min(slideBottom, viewportBottom);
-              const visibleHeight = visibleBottom - visibleTop;
-              const visibilityRatio = visibleHeight / slideHeight;
-
-              // Track the slide with the highest visibility ratio
-              if (visibilityRatio > maxVisibilityRatio) {
-                maxVisibilityRatio = visibilityRatio;
-                newActiveIndex = index;
-              }
-            }
-          }
-        });
-
-        // Update active slide if we have significant visibility
-        if (maxVisibilityRatio > 0.15) {
-          setActiveSlideIndex(newActiveIndex);
-        }
-      }, 50); // 50ms debounce
-    };
+    if (!slideDeckData || !scrollContainerRef.current) return;
 
     const container = scrollContainerRef.current;
-    if (container && slideDeckData) {
-      // Add scroll listener
-      container.addEventListener('scroll', handleScroll, { passive: true });
-      
-      // Run initial detection immediately and with delay
-      handleScroll();
-      setTimeout(handleScroll, 100);
-      setTimeout(handleScroll, 300);
-      
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
-        if (scrollTimeout) {
-          clearTimeout(scrollTimeout);
+    
+    // Create intersection observer for more reliable detection
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let mostVisibleSlide = { index: 0, ratio: 0 };
+        
+        entries.forEach((entry) => {
+          const slideIndex = parseInt(entry.target.getAttribute('data-slide-index') || '0');
+          
+          // Track the slide with highest intersection ratio
+          if (entry.intersectionRatio > mostVisibleSlide.ratio) {
+            mostVisibleSlide = { index: slideIndex, ratio: entry.intersectionRatio };
+          }
+        });
+        
+        // Update active slide if we have significant visibility (>30%)
+        if (mostVisibleSlide.ratio > 0.3) {
+          setActiveSlideIndex(mostVisibleSlide.index);
         }
-      };
-    }
+      },
+      {
+        root: container,
+        rootMargin: '0px',
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      }
+    );
+
+    // Observe all slides
+    slideRefs.current.forEach((slideRef, index) => {
+      if (slideRef) {
+        slideRef.setAttribute('data-slide-index', index.toString());
+        observer.observe(slideRef);
+      }
+    });
+
+    // Fallback scroll detection for immediate updates
+    const handleScroll = () => {
+      if (!container || !slideDeckData) return;
+      
+      const containerRect = container.getBoundingClientRect();
+      const containerCenter = containerRect.top + containerRect.height / 2;
+      
+      let closestSlide = { index: 0, distance: Infinity };
+      
+      slideRefs.current.forEach((slideRef, index) => {
+        if (slideRef) {
+          const slideRect = slideRef.getBoundingClientRect();
+          const slideCenter = slideRect.top + slideRect.height / 2;
+          const distance = Math.abs(slideCenter - containerCenter);
+          
+          if (distance < closestSlide.distance) {
+            closestSlide = { index, distance };
+          }
+        }
+      });
+      
+      setActiveSlideIndex(closestSlide.index);
+    };
+
+    // Add scroll listener as fallback
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Initial detection
+    setTimeout(handleScroll, 100);
+    
+    return () => {
+      observer.disconnect();
+      container.removeEventListener('scroll', handleScroll);
+    };
   }, [slideDeckData]);
 
-  // Initialize slide refs array and detect initial active slide
+  // Initialize slide refs array
   useEffect(() => {
     if (slideDeckData) {
       slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
