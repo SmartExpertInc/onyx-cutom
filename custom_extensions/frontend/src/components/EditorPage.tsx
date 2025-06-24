@@ -723,11 +723,32 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                 )}
                 
                 <div className="slide-content-blocks">
-                  {slide.contentBlocks.map((block, blockIndex) => (
-                    <div key={blockIndex} className="content-block">
-                      {renderContentBlock(block, index, blockIndex)}
-                    </div>
-                  ))}
+                  {slide.deckgoTemplate === 'deckgo-slide-split' ? (
+                    // Split template: divide content blocks into two columns
+                    <>
+                      <div className="split-column-left">
+                        {slide.contentBlocks.slice(0, Math.ceil(slide.contentBlocks.length / 2)).map((block, blockIndex) => (
+                          <div key={blockIndex} className="content-block">
+                            {renderContentBlock(block, index, blockIndex)}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="split-column-right">
+                        {slide.contentBlocks.slice(Math.ceil(slide.contentBlocks.length / 2)).map((block, blockIndex) => (
+                          <div key={blockIndex + Math.ceil(slide.contentBlocks.length / 2)} className="content-block">
+                            {renderContentBlock(block, index, blockIndex + Math.ceil(slide.contentBlocks.length / 2))}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    // Regular template: single column layout
+                    slide.contentBlocks.map((block, blockIndex) => (
+                      <div key={blockIndex} className="content-block">
+                        {renderContentBlock(block, index, blockIndex)}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             ))}
