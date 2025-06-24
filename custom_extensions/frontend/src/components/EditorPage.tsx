@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
+import { ProjectListItem } from '@/types/products';
 import { 
   Home, 
   Palette, 
@@ -19,7 +21,8 @@ import {
   Paintbrush,
   BarChart3,
   TrendingUp,
-  Edit
+  Edit,
+  ChevronRight
 } from 'lucide-react';
 import './EditorPage.css';
 
@@ -30,16 +33,20 @@ interface EditorPageProps {
 }
 
 const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
+  const router = useRouter();
   const [slideDeckData, setSlideDeckData] = useState<SlideDeckData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [editingSlideDeckData, setEditingSlideDeckData] = useState<SlideDeckData | null>(null);
+  const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[]>([]);
+  const [parentProjectName, setParentProjectName] = useState<string | null>(null);
+  const [parentProjectId, setParentProjectId] = useState<number | null>(null);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Fetch slide deck data
+  // Fetch slide deck data and parent project information
   useEffect(() => {
     const fetchSlideData = async () => {
       if (!projectId) {
@@ -58,16 +65,23 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
         }
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${projectId}`, {
-          cache: 'no-store',
-          headers: commonHeaders
-        });
+        // Fetch both project data and all projects list
+        const [instanceRes, listRes] = await Promise.all([
+          fetch(`${CUSTOM_BACKEND_URL}/projects/view/${projectId}`, {
+            cache: 'no-store',
+            headers: commonHeaders
+          }),
+          fetch(`${CUSTOM_BACKEND_URL}/projects`, {
+            cache: 'no-store',
+            headers: commonHeaders
+          })
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch project data: ${response.status}`);
+        if (!instanceRes.ok) {
+          throw new Error(`Failed to fetch project data: ${instanceRes.status}`);
         }
 
-        const projectData = await response.json();
+        const projectData = await instanceRes.json();
         
         // Check if this is a slide deck project
         if (projectData.component_name !== 'SlideDeckDisplay') {
@@ -81,6 +95,30 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         } else {
           throw new Error("No slide deck data found");
         }
+
+        // Handle projects list for breadcrumb navigation
+        if (listRes.ok) {
+          const allMicroproductsData: ProjectListItem[] = await listRes.json();
+          setAllUserMicroproducts(allMicroproductsData);
+          
+          const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === projectData.project_id);
+          if (currentMicroproductInList?.projectName) {
+            setParentProjectName(currentMicroproductInList.projectName);
+            
+            // We need to find the parent training plan by checking all projects with the same project name
+            // and looking for the TrainingPlanTable component through their details
+            const potentialParents = allMicroproductsData.filter(mp => 
+              mp.projectName === currentMicroproductInList.projectName && 
+              mp.id !== projectData.project_id
+            );
+            
+            // For now, we'll set the first one as parent if it exists
+            // In a real implementation, you'd want to fetch each project's details to check component_name
+            if (potentialParents.length > 0) {
+              setParentProjectId(potentialParents[0].id);
+            }
+          }
+        }
       } catch (err: any) {
         console.error("Error fetching slide data:", err);
         setError(err.message || "Failed to load slide data");
@@ -92,7 +130,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
-  // Handle scroll to update active slide - RESTORED SMART NAVIGATION
+  // Handle scroll to update active slide - FIXED NAVIGATION
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollContainerRef.current || !slideDeckData) return;
@@ -129,8 +167,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         }
       });
 
-      // Only update if we have a significant visibility (>30%) or if it's different
-      if (maxVisibilityRatio > 0.3 && newActiveIndex !== activeSlideIndex) {
+      // Update active slide if we have significant visibility
+      if (maxVisibilityRatio > 0.2 && newActiveIndex !== activeSlideIndex) {
         setActiveSlideIndex(newActiveIndex);
       }
     };
@@ -138,9 +176,15 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const container = scrollContainerRef.current;
     if (container && slideDeckData) {
       container.addEventListener('scroll', handleScroll, { passive: true });
-      // Call once to set initial state
-      setTimeout(handleScroll, 100); // Small delay to ensure refs are set
-      return () => container.removeEventListener('scroll', handleScroll);
+      // Set initial state after a short delay to ensure refs are ready
+      const timeoutId = setTimeout(() => {
+        handleScroll();
+      }, 200);
+      
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+        clearTimeout(timeoutId);
+      };
     }
   }, [slideDeckData, activeSlideIndex]);
 
@@ -148,14 +192,33 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   useEffect(() => {
     if (slideDeckData) {
       slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
+      // Reset active slide when data changes
+      setActiveSlideIndex(0);
     }
   }, [slideDeckData]);
 
-  // Function to scroll to specific slide
+  // Function to scroll to specific slide - FIXED
   const scrollToSlide = (index: number) => {
     const slideRef = slideRefs.current[index];
     if (slideRef && scrollContainerRef.current) {
-      slideRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Temporarily set active index to prevent flicker
+      setActiveSlideIndex(index);
+      
+      slideRef.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
+
+  // Navigation functions for breadcrumb
+  const navigateToProjects = () => {
+    router.push('/projects');
+  };
+
+  const navigateToOutline = () => {
+    if (parentProjectId) {
+      router.push(`/projects/view/${parentProjectId}`);
     }
   };
 
@@ -455,11 +518,25 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       {/* Top Navigation Bar */}
       <div className="top-nav">
         <div className="nav-left">
-          <div className="nav-icon">
+          <button className="nav-icon breadcrumb-button" onClick={navigateToProjects}>
             <Home size={16} />
-          </div>
+          </button>
           <div className="breadcrumb">
-            <span>{displayData.lessonTitle.length > 50 ? displayData.lessonTitle.substring(0, 47) + '...' : displayData.lessonTitle}</span>
+            {parentProjectName && parentProjectId && (
+              <>
+                <ChevronRight size={14} className="breadcrumb-separator" />
+                <button 
+                  className="breadcrumb-link"
+                  onClick={navigateToOutline}
+                >
+                  {parentProjectName}
+                </button>
+              </>
+            )}
+            <ChevronRight size={14} className="breadcrumb-separator" />
+            <span className="breadcrumb-current">
+              {displayData.lessonTitle.length > 40 ? displayData.lessonTitle.substring(0, 37) + '...' : displayData.lessonTitle}
+            </span>
           </div>
         </div>
         <div className="nav-right">
