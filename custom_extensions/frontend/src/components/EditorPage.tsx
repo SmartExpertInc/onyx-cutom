@@ -721,33 +721,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                 className={`real-slide ${slide.deckgoTemplate ? `template-${slide.deckgoTemplate.replace('deckgo-slide-', '')}` : 'template-content'} ${getContentLayoutClass(slide)}`}
                 ref={(el) => { slideRefs.current[index] = el; }}
               >
-                <div className="slide-header">
-                  <h2 
-                    className="slide-title editable-text"
-                    contentEditable={true}
-                    suppressContentEditableWarning={true}
-                    onBlur={(e) => {
-                      const newTitle = e.target.textContent || '';
-                      // Extract title without the "Slide X:" prefix
-                      const titleWithoutPrefix = newTitle.replace(/^Slide \d+:\s*/, '');
-                      updateSlideTitle(index, titleWithoutPrefix);
-                      saveChanges();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        (e.currentTarget as HTMLElement).blur();
-                      }
-                    }}
-                  >
-                    Slide {slide.slideNumber}: {slide.slideTitle}
-                  </h2>
-                  {slide.deckgoTemplate && (
-                    <div className="template-badge">
-                      {slide.deckgoTemplate.replace('deckgo-slide-', '').toUpperCase()}
-                    </div>
-                  )}
-                </div>
+                {slide.deckgoTemplate && (
+                  <div className="template-badge">
+                    {slide.deckgoTemplate.replace('deckgo-slide-', '').toUpperCase()}
+                  </div>
+                )}
                 
                 {/* Image Placeholders */}
                 {slide.imagePlaceholders && slide.imagePlaceholders.length > 0 && (
