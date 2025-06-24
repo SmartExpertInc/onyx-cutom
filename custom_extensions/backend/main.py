@@ -167,33 +167,46 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
+      "layout": "title",
       "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
-        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        { "type": "headline", "level": 1, "text": "Welcome to the Lesson" },
+        { "type": "headline", "level": 2, "text": "Professional Presentation Design" }
+      ]
+    },
+    {
+      "slideId": "slide_2_four_points",
+      "slideNumber": 2,
+      "slideTitle": "Four Key Points",
+      "layout": "four-bullets",
+      "contentBlocks": [
+        { "type": "headline", "level": 1, "text": "Core Learning Objectives" },
         {
           "type": "bullet_list",
           "items": [
-            "Key point 1",
-            "Key point 2",
-            "Key point 3"
+            "First key concept",
+            "Second key concept", 
+            "Third key concept",
+            "Fourth key concept"
           ]
         }
       ]
     },
     {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
+      "slideId": "slide_3_process",
+      "slideNumber": 3,
+      "slideTitle": "Implementation Steps",
+      "layout": "steps",
       "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        { "type": "headline", "level": 1, "text": "Process Overview" },
         {
           "type": "numbered_list",
           "items": [
-            "First important concept",
-            "Second important concept"
+            "Plan and prepare",
+            "Execute implementation",
+            "Monitor progress",
+            "Evaluate results"
           ]
-        },
-        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+        }
       ]
     }
   ],
@@ -455,6 +468,7 @@ class DeckSlide(BaseModel):
     slideNumber: int           # 1, 2, 3, ...
     slideTitle: str            # "Introduction to Key Concepts"
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    layout: Optional[str] = None  # Auto-detected template layout
     model_config = {"from_attributes": True}
 
 class SlideDeckDetails(BaseModel):
@@ -1540,10 +1554,10 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             )
             llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
             component_specific_instructions = """
-            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content.
+            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with automatic template detection.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
+            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks and automatic template detection. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
@@ -1557,10 +1571,25 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `slideNumber` (integer): Sequential slide number (1, 2, 3, ...).
             * `slideTitle` (string): Descriptive title for the slide.
             * `contentBlocks` (array): List of content block objects for this slide.
+            * `layout` (string): Auto-detected template layout (see template detection rules below).
+
+            **Template Auto-Detection Rules:**
+            Analyze each slide's content and assign the appropriate template:
+            
+            - `title`: First slide OR slide with only headline blocks
+            - `content`: Default for general content (headline + paragraphs)
+            - `four-bullets`: Exactly 4 bullet items after headline
+            - `six-bullets`: Exactly 6 bullet items after headline
+            - `steps`: 4+ numbered items OR process keywords in title
+            - `split`: Two level-2 headlines with paragraphs
+            - `comparison`: "Before/After", "vs", comparison keywords in title/content
+            - `quote`: Text in quotes OR highlight keywords in title
+            - `agenda`: Title contains "Agenda", "Outline", "Overview"
+            - `summary`: Title contains "Summary", "Takeaways", "Conclusion"
 
             **Content Block Instructions (same as PDF lesson but applied per slide):**
             Parse each slide's content into appropriate content blocks:
-            - Headlines (levels 2-4 with optional icons and isImportant flags)
+            - Headlines (levels 1-4 with optional icons and isImportant flags)
             - Paragraphs (with optional isRecommendation flag)
             - Bullet lists and numbered lists (with nesting support)
             - Alerts (info, warning, success, danger)
@@ -1572,12 +1601,21 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * Convert slide content following the same content block rules as PDF lessons
             * Generate appropriate `slideId` values based on slide number and title
             * Preserve all formatting, bold text (**text**), and original language
+            * Auto-detect and assign layout template based on content analysis
+
+            **Template Detection Keywords:**
+            - Comparison: "versus", "before and after", "old vs new", "comparison"
+            - Process: "steps", "process", "procedure", "workflow", "methodology"
+            - Summary: "takeaways", "key points", "conclusion", "summary", "wrap-up"
+            - Agenda: "agenda", "outline", "overview", "schedule", "program"
+            - Quote: "quote", "key message", "important", "remember", "principle"
 
             **Content Guidelines per Slide:**
             * Keep content focused - each slide should cover one main concept
             * Limit text per slide for readability
             * Use mix of content types for visual variety
             * Maintain logical flow between slides
+            * Ensure bullet/numbered counts match template expectations
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
