@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
 import './EditorPage.css';
