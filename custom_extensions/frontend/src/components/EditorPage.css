@@ -1106,12 +1106,12 @@
 }
 
 .content-layout-avoid-top .slide-content-blocks {
-  margin-top: 25%; /* Leave space for top banner */
+  margin-top: 20%; /* Leave space for top banner */
   padding-top: 16px;
 }
 
 .content-layout-avoid-bottom .slide-content-blocks {
-  margin-bottom: 25%; /* Leave space for bottom banner */
+  margin-bottom: 20%; /* Leave space for bottom banner */
   padding-bottom: 16px;
 }
 
@@ -1119,27 +1119,28 @@
   background: rgba(255, 255, 255, 0.9); /* Semi-transparent background for readability */
   border-radius: 8px;
   padding: 24px;
-  margin: 16px;
+  margin: 24px;
   backdrop-filter: blur(2px);
 }
 
 .content-layout-with-corners .slide-content-blocks {
-  padding: 16px 24px; /* Add subtle padding to avoid corner images */
-  margin: 8px;
+  padding: 24px; /* Add padding to avoid corner images */
+  margin: 16px;
 }
 
 .content-layout-default .slide-content-blocks {
-  /* Default layout - no adjustments needed */
+  padding: 16px; /* Add some default padding */
+  margin: 8px;
 }
 
 /* Ensure split templates don't get affected by image avoidance */
 .real-slide.template-split .slide-content-blocks {
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 16px !important;
 }
 
 .real-slide.template-split .split-column-left,
 .real-slide.template-split .split-column-right {
   margin: 0;
-  padding: 0 8px;
+  padding: 0 16px;
 } 

@@ -182,23 +182,33 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         }
       });
 
-      // Update active slide if we have significant visibility
-      if (maxVisibilityRatio > 0.2 && newActiveIndex !== activeSlideIndex) {
+      // Update active slide if we have significant visibility or if it's different
+      if (maxVisibilityRatio > 0.15 || newActiveIndex !== activeSlideIndex) {
         setActiveSlideIndex(newActiveIndex);
       }
     };
 
     const container = scrollContainerRef.current;
     if (container && slideDeckData) {
+      // Add scroll listener
       container.addEventListener('scroll', handleScroll, { passive: true });
-      // Set initial state after a short delay to ensure refs are ready
-      const timeoutId = setTimeout(() => {
+      
+      // Initial detection - run multiple times to ensure refs are ready
+      const initialDetection = () => {
         handleScroll();
-      }, 200);
+      };
+      
+      // Run initial detection immediately and with delays
+      initialDetection();
+      const timeout1 = setTimeout(initialDetection, 100);
+      const timeout2 = setTimeout(initialDetection, 300);
+      const timeout3 = setTimeout(initialDetection, 500);
       
       return () => {
         container.removeEventListener('scroll', handleScroll);
-        clearTimeout(timeoutId);
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
+        clearTimeout(timeout3);
       };
     }
   }, [slideDeckData, activeSlideIndex]);
@@ -218,16 +228,16 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const container = scrollContainerRef.current;
     
     if (slideRef && container) {
-      // Immediately set active index
+      // Immediately set active index for instant visual feedback
       setActiveSlideIndex(index);
       
       // Calculate the scroll position relative to the container
       const slideTop = slideRef.offsetTop;
       
-      // Scroll to the slide position within the container
-      container.scrollTo({
-        top: slideTop,
-        behavior: 'smooth'
+      // Scroll to the slide with some offset for better visibility
+      container.scrollTo({ 
+        top: slideTop - 20, // Small offset from top
+        behavior: 'smooth' 
       });
     }
   };
