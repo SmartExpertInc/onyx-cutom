@@ -101,6 +101,61 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     };
   };
 
+  // Render individual content blocks
+  const renderContentBlock = (block: AnyContentBlock) => {
+    switch (block.type) {
+      case 'headline':
+        switch (block.level) {
+          case 1: return <h1 className="content-headline level-1">{block.text}</h1>;
+          case 2: return <h2 className="content-headline level-2">{block.text}</h2>;
+          case 3: return <h3 className="content-headline level-3">{block.text}</h3>;
+          case 4: return <h4 className="content-headline level-4">{block.text}</h4>;
+          case 5: return <h5 className="content-headline level-5">{block.text}</h5>;
+          case 6: return <h6 className="content-headline level-6">{block.text}</h6>;
+          default: return <h2 className="content-headline level-2">{block.text}</h2>;
+        }
+      
+      case 'paragraph':
+        return <p className="content-paragraph">{block.text}</p>;
+      
+      case 'bullet_list':
+        return (
+          <ul className="content-bullet-list">
+            {block.items.map((item, index) => (
+              <li key={index} className="bullet-item">
+                {typeof item === 'string' ? item : 'Complex item'}
+              </li>
+            ))}
+          </ul>
+        );
+      
+      case 'numbered_list':
+        return (
+          <ol className="content-numbered-list">
+            {block.items.map((item, index) => (
+              <li key={index} className="numbered-item">
+                {typeof item === 'string' ? item : 'Complex item'}
+              </li>
+            ))}
+          </ol>
+        );
+      
+      case 'alert':
+        return (
+          <div className={`content-alert alert-${block.alertType}`}>
+            {block.title && <div className="alert-title">{block.title}</div>}
+            <div className="alert-text">{block.text}</div>
+          </div>
+        );
+      
+      case 'section_break':
+        return <hr className="content-section-break" />;
+      
+      default:
+        return <div className="content-unknown">Unknown content type</div>;
+    }
+  };
+
   if (loading) {
     return (
       <div className="editor-page">
@@ -204,46 +259,23 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           </div>
         </div>
 
-        {/* Center - Main Slide View */}
+        {/* Center - Real Slides Display */}
         <div className="center-content">
-          <div className="slide-container">
-            <div className="slide-controls">
-              <button className="control-button">⋯</button>
-              <button className="control-button">🔍</button>
-              <button className="control-button">⚙️</button>
-            </div>
-            
-            <div className="main-slide">
-              <div className="slide-content-main">
-                <div className="slide-text-area">
-                  <h1 className="main-title">{mainContent.title}</h1>
-                  <p className="main-description">
-                    {mainContent.content.split('\n').slice(0, 3).join(' ')}
-                  </p>
-                  <div className="author-info">
-                    <div className="author-avatar">U</div>
-                    <div className="author-details">
-                      <div className="author-name">Slide Deck</div>
-                      <div className="last-edited">{slideDeckData.slides.length} slides</div>
-                    </div>
-                  </div>
+          <div className="slides-scroll-container">
+            {slideDeckData.slides.map((slide, index) => (
+              <div key={slide.slideId} className="real-slide">
+                <div className="slide-header">
+                  <h2 className="slide-title">Slide {slide.slideNumber}: {slide.slideTitle}</h2>
                 </div>
-                <div className="slide-image-area">
-                  <div className="earth-globe-image"></div>
+                <div className="slide-content-blocks">
+                  {slide.contentBlocks.map((block, blockIndex) => (
+                    <div key={blockIndex} className="content-block">
+                      {renderContentBlock(block)}
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-
-            <div className="slide-bottom-controls">
-              <button className="bottom-control">+</button>
-              <button className="bottom-control">⚙️</button>
-              <button className="bottom-control">▼</button>
-            </div>
-          </div>
-
-          {/* Bottom slide with city image */}
-          <div className="bottom-slide-area">
-            <div className="city-landscape-image"></div>
+            ))}
           </div>
         </div>
 
