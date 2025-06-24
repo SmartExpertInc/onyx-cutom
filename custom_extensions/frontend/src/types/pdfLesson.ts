@@ -66,11 +66,19 @@ export interface PdfLessonData {
 }
 
 // --- NEW: Slide Deck Types ---
+export interface ImagePlaceholder {
+  size: string;          // "LARGE", "MEDIUM", "SMALL", "BANNER", "BACKGROUND"
+  position: string;      // "LEFT", "RIGHT", "TOP_BANNER", "BACKGROUND", etc.
+  description: string;   // Description of the image content
+}
+
 export interface DeckSlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
   contentBlocks: AnyContentBlock[];
+  deckgoTemplate?: string;  // "deckgo-slide-chart", "deckgo-slide-split", etc.
+  imagePlaceholders?: ImagePlaceholder[];
 }
 
 export interface SlideDeckData {

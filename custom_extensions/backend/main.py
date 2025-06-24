@@ -167,6 +167,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
+      "deckgoTemplate": "deckgo-slide-title",
       "contentBlocks": [
         { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
         { "type": "paragraph", "text": "This slide introduces the main topic." },
@@ -174,9 +175,16 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "type": "bullet_list",
           "items": [
             "Key point 1",
-            "Key point 2",
+            "Key point 2", 
             "Key point 3"
           ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND",
+          "description": "Educational theme background"
         }
       ]
     },
@@ -184,6 +192,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_2_main",
       "slideNumber": 2,
       "slideTitle": "Main Concepts",
+      "deckgoTemplate": "deckgo-slide-content",
       "contentBlocks": [
         { "type": "headline", "level": 2, "text": "Core Ideas" },
         {
@@ -194,6 +203,37 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           ]
         },
         { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "MEDIUM",
+          "position": "RIGHT",
+          "description": "Concept visualization or diagram"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_3_data",
+      "slideNumber": 3,
+      "slideTitle": "Understanding Schedules",
+      "deckgoTemplate": "deckgo-slide-chart",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Timetable Chart" },
+        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Check the departure and arrival columns carefully.",
+            "The station code is listed beside each time."
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND", 
+          "description": "A train timetable board"
+        }
       ]
     }
   ],
@@ -450,11 +490,19 @@ class VideoLessonData(BaseModel):
     model_config = {"from_attributes": True}
 
 # --- NEW: Slide-based Lesson Presentation Models ---
+class ImagePlaceholder(BaseModel):
+    size: str          # "LARGE", "MEDIUM", "SMALL", "BANNER", "BACKGROUND"
+    position: str      # "LEFT", "RIGHT", "TOP_BANNER", "BACKGROUND", etc.
+    description: str   # Description of the image content
+    model_config = {"from_attributes": True}
+
 class DeckSlide(BaseModel):
     slideId: str               # "slide_1_intro"
     slideNumber: int           # 1, 2, 3, ...
     slideTitle: str            # "Introduction to Key Concepts"
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    deckgoTemplate: Optional[str] = None  # "deckgo-slide-chart", "deckgo-slide-split", etc.
+    imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
     model_config = {"from_attributes": True}
 
 class SlideDeckDetails(BaseModel):
@@ -1540,10 +1588,10 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             )
             llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
             component_specific_instructions = """
-            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content.
+            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with DeckDeckGo template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
+            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information, hierarchical relationships, DeckDeckGo templates, and image placeholders. Preserve the original language for all textual fields.
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
@@ -1557,27 +1605,56 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `slideNumber` (integer): Sequential slide number (1, 2, 3, ...).
             * `slideTitle` (string): Descriptive title for the slide.
             * `contentBlocks` (array): List of content block objects for this slide.
+            * `deckgoTemplate` (string, optional): DeckDeckGo template type (e.g., "deckgo-slide-chart", "deckgo-slide-split").
+            * `imagePlaceholders` (array, optional): List of image placeholder objects.
 
-            **Content Block Instructions (same as PDF lesson but applied per slide):**
+            **Enhanced Slide Parsing Rules:**
+            * Each slide should be separated by `---` in the input markdown
+            * Extract slide titles from `**Slide N: Title**` format, which may include DeckDeckGo template specification like `` `deckgo-slide-chart` ``
+            * Parse DeckDeckGo template specification: Look for backtick-enclosed template names (e.g., `` `deckgo-slide-chart` ``) in slide titles
+            * Extract image placeholders: Parse `[IMAGE_PLACEHOLDER: SIZE | POSITION | Description]` syntax
+            * Convert slide content following content block rules, ignoring image placeholders in content flow
+            * Generate appropriate `slideId` values based on slide number and title
+            * Preserve all formatting, bold text (**text**), and original language
+
+            **DeckDeckGo Template Parsing:**
+            When you encounter a slide title like: `**Slide 8: Understanding Schedules** ` `` `deckgo-slide-chart` ``
+            - Extract `slideTitle`: "Understanding Schedules" (without the Slide number prefix)
+            - Extract `deckgoTemplate`: "deckgo-slide-chart"
+            - Store template information in the `deckgoTemplate` field
+
+            **Image Placeholder Parsing:**
+            When you encounter: `[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]`
+            Create an image placeholder object:
+            ```json
+            {
+              "size": "MEDIUM",
+              "position": "RIGHT", 
+              "description": "Concept visualization or diagram"
+            }
+            ```
+            Add these to the `imagePlaceholders` array. Do NOT include image placeholder text in content blocks.
+
+            **Content Block Instructions (enhanced):**
             Parse each slide's content into appropriate content blocks:
             - Headlines (levels 2-4 with optional icons and isImportant flags)
             - Paragraphs (with optional isRecommendation flag)
             - Bullet lists and numbered lists (with nesting support)
             - Alerts (info, warning, success, danger)
             - Section breaks
+            - **IGNORE**: Image placeholder syntax in content flow
 
-            **Slide Parsing Rules:**
-            * Each slide should be separated by `---` in the input markdown
-            * Extract slide titles from `**Slide N: Title**` format
-            * Convert slide content following the same content block rules as PDF lessons
-            * Generate appropriate `slideId` values based on slide number and title
-            * Preserve all formatting, bold text (**text**), and original language
+            **Special Content Handling:**
+            * Lines containing `[Chart/Data visualization content]` should be converted to appropriate content blocks or special chart content types
+            * Template-specific content should be preserved but not included as regular content blocks if it's placeholder syntax
+            * Focus on actual educational content, not template/placeholder instructions
 
             **Content Guidelines per Slide:**
             * Keep content focused - each slide should cover one main concept
             * Limit text per slide for readability
             * Use mix of content types for visual variety
             * Maintain logical flow between slides
+            * Preserve educational value while supporting visual templates
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

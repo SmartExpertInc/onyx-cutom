@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
+import { SlideDeckData, DeckSlide, AnyContentBlock, ImagePlaceholder } from '@/types/pdfLesson';
 import { ProjectListItem } from '@/types/products';
 import { 
   Home, 
@@ -501,6 +501,40 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     }
   };
 
+  // Render image placeholders
+  const renderImagePlaceholder = (placeholder: ImagePlaceholder, index: number) => {
+    const sizeClasses = {
+      'LARGE': 'placeholder-large',
+      'MEDIUM': 'placeholder-medium', 
+      'SMALL': 'placeholder-small',
+      'BANNER': 'placeholder-banner',
+      'BACKGROUND': 'placeholder-background'
+    };
+
+    const positionClasses = {
+      'LEFT': 'placeholder-left',
+      'RIGHT': 'placeholder-right',
+      'TOP_BANNER': 'placeholder-top-banner',
+      'BOTTOM_BANNER': 'placeholder-bottom-banner', 
+      'BACKGROUND': 'placeholder-background-pos',
+      'CENTER': 'placeholder-center'
+    };
+
+    return (
+      <div 
+        key={index}
+        className={`image-placeholder ${sizeClasses[placeholder.size as keyof typeof sizeClasses] || 'placeholder-medium'} ${positionClasses[placeholder.position as keyof typeof positionClasses] || 'placeholder-center'}`}
+      >
+        <div className="placeholder-content">
+          <div className="placeholder-icon">🖼️</div>
+          <div className="placeholder-size">{placeholder.size}</div>
+          <div className="placeholder-position">{placeholder.position}</div>
+          <div className="placeholder-description">{placeholder.description}</div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="editor-page">
@@ -648,7 +682,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             {displayData.slides.map((slide, index) => (
               <div 
                 key={slide.slideId} 
-                className="real-slide"
+                className={`real-slide ${slide.deckgoTemplate ? `template-${slide.deckgoTemplate.replace('deckgo-slide-', '')}` : 'template-content'}`}
                 ref={(el) => { slideRefs.current[index] = el; }}
               >
                 <div className="slide-header">
@@ -672,7 +706,22 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                   >
                     Slide {slide.slideNumber}: {slide.slideTitle}
                   </h2>
+                  {slide.deckgoTemplate && (
+                    <div className="template-badge">
+                      {slide.deckgoTemplate.replace('deckgo-slide-', '').toUpperCase()}
+                    </div>
+                  )}
                 </div>
+                
+                {/* Image Placeholders */}
+                {slide.imagePlaceholders && slide.imagePlaceholders.length > 0 && (
+                  <div className="slide-image-placeholders">
+                    {slide.imagePlaceholders.map((placeholder, placeholderIndex) => 
+                      renderImagePlaceholder(placeholder, placeholderIndex)
+                    )}
+                  </div>
+                )}
+                
                 <div className="slide-content-blocks">
                   {slide.contentBlocks.map((block, blockIndex) => (
                     <div key={blockIndex} className="content-block">
