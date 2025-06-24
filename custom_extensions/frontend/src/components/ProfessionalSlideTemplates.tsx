@@ -52,8 +52,8 @@ const renderContentBlock = (
             style: {
               color: headlineBlock.level === 1 ? colors.primary : colors.secondary,
               fontWeight: 'bold',
-              marginBottom: headlineBlock.level === 1 ? '1rem' : '0.75rem',
-              fontSize: headlineBlock.level === 1 ? '2rem' : headlineBlock.level === 2 ? '1.5rem' : '1.25rem',
+              marginBottom: headlineBlock.level === 1 ? '0.5rem' : '0.375rem',
+              fontSize: headlineBlock.level === 1 ? '1.25rem' : headlineBlock.level === 2 ? '1.125rem' : '1rem',
               lineHeight: '1.2'
             }
           }, headlineBlock.text)}
@@ -68,9 +68,9 @@ const renderContentBlock = (
           className="cursor-pointer professional-paragraph"
           style={{
             color: colors.darkGray,
-            fontSize: '1.1rem',
-            lineHeight: '1.6',
-            marginBottom: '1rem'
+            fontSize: '0.875rem',
+            lineHeight: '1.4',
+            marginBottom: '0.5rem'
           }}
         >
           {paragraphBlock.text}
@@ -91,19 +91,19 @@ const renderContentBlock = (
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                marginBottom: '0.75rem',
-                fontSize: '1.1rem',
-                lineHeight: '1.5'
+                marginBottom: '0.375rem',
+                fontSize: '0.875rem',
+                lineHeight: '1.3'
               }}
             >
               <span 
                 style={{
                   color: colors.accent,
-                  marginRight: '0.75rem',
-                  fontSize: '1.2rem',
+                  marginRight: '0.5rem',
+                  fontSize: '1rem',
                   fontWeight: 'bold',
                   flexShrink: 0,
-                  marginTop: '0.1rem'
+                  marginTop: '0.05rem'
                 }}
               >
                 •
@@ -130,9 +130,9 @@ const renderContentBlock = (
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                marginBottom: '0.75rem',
-                fontSize: '1.1rem',
-                lineHeight: '1.5'
+                marginBottom: '0.375rem',
+                fontSize: '0.875rem',
+                lineHeight: '1.3'
               }}
             >
               <span 
@@ -140,13 +140,13 @@ const renderContentBlock = (
                   backgroundColor: colors.accent,
                   color: colors.white,
                   borderRadius: '50%',
-                  width: '1.5rem',
-                  height: '1.5rem',
+                  width: '1.25rem',
+                  height: '1.25rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginRight: '0.75rem',
-                  fontSize: '0.9rem',
+                  marginRight: '0.5rem',
+                  fontSize: '0.75rem',
                   fontWeight: 'bold',
                   flexShrink: 0
                 }}
@@ -176,21 +176,22 @@ const renderContentBlock = (
           style={{
             backgroundColor: `${alertColors[alertBlock.alertType]}15`,
             border: `2px solid ${alertColors[alertBlock.alertType]}`,
-            borderRadius: '8px',
-            padding: '1rem',
-            marginBottom: '1rem'
+            borderRadius: '6px',
+            padding: '0.75rem',
+            marginBottom: '0.5rem'
           }}
         >
           {alertBlock.title && (
             <div style={{
               fontWeight: 'bold',
               color: alertColors[alertBlock.alertType],
-              marginBottom: '0.5rem'
+              marginBottom: '0.25rem',
+              fontSize: '0.875rem'
             }}>
               {alertBlock.title}
             </div>
           )}
-          <div style={{ color: colors.darkGray }}>
+          <div style={{ color: colors.darkGray, fontSize: '0.875rem' }}>
             {alertBlock.text}
           </div>
         </div>
@@ -211,19 +212,20 @@ export const TitleTemplate: React.FC<SlideTemplateProps> = (props) => {
       style={{
         background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
         color: colors.white,
-        padding: '4rem 3rem',
+        padding: '2rem 1.5rem',
         textAlign: 'center',
-        minHeight: '500px',
+        minHeight: '300px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: '12px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+        borderRadius: '8px',
+        boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+        marginBottom: '1rem'
       }}
     >
       {slide.contentBlocks.map((block, index) => (
-        <div key={index} style={{ marginBottom: index === 0 ? '2rem' : '0' }}>
+        <div key={index} style={{ marginBottom: index === 0 ? '1rem' : '0' }}>
           {renderContentBlock(block, index, { ...props, slide })}
         </div>
       ))}
@@ -240,15 +242,16 @@ export const ContentTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template content-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {slide.contentBlocks.map((block, index) => (
-        <div key={index} style={{ marginBottom: '1.5rem' }}>
+        <div key={index} style={{ marginBottom: '0.75rem' }}>
           {renderContentBlock(block, index, { ...props, slide })}
         </div>
       ))}
@@ -256,27 +259,49 @@ export const ContentTemplate: React.FC<SlideTemplateProps> = (props) => {
   );
 };
 
-// Four Bullets Template
+// Four Bullets Template - Exact match to attached image
 export const FourBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
   const { slide } = props;
   const headline = slide.contentBlocks.find(block => block.type === 'headline') as HeadlineBlock;
   const bulletList = slide.contentBlocks.find(block => block.type === 'bullet_list') as BulletListBlock;
+  
+  // Icons matching the attached image
+  const icons = ['💉', '🌦️', '❄️', '🍃']; // syringe, weather, snowflake, leaf
   
   return (
     <div 
       className="slide-template four-bullets-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '2rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {headline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-          {renderContentBlock(headline, 0, { ...props, slide })}
+        <div 
+          onClick={() => props.isEditable && props.onBlockClick && props.onBlockClick(0)}
+          style={{ 
+            marginBottom: '2rem', 
+            textAlign: 'left',
+            cursor: props.isEditable ? 'pointer' : 'default'
+          }}
+        >
+          {props.editingBlock === 0 && props.renderInlineEditor ? 
+            props.renderInlineEditor(headline, 0) :
+            <h1 style={{
+              fontSize: '1.75rem',
+              fontWeight: 'bold',
+              color: '#1f2937',
+              margin: 0,
+              lineHeight: '1.2'
+            }}>
+              {headline.text}
+            </h1>
+          }
         </div>
       )}
       
@@ -285,53 +310,51 @@ export const FourBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '2rem',
+            gap: '1.5rem',
             alignItems: 'start'
           }}
         >
           {bulletList.items.slice(0, 4).map((item, index) => (
             <div 
               key={index}
+              onClick={() => props.isEditable && props.onBlockClick && props.onBlockClick(1)}
               style={{
-                backgroundColor: colors.lightGray,
-                padding: '1.5rem',
-                borderRadius: '8px',
-                border: `3px solid ${colors.accent}`,
-                textAlign: 'center',
-                transition: 'transform 0.2s ease',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '1rem',
+                cursor: props.isEditable ? 'pointer' : 'default'
               }}
             >
               <div 
                 style={{
-                  backgroundColor: colors.accent,
-                  color: colors.white,
-                  width: '2rem',
-                  height: '2rem',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 1rem',
-                  fontSize: '1.2rem',
-                  fontWeight: 'bold'
+                  fontSize: '2rem',
+                  flexShrink: 0,
+                  lineHeight: '1'
                 }}
               >
-                {index + 1}
+                {icons[index] || '•'}
               </div>
-              <div style={{ 
-                color: colors.darkGray, 
-                fontSize: '1.1rem', 
-                fontWeight: '500',
-                lineHeight: '1.4'
-              }}>
-                {typeof item === 'string' ? item : 'Complex item'}
+              <div style={{ flex: 1 }}>
+                <h3 style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  color: '#1f2937',
+                  margin: '0 0 0.25rem 0',
+                  lineHeight: '1.3'
+                }}>
+                  {typeof item === 'string' ? item.split(' ').slice(0, 2).join(' ') : 'Title'}
+                </h3>
+                {props.editingBlock === 1 && props.renderInlineEditor ? 
+                  props.renderInlineEditor(bulletList, 1) :
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    margin: 0,
+                    lineHeight: '1.4'
+                  }}>
+                    {typeof item === 'string' ? item : 'Description text goes here'}
+                  </p>
+                }
               </div>
             </div>
           ))}
@@ -352,15 +375,16 @@ export const SixBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template six-bullets-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {headline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
           {renderContentBlock(headline, 0, { ...props, slide })}
         </div>
       )}
@@ -370,7 +394,7 @@ export const SixBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '1.5rem',
+            gap: '1rem',
             alignItems: 'start'
           }}
         >
@@ -379,16 +403,16 @@ export const SixBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
               key={index}
               style={{
                 backgroundColor: colors.lightGray,
-                padding: '1.25rem',
-                borderRadius: '8px',
+                padding: '1rem',
+                borderRadius: '6px',
                 border: `2px solid ${colors.secondary}`,
                 textAlign: 'center',
                 transition: 'all 0.2s ease',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
@@ -399,14 +423,14 @@ export const SixBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
                 style={{
                   backgroundColor: colors.secondary,
                   color: colors.white,
-                  width: '1.75rem',
-                  height: '1.75rem',
+                  width: '1.5rem',
+                  height: '1.5rem',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 0.75rem',
-                  fontSize: '1rem',
+                  margin: '0 auto 0.5rem',
+                  fontSize: '0.875rem',
                   fontWeight: 'bold'
                 }}
               >
@@ -414,7 +438,7 @@ export const SixBulletsTemplate: React.FC<SlideTemplateProps> = (props) => {
               </div>
               <div style={{ 
                 color: colors.darkGray, 
-                fontSize: '1rem', 
+                fontSize: '0.875rem', 
                 fontWeight: '500',
                 lineHeight: '1.3'
               }}>
@@ -439,21 +463,22 @@ export const StepsTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template steps-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {headline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
           {renderContentBlock(headline, 0, { ...props, slide })}
         </div>
       )}
       
       {numberedList && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {numberedList.items.map((item, index) => (
             <div 
               key={index}
@@ -461,15 +486,15 @@ export const StepsTemplate: React.FC<SlideTemplateProps> = (props) => {
                 display: 'flex',
                 alignItems: 'center',
                 backgroundColor: index % 2 === 0 ? colors.lightGray : colors.white,
-                padding: '1.5rem',
-                borderRadius: '8px',
+                padding: '1rem',
+                borderRadius: '6px',
                 border: `2px solid ${colors.accent}`,
                 transition: 'all 0.2s ease',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateX(4px)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                e.currentTarget.style.transform = 'translateX(2px)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateX(0)';
@@ -480,14 +505,14 @@ export const StepsTemplate: React.FC<SlideTemplateProps> = (props) => {
                 style={{
                   backgroundColor: colors.accent,
                   color: colors.white,
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  borderRadius: '8px',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '6px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginRight: '1.5rem',
-                  fontSize: '1.25rem',
+                  marginRight: '1rem',
+                  fontSize: '1rem',
                   fontWeight: 'bold',
                   flexShrink: 0
                 }}
@@ -496,9 +521,9 @@ export const StepsTemplate: React.FC<SlideTemplateProps> = (props) => {
               </div>
               <div style={{ 
                 color: colors.darkGray, 
-                fontSize: '1.1rem', 
+                fontSize: '0.875rem', 
                 fontWeight: '500',
-                lineHeight: '1.4',
+                lineHeight: '1.3',
                 flex: 1
               }}>
                 {typeof item === 'string' ? item : 'Complex item'}
@@ -523,15 +548,16 @@ export const SplitTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template split-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {mainHeadline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
           {renderContentBlock(mainHeadline, 0, { ...props, slide })}
         </div>
       )}
@@ -540,7 +566,7 @@ export const SplitTemplate: React.FC<SlideTemplateProps> = (props) => {
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '3rem',
+          gap: '2rem',
           alignItems: 'start'
         }}
       >
@@ -548,14 +574,14 @@ export const SplitTemplate: React.FC<SlideTemplateProps> = (props) => {
         <div 
           style={{
             backgroundColor: colors.lightGray,
-            padding: '2rem',
-            borderRadius: '8px',
+            padding: '1.25rem',
+            borderRadius: '6px',
             border: `3px solid ${colors.secondary}`
           }}
         >
           {subHeadlines[0] && renderContentBlock(subHeadlines[0], 1, { ...props, slide })}
           {paragraphs[0] && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '0.5rem' }}>
               {renderContentBlock(paragraphs[0], 2, { ...props, slide })}
             </div>
           )}
@@ -565,14 +591,14 @@ export const SplitTemplate: React.FC<SlideTemplateProps> = (props) => {
         <div 
           style={{
             backgroundColor: colors.lightGray,
-            padding: '2rem',
-            borderRadius: '8px',
+            padding: '1.25rem',
+            borderRadius: '6px',
             border: `3px solid ${colors.accent}`
           }}
         >
           {subHeadlines[1] && renderContentBlock(subHeadlines[1], 3, { ...props, slide })}
           {paragraphs[1] && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '0.5rem' }}>
               {renderContentBlock(paragraphs[1], 4, { ...props, slide })}
             </div>
           )}
@@ -594,15 +620,16 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template comparison-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {mainHeadline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
           {renderContentBlock(mainHeadline, 0, { ...props, slide })}
         </div>
       )}
@@ -611,7 +638,7 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '2rem',
+          gap: '1.5rem',
           alignItems: 'start'
         }}
       >
@@ -619,8 +646,8 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
         <div 
           style={{
             backgroundColor: '#fef2f2',
-            padding: '2rem',
-            borderRadius: '8px',
+            padding: '1.25rem',
+            borderRadius: '6px',
             border: '3px solid #dc2626',
             position: 'relative'
           }}
@@ -628,14 +655,14 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
           <div 
             style={{
               position: 'absolute',
-              top: '-12px',
+              top: '-8px',
               left: '50%',
               transform: 'translateX(-50%)',
               backgroundColor: '#dc2626',
               color: colors.white,
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.9rem',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '12px',
+              fontSize: '0.75rem',
               fontWeight: 'bold'
             }}
           >
@@ -643,7 +670,7 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
           </div>
           {subHeadlines[0] && renderContentBlock(subHeadlines[0], 1, { ...props, slide })}
           {paragraphs[0] && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '0.5rem' }}>
               {renderContentBlock(paragraphs[0], 2, { ...props, slide })}
             </div>
           )}
@@ -653,8 +680,8 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
         <div 
           style={{
             backgroundColor: '#f0fdf4',
-            padding: '2rem',
-            borderRadius: '8px',
+            padding: '1.25rem',
+            borderRadius: '6px',
             border: `3px solid ${colors.success}`,
             position: 'relative'
           }}
@@ -662,14 +689,14 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
           <div 
             style={{
               position: 'absolute',
-              top: '-12px',
+              top: '-8px',
               left: '50%',
               transform: 'translateX(-50%)',
               backgroundColor: colors.success,
               color: colors.white,
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.9rem',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '12px',
+              fontSize: '0.75rem',
               fontWeight: 'bold'
             }}
           >
@@ -677,7 +704,7 @@ export const ComparisonTemplate: React.FC<SlideTemplateProps> = (props) => {
           </div>
           {subHeadlines[1] && renderContentBlock(subHeadlines[1], 3, { ...props, slide })}
           {paragraphs[1] && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '0.5rem' }}>
               {renderContentBlock(paragraphs[1], 4, { ...props, slide })}
             </div>
           )}
@@ -699,25 +726,26 @@ export const QuoteTemplate: React.FC<SlideTemplateProps> = (props) => {
       style={{
         background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.secondary} 100%)`,
         color: colors.white,
-        padding: '4rem 3rem',
+        padding: '2rem 1.5rem',
         textAlign: 'center',
-        minHeight: '500px',
+        minHeight: '300px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: '12px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-        position: 'relative'
+        borderRadius: '8px',
+        boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+        position: 'relative',
+        marginBottom: '1rem'
       }}
     >
       <div 
         style={{
-          fontSize: '4rem',
+          fontSize: '3rem',
           opacity: 0.3,
           position: 'absolute',
-          top: '1rem',
-          left: '2rem'
+          top: '0.5rem',
+          left: '1rem'
         }}
       >
         "
@@ -725,10 +753,10 @@ export const QuoteTemplate: React.FC<SlideTemplateProps> = (props) => {
       
       {paragraph && (
         <div style={{ 
-          fontSize: '1.5rem', 
+          fontSize: '1.125rem', 
           fontStyle: 'italic', 
           lineHeight: '1.4',
-          marginBottom: '2rem',
+          marginBottom: '1rem',
           maxWidth: '80%'
         }}>
           {renderContentBlock(paragraph, 1, { ...props, slide })}
@@ -736,18 +764,18 @@ export const QuoteTemplate: React.FC<SlideTemplateProps> = (props) => {
       )}
       
       {headline && (
-        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', opacity: 0.9 }}>
+        <div style={{ fontSize: '1rem', fontWeight: 'bold', opacity: 0.9 }}>
           {renderContentBlock(headline, 0, { ...props, slide })}
         </div>
       )}
       
       <div 
         style={{
-          fontSize: '4rem',
+          fontSize: '3rem',
           opacity: 0.3,
           position: 'absolute',
-          bottom: '1rem',
-          right: '2rem'
+          bottom: '0.5rem',
+          right: '1rem'
         }}
       >
         "
@@ -767,23 +795,24 @@ export const AgendaTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template agenda-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {headline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
           <div 
             style={{
               backgroundColor: colors.primary,
               color: colors.white,
-              padding: '1rem 2rem',
-              borderRadius: '8px',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '6px',
               display: 'inline-block',
-              fontSize: '1.5rem',
+              fontSize: '1.125rem',
               fontWeight: 'bold'
             }}
           >
@@ -793,7 +822,7 @@ export const AgendaTemplate: React.FC<SlideTemplateProps> = (props) => {
       )}
       
       {numberedList && (
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
           {numberedList.items.map((item, index) => (
             <div 
               key={index}
@@ -801,9 +830,9 @@ export const AgendaTemplate: React.FC<SlideTemplateProps> = (props) => {
                 display: 'flex',
                 alignItems: 'center',
                 backgroundColor: colors.lightGray,
-                padding: '1.5rem',
-                borderRadius: '8px',
-                marginBottom: '1rem',
+                padding: '1rem',
+                borderRadius: '6px',
+                marginBottom: '0.75rem',
                 border: `2px solid ${colors.secondary}`,
                 transition: 'all 0.2s ease',
                 cursor: 'pointer'
@@ -819,14 +848,14 @@ export const AgendaTemplate: React.FC<SlideTemplateProps> = (props) => {
                 style={{
                   backgroundColor: colors.secondary,
                   color: colors.white,
-                  width: '2rem',
-                  height: '2rem',
+                  width: '1.5rem',
+                  height: '1.5rem',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginRight: '1rem',
-                  fontSize: '1rem',
+                  marginRight: '0.75rem',
+                  fontSize: '0.875rem',
                   fontWeight: 'bold',
                   flexShrink: 0
                 }}
@@ -835,7 +864,7 @@ export const AgendaTemplate: React.FC<SlideTemplateProps> = (props) => {
               </div>
               <div style={{ 
                 color: colors.darkGray, 
-                fontSize: '1.1rem', 
+                fontSize: '0.875rem', 
                 fontWeight: '500',
                 flex: 1
               }}>
@@ -861,23 +890,24 @@ export const SummaryTemplate: React.FC<SlideTemplateProps> = (props) => {
       className="slide-template summary-template"
       style={{
         backgroundColor: colors.white,
-        padding: '3rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
         border: `1px solid ${colors.lightGray}`,
-        minHeight: '500px'
+        minHeight: '300px',
+        marginBottom: '1rem'
       }}
     >
       {headline && (
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
           <div 
             style={{
               backgroundColor: colors.success,
               color: colors.white,
-              padding: '1rem 2rem',
-              borderRadius: '8px',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '6px',
               display: 'inline-block',
-              fontSize: '1.5rem',
+              fontSize: '1.125rem',
               fontWeight: 'bold'
             }}
           >
@@ -887,7 +917,7 @@ export const SummaryTemplate: React.FC<SlideTemplateProps> = (props) => {
       )}
       
       {bulletList && (
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           {bulletList.items.map((item, index) => (
             <div 
               key={index}
@@ -895,9 +925,9 @@ export const SummaryTemplate: React.FC<SlideTemplateProps> = (props) => {
                 display: 'flex',
                 alignItems: 'center',
                 backgroundColor: colors.lightGray,
-                padding: '1rem 1.5rem',
-                borderRadius: '8px',
-                marginBottom: '0.75rem',
+                padding: '0.75rem 1rem',
+                borderRadius: '6px',
+                marginBottom: '0.5rem',
                 border: `2px solid ${colors.success}`,
                 transition: 'all 0.2s ease',
                 cursor: 'pointer'
@@ -912,8 +942,8 @@ export const SummaryTemplate: React.FC<SlideTemplateProps> = (props) => {
               <div 
                 style={{
                   color: colors.success,
-                  marginRight: '1rem',
-                  fontSize: '1.2rem',
+                  marginRight: '0.75rem',
+                  fontSize: '1rem',
                   fontWeight: 'bold'
                 }}
               >
@@ -921,7 +951,7 @@ export const SummaryTemplate: React.FC<SlideTemplateProps> = (props) => {
               </div>
               <div style={{ 
                 color: colors.darkGray, 
-                fontSize: '1.1rem', 
+                fontSize: '0.875rem', 
                 fontWeight: '500',
                 flex: 1
               }}>
@@ -937,10 +967,10 @@ export const SummaryTemplate: React.FC<SlideTemplateProps> = (props) => {
           style={{
             backgroundColor: colors.primary,
             color: colors.white,
-            padding: '2rem',
-            borderRadius: '8px',
+            padding: '1.25rem',
+            borderRadius: '6px',
             textAlign: 'center',
-            fontSize: '1.2rem',
+            fontSize: '1rem',
             fontWeight: '500',
             lineHeight: '1.4'
           }}

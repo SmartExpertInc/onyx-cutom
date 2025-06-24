@@ -334,46 +334,56 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     onSave?.(updatedDeck);
   };
 
-  // Get current slide
-  const currentSlide = localDeck.slides.find(slide => slide.slideId === selectedSlideId);
-  if (!currentSlide) return null;
-
-  // Get template component
-  const templateKey = detectSlideTemplate(currentSlide);
-  const TemplateComponent = PROFESSIONAL_TEMPLATES[templateKey];
-
   return (
-    <div className="slide-deck-viewer" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="slide-deck-viewer" style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Professional Header */}
       <div style={{
         backgroundColor: '#1e3a8a',
         color: 'white',
-        padding: '1.5rem 2rem',
-        borderRadius: '12px 12px 0 0',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+        padding: '1rem 2rem',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 'bold' }}>
-              {localDeck.lessonTitle}
-            </h1>
-            <span style={{ fontSize: '1rem', opacity: 0.8 }}>
+            {isEditable && editingTitle === 'main' ? (
+              <InlineEditor
+                initialValue={localDeck.lessonTitle}
+                onSave={(newTitle) => {
+                  const updatedDeck = { ...localDeck, lessonTitle: newTitle };
+                  setLocalDeck(updatedDeck);
+                  onSave?.(updatedDeck);
+                  setEditingTitle(null);
+                }}
+                onCancel={() => setEditingTitle(null)}
+              />
+            ) : (
+              <h1 
+                style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', cursor: isEditable ? 'pointer' : 'default' }}
+                onClick={() => isEditable && setEditingTitle('main')}
+              >
+                {localDeck.lessonTitle}
+              </h1>
+            )}
+            <span style={{ fontSize: '0.875rem', opacity: 0.8 }}>
               {localDeck.slides.length} slides • Professional Templates
             </span>
           </div>
           
           {isEditable && (
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button 
                 onClick={() => setShowTemplates(!showTemplates)}
                 style={{
                   backgroundColor: '#3b82f6',
                   color: 'white',
                   border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '8px',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '1rem',
+                  fontSize: '0.875rem',
                   fontWeight: '500',
                   display: 'flex',
                   alignItems: 'center',
@@ -396,10 +406,10 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                   backgroundColor: '#059669',
                   color: 'white',
                   border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '8px',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '1rem',
+                  fontSize: '0.875rem',
                   fontWeight: '500',
                   display: 'flex',
                   alignItems: 'center',
@@ -423,19 +433,19 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         {/* Template Selector */}
         {showTemplates && isEditable && (
           <div style={{
-            marginTop: '2rem',
-            padding: '2rem',
+            marginTop: '1rem',
+            padding: '1.5rem',
             backgroundColor: 'white',
-            borderRadius: '8px',
+            borderRadius: '6px',
             color: '#374151'
           }}>
-            <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: 'bold' }}>
               Choose Template
             </h3>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '0.75rem'
             }}>
               {Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
                 <button
@@ -444,8 +454,8 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                   style={{
                     backgroundColor: '#f3f4f6',
                     border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '1rem',
+                    borderRadius: '6px',
+                    padding: '0.75rem',
                     cursor: 'pointer',
                     textAlign: 'left',
                     transition: 'all 0.2s ease'
@@ -459,13 +469,13 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                     e.currentTarget.style.borderColor = '#e5e7eb';
                   }}
                 >
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+                  <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>
                     {template.icon}
                   </div>
-                  <div style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.125rem' }}>
                     {template.name}
                   </div>
-                  <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
                     {template.description}
                   </div>
                 </button>
@@ -475,111 +485,115 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         )}
       </div>
 
-      {/* Main Content Area */}
-      <div style={{ display: 'flex', minHeight: '600px' }}>
-        {/* Professional Sidebar */}
-        <div style={{
-          width: '300px',
-          backgroundColor: '#f8fafc',
-          borderRight: '1px solid #e2e8f0',
-          padding: '1.5rem'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: 'bold', color: '#1e293b' }}>
-            Slides
-          </h3>
+      {/* Slides Container - Stacked Vertically */}
+      <div style={{ 
+        maxWidth: '1000px', 
+        margin: '0 auto', 
+        padding: '2rem 1rem'
+      }}>
+        {localDeck.slides.map((slide, slideIndex) => {
+          const templateKey = detectSlideTemplate(slide);
+          const TemplateComponent = PROFESSIONAL_TEMPLATES[templateKey];
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {localDeck.slides.map((slide) => (
-              <div
-                key={slide.slideId}
-                onClick={() => setSelectedSlideId(slide.slideId)}
-                style={{
-                  backgroundColor: selectedSlideId === slide.slideId ? '#3b82f6' : 'white',
-                  color: selectedSlideId === slide.slideId ? 'white' : '#374151',
-                  padding: '1rem',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  border: '1px solid #e2e8f0',
-                  transition: 'all 0.2s ease',
-                  boxShadow: selectedSlideId === slide.slideId ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedSlideId !== slide.slideId) {
-                    e.currentTarget.style.backgroundColor = '#f1f5f9';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedSlideId !== slide.slideId) {
-                    e.currentTarget.style.backgroundColor = 'white';
-                  }
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{
-                    backgroundColor: selectedSlideId === slide.slideId ? 'rgba(255,255,255,0.2)' : '#3b82f6',
-                    color: selectedSlideId === slide.slideId ? 'white' : 'white',
-                    width: '1.5rem',
-                    height: '1.5rem',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.875rem',
-                    fontWeight: 'bold'
-                  }}>
-                    {slide.slideNumber}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.875rem', fontWeight: '500', lineHeight: '1.2' }}>
-                      {slide.slideTitle}
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.75rem', 
-                      opacity: 0.7,
-                      marginTop: '0.25rem'
-                    }}>
-                      {detectSlideTemplate(slide).charAt(0).toUpperCase() + detectSlideTemplate(slide).slice(1)} Template
-                    </div>
-                  </div>
-                  {isEditable && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteSlide(slide.slideId);
-                      }}
-                      style={{
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        color: selectedSlideId === slide.slideId ? 'white' : '#dc2626',
-                        cursor: 'pointer',
-                        padding: '0.25rem',
-                        borderRadius: '4px',
-                        fontSize: '0.875rem'
-                      }}
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
+          return (
+            <div key={slide.slideId} style={{ position: 'relative' }}>
+              {/* Slide Number Badge */}
+              <div style={{
+                position: 'absolute',
+                top: '-10px',
+                left: '20px',
+                backgroundColor: '#1e3a8a',
+                color: 'white',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                zIndex: 5
+              }}>
+                {slide.slideNumber}
               </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Slide Content */}
-        <div style={{ flex: 1, padding: '2rem', backgroundColor: '#f8fafc' }}>
-          <TemplateComponent
-            slide={currentSlide}
-            isEditable={isEditable}
-            onBlockClick={(blockIndex) => {
-              if (isEditable) {
-                setEditingBlock({ slideId: currentSlide.slideId, blockIndex });
-              }
-            }}
-            editingBlock={editingBlock?.slideId === currentSlide.slideId ? editingBlock.blockIndex : null}
-            renderInlineEditor={renderInlineEditor}
-          />
-        </div>
+
+              {/* Editable Slide Title */}
+              <div style={{
+                backgroundColor: 'white',
+                padding: '1rem 1.5rem 0.5rem',
+                borderRadius: '8px 8px 0 0',
+                borderBottom: '2px solid #e5e7eb'
+              }}>
+                {isEditable && editingTitle === slide.slideId ? (
+                  <InlineEditor
+                    initialValue={slide.slideTitle}
+                    onSave={(newTitle) => {
+                      const updatedDeck = { ...localDeck };
+                      const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
+                      if (targetSlide) {
+                        targetSlide.slideTitle = newTitle;
+                        setLocalDeck(updatedDeck);
+                        onSave?.(updatedDeck);
+                      }
+                      setEditingTitle(null);
+                    }}
+                    onCancel={() => setEditingTitle(null)}
+                  />
+                ) : (
+                  <h2 
+                    style={{ 
+                      margin: 0, 
+                      fontSize: '1.125rem', 
+                      fontWeight: 'bold', 
+                      color: '#1f2937',
+                      cursor: isEditable ? 'pointer' : 'default'
+                    }}
+                    onClick={() => isEditable && setEditingTitle(slide.slideId)}
+                  >
+                    {slide.slideTitle}
+                  </h2>
+                )}
+              </div>
+
+              {/* Slide Content */}
+              <div style={{ position: 'relative' }}>
+                <TemplateComponent
+                  slide={slide}
+                  isEditable={isEditable}
+                  onBlockClick={(blockIndex) => {
+                    if (isEditable) {
+                      setEditingBlock({ slideId: slide.slideId, blockIndex });
+                    }
+                  }}
+                  editingBlock={editingBlock?.slideId === slide.slideId ? editingBlock.blockIndex : null}
+                  renderInlineEditor={renderInlineEditor}
+                />
+
+                {/* Delete Button */}
+                {isEditable && localDeck.slides.length > 1 && (
+                  <button
+                    onClick={() => deleteSlide(slide.slideId)}
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      backgroundColor: '#dc2626',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 5
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -628,7 +642,7 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
     onBlur: handleBlur,
     style: {
       width: '100%',
-      padding: '0.5rem',
+      padding: '0.375rem',
       border: '2px solid #3b82f6',
       borderRadius: '4px',
       fontSize: 'inherit',
@@ -639,9 +653,10 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
   };
 
   return multiline ? (
-    <textarea {...commonProps} rows={4} />
+    <textarea {...commonProps} rows={3} />
   ) : (
     <input {...commonProps} type="text" />
   );
 }
+
 export { SlideDeckViewer };
