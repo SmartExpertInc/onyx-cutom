@@ -45,6 +45,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isScrollingToSlide = useRef(false);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch slide deck data and parent project information
   useEffect(() => {
@@ -145,77 +147,88 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
-  // Handle scroll to update active slide - COMPLETELY FIXED NAVIGATION
+  // Initialize slide refs array
   useEffect(() => {
-    if (!slideDeckData || !scrollContainerRef.current) return;
+    if (slideDeckData?.slides) {
+      slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
+    }
+  }, [slideDeckData?.slides?.length]);
 
-    const container = scrollContainerRef.current;
-    
+  // Smart navigation: detect which slide is most visible
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer || !slideDeckData?.slides?.length) return;
+
     const handleScroll = () => {
-      if (!container || !slideDeckData || slideRefs.current.length === 0) return;
-      
-      const containerRect = container.getBoundingClientRect();
-      const containerCenter = containerRect.top + containerRect.height / 2;
-      
-      let activeIndex = 0;
-      let minDistance = Infinity;
-      
-      slideRefs.current.forEach((slideRef, index) => {
-        if (slideRef) {
+      // Don't update active slide if we're programmatically scrolling
+      if (isScrollingToSlide.current) return;
+
+      // Clear any existing timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+
+      // Debounce the scroll detection
+      scrollTimeout.current = setTimeout(() => {
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const containerCenter = containerRect.top + containerRect.height / 2;
+        
+        let closestSlideIndex = 0;
+        let smallestDistance = Infinity;
+
+        slideRefs.current.forEach((slideRef, index) => {
+          if (!slideRef) return;
+          
           const slideRect = slideRef.getBoundingClientRect();
           const slideCenter = slideRect.top + slideRect.height / 2;
           const distance = Math.abs(slideCenter - containerCenter);
           
-          if (distance < minDistance) {
-            minDistance = distance;
-            activeIndex = index;
+          if (distance < smallestDistance) {
+            smallestDistance = distance;
+            closestSlideIndex = index;
           }
-        }
-      });
-      
-      setActiveSlideIndex(activeIndex);
+        });
+
+        setActiveSlideIndex(closestSlideIndex);
+      }, 100); // 100ms debounce
     };
 
-    // Add scroll listener with immediate execution
-    container.addEventListener('scroll', handleScroll, { passive: true });
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     
     // Initial detection
     handleScroll();
-    
-    // Additional detection after a short delay to ensure refs are ready
-    const timeoutId = setTimeout(handleScroll, 100);
-    
+
     return () => {
-      container.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
+      scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
     };
-  }, [slideDeckData]);
+  }, [slideDeckData?.slides?.length]);
 
-  // Initialize slide refs array
-  useEffect(() => {
-    if (slideDeckData) {
-      slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
-    }
-  }, [slideDeckData]);
-
-  // Function to scroll to specific slide - FIXED
-  const scrollToSlide = (index: number) => {
-    const slideRef = slideRefs.current[index];
-    const container = scrollContainerRef.current;
+  // Handle thumbnail click navigation
+  const handleThumbnailClick = (slideIndex: number) => {
+    const slideRef = slideRefs.current[slideIndex];
+    const scrollContainer = scrollContainerRef.current;
     
-    if (slideRef && container) {
-      // Immediately set active index
-      setActiveSlideIndex(index);
-      
-      // Calculate the scroll position relative to the container
-      const slideTop = slideRef.offsetTop;
-      
-      // Scroll to the slide position within the container
-      container.scrollTo({
-        top: slideTop,
-        behavior: 'smooth'
-      });
-    }
+    if (!slideRef || !scrollContainer) return;
+
+    // Set flag to prevent scroll detection during programmatic scrolling
+    isScrollingToSlide.current = true;
+    
+    // Immediately update active index
+    setActiveSlideIndex(slideIndex);
+
+    // Scroll to the slide
+    slideRef.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+
+    // Reset flag after scroll animation completes
+    setTimeout(() => {
+      isScrollingToSlide.current = false;
+    }, 1000);
   };
 
   // Navigation functions for breadcrumb
@@ -703,7 +716,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                   <div 
                     key={slide.slideId} 
                     className={`slide-thumbnail ${index === activeSlideIndex ? 'active' : ''}`}
-                    onClick={() => scrollToSlide(index)}
+                    onClick={() => handleThumbnailClick(index)}
                   >
                     <div className="slide-number">{slide.slideNumber}</div>
                     <div className="slide-preview">

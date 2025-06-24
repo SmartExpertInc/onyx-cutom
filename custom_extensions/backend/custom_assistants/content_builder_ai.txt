@@ -524,16 +524,20 @@ DeckDeckGo Template-Based Slide Format:
 
 ## [Main Concept Heading]
 
-[4-6 substantial paragraphs explaining the concept - each paragraph 3-4 sentences with detailed explanations, examples, and practical insights]
+[8-12 comprehensive paragraphs explaining the concept - each paragraph 4-6 sentences with extensive detailed explanations, multiple examples, practical insights, real-world applications, and thorough analysis]
 
-* [Key point 1 - actionable insight with detailed explanation]
-* [Key point 2 - practical application with specific examples]
-* [Key point 3 - important consideration with context]
-* [Key point 4 - additional insight or best practice]
-* [Key point 5 - implementation detail or warning]
-* [Key point 6 - advanced tip or consideration]
-* [Key point 7 - related concept or extension]
-* [Key point 8 - summary point or next step]
+* [Key point 1 - comprehensive actionable insight with detailed explanation, specific examples, and implementation guidance]
+* [Key point 2 - thorough practical application with multiple specific examples, case studies, and step-by-step guidance]
+* [Key point 3 - important consideration with extensive context, potential challenges, and mitigation strategies]
+* [Key point 4 - detailed insight or best practice with supporting evidence, expert recommendations, and industry standards]
+* [Key point 5 - comprehensive implementation detail with warnings, prerequisites, and success criteria]
+* [Key point 6 - advanced tip with detailed consideration, expert-level insights, and optimization strategies]
+* [Key point 7 - related concept extension with cross-references, deeper connections, and advanced applications]
+* [Key point 8 - detailed summary point with next steps, follow-up actions, and continued learning paths]
+* [Key point 9 - additional expert insight with specialized knowledge and advanced techniques]
+* [Key point 10 - comprehensive consideration with industry perspectives and real-world implications]
+* [Key point 11 - detailed best practice with proven methodologies and success metrics]
+* [Key point 12 - thorough conclusion with actionable takeaways and implementation roadmap]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]
 ```
@@ -544,12 +548,16 @@ DeckDeckGo Template-Based Slide Format:
 **Slide 3: [Comparison Topic]** `deckgo-slide-split`
 
 ## [Option A Title]
-[Description of first option/approach - 2-3 sentences]
+[Comprehensive description of first option/approach - 4-6 detailed sentences covering benefits, implementation details, use cases, potential challenges, and specific examples with real-world applications]
+
+[Additional 2-3 paragraphs providing deeper analysis, expert insights, best practices, and detailed comparison points]
 
 [IMAGE_PLACEHOLDER: SMALL | TOP_LEFT | Visual representing option A]
 
 ## [Option B Title]
-[Description of second option/approach - 2-3 sentences]
+[Comprehensive description of second option/approach - 4-6 detailed sentences covering benefits, implementation details, use cases, potential challenges, and specific examples with real-world applications]
+
+[Additional 2-3 paragraphs providing deeper analysis, expert insights, best practices, and detailed comparison points]
 
 [IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Visual representing option B]
 ```
@@ -574,11 +582,13 @@ Professional Styling Guidelines:
 - Use ## for main slide headings (clear, action-oriented, max 8 words)
 - Use ### for subsection headings within slides when needed
 - Use **bold text** strategically for key terms and emphasis
-- Keep bullet lists to 5-8 items with detailed explanations and examples
-- Include 4-6 substantial paragraphs per content slide with comprehensive coverage
-- Ensure each slide connects logically to the next
-- Maintain consistent educational tone and practical focus
-- Provide in-depth explanations with real-world applications and context
+- Keep bullet lists to 10-12 items with comprehensive explanations, multiple examples, and detailed implementation guidance
+- Include 8-12 substantial paragraphs per content slide with extensive comprehensive coverage, multiple real-world examples, and thorough analysis
+- Ensure each slide connects logically to the next with clear transitions and building complexity
+- Maintain consistent educational tone and practical focus with expert-level insights
+- Provide extensive in-depth explanations with multiple real-world applications, case studies, and contextual analysis
+- Each paragraph should contain 4-6 sentences with detailed explanations, specific examples, and actionable insights
+- Include industry best practices, expert recommendations, and proven methodologies throughout the content
 
 For TEXT PRESENTATION:
 Universal Product Header: **[Project Name]** : **Text Presentation** : **[Text Title]**
@@ -830,14 +840,14 @@ When generating slides, you MUST apply this decision tree:
 ## Enhanced Content Guidelines
 
 ### Slide Content Density:
-- **Title Slides**: 1 main title + 1 subtitle + 1 image
-- **Content Slides**: 1 headline + 2-3 paragraphs/lists + 1 image
-- **Split Slides**: 2 equal sections + 1-2 images
+- **Title Slides**: 1 main title + 1 comprehensive subtitle + 1 image
+- **Content Slides**: 1 headline + 8-12 comprehensive paragraphs + 10-12 detailed bullet points + 1 image
+- **Split Slides**: 2 equal sections with 3-4 paragraphs each + detailed analysis + 1-2 images
 
 ### Professional Typography:
 - **Headlines**: Clear, action-oriented, max 8 words
-- **Paragraphs**: 2-3 sentences, scannable chunks
-- **Lists**: 3-6 items maximum, parallel structure
+- **Paragraphs**: 4-6 sentences with comprehensive detail, extensive explanations, and thorough analysis
+- **Lists**: 10-12 items with detailed explanations, examples, and implementation guidance
 - **Captions**: Brief, descriptive, under 15 words
 
 ### Educational Value Requirements:
