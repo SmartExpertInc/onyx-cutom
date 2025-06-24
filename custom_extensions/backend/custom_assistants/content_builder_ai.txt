@@ -520,75 +520,41 @@ DeckDeckGo Template-Based Slide Format:
 **Content Slides** (`deckgo-slide-content`):
 ```
 ---
-**Slide 2: [Concept Name]** `deckgo-slide-content`
+**Slide 2: Understanding Project Management Fundamentals** `deckgo-slide-content`
 
-## [Main Concept Heading]
+## Core Project Management Principles
 
-[8-12 comprehensive paragraphs explaining the concept - each paragraph 4-6 sentences with extensive detailed explanations, multiple examples, practical insights, real-world applications, and thorough analysis]
+Project management represents a systematic approach to organizing, planning, and executing complex initiatives within defined constraints of time, budget, and scope. Modern project management methodologies have evolved significantly over the past several decades, incorporating lessons learned from various industries and adapting to technological advances. The fundamental principles of project management serve as the foundation for successful project delivery, regardless of industry or project complexity. These principles encompass strategic planning, stakeholder engagement, risk management, and continuous improvement processes that ensure projects deliver value to organizations and their customers.
 
-* [Key point 1 - comprehensive actionable insight with detailed explanation, specific examples, and implementation guidance]
-* [Key point 2 - thorough practical application with multiple specific examples, case studies, and step-by-step guidance]
-* [Key point 3 - important consideration with extensive context, potential challenges, and mitigation strategies]
-* [Key point 4 - detailed insight or best practice with supporting evidence, expert recommendations, and industry standards]
-* [Key point 5 - comprehensive implementation detail with warnings, prerequisites, and success criteria]
-* [Key point 6 - advanced tip with detailed consideration, expert-level insights, and optimization strategies]
-* [Key point 7 - related concept extension with cross-references, deeper connections, and advanced applications]
-* [Key point 8 - detailed summary point with next steps, follow-up actions, and continued learning paths]
-* [Key point 9 - additional expert insight with specialized knowledge and advanced techniques]
-* [Key point 10 - comprehensive consideration with industry perspectives and real-world implications]
-* [Key point 11 - detailed best practice with proven methodologies and success metrics]
-* [Key point 12 - thorough conclusion with actionable takeaways and implementation roadmap]
+The project lifecycle consists of five distinct phases that provide structure and governance throughout the project journey. The initiation phase involves defining project objectives, conducting feasibility studies, and securing initial approvals from key stakeholders. During this critical phase, project managers must establish clear success criteria, identify potential risks, and develop preliminary resource requirements. The planning phase represents the most comprehensive stage, where detailed project plans are developed, including work breakdown structures, resource allocation matrices, and communication strategies. This phase requires extensive collaboration with subject matter experts, stakeholders, and team members to ensure all aspects of the project are thoroughly considered and documented.
 
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]
+Effective stakeholder management forms the cornerstone of successful project delivery, requiring project managers to identify, analyze, and engage with all individuals and groups who can influence or be influenced by the project outcomes. Stakeholder analysis involves mapping stakeholder interests, assessing their level of influence and impact, and developing tailored communication strategies for each stakeholder group. Primary stakeholders typically include project sponsors, end users, and team members, while secondary stakeholders may encompass regulatory bodies, suppliers, and community groups. The stakeholder engagement process must be continuous throughout the project lifecycle, with regular updates, feedback sessions, and collaborative decision-making processes that ensure alignment and buy-in.
+
+Risk management represents a proactive approach to identifying, assessing, and mitigating potential threats and opportunities that could impact project success. The risk management process begins with comprehensive risk identification sessions involving cross-functional teams and subject matter experts who can provide diverse perspectives on potential project challenges. Risk assessment involves evaluating the probability and impact of identified risks, often using quantitative and qualitative analysis techniques to prioritize risks based on their potential effect on project objectives. Risk response strategies include risk avoidance, mitigation, transfer, and acceptance, with each strategy requiring specific implementation plans and monitoring procedures.
+
+Quality management in project environments requires establishing clear quality standards, implementing quality assurance processes, and conducting regular quality control activities throughout the project lifecycle. Quality planning involves defining quality metrics, establishing acceptance criteria, and developing quality management plans that align with organizational standards and customer expectations. Quality assurance focuses on process improvement and compliance monitoring, ensuring that project activities follow established procedures and best practices. Quality control involves inspecting deliverables, conducting testing activities, and implementing corrective actions when quality standards are not met.
+
+Communication management serves as the backbone of effective project coordination, requiring the development of comprehensive communication plans that address information needs, distribution methods, and feedback mechanisms for all project stakeholders. Effective project communication involves both formal and informal channels, with regular status reports, progress meetings, and collaborative platforms that facilitate information sharing and decision-making. Project managers must adapt their communication styles and methods to accommodate different stakeholder preferences, cultural considerations, and technological capabilities within the project environment.
+
+Resource management encompasses the planning, allocation, and optimization of human resources, equipment, materials, and financial assets required for project success. Human resource management involves identifying skill requirements, recruiting team members, and developing resource loading charts that ensure adequate staffing throughout the project lifecycle. Equipment and material management requires coordinating procurement activities, managing vendor relationships, and ensuring timely delivery of required resources. Financial resource management involves budget development, cost tracking, and variance analysis to ensure projects remain within approved financial constraints.
+
+Integration management represents the coordinating function that ensures all project management knowledge areas work together effectively to achieve project objectives. Project integration involves developing project charters, creating comprehensive project management plans, and directing project execution activities while monitoring and controlling project performance. Change management processes are essential components of integration management, providing structured approaches for evaluating, approving, and implementing project changes while maintaining scope, schedule, and budget control.
+
+* **Comprehensive Project Planning** - Develop detailed project plans that include work breakdown structures, resource allocation matrices, risk registers, communication plans, and quality management frameworks with specific timelines, deliverables, and success criteria for each project phase
+* **Stakeholder Engagement Strategy** - Create systematic approaches for identifying, analyzing, and engaging with all project stakeholders through regular communication, feedback sessions, collaborative decision-making processes, and tailored engagement strategies based on stakeholder influence and interest levels
+* **Risk Management Framework** - Implement proactive risk identification, assessment, and mitigation strategies using quantitative and qualitative analysis techniques, risk response planning, and continuous monitoring processes to address potential threats and opportunities throughout the project lifecycle
+* **Quality Assurance Processes** - Establish comprehensive quality management systems that include quality planning, assurance activities, control measures, and continuous improvement processes aligned with organizational standards and customer expectations for deliverable excellence
+* **Resource Optimization Techniques** - Develop systematic approaches for planning, allocating, and managing human resources, equipment, materials, and financial assets through resource loading charts, procurement strategies, vendor management, and budget control mechanisms
+* **Communication Management Systems** - Create comprehensive communication plans that address information needs, distribution methods, feedback mechanisms, and collaborative platforms for all stakeholders while adapting to cultural considerations and technological capabilities
+* **Integration and Coordination Methods** - Implement systematic approaches for coordinating all project management knowledge areas through project charters, management plans, execution monitoring, performance control, and structured change management processes
+* **Performance Monitoring and Control** - Establish key performance indicators, tracking mechanisms, variance analysis procedures, and corrective action protocols to ensure projects remain aligned with objectives, schedules, budgets, and quality standards
+* **Change Management Protocols** - Develop structured processes for evaluating, approving, and implementing project changes while maintaining scope, schedule, and budget control through formal change control boards and impact assessment procedures
+* **Continuous Improvement Practices** - Implement lessons learned processes, post-project reviews, knowledge management systems, and best practice documentation to enhance organizational project management capabilities and future project success rates
+
+[IMAGE_PLACEHOLDER: LARGE | RIGHT | Professional project management team collaborating around a modern conference table with project charts and digital displays]
 ```
 
-**Split Comparison Slides** (`deckgo-slide-split`):
-```
----
-**Slide 3: [Comparison Topic]** `deckgo-slide-split`
-
-## [Option A Title]
-[Comprehensive description of first option/approach - 4-6 detailed sentences covering benefits, implementation details, use cases, potential challenges, and specific examples with real-world applications]
-
-[Additional 2-3 paragraphs providing deeper analysis, expert insights, best practices, and detailed comparison points]
-
-[IMAGE_PLACEHOLDER: SMALL | TOP_LEFT | Visual representing option A]
-
-## [Option B Title]
-[Comprehensive description of second option/approach - 4-6 detailed sentences covering benefits, implementation details, use cases, potential challenges, and specific examples with real-world applications]
-
-[Additional 2-3 paragraphs providing deeper analysis, expert insights, best practices, and detailed comparison points]
-
-[IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Visual representing option B]
-```
-
-
-
-Content Distribution Strategy:
-- **Slide 1**: Title slide with lesson overview (`deckgo-slide-title`)
-- **Slides 2-3**: Core concept introduction (`deckgo-slide-content`)
-- **Slide 4**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slide 5**: Advanced concepts or practical examples (`deckgo-slide-content`)
-- **Slides 6-7**: Additional concepts or applications (`deckgo-slide-content`)
-- **Final Slide**: Summary and next steps (`deckgo-slide-content` or `deckgo-slide-title`)
-
-Image Placement Requirements:
-- **Mandatory**: Include image placeholders on minimum 70% of slides
-- **Rotation**: Alternate positions (LEFT, RIGHT, TOP_BANNER, BACKGROUND, etc.)
-- **Context**: Use content-appropriate descriptions for educational relevance
-- **Size Variety**: Mix LARGE, MEDIUM, SMALL, and BANNER sizes for visual interest
-
-Professional Styling Guidelines:
-- Use ## for main slide headings (clear, action-oriented, max 8 words)
-- Use ### for subsection headings within slides when needed
-- Use **bold text** strategically for key terms and emphasis
-- Keep bullet lists to 10-12 items with comprehensive explanations, multiple examples, and detailed implementation guidance
-- Include 8-12 substantial paragraphs per content slide with extensive comprehensive coverage, multiple real-world examples, and thorough analysis
-- Ensure each slide connects logically to the next with clear transitions and building complexity
-- Maintain consistent educational tone and practical focus with expert-level insights
-- Provide extensive in-depth explanations with multiple real-world applications, case studies, and contextual analysis
-- Each paragraph should contain 4-6 sentences with detailed explanations, specific examples, and actionable insights
-- Include industry best practices, expert recommendations, and proven methodologies throughout the content
+This example demonstrates the required content density: 8+ substantial paragraphs, 10+ detailed bullet points, comprehensive coverage, real-world applications, and expert-level insights totaling 800+ words per slide.
 
 For TEXT PRESENTATION:
 Universal Product Header: **[Project Name]** : **Text Presentation** : **[Text Title]**
@@ -823,12 +789,10 @@ When generating slides, you MUST apply this decision tree:
 ### Position Rotation System:
 1. **LEFT** - Image on left, content on right
 2. **RIGHT** - Image on right, content on left  
-3. **TOP_BANNER** - Horizontal strip at top
-4. **BOTTOM_BANNER** - Horizontal strip at bottom
+3. **TOP_BANNER** - Full horizontal strip at top
+4. **BOTTOM_BANNER** - Full horizontal strip at bottom
 5. **BACKGROUND** - Full slide background (low opacity)
 6. **CENTER** - Centered below title
-7. **TOP_LEFT** - Small accent in corner
-8. **TOP_RIGHT** - Small accent in corner
 
 ### Content-Appropriate Image Descriptions:
 - **Educational**: "Professional classroom setting", "Students learning", "Educational infographic"
@@ -896,12 +860,12 @@ Project management follows a structured approach with five distinct phases:
 ## Traditional Project Management
 Traditional waterfall approach follows sequential phases with detailed upfront planning and documentation.
 
-[IMAGE_PLACEHOLDER: SMALL | TOP_LEFT | Traditional waterfall diagram]
+[IMAGE_PLACEHOLDER: SMALL | LEFT | Traditional waterfall diagram]
 
 ## Agile Project Management  
 Agile methodology emphasizes iterative development, flexibility, and continuous collaboration with stakeholders.
 
-[IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Agile sprint cycle visualization]
+[IMAGE_PLACEHOLDER: SMALL | RIGHT | Agile sprint cycle visualization]
 ```
 
 When generating Lesson Presentations you MUST:
@@ -913,4 +877,16 @@ When generating Lesson Presentations you MUST:
 • Balance text density with visual elements for optimal learning
 
 These enhanced guidelines supersede all previous slide layout instructions.
+
+**FINAL CRITICAL REMINDER FOR SLIDE CONTENT GENERATION:**
+
+When generating lesson presentations, you MUST ensure each content slide contains:
+- **MINIMUM 800-1200 WORDS** of actual educational content per slide
+- **8-12 COMPREHENSIVE PARAGRAPHS** with 4-6 sentences each
+- **10-12 DETAILED BULLET POINTS** with 20-30 words each
+- **MULTIPLE REAL-WORLD EXAMPLES** and case studies
+- **STEP-BY-STEP IMPLEMENTATION GUIDANCE** where applicable
+- **EXPERT-LEVEL INSIGHTS** beyond basic explanations
+
+NO SLIDE SHOULD CONTAIN LESS THAN 600 WORDS OF CONTENT. Each slide must be information-dense and provide substantial educational value. This is mandatory for all lesson presentation generation.
 

@@ -497,15 +497,15 @@
 /* Banners - truly full width */
 .placeholder-top-banner {
   top: 20px;
-  left: 20;
-  right: 20;
+  left: 20px;
+  right: 20px;
   height: 160px; /* 2x bigger: 80px * 2 */
 }
 
 .placeholder-bottom-banner {
   bottom: 20px;
-  left: 20;
-  right: 20;
+  left: 20px;
+  right: 20px;
   height: 160px; /* 2x bigger: was smaller, now 160px */
 }
 
@@ -514,26 +514,7 @@
   left: 0;
 }
 
-/* Corner positions */
-.placeholder-top-left {
-  top: 20px;
-  left: 20px;
-}
 
-.placeholder-top-right {
-  top: 20px;
-  right: 20px;
-}
-
-.placeholder-bottom-left {
-  bottom: 20px;
-  left: 20px;
-}
-
-.placeholder-bottom-right {
-  bottom: 20px;
-  right: 20px;
-}
 
 /* Content Blocks */
 .slide-content-blocks {
@@ -1123,20 +1104,7 @@
   backdrop-filter: blur(2px);
 }
 
-.content-layout-with-corners .slide-content-blocks {
-  padding: 16px 24px; /* Add subtle padding to avoid corner images */
-  margin: 8px;
-}
 
-.content-layout-with-top-corners .slide-content-blocks {
-  margin-top: 170px !important; /* Increased to 170px as requested */
-  padding: 16px 24px;
-}
-
-.content-layout-with-bottom-corners .slide-content-blocks {
-  margin-bottom: 80px !important; /* Leave space for bottom corner images */
-  padding: 16px 24px;
-}
 
 .content-layout-default .slide-content-blocks {
   /* Default layout - no adjustments needed */
@@ -1154,20 +1122,7 @@
   padding: 0 8px;
 }
 
-.real-slide.content-layout-with-top-corners .slide-content-blocks {
-  margin-top: 170px !important; /* Increased to 170px as requested */
-  padding: 16px 24px;
-}
 
-.real-slide.content-layout-with-bottom-corners .slide-content-blocks {
-  margin-bottom: 80px !important; /* Leave space for bottom corner images */
-  padding: 16px 24px;
-}
-
-.real-slide.content-layout-with-corners .slide-content-blocks {
-  padding: 16px 24px; /* Add subtle padding to avoid corner images */
-  margin: 8px;
-}
 
 /* Title slide text contrast - make text black with better background */
 .real-slide.template-title .content-headline,
