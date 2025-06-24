@@ -17,12 +17,12 @@ import { SlideDeckData } from '@/types/pdfLesson';
 import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
-import { SlideDeckViewer } from '@/components/SlideDeckViewer';
+import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2 } from 'lucide-react';
-import '@/styles/slideDeck.css';
+
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -498,24 +498,18 @@ export default function ProjectInstanceViewPage() {
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">No slide deck data available</div>;
         }
+        // For slide decks, use the full editor page layout instead of the standard project view
         return (
-          <div>
-            <div className="mb-4 flex justify-end">
-              <a
-                href={`/editor?projectId=${projectInstanceData.project_id}`}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Open in Presentation Editor
-              </a>
-            </div>
-            <SlideDeckViewer 
-              deck={slideDeckData} 
-              isEditable={true}
-              onSave={(updatedDeck) => {
-                // Update local state; actual save will occur when user clicks the Save Content button.
-                setEditableData(updatedDeck);
-              }}
-            />
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            zIndex: 9999, 
+            backgroundColor: '#f8f9fa' 
+          }}>
+            <EditorPage projectId={projectInstanceData.project_id.toString()} />
           </div>
         );
        case COMPONENT_NAME_TEXT_PRESENTATION:
