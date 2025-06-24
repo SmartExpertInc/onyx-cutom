@@ -147,45 +147,57 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
   // Handle scroll to update active slide - FIXED NAVIGATION
   useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+    
     const handleScroll = () => {
       if (!scrollContainerRef.current || !slideDeckData) return;
 
-      const container = scrollContainerRef.current;
-      const containerTop = container.scrollTop;
-      const containerHeight = container.clientHeight;
-      const viewportTop = containerTop;
-      const viewportBottom = containerTop + containerHeight;
+      // Clear existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
 
-      let newActiveIndex = 0;
-      let maxVisibilityRatio = 0;
+      // Debounce scroll detection
+      scrollTimeout = setTimeout(() => {
+        if (!scrollContainerRef.current || !slideDeckData) return;
 
-      slideRefs.current.forEach((slideRef, index) => {
-        if (slideRef) {
-          const slideTop = slideRef.offsetTop;
-          const slideHeight = slideRef.offsetHeight;
-          const slideBottom = slideTop + slideHeight;
+        const container = scrollContainerRef.current;
+        const containerTop = container.scrollTop;
+        const containerHeight = container.clientHeight;
+        const viewportTop = containerTop;
+        const viewportBottom = containerTop + containerHeight;
 
-          // If slide is visible in viewport
-          if (slideTop < viewportBottom && slideBottom > viewportTop) {
-            // Calculate how much of the slide is visible
-            const visibleTop = Math.max(slideTop, viewportTop);
-            const visibleBottom = Math.min(slideBottom, viewportBottom);
-            const visibleHeight = visibleBottom - visibleTop;
-            const visibilityRatio = visibleHeight / slideHeight;
+        let newActiveIndex = 0;
+        let maxVisibilityRatio = 0;
 
-            // Track the slide with the highest visibility ratio
-            if (visibilityRatio > maxVisibilityRatio) {
-              maxVisibilityRatio = visibilityRatio;
-              newActiveIndex = index;
+        slideRefs.current.forEach((slideRef, index) => {
+          if (slideRef) {
+            const slideTop = slideRef.offsetTop;
+            const slideHeight = slideRef.offsetHeight;
+            const slideBottom = slideTop + slideHeight;
+
+            // If slide is visible in viewport
+            if (slideTop < viewportBottom && slideBottom > viewportTop) {
+              // Calculate how much of the slide is visible
+              const visibleTop = Math.max(slideTop, viewportTop);
+              const visibleBottom = Math.min(slideBottom, viewportBottom);
+              const visibleHeight = visibleBottom - visibleTop;
+              const visibilityRatio = visibleHeight / slideHeight;
+
+              // Track the slide with the highest visibility ratio
+              if (visibilityRatio > maxVisibilityRatio) {
+                maxVisibilityRatio = visibilityRatio;
+                newActiveIndex = index;
+              }
             }
           }
-        }
-      });
+        });
 
-      // Update active slide if we have significant visibility
-      if (maxVisibilityRatio > 0.2) {
-        setActiveSlideIndex(newActiveIndex);
-      }
+        // Update active slide if we have significant visibility
+        if (maxVisibilityRatio > 0.15) {
+          setActiveSlideIndex(newActiveIndex);
+        }
+      }, 50); // 50ms debounce
     };
 
     const container = scrollContainerRef.current;
@@ -193,69 +205,24 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       // Add scroll listener
       container.addEventListener('scroll', handleScroll, { passive: true });
       
-      // Initial detection - run multiple times to ensure refs are ready
-      const initialDetection = () => {
-        handleScroll();
-      };
-      
-      // Run initial detection with increasing delays to catch when refs are ready
-      setTimeout(initialDetection, 100);
-      setTimeout(initialDetection, 300);
-      setTimeout(initialDetection, 500);
+      // Run initial detection immediately and with delay
+      handleScroll();
+      setTimeout(handleScroll, 100);
+      setTimeout(handleScroll, 300);
       
       return () => {
         container.removeEventListener('scroll', handleScroll);
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
       };
     }
-  }, [slideDeckData]); // Depend on slideDeckData instead of activeSlideIndex
+  }, [slideDeckData]);
 
   // Initialize slide refs array and detect initial active slide
   useEffect(() => {
     if (slideDeckData) {
       slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
-      
-      // Force initial scroll detection after refs are set
-      const forceInitialDetection = () => {
-        if (scrollContainerRef.current) {
-          const container = scrollContainerRef.current;
-          const containerTop = container.scrollTop;
-          const containerHeight = container.clientHeight;
-          const viewportTop = containerTop;
-          const viewportBottom = containerTop + containerHeight;
-
-          let newActiveIndex = 0;
-          let maxVisibilityRatio = 0;
-
-          slideRefs.current.forEach((slideRef, index) => {
-            if (slideRef) {
-              const slideTop = slideRef.offsetTop;
-              const slideHeight = slideRef.offsetHeight;
-              const slideBottom = slideTop + slideHeight;
-
-              if (slideTop < viewportBottom && slideBottom > viewportTop) {
-                const visibleTop = Math.max(slideTop, viewportTop);
-                const visibleBottom = Math.min(slideBottom, viewportBottom);
-                const visibleHeight = visibleBottom - visibleTop;
-                const visibilityRatio = visibleHeight / slideHeight;
-
-                if (visibilityRatio > maxVisibilityRatio) {
-                  maxVisibilityRatio = visibilityRatio;
-                  newActiveIndex = index;
-                }
-              }
-            }
-          });
-
-          if (maxVisibilityRatio > 0.1) {
-            setActiveSlideIndex(newActiveIndex);
-          }
-        }
-      };
-
-      // Run detection with multiple delays to ensure everything is ready
-      setTimeout(forceInitialDetection, 200);
-      setTimeout(forceInitialDetection, 500);
-      setTimeout(forceInitialDetection, 1000);
     }
   }, [slideDeckData]);
 

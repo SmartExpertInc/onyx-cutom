@@ -483,12 +483,16 @@
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
+  width: 140px;  /* 10 units */
+  height: 196px; /* 14 units */
 }
 
 .placeholder-right {
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
+  width: 140px;  /* 10 units */
+  height: 196px; /* 14 units */
 }
 
 .placeholder-center {
@@ -499,8 +503,9 @@
 
 .placeholder-top-banner {
   top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 20px;
+  right: 20px;
+  height: 80px; /* Smaller height to reduce gap */
 }
 
 .placeholder-bottom-banner {
@@ -1106,7 +1111,7 @@
 }
 
 .content-layout-avoid-top .slide-content-blocks {
-  margin-top: 25%; /* Leave space for top banner */
+  margin-top: 6.25%; /* Reduced from 25% to 6.25% (4x smaller) */
   padding-top: 16px;
 }
 
@@ -1129,7 +1134,7 @@
 }
 
 .content-layout-with-top-corners .slide-content-blocks {
-  margin-top: 80px !important; /* Leave space for top corner images */
+  margin-top: 120px !important; /* Increased by 50% - Leave space for top corner images */
   padding: 16px 24px;
 }
 
@@ -1155,7 +1160,7 @@
 }
 
 .real-slide.content-layout-with-top-corners .slide-content-blocks {
-  margin-top: 80px !important; /* Leave space for top corner images */
+  margin-top: 120px !important; /* Increased by 50% - Leave space for top corner images */
   padding: 16px 24px;
 }
 
@@ -1167,4 +1172,15 @@
 .real-slide.content-layout-with-corners .slide-content-blocks {
   padding: 16px 24px; /* Add subtle padding to avoid corner images */
   margin: 8px;
+}
+
+/* Title slide text contrast - make text black with better background */
+.real-slide.template-title .content-headline,
+.real-slide.template-title .content-paragraph {
+  color: #000000 !important; /* Black text */
+  background: rgba(255, 255, 255, 0.95) !important; /* More opaque white background */
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  backdrop-filter: blur(4px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 } 
