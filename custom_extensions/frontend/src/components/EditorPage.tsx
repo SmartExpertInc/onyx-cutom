@@ -1,48 +1,136 @@
-'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
 import './EditorPage.css';
 
-interface EditorPageProps {}
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-// Sample slide data
-const sampleSlides = [
-  {
-    id: 1,
-    title: "Introduction to React Development",
-    content: "React is a powerful JavaScript library for building user interfaces. It allows developers to create interactive and dynamic web applications with ease.",
-    author: "Sarah Johnson",
-    lastEdited: "2 hours ago",
-    type: "title"
-  },
-  {
-    id: 2,
-    title: "Component Architecture",
-    content: "• Functional Components\n• Class Components\n• Props and State\n• Component Lifecycle",
-    author: "Sarah Johnson",
-    lastEdited: "2 hours ago",
-    type: "bullets"
-  },
-  {
-    id: 3,
-    title: "State Management",
-    content: "• useState Hook\n• useEffect Hook\n• Context API\n• Redux Integration\n• State Best Practices",
-    author: "Sarah Johnson",
-    lastEdited: "2 hours ago",
-    type: "bullets"
-  },
-  {
-    id: 4,
-    title: "Modern React Patterns",
-    content: "1. Custom Hooks\n2. Higher-Order Components\n3. Render Props\n4. Compound Components\n5. Error Boundaries",
-    author: "Sarah Johnson",
-    lastEdited: "2 hours ago",
-    type: "numbered"
+interface EditorPageProps {
+  projectId?: string;
+}
+
+const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
+  const [slideDeckData, setSlideDeckData] = useState<SlideDeckData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch slide deck data
+  useEffect(() => {
+    const fetchSlideData = async () => {
+      if (!projectId) {
+        setError("No project ID provided");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const commonHeaders: HeadersInit = {};
+        const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+        if (devUserId && process.env.NODE_ENV === 'development') {
+          commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+        }
+
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${projectId}`, {
+          cache: 'no-store',
+          headers: commonHeaders
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch project data: ${response.status}`);
+        }
+
+        const projectData = await response.json();
+        
+        // Check if this is a slide deck project
+        if (projectData.component_name !== 'SlideDeckDisplay') {
+          throw new Error("This project is not a slide deck");
+        }
+
+        if (projectData.details) {
+          setSlideDeckData(projectData.details as SlideDeckData);
+        } else {
+          throw new Error("No slide deck data found");
+        }
+      } catch (err: any) {
+        console.error("Error fetching slide data:", err);
+        setError(err.message || "Failed to load slide data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSlideData();
+  }, [projectId]);
+
+  // Render content block to text for thumbnails
+  const renderContentToText = (blocks: AnyContentBlock[]): string => {
+    return blocks
+      .map(block => {
+        switch (block.type) {
+          case 'headline':
+            return block.text;
+          case 'paragraph':
+            return block.text.substring(0, 100) + (block.text.length > 100 ? '...' : '');
+          case 'bullet_list':
+            return block.items.map(item => 
+              typeof item === 'string' ? `• ${item}` : '• Content'
+            ).join('\n');
+          case 'numbered_list':
+            return block.items.map((item, index) => 
+              typeof item === 'string' ? `${index + 1}. ${item}` : `${index + 1}. Content`
+            ).join('\n');
+          default:
+            return '';
+        }
+      })
+      .join('\n');
+  };
+
+  // Get main slide content for display
+  const getMainSlideContent = (slide: DeckSlide) => {
+    const titleBlock = slide.contentBlocks.find(block => block.type === 'headline');
+    const contentBlocks = slide.contentBlocks.filter(block => block.type !== 'headline');
+    
+    return {
+      title: titleBlock ? titleBlock.text : slide.slideTitle,
+      content: renderContentToText(contentBlocks)
+    };
+  };
+
+  if (loading) {
+    return (
+      <div className="editor-page">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="p-8 text-center text-lg text-gray-600">Loading slide deck...</div>
+        </div>
+      </div>
+    );
   }
-];
 
-const EditorPage: React.FC<EditorPageProps> = () => {
-  const [currentSlide, setCurrentSlide] = React.useState(0);
-  const slide = sampleSlides[currentSlide];
+  if (error) {
+    return (
+      <div className="editor-page">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="p-8 text-center text-red-600">Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!slideDeckData || !slideDeckData.slides.length) {
+    return (
+      <div className="editor-page">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="p-8 text-center text-gray-500">No slides found</div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentSlide = slideDeckData.slides[0]; // Display first slide by default
+  const mainContent = getMainSlideContent(currentSlide);
 
   return (
     <div className="editor-page">
@@ -50,9 +138,9 @@ const EditorPage: React.FC<EditorPageProps> = () => {
       <div className="top-nav">
         <div className="nav-left">
           <div className="nav-icon">🏠</div>
-          <div className="breadcrumb">
-            <span>{slide.title}</span>
-          </div>
+                  <div className="breadcrumb">
+          <span>{slideDeckData.lessonTitle.length > 50 ? slideDeckData.lessonTitle.substring(0, 47) + '...' : slideDeckData.lessonTitle}</span>
+        </div>
         </div>
         <div className="nav-right">
           <button className="nav-button theme-button">
@@ -94,23 +182,22 @@ const EditorPage: React.FC<EditorPageProps> = () => {
             </button>
 
             <div className="slide-thumbnails">
-              {sampleSlides.map((slideItem, index) => (
-                <div
-                  key={slideItem.id}
-                  className={`slide-thumbnail ${currentSlide === index ? 'active' : ''}`}
-                  onClick={() => setCurrentSlide(index)}
-                >
-                  <div className="slide-number">{slideItem.id}</div>
-                  <div className="slide-preview">
-                    <div className="slide-content">
-                      <div className="slide-title-small">{slideItem.title}</div>
-                      <div className="slide-text-small">
-                        {slideItem.content.substring(0, 80)}...
+              {slideDeckData.slides.map((slide, index) => {
+                const slideContent = getMainSlideContent(slide);
+                return (
+                  <div key={slide.slideId} className={`slide-thumbnail ${index === 0 ? 'active' : ''}`}>
+                    <div className="slide-number">{slide.slideNumber}</div>
+                    <div className="slide-preview">
+                      <div className="slide-content">
+                        <div className="slide-title-small">{slideContent.title}</div>
+                        <div className="slide-text-small">
+                          {slideContent.content.split('\n').slice(0, 3).join('\n')}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -127,34 +214,20 @@ const EditorPage: React.FC<EditorPageProps> = () => {
             <div className="main-slide">
               <div className="slide-content-main">
                 <div className="slide-text-area">
-                  <h1 className="main-title">{slide.title}</h1>
-                  <div className="main-description">
-                    {slide.type === 'bullets' ? (
-                      <ul className="slide-bullet-list">
-                        {slide.content.split('\n').map((item, index) => (
-                          <li key={index}>{item.replace('•', '').trim()}</li>
-                        ))}
-                      </ul>
-                    ) : slide.type === 'numbered' ? (
-                      <ol className="slide-numbered-list">
-                        {slide.content.split('\n').map((item, index) => (
-                          <li key={index}>{item.replace(/^\d+\.\s*/, '').trim()}</li>
-                        ))}
-                      </ol>
-                    ) : (
-                      <p>{slide.content}</p>
-                    )}
-                  </div>
+                  <h1 className="main-title">{mainContent.title}</h1>
+                  <p className="main-description">
+                    {mainContent.content.split('\n').slice(0, 3).join(' ')}
+                  </p>
                   <div className="author-info">
-                    <div className="author-avatar">{slide.author.charAt(0)}</div>
+                    <div className="author-avatar">U</div>
                     <div className="author-details">
-                      <div className="author-name">by {slide.author}</div>
-                      <div className="last-edited">Last edited {slide.lastEdited}</div>
+                      <div className="author-name">Slide Deck</div>
+                      <div className="last-edited">{slideDeckData.slides.length} slides</div>
                     </div>
                   </div>
                 </div>
                 <div className="slide-image-area">
-                  <div className="slide-visual-element"></div>
+                  <div className="earth-globe-image"></div>
                 </div>
               </div>
             </div>
