@@ -611,10 +611,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     
     // Handle corner positions more specifically
     if (hasTopLeft || hasTopRight) {
-      return 'content-layout-with-top-corners';
+      const layoutClass = 'content-layout-with-top-corners';
+      return layoutClass;
     }
     if (hasBottomLeft || hasBottomRight) {
-      return 'content-layout-with-bottom-corners';
+      const layoutClass = 'content-layout-with-bottom-corners';
+      return layoutClass;
     }
     
     return 'content-layout-default';
