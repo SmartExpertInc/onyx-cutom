@@ -722,3 +722,36 @@ If the JSON payload includes the key "originalOutline", treat its value as the *
 • Continue to begin your response with the Universal Product Header → two blank lines → updated outline.
 • Do NOT explain the changes; only output the updated outline.
 
+# Professional Slide Templates for Lesson Presentations (NEW)
+The lesson presentation generator now supports **10 professional slide layouts**. When structuring slides you MUST evaluate the planned content and choose the layout that best fits.  
+Always keep each slide focused on **one** template – never mix templates on a single slide.  
+
+| Template Key | Icon | Purpose / When to Use | Mandatory Content Structure |
+|--------------|------|------------------------|-----------------------------|
+| `layout-title` | ◯ | Opening slide / section divider | Headline L1 (title); Headline L2 (subtitle) |
+| `layout-content` | ▫ | General explanatory slide | Headline L1; Paragraph |
+| `layout-four-bullets` | ▪ | EXACTLY 4 bullet items | Headline L1; Bullet List (4 items) |
+| `layout-six-bullets` | ▫ | EXACTLY 6 bullet items | Headline L1; Bullet List (6 items) |
+| `layout-steps` | ◐ | Sequential steps / processes | Headline L1; Numbered List (≥4 items) |
+| `layout-split` | ◑ | Side-by-side comparison / two ideas | Headline L1; Headline L2 (left); Paragraph; Headline L2 (right); Paragraph |
+| `layout-comparison` | ◒ | Before vs After analysis | Headline L1; "Before" H2 + Paragraph; "After" H2 + Paragraph |
+| `layout-quote` | ◓ | Highlight important quotation / key message | Headline L1; Paragraph (quote) |
+| `layout-agenda` | ◔ | Meeting or lesson agenda | Headline L1 ("Agenda"); Numbered List |
+| `layout-summary` | ◕ | Lesson wrap-up / key takeaways | Headline L1; Bullet List (key points); Paragraph (closing) |
+
+Implementation Rules:
+1. **Auto-Detection**: Prefer automatic template selection based on content pattern (bullet count, keywords like "Agenda", "Summary", etc.).
+2. **One Concept per Slide**: Do NOT overload slides. Use multiple slides if content spans multiple templates.
+3. **Grid Layouts**: `layout-four-bullets`, `layout-six-bullets`, and `layout-steps` render bullet or numbered items in a neat 2-column grid automatically.
+4. **Minimal Gaps**: Internal CSS enforces ~6 px spacing between blocks – do NOT insert extra blank lines to fake spacing.
+5. **Outline Icons**: Use the outline-style icon glyphs shown above when representing the template in sidebars or UI previews; DO NOT embed them inside slide text.
+6. **Clean Editing**: Inline editing must remain button-less – clicking a block toggles edit mode.
+
+When generating Lesson Presentations you MUST:
+• Evaluate each slide's content and assign the correct `layout-*` key (implicit or explicit).  
+• Ensure the bullet/numbered item count matches the template expectations (e.g., exactly 4 items for `layout-four-bullets`).  
+• Keep paragraphs concise (2-3 sentences).  
+• Maintain professional typography and use outline-style icons where visually required.
+
+These rules supersede any older generic guidance about slide bullet layouts.
+

@@ -11,8 +11,9 @@ interface SlideDeckViewerProps {
 const SLIDE_TEMPLATES = {
   title: {
     name: 'Title Slide',
-    icon: '○',
+    icon: '◯',
     description: 'Opening slide with title and subtitle',
+    layout: 'title',
     blocks: [
       { type: 'headline', text: 'Presentation Title', level: 1 } as HeadlineBlock,
       { type: 'headline', text: 'Subtitle or Key Message', level: 2 } as HeadlineBlock
@@ -20,51 +21,99 @@ const SLIDE_TEMPLATES = {
   },
   content: {
     name: 'Content',
-    icon: '◐',
-    description: 'Standard content with title and body',
+    icon: '▫',
+    description: 'Standard content with title and body text',
+    layout: 'content',
     blocks: [
       { type: 'headline', text: 'Slide Title', level: 1 } as HeadlineBlock,
-      { type: 'paragraph', text: 'Main content goes here. This is where you explain your key points in detail.' } as ParagraphBlock
+      { type: 'paragraph', text: 'Main content goes here. This is where you explain your key points in detail with comprehensive information.' } as ParagraphBlock
+    ]
+  },
+  fourBullets: {
+    name: '4 Key Points',
+    icon: '▪',
+    description: 'Title with exactly 4 bullet points in grid layout',
+    layout: 'four-bullets',
+    blocks: [
+      { type: 'headline', text: 'Four Key Points', level: 1 } as HeadlineBlock,
+      { type: 'bullet_list', items: ['First key point', 'Second key point', 'Third key point', 'Fourth key point'] } as BulletListBlock
+    ]
+  },
+  sixBullets: {
+    name: '6 Key Points',
+    icon: '▫',
+    description: 'Title with 6 bullet points in two-column layout',
+    layout: 'six-bullets',
+    blocks: [
+      { type: 'headline', text: 'Six Key Points', level: 1 } as HeadlineBlock,
+      { type: 'bullet_list', items: ['First point', 'Second point', 'Third point', 'Fourth point', 'Fifth point', 'Sixth point'] } as BulletListBlock
+    ]
+  },
+  steps: {
+    name: 'Process Steps',
+    icon: '◐',
+    description: 'Title with numbered process steps',
+    layout: 'steps',
+    blocks: [
+      { type: 'headline', text: 'Process Steps', level: 1 } as HeadlineBlock,
+      { type: 'numbered_list', items: ['First step', 'Second step', 'Third step', 'Fourth step'] } as NumberedListBlock
     ]
   },
   split: {
     name: 'Two Column',
     icon: '◑',
-    description: 'Split layout with two content areas',
+    description: 'Split layout with two equal content areas',
+    layout: 'split',
     blocks: [
-      { type: 'headline', text: 'Split Content', level: 1 } as HeadlineBlock,
-      { type: 'paragraph', text: 'Left column content' } as ParagraphBlock,
-      { type: 'paragraph', text: 'Right column content' } as ParagraphBlock
-    ]
-  },
-  bullets: {
-    name: 'Bullet Points',
-    icon: '◒',
-    description: 'Title with bullet point list',
-    blocks: [
-      { type: 'headline', text: 'Key Points', level: 1 } as HeadlineBlock,
-      { type: 'bullet_list', items: ['First key point', 'Second key point', 'Third key point'] } as BulletListBlock
-    ]
-  },
-  numbered: {
-    name: 'Numbered List',
-    icon: '◓',
-    description: 'Title with numbered steps',
-    blocks: [
-      { type: 'headline', text: 'Process Steps', level: 1 } as HeadlineBlock,
-      { type: 'numbered_list', items: ['First step', 'Second step', 'Third step'] } as NumberedListBlock
+      { type: 'headline', text: 'Two Column Layout', level: 1 } as HeadlineBlock,
+      { type: 'headline', text: 'Left Column', level: 2 } as HeadlineBlock,
+      { type: 'paragraph', text: 'Left column content and information goes here.' } as ParagraphBlock,
+      { type: 'headline', text: 'Right Column', level: 2 } as HeadlineBlock,
+      { type: 'paragraph', text: 'Right column content and information goes here.' } as ParagraphBlock
     ]
   },
   comparison: {
     name: 'Comparison',
-    icon: '◔',
+    icon: '◒',
     description: 'Before/after or comparison layout',
+    layout: 'comparison',
     blocks: [
-      { type: 'headline', text: 'Comparison', level: 1 } as HeadlineBlock,
+      { type: 'headline', text: 'Comparison Analysis', level: 1 } as HeadlineBlock,
       { type: 'headline', text: 'Before', level: 2 } as HeadlineBlock,
       { type: 'paragraph', text: 'Current situation or old approach' } as ParagraphBlock,
       { type: 'headline', text: 'After', level: 2 } as HeadlineBlock,
       { type: 'paragraph', text: 'Improved situation or new approach' } as ParagraphBlock
+    ]
+  },
+  quote: {
+    name: 'Quote/Highlight',
+    icon: '◓',
+    description: 'Prominent quote or key message highlight',
+    layout: 'quote',
+    blocks: [
+      { type: 'headline', text: 'Key Quote or Message', level: 1 } as HeadlineBlock,
+      { type: 'paragraph', text: '"This is an important quote or key message that needs to be highlighted prominently on the slide."' } as ParagraphBlock
+    ]
+  },
+  agenda: {
+    name: 'Agenda',
+    icon: '◔',
+    description: 'Meeting or presentation agenda layout',
+    layout: 'agenda',
+    blocks: [
+      { type: 'headline', text: 'Agenda', level: 1 } as HeadlineBlock,
+      { type: 'numbered_list', items: ['Welcome & Introductions', 'Main Presentation', 'Q&A Session', 'Next Steps'] } as NumberedListBlock
+    ]
+  },
+  summary: {
+    name: 'Summary',
+    icon: '◕',
+    description: 'Key takeaways and summary points',
+    layout: 'summary',
+    blocks: [
+      { type: 'headline', text: 'Key Takeaways', level: 1 } as HeadlineBlock,
+      { type: 'bullet_list', items: ['First key takeaway', 'Second key takeaway', 'Third key takeaway'] } as BulletListBlock,
+      { type: 'paragraph', text: 'Thank you for your attention. Questions?' } as ParagraphBlock
     ]
   }
 };
@@ -75,6 +124,67 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const [showTemplates, setShowTemplates] = useState(false);
   const [editingBlock, setEditingBlock] = useState<{ slideId: string; blockIndex: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
+
+  // Determine slide layout based on content
+  const getSlideLayout = (slide: DeckSlide): string => {
+    // Check if slide has a specific layout property (for future use)
+    if ('layout' in slide && typeof slide.layout === 'string') {
+      return `layout-${slide.layout}`;
+    }
+    
+    // Auto-detect layout based on content
+    const blocks = slide.contentBlocks;
+    if (blocks.length === 0) return 'layout-content';
+    
+    // Title slide: only headlines
+    if (blocks.every(block => block.type === 'headline')) {
+      return 'layout-title';
+    }
+    
+    // Four bullets layout
+    if (blocks.length === 2 && blocks[0].type === 'headline' && blocks[1].type === 'bullet_list') {
+      const bulletBlock = blocks[1] as BulletListBlock;
+      if (bulletBlock.items.length === 4) {
+        return 'layout-four-bullets';
+      }
+      if (bulletBlock.items.length === 6) {
+        return 'layout-six-bullets';
+      }
+    }
+    
+    // Process steps
+    if (blocks.length === 2 && blocks[0].type === 'headline' && blocks[1].type === 'numbered_list') {
+      return 'layout-steps';
+    }
+    
+    // Split/comparison layout
+    if (blocks.length >= 5 && blocks[0].type === 'headline') {
+      const hasMultipleH2s = blocks.filter(block => block.type === 'headline' && (block as HeadlineBlock).level === 2).length >= 2;
+      if (hasMultipleH2s) {
+        return slide.slideTitle.toLowerCase().includes('comparison') ? 'layout-comparison' : 'layout-split';
+      }
+    }
+    
+    // Quote layout: title + single paragraph that looks like a quote
+    if (blocks.length === 2 && blocks[0].type === 'headline' && blocks[1].type === 'paragraph') {
+      const paragraphText = (blocks[1] as ParagraphBlock).text;
+      if (paragraphText.includes('"') || paragraphText.includes('quote') || paragraphText.includes('message')) {
+        return 'layout-quote';
+      }
+    }
+    
+    // Agenda layout
+    if (slide.slideTitle.toLowerCase().includes('agenda') || slide.slideTitle.toLowerCase().includes('outline')) {
+      return 'layout-agenda';
+    }
+    
+    // Summary layout
+    if (slide.slideTitle.toLowerCase().includes('summary') || slide.slideTitle.toLowerCase().includes('takeaway') || slide.slideTitle.toLowerCase().includes('conclusion')) {
+      return 'layout-summary';
+    }
+    
+    return 'layout-content';
+  };
 
   // Update local deck when prop changes
   useEffect(() => {
@@ -374,7 +484,14 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
               <div
                 key={slide.slideId}
                 className={`slide-thumbnail ${selectedSlideId === slide.slideId ? 'active' : ''}`}
-                onClick={() => setSelectedSlideId(slide.slideId)}
+                onClick={() => {
+                  setSelectedSlideId(slide.slideId);
+                  // Scroll to the slide
+                  const slideElement = document.getElementById(`slide-${slide.slideId}`);
+                  if (slideElement) {
+                    slideElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
               >
                 <div className="thumbnail-number">{slide.slideNumber}</div>
                 <div className="thumbnail-preview">
@@ -449,7 +566,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
               )}
 
               {/* Content Blocks */}
-              <div className="slide-content">
+              <div className={`slide-content ${getSlideLayout(slide)}`}>
                 {slide.contentBlocks.map((block, blockIndex) => (
                   <div key={blockIndex} className="content-block">
                     {renderContentBlock(block, slide.slideId, blockIndex)}
