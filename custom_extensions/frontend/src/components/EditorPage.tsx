@@ -1,7 +1,20 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
+import { 
+  Home, 
+  Palette, 
+  Share2, 
+  Play, 
+  MoreHorizontal, 
+  User, 
+  X, 
+  Plus,
+  ZoomIn,
+  ZoomOut,
+  HelpCircle
+} from 'lucide-react';
 import './EditorPage.css';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -14,6 +27,10 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const [slideDeckData, setSlideDeckData] = useState<SlideDeckData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Fetch slide deck data
   useEffect(() => {
@@ -65,6 +82,58 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
     fetchSlideData();
   }, [projectId]);
+
+  // Handle scroll to update active slide
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollContainerRef.current || !slideDeckData) return;
+
+      const container = scrollContainerRef.current;
+      const containerTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+      const containerCenter = containerTop + containerHeight / 2;
+
+      let closestSlide = 0;
+      let closestDistance = Infinity;
+
+      slideRefs.current.forEach((slideRef, index) => {
+        if (slideRef) {
+          const slideTop = slideRef.offsetTop;
+          const slideHeight = slideRef.offsetHeight;
+          const slideCenter = slideTop + slideHeight / 2;
+          const distance = Math.abs(containerCenter - slideCenter);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSlide = index;
+          }
+        }
+      });
+
+      setActiveSlideIndex(closestSlide);
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [slideDeckData]);
+
+  // Initialize slide refs array
+  useEffect(() => {
+    if (slideDeckData) {
+      slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
+    }
+  }, [slideDeckData]);
+
+  // Function to scroll to specific slide
+  const scrollToSlide = (index: number) => {
+    const slideRef = slideRefs.current[index];
+    if (slideRef && scrollContainerRef.current) {
+      slideRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   // Render content block to text for thumbnails
   const renderContentToText = (blocks: AnyContentBlock[]): string => {
@@ -192,27 +261,39 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       {/* Top Navigation Bar */}
       <div className="top-nav">
         <div className="nav-left">
-          <div className="nav-icon">🏠</div>
-                  <div className="breadcrumb">
-          <span>{slideDeckData.lessonTitle.length > 50 ? slideDeckData.lessonTitle.substring(0, 47) + '...' : slideDeckData.lessonTitle}</span>
-        </div>
+          <div className="nav-icon">
+            <Home size={16} />
+          </div>
+          <div className="breadcrumb">
+            <span>{slideDeckData.lessonTitle.length > 50 ? slideDeckData.lessonTitle.substring(0, 47) + '...' : slideDeckData.lessonTitle}</span>
+          </div>
         </div>
         <div className="nav-right">
           <button className="nav-button theme-button">
-            <span className="button-icon">🎨</span>
+            <span className="button-icon">
+              <Palette size={16} />
+            </span>
             Theme
           </button>
           <button className="nav-button share-button">
-            <span className="button-icon">🔗</span>
+            <span className="button-icon">
+              <Share2 size={16} />
+            </span>
             Share
           </button>
           <button className="nav-button present-button">
-            <span className="button-icon">▶️</span>
+            <span className="button-icon">
+              <Play size={16} />
+            </span>
             Present
             <span className="dropdown-arrow">▼</span>
           </button>
-          <button className="nav-button more-button">⋯</button>
-          <div className="profile-avatar">M</div>
+          <button className="nav-button more-button">
+            <MoreHorizontal size={16} />
+          </button>
+          <div className="profile-avatar">
+            <User size={16} />
+          </div>
         </div>
       </div>
 
@@ -221,7 +302,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         {/* Left Sidebar - Slide Thumbnails */}
         <div className="left-sidebar">
           <div className="sidebar-header">
-            <button className="close-button">×</button>
+            <button className="close-button">
+              <X size={16} />
+            </button>
           </div>
           
           <div className="slides-panel">
@@ -231,7 +314,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             </div>
             
             <button className="new-slide-button">
-              <span className="plus-icon">+</span>
+              <span className="plus-icon">
+                <Plus size={16} />
+              </span>
               New
               <span className="dropdown-arrow">▼</span>
             </button>
@@ -240,7 +325,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
               {slideDeckData.slides.map((slide, index) => {
                 const slideContent = getMainSlideContent(slide);
                 return (
-                  <div key={slide.slideId} className={`slide-thumbnail ${index === 0 ? 'active' : ''}`}>
+                  <div 
+                    key={slide.slideId} 
+                    className={`slide-thumbnail ${index === activeSlideIndex ? 'active' : ''}`}
+                    onClick={() => scrollToSlide(index)}
+                  >
                     <div className="slide-number">{slide.slideNumber}</div>
                     <div className="slide-preview">
                       <div className="slide-content">
@@ -259,9 +348,13 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
         {/* Center - Real Slides Display */}
         <div className="center-content">
-          <div className="slides-scroll-container">
+          <div className="slides-scroll-container" ref={scrollContainerRef}>
             {slideDeckData.slides.map((slide, index) => (
-              <div key={slide.slideId} className="real-slide">
+              <div 
+                key={slide.slideId} 
+                className="real-slide"
+                ref={(el) => { slideRefs.current[index] = el; }}
+              >
                 <div className="slide-header">
                   <h2 className="slide-title">Slide {slide.slideNumber}: {slide.slideTitle}</h2>
                 </div>
@@ -280,7 +373,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         {/* Right Sidebar - Tools */}
         <div className="right-sidebar">
           <div className="tools-panel">
-            <button className="tool-button active">🔍</button>
+            <button className="tool-button active">
+              <ZoomIn size={16} />
+            </button>
             <button className="tool-button">🔵</button>
             <button className="tool-button">📱</button>
             <button className="tool-button">🎨</button>
@@ -290,7 +385,13 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           </div>
           
           <div className="zoom-control">
+            <button className="zoom-button">
+              <ZoomOut size={14} />
+            </button>
             <span className="zoom-text">100%</span>
+            <button className="zoom-button">
+              <ZoomIn size={14} />
+            </button>
           </div>
           
           <div className="help-section">
@@ -298,7 +399,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
               <span className="help-text">Get started</span>
               <span className="help-fraction">1/8</span>
             </button>
-            <button className="help-icon">?</button>
+            <button className="help-icon">
+              <HelpCircle size={16} />
+            </button>
           </div>
         </div>
       </div>
