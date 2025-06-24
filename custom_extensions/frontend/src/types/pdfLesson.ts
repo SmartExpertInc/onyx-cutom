@@ -71,7 +71,6 @@ export interface DeckSlide {
   slideNumber: number;
   slideTitle: string;
   contentBlocks: AnyContentBlock[];
-  layout?: string; // Auto-detected template layout
 }
 
 export interface SlideDeckData {

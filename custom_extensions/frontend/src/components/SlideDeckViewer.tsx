@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock } from '@/types/pdfLesson';
-import { PROFESSIONAL_TEMPLATES, TemplateKey } from './ProfessionalSlideTemplates';
 
 interface SlideDeckViewerProps {
   deck: SlideDeckData;
@@ -8,7 +7,7 @@ interface SlideDeckViewerProps {
   onSave?: (updatedDeck: SlideDeckData) => void;
 }
 
-// Professional slide templates metadata for template selector
+// Professional slide templates based on industry best practices
 const SLIDE_TEMPLATES = {
   title: {
     name: 'Title Slide',
@@ -126,64 +125,43 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const [editingBlock, setEditingBlock] = useState<{ slideId: string; blockIndex: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
 
-  // Automatic template detection based on content
-  const detectSlideTemplate = (slide: DeckSlide): TemplateKey => {
-    // If slide already has a layout specified, use it
-    if (slide.layout && slide.layout in PROFESSIONAL_TEMPLATES) {
-      return slide.layout as TemplateKey;
+  // Determine slide layout based on content
+  const getSlideLayout = (slide: DeckSlide): string => {
+    // Check if slide has a specific layout property (for future use)
+    if ('layout' in slide && typeof slide.layout === 'string') {
+      return `layout-${slide.layout}`;
     }
     
     // Auto-detect layout based on content
     const blocks = slide.contentBlocks;
-    if (blocks.length === 0) return 'content';
+    if (blocks.length === 0) return 'layout-content';
     
     // Title slide: only headlines
     if (blocks.every(block => block.type === 'headline')) {
-      return 'title';
-    }
-    
-    // Check for specific keywords in slide title
-    const titleLower = slide.slideTitle.toLowerCase();
-    if (titleLower.includes('agenda') || titleLower.includes('outline') || titleLower.includes('overview')) {
-      return 'agenda';
-    }
-    if (titleLower.includes('summary') || titleLower.includes('takeaway') || titleLower.includes('conclusion')) {
-      return 'summary';
-    }
-    if (titleLower.includes('comparison') || titleLower.includes('versus') || titleLower.includes('vs') || titleLower.includes('before')) {
-      return 'comparison';
-    }
-    if (titleLower.includes('quote') || titleLower.includes('key message') || titleLower.includes('important')) {
-      return 'quote';
-    }
-    if (titleLower.includes('steps') || titleLower.includes('process') || titleLower.includes('procedure')) {
-      return 'steps';
+      return 'layout-title';
     }
     
     // Four bullets layout
     if (blocks.length === 2 && blocks[0].type === 'headline' && blocks[1].type === 'bullet_list') {
       const bulletBlock = blocks[1] as BulletListBlock;
       if (bulletBlock.items.length === 4) {
-        return 'four-bullets';
+        return 'layout-four-bullets';
       }
       if (bulletBlock.items.length === 6) {
-        return 'six-bullets';
+        return 'layout-six-bullets';
       }
     }
     
     // Process steps
     if (blocks.length === 2 && blocks[0].type === 'headline' && blocks[1].type === 'numbered_list') {
-      const numberedBlock = blocks[1] as NumberedListBlock;
-      if (numberedBlock.items.length >= 4) {
-        return 'steps';
-      }
+      return 'layout-steps';
     }
     
     // Split/comparison layout
     if (blocks.length >= 5 && blocks[0].type === 'headline') {
       const hasMultipleH2s = blocks.filter(block => block.type === 'headline' && (block as HeadlineBlock).level === 2).length >= 2;
       if (hasMultipleH2s) {
-        return 'split';
+        return slide.slideTitle.toLowerCase().includes('comparison') ? 'layout-comparison' : 'layout-split';
       }
     }
     
@@ -191,11 +169,21 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     if (blocks.length === 2 && blocks[0].type === 'headline' && blocks[1].type === 'paragraph') {
       const paragraphText = (blocks[1] as ParagraphBlock).text;
       if (paragraphText.includes('"') || paragraphText.includes('quote') || paragraphText.includes('message')) {
-        return 'quote';
+        return 'layout-quote';
       }
     }
     
-    return 'content';
+    // Agenda layout
+    if (slide.slideTitle.toLowerCase().includes('agenda') || slide.slideTitle.toLowerCase().includes('outline')) {
+      return 'layout-agenda';
+    }
+    
+    // Summary layout
+    if (slide.slideTitle.toLowerCase().includes('summary') || slide.slideTitle.toLowerCase().includes('takeaway') || slide.slideTitle.toLowerCase().includes('conclusion')) {
+      return 'layout-summary';
+    }
+    
+    return 'layout-content';
   };
 
   // Update local deck when prop changes
@@ -203,11 +191,112 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     setLocalDeck(deck);
   }, [deck]);
 
+  // Render content block with proper type handling
+  const renderContentBlock = (block: AnyContentBlock, slideId: string, blockIndex: number): React.ReactNode => {
+    const isEditing = editingBlock?.slideId === slideId && editingBlock?.blockIndex === blockIndex;
+
+    if (isEditing && isEditable) {
+      return renderInlineEditor(block, slideId, blockIndex);
+    }
+
+    switch (block.type) {
+      case 'headline':
+        const headlineBlock = block as HeadlineBlock;
+        const HeadingTag = `h${headlineBlock.level}` as keyof JSX.IntrinsicElements;
+        return (
+          <div 
+            className={`professional-headline level-${headlineBlock.level}`}
+            onClick={() => isEditable && setEditingBlock({ slideId, blockIndex })}
+          >
+            <span className="heading-icon">
+              {headlineBlock.level === 1 ? '○' : headlineBlock.level === 2 ? '◐' : headlineBlock.level === 3 ? '◑' : '◒'}
+            </span>
+            {React.createElement(HeadingTag, { className: 'heading-text' }, headlineBlock.text)}
+          </div>
+        );
+
+      case 'paragraph':
+        const paragraphBlock = block as ParagraphBlock;
+        return (
+          <div 
+            className="professional-paragraph"
+            onClick={() => isEditable && setEditingBlock({ slideId, blockIndex })}
+          >
+            <span className="paragraph-icon">▫</span>
+            <p className="paragraph-text">{paragraphBlock.text}</p>
+          </div>
+        );
+
+      case 'bullet_list':
+        const bulletBlock = block as BulletListBlock;
+        return (
+          <div 
+            className="professional-bullet-list"
+            onClick={() => isEditable && setEditingBlock({ slideId, blockIndex })}
+          >
+            <ul className="bullet-items">
+              {bulletBlock.items.map((item, index) => (
+                <li key={index} className="professional-bullet-item">
+                  <span className="bullet-indicator">▪</span>
+                  <span className="bullet-text">{typeof item === 'string' ? item : 'Complex item'}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+
+      case 'numbered_list':
+        const numberedBlock = block as NumberedListBlock;
+        return (
+          <div 
+            className="professional-numbered-list"
+            onClick={() => isEditable && setEditingBlock({ slideId, blockIndex })}
+          >
+            <ol className="numbered-items">
+              {numberedBlock.items.map((item, index) => (
+                <li key={index} className="professional-numbered-item">
+                  <span className="number-badge">{index + 1}</span>
+                  <span className="number-text">{typeof item === 'string' ? item : 'Complex item'}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        );
+
+      case 'alert':
+        const alertBlock = block as AlertBlock;
+        return (
+          <div 
+            className={`professional-alert alert-${alertBlock.alertType}`}
+            onClick={() => isEditable && setEditingBlock({ slideId, blockIndex })}
+          >
+            <span className="alert-icon">
+              {alertBlock.alertType === 'info' ? 'ⓘ' : 
+               alertBlock.alertType === 'warning' ? '⚠' : 
+               alertBlock.alertType === 'success' ? '✓' : '✕'}
+            </span>
+            <div className="alert-content">
+              {alertBlock.title && <div className="alert-title">{alertBlock.title}</div>}
+              <div className="alert-text">{alertBlock.text}</div>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="professional-unknown">
+            <span className="unknown-icon">?</span>
+            <span>Unknown block type</span>
+          </div>
+        );
+    }
+  };
+
   // Render inline editor
-  const renderInlineEditor = (block: AnyContentBlock, blockIndex: number): React.ReactNode => {
+  const renderInlineEditor = (block: AnyContentBlock, slideId: string, blockIndex: number): React.ReactNode => {
     const handleSave = (newValue: string) => {
       const updatedDeck = { ...localDeck };
-      const slide = updatedDeck.slides.find(s => s.slideId === editingBlock?.slideId);
+      const slide = updatedDeck.slides.find(s => s.slideId === slideId);
       if (slide) {
         const updatedBlock = { ...block };
         
@@ -280,7 +369,6 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     
     if (slide) {
       slide.contentBlocks = [...template.blocks];
-      slide.layout = template.layout;
       setLocalDeck(updatedDeck);
       onSave?.(updatedDeck);
     }
@@ -293,7 +381,6 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
       slideId: `slide-${Date.now()}`,
       slideNumber: localDeck.slides.length + 1,
       slideTitle: `Slide ${localDeck.slides.length + 1}`,
-      layout: 'content',
       contentBlocks: [
         { type: 'headline', text: 'New Slide Title', level: 1 } as HeadlineBlock,
         { type: 'paragraph', text: 'Add your content here...' } as ParagraphBlock
@@ -335,95 +422,29 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   };
 
   return (
-    <div className="slide-deck-viewer" style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="slide-deck-viewer">
       {/* Professional Header */}
-      <div style={{
-        backgroundColor: '#1e3a8a',
-        color: 'white',
-        padding: '1rem 2rem',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            {isEditable && editingTitle === 'main' ? (
-              <InlineEditor
-                initialValue={localDeck.lessonTitle}
-                onSave={(newTitle) => {
-                  const updatedDeck = { ...localDeck, lessonTitle: newTitle };
-                  setLocalDeck(updatedDeck);
-                  onSave?.(updatedDeck);
-                  setEditingTitle(null);
-                }}
-                onCancel={() => setEditingTitle(null)}
-              />
-            ) : (
-              <h1 
-                style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', cursor: isEditable ? 'pointer' : 'default' }}
-                onClick={() => isEditable && setEditingTitle('main')}
-              >
-                {localDeck.lessonTitle}
-              </h1>
-            )}
-            <span style={{ fontSize: '0.875rem', opacity: 0.8 }}>
-              {localDeck.slides.length} slides • Professional Templates
-            </span>
+      <div className="professional-header">
+        <div className="header-content">
+          <div className="presentation-info">
+            <h1 className="presentation-title">{localDeck.lessonTitle}</h1>
+            <span className="slide-counter">{localDeck.slides.length} slides</span>
           </div>
           
           {isEditable && (
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div className="header-controls">
               <button 
+                className="control-button template-button"
                 onClick={() => setShowTemplates(!showTemplates)}
-                style={{
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#3b82f6';
-                }}
               >
-                <span>⊞</span>
+                <span className="button-icon">⊞</span>
                 Templates
               </button>
               <button 
+                className="control-button add-button"
                 onClick={addSlide}
-                style={{
-                  backgroundColor: '#059669',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#047857';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#059669';
-                }}
               >
-                <span>+</span>
+                <span className="button-icon">+</span>
                 Add Slide
               </button>
             </div>
@@ -432,52 +453,17 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
 
         {/* Template Selector */}
         {showTemplates && isEditable && (
-          <div style={{
-            marginTop: '1rem',
-            padding: '1.5rem',
-            backgroundColor: 'white',
-            borderRadius: '6px',
-            color: '#374151'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: 'bold' }}>
-              Choose Template
-            </h3>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '0.75rem'
-            }}>
+          <div className="template-selector">
+            <div className="template-grid">
               {Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
                 <button
                   key={key}
+                  className="template-card"
                   onClick={() => applyTemplate(selectedSlideId, key as keyof typeof SLIDE_TEMPLATES)}
-                  style={{
-                    backgroundColor: '#f3f4f6',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '6px',
-                    padding: '0.75rem',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e5e7eb';
-                    e.currentTarget.style.borderColor = '#3b82f6';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f3f4f6';
-                    e.currentTarget.style.borderColor = '#e5e7eb';
-                  }}
                 >
-                  <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>
-                    {template.icon}
-                  </div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.125rem' }}>
-                    {template.name}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                    {template.description}
-                  </div>
+                  <div className="template-icon">{template.icon}</div>
+                  <div className="template-name">{template.name}</div>
+                  <div className="template-description">{template.description}</div>
                 </button>
               ))}
             </div>
@@ -485,115 +471,111 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         )}
       </div>
 
-      {/* Slides Container - Stacked Vertically */}
-      <div style={{ 
-        maxWidth: '1000px', 
-        margin: '0 auto', 
-        padding: '2rem 1rem'
-      }}>
-        {localDeck.slides.map((slide, slideIndex) => {
-          const templateKey = detectSlideTemplate(slide);
-          const TemplateComponent = PROFESSIONAL_TEMPLATES[templateKey];
+      {/* Main Content Area */}
+      <div className="main-content">
+        {/* Professional Sidebar */}
+        <div className="professional-sidebar">
+          <div className="sidebar-header">
+            <h3 className="sidebar-title">Slides</h3>
+          </div>
           
-          return (
-            <div key={slide.slideId} style={{ position: 'relative' }}>
-              {/* Slide Number Badge */}
-              <div style={{
-                position: 'absolute',
-                top: '-10px',
-                left: '20px',
-                backgroundColor: '#1e3a8a',
-                color: 'white',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '12px',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                zIndex: 5
-              }}>
-                {slide.slideNumber}
-              </div>
-
-              {/* Editable Slide Title */}
-              <div style={{
-                backgroundColor: 'white',
-                padding: '1rem 1.5rem 0.5rem',
-                borderRadius: '8px 8px 0 0',
-                borderBottom: '2px solid #e5e7eb'
-              }}>
-                {isEditable && editingTitle === slide.slideId ? (
-                  <InlineEditor
-                    initialValue={slide.slideTitle}
-                    onSave={(newTitle) => {
-                      const updatedDeck = { ...localDeck };
-                      const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
-                      if (targetSlide) {
-                        targetSlide.slideTitle = newTitle;
-                        setLocalDeck(updatedDeck);
-                        onSave?.(updatedDeck);
-                      }
-                      setEditingTitle(null);
-                    }}
-                    onCancel={() => setEditingTitle(null)}
-                  />
-                ) : (
-                  <h2 
-                    style={{ 
-                      margin: 0, 
-                      fontSize: '1.125rem', 
-                      fontWeight: 'bold', 
-                      color: '#1f2937',
-                      cursor: isEditable ? 'pointer' : 'default'
-                    }}
-                    onClick={() => isEditable && setEditingTitle(slide.slideId)}
-                  >
-                    {slide.slideTitle}
-                  </h2>
-                )}
-              </div>
-
-              {/* Slide Content */}
-              <div style={{ position: 'relative' }}>
-                <TemplateComponent
-                  slide={slide}
-                  isEditable={isEditable}
-                  onBlockClick={(blockIndex) => {
-                    if (isEditable) {
-                      setEditingBlock({ slideId: slide.slideId, blockIndex });
-                    }
-                  }}
-                  editingBlock={editingBlock?.slideId === slide.slideId ? editingBlock.blockIndex : null}
-                  renderInlineEditor={renderInlineEditor}
-                />
-
-                {/* Delete Button */}
+          <div className="slide-thumbnails">
+            {localDeck.slides.map((slide) => (
+              <div
+                key={slide.slideId}
+                className={`slide-thumbnail ${selectedSlideId === slide.slideId ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedSlideId(slide.slideId);
+                  // Scroll to the slide
+                  const slideElement = document.getElementById(`slide-${slide.slideId}`);
+                  if (slideElement) {
+                    slideElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
+                <div className="thumbnail-number">{slide.slideNumber}</div>
+                <div className="thumbnail-preview">
+                  <div className="preview-title">
+                    {slide.contentBlocks.find(block => block.type === 'headline')
+                      ? (slide.contentBlocks.find(block => block.type === 'headline') as HeadlineBlock).text
+                      : slide.slideTitle}
+                  </div>
+                  <div className="preview-content">
+                    {slide.contentBlocks.slice(1, 3).map((block, index) => (
+                      <div key={index} className="preview-block">
+                        {block.type === 'paragraph' ? (block as ParagraphBlock).text.substring(0, 30) + '...' :
+                         block.type === 'bullet_list' ? '• List items...' :
+                         block.type === 'numbered_list' ? '1. Numbered items...' :
+                         'Content...'}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
                 {isEditable && localDeck.slides.length > 1 && (
                   <button
-                    onClick={() => deleteSlide(slide.slideId)}
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '10px',
-                      backgroundColor: '#dc2626',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '24px',
-                      height: '24px',
-                      cursor: 'pointer',
-                      fontSize: '0.875rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 5
+                    className="delete-slide-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSlide(slide.slideId);
                     }}
                   >
                     ×
                   </button>
                 )}
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Slides Container */}
+        <div className="slides-container">
+          {localDeck.slides.map((slide) => (
+            <div
+              key={slide.slideId}
+              className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
+              id={`slide-${slide.slideId}`}
+            >
+              {/* Editable Slide Title */}
+              {isEditable ? (
+                <div 
+                  className="slide-title-editable"
+                  onClick={() => setEditingTitle(slide.slideId)}
+                >
+                  {editingTitle === slide.slideId ? (
+                    <InlineEditor
+                      initialValue={slide.slideTitle}
+                      onSave={(newTitle) => {
+                        const updatedDeck = { ...localDeck };
+                        const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
+                        if (targetSlide) {
+                          targetSlide.slideTitle = newTitle;
+                          setLocalDeck(updatedDeck);
+                          onSave?.(updatedDeck);
+                        }
+                        setEditingTitle(null);
+                      }}
+                      onCancel={() => setEditingTitle(null)}
+                    />
+                  ) : (
+                    <h2 className="slide-title-text">{slide.slideTitle}</h2>
+                  )}
+                </div>
+              ) : (
+                <h2 className="slide-title-display">{slide.slideTitle}</h2>
+              )}
+
+              {/* Content Blocks */}
+              <div className={`slide-content ${getSlideLayout(slide)}`}>
+                {slide.contentBlocks.map((block, blockIndex) => (
+                  <div key={blockIndex} className="content-block">
+                    {renderContentBlock(block, slide.slideId, blockIndex)}
+                  </div>
+                ))}
+              </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -622,10 +604,11 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
     if (e.key === 'Enter' && !multiline) {
       e.preventDefault();
       onSave(value);
-    } else if (e.key === 'Enter' && multiline && e.ctrlKey) {
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
       e.preventDefault();
       onSave(value);
     } else if (e.key === 'Escape') {
+      e.preventDefault();
       onCancel();
     }
   };
@@ -634,28 +617,30 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
     onSave(value);
   };
 
-  const commonProps = {
-    ref: inputRef as any,
-    value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setValue(e.target.value),
-    onKeyDown: handleKeyDown,
-    onBlur: handleBlur,
-    style: {
-      width: '100%',
-      padding: '0.375rem',
-      border: '2px solid #3b82f6',
-      borderRadius: '4px',
-      fontSize: 'inherit',
-      fontFamily: 'inherit',
-      backgroundColor: 'white',
-      outline: 'none'
-    }
-  };
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className="inline-editor-textarea"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        rows={4}
+      />
+    );
+  }
 
-  return multiline ? (
-    <textarea {...commonProps} rows={3} />
-  ) : (
-    <input {...commonProps} type="text" />
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className="inline-editor-input"
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+    />
   );
 }
 
