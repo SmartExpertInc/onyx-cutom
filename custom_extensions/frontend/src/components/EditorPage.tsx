@@ -12,10 +12,14 @@ import {
   X, 
   Plus,
   ZoomIn,
-  ZoomOut,
-  HelpCircle,
   FileText,
-  Clipboard
+  Clipboard,
+  Circle,
+  Smartphone,
+  Paintbrush,
+  BarChart3,
+  TrendingUp,
+  Edit
 } from 'lucide-react';
 import './EditorPage.css';
 
@@ -88,7 +92,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
-  // Handle scroll to update active slide
+  // Handle scroll to update active slide - RESTORED SMART NAVIGATION
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollContainerRef.current || !slideDeckData) return;
@@ -100,6 +104,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       const viewportBottom = containerTop + containerHeight;
 
       let newActiveIndex = 0;
+      let maxVisibilityRatio = 0;
 
       slideRefs.current.forEach((slideRef, index) => {
         if (slideRef) {
@@ -115,15 +120,17 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             const visibleHeight = visibleBottom - visibleTop;
             const visibilityRatio = visibleHeight / slideHeight;
 
-            // If more than 50% of slide is visible, make it active
-            if (visibilityRatio > 0.5) {
+            // Track the slide with the highest visibility ratio
+            if (visibilityRatio > maxVisibilityRatio) {
+              maxVisibilityRatio = visibilityRatio;
               newActiveIndex = index;
             }
           }
         }
       });
 
-      if (newActiveIndex !== activeSlideIndex) {
+      // Only update if we have a significant visibility (>30%) or if it's different
+      if (maxVisibilityRatio > 0.3 && newActiveIndex !== activeSlideIndex) {
         setActiveSlideIndex(newActiveIndex);
       }
     };
@@ -132,7 +139,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (container && slideDeckData) {
       container.addEventListener('scroll', handleScroll, { passive: true });
       // Call once to set initial state
-      handleScroll();
+      setTimeout(handleScroll, 100); // Small delay to ensure refs are set
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [slideDeckData, activeSlideIndex]);
@@ -586,31 +593,23 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             <button className="tool-button active">
               <ZoomIn size={16} />
             </button>
-            <button className="tool-button">🔵</button>
-            <button className="tool-button">📱</button>
-            <button className="tool-button">🎨</button>
-            <button className="tool-button">📊</button>
-            <button className="tool-button">📈</button>
-            <button className="tool-button">✏️</button>
-          </div>
-          
-          <div className="zoom-control">
-            <button className="zoom-button">
-              <ZoomOut size={14} />
+            <button className="tool-button">
+              <Circle size={16} />
             </button>
-            <span className="zoom-text">100%</span>
-            <button className="zoom-button">
-              <ZoomIn size={14} />
+            <button className="tool-button">
+              <Smartphone size={16} />
             </button>
-          </div>
-          
-          <div className="help-section">
-            <button className="help-button">
-              <span className="help-text">Get started</span>
-              <span className="help-fraction">1/8</span>
+            <button className="tool-button">
+              <Paintbrush size={16} />
             </button>
-            <button className="help-icon">
-              <HelpCircle size={16} />
+            <button className="tool-button">
+              <BarChart3 size={16} />
+            </button>
+            <button className="tool-button">
+              <TrendingUp size={16} />
+            </button>
+            <button className="tool-button">
+              <Edit size={16} />
             </button>
           </div>
         </div>
