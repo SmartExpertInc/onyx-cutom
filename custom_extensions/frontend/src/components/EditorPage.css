@@ -358,7 +358,7 @@
 
 .real-slide.template-split {
   background: linear-gradient(90deg, #fefefe 50%, #f8fafc 50%);
-  display: grid;
+  display: grid !important;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: start;
@@ -366,13 +366,15 @@
 
 .real-slide.template-split .slide-header {
   grid-column: 1 / -1;
+  margin-bottom: 24px;
 }
 
 .real-slide.template-split .slide-content-blocks {
-  display: grid;
+  display: grid !important;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: start;
+  grid-column: 1 / -1;
 }
 
 .split-column-left,
@@ -380,6 +382,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .real-slide.template-title {
@@ -1082,4 +1085,55 @@
     width: 200px;
     height: 200px;
   }
+}
+
+/* Content Layout Classes - Avoid Image Overlap */
+.content-layout-avoid-left .slide-content-blocks {
+  margin-left: 35%; /* Leave space for left image */
+  padding-left: 16px;
+}
+
+.content-layout-avoid-right .slide-content-blocks {
+  margin-right: 35%; /* Leave space for right image */
+  padding-right: 16px;
+}
+
+.content-layout-center-column .slide-content-blocks {
+  margin-left: 25%; /* Leave space for left image */
+  margin-right: 25%; /* Leave space for right image */
+  padding: 0 16px;
+}
+
+.content-layout-avoid-top .slide-content-blocks {
+  margin-top: 25%; /* Leave space for top banner */
+  padding-top: 16px;
+}
+
+.content-layout-avoid-bottom .slide-content-blocks {
+  margin-bottom: 25%; /* Leave space for bottom banner */
+  padding-bottom: 16px;
+}
+
+.content-layout-with-background .slide-content-blocks {
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent background for readability */
+  border-radius: 8px;
+  padding: 24px;
+  margin: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.content-layout-default .slide-content-blocks {
+  /* Default layout - no adjustments needed */
+}
+
+/* Ensure split templates don't get affected by image avoidance */
+.real-slide.template-split .slide-content-blocks {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.real-slide.template-split .split-column-left,
+.real-slide.template-split .split-column-right {
+  margin: 0;
+  padding: 0 8px;
 } 

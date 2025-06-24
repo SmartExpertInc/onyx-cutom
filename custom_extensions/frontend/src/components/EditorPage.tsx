@@ -535,6 +535,28 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     );
   };
 
+  // Function to determine content layout based on image placeholders
+  const getContentLayoutClass = (slide: DeckSlide) => {
+    if (!slide.imagePlaceholders || slide.imagePlaceholders.length === 0) {
+      return 'content-layout-default';
+    }
+
+    const hasLeftImage = slide.imagePlaceholders.some(p => p.position === 'LEFT');
+    const hasRightImage = slide.imagePlaceholders.some(p => p.position === 'RIGHT');
+    const hasTopBanner = slide.imagePlaceholders.some(p => p.position === 'TOP_BANNER');
+    const hasBottomBanner = slide.imagePlaceholders.some(p => p.position === 'BOTTOM_BANNER');
+    const hasBackground = slide.imagePlaceholders.some(p => p.position === 'BACKGROUND');
+
+    if (hasBackground) return 'content-layout-with-background';
+    if (hasLeftImage && hasRightImage) return 'content-layout-center-column';
+    if (hasLeftImage) return 'content-layout-avoid-left';
+    if (hasRightImage) return 'content-layout-avoid-right';
+    if (hasTopBanner) return 'content-layout-avoid-top';
+    if (hasBottomBanner) return 'content-layout-avoid-bottom';
+    
+    return 'content-layout-default';
+  };
+
   if (loading) {
     return (
       <div className="editor-page">
@@ -682,7 +704,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             {displayData.slides.map((slide, index) => (
               <div 
                 key={slide.slideId} 
-                className={`real-slide ${slide.deckgoTemplate ? `template-${slide.deckgoTemplate.replace('deckgo-slide-', '')}` : 'template-content'}`}
+                className={`real-slide ${slide.deckgoTemplate ? `template-${slide.deckgoTemplate.replace('deckgo-slide-', '')}` : 'template-content'} ${getContentLayoutClass(slide)}`}
                 ref={(el) => { slideRefs.current[index] = el; }}
               >
                 <div className="slide-header">
@@ -734,11 +756,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                         ))}
                       </div>
                       <div className="split-column-right">
-                        {slide.contentBlocks.slice(Math.ceil(slide.contentBlocks.length / 2)).map((block, blockIndex) => (
-                          <div key={blockIndex + Math.ceil(slide.contentBlocks.length / 2)} className="content-block">
-                            {renderContentBlock(block, index, blockIndex + Math.ceil(slide.contentBlocks.length / 2))}
-                          </div>
-                        ))}
+                        {slide.contentBlocks.slice(Math.ceil(slide.contentBlocks.length / 2)).map((block, blockIndex) => {
+                          const adjustedIndex = blockIndex + Math.ceil(slide.contentBlocks.length / 2);
+                          return (
+                            <div key={adjustedIndex} className="content-block">
+                              {renderContentBlock(block, index, adjustedIndex)}
+                            </div>
+                          );
+                        })}
                       </div>
                     </>
                   ) : (
