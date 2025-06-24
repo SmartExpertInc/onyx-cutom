@@ -503,8 +503,8 @@ export default function ProjectInstanceViewPage() {
             deck={slideDeckData} 
             isEditable={true}
             onSave={(updatedDeck) => {
+              // Update local state; actual save will occur when user clicks the Save Content button.
               setEditableData(updatedDeck);
-              handleSave();
             }}
           />
         );

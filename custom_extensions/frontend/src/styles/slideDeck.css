@@ -51,8 +51,8 @@
   --border-radius-xl: 16px;
   
   /* Slide Dimensions - 16:9 Aspect Ratio */
-  --slide-width: 1000px;
-  --slide-height: 562px; /* 1000 * 9/16 = 562.5 */
+  --slide-width: 900px;
+  --slide-height: 506px; /* 900 * 9/16 = 506.25 */
   --sidebar-width: 260px;
 }
 
@@ -797,16 +797,16 @@
 /* Responsive Design */
 @media (max-width: 1400px) {
   :root {
-    --slide-width: 900px;
-    --slide-height: 506px; /* 900 * 9/16 = 506.25 */
+    --slide-width: 810px;
+    --slide-height: 456px; /* 810 * 9/16 = 455.625 */
     --sidebar-width: 240px;
   }
 }
 
 @media (max-width: 1200px) {
   :root {
-    --slide-width: 800px;
-    --slide-height: 450px; /* 800 * 9/16 = 450 */
+    --slide-width: 720px;
+    --slide-height: 405px; /* 720 * 9/16 = 405 */
     --sidebar-width: 220px;
   }
   
