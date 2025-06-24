@@ -182,8 +182,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         }
       });
 
-      // Update active slide if we have significant visibility or if it's different
-      if (maxVisibilityRatio > 0.15 || newActiveIndex !== activeSlideIndex) {
+      // Update active slide if we have significant visibility
+      if (maxVisibilityRatio > 0.2) {
         setActiveSlideIndex(newActiveIndex);
       }
     };
@@ -198,27 +198,64 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         handleScroll();
       };
       
-      // Run initial detection immediately and with delays
-      initialDetection();
-      const timeout1 = setTimeout(initialDetection, 100);
-      const timeout2 = setTimeout(initialDetection, 300);
-      const timeout3 = setTimeout(initialDetection, 500);
+      // Run initial detection with increasing delays to catch when refs are ready
+      setTimeout(initialDetection, 100);
+      setTimeout(initialDetection, 300);
+      setTimeout(initialDetection, 500);
       
       return () => {
         container.removeEventListener('scroll', handleScroll);
-        clearTimeout(timeout1);
-        clearTimeout(timeout2);
-        clearTimeout(timeout3);
       };
     }
-  }, [slideDeckData, activeSlideIndex]);
+  }, [slideDeckData]); // Depend on slideDeckData instead of activeSlideIndex
 
-  // Initialize slide refs array
+  // Initialize slide refs array and detect initial active slide
   useEffect(() => {
     if (slideDeckData) {
       slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
-      // Reset active slide when data changes
-      setActiveSlideIndex(0);
+      
+      // Force initial scroll detection after refs are set
+      const forceInitialDetection = () => {
+        if (scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const containerTop = container.scrollTop;
+          const containerHeight = container.clientHeight;
+          const viewportTop = containerTop;
+          const viewportBottom = containerTop + containerHeight;
+
+          let newActiveIndex = 0;
+          let maxVisibilityRatio = 0;
+
+          slideRefs.current.forEach((slideRef, index) => {
+            if (slideRef) {
+              const slideTop = slideRef.offsetTop;
+              const slideHeight = slideRef.offsetHeight;
+              const slideBottom = slideTop + slideHeight;
+
+              if (slideTop < viewportBottom && slideBottom > viewportTop) {
+                const visibleTop = Math.max(slideTop, viewportTop);
+                const visibleBottom = Math.min(slideBottom, viewportBottom);
+                const visibleHeight = visibleBottom - visibleTop;
+                const visibilityRatio = visibleHeight / slideHeight;
+
+                if (visibilityRatio > maxVisibilityRatio) {
+                  maxVisibilityRatio = visibilityRatio;
+                  newActiveIndex = index;
+                }
+              }
+            }
+          });
+
+          if (maxVisibilityRatio > 0.1) {
+            setActiveSlideIndex(newActiveIndex);
+          }
+        }
+      };
+
+      // Run detection with multiple delays to ensure everything is ready
+      setTimeout(forceInitialDetection, 200);
+      setTimeout(forceInitialDetection, 500);
+      setTimeout(forceInitialDetection, 1000);
     }
   }, [slideDeckData]);
 
@@ -228,16 +265,16 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const container = scrollContainerRef.current;
     
     if (slideRef && container) {
-      // Immediately set active index for instant visual feedback
+      // Immediately set active index
       setActiveSlideIndex(index);
       
       // Calculate the scroll position relative to the container
       const slideTop = slideRef.offsetTop;
       
-      // Scroll to the slide with some offset for better visibility
-      container.scrollTo({ 
-        top: slideTop - 20, // Small offset from top
-        behavior: 'smooth' 
+      // Scroll to the slide position within the container
+      container.scrollTo({
+        top: slideTop,
+        behavior: 'smooth'
       });
     }
   };
@@ -572,10 +609,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (hasTopBanner) return 'content-layout-avoid-top';
     if (hasBottomBanner) return 'content-layout-avoid-bottom';
     
-    // Corner positions typically don't need major layout adjustments for small/medium images
-    // but we can add subtle padding if needed
-    if (hasTopLeft || hasTopRight || hasBottomLeft || hasBottomRight) {
-      return 'content-layout-with-corners';
+    // Handle corner positions more specifically
+    if (hasTopLeft || hasTopRight) {
+      return 'content-layout-with-top-corners';
+    }
+    if (hasBottomLeft || hasBottomRight) {
+      return 'content-layout-with-bottom-corners';
     }
     
     return 'content-layout-default';
