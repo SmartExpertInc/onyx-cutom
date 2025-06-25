@@ -113,16 +113,12 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
 export default function CreateFromFilesContent() {
   const {
     folders,
-    currentFolder,
     searchQuery,
-    page,
     refreshFolders,
     createFolder,
     deleteItem,
     isLoading,
-    setCurrentFolder,
     setSearchQuery,
-    setPage,
     selectedFolders,
     addSelectedFolder,
     removeSelectedFolder,
@@ -140,6 +136,10 @@ export default function CreateFromFilesContent() {
   const [isPending, startTransition] = useTransition();
   const [hoveredColumn, setHoveredColumn] = useState<SortType | null>(null);
 
+  useEffect(() => {
+    refreshFolders();
+  }, [refreshFolders]);
+
   const handleSortChange = (newSortType: SortType) => {
     if (sortType === newSortType) {
       setSortDirection(
@@ -156,8 +156,6 @@ export default function CreateFromFilesContent() {
   const handleFolderClick = (id: number) => {
     startTransition(() => {
       router.push(`/create/from-files/${id}`);
-      setPage(1);
-      setCurrentFolder(id);
     });
   };
 
@@ -207,42 +205,38 @@ export default function CreateFromFilesContent() {
           comparison = bTokens - aTokens;
         }
 
-        return sortDirection === SortDirection.Ascending
-          ? -comparison
-          : comparison;
+        return sortDirection === SortDirection.Ascending ? -comparison : comparison;
       });
   }, [folders, searchQuery, sortType, sortDirection]);
 
+  const totalSelectedFiles = selectedFolders.reduce(
+    (acc, folder) => acc + folder.files.length,
+    0
+  );
+
   const renderSortIndicator = (columnType: SortType) => {
     if (sortType !== columnType) return null;
-
     return sortDirection === SortDirection.Ascending ? (
-      <ArrowUp className="ml-1 h-3 w-3 inline" />
+      <ArrowUp className="h-3 w-3 ml-1" />
     ) : (
-      <ArrowDown className="ml-1 h-3 w-3 inline" />
+      <ArrowDown className="h-3 w-3 ml-1" />
     );
   };
 
   const renderHoverIndicator = (columnType: SortType) => {
-    if (sortType === columnType || hoveredColumn !== columnType) return null;
-
-    return <ArrowDown className="ml-1 h-3 w-3 inline opacity-70" />;
+    if (hoveredColumn !== columnType || sortType === columnType) return null;
+    return <ArrowDown className="h-3 w-3 ml-1 opacity-30" />;
   };
 
   const handleCreateFromSelected = () => {
     if (selectedFolders.length === 0) return;
-    
-    // Create URL with selected folder IDs
-    const folderIds = selectedFolders.map(f => f.id).join(',');
-    const params = new URLSearchParams({
-      fromFiles: 'true',
-      folderIds: folderIds,
-    });
+
+    const params = new URLSearchParams();
+    params.set('fromFiles', 'true');
+    params.set('folderIds', selectedFolders.map(f => f.id).join(','));
     
     router.push(`/create/generate?${params.toString()}`);
   };
-
-  const totalSelectedFiles = selectedFolders.reduce((acc, folder) => acc + folder.files.length, 0);
 
   return (
     <div className="min-h-full pt-20 w-full min-w-0 flex-1 mx-auto w-full max-w-[90rem] flex-1 px-4 pb-20 md:pl-8 md:pr-8 2xl:pr-14">

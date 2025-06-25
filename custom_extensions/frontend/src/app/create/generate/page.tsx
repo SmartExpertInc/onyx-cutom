@@ -1,7 +1,7 @@
 "use client";
 // @ts-nocheck
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, ChevronDown, FileText } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -104,7 +104,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
   </button>
 );
 
-export default function GenerateProductPicker() {
+function GenerateProductPicker() {
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
@@ -674,5 +674,31 @@ export default function GenerateProductPicker() {
         </div>
       </div>
     </main>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <main className="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3 mb-8"></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-28 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <GenerateProductPicker />
+    </Suspense>
   );
 } 

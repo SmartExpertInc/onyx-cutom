@@ -5,15 +5,17 @@ import { DocumentsProvider } from "../../../../components/documents/DocumentsCon
 import CreateFromFolderContent from "./CreateFromFolderContent";
 
 interface CreateFromFolderPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function CreateFromFolderPage({ params }: CreateFromFolderPageProps) {
+export default async function CreateFromFolderPage({ params }: CreateFromFolderPageProps) {
+  const resolvedParams = await params;
+  
   return (
     <DocumentsProvider>
-      <CreateFromFolderContent folderId={parseInt(params.id)} />
+      <CreateFromFolderContent folderId={parseInt(resolvedParams.id)} />
     </DocumentsProvider>
   );
 } 
