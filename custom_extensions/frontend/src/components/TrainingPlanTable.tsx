@@ -181,42 +181,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const themeConfig = {
     cherry: {
       courseHeaderBg: "#1e2939", // main course header background (current gray-800)
-      moduleHeaderBg: "#ffffff", // module headers background (white)
+      moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600", // current gray
       iconColor: "#FF1414", // current red
     },
     lunaria: {
       courseHeaderBg: "#85749E", // main course header background (purple)
-      moduleHeaderBg: "#ffffff", // module headers background (white)
+      moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on purple background
       numberColor: "text-white",
       iconColor: "#85749E", // same as course header
     },
     wine: {
       courseHeaderBg: "#1e2939", // main course header background (current gray-800)
-      moduleHeaderBg: "#ffffff", // module headers background (white)
+      moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     vanilla: {
       courseHeaderBg: "#1e2939", // main course header background (current gray-800)
-      moduleHeaderBg: "#ffffff", // module headers background (white)
+      moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     terracotta: {
       courseHeaderBg: "#1e2939", // main course header background (current gray-800)
-      moduleHeaderBg: "#ffffff", // module headers background (white)
+      moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     zephyr: {
       courseHeaderBg: "#1e2939", // main course header background (current gray-800)
-      moduleHeaderBg: "#ffffff", // module headers background (white)
+      moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
