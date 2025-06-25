@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Upload,
   Plus,
+  Home as HomeIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FileResponse } from "../../../../components/documents/DocumentsContext";
@@ -109,12 +110,20 @@ const UploadProgressDisplay: React.FC<{
           </div>
         </div>
         <div className="text-left">
-          <p className="text-xl font-semibold text-gray-900">Uploading Files</p>
+          <p className="text-xl font-semibold text-gray-900">
+            {percentage >= 70 && percentage < 100 ? "Indexing Files" : "Uploading Files"}
+          </p>
           <p className="text-sm text-gray-600">
-            Processing: {currentFileName}
+            {percentage >= 70 && percentage < 100 
+              ? "Processing and indexing documents..." 
+              : `Processing: ${currentFileName}`
+            }
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            {completedCount} of {fileCount} files completed
+            {percentage >= 70 
+              ? "Files are being prepared for use"
+              : `${completedCount} of ${fileCount} files completed`
+            }
           </p>
         </div>
       </div>
@@ -132,7 +141,12 @@ const UploadProgressDisplay: React.FC<{
       <div className="text-center">
         <span className="text-lg font-medium text-blue-600">{percentage}%</span>
         <p className="text-sm text-gray-600 mt-1">
-          {percentage === 100 ? 'Finalizing upload...' : 'Indexing and processing documents'}
+          {percentage === 100 
+            ? 'Upload and indexing complete!' 
+            : percentage >= 70 
+            ? 'Indexing documents for AI processing...'
+            : 'Uploading and processing documents'
+          }
         </p>
       </div>
     </div>
@@ -270,27 +284,39 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
   if (isLoading && !folderDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
-        <div className="flex justify-center items-center h-64">
+      <main
+        className="min-h-screen flex flex-col"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="flex justify-center items-center flex-1">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-700 font-medium">Loading folder...</p>
-            <p className="text-gray-600 text-sm mt-1">Preparing your documents</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
+            <p className="text-gray-700 font-semibold text-lg">Loading folder...</p>
+            <p className="text-gray-600 text-sm mt-2">Fetching your documents from Onyx</p>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
-        <div className="flex justify-center items-center h-64">
+      <main
+        className="min-h-screen flex flex-col"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="flex justify-center items-center flex-1">
           <div className="text-center">
             <p className="text-red-600 font-medium">Error: {error}</p>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -307,39 +333,80 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   }
 
   const readyFiles = folderFiles.filter(f => f.status === 'indexed' || f.indexed === true);
+  const processingFiles = folderFiles.filter(f => f.status === 'indexing' || f.status === 'processing');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-            <Link href="/create" className="hover:text-gray-900">Create</Link>
-            <ChevronRight className="h-4 w-4" />
-            <Link href="/create/from-files" className="hover:text-gray-900">From Files</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-gray-900">{currentFolder.name}</span>
+    <main
+      className="min-h-screen flex flex-col"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+      }}
+    >
+      {/* Upload Progress Overlay */}
+      {uploadProgress && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+            <UploadProgressDisplay {...uploadProgress} />
           </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{currentFolder.name}</h1>
-              {currentFolder.description && (
-                <p className="text-gray-600 mt-1">{currentFolder.description}</p>
-              )}
-            </div>
+        </div>
+      )}
+
+      {/* Header - removed white background */}
+      <div className="p-6 pb-0">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center text-sm text-gray-600 mb-6">
+          <Link
+            href="/projects"
+            className="flex items-center hover:text-gray-900 transition-colors"
+          >
+            <HomeIcon className="h-4 w-4" />
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
+          <Link
+            href="/create"
+            className="hover:text-gray-900 transition-colors"
+          >
+            Create
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
+          <Link
+            href="/create/from-files"
+            className="hover:text-gray-900 transition-colors"
+          >
+            Browse Files
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
+          <span className="text-gray-900 font-medium">
+            {currentFolder?.name || "Folder"}
+          </span>
+        </nav>
+
+        {/* Header Content */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
             <Link
               href="/create/from-files"
-              className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Back
+              <ArrowLeft className="h-5 w-5" />
+              Back to Folders
             </Link>
           </div>
+        </div>
+
+        <div className="flex flex-col gap-2 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {currentFolder?.name || "Folder"}
+          </h1>
+          <p className="text-gray-600">
+            Select files to create educational content from your documents
+          </p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="flex-1 px-6 pb-6">
         {/* File Upload Section */}
         <div className="mb-8">
           <div 
@@ -461,7 +528,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -82,6 +82,7 @@ export interface DocumentsContextType {
   ) => Promise<void>;
   uploadFile: (formData: FormData, folderId: number | null) => Promise<FileResponse[]>;
   handleUpload: (files: File[]) => Promise<void>;
+  getFilesIndexingStatus: (fileIds: number[]) => Promise<Record<number, boolean>>;
 }
 
 // Optimized documents service similar to Onyx's implementation
@@ -280,9 +281,43 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     return data;
   };
 
+  const getFilesIndexingStatus = async (fileIds: number[]): Promise<Record<number, boolean>> => {
+    try {
+      const queryParams = fileIds.map((id) => `file_ids=${id}`).join("&");
+      const response = await fetch(`/api/user/file/indexing-status?${queryParams}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch indexing status");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching indexing status:", error);
+      return {};
+    }
+  };
+
+  const waitForIndexing = async (fileIds: number[]): Promise<void> => {
+    const maxAttempts = 60; // Wait up to 5 minutes (60 * 5 seconds)
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      const indexingStatus = await getFilesIndexingStatus(fileIds);
+      const allIndexed = fileIds.every(id => indexingStatus[id] === true);
+      
+      if (allIndexed) {
+        return;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+      attempts++;
+    }
+  };
+
   const handleUpload = async (files: File[]) => {
     const totalFiles = files.length;
     let completedFiles = 0;
+    const uploadedFileIds: number[] = [];
 
     setUploadProgress({
       fileCount: totalFiles,
@@ -292,6 +327,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     });
 
     try {
+      // Upload all files first
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
@@ -299,26 +335,45 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
           fileCount: totalFiles,
           completedCount: completedFiles,
           currentFileName: file.name,
-          percentage: Math.round((i / totalFiles) * 100),
+          percentage: Math.round(((i / totalFiles) * 70)), // 70% for upload phase
         });
 
         const formData = new FormData();
         formData.append("files", file);
-        // Use folderDetails?.id first, then fallback to currentFolder
         const targetFolderId = folderDetails?.id || currentFolder;
         
         if (targetFolderId) {
           formData.append("folder_id", targetFolderId.toString());
         }
 
-        await uploadFile(formData, targetFolderId);
+        const uploadedFiles = await uploadFile(formData, targetFolderId);
+        uploadedFileIds.push(...uploadedFiles.map(f => f.id));
         completedFiles++;
 
         setUploadProgress({
           fileCount: totalFiles,
           completedCount: completedFiles,
           currentFileName: file.name,
-          percentage: Math.round((completedFiles / totalFiles) * 100),
+          percentage: Math.round(((completedFiles / totalFiles) * 70)), // 70% for upload phase
+        });
+      }
+
+      // Now wait for indexing to complete
+      if (uploadedFileIds.length > 0) {
+        setUploadProgress({
+          fileCount: totalFiles,
+          completedCount: totalFiles,
+          currentFileName: "Indexing files...",
+          percentage: 80,
+        });
+
+        await waitForIndexing(uploadedFileIds);
+
+        setUploadProgress({
+          fileCount: totalFiles,
+          completedCount: totalFiles,
+          currentFileName: "Finalizing...",
+          percentage: 100,
         });
       }
 
@@ -402,6 +457,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
         updateFolderDetails,
         uploadFile,
         handleUpload,
+        getFilesIndexingStatus,
       }}
     >
       {children}

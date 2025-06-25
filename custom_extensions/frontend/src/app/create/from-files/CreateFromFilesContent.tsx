@@ -11,6 +11,8 @@ import {
   ArrowLeft,
   CheckCircle2,
   X,
+  ChevronRight,
+  Home as HomeIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FolderResponse } from "../../../components/documents/DocumentsContext";
@@ -228,7 +230,7 @@ const CreateFolderModal: React.FC<{
 
 export default function CreateFromFilesContent() {
   const router = useRouter();
-  const { folders, selectedFolders, addSelectedFolder, removeSelectedFolder, clearSelectedItems, isLoading, refreshFolders, createFolder } = useDocumentsContext();
+  const { folders, selectedFolders, addSelectedFolder, removeSelectedFolder, clearSelectedItems, isLoading, refreshFolders, createFolder, error } = useDocumentsContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortType, setSortType] = useState<SortType>(SortType.TimeCreated);
   const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.Descending);
@@ -322,39 +324,92 @@ export default function CreateFromFilesContent() {
     await createFolder(name, description);
   };
 
+  if (isLoading) {
+    return (
+      <main
+        className="min-h-screen flex flex-col"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="flex justify-center items-center flex-1">
+          <SkeletonLoader />
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main
+        className="min-h-screen flex flex-col"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="flex justify-center items-center flex-1">
+          <div className="text-center">
+            <p className="text-red-600 font-medium">Error: {error}</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main 
-      className="min-h-screen relative overflow-hidden"
+    <main
+      className="min-h-screen flex flex-col"
       style={{
         background:
           "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
       }}
     >
-      <div className="min-h-full pt-20 w-full min-w-0 flex-1 mx-auto w-full max-w-[90rem] flex-1 px-4 pb-20 md:pl-8 md:pr-8 2xl:pr-14">
-        {/* Back button */}
-        <div className="absolute top-4 left-4">
+      {/* Header */}
+      <div className="p-6 pb-0">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center text-sm text-gray-600 mb-6">
+          <Link
+            href="/projects"
+            className="flex items-center hover:text-gray-900 transition-colors"
+          >
+            <HomeIcon className="h-4 w-4" />
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
           <Link
             href="/create"
-            className="flex items-center gap-1 text-sm font-medium bg-white/70 hover:bg-white text-gray-900 backdrop-blur rounded-full px-3 py-1 shadow border border-gray-200"
+            className="hover:text-gray-900 transition-colors"
           >
-            <ArrowLeft size={14} />
-            Back to Create
+            Create
           </Link>
+          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
+          <span className="text-gray-900 font-medium">Browse Files</span>
+        </nav>
+
+        {/* Header Content */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/create"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              Back to Create
+            </Link>
+          </div>
         </div>
 
-        <header className="flex w-full items-center justify-between gap-4 -translate-y-px">
-          <div>
-            <h1 className="flex items-center gap-1.5 text-2xl font-bold leading-tight tracking-tight max-md:hidden text-gray-900">
-              Create from Files
-            </h1>
-            <p className="text-sm text-gray-700 mt-1">
-              Select folders containing documents to create content from
-            </p>
-          </div>
+        <div className="flex flex-col gap-2 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Browse Your Files</h1>
+          <p className="text-gray-600">
+            Select folders containing the documents you want to use for creating educational content
+          </p>
+        </div>
+      </div>
 
-      </header>
-
-      <main className="mt-8">
+      {/* Content */}
+      <div className="flex-1 px-6 pb-6">
         {/* Search bar and Create Folder button */}
         <div className="flex items-center justify-between mb-6">
           <div className="relative w-full max-w-md">
@@ -443,9 +498,7 @@ export default function CreateFromFilesContent() {
         </div>
 
         <div className="flex-grow">
-          {isLoading ? (
-            <SkeletonLoader />
-          ) : filteredFolders.length > 0 ? (
+          {filteredFolders.length > 0 ? (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="flex flex-col">
                 {filteredFolders.map((folder) => (
@@ -488,7 +541,7 @@ export default function CreateFromFilesContent() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Create folder modal */}
       {isCreatingFolder && (
@@ -539,7 +592,6 @@ export default function CreateFromFilesContent() {
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateFolder}
       />
-      </div>
     </main>
   );
 } 
