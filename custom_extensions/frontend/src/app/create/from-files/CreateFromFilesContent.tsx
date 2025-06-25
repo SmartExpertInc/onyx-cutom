@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   FolderOpen,
@@ -10,7 +10,6 @@ import {
   ArrowDown,
   ArrowLeft,
   CheckCircle2,
-  Upload,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,15 +26,68 @@ enum SortDirection {
   Descending = "desc",
 }
 
-const SkeletonLoader = () => (
-  <div className="flex justify-center items-center w-full h-64">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-700 font-medium">Loading folders...</p>
-      <p className="text-gray-600 text-sm mt-1">Getting your documents ready</p>
+const SkeletonLoader = () => {
+  const [loadingText, setLoadingText] = useState("Loading folders...");
+  const [dots, setDots] = useState("");
+  
+  useEffect(() => {
+    const textOptions = [
+      "Loading folders...",
+      "Fetching your documents...",
+      "Organizing your content...",
+      "Almost ready...",
+      "Getting everything in order..."
+    ];
+    
+    const textInterval = setInterval(() => {
+      setLoadingText(textOptions[Math.floor(Math.random() * textOptions.length)]);
+    }, 2000);
+    
+    const dotsInterval = setInterval(() => {
+      setDots(prev => prev.length >= 3 ? "" : prev + ".");
+    }, 500);
+    
+    return () => {
+      clearInterval(textInterval);
+      clearInterval(dotsInterval);
+    };
+  }, []);
+  
+  return (
+    <div className="flex justify-center items-center w-full h-64">
+      <div className="text-center max-w-md">
+        <div className="relative mb-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-pulse">📁</div>
+          </div>
+        </div>
+        <p className="text-gray-700 font-medium text-lg mb-2">{loadingText}{dots}</p>
+        <p className="text-gray-600 text-sm mb-4">Preparing your document workspace</p>
+        
+        {/* Progress bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+          <div 
+            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+            style={{ 
+              width: '70%',
+              animation: 'progressPulse 2s ease-in-out infinite'
+            }}
+          ></div>
+        </div>
+        <p className="text-xs text-gray-500">This usually takes just a moment</p>
+        
+        <style jsx>{`
+          @keyframes progressPulse {
+            0% { width: 20%; }
+            50% { width: 80%; }
+            100% { width: 70%; }
+          }
+        `}</style>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Enhanced folder item component for creation workflow
 interface CreateFolderItemProps {
@@ -57,6 +109,24 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
   isSelected,
   onToggleSelect,
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
+  };
+  
+  const confirmDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete();
+    setShowDeleteConfirm(false);
+  };
+  
+  const cancelDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(false);
+  };
+  
   return (
     <div 
       className={`flex items-center justify-between py-3 px-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
@@ -102,6 +172,31 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
             'Select'
           )}
         </button>
+        
+        {showDeleteConfirm ? (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={confirmDelete}
+              className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={cancelDelete}
+              className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleDelete}
+            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+            title="Delete folder"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );
@@ -249,16 +344,16 @@ export default function CreateFromFilesContent() {
     SortDirection.Descending
   );
 
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const [hoveredColumn, setHoveredColumn] = useState<SortType | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
-    refreshFolders();
-  }, [refreshFolders]);
+    if (!folders || folders.length === 0) {
+      refreshFolders();
+    }
+  }, []);
 
   const handleSortChange = (newSortType: SortType) => {
     if (sortType === newSortType) {
@@ -274,20 +369,15 @@ export default function CreateFromFilesContent() {
   };
 
   const handleFolderClick = (id: number) => {
-    startTransition(() => {
-      router.push(`/create/from-files/${id}`);
-    });
+    router.push(`/create/from-files/${id}`);
   };
 
-
-
   const handleDeleteItem = async (itemId: number, isFolder: boolean) => {
-    if (confirm(`Are you sure you want to delete this ${isFolder ? 'folder' : 'file'}?`)) {
-      try {
-        await deleteItem(itemId, isFolder);
-      } catch (error) {
-        console.error("Failed to delete item:", error);
-      }
+    try {
+      await deleteItem(itemId, isFolder);
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+      alert("Failed to delete item. Please try again.");
     }
   };
 

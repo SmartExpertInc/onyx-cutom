@@ -176,14 +176,22 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
   };
 
   const deleteItem = async (itemId: number, isFolder: boolean) => {
-    const endpoint = isFolder
-      ? `/api/user/folder/${itemId}`
-      : `/api/user/file/${itemId}`;
-    const response = await fetch(endpoint, { method: "DELETE" });
-    if (!response.ok) {
-      throw new Error(`Failed to delete ${isFolder ? "folder" : "file"}`);
+    try {
+      const endpoint = isFolder
+        ? `/api/user/folder/${itemId}`
+        : `/api/user/file/${itemId}`;
+      const response = await fetch(endpoint, { method: "DELETE" });
+      if (!response.ok) {
+        throw new Error(`Failed to delete ${isFolder ? "folder" : "file"}`);
+      }
+      await refreshFolders();
+      if (folderDetails) {
+        await getFolderDetails(folderDetails.id);
+      }
+    } catch (error) {
+      console.error(`Failed to delete ${isFolder ? "folder" : "file"}:`, error);
+      throw error;
     }
-    await refreshFolders();
   };
 
   const renameFile = async (fileId: number, newName: string) => {
@@ -256,22 +264,32 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
   const handleUpload = async (files: File[]) => {
     try {
-      setIsLoading(true);
       const formData = new FormData();
       files.forEach((file) => {
         formData.append("files", file);
       });
+      
+      if (folderDetails && folderDetails.id !== -1) {
+        formData.append("folder_id", folderDetails.id.toString());
+      }
 
-      await uploadFile(formData, folderDetails?.id || null);
+      const response = await fetch("/api/user/file", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to upload files");
+      }
+
       await refreshFolders();
-      if (folderDetails?.id) {
+      if (folderDetails) {
         await getFolderDetails(folderDetails.id);
       }
     } catch (error) {
-      console.error("Error uploading documents:", error);
-      setError("Failed to upload documents. Please try again.");
-    } finally {
-      setIsLoading(false);
+      console.error("Upload failed:", error);
+      throw error;
     }
   };
 
