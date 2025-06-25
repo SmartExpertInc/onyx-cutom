@@ -383,22 +383,12 @@
 .real-slide.template-title .content-headline,
 .real-slide.template-title .content-paragraph {
   color: white !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
 }
 
-/* Template Badge */
-.template-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #1e40af;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  z-index: 10;
-}
+
 
 /* Image Placeholders */
 .slide-image-placeholders {
@@ -503,15 +493,15 @@
 
 .placeholder-top-banner {
   top: 20px;
-  left: 20px;
-  right: 20px;
+  left: 10px;
+  right: 10px;
   height: 160px; /* 2x bigger: 80px * 2 */
 }
 
 .placeholder-bottom-banner {
   bottom: 20px;
-  left: 20px;
-  right: 20px;
+  left: 10px;
+  right: 10px;
   height: 160px; /* 2x bigger: was smaller, now 160px */
 }
 
@@ -1134,6 +1124,14 @@
   margin: 8px;
 }
 
+.content-layout-with-corner-sides-only .slide-content-blocks {
+  /* Only apply side restrictions, no top/bottom margins for corner images */
+  padding: 16px 24px;
+  margin-left: 8px;
+  margin-right: 8px;
+  /* No top or bottom margins */
+}
+
 .content-layout-with-top-corners .slide-content-blocks {
   margin-top: 170px !important; /* Increased to 170px as requested */
   padding: 16px 24px;
@@ -1175,13 +1173,4 @@
   margin: 8px;
 }
 
-/* Title slide text contrast - make text black with better background */
-.real-slide.template-title .content-headline,
-.real-slide.template-title .content-paragraph {
-  color: #000000 !important; /* Black text */
-  /* Removed white background - only grey backdrop remains */
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
-  backdrop-filter: blur(4px) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-} 
+ 

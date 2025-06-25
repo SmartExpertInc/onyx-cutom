@@ -578,14 +578,24 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (hasTopBanner) return 'content-layout-avoid-top';
     if (hasBottomBanner) return 'content-layout-avoid-bottom';
     
-    // Handle corner positions more specifically
+    // Handle corner positions - only apply top margin when both text and image are on same side
+    // For split template or when text is on left and corner image is on right (or vice versa),
+    // don't apply top margin, just side restriction
     if (hasTopLeft || hasTopRight) {
-      const layoutClass = 'content-layout-with-top-corners';
-      return layoutClass;
+      // Check if this is a split template - if so, apply top margin
+      if (slide.deckgoTemplate === 'deckgo-slide-split') {
+        return 'content-layout-with-top-corners';
+      }
+      // For non-split templates, just apply side restrictions without top margin
+      return 'content-layout-with-corner-sides-only';
     }
     if (hasBottomLeft || hasBottomRight) {
-      const layoutClass = 'content-layout-with-bottom-corners';
-      return layoutClass;
+      // Check if this is a split template - if so, apply bottom margin
+      if (slide.deckgoTemplate === 'deckgo-slide-split') {
+        return 'content-layout-with-bottom-corners';
+      }
+      // For non-split templates, just apply side restrictions without bottom margin
+      return 'content-layout-with-corner-sides-only';
     }
     
     return 'content-layout-default';
@@ -741,11 +751,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                 className={`real-slide ${slide.deckgoTemplate ? `template-${slide.deckgoTemplate.replace('deckgo-slide-', '')}` : 'template-content'} ${getContentLayoutClass(slide)}`}
                 ref={(el) => { slideRefs.current[index] = el; }}
               >
-                {slide.deckgoTemplate && (
-                  <div className="template-badge">
-                    {slide.deckgoTemplate.replace('deckgo-slide-', '').toUpperCase()}
-                  </div>
-                )}
+
                 
                 {/* Image Placeholders */}
                 {slide.imagePlaceholders && slide.imagePlaceholders.length > 0 && (
