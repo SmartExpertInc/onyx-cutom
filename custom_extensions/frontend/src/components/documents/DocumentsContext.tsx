@@ -232,7 +232,9 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
   const getFolderDetails = useCallback(async (folderId: number) => {
     try {
+      console.log('Fetching folder details for:', folderId);
       const data = await new DocumentsService().getFolderDetails(folderId);
+      console.log('Received folder data:', data.files?.map(f => ({ name: f.name, status: f.status })));
       setFolderDetails(data);
       setError(null);
     } catch (error) {

@@ -28,9 +28,10 @@ interface FileItemProps {
 // Component for file status badge with spinner for indexing
 const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
   // Determine display status based on backend status
-  const isReady = file.status === 'INDEXED' || file.indexed === true;
-  const isProcessing = file.status === 'INDEXING' || file.status === 'REINDEXING';
-  const isFailed = file.status === 'FAILED';
+  const status = file.status?.toUpperCase();
+  const isReady = status === 'INDEXED' || file.indexed === true;
+  const isProcessing = status === 'INDEXING' || status === 'REINDEXING' || status === 'PROCESSING';
+  const isFailed = status === 'FAILED';
 
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -74,8 +75,8 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
     }
   };
 
-  const isFileReady = file.status === 'INDEXED' || file.status === 'indexed' || file.indexed === true;
-  const isFileProcessing = file.status === 'INDEXING' || file.status === 'REINDEXING';
+  const isFileReady = file.status?.toUpperCase() === 'INDEXED' || file.indexed === true;
+  const isFileProcessing = ['INDEXING', 'REINDEXING', 'PROCESSING'].includes(file.status?.toUpperCase() || '');
 
   return (
     <div 
@@ -181,22 +182,52 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const currentFolder = folderDetails || folders?.find(f => f.id === folderId);
-  const folderFiles = currentFolder?.files || files?.filter(f => f.folder_id === folderId) || [];
+  const currentFolder = folderDetails;
+  const folderFiles = currentFolder?.files || [];
+
+  console.log('Current folder:', currentFolder?.name, 'Files count:', folderFiles.length);
+  console.log('Folder files status:', folderFiles.map(f => ({ name: f.name, status: f.status, indexed: f.indexed })));
+
+  // Auto-refresh folder details when files are processing
+  useEffect(() => {
+    const processingFiles = folderFiles.filter(f => {
+      const status = f.status?.toUpperCase();
+      return status === 'INDEXING' || status === 'REINDEXING' || status === 'PROCESSING';
+    });
+
+    console.log('Processing files found:', processingFiles.length, processingFiles.map(f => ({ name: f.name, status: f.status })));
+
+    if (processingFiles.length > 0) {
+      console.log('Starting polling for processing files...');
+      const interval = setInterval(async () => {
+        try {
+          console.log('Polling for folder updates...');
+          await getFolderDetails(folderId);
+        } catch (error) {
+          console.error('Error refreshing folder details:', error);
+        }
+      }, 3000); // Check every 3 seconds
+
+      return () => {
+        console.log('Stopping polling for processing files');
+        clearInterval(interval);
+      };
+    } else {
+      console.log('No processing files, not starting polling');
+    }
+  }, [folderFiles, folderId, getFolderDetails]);
 
   useEffect(() => {
-    // Set the current folder in the context
-    setCurrentFolder(folderId);
-    
-    // Only fetch if we don't have the folder details already
-    if (!folderDetails || folderDetails.id !== folderId) {
+    if (folderId && (!folderDetails || folderDetails.id !== folderId)) {
+      setCurrentFolder(folderId);
       getFolderDetails(folderId);
     }
   }, [folderId, setCurrentFolder, getFolderDetails, folderDetails]);
 
   const handleToggleFile = (fileId: number) => {
     const file = folderFiles.find(f => f.id === fileId);
-    const isFileReady = file && (file.status === 'INDEXED' || file.status === 'indexed' || file.indexed === true);
+    const status = file?.status?.toUpperCase();
+    const isFileReady = file && (status === 'INDEXED' || file.indexed === true);
     
     if (!isFileReady) return; // Don't allow selection of non-ready files
     
@@ -348,7 +379,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   }
 
   const readyFiles = folderFiles.filter(f => 
-    f.status === 'INDEXED' || f.status === 'indexed' || f.indexed === true
+    f.status?.toUpperCase() === 'INDEXED' || f.indexed === true
   );
 
   return (
@@ -412,9 +443,17 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
         </div>
 
         <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {currentFolder?.name || "Folder"}
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {currentFolder?.name || "Folder"}
+            </h1>
+            <button
+              onClick={() => getFolderDetails(folderId)}
+              className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            >
+              Refresh
+            </button>
+          </div>
           <p className="text-gray-600">
             Select files to create educational content from your documents
           </p>
