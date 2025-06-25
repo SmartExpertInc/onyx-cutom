@@ -303,7 +303,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
         });
 
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("files", file);
         // Use folderDetails?.id first, then fallback to currentFolder
         const targetFolderId = folderDetails?.id || currentFolder;
         
