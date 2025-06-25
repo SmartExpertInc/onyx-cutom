@@ -2948,8 +2948,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 
             project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
 
-            # --- Patch theme into DB if provided ---
-            if payload.theme:
+            # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+            if payload.theme and selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
                 async with pool.acquire() as conn:
                     await conn.execute(
                         """
@@ -3062,20 +3062,23 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         onyx_user_id_current = await get_current_onyx_user_id(request)
         project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
 
-        # Patch theme if provided
+        # Patch theme if provided (only for TrainingPlan components)
         if payload.theme:
+            # Get the design template to check component type
             async with pool.acquire() as conn:
-                await conn.execute(
-                    """
-                    UPDATE projects
-                    SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
-                    WHERE id = $2
-                    """,
-                    payload.theme, project_db_fb.id
-                )
-                row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
-                if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
-                    project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
+                design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id_fallback)
+                if design_template and design_template["component_name"] == COMPONENT_NAME_TRAINING_PLAN:
+                    await conn.execute(
+                        """
+                        UPDATE projects
+                        SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                        WHERE id = $2
+                        """,
+                        payload.theme, project_db_fb.id
+                    )
+                    row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
+                    if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
+                        project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
 
         yield project_db_fb.model_dump_json().encode()
 
