@@ -79,7 +79,7 @@ async def generate_pdf_from_html_template(
             logger.info(f"PDF GEN Context Data['details']['details'] Type: {type(context_data.get('details', {}).get('details'))}")
             if isinstance(context_data.get('details', {}).get('details'), dict):
                 logger.info(f"PDF GEN ContentBlocks Type: {type(context_data.get('details', {}).get('details', {}).get('contentBlocks'))}")
-        html_content = template.render(details=context_data) # Pass data as 'details' to match template
+        html_content = template.render(**context_data) # Pass context_data as keyword arguments to template
         logger.info("HTML content rendered from template.")
     except Exception as e:
         logger.error(f"Error rendering HTML template '{template_name}': {e}", exc_info=True)
