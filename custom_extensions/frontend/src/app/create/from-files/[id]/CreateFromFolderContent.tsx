@@ -27,38 +27,10 @@ interface FileItemProps {
 
 // Component for file status badge with spinner for indexing
 const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
-  const [localStatus, setLocalStatus] = useState<'ready' | 'processing' | 'failed' | null>(null);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-
-    // If file is already indexed, show ready immediately
-    if (file.status === 'indexed' || file.indexed === true) {
-      setLocalStatus('ready');
-    } 
-    // If file failed, show failed
-    else if (file.status === 'failed') {
-      setLocalStatus('failed');
-    }
-    // If file is processing/indexing, show processing for 5 seconds then ready
-    else if (file.status === 'indexing' || file.status === 'processing') {
-      setLocalStatus('processing');
-      timeout = setTimeout(() => {
-        setLocalStatus('ready');
-      }, 5000); // 5 seconds
-    }
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [file.id, file.status, file.indexed]);
-
-  // Determine display status
-  const isReady = localStatus === 'ready' || file.status === 'indexed' || file.indexed === true;
-  const isProcessing = localStatus === 'processing' && !isReady;
-  const isFailed = localStatus === 'failed' || file.status === 'failed';
+  // Determine display status based on backend status
+  const isReady = file.status === 'INDEXED' || file.indexed === true;
+  const isProcessing = file.status === 'INDEXING' || file.status === 'REINDEXING';
+  const isFailed = file.status === 'FAILED';
 
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -102,14 +74,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
     }
   };
 
+  const isFileReady = file.status === 'INDEXED' || file.status === 'indexed' || file.indexed === true;
+  const isFileProcessing = file.status === 'INDEXING' || file.status === 'REINDEXING';
+
   return (
     <div 
-      className={`p-4 border rounded-lg cursor-pointer transition-all ${
-        isSelected 
-          ? 'border-blue-500 bg-blue-50' 
-          : 'border-gray-200 hover:border-gray-300 bg-white'
+      className={`p-4 border rounded-lg transition-all ${
+        isFileReady 
+          ? (isSelected 
+              ? 'border-blue-500 bg-blue-50 cursor-pointer' 
+              : 'border-gray-200 hover:border-gray-300 bg-white cursor-pointer')
+          : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-75'
       }`}
-      onClick={onToggleSelect}
+      onClick={isFileReady ? onToggleSelect : undefined}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1">
@@ -119,14 +96,19 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
             <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
               {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} tokens</span>}
               <FileStatusBadge file={file} />
+              {isFileProcessing && <span className="text-xs text-gray-400">Please wait...</span>}
             </div>
           </div>
         </div>
         <div className="flex-shrink-0">
-          {isSelected ? (
-            <CheckCircle2 className="h-5 w-5 text-blue-500" />
+          {isFileReady ? (
+            isSelected ? (
+              <CheckCircle2 className="h-5 w-5 text-blue-500" />
+            ) : (
+              <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
+            )
           ) : (
-            <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
+            <div className="h-5 w-5 border-2 border-gray-200 rounded-full bg-gray-100" />
           )}
         </div>
       </div>
@@ -151,9 +133,9 @@ const UploadProgressDisplay: React.FC<{
           </div>
         </div>
         <div className="text-left">
-          <p className="text-xl font-semibold text-gray-900">Uploading Files</p>
+          <p className="text-xl font-semibold text-gray-900">Processing Files</p>
           <p className="text-sm text-gray-600">
-            Processing: {currentFileName}
+            Uploading & indexing: {currentFileName}
           </p>
           <p className="text-xs text-gray-500 mt-1">
             {completedCount} of {fileCount} files completed
@@ -174,7 +156,7 @@ const UploadProgressDisplay: React.FC<{
       <div className="text-center">
         <span className="text-lg font-medium text-blue-600">{percentage}%</span>
         <p className="text-sm text-gray-600 mt-1">
-          {percentage === 100 ? 'Upload complete!' : 'Uploading and processing documents'}
+          {percentage === 100 ? 'Processing complete! Files are ready.' : 'Uploading and indexing documents...'}
         </p>
       </div>
     </div>
@@ -213,6 +195,11 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   }, [folderId, setCurrentFolder, getFolderDetails, folderDetails]);
 
   const handleToggleFile = (fileId: number) => {
+    const file = folderFiles.find(f => f.id === fileId);
+    const isFileReady = file && (file.status === 'INDEXED' || file.status === 'indexed' || file.indexed === true);
+    
+    if (!isFileReady) return; // Don't allow selection of non-ready files
+    
     setSelectedFileIds(prev => 
       prev.includes(fileId) 
         ? prev.filter(id => id !== fileId)
@@ -360,7 +347,9 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
     );
   }
 
-  const readyFiles = folderFiles.filter(f => f.status === 'indexed' || f.indexed === true);
+  const readyFiles = folderFiles.filter(f => 
+    f.status === 'INDEXED' || f.status === 'indexed' || f.indexed === true
+  );
 
   return (
     <main
@@ -461,6 +450,9 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                 <p className="text-gray-600 mb-4">
                   Drag and drop files here, or click to select files
                 </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  Files will be automatically processed and indexed for content creation
+                </p>
                 <button
                   onClick={handleFileSelect}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -489,6 +481,11 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                 <h2 className="text-lg font-semibold text-gray-900">Files in this folder</h2>
                 <p className="text-sm text-gray-600 mt-1">
                   {folderFiles.length} total files, {readyFiles.length} ready for content creation
+                  {folderFiles.length > readyFiles.length && (
+                    <span className="text-yellow-600 ml-1">
+                      ({folderFiles.length - readyFiles.length} still processing)
+                    </span>
+                  )}
                 </p>
               </div>
               {readyFiles.length > 0 && (

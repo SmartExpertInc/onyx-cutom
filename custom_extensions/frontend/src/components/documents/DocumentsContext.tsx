@@ -313,37 +313,62 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     });
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      // Upload all files in smaller batches for better progress feedback
+      const batchSize = 3; // Process 3 files at a time
+      for (let i = 0; i < files.length; i += batchSize) {
+        const batch = files.slice(i, i + batchSize);
         
+        // Update progress for current batch
         setUploadProgress({
           fileCount: totalFiles,
           completedCount: completedFiles,
-          currentFileName: file.name,
+          currentFileName: batch[0]?.name || "",
           percentage: Math.round((i / totalFiles) * 100),
         });
 
-        const formData = new FormData();
-        formData.append("files", file);
-        const targetFolderId = folderDetails?.id || currentFolder;
-        
-        if (targetFolderId) {
-          formData.append("folder_id", targetFolderId.toString());
-        }
+        // Process batch in parallel
+        const batchPromises = batch.map(async (file) => {
+          const formData = new FormData();
+          formData.append("files", file);
+          const targetFolderId = folderDetails?.id || currentFolder;
+          
+          if (targetFolderId) {
+            formData.append("folder_id", targetFolderId.toString());
+          }
 
-        await uploadFile(formData, targetFolderId);
-        completedFiles++;
+          return uploadFile(formData, targetFolderId);
+        });
 
+        await Promise.all(batchPromises);
+        completedFiles += batch.length;
+
+        // Update progress after batch completion
         setUploadProgress({
           fileCount: totalFiles,
           completedCount: completedFiles,
-          currentFileName: file.name,
+          currentFileName: batch[batch.length - 1]?.name || "",
           percentage: Math.round((completedFiles / totalFiles) * 100),
         });
+
+        // Small delay to show progress update
+        if (completedFiles < totalFiles) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
       }
 
+      // Final progress update
+      setUploadProgress({
+        fileCount: totalFiles,
+        completedCount: totalFiles,
+        currentFileName: "All files processed",
+        percentage: 100,
+      });
+
+      // Show completion state briefly
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Refresh data
       await refreshFolders();
-      // Refresh the specific folder details if we have a folder ID
       const targetFolderId = folderDetails?.id || currentFolder;
       if (targetFolderId) {
         await getFolderDetails(targetFolderId);
