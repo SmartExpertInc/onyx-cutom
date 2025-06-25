@@ -1556,11 +1556,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
             * `check` (object):
                 - `type` (string): One of "test", "quiz", "practice", "none".
-                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "None".
+                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
 +                - IMPORTANT: When the raw text explicitly names the assessment (for example just "Test"), copy that word *exactly*—do not expand it to phrases such as "Knowledge Test", "Proficiency Test", or similar, and do not spell-correct it.
             * `contentAvailable` (object):
                 - `type` (string): One of "yes", "no", "percentage".
-                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
+                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}. DO NOT use "Content missing" or "Content Coverage:" or similar phrases in the text.
 
             **Parsing Rules & Constraints:**
 +            • Except where explicit transformations are required by these instructions, reproduce every extracted text fragment verbatim — preserving spelling, punctuation, capitalisation, and line breaks. Absolutely do NOT paraphrase, translate, or autocorrect the source text.
