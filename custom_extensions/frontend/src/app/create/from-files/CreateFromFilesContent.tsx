@@ -33,7 +33,7 @@ const SkeletonLoader = () => (
     <div className="text-center">
       <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
       <p className="text-gray-700 font-semibold text-lg">Loading folders...</p>
-      <p className="text-gray-600 text-sm mt-2">Fetching your documents from Onyx</p>
+                  <p className="text-gray-600 text-sm mt-2">Fetching your documents</p>
     </div>
   </div>
 );

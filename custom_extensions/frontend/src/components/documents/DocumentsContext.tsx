@@ -85,15 +85,15 @@ export interface DocumentsContextType {
   getFilesIndexingStatus: (fileIds: number[]) => Promise<Record<number, boolean>>;
 }
 
-// Optimized documents service similar to Onyx's implementation
-const documentsService = {
+// Optimized documents service
+class DocumentsService {
   async fetchFolders(): Promise<FolderResponse[]> {
     const response = await fetch("/api/user/folder");
     if (!response.ok) {
       throw new Error("Failed to fetch folders");
     }
     return response.json();
-  },
+  }
 
   async getFolderDetails(folderId: number): Promise<FolderResponse> {
     const response = await fetch(`/api/user/folder/${folderId}`);
@@ -101,7 +101,7 @@ const documentsService = {
       throw new Error("Failed to fetch folder details");
     }
     return response.json();
-  },
+  }
 
   async createFolder(name: string, description: string = ""): Promise<FolderResponse> {
     const response = await fetch("/api/user/folder", {
@@ -114,7 +114,7 @@ const documentsService = {
       throw new Error(errorData.detail || "Failed to create folder");
     }
     return response.json();
-  },
+  }
 
   async updateFolderDetails(
     folderId: number,
@@ -129,7 +129,7 @@ const documentsService = {
     if (!response.ok) {
       throw new Error("Failed to update folder details");
     }
-  },
+  }
 
   async deleteItem(itemId: number, isFolder: boolean): Promise<void> {
     const endpoint = isFolder
@@ -139,8 +139,43 @@ const documentsService = {
     if (!response.ok) {
       throw new Error(`Failed to delete ${isFolder ? "folder" : "file"}`);
     }
-  },
-};
+  }
+
+  async uploadFile(formData: FormData, folderId: number | null): Promise<FileResponse[]> {
+    if (folderId) {
+      formData.append("folder_id", folderId.toString());
+    }
+
+    const response = await fetch("/api/user/file/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to upload file");
+    }
+
+    const data = await response.json();
+    return data;
+  }
+
+  async getFilesIndexingStatus(fileIds: number[]): Promise<Record<number, boolean>> {
+    try {
+      const queryParams = fileIds.map((id) => `file_ids=${id}`).join("&");
+      const response = await fetch(`/api/user/file/indexing-status?${queryParams}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch indexing status");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching indexing status:", error);
+      return {};
+    }
+  }
+}
 
 const DocumentsContext = createContext<DocumentsContextType | undefined>(
   undefined
@@ -182,7 +217,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
   const refreshFolders = useCallback(async () => {
     try {
-      const data = await documentsService.fetchFolders();
+      const data = await new DocumentsService().fetchFolders();
       setFolders(data);
       setError(null);
     } catch (error) {
@@ -192,12 +227,12 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
   }, []);
 
   const getFolders = async (): Promise<FolderResponse[]> => {
-    return documentsService.fetchFolders();
+    return new DocumentsService().fetchFolders();
   };
 
   const getFolderDetails = useCallback(async (folderId: number) => {
     try {
-      const data = await documentsService.getFolderDetails(folderId);
+      const data = await new DocumentsService().getFolderDetails(folderId);
       setFolderDetails(data);
       setError(null);
     } catch (error) {
@@ -212,8 +247,8 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     description: string
   ) => {
     try {
-      await documentsService.updateFolderDetails(folderId, name, description);
-      const updated = await documentsService.getFolderDetails(folderId);
+      await new DocumentsService().updateFolderDetails(folderId, name, description);
+      const updated = await new DocumentsService().getFolderDetails(folderId);
       setFolderDetails(updated);
       await refreshFolders();
     } catch (error) {
@@ -224,7 +259,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
   const createFolder = async (name: string, description: string = "") => {
     try {
-      await documentsService.createFolder(name, description);
+      await new DocumentsService().createFolder(name, description);
       await refreshFolders();
     } catch (error) {
       console.error("Failed to create folder:", error);
@@ -234,7 +269,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
   const deleteItem = async (itemId: number, isFolder: boolean) => {
     try {
-      await documentsService.deleteItem(itemId, isFolder);
+      await new DocumentsService().deleteItem(itemId, isFolder);
       await refreshFolders();
     } catch (error) {
       console.error("Failed to delete item:", error);
@@ -263,61 +298,12 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
   };
 
   const uploadFile = async (formData: FormData, folderId: number | null): Promise<FileResponse[]> => {
-    if (folderId) {
-      formData.append("folder_id", folderId.toString());
-    }
-
-    const response = await fetch("/api/user/file/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Failed to upload file");
-    }
-
-    const data = await response.json();
-    return data;
-  };
-
-  const getFilesIndexingStatus = async (fileIds: number[]): Promise<Record<number, boolean>> => {
-    try {
-      const queryParams = fileIds.map((id) => `file_ids=${id}`).join("&");
-      const response = await fetch(`/api/user/file/indexing-status?${queryParams}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch indexing status");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error fetching indexing status:", error);
-      return {};
-    }
-  };
-
-  const waitForIndexing = async (fileIds: number[]): Promise<void> => {
-    const maxAttempts = 60; // Wait up to 5 minutes (60 * 5 seconds)
-    let attempts = 0;
-
-    while (attempts < maxAttempts) {
-      const indexingStatus = await getFilesIndexingStatus(fileIds);
-      const allIndexed = fileIds.every(id => indexingStatus[id] === true);
-      
-      if (allIndexed) {
-        return;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-      attempts++;
-    }
+    return await new DocumentsService().uploadFile(formData, folderId);
   };
 
   const handleUpload = async (files: File[]) => {
     const totalFiles = files.length;
     let completedFiles = 0;
-    const uploadedFileIds: number[] = [];
 
     setUploadProgress({
       fileCount: totalFiles,
@@ -327,7 +313,6 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     });
 
     try {
-      // Upload all files first
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
@@ -335,7 +320,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
           fileCount: totalFiles,
           completedCount: completedFiles,
           currentFileName: file.name,
-          percentage: Math.round(((i / totalFiles) * 70)), // 70% for upload phase
+          percentage: Math.round((i / totalFiles) * 100),
         });
 
         const formData = new FormData();
@@ -346,34 +331,14 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
           formData.append("folder_id", targetFolderId.toString());
         }
 
-        const uploadedFiles = await uploadFile(formData, targetFolderId);
-        uploadedFileIds.push(...uploadedFiles.map(f => f.id));
+        await uploadFile(formData, targetFolderId);
         completedFiles++;
 
         setUploadProgress({
           fileCount: totalFiles,
           completedCount: completedFiles,
           currentFileName: file.name,
-          percentage: Math.round(((completedFiles / totalFiles) * 70)), // 70% for upload phase
-        });
-      }
-
-      // Now wait for indexing to complete
-      if (uploadedFileIds.length > 0) {
-        setUploadProgress({
-          fileCount: totalFiles,
-          completedCount: totalFiles,
-          currentFileName: "Indexing files...",
-          percentage: 80,
-        });
-
-        await waitForIndexing(uploadedFileIds);
-
-        setUploadProgress({
-          fileCount: totalFiles,
-          completedCount: totalFiles,
-          currentFileName: "Finalizing...",
-          percentage: 100,
+          percentage: Math.round((completedFiles / totalFiles) * 100),
         });
       }
 
@@ -457,7 +422,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
         updateFolderDetails,
         uploadFile,
         handleUpload,
-        getFilesIndexingStatus,
+        getFilesIndexingStatus: async (fileIds: number[]) => await new DocumentsService().getFilesIndexingStatus(fileIds),
       }}
     >
       {children}

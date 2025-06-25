@@ -25,6 +25,71 @@ interface FileItemProps {
   onToggleSelect: () => void;
 }
 
+// Component for file status badge with spinner for indexing
+const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
+  const { getFilesIndexingStatus } = useDocumentsContext();
+  const [indexingStatus, setIndexingStatus] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    const checkIndexingStatus = async () => {
+      if (file.status === 'indexing' || file.status === 'processing') {
+        try {
+          const statusMap = await getFilesIndexingStatus([file.id]);
+          const isIndexed = statusMap[file.id];
+          setIndexingStatus(isIndexed);
+          
+          // If indexed, file status should change, so we can stop checking
+          if (isIndexed) {
+            clearInterval(interval);
+          }
+        } catch (error) {
+          console.error('Error checking indexing status:', error);
+        }
+      }
+    };
+
+    // Initial check
+    checkIndexingStatus();
+
+    // Set up interval for indexing files
+    if (file.status === 'indexing' || file.status === 'processing') {
+      interval = setInterval(checkIndexingStatus, 3000); // Check every 3 seconds
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [file.id, file.status, getFilesIndexingStatus]);
+
+  // Determine the display status
+  const isReady = file.status === 'indexed' || file.indexed === true || indexingStatus === true;
+  const isIndexing = (file.status === 'indexing' || file.status === 'processing') && indexingStatus !== true;
+  const isFailed = file.status === 'failed';
+
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+      isReady
+        ? 'bg-green-100 text-green-800' 
+        : isFailed
+        ? 'bg-red-100 text-red-800'
+        : 'bg-yellow-100 text-yellow-800'
+    }`}>
+      {isIndexing && (
+        <div className="w-3 h-3 border border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+      )}
+      {isReady
+        ? 'Ready' 
+        : isFailed
+        ? 'Failed'
+        : 'Processing'}
+    </span>
+  );
+};
+
 const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect }) => {
   const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
@@ -63,21 +128,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
             <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
             <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
               {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} tokens</span>}
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                file.status === 'indexed' || file.indexed === true
-                  ? 'bg-green-100 text-green-800' 
-                  : file.status === 'failed'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {file.status === 'indexed' || file.indexed === true
-                  ? 'Ready' 
-                  : file.status === 'failed'
-                  ? 'Failed'
-                  : file.status === 'processing' || file.status === 'indexing'
-                  ? 'Processing'
-                  : file.status || 'Processing'}
-              </span>
+              <FileStatusBadge file={file} />
             </div>
           </div>
         </div>
@@ -110,20 +161,12 @@ const UploadProgressDisplay: React.FC<{
           </div>
         </div>
         <div className="text-left">
-          <p className="text-xl font-semibold text-gray-900">
-            {percentage >= 70 && percentage < 100 ? "Indexing Files" : "Uploading Files"}
-          </p>
+          <p className="text-xl font-semibold text-gray-900">Uploading Files</p>
           <p className="text-sm text-gray-600">
-            {percentage >= 70 && percentage < 100 
-              ? "Processing and indexing documents..." 
-              : `Processing: ${currentFileName}`
-            }
+            Processing: {currentFileName}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            {percentage >= 70 
-              ? "Files are being prepared for use"
-              : `${completedCount} of ${fileCount} files completed`
-            }
+            {completedCount} of {fileCount} files completed
           </p>
         </div>
       </div>
@@ -141,12 +184,7 @@ const UploadProgressDisplay: React.FC<{
       <div className="text-center">
         <span className="text-lg font-medium text-blue-600">{percentage}%</span>
         <p className="text-sm text-gray-600 mt-1">
-          {percentage === 100 
-            ? 'Upload and indexing complete!' 
-            : percentage >= 70 
-            ? 'Indexing documents for AI processing...'
-            : 'Uploading and processing documents'
-          }
+          {percentage === 100 ? 'Upload complete!' : 'Uploading and processing documents'}
         </p>
       </div>
     </div>
@@ -295,7 +333,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
             <p className="text-gray-700 font-semibold text-lg">Loading folder...</p>
-            <p className="text-gray-600 text-sm mt-2">Fetching your documents from Onyx</p>
+            <p className="text-gray-600 text-sm mt-2">Fetching your documents</p>
           </div>
         </div>
       </main>
@@ -333,7 +371,6 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   }
 
   const readyFiles = folderFiles.filter(f => f.status === 'indexed' || f.indexed === true);
-  const processingFiles = folderFiles.filter(f => f.status === 'indexing' || f.status === 'processing');
 
   return (
     <main
