@@ -180,32 +180,44 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Theme configuration for training plan colors
   const themeConfig = {
     cherry: {
-      headerBg: "#E5EEFF", // current blue
+      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      moduleHeaderBg: "#E5EEFF", // module headers background (stays blue)
+      courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600", // current gray
       iconColor: "#FF1414", // current red
     },
     lunaria: {
-      headerBg: "#85749E",
+      courseHeaderBg: "#85749E", // main course header background (purple)
+      moduleHeaderBg: "#E5EEFF", // module headers background (stays blue)
+      courseHeaderTextColor: "text-white", // white text on purple background
       numberColor: "text-white",
-      iconColor: "#85749E", // same as header
+      iconColor: "#85749E", // same as course header
     },
     wine: {
-      headerBg: "#E5EEFF",
+      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      moduleHeaderBg: "#E5EEFF", // module headers background (stays blue)
+      courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     vanilla: {
-      headerBg: "#E5EEFF",
+      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      moduleHeaderBg: "#E5EEFF", // module headers background (stays blue)
+      courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     terracotta: {
-      headerBg: "#E5EEFF",
+      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      moduleHeaderBg: "#E5EEFF", // module headers background (stays blue)
+      courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     zephyr: {
-      headerBg: "#E5EEFF",
+      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      moduleHeaderBg: "#E5EEFF", // module headers background (stays blue)
+      courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
@@ -318,7 +330,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(isEditing || (mainTitle !== undefined && mainTitle !== null)) && (
-          <div className="bg-gray-800 text-white p-4">
+          <div className={`p-4 ${currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
             {isEditing && onTextChange ? (
               <input
                 type="text" value={mainTitle || ''}
@@ -361,7 +373,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
             <React.Fragment key={section.id || `section-${sectionIdx}`}>
               <div
                 className="p-4 font-semibold items-center border-t border-gray-300"
-                style={{ display: 'grid', gridTemplateColumns: gridTemplate, backgroundColor: currentTheme.headerBg }}
+                style={{ display: 'grid', gridTemplateColumns: gridTemplate, backgroundColor: currentTheme.moduleHeaderBg }}
               >
                 {/* Module column */}
                 <div className="flex items-center space-x-2 pr-2">

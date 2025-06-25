@@ -89,32 +89,44 @@
     {% set theme_name = (details.theme if details.theme is defined else 'cherry') %}
     {% set theme_config = {
         'cherry': {
-            'headerBg': '#E5EEFF',
+            'courseHeaderBg': '#1e2937',
+            'moduleHeaderBg': '#E5EEFF',
+            'courseHeaderTextColor': '#FFFFFF',
             'numberColor': '#6B7280',
             'iconColor': '#FF1414'
         },
         'lunaria': {
-            'headerBg': '#85749E',
+            'courseHeaderBg': '#85749E',
+            'moduleHeaderBg': '#E5EEFF',
+            'courseHeaderTextColor': '#FFFFFF',
             'numberColor': '#FFFFFF',
             'iconColor': '#85749E'
         },
         'wine': {
-            'headerBg': '#E5EEFF',
+            'courseHeaderBg': '#1e2937',
+            'moduleHeaderBg': '#E5EEFF',
+            'courseHeaderTextColor': '#FFFFFF',
             'numberColor': '#6B7280',
             'iconColor': '#FF1414'
         },
         'vanilla': {
-            'headerBg': '#E5EEFF',
+            'courseHeaderBg': '#1e2937',
+            'moduleHeaderBg': '#E5EEFF',
+            'courseHeaderTextColor': '#FFFFFF',
             'numberColor': '#6B7280',
             'iconColor': '#FF1414'
         },
         'terracotta': {
-            'headerBg': '#E5EEFF',
+            'courseHeaderBg': '#1e2937',
+            'moduleHeaderBg': '#E5EEFF',
+            'courseHeaderTextColor': '#FFFFFF',
             'numberColor': '#6B7280',
             'iconColor': '#FF1414'
         },
         'zephyr': {
-            'headerBg': '#E5EEFF',
+            'courseHeaderBg': '#1e2937',
+            'moduleHeaderBg': '#E5EEFF',
+            'courseHeaderTextColor': '#FFFFFF',
             'numberColor': '#6B7280',
             'iconColor': '#FF1414'
         }
@@ -174,7 +186,7 @@
 
     <div class="p-4 md:p-8">
         <div class="shadow-lg rounded-lg overflow-hidden border border-gray-200 bg-white w-full">
-            <div class="bg-gray-800 text-white p-4">
+            <div class="p-4" style="background-color: {{ current_theme.courseHeaderBg }}; color: {{ current_theme.courseHeaderTextColor }};">
                 <h1 class="text-lg md:text-xl font-bold">{{ details.mainTitle }}</h1>
             </div>
 
@@ -189,7 +201,7 @@
             <div class="text-xxs"> 
                 {% for section in details.sections %}
                 <div>
-                    <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200" style="background-color: {{ current_theme.headerBg }};">
+                    <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200" style="background-color: {{ current_theme.moduleHeaderBg }};">
                         <div class="flex items-center space-x-2 pr-2 {% if time_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span) }}">
                             <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: {{ current_theme.iconColor }};">{{ section.id }}</span>
                             <span class="font-semibold text-gray-800">{{ section.title }}</span>
