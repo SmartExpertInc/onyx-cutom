@@ -344,10 +344,6 @@
 }
 
 /* Template-specific styling */
-.real-slide.template-chart {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-color: #e2e8f0;
-}
 
 .real-slide.template-split {
   background: linear-gradient(90deg, #fefefe 50%, #f8fafc 50%);
@@ -382,7 +378,7 @@
 
 .real-slide.template-title .content-headline,
 .real-slide.template-title .content-paragraph {
-  color: white !important;
+  color: #000000 !important; /* Black text for contrast with grey background sections */
   background: none !important;
   backdrop-filter: none !important;
   box-shadow: none !important;

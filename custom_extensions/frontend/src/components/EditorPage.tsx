@@ -145,9 +145,19 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
+  // Create filtered slides array - moved here to be used in multiple effects
+  const filteredSlides = React.useMemo(() => {
+    const displayData = editingSlideDeckData || slideDeckData;
+    if (!displayData || !displayData.slides) return [];
+    return displayData.slides.filter(slide => {
+      const template = slide.deckgoTemplate;
+      return template !== 'deckgo-slide-poll' && template !== 'deckgo-slide-chart';
+    });
+  }, [slideDeckData, editingSlideDeckData]);
+
   // Handle scroll to update active slide - COMPLETELY REMADE NAVIGATION
   useEffect(() => {
-    if (!slideDeckData || !scrollContainerRef.current) return;
+    if (!filteredSlides.length || !scrollContainerRef.current) return;
 
     const container = scrollContainerRef.current;
     
@@ -187,7 +197,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
     // Fallback scroll detection for immediate updates
     const handleScroll = () => {
-      if (!container || !slideDeckData) return;
+      if (!container || !filteredSlides.length) return;
       
       const containerRect = container.getBoundingClientRect();
       const containerCenter = containerRect.top + containerRect.height / 2;
@@ -219,14 +229,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
       observer.disconnect();
       container.removeEventListener('scroll', handleScroll);
     };
-  }, [slideDeckData]);
+  }, [filteredSlides]);
 
-  // Initialize slide refs array
+  // Initialize slide refs array based on filtered slides
   useEffect(() => {
-    if (slideDeckData) {
-      slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
+    if (filteredSlides.length > 0) {
+      slideRefs.current = new Array(filteredSlides.length).fill(null);
     }
-  }, [slideDeckData]);
+  }, [filteredSlides]);
 
   // Function to scroll to specific slide - FIXED
   const scrollToSlide = (index: number) => {
@@ -718,7 +728,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             </button>
 
             <div className="slide-thumbnails">
-              {displayData.slides.map((slide, index) => {
+              {filteredSlides.map((slide, index) => {
                 const slideContent = getMainSlideContent(slide);
                 return (
                   <div 
@@ -745,7 +755,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         {/* Center - Real Slides Display */}
         <div className="center-content">
           <div className="slides-scroll-container" ref={scrollContainerRef}>
-            {displayData.slides.map((slide, index) => (
+            {filteredSlides.map((slide, index) => (
               <div 
                 key={slide.slideId} 
                 className={`real-slide ${slide.deckgoTemplate ? `template-${slide.deckgoTemplate.replace('deckgo-slide-', '')}` : 'template-content'} ${getContentLayoutClass(slide)}`}
