@@ -382,15 +382,22 @@
 
 .real-slide.template-title .content-headline,
 .real-slide.template-title .content-paragraph {
-  color: #000000 !important; /* Black text */
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
-  /* Removed all backgrounds: backdrop-filter, box-shadow */
+  color: white !important;
 }
 
 /* Template Badge */
 .template-badge {
-  display: none !important;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #1e40af;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  z-index: 10;
 }
 
 /* Image Placeholders */
@@ -494,7 +501,6 @@
   transform: translate(-50%, -50%);
 }
 
-/* Banners - truly full width */
 .placeholder-top-banner {
   top: 20px;
   left: 20px;
@@ -1173,6 +1179,9 @@
 .real-slide.template-title .content-headline,
 .real-slide.template-title .content-paragraph {
   color: #000000 !important; /* Black text */
+  /* Removed white background - only grey backdrop remains */
   padding: 8px 16px !important;
   border-radius: 8px !important;
+  backdrop-filter: blur(4px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 } 

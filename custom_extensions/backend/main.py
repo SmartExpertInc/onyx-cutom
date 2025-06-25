@@ -175,7 +175,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "type": "bullet_list",
           "items": [
             "Key point 1",
-            "Key point 2",
+            "Key point 2", 
             "Key point 3"
           ]
         }
@@ -1488,7 +1488,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             1.  **`type: "headline"`**
                 * `level` (integer): `2`, `3`, or `4`.
                 * `text` (string): Headline text.
-                * `iconName` (string, optional): If the raw text includes an icon name like `{iconName}`, extract it. Permissible Icon Names: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `clock`, `globe`.
+                * `iconName` (string, optional): If the raw text includes an icon name like `{iconName}`, extract it. Permissible Icon Names: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `chart`, `clock`, `globe`.
                 * `isImportant` (boolean, optional): If the raw text includes `{isImportant}`, set this to `true`. If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box.
 
             2.  **`type: "paragraph"`**

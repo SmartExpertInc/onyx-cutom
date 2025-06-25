@@ -45,8 +45,6 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const isScrollingToSlide = useRef(false);
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch slide deck data and parent project information
   useEffect(() => {
@@ -147,88 +145,107 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     fetchSlideData();
   }, [projectId]);
 
-  // Initialize slide refs array
+  // Handle scroll to update active slide - COMPLETELY REMADE NAVIGATION
   useEffect(() => {
-    if (slideDeckData?.slides) {
-      slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
-    }
-  }, [slideDeckData?.slides?.length]);
+    if (!slideDeckData || !scrollContainerRef.current) return;
 
-  // Smart navigation: detect which slide is most visible
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer || !slideDeckData?.slides?.length) return;
-
-    const handleScroll = () => {
-      // Don't update active slide if we're programmatically scrolling
-      if (isScrollingToSlide.current) return;
-
-      // Clear any existing timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-
-      // Debounce the scroll detection
-      scrollTimeout.current = setTimeout(() => {
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const containerCenter = containerRect.top + containerRect.height / 2;
+    const container = scrollContainerRef.current;
+    
+    // Create intersection observer for more reliable detection
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let mostVisibleSlide = { index: 0, ratio: 0 };
         
-        let closestSlideIndex = 0;
-        let smallestDistance = Infinity;
-
-        slideRefs.current.forEach((slideRef, index) => {
-          if (!slideRef) return;
+        entries.forEach((entry) => {
+          const slideIndex = parseInt(entry.target.getAttribute('data-slide-index') || '0');
           
+          // Track the slide with highest intersection ratio
+          if (entry.intersectionRatio > mostVisibleSlide.ratio) {
+            mostVisibleSlide = { index: slideIndex, ratio: entry.intersectionRatio };
+          }
+        });
+        
+        // Update active slide if we have significant visibility (>30%)
+        if (mostVisibleSlide.ratio > 0.3) {
+          setActiveSlideIndex(mostVisibleSlide.index);
+        }
+      },
+      {
+        root: container,
+        rootMargin: '0px',
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      }
+    );
+
+    // Observe all slides
+    slideRefs.current.forEach((slideRef, index) => {
+      if (slideRef) {
+        slideRef.setAttribute('data-slide-index', index.toString());
+        observer.observe(slideRef);
+      }
+    });
+
+    // Fallback scroll detection for immediate updates
+    const handleScroll = () => {
+      if (!container || !slideDeckData) return;
+      
+      const containerRect = container.getBoundingClientRect();
+      const containerCenter = containerRect.top + containerRect.height / 2;
+      
+      let closestSlide = { index: 0, distance: Infinity };
+      
+      slideRefs.current.forEach((slideRef, index) => {
+        if (slideRef) {
           const slideRect = slideRef.getBoundingClientRect();
           const slideCenter = slideRect.top + slideRect.height / 2;
           const distance = Math.abs(slideCenter - containerCenter);
           
-          if (distance < smallestDistance) {
-            smallestDistance = distance;
-            closestSlideIndex = index;
+          if (distance < closestSlide.distance) {
+            closestSlide = { index, distance };
           }
-        });
-
-        setActiveSlideIndex(closestSlideIndex);
-      }, 100); // 100ms debounce
+        }
+      });
+      
+      setActiveSlideIndex(closestSlide.index);
     };
 
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    // Add scroll listener as fallback
+    container.addEventListener('scroll', handleScroll, { passive: true });
     
     // Initial detection
-    handleScroll();
-
+    setTimeout(handleScroll, 100);
+    
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
+      observer.disconnect();
+      container.removeEventListener('scroll', handleScroll);
     };
-  }, [slideDeckData?.slides?.length]);
+  }, [slideDeckData]);
 
-  // Handle thumbnail click navigation
-  const handleThumbnailClick = (slideIndex: number) => {
-    const slideRef = slideRefs.current[slideIndex];
-    const scrollContainer = scrollContainerRef.current;
+  // Initialize slide refs array
+  useEffect(() => {
+    if (slideDeckData) {
+      slideRefs.current = new Array(slideDeckData.slides.length).fill(null);
+    }
+  }, [slideDeckData]);
+
+  // Function to scroll to specific slide - FIXED
+  const scrollToSlide = (index: number) => {
+    const slideRef = slideRefs.current[index];
+    const container = scrollContainerRef.current;
     
-    if (!slideRef || !scrollContainer) return;
-
-    // Set flag to prevent scroll detection during programmatic scrolling
-    isScrollingToSlide.current = true;
-    
-    // Immediately update active index
-    setActiveSlideIndex(slideIndex);
-
-    // Scroll to the slide
-    slideRef.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-
-    // Reset flag after scroll animation completes
-    setTimeout(() => {
-      isScrollingToSlide.current = false;
-    }, 1000);
+    if (slideRef && container) {
+      // Immediately set active index
+      setActiveSlideIndex(index);
+      
+      // Calculate the scroll position relative to the container
+      const slideTop = slideRef.offsetTop;
+      
+      // Scroll to the slide position within the container
+      container.scrollTo({
+        top: slideTop,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Navigation functions for breadcrumb
@@ -308,57 +325,59 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     };
   };
 
-  // Function to parse and render bold text from markdown
-  const parseTextWithBold = (text: string) => {
-    // Split text by **bold** markers
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    
-    return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        // Remove ** markers and make bold
-        const boldText = part.slice(2, -2);
-        return <strong key={index}>{boldText}</strong>;
-      }
-      return part;
-    });
-  };
-
-  // Function to render content block with bold text support
   const renderContentBlock = (block: AnyContentBlock, slideIndex: number, blockIndex: number) => {
     switch (block.type) {
       case 'headline':
         const HeadlineComponent = ({ level, text }: { level: number, text: string }) => {
-          const headingLevel = Math.min(level + 1, 6);
           const className = `content-headline level-${level} editable-text`;
-          const handleBlur = (e: React.FocusEvent<HTMLHeadingElement>) => {
-            updateTextContent(slideIndex, blockIndex, e.currentTarget.textContent || '');
+          const props = {
+            className,
+            contentEditable: true,
+            suppressContentEditableWarning: true,
+            onBlur: (e: React.FocusEvent<HTMLElement>) => {
+              const newText = e.target.textContent || '';
+              updateTextContent(slideIndex, blockIndex, newText);
+              saveChanges();
+            },
+            onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).blur();
+              }
+            }
           };
           
-          const content = parseTextWithBold(text);
-          
-          switch (headingLevel) {
-            case 1: return <h1 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h1>;
-            case 2: return <h2 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h2>;
-            case 3: return <h3 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h3>;
-            case 4: return <h4 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h4>;
-            case 5: return <h5 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h5>;
-            case 6: return <h6 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h6>;
-            default: return <h2 className={className} onClick={() => {}} onBlur={handleBlur} contentEditable suppressContentEditableWarning={true}>{content}</h2>;
+          switch (Math.min(level, 6)) {
+            case 1: return <h1 {...props}>{text}</h1>;
+            case 2: return <h2 {...props}>{text}</h2>;
+            case 3: return <h3 {...props}>{text}</h3>;
+            case 4: return <h4 {...props}>{text}</h4>;
+            case 5: return <h5 {...props}>{text}</h5>;
+            case 6: return <h6 {...props}>{text}</h6>;
+            default: return <h2 {...props}>{text}</h2>;
           }
         };
-        return <HeadlineComponent key={blockIndex} level={block.level} text={block.text} />;
+        return <HeadlineComponent level={block.level} text={block.text} />;
       
       case 'paragraph':
         return (
           <p 
-            key={blockIndex} 
             className="content-paragraph editable-text"
-            onClick={() => {}}
-            onBlur={(e: React.FocusEvent<HTMLParagraphElement>) => updateTextContent(slideIndex, blockIndex, e.currentTarget.textContent || '')}
-            contentEditable
+            contentEditable={true}
             suppressContentEditableWarning={true}
+            onBlur={(e) => {
+              const newText = e.target.textContent || '';
+              updateTextContent(slideIndex, blockIndex, newText);
+              saveChanges();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).blur();
+              }
+            }}
           >
-            {parseTextWithBold(block.text)}
+            {block.text}
           </p>
         );
       
@@ -559,13 +578,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     if (hasTopBanner) return 'content-layout-avoid-top';
     if (hasBottomBanner) return 'content-layout-avoid-bottom';
     
-    // Handle corner positions - always apply top margin for TOP-LEFT and TOP-RIGHT images
+    // Handle corner positions more specifically
     if (hasTopLeft || hasTopRight) {
-      return 'content-layout-with-top-corners';
+      const layoutClass = 'content-layout-with-top-corners';
+      return layoutClass;
     }
-    
     if (hasBottomLeft || hasBottomRight) {
-      return 'content-layout-with-bottom-corners';
+      const layoutClass = 'content-layout-with-bottom-corners';
+      return layoutClass;
     }
     
     return 'content-layout-default';
@@ -694,7 +714,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
                   <div 
                     key={slide.slideId} 
                     className={`slide-thumbnail ${index === activeSlideIndex ? 'active' : ''}`}
-                    onClick={() => handleThumbnailClick(index)}
+                    onClick={() => scrollToSlide(index)}
                   >
                     <div className="slide-number">{slide.slideNumber}</div>
                     <div className="slide-preview">
