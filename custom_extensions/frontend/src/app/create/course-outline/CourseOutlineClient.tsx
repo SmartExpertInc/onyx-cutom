@@ -61,8 +61,8 @@ const RadialProgress: React.FC<{ progress: number; theme: string }> = ({ progres
     cherry: { bg: "#E5EEFF", fill: "#0540AB" },
     lunaria: { bg: "#C4B5D6", fill: "#85749E" },
     wine: { bg: "#E5EEFF", fill: "#0540AB" },
-    vanilla: { bg: "#E5EEFF", fill: "#0540AB" },
-    terracotta: { bg: "#E5EEFF", fill: "#0540AB" },
+    vanilla: { bg: "#C4B5D6", fill: "#8776A0" },
+    terracotta: { bg: "#C4D6B5", fill: "#2D7C21" },
     zephyr: { bg: "#E5EEFF", fill: "#0540AB" },
   };
   
@@ -239,18 +239,18 @@ export default function CourseOutlineClient() {
       accentText: "text-[#0540AB]",
     },
     vanilla: {
-      headerBg: "bg-[#E5EEFF]",
-      numberColor: "text-gray-600",
-      accentBg: "bg-[#0540AB]",
-      accentBgHover: "hover:bg-[#043a99]",
-      accentText: "text-[#0540AB]",
+      headerBg: "bg-[#C4B5D6]",
+      numberColor: "text-white",
+      accentBg: "bg-[#8776A0]",
+      accentBgHover: "hover:bg-[#7a6b92]",
+      accentText: "text-[#8776A0]",
     },
     terracotta: {
-      headerBg: "bg-[#E5EEFF]",
-      numberColor: "text-gray-600",
-      accentBg: "bg-[#0540AB]",
-      accentBgHover: "hover:bg-[#043a99]",
-      accentText: "text-[#0540AB]",
+      headerBg: "bg-[#C4D6B5]",
+      numberColor: "text-white",
+      accentBg: "bg-[#2D7C21]",
+      accentBgHover: "hover:bg-[#26701e]",
+      accentText: "text-[#2D7C21]",
     },
     zephyr: {
       headerBg: "bg-[#E5EEFF]",
@@ -774,11 +774,11 @@ export default function CourseOutlineClient() {
 
   // Predefined theme preview data to match provided mockup
   const themeOptions = [
-    { id: "wine", label: "Wine" },
     { id: "cherry", label: "Cherry" },
-    { id: "vanilla", label: "Vanilla" },
     { id: "terracotta", label: "Terracotta" },
+    { id: "vanilla", label: "Vanilla" },
     { id: "lunaria", label: "Lunaria" },
+    { id: "wine", label: "Wine" },
     { id: "zephyr", label: "Zephyr" },
   ];
 

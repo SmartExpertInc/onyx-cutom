@@ -199,18 +199,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       iconColor: "#FF1414",
     },
     vanilla: {
-      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      courseHeaderBg: "#8776A0", // main course header background 
       moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
-      iconColor: "#FF1414",
+      iconColor: "#8776A0",
     },
     terracotta: {
-      courseHeaderBg: "#1e2939", // main course header background (current gray-800)
+      courseHeaderBg: "#2D7C21", // main course header background 
       moduleHeaderBg: "#F1F1F1", // module headers background (light gray)
       courseHeaderTextColor: "text-white", // white text on dark background
       numberColor: "text-gray-600",
-      iconColor: "#FF1414",
+      iconColor: "#2D7C21",
     },
     zephyr: {
       courseHeaderBg: "#1e2939", // main course header background (current gray-800)
