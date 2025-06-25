@@ -49,12 +49,25 @@ async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2
 }
 
 // Compact radial progress ring (16×16) used for char-count indicator
-const RadialProgress: React.FC<{ progress: number }> = ({ progress }) => {
+const RadialProgress: React.FC<{ progress: number; theme: string }> = ({ progress, theme }) => {
   const size = 16;
   const strokeWidth = 3;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
+  
+  // Theme-specific colors for the progress ring
+  const progressColors = {
+    cherry: { bg: "#E5EEFF", fill: "#0540AB" },
+    lunaria: { bg: "#C4B5D6", fill: "#85749E" },
+    wine: { bg: "#E5EEFF", fill: "#0540AB" },
+    vanilla: { bg: "#E5EEFF", fill: "#0540AB" },
+    terracotta: { bg: "#E5EEFF", fill: "#0540AB" },
+    zephyr: { bg: "#E5EEFF", fill: "#0540AB" },
+  };
+  
+  const colors = progressColors[theme as keyof typeof progressColors] || progressColors.cherry;
+  
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="inline-block">
       <circle
@@ -62,7 +75,7 @@ const RadialProgress: React.FC<{ progress: number }> = ({ progress }) => {
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#E5EEFF"
+        stroke={colors.bg}
         strokeWidth={strokeWidth}
       />
       <circle
@@ -70,7 +83,7 @@ const RadialProgress: React.FC<{ progress: number }> = ({ progress }) => {
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#0540AB"
+        stroke={colors.fill}
         strokeWidth={strokeWidth}
         strokeDasharray={circumference}
         strokeDashoffset={offset}
@@ -199,8 +212,56 @@ export default function CourseOutlineClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Currently chosen theme (UI only)
-  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
+  // Currently chosen theme (affects outline colors)
+  const [selectedTheme, setSelectedTheme] = useState<string>("cherry");
+
+  // Theme configuration for outline colors
+  const themeConfig = {
+    cherry: {
+      headerBg: "bg-[#E5EEFF]", // current blue
+      numberColor: "text-gray-600", // current gray
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    lunaria: {
+      headerBg: "bg-[#85749E]",
+      numberColor: "text-white",
+      accentBg: "bg-[#85749E]",
+      accentBgHover: "hover:bg-[#6b5d7a]",
+      accentText: "text-[#85749E]",
+    },
+    wine: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    vanilla: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    terracotta: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    zephyr: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+  };
+
+  const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
 
   // Track which lesson rows are expanded: key format `${modIdx}-${lessonIdx}` -> boolean
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -1023,8 +1084,8 @@ export default function CourseOutlineClient() {
               {preview.map((mod: ModulePreview, modIdx: number) => (
                 <div key={mod.id} className="flex rounded-xl shadow-sm overflow-hidden">
                   {/* Left colored bar with index */}
-                  <div className="w-[60px] bg-[#E5EEFF] flex items-start justify-center pt-5">
-                    <span className="text-gray-600 font-semibold text-base select-none">{modIdx + 1}</span>
+                  <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
+                    <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{modIdx + 1}</span>
                   </div>
 
                   {/* Main card */}
@@ -1090,7 +1151,7 @@ export default function CourseOutlineClient() {
                   </span>
                 </div>
                 <span className="flex items-center gap-1">
-                  <RadialProgress progress={charCount / 50000} />
+                  <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
                   {charCount}/50000
                 </span>
               </div>
@@ -1139,7 +1200,7 @@ export default function CourseOutlineClient() {
                     type="button"
                     disabled={loadingPreview || !editPrompt.trim()}
                     onClick={handleApplyEdit}
-                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                    className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
                   >
                     {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
                   </button>
@@ -1212,7 +1273,7 @@ export default function CourseOutlineClient() {
                     {/* Label with optional checkmark */}
                     <div className="flex items-center gap-1 px-2">
                       {/* Reserve space so left padding matches regardless of selection */}
-                      <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
+                      <span className={`w-4 ${currentTheme.accentText} ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
                       <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
                     </div>
                   </button>
@@ -1307,7 +1368,7 @@ export default function CourseOutlineClient() {
             <button
               type="button"
               onClick={handleGenerateFinal}
-              className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+              className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
               disabled={loading || isGenerating}
             >
               <Sparkles size={18} />
