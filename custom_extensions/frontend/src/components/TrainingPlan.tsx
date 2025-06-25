@@ -69,7 +69,7 @@ const StatusBadge = ({
     default: return ( 
         <div className="inline-flex items-center space-x-2">
             <NewInfoIcon className={`${defaultIconSize} shrink-0`} /> 
-            <span className="text-xs font-medium text-gray-700">{text || type}</span> 
+            <span className="text-xs font-medium text-gray-700">{text || (type === 'no' ? 'No' : type)}</span> 
         </div> 
     );
   }
