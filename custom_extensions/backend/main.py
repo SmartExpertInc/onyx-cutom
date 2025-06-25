@@ -2351,13 +2351,22 @@ async def download_project_instance_pdf(
             temp_dumped_dict = None
             if content_json and isinstance(content_json, dict):
                 try:
+                    logger.info(f"PDF Gen (Proj {project_id}): Raw content_json type: {type(content_json)}")
+                    logger.info(f"PDF Gen (Proj {project_id}): Raw content_json keys: {list(content_json.keys()) if isinstance(content_json, dict) else 'Not a dict'}")
+                    if 'sections' in content_json:
+                        logger.info(f"PDF Gen (Proj {project_id}): sections type: {type(content_json['sections'])}, length: {len(content_json['sections']) if isinstance(content_json['sections'], list) else 'Not a list'}")
+                    
                     parsed_model = TrainingPlanDetails(**content_json)
+                    logger.info(f"PDF Gen (Proj {project_id}): Parsed model sections length: {len(parsed_model.sections)}")
+                    
                     if parsed_model.detectedLanguage: 
                         detected_lang_for_pdf = parsed_model.detectedLanguage
                         # Update locale strings if language detection changed
                         current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
                     temp_dumped_dict = parsed_model.model_dump(mode='json', exclude_none=True)
+                    logger.info(f"PDF Gen (Proj {project_id}): Dumped dict sections length: {len(temp_dumped_dict.get('sections', []))}")
                     data_for_template_render = json.loads(json.dumps(temp_dumped_dict))
+                    logger.info(f"PDF Gen (Proj {project_id}): Final data sections length: {len(data_for_template_render.get('sections', []))}")
                 except Exception as e_parse_dump:
                     logger.error(f"Pydantic parsing/dumping failed for TrainingPlan (Proj {project_id}): {e_parse_dump}", exc_info=not IS_PRODUCTION)
             if data_for_template_render is None:
