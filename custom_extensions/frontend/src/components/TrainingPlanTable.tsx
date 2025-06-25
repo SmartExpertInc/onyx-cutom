@@ -180,32 +180,32 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Theme configuration for training plan colors
   const themeConfig = {
     cherry: {
-      headerBg: "bg-[#E5EEFF]", // current blue
+      headerBg: "#E5EEFF", // current blue
       numberColor: "text-gray-600", // current gray
       iconColor: "#FF1414", // current red
     },
     lunaria: {
-      headerBg: "bg-[#85749E]",
+      headerBg: "#85749E",
       numberColor: "text-white",
       iconColor: "#85749E", // same as header
     },
     wine: {
-      headerBg: "bg-[#E5EEFF]",
+      headerBg: "#E5EEFF",
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     vanilla: {
-      headerBg: "bg-[#E5EEFF]",
+      headerBg: "#E5EEFF",
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     terracotta: {
-      headerBg: "bg-[#E5EEFF]",
+      headerBg: "#E5EEFF",
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
     zephyr: {
-      headerBg: "bg-[#E5EEFF]",
+      headerBg: "#E5EEFF",
       numberColor: "text-gray-600",
       iconColor: "#FF1414",
     },
@@ -360,8 +360,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           {(sections || []).map((section: SectionType, sectionIdx: number) => (
             <React.Fragment key={section.id || `section-${sectionIdx}`}>
               <div
-                className="bg-gray-100 p-4 font-semibold items-center border-t border-gray-300"
-                style={{ display: 'grid', gridTemplateColumns: gridTemplate }}
+                className="p-4 font-semibold items-center border-t border-gray-300"
+                style={{ display: 'grid', gridTemplateColumns: gridTemplate, backgroundColor: currentTheme.headerBg }}
               >
                 {/* Module column */}
                 <div className="flex items-center space-x-2 pr-2">

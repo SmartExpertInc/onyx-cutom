@@ -618,6 +618,7 @@ export default function CourseOutlineClient() {
         language,
         chatSessionId: chatId || undefined,
         editedOutline: outlineForBackend,
+        theme: selectedTheme, // send theme to backend
       };
       
       // Add file context if creating from files

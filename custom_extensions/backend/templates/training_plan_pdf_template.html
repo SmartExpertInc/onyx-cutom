@@ -40,7 +40,7 @@
                  fill: #4A5568 !important;
             }
             svg path[fill="#FF1414"] {
-                 fill: #FF1414 !important;
+                 fill: {{ current_theme.iconColor }} !important;
             }
              svg path[fill="white"] {
                  fill: #ffffff !important;
@@ -76,7 +76,7 @@
     </style>
 
     {# Dynamic row height adjustment #}
-    {% set total_lessons = (details.details.sections | map(attribute='lessons') | sum(start=[])) | length %}
+    {% set total_lessons = (details.sections | map(attribute='lessons') | sum(start=[])) | length %}
     {% if 18 < total_lessons < 25 %}
     <style>
         .lesson-row {
@@ -86,7 +86,7 @@
     {% endif %}
 
     {# Dynamic theme configuration for different color schemes #}
-    {% set theme_name = details.details.theme or 'cherry' %}
+    {% set theme_name = (details.theme if details.theme is defined else 'cherry') %}
     {% set theme_config = {
         'cherry': {
             'headerBg': '#E5EEFF',
@@ -125,7 +125,7 @@
 
 </head>
 <body class="bg-gray-50 font-sans">
-    {% set lang = details.details.detectedLanguage | default('ru') %}
+    {% set lang = details.detectedLanguage | default('ru') %}
     {% set column_headers = {
         'ru': {
             'moduleAndLessons': "Модуль и уроки",
@@ -157,7 +157,7 @@
     {% set MAX_SOURCE_LENGTH = 19 %} {# Define max length for single-word source text #}
 
     {# === Determine which optional columns to display based on displayOptions === #}
-    {% set opts_raw = (details.details.displayOptions if details.details is defined else details.displayOptions) or {} %}
+    {% set opts_raw = details.displayOptions or {} %}
     {% set kc_show  = opts_raw.get('knowledgeCheck', True) %}
     {% set ca_show  = opts_raw.get('contentAvailability', True) %}
     {% set src_show = opts_raw.get('informationSource', True) %}
@@ -175,7 +175,7 @@
     <div class="p-4 md:p-8">
         <div class="shadow-lg rounded-lg overflow-hidden border border-gray-200 bg-white w-full">
             <div class="bg-gray-800 text-white p-4">
-                <h1 class="text-lg md:text-xl font-bold">{{ details.details.mainTitle }}</h1>
+                <h1 class="text-lg md:text-xl font-bold">{{ details.mainTitle }}</h1>
             </div>
 
             <div class="grid grid-cols-20 gap-0 text-black p-4 items-center border-b border-gray-200 tracking-wider text-xxs">
@@ -187,9 +187,9 @@
             </div>
 
             <div class="text-xxs"> 
-                {% for section in details.details.sections %}
+                {% for section in details.sections %}
                 <div>
-                    <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200 bg-module-header" style="background-color: #F2F2F2;">
+                    <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200" style="background-color: {{ current_theme.headerBg }};">
                         <div class="flex items-center space-x-2 pr-2 {% if time_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span) }}">
                             <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: {{ current_theme.iconColor }};">{{ section.id }}</span>
                             <span class="font-semibold text-gray-800">{{ section.title }}</span>
