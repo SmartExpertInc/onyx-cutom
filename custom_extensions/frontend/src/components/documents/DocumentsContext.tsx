@@ -39,6 +39,13 @@ export type FileResponse = {
   user_id?: string;
 };
 
+export interface UploadProgress {
+  fileCount: number;
+  completedCount: number;
+  currentFileName: string;
+  percentage: number;
+}
+
 export interface DocumentsContextType {
   files: FileResponse[];
   folders: FolderResponse[];
@@ -49,6 +56,7 @@ export interface DocumentsContextType {
   error: string | null;
   selectedFiles: FileResponse[];
   selectedFolders: FolderResponse[];
+  uploadProgress: UploadProgress | null;
   addSelectedFile: (file: FileResponse) => void;
   removeSelectedFile: (fileId: number) => void;
   addSelectedFolder: (folder: FolderResponse) => void;
@@ -76,6 +84,63 @@ export interface DocumentsContextType {
   handleUpload: (files: File[]) => Promise<void>;
 }
 
+// Optimized documents service similar to Onyx's implementation
+const documentsService = {
+  async fetchFolders(): Promise<FolderResponse[]> {
+    const response = await fetch("/api/user/folder");
+    if (!response.ok) {
+      throw new Error("Failed to fetch folders");
+    }
+    return response.json();
+  },
+
+  async getFolderDetails(folderId: number): Promise<FolderResponse> {
+    const response = await fetch(`/api/user/folder/${folderId}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch folder details");
+    }
+    return response.json();
+  },
+
+  async createFolder(name: string, description: string = ""): Promise<FolderResponse> {
+    const response = await fetch("/api/user/folder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to create folder");
+    }
+    return response.json();
+  },
+
+  async updateFolderDetails(
+    folderId: number,
+    name: string,
+    description: string
+  ): Promise<void> {
+    const response = await fetch(`/api/user/folder/${folderId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update folder details");
+    }
+  },
+
+  async deleteItem(itemId: number, isFolder: boolean): Promise<void> {
+    const endpoint = isFolder
+      ? `/api/user/folder/${itemId}`
+      : `/api/user/file/${itemId}`;
+    const response = await fetch(endpoint, { method: "DELETE" });
+    if (!response.ok) {
+      throw new Error(`Failed to delete ${isFolder ? "folder" : "file"}`);
+    }
+  },
+};
+
 const DocumentsContext = createContext<DocumentsContextType | undefined>(
   undefined
 );
@@ -100,11 +165,16 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     FolderResponse | undefined | null
   >(initialFolderDetails || null);
   const [error, setError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
 
   useEffect(() => {
     const fetchFolders = async () => {
-      await refreshFolders();
-      setIsLoading(false);
+      setIsLoading(true);
+      try {
+        await refreshFolders();
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchFolders();
   }, []);
@@ -112,12 +182,9 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
   const refreshFolders = async () => {
     try {
       console.log("fetching folders");
-      const response = await fetch("/api/user/folder");
-      if (!response.ok) {
-        throw new Error("Failed to fetch folders");
-      }
-      const data = await response.json();
+      const data = await documentsService.fetchFolders();
       setFolders(data);
+      setError(null);
     } catch (error) {
       console.error("Failed to fetch folders:", error);
       setError("Failed to fetch folders");
@@ -125,21 +192,14 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
   };
 
   const getFolders = async (): Promise<FolderResponse[]> => {
-    const response = await fetch("/api/user/folder");
-    if (!response.ok) {
-      throw new Error("Failed to fetch folders");
-    }
-    return response.json();
+    return documentsService.fetchFolders();
   };
 
   const getFolderDetails = async (folderId: number) => {
     try {
-      const response = await fetch(`/api/user/folder/${folderId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch folder details");
-      }
-      const data = await response.json();
+      const data = await documentsService.getFolderDetails(folderId);
       setFolderDetails(data);
+      setError(null);
     } catch (error) {
       console.error("Failed to fetch folder details:", error);
       setError("Failed to fetch folder details");
@@ -151,45 +211,33 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     name: string,
     description: string
   ) => {
-    const response = await fetch(`/api/user/folder/${folderId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description }),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to update folder");
+    try {
+      await documentsService.updateFolderDetails(folderId, name, description);
+      const updated = await documentsService.getFolderDetails(folderId);
+      setFolderDetails(updated);
+      await refreshFolders();
+    } catch (error) {
+      console.error("Failed to update folder details:", error);
+      throw error;
     }
-    const updated = await response.json();
-    setFolderDetails(updated);
   };
 
   const createFolder = async (name: string, description: string = "") => {
-    const response = await fetch("/api/user/folder", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description }),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to create folder");
+    try {
+      await documentsService.createFolder(name, description);
+      await refreshFolders();
+    } catch (error) {
+      console.error("Failed to create folder:", error);
+      throw error;
     }
-    await refreshFolders();
   };
 
   const deleteItem = async (itemId: number, isFolder: boolean) => {
     try {
-      const endpoint = isFolder
-        ? `/api/user/folder/${itemId}`
-        : `/api/user/file/${itemId}`;
-      const response = await fetch(endpoint, { method: "DELETE" });
-      if (!response.ok) {
-        throw new Error(`Failed to delete ${isFolder ? "folder" : "file"}`);
-      }
+      await documentsService.deleteItem(itemId, isFolder);
       await refreshFolders();
-      if (folderDetails) {
-        await getFolderDetails(folderDetails.id);
-      }
     } catch (error) {
-      console.error(`Failed to delete ${isFolder ? "folder" : "file"}:`, error);
+      console.error("Failed to delete item:", error);
       throw error;
     }
   };
@@ -212,12 +260,82 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     if (!response.ok) {
       throw new Error("Failed to rename folder");
     }
-    await refreshFolders();
+  };
+
+  const uploadFile = async (formData: FormData, folderId: number | null): Promise<FileResponse[]> => {
+    if (folderId) {
+      formData.append("folder_id", folderId.toString());
+    }
+
+    const response = await fetch("/api/user/file/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to upload file");
+    }
+
+    const data = await response.json();
+    return data;
+  };
+
+  const handleUpload = async (files: File[]) => {
+    const totalFiles = files.length;
+    let completedFiles = 0;
+
+    setUploadProgress({
+      fileCount: totalFiles,
+      completedCount: 0,
+      currentFileName: files[0]?.name || "",
+      percentage: 0,
+    });
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress({
+          fileCount: totalFiles,
+          completedCount: completedFiles,
+          currentFileName: file.name,
+          percentage: Math.round((i / totalFiles) * 100),
+        });
+
+        const formData = new FormData();
+        formData.append("file", file);
+        if (currentFolder) {
+          formData.append("folder_id", currentFolder.toString());
+        }
+
+        await uploadFile(formData, currentFolder);
+        completedFiles++;
+
+        setUploadProgress({
+          fileCount: totalFiles,
+          completedCount: completedFiles,
+          currentFileName: file.name,
+          percentage: Math.round((completedFiles / totalFiles) * 100),
+        });
+      }
+
+      await refreshFolders();
+      if (currentFolder) {
+        await getFolderDetails(currentFolder);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw error;
+    } finally {
+      setUploadProgress(null);
+    }
   };
 
   const addSelectedFile = useCallback((file: FileResponse) => {
     setSelectedFiles((prev) => {
-      if (prev.find((f) => f.id === file.id)) return prev;
+      if (prev.find((f) => f.id === file.id)) {
+        return prev;
+      }
       return [...prev, file];
     });
   }, []);
@@ -228,7 +346,9 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
   const addSelectedFolder = useCallback((folder: FolderResponse) => {
     setSelectedFolders((prev) => {
-      if (prev.find((f) => f.id === folder.id)) return prev;
+      if (prev.find((f) => f.id === folder.id)) {
+        return prev;
+      }
       return [...prev, folder];
     });
   }, []);
@@ -242,92 +362,42 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     setSelectedFolders([]);
   }, []);
 
-  const uploadFile = async (formData: FormData, folderId: number | null): Promise<FileResponse[]> => {
-    try {
-      const url = folderId ? `/api/user/file/upload?folder_id=${folderId}` : '/api/user/file/upload';
-      const response = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to upload file");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Failed to upload file:", error);
-      throw error;
-    }
-  };
-
-  const handleUpload = async (files: File[]) => {
-    try {
-      const formData = new FormData();
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
-      
-      if (folderDetails && folderDetails.id !== -1) {
-        formData.append("folder_id", folderDetails.id.toString());
-      }
-
-      const response = await fetch("/api/user/file", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to upload files");
-      }
-
-      await refreshFolders();
-      if (folderDetails) {
-        await getFolderDetails(folderDetails.id);
-      }
-    } catch (error) {
-      console.error("Upload failed:", error);
-      throw error;
-    }
-  };
-
-  const value: DocumentsContextType = {
-    files: folders.map((folder) => folder.files).flat(),
-    folders,
-    currentFolder,
-    searchQuery,
-    page,
-    isLoading,
-    error,
-    selectedFiles,
-    selectedFolders,
-    addSelectedFile,
-    removeSelectedFile,
-    addSelectedFolder,
-    removeSelectedFolder,
-    clearSelectedItems,
-    setSelectedFiles,
-    setSelectedFolders,
-    refreshFolders,
-    createFolder,
-    deleteItem,
-    renameFile,
-    renameFolder,
-    setCurrentFolder,
-    setSearchQuery,
-    setPage,
-    getFolderDetails,
-    getFolders,
-    folderDetails,
-    updateFolderDetails,
-    uploadFile,
-    handleUpload,
-  };
-
   return (
-    <DocumentsContext.Provider value={value}>
+    <DocumentsContext.Provider
+      value={{
+        files: folderDetails?.files || [],
+        folders,
+        currentFolder,
+        searchQuery,
+        page,
+        isLoading,
+        error,
+        selectedFiles,
+        selectedFolders,
+        uploadProgress,
+        addSelectedFile,
+        removeSelectedFile,
+        addSelectedFolder,
+        removeSelectedFolder,
+        clearSelectedItems,
+        setSelectedFiles,
+        setSelectedFolders,
+        refreshFolders,
+        createFolder,
+        deleteItem,
+        renameFile,
+        renameFolder,
+        setCurrentFolder,
+        setSearchQuery,
+        setPage,
+        folderDetails,
+        getFolderDetails,
+        getFolders,
+        updateFolderDetails,
+        uploadFile,
+        handleUpload,
+      }}
+    >
       {children}
     </DocumentsContext.Provider>
   );
@@ -336,9 +406,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 export const useDocumentsContext = () => {
   const context = useContext(DocumentsContext);
   if (context === undefined) {
-    throw new Error(
-      "useDocumentsContext must be used within a DocumentsProvider"
-    );
+    throw new Error("useDocumentsContext must be used within a DocumentsProvider");
   }
   return context;
 }; 

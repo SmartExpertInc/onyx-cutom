@@ -9,7 +9,7 @@ import {
   FileText,
   CheckCircle2,
   Upload,
-  Trash2,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FileResponse } from "../../../../components/documents/DocumentsContext";
@@ -22,12 +22,9 @@ interface FileItemProps {
   file: FileResponse;
   isSelected: boolean;
   onToggleSelect: () => void;
-  onDelete: () => void;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect, onDelete }) => {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
+const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect }) => {
   const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
     switch (ext) {
@@ -47,22 +44,6 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect, o
       default:
         return '📄';
     }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowDeleteConfirm(true);
-  };
-  
-  const confirmDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete();
-    setShowDeleteConfirm(false);
-  };
-  
-  const cancelDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowDeleteConfirm(false);
   };
 
   return (
@@ -99,37 +80,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect, o
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {showDeleteConfirm ? (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={confirmDelete}
-                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
-              <button
-                onClick={cancelDelete}
-                className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
+        <div className="flex-shrink-0">
+          {isSelected ? (
+            <CheckCircle2 className="h-5 w-5 text-blue-500" />
           ) : (
-            <>
-              <button
-                onClick={handleDelete}
-                className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                title="Delete file"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-              {isSelected ? (
-                <CheckCircle2 className="h-5 w-5 text-blue-500" />
-              ) : (
-                <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
-              )}
-            </>
+            <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
           )}
         </div>
       </div>
@@ -138,40 +93,48 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect, o
 };
 
 // Enhanced upload progress component
-const UploadProgress: React.FC<{ fileName: string; progress: number }> = ({ fileName, progress }) => {
+const UploadProgressDisplay: React.FC<{ 
+  fileCount: number;
+  completedCount: number;
+  currentFileName: string;
+  percentage: number;
+}> = ({ fileCount, completedCount, currentFileName, percentage }) => {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-center gap-4">
+    <div className="space-y-4">
+      <div className="flex items-center justify-center gap-3">
         <div className="relative">
           <div className="h-16 w-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <Upload className="h-6 w-6 text-blue-600" />
+            <Upload className="h-7 w-7 text-blue-600 animate-pulse" />
           </div>
         </div>
         <div className="text-left">
-          <p className="text-lg font-medium text-gray-900">Uploading files...</p>
-          <p className="text-sm text-gray-600 truncate max-w-xs">Processing: {fileName}</p>
+          <p className="text-xl font-semibold text-gray-900">Uploading Files</p>
+          <p className="text-sm text-gray-600">
+            Processing: {currentFileName}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {completedCount} of {fileCount} files completed
+          </p>
         </div>
       </div>
       
-      {/* Enhanced progress bar */}
+      {/* Animated progress bar */}
       <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
         <div 
-          className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out relative"
-          style={{ width: `${Math.min(progress, 100)}%` }}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out relative"
+          style={{ width: `${percentage}%` }}
         >
           <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
         </div>
       </div>
       
-      <div className="flex justify-between items-center text-sm">
-        <span className="text-gray-600">Upload progress</span>
-        <span className="font-medium text-blue-600">{Math.round(progress)}%</span>
+      <div className="text-center">
+        <span className="text-lg font-medium text-blue-600">{percentage}%</span>
+        <p className="text-sm text-gray-600 mt-1">
+          {percentage === 100 ? 'Finalizing upload...' : 'Indexing and processing documents'}
+        </p>
       </div>
-      
-      <p className="text-center text-xs text-gray-500 animate-pulse">
-        Files are being processed and indexed for AI analysis
-      </p>
     </div>
   );
 };
@@ -189,24 +152,18 @@ const ALLOWED_FILE_TYPES = [
 
 const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folderId }) => {
   const router = useRouter();
-  const { folders, files, isLoading, error, refreshFolders, getFolderDetails, folderDetails, handleUpload, deleteItem } = useDocumentsContext();
+  const { folders, files, isLoading, error, refreshFolders, getFolderDetails, folderDetails, handleUpload, uploadProgress } = useDocumentsContext();
   const [selectedFileIds, setSelectedFileIds] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [currentUploadFile, setCurrentUploadFile] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const currentFolder = folderDetails || folders?.find(f => f.id === folderId);
   const folderFiles = currentFolder?.files || files?.filter(f => f.folder_id === folderId) || [];
 
   useEffect(() => {
-    // Optimized loading - only refresh if we don't have the folder details
-    if (!folderDetails || folderDetails.id !== folderId) {
-      refreshFolders();
-      getFolderDetails(folderId);
-    }
-  }, [folderId]);
+    refreshFolders();
+    getFolderDetails(folderId);
+  }, [refreshFolders, getFolderDetails, folderId]);
 
   const handleToggleFile = (fileId: number) => {
     setSelectedFileIds(prev => 
@@ -235,17 +192,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
     router.push(`/create/generate?${params.toString()}`);
   };
 
-  const handleDeleteFile = async (fileId: number) => {
-    try {
-      await deleteItem(fileId, false);
-      setSelectedFileIds(prev => prev.filter(id => id !== fileId));
-    } catch (error) {
-      console.error("Failed to delete file:", error);
-      alert("Failed to delete file. Please try again.");
-    }
-  };
-
-  // File upload functions with enhanced progress tracking
+  // File upload functions
   const isFileTypeAllowed = (file: File): boolean => {
     const fileName = file.name.toLowerCase();
     const fileExtension = fileName.substring(fileName.lastIndexOf("."));
@@ -278,42 +225,10 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
     }
 
     if (allowedFiles.length > 0) {
-      setIsUploading(true);
-      setUploadProgress(0);
-      
-      // Simulate enhanced progress tracking
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 95) return prev;
-          const increment = Math.random() * 15 + 5;
-          return Math.min(prev + increment, 95);
-        });
-      }, 500);
-
       try {
-        // Set current file being processed
-        if (allowedFiles.length > 0) {
-          setCurrentUploadFile(allowedFiles[0].name);
-        }
-        
         await handleUpload(allowedFiles);
-        
-        // Complete the progress
-        setUploadProgress(100);
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-          setCurrentUploadFile("");
-        }, 1000);
-        
       } catch (error) {
-        console.error("Upload failed:", error);
-        alert("Upload failed. Please try again.");
-        setIsUploading(false);
-        setUploadProgress(0);
-        setCurrentUploadFile("");
-      } finally {
-        clearInterval(progressInterval);
+        console.error('Upload error:', error);
       }
     }
   };
@@ -327,7 +242,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+    if (e.currentTarget === e.target) {
       setIsDragging(false);
     }
   };
@@ -342,22 +257,20 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
     e.stopPropagation();
     setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      await processFiles(files);
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length > 0) {
+      await processFiles(droppedFiles);
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !folderDetails) {
     return (
-      <div className="min-h-screen"
-           style={{ background: 'linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)' }}>
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-700 font-medium">Loading folder contents...</p>
-            </div>
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-700 font-medium">Loading folder...</p>
+            <p className="text-gray-600 text-sm mt-1">Preparing your documents</p>
           </div>
         </div>
       </div>
@@ -366,11 +279,22 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
   if (error) {
     return (
-      <div className="min-h-screen"
-           style={{ background: 'linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)' }}>
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="text-center text-red-600">
-            <p>Error: {error}</p>
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <p className="text-red-600 font-medium">Error: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentFolder) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <p className="text-gray-600 font-medium">Folder not found</p>
           </div>
         </div>
       </div>
@@ -378,11 +302,38 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   }
 
   const readyFiles = folderFiles.filter(f => f.status === 'indexed' || f.indexed === true);
-  const selectedCount = selectedFileIds.length;
 
   return (
-    <div className="min-h-screen"
-         style={{ background: 'linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)' }}>
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+            <Link href="/create" className="hover:text-gray-900">Create</Link>
+            <ChevronRight className="h-4 w-4" />
+            <Link href="/create/from-files" className="hover:text-gray-900">From Files</Link>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-gray-900">{currentFolder.name}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{currentFolder.name}</h1>
+              {currentFolder.description && (
+                <p className="text-gray-600 mt-1">{currentFolder.description}</p>
+              )}
+            </div>
+            <Link
+              href="/create/from-files"
+              className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* File Upload Section */}
         <div className="mb-8">
@@ -397,29 +348,33 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >
-            {isUploading ? (
-              <UploadProgress fileName={currentUploadFile} progress={uploadProgress} />
+            {uploadProgress ? (
+              <UploadProgressDisplay 
+                fileCount={uploadProgress.fileCount}
+                completedCount={uploadProgress.completedCount}
+                currentFileName={uploadProgress.currentFileName}
+                percentage={uploadProgress.percentage}
+              />
             ) : (
               <>
-                <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-lg font-medium text-gray-900 mb-2">
-                  Drop files here or click to upload
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                  Supports PDF, Word, Excel, PowerPoint, Text files and more
+                <Upload className="h-10 w-10 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Documents</h3>
+                <p className="text-gray-600 mb-4">
+                  Drag and drop files here, or click to select files
                 </p>
                 <button
                   onClick={handleFileSelect}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
-                  Choose Files
+                  <Plus className="h-4 w-4" />
+                  Select Files
                 </button>
                 <input
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  onChange={handleFileChange}
                   className="hidden"
+                  onChange={handleFileChange}
                   accept={ALLOWED_FILE_TYPES.join(',')}
                 />
               </>
@@ -427,92 +382,77 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex items-center gap-2 mb-6">
-          <Link 
-            href="/create/from-files" 
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Folders
-          </Link>
-          <ChevronRight className="h-4 w-4 text-gray-400" />
-          <span className="text-gray-700 font-medium">{currentFolder?.name || 'Unknown Folder'}</span>
-        </div>
-
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Select Files from "{currentFolder?.name}"
-              </h1>
-              <p className="text-gray-600">
-                Choose files to use as source material for your content creation
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">
-                {folderFiles.length} total files
-              </p>
-              <p className="text-sm text-green-600">
-                {readyFiles.length} ready for use
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* File Selection Controls */}
-        {readyFiles.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
+        {/* Files Section */}
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="p-6 border-b">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleSelectAll}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  Select All ({readyFiles.length})
-                </button>
-                {selectedCount > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Files in this folder</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {folderFiles.length} total files, {readyFiles.length} ready for content creation
+                </p>
+              </div>
+              {readyFiles.length > 0 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSelectAll}
+                    className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                  >
+                    Select All
+                  </button>
                   <button
                     onClick={handleDeselectAll}
-                    className="text-gray-600 hover:text-gray-800 text-sm"
+                    className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
                   >
-                    Deselect All
+                    Clear
                   </button>
-                )}
-              </div>
-              {selectedCount > 0 && (
-                <button
-                  onClick={handleCreateFromFiles}
-                  className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Create from {selectedCount} file{selectedCount !== 1 ? 's' : ''}
-                </button>
+                </div>
               )}
             </div>
           </div>
-        )}
 
-        {/* Files Grid */}
-        {folderFiles.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
-            <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No files in this folder</h3>
-            <p className="text-gray-600">Upload some files to get started with content creation.</p>
+          <div className="p-6">
+            {folderFiles.length === 0 ? (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No files in this folder yet</p>
+                <p className="text-sm text-gray-500 mt-1">Upload some documents to get started</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {folderFiles.map((file) => (
+                  <FileItem
+                    key={file.id}
+                    file={file}
+                    isSelected={selectedFileIds.includes(file.id)}
+                    onToggleSelect={() => handleToggleFile(file.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {folderFiles.map((file) => (
-              <FileItem
-                key={file.id}
-                file={file}
-                isSelected={selectedFileIds.includes(file.id)}
-                onToggleSelect={() => handleToggleFile(file.id)}
-                onDelete={() => handleDeleteFile(file.id)}
-              />
-            ))}
+        </div>
+
+        {/* Selected Files Actions */}
+        {selectedFileIds.length > 0 && (
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-blue-900">
+                  {selectedFileIds.length} file{selectedFileIds.length !== 1 ? 's' : ''} selected
+                </p>
+                <p className="text-sm text-blue-700">
+                  Ready to create content from these documents
+                </p>
+              </div>
+              <button
+                onClick={handleCreateFromFiles}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+              >
+                <Sparkles className="h-4 w-4" />
+                Create Content
+              </button>
+            </div>
           </div>
         )}
       </div>

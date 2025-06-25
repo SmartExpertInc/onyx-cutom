@@ -26,68 +26,22 @@ enum SortDirection {
   Descending = "desc",
 }
 
-const SkeletonLoader = () => {
-  const [loadingText, setLoadingText] = useState("Loading folders...");
-  const [dots, setDots] = useState("");
-  
-  useEffect(() => {
-    const textOptions = [
-      "Loading folders...",
-      "Fetching your documents...",
-      "Organizing your content...",
-      "Almost ready...",
-      "Getting everything in order..."
-    ];
-    
-    const textInterval = setInterval(() => {
-      setLoadingText(textOptions[Math.floor(Math.random() * textOptions.length)]);
-    }, 2000);
-    
-    const dotsInterval = setInterval(() => {
-      setDots(prev => prev.length >= 3 ? "" : prev + ".");
-    }, 500);
-    
-    return () => {
-      clearInterval(textInterval);
-      clearInterval(dotsInterval);
-    };
-  }, []);
-  
-  return (
-    <div className="flex justify-center items-center w-full h-64">
-      <div className="text-center max-w-md">
-        <div className="relative mb-6">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-pulse">📁</div>
-          </div>
+const SkeletonLoader = () => (
+  <div className="flex justify-center items-center w-full h-64">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
+      <p className="text-gray-700 font-semibold text-lg">Loading folders...</p>
+      <p className="text-gray-600 text-sm mt-2">Fetching your documents from Onyx</p>
+      <div className="flex justify-center mt-4">
+        <div className="flex space-x-1">
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
         </div>
-        <p className="text-gray-700 font-medium text-lg mb-2">{loadingText}{dots}</p>
-        <p className="text-gray-600 text-sm mb-4">Preparing your document workspace</p>
-        
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-          <div 
-            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-            style={{ 
-              width: '70%',
-              animation: 'progressPulse 2s ease-in-out infinite'
-            }}
-          ></div>
-        </div>
-        <p className="text-xs text-gray-500">This usually takes just a moment</p>
-        
-        <style jsx>{`
-          @keyframes progressPulse {
-            0% { width: 20%; }
-            50% { width: 80%; }
-            100% { width: 70%; }
-          }
-        `}</style>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 // Enhanced folder item component for creation workflow
 interface CreateFolderItemProps {
@@ -95,7 +49,6 @@ interface CreateFolderItemProps {
   onClick: (id: number) => void;
   description: string;
   lastUpdated: string;
-  onDelete: () => void;
   isSelected: boolean;
   onToggleSelect: () => void;
 }
@@ -105,28 +58,9 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
   onClick,
   description,
   lastUpdated,
-  onDelete,
   isSelected,
   onToggleSelect,
 }) => {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowDeleteConfirm(true);
-  };
-  
-  const confirmDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete();
-    setShowDeleteConfirm(false);
-  };
-  
-  const cancelDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowDeleteConfirm(false);
-  };
-  
   return (
     <div 
       className={`flex items-center justify-between py-3 px-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
@@ -172,31 +106,6 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
             'Select'
           )}
         </button>
-        
-        {showDeleteConfirm ? (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={confirmDelete}
-              className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-            >
-              Delete
-            </button>
-            <button
-              onClick={cancelDelete}
-              className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleDelete}
-            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-            title="Delete folder"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
       </div>
     </div>
   );
@@ -325,35 +234,19 @@ const CreateFolderModal: React.FC<{
 };
 
 export default function CreateFromFilesContent() {
-  const {
-    folders,
-    searchQuery,
-    refreshFolders,
-    createFolder,
-    deleteItem,
-    isLoading,
-    setSearchQuery,
-    selectedFolders,
-    addSelectedFolder,
-    removeSelectedFolder,
-    clearSelectedItems,
-  } = useDocumentsContext();
-
-  const [sortType, setSortType] = useState<SortType>(SortType.TimeCreated);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(
-    SortDirection.Descending
-  );
-
   const router = useRouter();
-  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const [hoveredColumn, setHoveredColumn] = useState<SortType | null>(null);
+  const { folders, selectedFolders, addSelectedFolder, removeSelectedFolder, clearSelectedItems, isLoading, refreshFolders, createFolder } = useDocumentsContext();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortType, setSortType] = useState<SortType>(SortType.TimeCreated);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.Descending);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [hoveredColumn, setHoveredColumn] = useState<SortType | null>(null);
+
   useEffect(() => {
-    if (!folders || folders.length === 0) {
-      refreshFolders();
-    }
-  }, []);
+    refreshFolders();
+  }, [refreshFolders]);
 
   const handleSortChange = (newSortType: SortType) => {
     if (sortType === newSortType) {
@@ -370,15 +263,6 @@ export default function CreateFromFilesContent() {
 
   const handleFolderClick = (id: number) => {
     router.push(`/create/from-files/${id}`);
-  };
-
-  const handleDeleteItem = async (itemId: number, isFolder: boolean) => {
-    try {
-      await deleteItem(itemId, isFolder);
-    } catch (error) {
-      console.error("Failed to delete item:", error);
-      alert("Failed to delete item. Please try again.");
-    }
   };
 
   const filteredFolders = useMemo(() => {
@@ -584,7 +468,6 @@ export default function CreateFromFilesContent() {
                     onClick={handleFolderClick}
                     description={folder.description}
                     lastUpdated={folder.created_at}
-                    onDelete={() => handleDeleteItem(folder.id, true)}
                     isSelected={selectedFolders.some(f => f.id === folder.id)}
                     onToggleSelect={() => {
                       if (selectedFolders.some(f => f.id === folder.id)) {
