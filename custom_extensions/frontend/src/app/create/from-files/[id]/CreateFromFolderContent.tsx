@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Upload,
   X,
-  Loader2,
   Plus,
 } from "lucide-react";
 import Link from "next/link";
@@ -28,11 +27,15 @@ interface FileItemProps {
 
 const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect }) => {
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return "Unknown size";
+    if (!bytes || bytes === 0) return "Size unknown";
     const kb = bytes / 1024;
     const mb = kb / 1024;
+    const gb = mb / 1024;
+    
+    if (gb >= 1) return `${gb.toFixed(1)} GB`;
     if (mb >= 1) return `${mb.toFixed(1)} MB`;
-    return `${kb.toFixed(1)} KB`;
+    if (kb >= 1) return `${kb.toFixed(1)} KB`;
+    return `${bytes} bytes`;
   };
 
   const getFileIcon = (fileName: string) => {
@@ -72,13 +75,21 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
             <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
             <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
               <span>{formatFileSize(file.size)}</span>
-              {file.token_count && <span>{file.token_count.toLocaleString()} tokens</span>}
-              <span className={`px-2 py-1 rounded-full text-xs ${
-                file.status === 'indexed' 
+              {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} tokens</span>}
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                file.status === 'indexed' || file.indexed === true
                   ? 'bg-green-100 text-green-800' 
+                  : file.status === 'failed'
+                  ? 'bg-red-100 text-red-800'
                   : 'bg-yellow-100 text-yellow-800'
               }`}>
-                {file.status === 'indexed' ? 'Indexed' : 'Processing'}
+                {file.status === 'indexed' || file.indexed === true
+                  ? 'Ready' 
+                  : file.status === 'failed'
+                  ? 'Failed'
+                  : file.status === 'processing' || file.status === 'indexing'
+                  ? 'Processing'
+                  : file.status || 'Processing'}
               </span>
             </div>
           </div>
@@ -226,44 +237,68 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading folder contents...</p>
+      <main 
+        className="min-h-screen relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-700 font-medium">Loading folder contents...</p>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading folder: {error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Retry
-          </button>
+      <main 
+        className="min-h-screen relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-600 mb-4 font-medium">Error loading folder: {error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (!currentFolder) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Folder not found</p>
-          <Link 
-            href="/create/from-files"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Back to Folders
-          </Link>
+      <main 
+        className="min-h-screen relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-700 mb-4 font-medium">Folder not found</p>
+            <Link 
+              href="/create/from-files"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Back to Folders
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -271,7 +306,13 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   const selectedCount = selectedFileIds.length;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
+    <main 
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+      }}
+    >
       {/* Header */}
       <div className="bg-white/90 backdrop-blur border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto">
@@ -314,9 +355,22 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             onDrop={handleDrop}
           >
             {isUploading ? (
-              <div className="flex items-center justify-center gap-3">
-                <Loader2 className="h-6 w-6 text-blue-600 animate-spin" />
-                <span className="text-gray-700 font-medium">Uploading files...</span>
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="relative">
+                    <div className="h-12 w-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Upload className="h-5 w-5 text-blue-600" />
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-lg font-medium text-gray-900">Uploading files...</p>
+                    <p className="text-sm text-gray-600">Processing and indexing documents</p>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
+                </div>
               </div>
             ) : (
               <>

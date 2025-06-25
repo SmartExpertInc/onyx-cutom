@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Upload,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FolderResponse } from "../../../components/documents/DocumentsContext";
@@ -28,15 +29,10 @@ enum SortDirection {
 
 const SkeletonLoader = () => (
   <div className="flex justify-center items-center w-full h-64">
-    <div className="animate-pulse flex flex-col items-center gap-5 w-full">
-      <div className="h-28 w-28 rounded-full from-primary/20 to-primary/30 dark:from-neutral-700 dark:to-neutral-600 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-r-0 border-l-0 border-primary dark:border-neutral-300"></div>
-      </div>
-      <div className="space-y-3">
-        <div className="h-5 w-56 bg-gradient-to-r from-primary/20 to-primary/30 dark:from-neutral-700 dark:to-neutral-600 rounded-md"></div>
-        <div className="h-4 w-40 bg-gradient-to-r from-primary/20 to-primary/30 dark:from-neutral-700 dark:to-neutral-600 rounded-md"></div>
-        <div className="h-3 w-32 bg-gradient-to-r from-primary/20 to-primary/30 dark:from-neutral-700 dark:to-neutral-600 rounded-md"></div>
-      </div>
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-700 font-medium">Loading folders...</p>
+      <p className="text-gray-600 text-sm mt-1">Getting your documents ready</p>
     </div>
   </div>
 );
@@ -111,6 +107,128 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
   );
 };
 
+// Modal component for creating new folders
+const CreateFolderModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (name: string, description: string) => void;
+}> = ({ isOpen, onClose, onSubmit }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    
+    setIsSubmitting(true);
+    try {
+      await onSubmit(name.trim(), description.trim());
+      setName("");
+      setDescription("");
+      onClose();
+    } catch (error) {
+      console.error("Failed to create folder:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (isSubmitting) return;
+    setName("");
+    setDescription("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop with blur */}
+      <div 
+        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+        onClick={handleClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Create New Folder</h2>
+          <button
+            onClick={handleClose}
+            disabled={isSubmitting}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Folder Name *
+            </label>
+            <input
+              id="folder-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isSubmitting}
+              placeholder="Enter folder name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              autoFocus
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="folder-description" className="block text-sm font-medium text-gray-700 mb-1">
+              Description (optional)
+            </label>
+            <textarea
+              id="folder-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={isSubmitting}
+              placeholder="Enter folder description"
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+            />
+          </div>
+          
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!name.trim() || isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Create Folder
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function CreateFromFilesContent() {
   const {
     folders,
@@ -136,6 +254,7 @@ export default function CreateFromFilesContent() {
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [hoveredColumn, setHoveredColumn] = useState<SortType | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     refreshFolders();
@@ -160,14 +279,7 @@ export default function CreateFromFilesContent() {
     });
   };
 
-  const handleCreateFolder = async (folderName: string) => {
-    try {
-      await createFolder(folderName);
-      setIsCreatingFolder(false);
-    } catch (error) {
-      console.error("Failed to create folder:", error);
-    }
-  };
+
 
   const handleDeleteItem = async (itemId: number, isFolder: boolean) => {
     if (confirm(`Are you sure you want to delete this ${isFolder ? 'folder' : 'file'}?`)) {
@@ -239,8 +351,18 @@ export default function CreateFromFilesContent() {
     router.push(`/create/generate?${params.toString()}`);
   };
 
+  const handleCreateFolder = async (name: string, description: string) => {
+    await createFolder(name, description);
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
+    <main 
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+      }}
+    >
       <div className="min-h-full pt-20 w-full min-w-0 flex-1 mx-auto w-full max-w-[90rem] flex-1 px-4 pb-20 md:pl-8 md:pr-8 2xl:pr-14">
         {/* Back button */}
         <div className="absolute top-4 left-4">
@@ -262,15 +384,7 @@ export default function CreateFromFilesContent() {
               Select folders containing documents to create content from
             </p>
           </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsCreatingFolder(true)}
-            className="inline-flex items-center justify-center relative shrink-0 h-9 px-4 py-2 rounded-lg min-w-[5rem] active:scale-[0.985] whitespace-nowrap pl-2 pr-3 gap-1 bg-blue-600 text-white hover:bg-blue-700"
-          >
-            <Plus className="h-5 w-5" />
-            New Folder
-          </button>
-        </div>
+
       </header>
 
       <main className="mt-8">
@@ -286,14 +400,8 @@ export default function CreateFromFilesContent() {
             />
           </div>
           <button
-            onClick={() => {
-              const name = prompt("Enter folder name:");
-              if (name) {
-                const description = prompt("Enter folder description (optional):") || "";
-                createFolder(name, description);
-              }
-            }}
-            className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-900 font-medium"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
           >
             <Plus className="h-4 w-4" />
             New Folder
@@ -427,7 +535,8 @@ export default function CreateFromFilesContent() {
                 const formData = new FormData(e.currentTarget);
                 const name = formData.get('name') as string;
                 if (name.trim()) {
-                  handleCreateFolder(name.trim());
+                  handleCreateFolder(name.trim(), "");
+                  setIsCreatingFolder(false);
                 }
               }}
             >
@@ -457,6 +566,13 @@ export default function CreateFromFilesContent() {
           </div>
         </div>
       )}
+
+      {/* New create folder modal */}
+      <CreateFolderModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateFolder}
+      />
       </div>
     </main>
   );
