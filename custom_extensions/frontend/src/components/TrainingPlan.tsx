@@ -31,6 +31,12 @@ const NewInfoIcon = ({ className = '' }) => (
     </svg>
 );
 
+const NewNoIcon = ({ color = '#FF1414', className = '' }) => (
+    <svg className={className} width="16" height="16" viewBox="0 0 9 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4.5 0.500015C2.01857 0.500015 0 2.51859 0 5.00002C0 7.48144 2.01857 9.50002 4.5 9.50002C6.98143 9.50002 9 7.48144 9 5.00002C9 2.51859 6.98143 0.500015 4.5 0.500015ZM6.36779 6.29391C6.52805 6.45417 6.52668 6.7135 6.36642 6.87239C6.28698 6.95183 6.18288 6.99155 6.07786 6.99155C5.97284 6.99155 5.86875 6.95183 5.78793 6.87239L4.49859 5.57849L3.20598 6.86783C3.12517 6.94728 3.02153 6.98699 2.91742 6.98699C2.81332 6.98699 2.70694 6.94727 2.62749 6.86646C2.46724 6.7062 2.4686 6.44824 2.62749 6.28798L3.92139 4.99865L2.63205 3.70604C2.4718 3.54578 2.47316 3.28645 2.63342 3.12756C2.79231 2.9673 3.05164 2.9673 3.2119 3.12756L4.50124 4.42146L5.79385 3.13212C5.95411 2.97323 6.21344 2.97323 6.37233 3.13349C6.53259 3.29375 6.53122 3.55171 6.37233 3.71197L5.07843 5.0013L6.36779 6.29391Z" fill={color}/>
+    </svg>
+);
+
 const editingInputClassBase = "p-1 bg-yellow-50 border border-yellow-400 rounded text-black outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-400";
 const editingInputClass = `w-full ${editingInputClassBase} text-xs`;
 const editingInputSmallClass = `${editingInputClassBase} h-8 text-xs`;
@@ -66,10 +72,16 @@ const StatusBadge = ({
   switch (type) {
     case 'test': case 'video_test': return ( <div className="inline-flex items-center space-x-2"> <NewTestIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> <span className="text-xs font-medium text-gray-700">{text}</span> </div> );
     case 'practice': case 'practice_supervisor': case 'role_play': case 'demo_supervisor': case 'error_analysis_supervisor': case 'demo_practice': case 'practice_case': case 'practice_discussion': case 'oral_quiz': case 'photo_analysis': case 'other_check': return ( <div className="inline-flex items-center space-x-2"> <NewPracticeIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> <span className="text-xs font-medium text-gray-700">{text}</span> </div> );
+    case 'no': return (
+        <div className="inline-flex items-center space-x-2">
+            <NewNoIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> 
+            <span className="text-xs font-medium text-gray-700">{text || 'No'}</span> 
+        </div> 
+    );
     default: return ( 
         <div className="inline-flex items-center space-x-2">
             <NewInfoIcon className={`${defaultIconSize} shrink-0`} /> 
-            <span className="text-xs font-medium text-gray-700">{text || (type === 'no' ? 'No' : type)}</span> 
+            <span className="text-xs font-medium text-gray-700">{text || type}</span> 
         </div> 
     );
   }
