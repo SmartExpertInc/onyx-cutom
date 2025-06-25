@@ -774,9 +774,9 @@ export default function CourseOutlineClient() {
 
   // Predefined theme preview data to match provided mockup
   const themeOptions = [
-    { id: "cherry", label: "Cherry" },
-    { id: "terracotta", label: "Terracotta" },
-    { id: "vanilla", label: "Vanilla" },
+    { id: "cherry", label: "Default" },
+    { id: "terracotta", label: "Deloitte" },
+    { id: "vanilla", label: "Engenuity" },
     { id: "lunaria", label: "Lunaria" },
     { id: "wine", label: "Wine" },
     { id: "zephyr", label: "Zephyr" },

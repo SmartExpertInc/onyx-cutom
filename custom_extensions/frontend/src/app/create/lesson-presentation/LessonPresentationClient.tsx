@@ -554,9 +554,9 @@ export default function LessonPresentationClient() {
 
   const themeOptions = [
     { id: "wine", label: "Wine" },
-    { id: "cherry", label: "Cherry" },
-    { id: "vanilla", label: "Vanilla" },
-    { id: "terracotta", label: "Terracotta" },
+    { id: "cherry", label: "Default" },
+    { id: "vanilla", label: "Engenuity" },
+    { id: "terracotta", label: "Deloitte" },
     { id: "lunaria", label: "Lunaria" },
     { id: "zephyr", label: "Zephyr" },
   ];
