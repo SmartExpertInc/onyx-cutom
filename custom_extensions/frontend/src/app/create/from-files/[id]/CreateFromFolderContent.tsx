@@ -28,7 +28,8 @@ interface FileItemProps {
 // Component for file status badge with spinner for indexing
 const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
   const { getFilesIndexingStatus, getFolderDetails, folderDetails } = useDocumentsContext();
-  const [indexingStatus, setIndexingStatus] = useState<boolean | null>(null);
+  const [localIndexingStatus, setLocalIndexingStatus] = useState<boolean | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -36,40 +37,60 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
     const checkIndexingStatus = async () => {
       if (file.status === 'indexing' || file.status === 'processing') {
         try {
+          setIsPolling(true);
           const statusMap = await getFilesIndexingStatus([file.id]);
           const isIndexed = statusMap[file.id];
-          setIndexingStatus(isIndexed);
+          
+          // Update local status immediately
+          setLocalIndexingStatus(isIndexed);
           
           // If indexed, refresh the folder to get updated file status
           if (isIndexed && folderDetails) {
             await getFolderDetails(folderDetails.id);
-            clearInterval(interval);
+            if (interval) {
+              clearInterval(interval);
+              setIsPolling(false);
+            }
           }
         } catch (error) {
           console.error('Error checking indexing status:', error);
+          setIsPolling(false);
+        }
+      } else {
+        // File is not in processing state, stop polling
+        setLocalIndexingStatus(null);
+        setIsPolling(false);
+        if (interval) {
+          clearInterval(interval);
         }
       }
     };
 
-    // Initial check
-    checkIndexingStatus();
-
-    // Set up interval for indexing files
-    if (file.status === 'indexing' || file.status === 'processing') {
-      interval = setInterval(checkIndexingStatus, 3000); // Check every 3 seconds
+    // Reset local status when file changes
+    if (file.status === 'indexed' || file.indexed === true) {
+      setLocalIndexingStatus(true);
+      setIsPolling(false);
+    } else if (file.status === 'failed') {
+      setLocalIndexingStatus(false);
+      setIsPolling(false);
+    } else if (file.status === 'indexing' || file.status === 'processing') {
+      // Start polling for indexing files
+      checkIndexingStatus(); // Initial check
+      interval = setInterval(checkIndexingStatus, 2000); // Check every 2 seconds
     }
 
     return () => {
       if (interval) {
         clearInterval(interval);
       }
+      setIsPolling(false);
     };
-  }, [file.id, file.status, getFilesIndexingStatus, getFolderDetails, folderDetails]);
+  }, [file.id, file.status, file.indexed, getFilesIndexingStatus, getFolderDetails, folderDetails]);
 
-  // Determine the display status
-  const isReady = file.status === 'indexed' || file.indexed === true || indexingStatus === true;
-  const isIndexing = (file.status === 'indexing' || file.status === 'processing') && indexingStatus !== true;
-  const isFailed = file.status === 'failed';
+  // Determine the display status - prioritize local status for real-time updates
+  const isReady = file.status === 'indexed' || file.indexed === true || localIndexingStatus === true;
+  const isIndexing = ((file.status === 'indexing' || file.status === 'processing') && localIndexingStatus !== true) || isPolling;
+  const isFailed = file.status === 'failed' || localIndexingStatus === false;
 
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
