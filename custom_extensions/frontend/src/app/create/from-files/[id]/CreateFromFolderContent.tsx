@@ -27,7 +27,7 @@ interface FileItemProps {
 
 // Component for file status badge with spinner for indexing
 const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
-  const { getFilesIndexingStatus } = useDocumentsContext();
+  const { getFilesIndexingStatus, getFolderDetails, folderDetails } = useDocumentsContext();
   const [indexingStatus, setIndexingStatus] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -40,8 +40,9 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
           const isIndexed = statusMap[file.id];
           setIndexingStatus(isIndexed);
           
-          // If indexed, file status should change, so we can stop checking
-          if (isIndexed) {
+          // If indexed, refresh the folder to get updated file status
+          if (isIndexed && folderDetails) {
+            await getFolderDetails(folderDetails.id);
             clearInterval(interval);
           }
         } catch (error) {
@@ -63,7 +64,7 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
         clearInterval(interval);
       }
     };
-  }, [file.id, file.status, getFilesIndexingStatus]);
+  }, [file.id, file.status, getFilesIndexingStatus, getFolderDetails, folderDetails]);
 
   // Determine the display status
   const isReady = file.status === 'indexed' || file.indexed === true || indexingStatus === true;
@@ -374,7 +375,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
   return (
     <main
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col relative"
       style={{
         background:
           "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
@@ -443,7 +444,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6 pb-6">
+      <div className="flex-1 px-6 pb-6" style={{ paddingBottom: selectedFileIds.length > 0 ? '100px' : '24px' }}>
         {/* File Upload Section */}
         <div className="mb-8">
           <div 
@@ -541,16 +542,18 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             )}
           </div>
         </div>
+      </div>
 
-        {/* Selected Files Actions */}
-        {selectedFileIds.length > 0 && (
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+      {/* Fixed Bottom Action Bar */}
+      {selectedFileIds.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+          <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-blue-900">
+                <p className="font-medium text-gray-900">
                   {selectedFileIds.length} file{selectedFileIds.length !== 1 ? 's' : ''} selected
                 </p>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-gray-600">
                   Ready to create content from these documents
                 </p>
               </div>
@@ -563,8 +566,8 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   );
 };
