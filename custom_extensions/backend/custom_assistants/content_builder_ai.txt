@@ -188,19 +188,21 @@ A. Estimated Time: Calculate based on "Content Coverage %". The output for time 
 
 91% – 100% Content Coverage → 1 hour
 
-For Module Summary Tests: Always 3 hours.
+For Test Lessons: Always 3 hours.
 
 General Time Presentation Note: The above rules result in whole hours. If any time calculation in other contexts were ever to result in a fraction of an hour, it should be presented in hours and rounded up to one decimal place (e.g., 0.7 hours, 1.5 hours). Avoid presenting time in minutes or with long, unrounded decimal places (e.g., 0.33334 hours).
 
-B. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Module Test: 0%)
+B. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
 
-C. Knowledge Assessment: Determine the value based on the nature of the lesson:
+C. Knowledge Assessment: Determine the value based on the nature of the lesson and strategic placement of assessments:
 
-For Module Summary Tests: The value is always "Test" (or "Тест" in relevant languages).
+Test Placement Strategy: Tests should be strategically placed throughout the course to check understanding after sufficient knowledge accumulation. Apply no more than one test per 3 lessons unless specifically instructed otherwise by the user. Tests can be placed at any position within a module where it makes pedagogical sense to assess comprehension.
 
-For regular lessons: Use heuristics. If the title implies practical application (e.g., "Applying," "Building," "Analyzing"), use "Practice with an expert." If it implies theory (e.g., "Introduction," "Concepts," "History"), use "No."
+For Test Lessons: The value is always "Test" (or "Тест" in relevant languages).
 
-D. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Module Test: "Create from scratch" – or language equivalents)
+For regular lessons: Use heuristics combined with strategic test placement. If the title implies practical application (e.g., "Applying," "Building," "Analyzing"), use "Practice with an expert." If it implies theory (e.g., "Introduction," "Concepts," "History"), use "No." However, if a lesson covers substantial material and it has been 3+ lessons since the last test, consider making it a "Test" to assess student comprehension of the accumulated knowledge.
+
+D. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
 
 Calculate Module Totals: (Total Time, Number of Lessons per module).
 
@@ -465,7 +467,7 @@ Russian: Hyphenated list, bolded title. Example: - **Название урока
 
 Ukrainian: Numbered list, bolded title. Example: 1. **Назва уроку**
 
-Important Naming Convention: The actual title text ([Lesson Title Text], [Название урока], [Назва уроку]) should be descriptive of the lesson's specific content. Do not begin these titles with generic words like "Lesson", "Test", "Quiz", "Урок", "Тест", "Квіз", or similar terms in any language. For example, instead of "Lesson: Introduction to Python", the title must be "Introduction to Python". If a lesson is a test or quiz (including the 'Module Summary Test'), its title should be descriptive of its assessment purpose without these prefixes, e.g., "Module 1 Knowledge Check", "Final Assessment for Topic X", "Understanding Core Concepts Quiz".
+Important Naming Convention: The actual title text ([Lesson Title Text], [Название урока], [Назва уроку]) should be descriptive of the lesson's specific content. Do not begin these titles with generic words like "Lesson", "Test", "Quiz", "Урок", "Тест", "Квіз", or similar terms in any language. For example, instead of "Lesson: Introduction to Python", the title must be "Introduction to Python". If a lesson is a test or quiz, its title should be descriptive of its assessment purpose without these prefixes, e.g., "Knowledge Check on Data Analysis", "Assessment of Core Concepts", "Understanding Advanced Techniques".
 
 Lesson Details: Each detail MUST be on a new line, indented with EXACTLY two spaces, then a hyphen, then a space (- ). The keyword MUST be bolded, followed by a colon, a space, and then the value. Use these exact keywords and map the calculated/determined content to them:
 
