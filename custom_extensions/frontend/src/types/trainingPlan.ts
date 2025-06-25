@@ -35,6 +35,7 @@ export interface TrainingPlanData { // This can be the generic structure for mic
   sections: Section[];
   detectedLanguage?: string | null;
   displayOptions?: DisplayOptions; // NEW: column visibility settings chosen during creation
+  theme?: string; // Theme selection for styling
 }
 
 // For fetching project details for the edit page

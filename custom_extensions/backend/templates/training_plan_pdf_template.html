@@ -201,9 +201,9 @@
                              {% set shours = section.totalHours %}
                              {% set s_formatted_hours = (shours|int if shours == shours|int else shours)|string %}
                              {% if shours == 1.0 %}
-                               <span class="text-red-500 flex-grow text-left">{{ s_formatted_hours }}{{ time_unit_singular }}</span>
+                               <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ s_formatted_hours }}{{ time_unit_singular }}</span>
                              {% elif shours > 0 %}
-                               <span class="text-red-500 flex-grow text-left">{{ s_formatted_hours }}{{ time_unit_general_plural }}</span>
+                                                                <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ s_formatted_hours }}{{ time_unit_general_plural }}</span>
                              {% else %}
                                <span class="text-red-500 flex-grow text-left">-</span>
                              {% endif %}

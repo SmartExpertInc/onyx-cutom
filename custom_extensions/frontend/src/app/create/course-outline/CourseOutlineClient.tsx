@@ -608,6 +608,7 @@ export default function CourseOutlineClient() {
           })),
         })),
         detectedLanguage: language,
+        theme: selectedTheme, // Save the selected theme
       };
 
       const finalizeBody: any = {

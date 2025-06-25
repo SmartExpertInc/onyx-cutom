@@ -480,6 +480,7 @@ export default function ProjectInstanceViewPage() {
             sourceChatSessionId={projectInstanceData.sourceChatSessionId}
             allUserMicroproducts={allUserMicroproducts}
             parentProjectName={parentProjectNameForCurrentView}
+            theme={trainingPlanData?.theme || 'cherry'}
           />
         );
       case COMPONENT_NAME_PDF_LESSON:

@@ -43,6 +43,7 @@ export interface TrainingPlanData {
   mainTitle?: string | null;
   sections: Section[];
   detectedLanguage?: string | null;
+  theme?: string; // Theme selection for styling
 }
 // --- End TrainingPlan Specific Types ---
 
