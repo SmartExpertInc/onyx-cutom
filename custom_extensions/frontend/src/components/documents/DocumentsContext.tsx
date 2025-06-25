@@ -179,9 +179,8 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     fetchFolders();
   }, []);
 
-  const refreshFolders = async () => {
+  const refreshFolders = useCallback(async () => {
     try {
-      console.log("fetching folders");
       const data = await documentsService.fetchFolders();
       setFolders(data);
       setError(null);
@@ -189,13 +188,13 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
       console.error("Failed to fetch folders:", error);
       setError("Failed to fetch folders");
     }
-  };
+  }, []);
 
   const getFolders = async (): Promise<FolderResponse[]> => {
     return documentsService.fetchFolders();
   };
 
-  const getFolderDetails = async (folderId: number) => {
+  const getFolderDetails = useCallback(async (folderId: number) => {
     try {
       const data = await documentsService.getFolderDetails(folderId);
       setFolderDetails(data);
@@ -204,7 +203,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
       console.error("Failed to fetch folder details:", error);
       setError("Failed to fetch folder details");
     }
-  };
+  }, []);
 
   const updateFolderDetails = async (
     folderId: number,
@@ -295,6 +294,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        
         setUploadProgress({
           fileCount: totalFiles,
           completedCount: completedFiles,
@@ -304,11 +304,14 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
 
         const formData = new FormData();
         formData.append("file", file);
-        if (currentFolder) {
-          formData.append("folder_id", currentFolder.toString());
+        // Use folderDetails?.id first, then fallback to currentFolder
+        const targetFolderId = folderDetails?.id || currentFolder;
+        
+        if (targetFolderId) {
+          formData.append("folder_id", targetFolderId.toString());
         }
 
-        await uploadFile(formData, currentFolder);
+        await uploadFile(formData, targetFolderId);
         completedFiles++;
 
         setUploadProgress({
@@ -320,11 +323,14 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
       }
 
       await refreshFolders();
-      if (currentFolder) {
-        await getFolderDetails(currentFolder);
+      // Refresh the specific folder details if we have a folder ID
+      const targetFolderId = folderDetails?.id || currentFolder;
+      if (targetFolderId) {
+        await getFolderDetails(targetFolderId);
       }
     } catch (error) {
       console.error("Upload error:", error);
+      setError(error instanceof Error ? error.message : "Upload failed");
       throw error;
     } finally {
       setUploadProgress(null);

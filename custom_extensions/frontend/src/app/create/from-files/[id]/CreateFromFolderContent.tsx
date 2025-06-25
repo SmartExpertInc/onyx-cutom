@@ -152,7 +152,7 @@ const ALLOWED_FILE_TYPES = [
 
 const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folderId }) => {
   const router = useRouter();
-  const { folders, files, isLoading, error, refreshFolders, getFolderDetails, folderDetails, handleUpload, uploadProgress } = useDocumentsContext();
+  const { folders, files, isLoading, error, getFolderDetails, folderDetails, handleUpload, uploadProgress, setCurrentFolder } = useDocumentsContext();
   const [selectedFileIds, setSelectedFileIds] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -161,9 +161,14 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
   const folderFiles = currentFolder?.files || files?.filter(f => f.folder_id === folderId) || [];
 
   useEffect(() => {
-    refreshFolders();
-    getFolderDetails(folderId);
-  }, [refreshFolders, getFolderDetails, folderId]);
+    // Set the current folder in the context
+    setCurrentFolder(folderId);
+    
+    // Only fetch if we don't have the folder details already
+    if (!folderDetails || folderDetails.id !== folderId) {
+      getFolderDetails(folderId);
+    }
+  }, [folderId, setCurrentFolder, getFolderDetails, folderDetails]);
 
   const handleToggleFile = (fileId: number) => {
     setSelectedFileIds(prev => 

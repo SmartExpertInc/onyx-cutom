@@ -32,13 +32,6 @@ const SkeletonLoader = () => (
       <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
       <p className="text-gray-700 font-semibold text-lg">Loading folders...</p>
       <p className="text-gray-600 text-sm mt-2">Fetching your documents from Onyx</p>
-      <div className="flex justify-center mt-4">
-        <div className="flex space-x-1">
-          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-        </div>
-      </div>
     </div>
   </div>
 );
@@ -180,7 +173,7 @@ const CreateFolderModal: React.FC<{
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
               placeholder="Enter folder name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
               autoFocus
             />
           </div>
@@ -196,7 +189,7 @@ const CreateFolderModal: React.FC<{
               disabled={isSubmitting}
               placeholder="Enter folder description"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 placeholder-gray-500"
             />
           </div>
           
