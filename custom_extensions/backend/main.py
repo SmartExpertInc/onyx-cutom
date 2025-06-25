@@ -410,6 +410,8 @@ class TrainingPlanDetails(BaseModel):
     detectedLanguage: Optional[str] = None
     # Store user preferences on which optional columns to show in UI (frontend reads this)
     displayOptions: Optional[Dict[str, bool]] = None  # e.g., {"knowledgeCheck": true, "contentAvailability": false}
+    # Store theme selection for styling
+    theme: Optional[str] = "cherry"  # Default theme
     model_config = {"from_attributes": True}
 
 AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]

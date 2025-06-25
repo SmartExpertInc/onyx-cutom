@@ -67,6 +67,12 @@
             font-size: 0.68rem; 
             line-height: 0.88rem; 
         }
+
+        /* Dynamic theme colors - these will be overridden by the theme configuration */
+        .theme-header-bg { background-color: #E5EEFF; }
+        .theme-number-color { color: #6B7280; }
+        .theme-icon-color { color: #FF1414; }
+        .theme-icon-fill { fill: #FF1414; }
     </style>
 
     {# Dynamic row height adjustment #}
@@ -78,6 +84,44 @@
         }
     </style>
     {% endif %}
+
+    {# Dynamic theme configuration for different color schemes #}
+    {% set theme_name = details.details.theme or 'cherry' %}
+    {% set theme_config = {
+        'cherry': {
+            'headerBg': '#E5EEFF',
+            'numberColor': '#6B7280',
+            'iconColor': '#FF1414'
+        },
+        'lunaria': {
+            'headerBg': '#85749E',
+            'numberColor': '#FFFFFF',
+            'iconColor': '#85749E'
+        },
+        'wine': {
+            'headerBg': '#E5EEFF',
+            'numberColor': '#6B7280',
+            'iconColor': '#FF1414'
+        },
+        'vanilla': {
+            'headerBg': '#E5EEFF',
+            'numberColor': '#6B7280',
+            'iconColor': '#FF1414'
+        },
+        'terracotta': {
+            'headerBg': '#E5EEFF',
+            'numberColor': '#6B7280',
+            'iconColor': '#FF1414'
+        },
+        'zephyr': {
+            'headerBg': '#E5EEFF',
+            'numberColor': '#6B7280',
+            'iconColor': '#FF1414'
+        }
+    } %}
+    {% set current_theme = theme_config[theme_name] or theme_config['cherry'] %}
+
+
 
 </head>
 <body class="bg-gray-50 font-sans">
@@ -147,7 +191,7 @@
                 <div>
                     <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200 bg-module-header" style="background-color: #F2F2F2;">
                         <div class="flex items-center space-x-2 pr-2 {% if time_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span) }}">
-                            <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: #FF1414;">{{ section.id }}</span>
+                            <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: {{ current_theme.iconColor }};">{{ section.id }}</span>
                             <span class="font-semibold text-gray-800">{{ section.title }}</span>
                         </div>
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 font-semibold px-2" style="{{ span_style(span_time) }}">

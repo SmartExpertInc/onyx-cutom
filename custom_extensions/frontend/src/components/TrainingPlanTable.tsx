@@ -39,14 +39,14 @@ const editingInputTitleClass = `${editingInputClassBase} text-base font-semibold
 const editingInputMainTitleClass = `${editingInputClassBase} text-xl md:text-2xl font-bold bg-gray-700 text-white`;
 
 const StatusBadge = ({
-  type, text, columnContext, isEditing, onTextChange, path
+  type, text, columnContext, isEditing, onTextChange, path, iconColor = '#FF1414'
 }: {
   type: string; text: string; columnContext?: 'check' | 'contentAvailable';
   isEditing?: boolean;
   onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
   path?: (string | number)[];
+  iconColor?: string;
 }) => {
-  const iconColor = '#FF1414';
   const defaultIconSize = "w-4 h-4";
 
   if (isEditing && onTextChange && path && (columnContext === 'check' || columnContext === 'contentAvailable')) {
@@ -82,6 +82,7 @@ interface TrainingPlanTableProps {
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
+  theme?: string;
 }
 
 const localizationConfig = {
@@ -158,6 +159,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   allUserMicroproducts,
   parentProjectName,
   sourceChatSessionId,
+  theme = 'cherry', // Default theme
 }) => {
   const [lessonModalState, setLessonModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
@@ -175,7 +177,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     }
   };
 
-  const iconBaseColor = '#FF1414';
+  // Theme configuration for training plan colors
+  const themeConfig = {
+    cherry: {
+      headerBg: "bg-[#E5EEFF]", // current blue
+      numberColor: "text-gray-600", // current gray
+      iconColor: "#FF1414", // current red
+    },
+    lunaria: {
+      headerBg: "bg-[#85749E]",
+      numberColor: "text-white",
+      iconColor: "#85749E", // same as header
+    },
+    wine: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      iconColor: "#FF1414",
+    },
+    vanilla: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      iconColor: "#FF1414",
+    },
+    terracotta: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      iconColor: "#FF1414",
+    },
+    zephyr: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      iconColor: "#FF1414",
+    },
+  };
+
+  const currentTheme = themeConfig[theme as keyof typeof themeConfig] || themeConfig.cherry;
+  const iconBaseColor = currentTheme.iconColor;
   const sections = dataToDisplay?.sections;
   const mainTitle = dataToDisplay?.mainTitle;
   const lang = dataToDisplay?.detectedLanguage === 'en' ? 'en' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : 'ru';
@@ -409,13 +446,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         case 'knowledgeCheck':
                           return (
                             <div key={col.key} className={`flex justify-start ${commonCls}`}>
-                              <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']}/>
+                              <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor}/>
                             </div>
                           );
                         case 'contentAvailability':
                           return (
                             <div key={col.key} className={`flex justify-start ${commonCls}`}>
-                              <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']}/>
+                              <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={isEditing} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor}/>
                             </div>
                           );
                         case 'informationSource':
