@@ -27,70 +27,38 @@ interface FileItemProps {
 
 // Component for file status badge with spinner for indexing
 const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
-  const { getFilesIndexingStatus, getFolderDetails, folderDetails } = useDocumentsContext();
-  const [localIndexingStatus, setLocalIndexingStatus] = useState<boolean | null>(null);
-  const [isPolling, setIsPolling] = useState(false);
+  const [localStatus, setLocalStatus] = useState<'ready' | 'processing' | 'failed' | null>(null);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout;
 
-    const checkIndexingStatus = async () => {
-      if (file.status === 'indexing' || file.status === 'processing') {
-        try {
-          setIsPolling(true);
-          const statusMap = await getFilesIndexingStatus([file.id]);
-          const isIndexed = statusMap[file.id];
-          
-          // Update local status immediately
-          setLocalIndexingStatus(isIndexed);
-          
-          // If indexed, refresh the folder to get updated file status
-          if (isIndexed && folderDetails) {
-            await getFolderDetails(folderDetails.id);
-            if (interval) {
-              clearInterval(interval);
-              setIsPolling(false);
-            }
-          }
-        } catch (error) {
-          console.error('Error checking indexing status:', error);
-          setIsPolling(false);
-        }
-      } else {
-        // File is not in processing state, stop polling
-        setLocalIndexingStatus(null);
-        setIsPolling(false);
-        if (interval) {
-          clearInterval(interval);
-        }
-      }
-    };
-
-    // Reset local status when file changes
+    // If file is already indexed, show ready immediately
     if (file.status === 'indexed' || file.indexed === true) {
-      setLocalIndexingStatus(true);
-      setIsPolling(false);
-    } else if (file.status === 'failed') {
-      setLocalIndexingStatus(false);
-      setIsPolling(false);
-    } else if (file.status === 'indexing' || file.status === 'processing') {
-      // Start polling for indexing files
-      checkIndexingStatus(); // Initial check
-      interval = setInterval(checkIndexingStatus, 2000); // Check every 2 seconds
+      setLocalStatus('ready');
+    } 
+    // If file failed, show failed
+    else if (file.status === 'failed') {
+      setLocalStatus('failed');
+    }
+    // If file is processing/indexing, show processing for 5 seconds then ready
+    else if (file.status === 'indexing' || file.status === 'processing') {
+      setLocalStatus('processing');
+      timeout = setTimeout(() => {
+        setLocalStatus('ready');
+      }, 5000); // 5 seconds
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (timeout) {
+        clearTimeout(timeout);
       }
-      setIsPolling(false);
     };
-  }, [file.id, file.status, file.indexed, getFilesIndexingStatus, getFolderDetails, folderDetails]);
+  }, [file.id, file.status, file.indexed]);
 
-  // Determine the display status - prioritize local status for real-time updates
-  const isReady = file.status === 'indexed' || file.indexed === true || localIndexingStatus === true;
-  const isIndexing = ((file.status === 'indexing' || file.status === 'processing') && localIndexingStatus !== true) || isPolling;
-  const isFailed = file.status === 'failed' || localIndexingStatus === false;
+  // Determine display status
+  const isReady = localStatus === 'ready' || file.status === 'indexed' || file.indexed === true;
+  const isProcessing = localStatus === 'processing' && !isReady;
+  const isFailed = localStatus === 'failed' || file.status === 'failed';
 
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -100,7 +68,7 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
         ? 'bg-red-100 text-red-800'
         : 'bg-yellow-100 text-yellow-800'
     }`}>
-      {isIndexing && (
+      {isProcessing && (
         <div className="w-3 h-3 border border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
       )}
       {isReady
