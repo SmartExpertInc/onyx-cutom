@@ -10,6 +10,7 @@ import {
   ArrowDown,
   ArrowLeft,
   CheckCircle2,
+  Upload,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FolderResponse } from "../../../components/documents/DocumentsContext";
@@ -239,27 +240,28 @@ export default function CreateFromFilesContent() {
   };
 
   return (
-    <div className="min-h-full pt-20 w-full min-w-0 flex-1 mx-auto w-full max-w-[90rem] flex-1 px-4 pb-20 md:pl-8 md:pr-8 2xl:pr-14">
-      {/* Back button */}
-      <div className="absolute top-4 left-4">
-        <Link
-          href="/create"
-          className="flex items-center gap-1 text-sm font-medium bg-white/70 hover:bg-white text-gray-900 backdrop-blur rounded-full px-3 py-1 shadow border border-gray-200"
-        >
-          <ArrowLeft size={14} />
-          Back to Create
-        </Link>
-      </div>
-
-      <header className="flex w-full items-center justify-between gap-4 -translate-y-px">
-        <div>
-          <h1 className="flex items-center gap-1.5 text-lg font-medium leading-tight tracking-tight max-md:hidden">
-            Create from Files
-          </h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Select folders containing documents to create content from
-          </p>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
+      <div className="min-h-full pt-20 w-full min-w-0 flex-1 mx-auto w-full max-w-[90rem] flex-1 px-4 pb-20 md:pl-8 md:pr-8 2xl:pr-14">
+        {/* Back button */}
+        <div className="absolute top-4 left-4">
+          <Link
+            href="/create"
+            className="flex items-center gap-1 text-sm font-medium bg-white/70 hover:bg-white text-gray-900 backdrop-blur rounded-full px-3 py-1 shadow border border-gray-200"
+          >
+            <ArrowLeft size={14} />
+            Back to Create
+          </Link>
         </div>
+
+        <header className="flex w-full items-center justify-between gap-4 -translate-y-px">
+          <div>
+            <h1 className="flex items-center gap-1.5 text-2xl font-bold leading-tight tracking-tight max-md:hidden text-gray-900">
+              Create from Files
+            </h1>
+            <p className="text-sm text-gray-700 mt-1">
+              Select folders containing documents to create content from
+            </p>
+          </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreatingFolder(true)}
@@ -272,7 +274,7 @@ export default function CreateFromFilesContent() {
       </header>
 
       <main className="mt-8">
-        {/* Search bar */}
+        {/* Search bar and Create Folder button */}
         <div className="flex items-center justify-between mb-6">
           <div className="relative w-full max-w-md">
             <input
@@ -280,9 +282,22 @@ export default function CreateFromFilesContent() {
               placeholder="Search folders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
             />
           </div>
+          <button
+            onClick={() => {
+              const name = prompt("Enter folder name:");
+              if (name) {
+                const description = prompt("Enter folder description (optional):") || "";
+                createFolder(name, description);
+              }
+            }}
+            className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-900 font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            New Folder
+          </button>
         </div>
 
         {/* Selected items summary and action */}
@@ -442,6 +457,7 @@ export default function CreateFromFilesContent() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </main>
   );
 } 

@@ -72,6 +72,8 @@ export interface DocumentsContextType {
     name: string,
     description: string
   ) => Promise<void>;
+  uploadFile: (formData: FormData, folderId: number | null) => Promise<FileResponse[]>;
+  handleUpload: (files: File[]) => Promise<void>;
 }
 
 const DocumentsContext = createContext<DocumentsContextType | undefined>(
@@ -232,6 +234,47 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     setSelectedFolders([]);
   }, []);
 
+  const uploadFile = async (formData: FormData, folderId: number | null): Promise<FileResponse[]> => {
+    try {
+      const url = folderId ? `/api/user/file/upload?folder_id=${folderId}` : '/api/user/file/upload';
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to upload file");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to upload file:", error);
+      throw error;
+    }
+  };
+
+  const handleUpload = async (files: File[]) => {
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      await uploadFile(formData, folderDetails?.id || null);
+      await refreshFolders();
+      if (folderDetails?.id) {
+        await getFolderDetails(folderDetails.id);
+      }
+    } catch (error) {
+      console.error("Error uploading documents:", error);
+      setError("Failed to upload documents. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: DocumentsContextType = {
     files: folders.map((folder) => folder.files).flat(),
     folders,
@@ -261,6 +304,8 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     getFolders,
     folderDetails,
     updateFolderDetails,
+    uploadFile,
+    handleUpload,
   };
 
   return (
