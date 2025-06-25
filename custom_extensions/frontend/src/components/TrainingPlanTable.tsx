@@ -24,14 +24,6 @@ const NewPracticeIcon = ({ color = '#FF1414', className = '' }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 9 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.59091 6.22727H7.77273V5C7.77273 4.89151 7.72961 4.78744 7.6529 4.71073C7.5762 4.63403 7.47213 4.59091 7.36364 4.59091H4.90909V3.77273H5.72727C5.83576 3.77273 5.93984 3.72963 6.01654 3.65291C6.09325 3.57619 6.13636 3.47214 6.13636 3.36364V0.909091C6.13636 0.800592 6.09325 0.69654 6.01654 0.619819C5.93984 0.543102 5.83576 0.5 5.72727 0.5H3.27273C3.16423 0.5 3.06018 0.543102 2.98345 0.619819C2.90674 0.69654 2.86364 0.800592 2.86364 0.909091V3.36364C2.86364 3.47214 2.90674 3.57619 2.98345 3.65291C3.06018 3.72963 3.16423 3.77273 3.27273 3.77273H4.09091V4.59091H1.63636C1.52786 4.59091 1.42381 4.63403 1.34709 4.71073C1.27037 4.78744 1.22727 4.89151 1.22727 5V6.22727H0.409091C0.300592 6.22727 0.19654 6.27039 0.119819 6.3471C0.0431018 6.4238 0 6.52787 0 6.63636V9.09091C0 9.1994 0.0431018 9.30347 0.119819 9.38018C0.19654 9.45688 0.300592 9.5 0.409091 9.5H2.86364C2.97214 9.5 3.07619 9.45688 3.15291 9.38018C3.22963 9.30347 3.27273 9.1994 3.27273 9.09091V6.63636C3.27273 6.52787 3.22963 6.4238 3.15291 6.3471C3.07619 6.27039 2.97214 6.22727 2.86364 6.22727H2.04545V5.40909H6.95455V6.22727H6.13636C6.02787 6.22727 5.9238 6.27039 5.8471 6.3471C5.77039 6.4238 5.72727 6.52787 5.72727 6.63636V9.09091C5.72727 9.1994 5.77039 9.30347 5.8471 9.38018C5.9238 9.45688 6.02787 9.5 6.13636 9.5H8.59091C8.6994 9.5 8.80347 9.45688 8.88018 9.38018C8.95688 9.30347 9 9.1994 9 9.09091V6.63636C9 6.52787 8.95688 6.4238 8.88018 6.3471C8.80347 6.27039 8.6994 6.22727 8.59091 6.22727Z" fill={color}/>
   </svg>
 );
-const NewInfoIcon = ({ className = '' }) => (
-    <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="8" fill="#FF1414" />
-        <path d="M8 11V7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 5.01L8.008 4.99889" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-
 const NewNoIcon = ({ color = '#FF1414', className = '' }) => (
     <svg className={className} width="16" height="16" viewBox="0 0 9 10" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4.5 0.500015C2.01857 0.500015 0 2.51859 0 5.00002C0 7.48144 2.01857 9.50002 4.5 9.50002C6.98143 9.50002 9 7.48144 9 5.00002C9 2.51859 6.98143 0.500015 4.5 0.500015ZM6.36779 6.29391C6.52805 6.45417 6.52668 6.7135 6.36642 6.87239C6.28698 6.95183 6.18288 6.99155 6.07786 6.99155C5.97284 6.99155 5.86875 6.95183 5.78793 6.87239L4.49859 5.57849L3.20598 6.86783C3.12517 6.94728 3.02153 6.98699 2.91742 6.98699C2.81332 6.98699 2.70694 6.94727 2.62749 6.86646C2.46724 6.7062 2.4686 6.44824 2.62749 6.28798L3.92139 4.99865L2.63205 3.70604C2.4718 3.54578 2.47316 3.28645 2.63342 3.12756C2.79231 2.9673 3.05164 2.9673 3.2119 3.12756L4.50124 4.42146L5.79385 3.13212C5.95411 2.97323 6.21344 2.97323 6.37233 3.13349C6.53259 3.29375 6.53122 3.55171 6.37233 3.71197L5.07843 5.0013L6.36779 6.29391Z" fill={color}/>
@@ -72,16 +64,10 @@ const StatusBadge = ({
   switch (type) {
     case 'test': case 'video_test': return ( <div className="inline-flex items-center space-x-2"> <NewTestIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> <span className="text-xs font-medium text-gray-700">{text}</span> </div> );
     case 'practice': case 'practice_supervisor': case 'role_play': case 'demo_supervisor': case 'error_analysis_supervisor': case 'demo_practice': case 'practice_case': case 'practice_discussion': case 'oral_quiz': case 'photo_analysis': case 'other_check': return ( <div className="inline-flex items-center space-x-2"> <NewPracticeIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> <span className="text-xs font-medium text-gray-700">{text}</span> </div> );
-    case 'no': return (
-        <div className="inline-flex items-center space-x-2">
-            <NewNoIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> 
-            <span className="text-xs font-medium text-gray-700">{text || 'No'}</span> 
-        </div> 
-    );
     default: return ( 
         <div className="inline-flex items-center space-x-2">
-            <NewInfoIcon className={`${defaultIconSize} shrink-0`} /> 
-            <span className="text-xs font-medium text-gray-700">{text || type}</span> 
+            <NewNoIcon color={iconColor} className={`${defaultIconSize} shrink-0`} /> 
+            <span className="text-xs font-medium text-gray-700">{text || (type === 'no' ? 'No' : type)}</span> 
         </div> 
     );
   }
