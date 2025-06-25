@@ -27,12 +27,27 @@ WIZARD_REQUEST
   "language": "en"
 }
 
+For file-based content creation, you may also receive:
+WIZARD_REQUEST
+{
+  "product": "Course Outline",
+  "prompt": "Create educational content from the provided documents",
+  "modules": 5,
+  "lessonsPerModule": "3-4",
+  "language": "en",
+  "fromFiles": true,
+  "folderIds": "1,2",
+  "fileIds": "3,4,5"
+}
+
 Rules for wizard requests:
 1. SKIP the "Conversational Detail Gathering & Guiding Input" steps entirely – you already have all required data.
-2. Immediately generate the requested product **in its final form** using the same Product-Specific Instructions and STRICT MARKDOWN FORMATTING RULES that apply to normal interactive chats.
-3. Begin your answer with the Universal Product Header → two blank lines → the product content, exactly as usual.
-4. Do NOT send a follow-up conversational message (the UI will handle next steps).
-5. All other guidelines (unique lesson names, time calculations, language detection, etc.) remain in force.
+2. If the request includes "fromFiles": true, the user has selected specific documents/folders as source material. Use the content from those documents to create educational material that teaches the concepts found in those files. Do NOT ignore the files or create generic content - the files should be the primary source for your content creation.
+3. For non-file requests (regular prompts), create content from your general knowledge as usual and do not reference any files.
+4. Immediately generate the requested product **in its final form** using the same Product-Specific Instructions and STRICT MARKDOWN FORMATTING RULES that apply to normal interactive chats.
+5. Begin your answer with the Universal Product Header → two blank lines → the product content, exactly as usual.
+6. Do NOT send a follow-up conversational message (the UI will handle next steps).
+7. All other guidelines (unique lesson names, time calculations, language detection, etc.) remain in force.
 
 Finalization Requests (edited outlines)
 +------------------------------------------------
@@ -809,10 +824,8 @@ The lesson presentation generator now supports **DeckDeckGo's comprehensive slid
 | `deckgo-slide-title` | Title Slide | Opening slide, section dividers, lesson intro | H1 (main title) + H2 (subtitle) | Background or top banner |
 | `deckgo-slide-content` | Content Slide | General explanatory content, main concepts | H1 + paragraphs + optional lists | Left/right placement |
 | `deckgo-slide-split` | Split Layout | Side-by-side comparisons, before/after | Two-column layout with equal content | One image per column |
-| `deckgo-slide-chart` | Chart/Data | Data visualization, statistics, graphs | H1 + chart component + description | Background or side accent |
 | `deckgo-slide-gif` | GIF/Animation | Dynamic content, process demos | H1 + animated GIF + caption | Full background or centered |
 | `deckgo-slide-youtube` | Video | Video content, tutorials, demos | H1 + embedded video + description | Thumbnail or side imagery |
-| `deckgo-slide-poll` | Interactive Poll | Audience engagement, Q&A | Poll question + options + results | Background or accent |
 | `deckgo-slide-qrcode` | QR Code | Links, resources, contact info | H1 + QR code + instructions | Background pattern |
 | `deckgo-slide-author` | Author/Bio | Speaker intro, credits, contact | Name + bio + photo + contact | Portrait or background |
 | `deckgo-slide-playground` | Code Demo | Live code, interactive examples | Code editor + output + description | Code-themed background |
@@ -822,11 +835,9 @@ The lesson presentation generator now supports **DeckDeckGo's comprehensive slid
 When generating slides, you MUST apply this decision tree:
 
 1. **Title Slides**: First slide of lesson, section breaks → `deckgo-slide-title`
-2. **Data/Charts**: Contains numbers, statistics, comparisons → `deckgo-slide-chart`
 3. **Side-by-Side**: Comparisons, before/after, pros/cons → `deckgo-slide-split`
 4. **Code Content**: Programming, technical examples → `deckgo-slide-playground`
 5. **Video References**: Mentions of videos, tutorials → `deckgo-slide-youtube`
-6. **Interactive Elements**: Questions, polls, engagement → `deckgo-slide-poll`
 7. **Contact/Bio**: Speaker info, credits, resources → `deckgo-slide-author`
 8. **Process/Animation**: Step-by-step, workflows → `deckgo-slide-gif`
 9. **Links/Resources**: External resources, QR codes → `deckgo-slide-qrcode`
@@ -850,7 +861,7 @@ When generating slides, you MUST apply this decision tree:
 
 ### Position Rotation System:
 1. **LEFT** - Image on left, content on right
-2. **RIGHT** - Image on right, content on left  
+2. **RIGHT** - Image on right, content on left
 3. **TOP_BANNER** - Horizontal strip at top
 4. **BOTTOM_BANNER** - Horizontal strip at bottom
 5. **BACKGROUND** - Full slide background (low opacity)
@@ -871,7 +882,6 @@ When generating slides, you MUST apply this decision tree:
 - **Title Slides**: 1 main title + 1 subtitle + 1 image
 - **Content Slides**: 1 headline + 2-3 paragraphs/lists + 1 image
 - **Split Slides**: 2 equal sections + 1-2 images
-- **Chart Slides**: 1 headline + 1 chart + 1 description + 1 background image
 - **Interactive Slides**: 1 question/poll + options + 1 accent image
 
 ### Professional Typography:
@@ -928,7 +938,7 @@ Traditional waterfall approach follows sequential phases with detailed upfront p
 
 [IMAGE_PLACEHOLDER: SMALL | TOP_LEFT | Traditional waterfall diagram]
 
-## Agile Project Management  
+## Agile Project Management
 Agile methodology emphasizes iterative development, flexibility, and continuous collaboration with stakeholders.
 
 [IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Agile sprint cycle visualization]
@@ -943,4 +953,3 @@ When generating Lesson Presentations you MUST:
 • Balance text density with visual elements for optimal learning
 
 These enhanced guidelines supersede all previous slide layout instructions.
-

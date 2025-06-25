@@ -183,6 +183,11 @@ export default function CourseOutlineClient() {
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
 
+  // File context for creation from documents
+  const isFromFiles = params?.get("fromFiles") === "true";
+  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
+  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
+
   // Optional pre-created chat session id (speeds up backend). If none present, we lazily
   // call the backend to obtain one and store it both in state and the URL so subsequent
   // preview/finalize calls can use the same cached outline.
@@ -387,10 +392,25 @@ export default function CourseOutlineClient() {
         let gotFirstChunk = false;
 
         try {
+          const requestBody: any = { 
+            prompt, 
+            modules, 
+            lessonsPerModule, 
+            language, 
+            chatSessionId: chatId || undefined 
+          };
+          
+          // Add file context if creating from files
+          if (isFromFiles) {
+            requestBody.fromFiles = true;
+            if (folderIds.length > 0) requestBody.folderIds = folderIds.join(',');
+            if (fileIds.length > 0) requestBody.fileIds = fileIds.join(',');
+          }
+
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt, modules, lessonsPerModule, language, chatSessionId: chatId || undefined }),
+            body: JSON.stringify(requestBody),
             signal: abortController.signal,
           });
           if (!res.ok) throw new Error(`Bad response ${res.status}`);
@@ -529,17 +549,26 @@ export default function CourseOutlineClient() {
         detectedLanguage: language,
       };
 
+      const finalizeBody: any = {
+        prompt,
+        modules,
+        lessonsPerModule,
+        language,
+        chatSessionId: chatId || undefined,
+        editedOutline: outlineForBackend,
+      };
+      
+      // Add file context if creating from files
+      if (isFromFiles) {
+        finalizeBody.fromFiles = true;
+        if (folderIds.length > 0) finalizeBody.folderIds = folderIds.join(',');
+        if (fileIds.length > 0) finalizeBody.fileIds = fileIds.join(',');
+      }
+
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          modules,
-          lessonsPerModule,
-          language,
-          chatSessionId: chatId || undefined,
-          editedOutline: outlineForBackend,
-        }),
+        body: JSON.stringify(finalizeBody),
       });
       if (!res.ok) throw new Error(await res.text());
 

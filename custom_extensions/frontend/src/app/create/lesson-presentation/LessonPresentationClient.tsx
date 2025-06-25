@@ -106,6 +106,11 @@ export default function LessonPresentationClient() {
   const params = useSearchParams();
   const router = useRouter();
   
+  // File context for creation from documents
+  const isFromFiles = params?.get("fromFiles") === "true";
+  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
+  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
+  
   // Core state for lesson generation
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -292,21 +297,30 @@ export default function LessonPresentationClient() {
         let gotFirstChunk = false;
 
         try {
+          const requestBody: any = {
+            // Only send outlineProjectId when the user actually selected one
+            outlineProjectId: selectedOutlineId || undefined,
+            // If no lesson was picked, derive a temporary title from the prompt or fallback
+            lessonTitle: selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson"),
+            lengthRange: lengthRangeForOption(lengthOption),
+            language,
+            // Always forward the prompt (if any) so backend can generate content
+            prompt: promptQuery || undefined,
+            chatSessionId: chatId || undefined,
+            slidesCount: slidesCount,
+          };
+
+          // Add file context if creating from files
+          if (isFromFiles) {
+            requestBody.fromFiles = true;
+            if (folderIds.length > 0) requestBody.folderIds = folderIds.join(',');
+            if (fileIds.length > 0) requestBody.fileIds = fileIds.join(',');
+          }
+
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              // Only send outlineProjectId when the user actually selected one
-              outlineProjectId: selectedOutlineId || undefined,
-              // If no lesson was picked, derive a temporary title from the prompt or fallback
-              lessonTitle: selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson"),
-              lengthRange: lengthRangeForOption(lengthOption),
-              language,
-              // Always forward the prompt (if any) so backend can generate content
-              prompt: promptQuery || undefined,
-              chatSessionId: chatId || undefined,
-              slidesCount: slidesCount,
-            }),
+            body: JSON.stringify(requestBody),
             signal: abortController.signal,
           });
 
@@ -470,18 +484,27 @@ export default function LessonPresentationClient() {
       const promptQuery = combined; // already merged new edit into existing prompt
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
+      const editRequestBody: any = {
+        outlineProjectId: selectedOutlineId || undefined,
+        lessonTitle: derivedTitle,
+        lengthRange: lengthRangeForOption(lengthOption),
+        language,
+        prompt: promptQuery,
+        chatSessionId: chatId || undefined,
+        slidesCount: slidesCount,
+      };
+
+      // Add file context if creating from files
+      if (isFromFiles) {
+        editRequestBody.fromFiles = true;
+        if (folderIds.length > 0) editRequestBody.folderIds = folderIds.join(',');
+        if (fileIds.length > 0) editRequestBody.fileIds = fileIds.join(',');
+      }
+
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outlineProjectId: selectedOutlineId || undefined,
-          lessonTitle: derivedTitle,
-          lengthRange: lengthRangeForOption(lengthOption),
-          language,
-          prompt: promptQuery,
-          chatSessionId: chatId || undefined,
-          slidesCount: slidesCount,
-        }),
+        body: JSON.stringify(editRequestBody),
         signal: abortController.signal,
       });
 

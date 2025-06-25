@@ -2560,6 +2560,10 @@ class OutlineWizardPreview(BaseModel):
     # NEW: full markdown string of the current outline so the assistant can apply
     # targeted changes when the user sends an incremental "edit" prompt.
     originalOutline: Optional[str] = None
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
 
 class OutlineWizardFinalize(BaseModel):
     prompt: str
@@ -2568,6 +2572,10 @@ class OutlineWizardFinalize(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     editedOutline: Dict[str, Any]
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
@@ -2782,6 +2790,14 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         "language": payload.language,
     }
 
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
     if payload.originalOutline:
         wiz_payload["originalOutline"] = payload.originalOutline
     else:
@@ -2798,13 +2814,21 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         last_send = asyncio.get_event_loop().time()
 
         async with httpx.AsyncClient(timeout=None) as client:
+            # Parse folder and file IDs for Onyx
+            folder_ids_list = []
+            file_ids_list = []
+            if payload.fromFiles and payload.folderIds:
+                folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+            if payload.fromFiles and payload.fileIds:
+                file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+
             send_payload = {
                 "chat_session_id": chat_id,
                 "message": wizard_message,
                 "parent_message_id": None,
                 "file_descriptors": [],
-                "user_file_ids": [],
-                "user_folder_ids": [],
+                "user_file_ids": file_ids_list,
+                "user_folder_ids": folder_ids_list,
                 "prompt_id": None,
                 "search_doc_ids": None,
                 "retrieval_options": {"run_search": "always", "real_time": False},
@@ -3161,6 +3185,10 @@ class LessonWizardPreview(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
 
 
 class LessonWizardFinalize(BaseModel):
@@ -3199,19 +3227,35 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
         wizard_dict["lessonTitle"] = payload.lessonTitle
     if payload.prompt:
         wizard_dict["prompt"] = payload.prompt
+    
+    # Add file context if provided
+    if payload.fromFiles:
+        wizard_dict["fromFiles"] = True
+        if payload.folderIds:
+            wizard_dict["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wizard_dict["fileIds"] = payload.fileIds
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
 
     async def streamer():
         last_send = asyncio.get_event_loop().time()
         async with httpx.AsyncClient(timeout=None) as client:
+            # Parse folder and file IDs for Onyx
+            folder_ids_list = []
+            file_ids_list = []
+            if payload.fromFiles and payload.folderIds:
+                folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+            if payload.fromFiles and payload.fileIds:
+                file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+
             send_payload = {
                 "chat_session_id": chat_id,
                 "message": wizard_message,
                 "parent_message_id": None,
                 "file_descriptors": [],
-                "user_file_ids": [],
-                "user_folder_ids": [],
+                "user_file_ids": file_ids_list,
+                "user_folder_ids": folder_ids_list,
                 "prompt_id": None,
                 "search_doc_ids": None,
                 "retrieval_options": {"run_search": "always", "real_time": False},

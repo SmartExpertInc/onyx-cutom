@@ -103,7 +103,7 @@ export default function DataSourceLanding() {
             Icon={UploadCloud}
             title="Import file or URL"
             description="Enhance existing docs, presentations, or webpages"
-            disabled
+            href="/create/from-files"
           />
         </div>
 

@@ -3,8 +3,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowLeft, Shuffle, Sparkles, Plus, ChevronDown, FileText } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -105,6 +105,11 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
 );
 
 export default function GenerateProductPicker() {
+  const searchParams = useSearchParams();
+  const isFromFiles = searchParams?.get('fromFiles') === 'true';
+  const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
+  const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
+  
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
@@ -160,7 +165,7 @@ export default function GenerateProductPicker() {
     process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
   const handleCourseOutlineStart = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() && !isFromFiles) return;
 
     let chatId: string | undefined;
     try {
@@ -176,7 +181,7 @@ export default function GenerateProductPicker() {
     }
 
     const params = new URLSearchParams({
-      prompt,
+      prompt: isFromFiles ? (prompt.trim() || "Create educational content from the provided files") : prompt,
       modules: String(modulesCount),
       lessons: lessonsPerModule,
       lang: language,
@@ -186,6 +191,13 @@ export default function GenerateProductPicker() {
       time: filters.time ? '1' : '0',
     });
     if (chatId) params.set("chatId", chatId);
+    
+    // Add file context if coming from files
+    if (isFromFiles) {
+      params.set("fromFiles", "true");
+      if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+      if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    }
 
     router.push(`/create/course-outline?${params.toString()}`);
   };
@@ -275,8 +287,8 @@ export default function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered
-      if (!prompt.trim()) return;
+      // If standalone lesson, check if prompt entered or coming from files
+      if (!prompt.trim() && !isFromFiles) return;
     }
 
     const params = new URLSearchParams();
@@ -288,7 +300,17 @@ export default function GenerateProductPicker() {
     }
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
-    if (prompt.trim()) params.set("prompt", prompt.trim());
+    
+    // Handle file-based prompts
+    if (isFromFiles) {
+      params.set("prompt", prompt.trim() || "Create lesson content from the provided files");
+      params.set("fromFiles", "true");
+      if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+      if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    } else if (prompt.trim()) {
+      params.set("prompt", prompt.trim());
+    }
+    
     params.set("lang", language);
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
@@ -312,7 +334,30 @@ export default function GenerateProductPicker() {
         </Link>
 
         <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">Generate</h1>
-        <p className="text-center text-gray-600 text-lg -mt-1">What would you like to create today?</p>
+        <p className="text-center text-gray-600 text-lg -mt-1">
+          {isFromFiles ? "Create content from your selected files" : "What would you like to create today?"}
+        </p>
+
+        {/* File context indicator */}
+        {isFromFiles && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
+              <FileText className="h-5 w-5" />
+              Creating from files
+            </div>
+            <div className="text-sm text-blue-700">
+              {folderIds.length > 0 && (
+                <p>{folderIds.length} folder{folderIds.length !== 1 ? 's' : ''} selected</p>
+              )}
+              {fileIds.length > 0 && (
+                <p>{fileIds.length} file{fileIds.length !== 1 ? 's' : ''} selected</p>
+              )}
+              <p className="mt-1 text-blue-600">
+                The AI will use your selected documents as source material to create educational content.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Tab selector */}
         <div className="flex justify-center gap-4 mb-4">
@@ -560,7 +605,7 @@ export default function GenerateProductPicker() {
             ref={promptRef}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe what you'd like to make"
+            placeholder={isFromFiles ? "Describe what you'd like to create from your files (optional)" : "Describe what you'd like to make"}
             rows={1}
             className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
           />
@@ -569,7 +614,7 @@ export default function GenerateProductPicker() {
         {/* Example prompts block */}
         <div
           className={`transition-all duration-300 origin-top ${
-            prompt.trim().length === 0 && (activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false))
+            !isFromFiles && prompt.trim().length === 0 && (activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false))
               ? 'opacity-100 translate-y-0 max-h-[500px]'
               : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'
           }`}
@@ -608,8 +653,8 @@ export default function GenerateProductPicker() {
         {/* Generate button block */}
         <div
           className={`flex justify-center mt-6 transition-all duration-300 ${
-            (activeProduct === 'Course Outline' && prompt.trim().length > 0) ||
-            (activeProduct === 'Lesson Presentation' && useExistingOutline === false && prompt.trim().length > 0) ||
+            (activeProduct === 'Course Outline' && (prompt.trim().length > 0 || isFromFiles)) ||
+            (activeProduct === 'Lesson Presentation' && useExistingOutline === false && (prompt.trim().length > 0 || isFromFiles)) ||
             (activeProduct === 'Lesson Presentation' && useExistingOutline === true && selectedOutlineId && selectedLesson)
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-2 pointer-events-none'
