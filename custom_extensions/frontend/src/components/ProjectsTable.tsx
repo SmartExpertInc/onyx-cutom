@@ -581,35 +581,48 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                     instanceName: p.microproduct_name,
                 }));
 
-                // ---- Filter lessons when their parent course outline (Training Plan) exists ----
+                // ---- Filter lessons that belong to outlines from the main products page ----
                 const deduplicateProjects = (projectsArr: Project[]): Project[] => {
-                    const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
-                    projectsArr.forEach((proj) => {
-                        if (!grouped[proj.title]) {
-                            grouped[proj.title] = { outline: null, others: [] };
-                        }
+                    const outlineNames = new Set<string>();
+                    const filteredProjects: Project[] = [];
 
+                    // First pass: collect all outline names
+                    projectsArr.forEach((proj) => {
                         const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
                         if (isOutline) {
-                            // Keep the first outline we encounter for this project title
-                            if (!grouped[proj.title].outline) {
-                                grouped[proj.title].outline = proj;
+                            outlineNames.add(proj.title.trim());
+                        }
+                    });
+
+                    // Second pass: filter projects
+                    projectsArr.forEach((proj) => {
+                        const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                        
+                        if (isOutline) {
+                            // Always include outlines
+                            filteredProjects.push(proj);
+                        } else {
+                            // For non-outline projects, check if they belong to an outline
+                            const projectTitle = proj.title.trim();
+                            let belongsToOutline = false;
+
+                            // Check if this project follows the "Outline Name: Lesson Title" pattern
+                            // and if the outline name matches any existing outline
+                            if (projectTitle.includes(': ')) {
+                                const outlinePart = projectTitle.split(': ')[0].trim();
+                                if (outlineNames.has(outlinePart)) {
+                                    belongsToOutline = true;
+                                }
                             }
-                        } else {
-                            grouped[proj.title].others.push(proj);
+
+                            // Only include projects that don't belong to an outline
+                            if (!belongsToOutline) {
+                                filteredProjects.push(proj);
+                            }
                         }
                     });
 
-                    const finalList: Project[] = [];
-                    Object.values(grouped).forEach(({ outline, others }) => {
-                        if (outline) {
-                            finalList.push(outline);
-                        } else {
-                            finalList.push(...others);
-                        }
-                    });
-
-                    return finalList;
+                    return filteredProjects;
                 };
 
                 setProjects(deduplicateProjects(mappedProjects));
