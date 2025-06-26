@@ -209,22 +209,11 @@ export default function CourseOutlineClient() {
     if (isFromText) {
       try {
         const storedData = sessionStorage.getItem('pastedTextData');
-        console.log('CourseOutline: Retrieving from sessionStorage:', storedData ? 'Found data' : 'No data');
         if (storedData) {
           const textData = JSON.parse(storedData);
-          console.log('CourseOutline: Parsed text data:', { 
-            hasText: !!textData.text, 
-            textLength: textData.text?.length || 0, 
-            mode: textData.mode, 
-            expectedMode: textMode,
-            isRecent: textData.timestamp && (Date.now() - textData.timestamp < 3600000)
-          });
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
             setUserText(textData.text || '');
-            console.log('CourseOutline: Set userText:', textData.text?.substring(0, 100) + '...');
-          } else {
-            console.log('CourseOutline: Text data validation failed');
           }
         }
       } catch (error) {
@@ -476,9 +465,8 @@ export default function CourseOutlineClient() {
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
     
-    // Don't start preview if we're waiting for text to load from sessionStorage
+    // For text mode, wait until userText is loaded
     if (isFromText && !userText) {
-      console.log('CourseOutline: Waiting for userText to load from sessionStorage...');
       return;
     }
 
@@ -516,12 +504,7 @@ export default function CourseOutlineClient() {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
             requestBody.userText = userText;
-            console.log('CourseOutline: Adding text context to request:', {
-              fromText: true,
-              textMode: textMode,
-              userTextLength: userText?.length || 0,
-              userTextPreview: userText?.substring(0, 100) + '...'
-            });
+
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
@@ -609,20 +592,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
-
-  // Separate useEffect to trigger preview when userText becomes available
-  useEffect(() => {
-    if (isFromText && userText && chatId && !isGenerating && !loading) {
-      console.log('CourseOutline: userText loaded, triggering preview...');
-      // Small delay to ensure state is settled
-      const timer = setTimeout(() => {
-        // Trigger preview by updating a state that the main useEffect depends on
-        setPrompt(prev => prev); // This will trigger the main useEffect
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [userText, isFromText, chatId, isGenerating, loading]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromFiles, folderIds, fileIds, isFromText, userText]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {

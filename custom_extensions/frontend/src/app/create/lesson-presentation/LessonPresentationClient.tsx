@@ -161,22 +161,11 @@ export default function LessonPresentationClient() {
     if (isFromText) {
       try {
         const storedData = sessionStorage.getItem('pastedTextData');
-        console.log('LessonPresentation: Retrieving from sessionStorage:', storedData ? 'Found data' : 'No data');
         if (storedData) {
           const textData = JSON.parse(storedData);
-          console.log('LessonPresentation: Parsed text data:', { 
-            hasText: !!textData.text, 
-            textLength: textData.text?.length || 0, 
-            mode: textData.mode, 
-            expectedMode: textMode,
-            isRecent: textData.timestamp && (Date.now() - textData.timestamp < 3600000)
-          });
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
             setUserText(textData.text || '');
-            console.log('LessonPresentation: Set userText:', textData.text?.substring(0, 100) + '...');
-          } else {
-            console.log('LessonPresentation: Text data validation failed');
           }
         }
       } catch (error) {
@@ -357,9 +346,8 @@ export default function LessonPresentationClient() {
       return;
     }
     
-    // Don't start preview if we're waiting for text to load from sessionStorage
+    // For text mode, wait until userText is loaded
     if (isFromText && !userText) {
-      console.log('LessonPresentation: Waiting for userText to load from sessionStorage...');
       setLoading(false);
       return;
     }
@@ -406,12 +394,7 @@ export default function LessonPresentationClient() {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
             requestBody.userText = userText;
-            console.log('LessonPresentation: Adding text context to request:', {
-              fromText: true,
-              textMode: textMode,
-              userTextLength: userText?.length || 0,
-              userTextPreview: userText?.substring(0, 100) + '...'
-            });
+
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -487,20 +470,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language]);
-
-  // Separate useEffect to trigger preview when userText becomes available
-  useEffect(() => {
-    if (isFromText && userText && !loading) {
-      console.log('LessonPresentation: userText loaded, triggering preview...');
-      // Small delay to ensure state is settled
-      const timer = setTimeout(() => {
-        // Trigger preview by updating a state that the main useEffect depends on
-        setLengthOption(prev => prev); // This will trigger the main useEffect
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [userText, isFromText, loading]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromFiles, folderIds, fileIds, isFromText, userText]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {
