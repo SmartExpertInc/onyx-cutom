@@ -148,11 +148,17 @@ const findMicroproductByTitle = (
   const found = allUserMicroproducts.find(
     (mp) => {
       const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
+      const mpProjectName = mp.projectName?.trim();
 
-      const projectMatch = mp.projectName?.trim() === trimmedParentProjectName;
-      const nameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+      // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+      const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
+      const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
       
-      return projectMatch && nameMatch;
+      // Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+      const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const newPatternMatch = mpProjectName === expectedNewProjectName;
+      
+      return (legacyProjectMatch && legacyNameMatch) || newPatternMatch;
     }
   );
 

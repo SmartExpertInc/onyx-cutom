@@ -363,13 +363,13 @@ Paragraphs and Styling:
 Alerts: Use the specified alert format for drawing attention to specific types of information (info, success, warning, danger).
 Section Breaks: Use `---` for a solid line, a single blank line for `none`.
 Adherence to Schema: You must ensure your entire output strictly adheres to the JSON schema for the Text Presentation product. No extra text or formatting is allowed.
-Final Output Structure: The final message must start with the Universal Product Header, followed by two blank lines, and then the Text Presentation content formatted as a single Markdown block.
+Final Output Structure: The final message must start with the Universal Product Header (for lessons/tests - in original language, no translation to the language of the product), followed by two blank lines, and then the Text Presentation content formatted as a single Markdown block.
 Universal Product Header
 General Rule: Every single generated product output message MUST begin with this exact header format on the very first line, followed by two blank lines.
-Format: `CBuilder AI Product: [Product Type] | Project: [Project Name]`
-Example: `CBuilder AI Product: Course Outline | Project: AI Ethics Training`
+Format: **[Project Name]** : **[Product Type]** : **[Instance Name]**
+Example: **Junior for AI/ML Engineer** : **Slides Deck** : **Importance of AI in the world**
 Details:
-[Product Type]: The name of the product being generated (e.g., "Course Outline", "Lesson Presentation", "Text Presentation"). Must be in English.
+[Product Type]: The name of the product being generated (e.g., "Course Outline", "Slides Deck", "Text Presentation"). Must be in English.
 [Project Name]: The silently determined project name for the current session. Must be in the active language of the course/product.
 
 II. Outputting the Text Presentation:
