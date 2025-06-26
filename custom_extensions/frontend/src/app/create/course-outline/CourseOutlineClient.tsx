@@ -198,6 +198,29 @@ export default function CourseOutlineClient() {
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
+  
+  // Text context for creation from user text
+  const isFromText = params?.get("fromText") === "true";
+  const textMode = params?.get("textMode") as 'context' | 'base' | null;
+  const [userText, setUserText] = useState('');
+  
+  // Retrieve user text from sessionStorage
+  useEffect(() => {
+    if (isFromText) {
+      try {
+        const storedData = sessionStorage.getItem('pastedTextData');
+        if (storedData) {
+          const textData = JSON.parse(storedData);
+          // Check if data is recent (within 1 hour) and matches the current mode
+          if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
+            setUserText(textData.text || '');
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving pasted text data:', error);
+      }
+    }
+  }, [isFromText, textMode]);
   const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
 
@@ -468,6 +491,13 @@ export default function CourseOutlineClient() {
             if (fileIds.length > 0) requestBody.fileIds = fileIds.join(',');
           }
 
+          // Add text context if creating from text
+          if (isFromText) {
+            requestBody.fromText = true;
+            requestBody.textMode = textMode;
+            requestBody.userText = userText;
+          }
+
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -626,6 +656,13 @@ export default function CourseOutlineClient() {
         finalizeBody.fromFiles = true;
         if (folderIds.length > 0) finalizeBody.folderIds = folderIds.join(',');
         if (fileIds.length > 0) finalizeBody.fileIds = fileIds.join(',');
+      }
+
+      // Add text context if creating from text
+      if (isFromText) {
+        finalizeBody.fromText = true;
+        finalizeBody.textMode = textMode;
+        finalizeBody.userText = userText;
       }
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {

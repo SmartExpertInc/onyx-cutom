@@ -233,7 +233,7 @@ function GenerateProductPicker() {
     if (isFromText) {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
-      params.set("userText", userText);
+      // userText stays in sessionStorage - don't pass via URL
     }
 
     router.push(`/create/course-outline?${params.toString()}`);
@@ -350,7 +350,7 @@ function GenerateProductPicker() {
         : "Create lesson content based on the provided text structure"));
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
-      params.set("userText", userText);
+      // userText stays in sessionStorage - don't pass via URL
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
