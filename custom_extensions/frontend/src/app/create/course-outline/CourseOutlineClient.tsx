@@ -414,6 +414,11 @@ export default function CourseOutlineClient() {
           modules: parsedData.modules,
           lessonsPerModule: parsedData.lessonsPerModule,
           language: parsedData.language,
+          isFromFiles: false,
+          folderIds: [],
+          fileIds: [],
+          isFromText: false,
+          userText: '',
         };
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
@@ -458,7 +463,12 @@ export default function CourseOutlineClient() {
       lastPreviewParamsRef.current.prompt === prompt &&
       lastPreviewParamsRef.current.modules === modules &&
       lastPreviewParamsRef.current.lessonsPerModule === lessonsPerModule &&
-      lastPreviewParamsRef.current.language === language;
+      lastPreviewParamsRef.current.language === language &&
+      lastPreviewParamsRef.current.isFromFiles === isFromFiles &&
+      JSON.stringify(lastPreviewParamsRef.current.folderIds) === JSON.stringify(folderIds) &&
+      JSON.stringify(lastPreviewParamsRef.current.fileIds) === JSON.stringify(fileIds) &&
+      lastPreviewParamsRef.current.isFromText === isFromText &&
+      lastPreviewParamsRef.current.userText === userText;
 
     if (same) return;
 
@@ -541,7 +551,7 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language, isFromFiles, folderIds, fileIds, isFromText, userText };
               }
             }
           }
@@ -560,7 +570,7 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language, isFromFiles, folderIds, fileIds, isFromText, userText };
               }
             } catch {/* ignore */}
           }
@@ -838,6 +848,11 @@ export default function CourseOutlineClient() {
     modules: number;
     lessonsPerModule: string;
     language: string;
+    isFromFiles: boolean;
+    folderIds: string[];
+    fileIds: string[];
+    isFromText: boolean;
+    userText: string;
   } | null>(null);
 
   // Add a brand-new module to the editable preview list
@@ -878,6 +893,11 @@ export default function CourseOutlineClient() {
       modules,
       lessonsPerModule,
       language,
+      isFromFiles,
+      folderIds,
+      fileIds,
+      isFromText,
+      userText,
     };
 
     try {

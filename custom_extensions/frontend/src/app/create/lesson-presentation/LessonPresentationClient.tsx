@@ -334,12 +334,14 @@ export default function LessonPresentationClient() {
   }, [selectedOutlineId, useExistingOutline]);
 
 
+  // Extract promptQuery to avoid recalculating it inside useEffect
+  const promptQuery = params?.get("prompt")?.trim() || "";
+
   // Effect to trigger streaming preview generation
   useEffect(() => {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
-    const promptQuery = params?.get("prompt")?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
       setLoading(false);
@@ -470,7 +472,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromFiles, folderIds, fileIds, isFromText, userText]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromFiles, folderIds, fileIds, isFromText, userText, promptQuery]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {
