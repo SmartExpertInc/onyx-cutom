@@ -13,10 +13,17 @@ export default function PasteTextPage() {
   const handleContinue = () => {
     if (!text.trim() || !mode) return;
 
+    // Store text in sessionStorage to avoid URL length limits
+    const textData = {
+      text: text.trim(),
+      mode: mode,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem('pastedTextData', JSON.stringify(textData));
+
     const params = new URLSearchParams();
     params.set('fromText', 'true');
     params.set('textMode', mode);
-    params.set('userText', text.trim());
     
     router.push(`/create/generate?${params.toString()}`);
   };

@@ -111,7 +111,25 @@ function GenerateProductPicker() {
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
-  const userText = searchParams?.get('userText') || '';
+  
+  // Retrieve user text from sessionStorage
+  const [userText, setUserText] = useState('');
+  useEffect(() => {
+    if (isFromText) {
+      try {
+        const storedData = sessionStorage.getItem('pastedTextData');
+        if (storedData) {
+          const textData = JSON.parse(storedData);
+          // Check if data is recent (within 1 hour) and matches the current mode
+          if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
+            setUserText(textData.text || '');
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving pasted text data:', error);
+      }
+    }
+  }, [isFromText, textMode]);
   
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
