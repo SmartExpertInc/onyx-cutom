@@ -356,6 +356,13 @@ export default function LessonPresentationClient() {
       setLoading(false);
       return;
     }
+    
+    // Don't start preview if we're waiting for text to load from sessionStorage
+    if (isFromText && !userText) {
+      console.log('LessonPresentation: Waiting for userText to load from sessionStorage...');
+      setLoading(false);
+      return;
+    }
 
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
@@ -480,7 +487,20 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, userText, isFromText, textMode]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language]);
+
+  // Separate useEffect to trigger preview when userText becomes available
+  useEffect(() => {
+    if (isFromText && userText && !loading) {
+      console.log('LessonPresentation: userText loaded, triggering preview...');
+      // Small delay to ensure state is settled
+      const timer = setTimeout(() => {
+        // Trigger preview by updating a state that the main useEffect depends on
+        setLengthOption(prev => prev); // This will trigger the main useEffect
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [userText, isFromText, loading]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {

@@ -475,6 +475,12 @@ export default function CourseOutlineClient() {
 
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
+    
+    // Don't start preview if we're waiting for text to load from sessionStorage
+    if (isFromText && !userText) {
+      console.log('CourseOutline: Waiting for userText to load from sessionStorage...');
+      return;
+    }
 
     const startPreview = (attempt: number = 0) => {
       const abortController = new AbortController();
@@ -603,7 +609,20 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, userText, isFromText, textMode]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
+
+  // Separate useEffect to trigger preview when userText becomes available
+  useEffect(() => {
+    if (isFromText && userText && chatId && !isGenerating && !loading) {
+      console.log('CourseOutline: userText loaded, triggering preview...');
+      // Small delay to ensure state is settled
+      const timer = setTimeout(() => {
+        // Trigger preview by updating a state that the main useEffect depends on
+        setPrompt(prev => prev); // This will trigger the main useEffect
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [userText, isFromText, chatId, isGenerating, loading]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {
