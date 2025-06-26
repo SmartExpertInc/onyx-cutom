@@ -2952,6 +2952,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 
     # ---------- 2) FAST-PATH: parse locally using cached outline + user edits ----------
     if use_fast_path:
+        fast_path_project_id = None  # Track project ID for cleanup if needed
         try:
             merged_md = _apply_title_edits_to_outline(raw_outline_cached, payload.editedOutline) if raw_outline_cached else ""
             template_id = await _ensure_training_plan_template(pool)
@@ -2966,26 +2967,51 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             onyx_user_id = await get_current_onyx_user_id(request)
 
             project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+            fast_path_project_id = project_db_candidate.id  # Store for potential cleanup
 
             # --- Patch theme into DB if provided (only for TrainingPlan components) ---
-            if payload.theme and selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
+            if payload.theme:
                 async with pool.acquire() as conn:
-                    await conn.execute(
-                        """
-                        UPDATE projects
-                        SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
-                        WHERE id = $2
-                        """,
-                        payload.theme, project_db_candidate.id
-                    )
-                    row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
-                    if row_patch and row_patch["microproduct_content"] is not None:
-                        project_db_candidate.microproduct_content = row_patch["microproduct_content"]
+                    design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
+                    if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                        await conn.execute(
+                            """
+                            UPDATE projects
+                            SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                            WHERE id = $2
+                            """,
+                            payload.theme, project_db_candidate.id
+                        )
+                        row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
+                        if row_patch and row_patch["microproduct_content"] is not None:
+                            project_db_candidate.microproduct_content = row_patch["microproduct_content"]
 
             # Success when we have at least one section parsed
             if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
                 return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
+            else:
+                # Fast-path validation failed - clean up the created project to prevent duplicates
+                logger.warning(f"Fast-path validation failed for project {fast_path_project_id}, cleaning up...")
+                try:
+                    async with pool.acquire() as conn:
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", fast_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed fast-path project {fast_path_project_id}")
+                except Exception as cleanup_e:
+                    logger.error(f"Failed to cleanup fast-path project {fast_path_project_id}: {cleanup_e}")
+                # Continue to fallback path
+                
         except Exception as fast_e:
+            # Clean up any project created during fast-path failure
+            if fast_path_project_id:
+                logger.warning(f"Fast-path failed with project {fast_path_project_id}, attempting cleanup...")
+                try:
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    async with pool.acquire() as conn:
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", fast_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed fast-path project {fast_path_project_id}")
+                except Exception as cleanup_e:
+                    logger.error(f"Failed to cleanup fast-path project {fast_path_project_id}: {cleanup_e}")
+            
             # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
             if isinstance(fast_e, HTTPException) and fast_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
                 logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
@@ -3015,7 +3041,27 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             else:
                 logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
 
-    # ---------- 2) FALLBACK: ask assistant to minimally correct ----------
+    # ---------- 3) FALLBACK: ask assistant to minimally correct ----------
+    # Before starting fallback, check if a project was already created successfully for this session
+    if chat_id:
+        try:
+            async with pool.acquire() as conn:
+                existing_row = await conn.fetchrow(
+                    "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                    uuid.UUID(chat_id),
+                )
+                if existing_row and existing_row["microproduct_content"] is not None:
+                    # Check if the existing project has valid content
+                    try:
+                        content = existing_row["microproduct_content"]
+                        if isinstance(content, dict) and content.get("sections"):
+                            logger.info(f"Found existing valid project {existing_row['id']} for chat session, returning it")
+                            return JSONResponse(content={"id": existing_row["id"]})
+                    except Exception:
+                        pass  # Continue with fallback if content validation fails
+        except Exception as e:
+            logger.warning(f"Failed to check for existing project: {e}")
+    
     wizard_message = (
         "WIZARD_REQUEST\n" +
         json.dumps({
