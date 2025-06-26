@@ -3261,10 +3261,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
 
     # Build wizard request for assistant persona
     wizard_dict: Dict[str, Any] = {
-        "product": "Lesson Presentation",
+        "product": "Slides Deck",
         "action": "preview",
         "language": payload.language,
-        "lengthRange": payload.lengthRange,
         "slidesCount": payload.slidesCount or 5,
     }
     if payload.outlineProjectId is not None:
