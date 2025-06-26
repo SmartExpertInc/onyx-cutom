@@ -3257,7 +3257,7 @@ class LessonWizardFinalize(BaseModel):
 
 
 @app.post("/api/custom/lesson-presentation/preview")
-async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
+async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -3278,6 +3278,24 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
     }
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
+        
+        # Fetch outline name to include in wizard request
+        try:
+            # Get current user ID to fetch the outline
+            onyx_user_id = await get_current_onyx_user_id(request)
+            
+            # Fetch outline name from database
+            async with pool.acquire() as conn:
+                outline_row = await conn.fetchrow(
+                    "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                    payload.outlineProjectId, onyx_user_id
+                )
+                if outline_row:
+                    wizard_dict["outlineName"] = outline_row["project_name"]
+        except Exception as e:
+            logger.warning(f"Failed to fetch outline name for project {payload.outlineProjectId}: {e}")
+            # Continue without outline name - not critical for preview
+            
     if payload.lessonTitle:
         wizard_dict["lessonTitle"] = payload.lessonTitle
     if payload.prompt:
@@ -3370,17 +3388,34 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         if not slide_deck_template_id:
             raise HTTPException(status_code=500, detail="Template initialization failed")
 
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Determine the project name - if connected to outline, use correct naming convention
+        project_name = payload.lessonTitle.strip()
+        if payload.outlineProjectId:
+            try:
+                # Fetch outline name from database
+                async with pool.acquire() as conn:
+                    outline_row = await conn.fetchrow(
+                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        payload.outlineProjectId, onyx_user_id
+                    )
+                    if outline_row:
+                        outline_name = outline_row["project_name"]
+                        project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
+            except Exception as e:
+                logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
+                # Continue with plain lesson title if outline fetch fails
+
         # Create project data
         project_data = ProjectCreateRequest(
-            projectName=payload.lessonTitle.strip(),
+            projectName=project_name,
             design_template_id=slide_deck_template_id,
             microProductName=None,
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId
         )
-
-        # Get user ID
-        onyx_user_id = await get_current_onyx_user_id(request)
         
         # Create project with proper error handling
         try:
