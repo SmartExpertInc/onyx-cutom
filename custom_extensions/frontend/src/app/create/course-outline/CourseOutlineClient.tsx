@@ -224,8 +224,10 @@ export default function CourseOutlineClient() {
       setUserText('');
     }
   }, [isFromText, textMode]);
-  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
-  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
+  
+  // Memoize arrays to prevent infinite re-renders
+  const folderIds = useMemo(() => params?.get("folderIds")?.split(",").filter(Boolean) || [], [params?.get("folderIds")]);
+  const fileIds = useMemo(() => params?.get("fileIds")?.split(",").filter(Boolean) || [], [params?.get("fileIds")]);
 
   // Optional pre-created chat session id (speeds up backend). If none present, we lazily
   // call the backend to obtain one and store it both in state and the URL so subsequent

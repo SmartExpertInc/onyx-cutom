@@ -148,8 +148,9 @@ export default function LessonPresentationClient() {
   
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
-  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
-  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
+  // Memoize arrays to prevent infinite re-renders
+  const folderIds = useMemo(() => params?.get("folderIds")?.split(",").filter(Boolean) || [], [params?.get("folderIds")]);
+  const fileIds = useMemo(() => params?.get("fileIds")?.split(",").filter(Boolean) || [], [params?.get("fileIds")]);
   
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
