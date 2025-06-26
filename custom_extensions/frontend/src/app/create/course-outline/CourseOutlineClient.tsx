@@ -38,69 +38,14 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
   </div>
 );
 
-// Helper to retry fetch up to 3 times with exponential backoff, handle timeouts and more errors
-async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 3, timeoutMs = 240000): Promise<Response> {
+// Helper to retry fetch up to 2 times on 504 Gateway Timeout
+async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
   let attempt = 0;
-  let lastError: Error | null = null;
-
-  while (attempt <= retries) {
-    try {
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-      
-      const requestInit = {
-        ...init,
-        signal: controller.signal,
-      };
-
-      const res = await fetch(input, requestInit);
-      clearTimeout(timeoutId);
-      
-      // Success or non-retryable error
-      if (res.ok || attempt >= retries) {
-        return res;
-      }
-      
-      // Retry on server errors (5xx) and specific client errors
-      if (res.status >= 500 || res.status === 408 || res.status === 429) {
-        lastError = new Error(`Request failed with status ${res.status}`);
-        attempt++;
-        if (attempt <= retries) {
-          // Exponential backoff: 1s, 2s, 4s
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt - 1) * 1000));
-          continue;
-        }
-      }
-      
-      return res;
-    } catch (error: any) {
-      lastError = error;
-      
-      // Don't retry on abort (user cancelled)
-      if (error.name === 'AbortError') {
-        throw error;
-      }
-      
-      // Retry on network errors, timeout errors, etc.
-      if (attempt < retries && (
-        error.name === 'TypeError' || // Network error
-        error.name === 'TimeoutError' ||
-        error.message?.includes('fetch') ||
-        error.message?.includes('network') ||
-        error.message?.includes('timeout')
-      )) {
-        attempt++;
-        // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt - 1) * 1000));
-        continue;
-      }
-      
-      throw error;
-    }
+  while (true) {
+    const res = await fetch(input, init);
+    if (res.status !== 504 || attempt >= retries) return res;
+    attempt += 1;
   }
-  
-  throw lastError || new Error('Request failed after retries');
 }
 
 // Compact radial progress ring (16×16) used for char-count indicator
@@ -638,7 +583,6 @@ export default function CourseOutlineClient() {
 
   const handleGenerateFinal = async () => {
     if (isGenerating) return; // guard against double-click / duplicate requests
-    
     // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
@@ -648,21 +592,6 @@ export default function CourseOutlineClient() {
     // Ensure the preview spinner / fake-thoughts are not shown while we're in finalize mode
     setLoading(false);
     setError(null);
-    
-    // Create cleanup function to ensure state is reset
-    const cleanup = () => {
-      setIsGenerating(false);
-      setLoading(false);
-    };
-    
-    // Set up timeout safeguard - if finalization takes too long, reset state
-    const maxFinalizationTime = 300000; // 5 minutes
-    const timeoutId = setTimeout(() => {
-      console.warn('Finalization timeout reached, resetting state');
-      cleanup();
-      setError('Finalization took too long. The product may have been created successfully. Please check your projects list.');
-    }, maxFinalizationTime);
-    
     try {
       const outlineForBackend = {
         mainTitle: prompt,
@@ -703,12 +632,8 @@ export default function CourseOutlineClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalizeBody),
-      }, 3, 180000); // 3 retries, 3 minute timeout per attempt
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || `Request failed with status ${res.status}`);
-      }
+      });
+      if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();
 
@@ -719,39 +644,15 @@ export default function CourseOutlineClient() {
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
 
-      // Clear timeout since we're about to navigate
-      clearTimeout(timeoutId);
-      
-      // Navigate to the newly-created product view with retry logic
-      const targetUrl = `/projects/view/${data.id}?${qp.toString()}`;
-      
-      try {
-        await router.push(targetUrl);
-        // Give navigation time to start
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (navError: any) {
-        console.error('Navigation failed, attempting fallback:', navError);
-        // Fallback: use window.location
-        window.location.href = targetUrl;
-      }
+      // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
+      // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
+      // leave the custom frontend and hit the main app's /projects route.
+      router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
-      clearTimeout(timeoutId);
-      console.error('Finalization error:', e);
-      
-      let errorMessage = 'Failed to finalize product';
-      if (e.name === 'AbortError') {
-        errorMessage = 'Request was cancelled';
-      } else if (e.message?.includes('timeout')) {
-        errorMessage = 'Request timed out. The product may have been created successfully. Please check your projects list.';
-      } else if (e.message) {
-        errorMessage = e.message;
-      }
-      
-      setError(errorMessage);
-    } finally {
-      // Always cleanup, even if navigation succeeds
-      cleanup();
-      clearTimeout(timeoutId);
+      setError(e.message);
+      // allow UI interaction again
+      setIsGenerating(false);
+      setLoading(false);
     }
   };
 
