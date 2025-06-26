@@ -1389,7 +1389,17 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
     lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
     if lock_key in ACTIVE_PROJECT_CREATE_KEYS:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Project creation already in progress.")
+    
     ACTIVE_PROJECT_CREATE_KEYS.add(lock_key)
+    
+    # Auto-cleanup lock after maximum processing time to prevent deadlocks
+    async def cleanup_lock_after_timeout():
+        await asyncio.sleep(300)  # 5 minutes max processing time
+        ACTIVE_PROJECT_CREATE_KEYS.discard(lock_key)
+        logger.warning(f"Auto-cleaned stuck project creation lock: {lock_key}")
+    
+    # Start cleanup task in background
+    asyncio.create_task(cleanup_lock_after_timeout())
     try:
         selected_design_template: Optional[DesignTemplateResponse] = None
         async with pool.acquire() as conn:
@@ -3334,34 +3344,77 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request):
 
 @app.post("/api/custom/lesson-presentation/finalize")
 async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-    if not cookies[ONYX_SESSION_COOKIE_NAME]:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+    logger.info(f"Finalizing lesson presentation: {payload.lessonTitle}")
+    
+    # Validate required fields early
+    if not payload.lessonTitle or not payload.lessonTitle.strip():
+        raise HTTPException(status_code=400, detail="Lesson title is required")
+    
+    if not payload.aiResponse or not payload.aiResponse.strip():
+        raise HTTPException(status_code=400, detail="AI response content is required")
 
-    # Fetch parent outline project name if provided
-    parent_project_name: Optional[str] = None
-    if payload.outlineProjectId is not None:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow("SELECT project_name FROM projects WHERE id = $1", payload.outlineProjectId)
-            if row:
-                parent_project_name = row["project_name"]
+    try:
+        # Get the slide deck template with retry mechanism
+        max_retries = 3
+        slide_deck_template_id = None
+        for attempt in range(max_retries):
+            try:
+                slide_deck_template_id = await _ensure_slide_deck_template(pool)
+                break
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get slide deck template after {max_retries} attempts: {e}")
+                    raise HTTPException(status_code=500, detail="Unable to initialize template")
+                await asyncio.sleep(0.5)  # Brief delay before retry
 
-    project_name_final = parent_project_name or payload.lessonTitle
+        if not slide_deck_template_id:
+            raise HTTPException(status_code=500, detail="Template initialization failed")
 
-    template_id = await _ensure_slide_deck_template(pool)
+        # Create project data
+        project_data = ProjectCreateRequest(
+            projectName=payload.lessonTitle.strip(),
+            design_template_id=slide_deck_template_id,
+            microProductName=None,
+            aiResponse=payload.aiResponse.strip(),
+            chatSessionId=payload.chatSessionId
+        )
 
-    project_request = ProjectCreateRequest(
-        projectName=project_name_final,
-        design_template_id=template_id,
-        microProductName=payload.lessonTitle,
-        aiResponse=payload.aiResponse,
-        chatSessionId=uuid.UUID(payload.chatSessionId) if payload.chatSessionId else None,
-    )
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Create project with proper error handling
+        try:
+            created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        except HTTPException as e:
+            # Re-raise HTTP exceptions as-is
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to create project: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create lesson project")
 
-    onyx_user_id = await get_current_onyx_user_id(request)
-    project_db = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+        # Validate the created project
+        if not created_project or not created_project.id:
+            logger.error("Project creation returned invalid result")
+            raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
 
-    return JSONResponse(content=json.loads(project_db.model_dump_json()))
+        logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
+        
+        # Return response in the expected format
+        return {
+            "id": created_project.id,
+            "projectName": created_project.project_name,
+            "message": "Lesson presentation finalized successfully"
+        }
+    
+    except HTTPException:
+        # Re-raise HTTP exceptions without modification
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An unexpected error occurred during finalization"
+        )
 
 # --- New endpoint: list trashed projects for user ---
 

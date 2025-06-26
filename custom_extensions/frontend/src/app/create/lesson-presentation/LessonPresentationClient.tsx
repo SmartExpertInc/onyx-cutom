@@ -35,12 +35,52 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
 
 // Helper to retry fetch up to 2 times on 504 Gateway Timeout
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
-  let attempt = 0;
-  while (true) {
-    const res = await fetch(input, init);
-    if (res.status !== 504 || attempt >= retries) return res;
-    attempt += 1;
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      // Add exponential backoff delay for retries
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
+      // Set a reasonable timeout for the request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout per attempt
+      
+      const response = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Consider 5xx errors as retryable, but not 4xx errors
+      if (response.ok || (response.status >= 400 && response.status < 500)) {
+        return response;
+      }
+      
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      
+    } catch (error: any) {
+      lastError = error;
+      
+      // Don't retry on abort errors or client errors (4xx)
+      if (error.name === 'AbortError' || (error.message && error.message.includes('4'))) {
+        throw error;
+      }
+      
+      // If this was the last attempt, throw the error
+      if (attempt === retries) {
+        throw error;
+      }
+      
+      console.warn(`Request attempt ${attempt + 1} failed:`, error.message);
+    }
   }
+  
+  throw lastError!;
 }
 
 // Static SVG preview used for each theme tile
@@ -424,6 +464,13 @@ export default function LessonPresentationClient() {
     setIsGenerating(true);
     setLoading(false);
     setError(null);
+
+    // Add timeout safeguard to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsGenerating(false);
+      setError("Finalization timed out. Please try again.");
+    }, 300000); // 5 minutes timeout
+
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = params?.get("prompt")?.trim() || "";
@@ -441,14 +488,42 @@ export default function LessonPresentationClient() {
           slidesCount: slidesCount,
         }),
       });
-      if (!res.ok) throw new Error(await res.text());
+
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `HTTP ${res.status}`);
+      }
 
       const data = await res.json();
-      router.push(`/projects/view/${data.id}`);
+      
+      // Ensure we have a valid project ID before navigating
+      if (!data?.id) {
+        throw new Error("Invalid response: missing project ID");
+      }
+
+      // Small delay to ensure state is properly reset before navigation
+      setTimeout(() => {
+        router.push(`/projects/view/${data.id}`);
+      }, 100);
+
     } catch (e: any) {
-      setError(e.message);
+      // Clear timeout on error
+      clearTimeout(timeoutId);
+      
+      // Reset generating state on any error
       setIsGenerating(false);
       setLoading(false);
+      
+      // Set user-friendly error message
+      const errorMessage = e.name === "AbortError" 
+        ? "Request was cancelled" 
+        : e.message || "Failed to finalize lesson. Please try again.";
+      setError(errorMessage);
+      
+      console.error("Finalization error:", e);
     }
   };
 
@@ -560,6 +635,46 @@ export default function LessonPresentationClient() {
     { id: "lunaria", label: "Lunaria" },
     { id: "zephyr", label: "Zephyr" },
   ];
+
+  // Cleanup effect to prevent stuck states
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount to prevent memory leaks and stuck states
+      if (previewAbortRef.current) {
+        previewAbortRef.current.abort();
+      }
+      // Reset generating state when component unmounts
+      setIsGenerating(false);
+      setLoading(false);
+    };
+  }, []);
+
+  // Auto-reset if stuck in generating state for too long
+  useEffect(() => {
+    if (isGenerating) {
+      const stuckStateTimeout = setTimeout(() => {
+        console.warn("Detected stuck finalization state, auto-resetting...");
+        setIsGenerating(false);
+        setError("Finalization took too long and was reset. Please try again.");
+      }, 180000); // 3 minutes failsafe
+      
+      return () => clearTimeout(stuckStateTimeout);
+    }
+  }, [isGenerating]);
+
+  // Detect if user navigates away during generation and reset state
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (isGenerating) {
+        setIsGenerating(false);
+        setLoading(false);
+      }
+    };
+
+    // Listen for route changes
+    window.addEventListener('beforeunload', handleRouteChange);
+    return () => window.removeEventListener('beforeunload', handleRouteChange);
+  }, [isGenerating]);
 
   return (
     <>
@@ -847,7 +962,6 @@ export default function LessonPresentationClient() {
           </>
         )}
 
-        {/* Themes Section */}
         {streamDone && content && (
           <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
             <div className="flex items-center justify-between">
