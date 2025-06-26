@@ -90,7 +90,7 @@ export default function DataSourceLanding() {
             Icon={FileText}
             title="Paste in text"
             description="Create from notes, an outline, or existing content"
-            disabled
+            href="/create/paste-text"
           />
           <OptionCard
             Icon={Sparkles}

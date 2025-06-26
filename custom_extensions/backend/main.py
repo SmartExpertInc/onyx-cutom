@@ -2585,6 +2585,10 @@ class OutlineWizardPreview(BaseModel):
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
     fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
     theme: Optional[str] = None  # Selected theme from frontend
 
 class OutlineWizardFinalize(BaseModel):
@@ -2598,6 +2602,10 @@ class OutlineWizardFinalize(BaseModel):
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
     fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
     theme: Optional[str] = None  # Selected theme from frontend
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
@@ -2820,6 +2828,12 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             wiz_payload["folderIds"] = payload.folderIds
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided
+    if payload.fromText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        wiz_payload["userText"] = payload.userText
 
     if payload.originalOutline:
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -3291,6 +3305,10 @@ class LessonWizardPreview(BaseModel):
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
     fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
 
 
 class LessonWizardFinalize(BaseModel):
@@ -3354,6 +3372,12 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
             wizard_dict["folderIds"] = payload.folderIds
         if payload.fileIds:
             wizard_dict["fileIds"] = payload.fileIds
+
+    # Add text context if provided
+    if payload.fromText:
+        wizard_dict["fromText"] = True
+        wizard_dict["textMode"] = payload.textMode
+        wizard_dict["userText"] = payload.userText
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
 

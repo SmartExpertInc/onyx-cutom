@@ -109,6 +109,9 @@ function GenerateProductPicker() {
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
+  const isFromText = searchParams?.get('fromText') === 'true';
+  const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
+  const userText = searchParams?.get('userText') || '';
   
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
@@ -165,7 +168,7 @@ function GenerateProductPicker() {
     process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
   const handleCourseOutlineStart = async () => {
-    if (!prompt.trim() && !isFromFiles) return;
+    if (!prompt.trim() && !isFromFiles && !isFromText) return;
 
     let chatId: string | undefined;
     try {
@@ -180,8 +183,17 @@ function GenerateProductPicker() {
       /* ignore warm-up failure – preview will fallback to creating chat */
     }
 
+    let finalPrompt = prompt.trim();
+    if (isFromFiles && !finalPrompt) {
+      finalPrompt = "Create educational content from the provided files";
+    } else if (isFromText && !finalPrompt) {
+      finalPrompt = textMode === 'context' 
+        ? "Create educational content using the provided text as context"
+        : "Create educational content based on the provided text structure";
+    }
+
     const params = new URLSearchParams({
-      prompt: isFromFiles ? (prompt.trim() || "Create educational content from the provided files") : prompt,
+      prompt: finalPrompt,
       modules: String(modulesCount),
       lessons: lessonsPerModule,
       lang: language,
@@ -197,6 +209,13 @@ function GenerateProductPicker() {
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    }
+    
+    // Add text context if coming from text
+    if (isFromText) {
+      params.set("fromText", "true");
+      params.set("textMode", textMode || 'context');
+      params.set("userText", userText);
     }
 
     router.push(`/create/course-outline?${params.toString()}`);
@@ -287,8 +306,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered or coming from files
-      if (!prompt.trim() && !isFromFiles) return;
+      // If standalone lesson, check if prompt entered or coming from files/text
+      if (!prompt.trim() && !isFromFiles && !isFromText) return;
     }
 
     const params = new URLSearchParams();
@@ -307,6 +326,13 @@ function GenerateProductPicker() {
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    } else if (isFromText) {
+      params.set("prompt", prompt.trim() || (textMode === 'context' 
+        ? "Create lesson content using the provided text as context"
+        : "Create lesson content based on the provided text structure"));
+      params.set("fromText", "true");
+      params.set("textMode", textMode || 'context');
+      params.set("userText", userText);
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -335,7 +361,9 @@ function GenerateProductPicker() {
 
         <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">Generate</h1>
         <p className="text-center text-gray-600 text-lg -mt-1">
-          {isFromFiles ? "Create content from your selected files" : "What would you like to create today?"}
+          {isFromFiles ? "Create content from your selected files" : 
+           isFromText ? "Create content from your text" : 
+           "What would you like to create today?"}
         </p>
 
         {/* File context indicator */}
@@ -355,6 +383,31 @@ function GenerateProductPicker() {
               <p className="mt-1 text-blue-600">
                 The AI will use your selected documents as source material to create educational content.
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Text context indicator */}
+        {isFromText && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
+              <FileText className="h-5 w-5" />
+              Creating from text
+            </div>
+            <div className="text-sm text-green-700">
+              <p className="font-medium">
+                Mode: {textMode === 'context' ? 'Using as context' : 'Using as base structure'}
+              </p>
+              <p className="mt-1 text-green-600">
+                {textMode === 'context' 
+                  ? "The AI will use your text as reference material and context to create new educational content."
+                  : "The AI will preserve the skeleton you provided, enhancing and formatting it into a proper educational product."}
+              </p>
+              {userText && (
+                <p className="mt-2 text-xs text-green-600 bg-green-100 p-2 rounded max-h-20 overflow-y-auto">
+                  {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
+                </p>
+              )}
             </div>
           </div>
         )}
