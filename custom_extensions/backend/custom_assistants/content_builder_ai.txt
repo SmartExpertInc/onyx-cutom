@@ -194,9 +194,9 @@ General Time Presentation Note: The above rules result in whole hours. If any ti
 
 B. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
 
-C. Knowledge Assessment: Determine the value based on the nature of the lesson and strategic placement of assessments:
+C. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
-Test Placement Strategy: Tests should be strategically placed throughout the course to check understanding after sufficient knowledge accumulation. Apply no more than one test per 3 lessons unless specifically instructed otherwise by the user. Tests can be placed at any position within a module where it makes pedagogical sense to assess comprehension.
+Test Placement Strategy: Tests should be strategically placed throughout the course to check understanding after sufficient knowledge accumulation. Apply no more than one test per 3 lessons unless specifically instructed otherwise by the user. Tests can be placed at any position within a module where it makes pedagogical sense to assess comprehension (like after big lessons).
 
 For Test Lessons: The value is always "Test" (or "Тест" in relevant languages).
 
@@ -578,42 +578,12 @@ Template-Specific Content Structures:
 [IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Visual representing option B]
 ```
 
-**Chart/Data Slides** (`deckgo-slide-chart`):
-```
----
-**Slide 4: [Data/Statistics Title]** `deckgo-slide-chart`
-
-## [Chart Title]
-
-[Brief introduction to the data - 1-2 sentences]
-
-[Chart/Data visualization content]
-
-[Explanation of key insights - 2-3 sentences]
-
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Data visualization background]
-```
-
-**Interactive/Poll Slides** (`deckgo-slide-poll`):
-```
----
-**Slide 5: [Question/Poll Title]** `deckgo-slide-poll`
-
-## [Poll Question]
-
-* Option A: [Choice description]
-* Option B: [Choice description]
-* Option C: [Choice description]
-
-[IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Question mark or thinking icon]
-```
-
 Content Distribution Strategy:
 - **Slide 1**: Title slide with lesson overview (`deckgo-slide-title`)
 - **Slides 2-3**: Core concept introduction (`deckgo-slide-content`)
 - **Slide 4**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slide 5**: Data/statistics if applicable (`deckgo-slide-chart`)
-- **Slide 6**: Interactive element (`deckgo-slide-poll` or practical example)
+- **Slide 5**: Data/statistics if applicable (`deckgo-slide-content`)
+- **Slide 6**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
 - **Slides 7-8**: Advanced concepts or applications (`deckgo-slide-content`)
 - **Final Slide**: Summary and next steps (`deckgo-slide-content` or `deckgo-slide-title`)
 
@@ -627,7 +597,7 @@ Professional Styling Guidelines:
 - Use ## for main slide headings (clear, action-oriented, max 8 words)
 - Use ### for subsection headings within slides when needed
 - Use **bold text** strategically for key terms and emphasis
-- Keep bullet lists to 3-6 items with parallel structure
+- Keep bullet lists to 4-6 items with parallel structure
 - Ensure each slide connects logically to the next
 - Maintain consistent educational tone and practical focus
 

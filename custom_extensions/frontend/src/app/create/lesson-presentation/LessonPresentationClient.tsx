@@ -33,14 +33,69 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
   </div>
 );
 
-// Helper to retry fetch up to 2 times on 504 Gateway Timeout
-async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
+// Helper to retry fetch up to 3 times with exponential backoff, handle timeouts and more errors
+async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 3, timeoutMs = 240000): Promise<Response> {
   let attempt = 0;
-  while (true) {
-    const res = await fetch(input, init);
-    if (res.status !== 504 || attempt >= retries) return res;
-    attempt += 1;
+  let lastError: Error | null = null;
+
+  while (attempt <= retries) {
+    try {
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      const requestInit = {
+        ...init,
+        signal: controller.signal,
+      };
+
+      const res = await fetch(input, requestInit);
+      clearTimeout(timeoutId);
+      
+      // Success or non-retryable error
+      if (res.ok || attempt >= retries) {
+        return res;
+      }
+      
+      // Retry on server errors (5xx) and specific client errors
+      if (res.status >= 500 || res.status === 408 || res.status === 429) {
+        lastError = new Error(`Request failed with status ${res.status}`);
+        attempt++;
+        if (attempt <= retries) {
+          // Exponential backoff: 1s, 2s, 4s
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt - 1) * 1000));
+          continue;
+        }
+      }
+      
+      return res;
+    } catch (error: any) {
+      lastError = error;
+      
+      // Don't retry on abort (user cancelled)
+      if (error.name === 'AbortError') {
+        throw error;
+      }
+      
+      // Retry on network errors, timeout errors, etc.
+      if (attempt < retries && (
+        error.name === 'TypeError' || // Network error
+        error.name === 'TimeoutError' ||
+        error.message?.includes('fetch') ||
+        error.message?.includes('network') ||
+        error.message?.includes('timeout')
+      )) {
+        attempt++;
+        // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt - 1) * 1000));
+        continue;
+      }
+      
+      throw error;
+    }
   }
+  
+  throw lastError || new Error('Request failed after retries');
 }
 
 // Static SVG preview used for each theme tile
@@ -416,39 +471,92 @@ export default function LessonPresentationClient() {
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
-    if (isGenerating) return;
+    if (isGenerating) return; // guard against double-click / duplicate requests
+    
+    // Stop any ongoing stream
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
     }
 
     setIsGenerating(true);
-    setLoading(false);
+    setStreamDone(false);
     setError(null);
-    try {
-      // Re-use the same fallback title logic we applied in preview
-      const promptQuery = params?.get("prompt")?.trim() || "";
-      const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
+    
+    // Create cleanup function to ensure state is reset
+    const cleanup = () => {
+      setIsGenerating(false);
+      setStreamDone(true);
+    };
+    
+    // Set up timeout safeguard - if finalization takes too long, reset state
+    const maxFinalizationTime = 300000; // 5 minutes
+    const timeoutId = setTimeout(() => {
+      console.warn('Finalization timeout reached, resetting state');
+      cleanup();
+      setError('Finalization took too long. The product may have been created successfully. Please check your projects list.');
+    }, maxFinalizationTime);
+
+         try {
+       // Re-use the same fallback title logic we applied in preview
+       const promptQuery = params?.get("prompt")?.trim() || "";
+       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
+       
+       const finalizeBody: any = {
+         outlineProjectId: selectedOutlineId || undefined,
+         lessonTitle: derivedTitle,
+         lengthRange: lengthRangeForOption(lengthOption),
+         aiResponse: content,
+         chatSessionId: chatId || undefined,
+         slidesCount: slidesCount,
+         theme: selectedTheme, // Include the selected theme
+       };
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outlineProjectId: selectedOutlineId || undefined,
-          lessonTitle: derivedTitle,
-          lengthRange: lengthRangeForOption(lengthOption),
-          aiResponse: content,
-          chatSessionId: chatId || undefined,
-          slidesCount: slidesCount,
-        }),
-      });
-      if (!res.ok) throw new Error(await res.text());
+        body: JSON.stringify(finalizeBody),
+      }, 3, 180000); // 3 retries, 3 minute timeout per attempt
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Request failed with status ${res.status}`);
+      }
 
       const data = await res.json();
-      router.push(`/projects/view/${data.id}`);
+      
+      // Clear timeout since we're about to navigate
+      clearTimeout(timeoutId);
+      
+      // Navigate to the newly-created product view with retry logic
+      const targetUrl = `/projects/view/${data.id}`;
+      
+      try {
+        await router.push(targetUrl);
+        // Give navigation time to start
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (navError: any) {
+        console.error('Navigation failed, attempting fallback:', navError);
+        // Fallback: use window.location
+        window.location.href = targetUrl;
+      }
     } catch (e: any) {
-      setError(e.message);
-      setIsGenerating(false);
-      setLoading(false);
+      clearTimeout(timeoutId);
+      console.error('Finalization error:', e);
+      
+      let errorMessage = 'Failed to finalize presentation';
+      if (e.name === 'AbortError') {
+        errorMessage = 'Request was cancelled';
+      } else if (e.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. The presentation may have been created successfully. Please check your projects list.';
+      } else if (e.message) {
+        errorMessage = e.message;
+      }
+      
+      setError(errorMessage);
+    } finally {
+      // Always cleanup, even if navigation succeeds
+      cleanup();
+      clearTimeout(timeoutId);
     }
   };
 
@@ -847,7 +955,6 @@ export default function LessonPresentationClient() {
           </>
         )}
 
-        {/* Themes Section */}
         {streamDone && content && (
           <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
             <div className="flex items-center justify-between">
