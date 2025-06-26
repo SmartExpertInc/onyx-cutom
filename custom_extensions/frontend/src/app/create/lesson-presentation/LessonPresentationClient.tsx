@@ -161,16 +161,30 @@ export default function LessonPresentationClient() {
     if (isFromText) {
       try {
         const storedData = sessionStorage.getItem('pastedTextData');
+        console.log('LessonPresentation: Retrieving from sessionStorage:', storedData ? 'Found data' : 'No data');
         if (storedData) {
           const textData = JSON.parse(storedData);
+          console.log('LessonPresentation: Parsed text data:', { 
+            hasText: !!textData.text, 
+            textLength: textData.text?.length || 0, 
+            mode: textData.mode, 
+            expectedMode: textMode,
+            isRecent: textData.timestamp && (Date.now() - textData.timestamp < 3600000)
+          });
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
             setUserText(textData.text || '');
+            console.log('LessonPresentation: Set userText:', textData.text?.substring(0, 100) + '...');
+          } else {
+            console.log('LessonPresentation: Text data validation failed');
           }
         }
       } catch (error) {
         console.error('Error retrieving pasted text data:', error);
       }
+    } else {
+      // Clear userText if not from text
+      setUserText('');
     }
   }, [isFromText, textMode]);
   
@@ -385,6 +399,12 @@ export default function LessonPresentationClient() {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
             requestBody.userText = userText;
+            console.log('LessonPresentation: Adding text context to request:', {
+              fromText: true,
+              textMode: textMode,
+              userTextLength: userText?.length || 0,
+              userTextPreview: userText?.substring(0, 100) + '...'
+            });
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -460,7 +480,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, userText, isFromText, textMode]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {

@@ -209,16 +209,30 @@ export default function CourseOutlineClient() {
     if (isFromText) {
       try {
         const storedData = sessionStorage.getItem('pastedTextData');
+        console.log('CourseOutline: Retrieving from sessionStorage:', storedData ? 'Found data' : 'No data');
         if (storedData) {
           const textData = JSON.parse(storedData);
+          console.log('CourseOutline: Parsed text data:', { 
+            hasText: !!textData.text, 
+            textLength: textData.text?.length || 0, 
+            mode: textData.mode, 
+            expectedMode: textMode,
+            isRecent: textData.timestamp && (Date.now() - textData.timestamp < 3600000)
+          });
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
             setUserText(textData.text || '');
+            console.log('CourseOutline: Set userText:', textData.text?.substring(0, 100) + '...');
+          } else {
+            console.log('CourseOutline: Text data validation failed');
           }
         }
       } catch (error) {
         console.error('Error retrieving pasted text data:', error);
       }
+    } else {
+      // Clear userText if not from text
+      setUserText('');
     }
   }, [isFromText, textMode]);
   const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
@@ -496,6 +510,12 @@ export default function CourseOutlineClient() {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
             requestBody.userText = userText;
+            console.log('CourseOutline: Adding text context to request:', {
+              fromText: true,
+              textMode: textMode,
+              userTextLength: userText?.length || 0,
+              userTextPreview: userText?.substring(0, 100) + '...'
+            });
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
@@ -583,7 +603,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, userText, isFromText, textMode]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {
