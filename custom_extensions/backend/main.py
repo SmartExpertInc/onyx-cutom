@@ -3151,6 +3151,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Use cached outline directly since no changes were made
             template_id = await _ensure_training_plan_template(pool)
             project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            
+            logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
+            
             project_request = ProjectCreateRequest(
                 projectName=project_name_detected,
                 design_template_id=template_id,
@@ -3162,9 +3165,24 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 
             project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
             direct_path_project_id = project_db_candidate.id  # Store for potential cleanup
+            
+            logger.info(f"Direct parser path: Created project {direct_path_project_id}")
+            logger.info(f"Direct parser path: Project content type: {type(project_db_candidate.microproduct_content)}")
+            
+            # Check if content was parsed successfully
+            content_valid = False
+            if project_db_candidate.microproduct_content:
+                if hasattr(project_db_candidate.microproduct_content, "sections"):
+                    sections = getattr(project_db_candidate.microproduct_content, "sections", [])
+                    content_valid = len(sections) > 0
+                    logger.info(f"Direct parser path: Found {len(sections)} sections in parsed content")
+                else:
+                    logger.warning(f"Direct parser path: Content does not have sections attribute")
+            else:
+                logger.warning(f"Direct parser path: microproduct_content is None")
 
             # --- Patch theme into DB if provided (only for TrainingPlan components) ---
-            if payload.theme:
+            if payload.theme and content_valid:
                 async with pool.acquire() as conn:
                     design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
                     if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
@@ -3180,20 +3198,25 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                         if row_patch and row_patch["microproduct_content"] is not None:
                             project_db_candidate.microproduct_content = row_patch["microproduct_content"]
 
-            # Success when we have at least one section parsed
-            if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
+            # Success when we have valid parsed content
+            if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
                 return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
             else:
-                # Direct parser path validation failed - clean up the created project
-                logger.warning(f"Direct parser path validation failed for project {direct_path_project_id}, cleaning up...")
+                # Direct parser path validation failed - clean up the created project and fall back to assistant
+                logger.warning(f"Direct parser path validation failed for project {direct_path_project_id} - LLM parsing likely failed")
+                logger.warning(f"Content details: {project_db_candidate.microproduct_content}")
                 try:
                     async with pool.acquire() as conn:
                         await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
                     logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
                 except Exception as cleanup_e:
                     logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
-                # Continue to assistant path
+                
+                # Fall back to assistant path
+                logger.info("Falling back to assistant + parser path due to direct parser failure")
+                use_direct_parser = False
+                use_assistant_then_parser = True
                 
         except Exception as direct_e:
             # Clean up any project created during direct parser path failure
@@ -3206,6 +3229,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
                 except Exception as cleanup_e:
                     logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+            
+            logger.error(f"Direct parser path failed with error: {direct_e}")
             
             # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
             if isinstance(direct_e, HTTPException) and direct_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
@@ -3235,6 +3260,10 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
             else:
                 logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
+            
+            # Fall back to assistant path
+            use_direct_parser = False
+            use_assistant_then_parser = True
 
     # ---------- 3) ASSISTANT + PARSER PATH: Process changes with assistant, then parse ----------
     if use_assistant_then_parser:

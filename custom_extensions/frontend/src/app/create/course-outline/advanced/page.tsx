@@ -260,6 +260,11 @@ export default function CourseOutlineAdvancedPage() {
 
       const data = await res.json();
       
+      // Validate response has required id field
+      if (!data || !data.id) {
+        throw new Error("Invalid response from server: missing project ID");
+      }
+      
       const qp = new URLSearchParams();
       Object.entries(filters).forEach(([key, val]) => qp.set(key, val ? "1" : "0"));
 

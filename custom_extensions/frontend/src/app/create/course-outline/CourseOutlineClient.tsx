@@ -677,6 +677,11 @@ export default function CourseOutlineClient() {
 
       const data = await res.json();
 
+      // Validate response has required id field
+      if (!data || !data.id) {
+        throw new Error("Invalid response from server: missing project ID");
+      }
+
       // Build query params to encode which additional info columns should be shown in the product view
       const qp = new URLSearchParams();
       qp.set("knowledgeCheck", filters.knowledgeCheck ? "1" : "0");
