@@ -21,6 +21,7 @@ import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
+import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2 } from 'lucide-react';
 
 
@@ -295,6 +296,20 @@ export default function ProjectInstanceViewPage() {
     });
   }, []);
 
+  // Handler for SmartPromptEditor content updates
+  const handleSmartEditContentUpdate = useCallback((updatedContent: any) => {
+    setEditableData(updatedContent);
+    // Force a re-fetch to get the latest data from the server
+    if (projectId) {
+      fetchPageData(projectId);
+    }
+  }, [projectId, fetchPageData]);
+
+  // Handler for SmartPromptEditor errors
+  const handleSmartEditError = useCallback((error: string) => {
+    setSaveError(error);
+  }, []);
+
   const handleSave = async () => {
     if (!projectId || !editableData) {
       setSaveError("Project ID or editable data is missing.");
@@ -473,15 +488,25 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
-          <TrainingPlanTableComponent
-            dataToDisplay={trainingPlanData}
-            isEditing={isEditing}
-            onTextChange={handleTextChange}
-            sourceChatSessionId={projectInstanceData.sourceChatSessionId}
-            allUserMicroproducts={allUserMicroproducts}
-            parentProjectName={parentProjectNameForCurrentView}
-            theme={trainingPlanData?.theme || 'cherry'}
-          />
+          <div>
+            {/* Smart Prompt Editor - only show when editing Training Plans */}
+            {isEditing && (
+              <SmartPromptEditor
+                projectId={projectInstanceData.project_id}
+                onContentUpdate={handleSmartEditContentUpdate}
+                onError={handleSmartEditError}
+              />
+            )}
+            <TrainingPlanTableComponent
+              dataToDisplay={trainingPlanData}
+              isEditing={isEditing}
+              onTextChange={handleTextChange}
+              sourceChatSessionId={projectInstanceData.sourceChatSessionId}
+              allUserMicroproducts={allUserMicroproducts}
+              parentProjectName={parentProjectNameForCurrentView}
+              theme={trainingPlanData?.theme || 'cherry'}
+            />
+          </div>
         );
       case COMPONENT_NAME_PDF_LESSON:
         const pdfLessonData = editableData as PdfLessonData | null;

@@ -3963,4 +3963,176 @@ async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx
         detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
+# Add the new model for training plan editing
+class TrainingPlanEditRequest(BaseModel):
+    prompt: str
+    projectId: int
+    chatSessionId: Optional[str] = None
+    language: str = "en"
+
+@app.post("/api/custom/training-plan/edit")
+async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Edit an existing training plan using AI prompt"""
+    logger.info(f"[edit_training_plan_with_prompt] projectId={payload.projectId} prompt='{payload.prompt[:50]}...'")
+    
+    # Get current user
+    onyx_user_id = await get_current_onyx_user_id(request)
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    
+    # Get the existing project data
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT p.*, dt.component_name 
+            FROM projects p 
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+        """, payload.projectId, onyx_user_id)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
+            raise HTTPException(status_code=400, detail="Project is not a training plan")
+
+    # Get or create chat session
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+    else:
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    # Convert existing training plan to markdown format for AI processing
+    existing_content = row["microproduct_content"]
+    current_outline = ""
+    
+    if existing_content:
+        # Convert existing training plan to markdown format
+        content_data = existing_content
+        if isinstance(content_data, dict):
+            main_title = content_data.get("mainTitle", "Training Plan")
+            current_outline = f"# {main_title}\n\n"
+            
+            sections = content_data.get("sections", [])
+            for section in sections:
+                section_title = section.get("title", "")
+                current_outline += f"## {section_title}\n\n"
+                
+                lessons = section.get("lessons", [])
+                for lesson in lessons:
+                    lesson_title = lesson.get("title", "")
+                    current_outline += f"- {lesson_title}\n"
+                current_outline += "\n"
+
+    # Prepare wizard payload
+    wiz_payload = {
+        "product": "Training Plan Edit",
+        "prompt": payload.prompt,
+        "language": payload.language,
+        "originalOutline": current_outline,
+        "editMode": True
+    }
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # Stream the response
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+
+        async with httpx.AsyncClient(timeout=None) as client:
+            send_payload = {
+                "chat_session_id": chat_id,
+                "message": wizard_message,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": [],
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "always", "real_time": False},
+                "stream_response": True,
+            }
+            
+            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                async for raw_line in resp.aiter_lines():
+                    if not raw_line:
+                        continue
+                    line = raw_line.strip()
+                    if line.startswith("data:"):
+                        line = line.split("data:", 1)[1].strip()
+                    if line == "[DONE]":
+                        break
+                    try:
+                        pkt = json.loads(line)
+                        if "answer_piece" in pkt:
+                            delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                            assistant_reply += delta_text
+                            # Send delta to frontend
+                            yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    except Exception:
+                        continue
+
+                    # Keep-alive
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+
+        # Parse the AI response to training plan structure
+        try:
+            # Parse the markdown response back to structured data
+            parsed_outline = _parse_outline_markdown(assistant_reply)
+            
+            # Convert to TrainingPlanDetails format
+            training_plan_data = TrainingPlanDetails(
+                mainTitle=existing_content.get("mainTitle", "Training Plan") if existing_content else "Training Plan",
+                sections=[],
+                detectedLanguage=payload.language,
+                theme=existing_content.get("theme", "cherry") if existing_content else "cherry"
+            )
+            
+            # Convert parsed modules to sections
+            for idx, module in enumerate(parsed_outline):
+                section = SectionDetail(
+                    id=f"№{idx + 1}",
+                    title=module.get("title", ""),
+                    lessons=[],
+                    autoCalculateHours=True
+                )
+                
+                for lesson_title in module.get("lessons", []):
+                    lesson = LessonDetail(
+                        title=lesson_title,
+                        hours=1.0,
+                        source="Create from scratch",
+                        check=StatusInfo(type="none", text="No"),
+                        contentAvailable=StatusInfo(type="yes", text="100%")
+                    )
+                    section.lessons.append(lesson)
+                
+                training_plan_data.sections.append(section)
+            
+            # Update the project in database
+            async with pool.acquire() as conn:
+                await conn.execute("""
+                    UPDATE projects 
+                    SET microproduct_content = $1
+                    WHERE id = $2 AND onyx_user_id = $3
+                """, training_plan_data.model_dump(), payload.projectId, onyx_user_id)
+            
+            # Send completion packet
+            done_packet = {
+                "type": "done", 
+                "updatedContent": training_plan_data.model_dump(),
+                "raw": assistant_reply
+            }
+            yield (json.dumps(done_packet) + "\n").encode()
+            
+        except Exception as e:
+            logger.error(f"Error parsing AI response: {e}")
+            error_packet = {"type": "error", "message": f"Failed to parse AI response: {str(e)}"}
+            yield (json.dumps(error_packet) + "\n").encode()
+
+    return StreamingResponse(streamer(), media_type="application/json")
+
 
