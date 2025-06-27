@@ -195,8 +195,6 @@ const ProjectCard: React.FC<{
                             <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                             <p className="text-xs text-gray-500 mt-1">
                                 Created {formatDate(project.createdAt)}
-                                <br/>
-                                by Vitaliy Tymoshenko
                             </p>
                         </div>
                         {isTrashMode ? (

@@ -26,8 +26,8 @@ import { useSearchParams } from 'next/navigation';
 const Sidebar = ({ currentTab }: { currentTab: string }) => (
   <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
     <div className="flex items-center mb-6">
-      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm mr-2">V</div>
-      <span className="font-semibold text-gray-800">Vitaliy Tymoshenko's ...</span>
+      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm mr-2">Z</div>
+      <span className="font-semibold text-gray-800">Zgdan Sharikov's ...</span>
       <ChevronsUpDown size={16} className="ml-auto text-gray-500 cursor-pointer" />
     </div>
     <div className="relative mb-4">
@@ -110,7 +110,6 @@ const Header = ({ isTrash }: { isTrash: boolean }) => (
       </Link>
       <span className="text-sm font-semibold text-gray-800">80 credits</span>
       <Bell size={20} className="text-gray-600 cursor-pointer" />
-      <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">VT</div>
     </div>
   </header>
 );
