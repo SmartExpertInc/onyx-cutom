@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Home as HomeIcon, ChevronRight, FileText, Sparkles } from "lucide-react";
+import { Home as HomeIcon, ChevronRight, FileText, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function PasteTextPage() {
@@ -36,17 +36,8 @@ export default function PasteTextPage() {
           "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
       }}
     >
-      {/* Top-left home button */}
-      <Link
-        href="/projects"
-        className="fixed top-4 left-4 flex items-center gap-1 text-sm font-medium bg-white/70 hover:bg-white text-gray-900 backdrop-blur rounded-full px-3 py-1 shadow border border-gray-200"
-      >
-        <HomeIcon size={14} className="-ml-0.5" />
-        Home
-      </Link>
-
       {/* Breadcrumb Navigation */}
-      <nav className="fixed top-16 left-6 flex items-center text-sm text-gray-600">
+      <nav className="fixed top-6 left-6 flex items-center text-sm text-gray-600">
         <Link
           href="/projects"
           className="flex items-center hover:text-gray-900 transition-colors"
@@ -63,15 +54,6 @@ export default function PasteTextPage() {
         <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
         <span className="text-gray-900 font-medium">Paste Text</span>
       </nav>
-
-      {/* Back button */}
-      <Link
-        href="/create"
-        className="self-start flex items-center gap-2 text-brand-primary hover:text-brand-primary-hover transition-colors text-sm font-medium mb-6"
-      >
-        <ArrowLeft size={16} />
-        Back to Create
-      </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
@@ -108,13 +90,13 @@ export default function PasteTextPage() {
               onClick={() => setMode("context")}
               className={`p-6 rounded-xl border-2 transition-all text-left ${
                 mode === "context"
-                  ? "border-brand-primary bg-brand-primary/5 shadow-lg"
+                  ? "border-blue-500 bg-white shadow-lg"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
             >
               <div className="flex items-start gap-4">
                 <div className={`p-3 rounded-lg ${
-                  mode === "context" ? "bg-brand-primary text-white" : "bg-gray-100 text-gray-600"
+                  mode === "context" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
                 }`}>
                   <FileText size={24} />
                 </div>
@@ -133,13 +115,13 @@ export default function PasteTextPage() {
               onClick={() => setMode("base")}
               className={`p-6 rounded-xl border-2 transition-all text-left ${
                 mode === "base"
-                  ? "border-brand-primary bg-brand-primary/5 shadow-lg"
+                  ? "border-blue-500 bg-white shadow-lg"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
             >
               <div className="flex items-start gap-4">
                 <div className={`p-3 rounded-lg ${
-                  mode === "base" ? "bg-brand-primary text-white" : "bg-gray-100 text-gray-600"
+                  mode === "base" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
                 }`}>
                   <Sparkles size={24} />
                 </div>
@@ -159,7 +141,7 @@ export default function PasteTextPage() {
         <button
           onClick={handleContinue}
           disabled={!text.trim() || !mode}
-          className="px-8 py-3 bg-brand-primary text-white rounded-xl font-semibold text-lg hover:bg-brand-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
         >
           Continue to Generate
         </button>
