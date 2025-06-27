@@ -65,12 +65,38 @@ const ProjectCard: React.FC<{
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleDragStart = (e: React.DragEvent) => {
+        // Add visual feedback to the dragged element
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '0.5';
+        target.style.transform = 'rotate(5deg)';
+        
         e.dataTransfer.setData('application/json', JSON.stringify({
             projectId: project.id,
             projectName: project.title,
             type: 'project'
         }));
         e.dataTransfer.effectAllowed = 'move';
+        
+        // Set a custom drag image (optional)
+        const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+        dragImage.style.width = '200px';
+        dragImage.style.height = 'auto';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, 100, 50);
+        
+        // Clean up the drag image after a short delay
+        setTimeout(() => {
+            if (document.body.contains(dragImage)) {
+                document.body.removeChild(dragImage);
+            }
+        }, 0);
+    };
+
+    const handleDragEnd = (e: React.DragEvent) => {
+        // Reset visual feedback
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '1';
+        target.style.transform = 'rotate(0deg)';
     };
 
     useEffect(() => {
@@ -153,6 +179,7 @@ const ProjectCard: React.FC<{
             className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-grab active:cursor-grabbing"
             draggable={!isTrashMode}
             onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
         >
             <Link href={isTrashMode ? '#' : `/projects/view/${project.id}`} onClick={handleCardClick} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>

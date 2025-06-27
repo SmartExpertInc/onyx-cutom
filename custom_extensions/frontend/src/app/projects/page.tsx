@@ -51,6 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
   const handleDrop = (e: React.DragEvent, folderId: number) => {
     e.preventDefault();
+    e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105');
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       if (data.type === 'project') {
@@ -60,6 +61,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       }
     } catch (error) {
       console.error('Error parsing drag data:', error);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
     }
   };
 
@@ -116,18 +129,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             {folders.map((folder) => (
               <div
                 key={folder.id}
-                className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
+                className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
                 onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, folder.id)}
-                onDragEnter={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300');
-                }}
-                onDragLeave={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300');
-                }}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
               >
                 <span className="text-blue-700"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
                 <span className="font-medium">{folder.name}</span>
@@ -214,10 +221,15 @@ const ProjectsPageInner: React.FC = () => {
           // Refresh folders to update project counts
           const updatedFolders = await fetchFolders();
           setFolders(updatedFolders);
-          // Optionally refresh projects if currently viewing a folder
-          if (selectedFolderId) {
-            window.location.reload();
+          // If currently viewing the folder where the project was moved, refresh the projects list
+          if (selectedFolderId === folderId) {
+            // Trigger a refresh of the projects table by updating the folderId prop
+            // This will cause ProjectsTable to refetch with the new folder filter
+            setSelectedFolderId(null);
+            setTimeout(() => setSelectedFolderId(folderId), 100);
           }
+          // Show success feedback (optional)
+          console.log(`Project moved to folder successfully`);
         }
       } catch (error) {
         console.error('Error moving project to folder:', error);
