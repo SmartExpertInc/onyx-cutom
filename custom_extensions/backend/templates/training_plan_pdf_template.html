@@ -171,12 +171,12 @@
 
     {% set MAX_SOURCE_LENGTH = 19 %} {# Define max length for single-word source text #}
 
-    {# === Determine which optional columns to display based on displayOptions === #}
-    {% set opts_raw = details.displayOptions or {} %}
-    {% set kc_show  = opts_raw.get('knowledgeCheck', True) %}
-    {% set ca_show  = opts_raw.get('contentAvailability', True) %}
-    {% set src_show = opts_raw.get('informationSource', True) %}
-    {% set time_show= opts_raw.get('time', True) %}
+    {# === Determine which optional columns to display based on columnVisibility === #}
+    {% set column_visibility = columnVisibility or {} %}
+    {% set kc_show  = column_visibility.get('knowledgeCheck', True) %}
+    {% set ca_show  = column_visibility.get('contentAvailability', True) %}
+    {% set src_show = column_visibility.get('informationSource', True) %}
+    {% set time_show= column_visibility.get('time', True) %}
 
     {% set span_kc   = 5 if kc_show  else 0 %}
     {% set span_ca   = 2 if ca_show  else 0 %}
