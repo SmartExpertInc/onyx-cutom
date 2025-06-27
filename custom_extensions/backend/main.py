@@ -2928,6 +2928,12 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             # Use direct text for smaller content
             wiz_payload["userText"] = payload.userText
             wiz_payload["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
     if payload.originalOutline:
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -3493,6 +3499,12 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
             # Use direct text for smaller content
             wizard_dict["userText"] = payload.userText
             wizard_dict["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
     # Decompress text if it was compressed
     if wizard_dict.get("textCompressed") and wizard_dict.get("userText"):

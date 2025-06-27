@@ -343,6 +343,12 @@ export default function LessonPresentationClient() {
       return;
     }
 
+    // If creating from text but userText not loaded yet, wait
+    if (isFromText && !userText) {
+      setLoading(false);
+      return;
+    }
+
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
       setTextareaVisible(false);

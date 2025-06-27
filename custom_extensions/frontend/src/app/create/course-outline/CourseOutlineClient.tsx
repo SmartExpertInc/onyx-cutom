@@ -450,6 +450,9 @@ export default function CourseOutlineClient() {
     // Skip while finalizing
     if (isGenerating) return;
 
+    // If creating from text but userText not loaded yet, wait
+    if (isFromText && !userText) return;
+
     // If params unchanged from last preview, skip fetch
     const same = lastPreviewParamsRef.current &&
       lastPreviewParamsRef.current.prompt === prompt &&
