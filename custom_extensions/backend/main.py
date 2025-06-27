@@ -19,6 +19,8 @@ import logging
 from locales.__init__ import LANG_CONFIG
 import asyncio
 import typing
+import tempfile
+import io
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -1377,6 +1379,53 @@ async def delete_design_template(template_id: int, pool: asyncpg.Pool = Depends(
 ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
     "Training Plan", "PDF Lesson", "Slide Deck", "Text Presentation"
 ]
+
+# Constants for text size thresholds
+TEXT_SIZE_THRESHOLD = 5000  # Characters - switch to virtual file for texts larger than this
+VIRTUAL_TEXT_FILE_PREFIX = "paste_text_"
+
+async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -> int:
+    """
+    Create a virtual text file for large text content and return the file ID.
+    This allows large text to be processed efficiently through the file system
+    instead of being sent in JSON payloads.
+    """
+    try:
+        # Create a temporary file-like object with the text content
+        text_bytes = text_content.encode('utf-8')
+        text_file = io.BytesIO(text_bytes)
+        
+        # Create a filename with timestamp for uniqueness
+        timestamp = int(asyncio.get_event_loop().time())
+        filename = f"{VIRTUAL_TEXT_FILE_PREFIX}{timestamp}.txt"
+        
+        # Create FormData for file upload
+        files = {
+            'files': (filename, text_file, 'text/plain')
+        }
+        
+        # Upload to Onyx file system
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/user/file/upload",
+                files=files,
+                cookies=cookies
+            )
+            response.raise_for_status()
+            
+            # Parse response to get file ID
+            upload_result = response.json()
+            if upload_result and len(upload_result) > 0:
+                file_id = upload_result[0].get('id')
+                if file_id:
+                    logger.info(f"Created virtual text file with ID {file_id} for {len(text_content)} characters")
+                    return file_id
+                    
+        raise HTTPException(status_code=500, detail="Failed to get file ID from upload response")
+        
+    except Exception as e:
+        logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
 
 @app.get("/api/custom/microproduct_types", response_model=List[str])
 async def get_allowed_microproduct_types_list_for_design_templates():
@@ -2829,11 +2878,23 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
 
-    # Add text context if provided
-    if payload.fromText:
-        wiz_payload["fromText"] = True
-        wiz_payload["textMode"] = payload.textMode
-        wiz_payload["userText"] = payload.userText
+    # Add text context if provided - use virtual file for large texts
+    virtual_file_id = None
+    if payload.fromText and payload.userText:
+        if len(payload.userText) > TEXT_SIZE_THRESHOLD:
+            # Create virtual file for large text
+            virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+            wiz_payload["fromFiles"] = True
+            wiz_payload["fileIds"] = str(virtual_file_id)
+            # Also add text mode information for the assistant
+            wiz_payload["fromText"] = True
+            wiz_payload["textMode"] = payload.textMode
+            wiz_payload["userText"] = f"[Large text content uploaded as file ID: {virtual_file_id}]"
+        else:
+            # Use direct text for smaller content
+            wiz_payload["fromText"] = True
+            wiz_payload["textMode"] = payload.textMode
+            wiz_payload["userText"] = payload.userText
 
     if payload.originalOutline:
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -2858,6 +2919,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
             if payload.fromFiles and payload.fileIds:
                 file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+            
+            # Add virtual file ID if created for large text
+            if virtual_file_id:
+                file_ids_list.append(virtual_file_id)
 
             send_payload = {
                 "chat_session_id": chat_id,
@@ -3373,11 +3438,23 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         if payload.fileIds:
             wizard_dict["fileIds"] = payload.fileIds
 
-    # Add text context if provided
-    if payload.fromText:
-        wizard_dict["fromText"] = True
-        wizard_dict["textMode"] = payload.textMode
-        wizard_dict["userText"] = payload.userText
+    # Add text context if provided - use virtual file for large texts
+    virtual_file_id = None
+    if payload.fromText and payload.userText:
+        if len(payload.userText) > TEXT_SIZE_THRESHOLD:
+            # Create virtual file for large text
+            virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+            wizard_dict["fromFiles"] = True
+            wizard_dict["fileIds"] = str(virtual_file_id)
+            # Also add text mode information for the assistant
+            wizard_dict["fromText"] = True
+            wizard_dict["textMode"] = payload.textMode
+            wizard_dict["userText"] = f"[Large text content uploaded as file ID: {virtual_file_id}]"
+        else:
+            # Use direct text for smaller content
+            wizard_dict["fromText"] = True
+            wizard_dict["textMode"] = payload.textMode
+            wizard_dict["userText"] = payload.userText
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
 
@@ -3391,6 +3468,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
             if payload.fromFiles and payload.fileIds:
                 file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+            
+            # Add virtual file ID if created for large text
+            if virtual_file_id:
+                file_ids_list.append(virtual_file_id)
 
             send_payload = {
                 "chat_session_id": chat_id,
