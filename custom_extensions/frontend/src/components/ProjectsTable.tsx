@@ -723,7 +723,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                 </div>
                 <div className="flex items-center gap-4">
                     <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700">
-                        <ArrowUpDown size={16} />
+                        <ArrowUpDown size={16} className="text-gray-800" />
                         Sort
                     </button>
                     <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
@@ -731,13 +731,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                             onClick={() => setViewMode('Grid')}
                             className={`p-1.5 rounded-md ${viewMode === 'Grid' ? 'bg-white shadow-sm' : ''}`}
                         >
-                            <LayoutGrid size={16} />
+                            <LayoutGrid size={16} className="text-gray-800" />
                         </button>
                         <button
                             onClick={() => setViewMode('List')}
                             className={`p-1.5 rounded-md ${viewMode === 'List' ? 'bg-white shadow-sm' : ''}`}
                         >
-                            <List size={16} />
+                            <List size={16} className="text-gray-800" />
                         </button>
                     </div>
                 </div>
@@ -745,22 +745,71 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             ) }
 
             {projects.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {projects.map((p: Project) => (
-                        <ProjectCard 
-                            key={p.id} 
-                            project={p} 
-                            onDelete={handleDeleteProject}
-                            onRestore={handleRestoreProject}
-                            onDeletePermanently={handleDeletePermanently}
-                            isTrashMode={trashMode}
-                        />
-                    ))}
-                </div>
+                viewMode === 'Grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {projects.map((p: Project) => (
+                            <ProjectCard
+                                key={p.id}
+                                project={p}
+                                onDelete={handleDeleteProject}
+                                onRestore={handleRestoreProject}
+                                onDeletePermanently={handleDeletePermanently}
+                                isTrashMode={trashMode}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    // List view (table/row style)
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Folders</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Last viewed</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
+                                    <th className="px-6 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                                {projects.map((p: Project) => (
+                                    <tr key={p.id} className="hover:bg-gray-50 transition">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <span className="inline-flex items-center">
+                                                {/* Star icon for favorite (placeholder, not functional) */}
+                                                <Star size={16} className="text-gray-300 mr-2" />
+                                                {p.title}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-600 border border-gray-200">
+                                                <Lock size={12} className="mr-1 text-gray-400" />
+                                                Private
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.lastViewed}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <span className="inline-flex items-center">
+                                                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                    {/* Placeholder avatar, could use initials or image */}
+                                                    <span className="text-xs font-bold text-gray-700">{p.createdBy.slice(0,1).toUpperCase()}</span>
+                                                </span>
+                                                {p.createdBy}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button className="text-gray-400 hover:text-gray-600">
+                                                <MoreHorizontal size={20} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )
             ) : (
-                <div className="text-center p-8 bg-gray-50 rounded-lg">
-                    <p className="text-gray-600">{trashMode ? 'No items in trash.' : 'No projects to display.'}</p>
-                </div>
+                <div className="text-center p-8 text-gray-500">No projects found.</div>
             )}
         </div>
     );

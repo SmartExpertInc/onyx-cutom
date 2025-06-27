@@ -254,11 +254,15 @@ B. Content Coverage (%): (Based on analyzed materials if provided; 0% for regula
 
 C. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
+IMPORTANT: For now, ALL lessons should have "Test" as the Knowledge Assessment value. The "Practice with an expert" and "No" options are currently disabled.
+
 Test Placement Strategy: Tests should be strategically placed throughout the course to check understanding after sufficient knowledge accumulation. Apply no more than one test per 3 lessons unless specifically instructed otherwise by the user. Tests can be placed at any position within a module where it makes pedagogical sense to assess comprehension (like after big lessons).
 
 For Test Lessons: The value is always "Test" (or "Тест" in relevant languages).
 
 For regular lessons: Use heuristics combined with strategic test placement. If the title implies practical application (e.g., "Applying," "Building," "Analyzing"), use "Practice with an expert." If it implies theory (e.g., "Introduction," "Concepts," "History"), use "No." However, if a lesson covers substantial material and it has been 3+ lessons since the last test, consider making it a "Test" to assess student comprehension of the accumulated knowledge.
+
+NOTE: The above rules for "Practice with an expert" and "No" are preserved for future use but are currently disabled. All lessons should use "Test" as the Knowledge Assessment value.
 
 D. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
 
@@ -416,7 +420,7 @@ Paragraphs and Styling:
 - Complex Numbered List Items: A single item in a numbered list can now contain a sequence of blocks, such as a headline followed by a bulleted list.
   - Example: An item could be `[{"type": "headline", "level": 4, "text": "Sub-topic"}, {"type": "bullet_list", "items": ["Point 1", "Point 2"]}]`.
   - This allows for more structured and detailed enumeration within a single numbered point.
-- Recommendations: To mark a paragraph as a recommendation, start it with the localized keyword for Recommendation, e.g., `**Рекомендация:**`, `**Рекомендація:**`, `**Recomendación:**`. The parser will automatically style it and remove the keyword. This should not be used inside a list.
+- Recommendations: To mark a paragraph as a recommendation, start it with the localized keyword for Recommendation in bold, e.g., `**Рекомендация:**`, `**Рекомендація:**`, `**Recomendación:**`. The parser will automatically style it and remove the keyword. This should not be used inside a list.
 
 Alerts: Use the specified alert format for drawing attention to specific types of information (info, success, warning, danger).
 Section Breaks: Use `---` for a solid line, a single blank line for `none`.
@@ -535,7 +539,7 @@ For English:
 
 - **Content Coverage**: [Content Coverage % for this lesson]%
 
-- **Knowledge Assessment**: [Determined Value: "Test", "Practice with an expert", or "No"]
+- **Knowledge Assessment**: [Determined Value: "Test" - NOTE: "Practice with an expert" and "No" options are currently disabled, all lessons use "Test"]
 
 - **Information Source**: [Determained Information Source for this lesson]
 
@@ -545,7 +549,7 @@ For Russian:
 
 - **Покрытие контента**: [Процент покрытия контента для этого урока]%
 
-- **Проверка знаний**: [Определенное значение: "Тест", "Практика с куратором" или "Нет"]
+- **Проверка знаний**: [Определенное значение: "Тест" - ПРИМЕЧАНИЕ: "Практика с куратором" и "Нет" опции в настоящее время отключены, все уроки используют "Тест"]
 
 - **Источник**: [Определенный источник информации для этого урока]
 
@@ -555,7 +559,7 @@ For Ukrainian:
 
 - **Покриття контенту**: [Відсоток покриття контенту для цього уроку]%
 
-- **Перевірка знань**: [Визначене значення: "Тест", "Практика з куратором" або "Ні"]
+- **Перевірка знань**: [Визначене значення: "Тест" - ПРИМІТКА: "Практика з куратором" та "Ні" опції зараз відключені, всі уроки використовують "Тест"]
 
 - **Джерело**: [Визначене джерело інформації для цього уроку]
 
