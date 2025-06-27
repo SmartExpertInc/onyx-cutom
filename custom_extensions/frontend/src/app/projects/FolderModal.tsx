@@ -15,6 +15,12 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
 
   if (!open) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   const handleCreate = async () => {
     if (!folderName.trim()) return;
     setCreating(true);
@@ -39,10 +45,10 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
   const filteredFolders = existingFolders.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
         <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={onClose}>&times;</button>
-        <h2 className="text-2xl font-bold mb-2">Create or join a folder</h2>
+        <h2 className="text-2xl font-bold mb-2 text-black">Create or join a folder</h2>
         <p className="text-gray-600 mb-4">You can join a folder to keep track of what folks are working on.</p>
         <div className="flex items-center mb-4 gap-2">
           <input

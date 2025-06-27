@@ -44,6 +44,25 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
     fetchFolders().then(() => setLoadingFolders(false));
   }, []);
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, folderId: number) => {
+    e.preventDefault();
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'project') {
+        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
+          detail: { projectId: data.projectId, folderId }
+        }));
+      }
+    } catch (error) {
+      console.error('Error parsing drag data:', error);
+    }
+  };
+
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
       <div className="flex items-center mb-6">
@@ -61,7 +80,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">⌘+K</div>
       </div>
       <nav className="flex flex-col gap-1">
-        <Link href="/projects" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
+        <Link 
+          href="/projects" 
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
+        >
           <Home size={18} />
           <span>Products</span>
         </Link>
@@ -95,6 +118,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 key={folder.id}
                 className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
                 onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, folder.id)}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300');
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300');
+                }}
               >
                 <span className="text-blue-700"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
                 <span className="font-medium">{folder.name}</span>
@@ -166,6 +199,34 @@ const ProjectsPageInner: React.FC = () => {
     window.addEventListener('openFolderModal', handleOpenModal);
     return () => window.removeEventListener('openFolderModal', handleOpenModal);
   }, []);
+
+  useEffect(() => {
+    const handleMoveProject = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { projectId, folderId } = customEvent.detail;
+      try {
+        const res = await fetch(`/api/custom-projects-backend/projects/update/${projectId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folder_id: folderId })
+        });
+        if (res.ok) {
+          // Refresh folders to update project counts
+          const updatedFolders = await fetchFolders();
+          setFolders(updatedFolders);
+          // Optionally refresh projects if currently viewing a folder
+          if (selectedFolderId) {
+            window.location.reload();
+          }
+        }
+      } catch (error) {
+        console.error('Error moving project to folder:', error);
+      }
+    };
+
+    window.addEventListener('moveProjectToFolder', handleMoveProject);
+    return () => window.removeEventListener('moveProjectToFolder', handleMoveProject);
+  }, [selectedFolderId]);
 
   useEffect(() => {
     fetchFolders().then(setFolders).catch(() => setFolders([]));

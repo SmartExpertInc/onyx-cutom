@@ -64,6 +64,15 @@ const ProjectCard: React.FC<{
     const cardRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    const handleDragStart = (e: React.DragEvent) => {
+        e.dataTransfer.setData('application/json', JSON.stringify({
+            projectId: project.id,
+            projectName: project.title,
+            type: 'project'
+        }));
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -139,7 +148,12 @@ const ProjectCard: React.FC<{
     const [newName, setNewName] = useState(isOutline ? project.title : (project.instanceName || ""));
 
     return (
-        <div ref={cardRef} className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative">
+        <div 
+            ref={cardRef} 
+            className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-grab active:cursor-grabbing"
+            draggable={!isTrashMode}
+            onDragStart={handleDragStart}
+        >
             <Link href={isTrashMode ? '#' : `/projects/view/${project.id}`} onClick={handleCardClick} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
                     {project.isGamma ? (
