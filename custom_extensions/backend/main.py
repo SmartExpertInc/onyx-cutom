@@ -3052,47 +3052,83 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         persona_id = await get_contentbuilder_persona_id(cookies)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-    # Helper: check whether the user inserted new modules or lessons
-    def _structure_changed(orig_modules: List[Dict[str, Any]], edited: Dict[str, Any]) -> bool:
+    # Helper: check whether the user made ANY changes (structure or content)
+    def _any_changes_made(orig_modules: List[Dict[str, Any]], edited: Dict[str, Any]) -> bool:
         try:
             edited_sections = edited.get("sections") or edited.get("modules") or []
+            
+            # Check structural changes first (modules/lessons added/removed)
             if len(orig_modules) != len(edited_sections):
                 return True
+            
+            # Check for content changes (titles modified)
             for o, e in zip(orig_modules, edited_sections):
-                e_lessons = e.get("lessons", []) if isinstance(e, dict) else []
-                if len(o.get("lessons", [])) != len(e_lessons):
+                # Compare module titles
+                orig_title = str(o.get("title", "")).strip()
+                edited_title = str(e.get("title", "")).strip() if isinstance(e, dict) else str(e).strip()
+                if orig_title != edited_title:
                     return True
+                
+                # Compare lesson structure and content
+                orig_lessons = o.get("lessons", [])
+                edited_lessons = e.get("lessons", []) if isinstance(e, dict) else []
+                
+                if len(orig_lessons) != len(edited_lessons):
+                    return True
+                
+                # Compare individual lesson titles
+                for ol, el in zip(orig_lessons, edited_lessons):
+                    orig_lesson = str(ol).strip()
+                    edited_lesson = str(el).strip()
+                    if orig_lesson != edited_lesson:
+                        return True
+            
             return False
         except Exception:
-            # On any parsing issue assume structure changed so we fall back safely
+            # On any parsing issue assume changes were made so we use assistant
             return True
 
     # ---------- 1) Decide strategy ----------
-    use_fast_path = True
     raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
+    
     if raw_outline_cached:
         parsed_orig = _parse_outline_markdown(raw_outline_cached)
-        if _structure_changed(parsed_orig, payload.editedOutline):
-            use_fast_path = False
+        any_changes = _any_changes_made(parsed_orig, payload.editedOutline)
+        
+        if not any_changes:
+            # NO CHANGES: Use direct parser path (fastest)
+            use_direct_parser = True
+            use_assistant_then_parser = False
+            logger.info("No changes detected - using direct parser path")
+        else:
+            # CHANGES DETECTED: Use assistant first, then parser
+            use_direct_parser = False
+            use_assistant_then_parser = True
+            logger.info("Changes detected - using assistant + parser path")
+    else:
+        # No cached data available - use assistant + parser path
+        use_direct_parser = False
+        use_assistant_then_parser = True
+        logger.info("No cached outline - using assistant + parser path")
 
-    # ---------- 2) FAST-PATH: parse locally using cached outline + user edits ----------
-    if use_fast_path:
-        fast_path_project_id = None  # Track project ID for cleanup if needed
+    # ---------- 2) DIRECT PARSER PATH: No changes made, use cached data directly ----------
+    if use_direct_parser:
+        direct_path_project_id = None  # Track project ID for cleanup if needed
         try:
-            merged_md = _apply_title_edits_to_outline(raw_outline_cached, payload.editedOutline) if raw_outline_cached else ""
+            # Use cached outline directly since no changes were made
             template_id = await _ensure_training_plan_template(pool)
-            project_name_detected = _extract_project_name_from_markdown(merged_md) or payload.prompt
+            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
             project_request = ProjectCreateRequest(
                 projectName=project_name_detected,
                 design_template_id=template_id,
                 microProductName=None,
-                aiResponse=merged_md,
+                aiResponse=raw_outline_cached,
                 chatSessionId=uuid.UUID(chat_id) if chat_id else None,
             )
             onyx_user_id = await get_current_onyx_user_id(request)
 
             project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
-            fast_path_project_id = project_db_candidate.id  # Store for potential cleanup
+            direct_path_project_id = project_db_candidate.id  # Store for potential cleanup
 
             # --- Patch theme into DB if provided (only for TrainingPlan components) ---
             if payload.theme:
@@ -3113,32 +3149,33 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 
             # Success when we have at least one section parsed
             if project_db_candidate.microproduct_content and getattr(project_db_candidate.microproduct_content, "sections", []):
+                logger.info(f"Direct parser path successful for project {direct_path_project_id}")
                 return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
             else:
-                # Fast-path validation failed - clean up the created project to prevent duplicates
-                logger.warning(f"Fast-path validation failed for project {fast_path_project_id}, cleaning up...")
+                # Direct parser path validation failed - clean up the created project
+                logger.warning(f"Direct parser path validation failed for project {direct_path_project_id}, cleaning up...")
                 try:
                     async with pool.acquire() as conn:
-                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", fast_path_project_id, onyx_user_id)
-                    logger.info(f"Successfully cleaned up failed fast-path project {fast_path_project_id}")
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
                 except Exception as cleanup_e:
-                    logger.error(f"Failed to cleanup fast-path project {fast_path_project_id}: {cleanup_e}")
-                # Continue to fallback path
+                    logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+                # Continue to assistant path
                 
-        except Exception as fast_e:
-            # Clean up any project created during fast-path failure
-            if fast_path_project_id:
-                logger.warning(f"Fast-path failed with project {fast_path_project_id}, attempting cleanup...")
+        except Exception as direct_e:
+            # Clean up any project created during direct parser path failure
+            if direct_path_project_id:
+                logger.warning(f"Direct parser path failed with project {direct_path_project_id}, attempting cleanup...")
                 try:
                     onyx_user_id = await get_current_onyx_user_id(request)
                     async with pool.acquire() as conn:
-                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", fast_path_project_id, onyx_user_id)
-                    logger.info(f"Successfully cleaned up failed fast-path project {fast_path_project_id}")
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
                 except Exception as cleanup_e:
-                    logger.error(f"Failed to cleanup fast-path project {fast_path_project_id}: {cleanup_e}")
+                    logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
             
             # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
-            if isinstance(fast_e, HTTPException) and fast_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if isinstance(direct_e, HTTPException) and direct_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
                 logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
                 max_wait_sec = 900  # 15 minutes
                 poll_every_sec = 1
@@ -3164,115 +3201,116 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     waited += poll_every_sec
                 logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
             else:
-                logger.warning(f"wizard_outline_finalize fast-path failed – will use assistant correction. Details: {fast_e}")
+                logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
 
-    # ---------- 3) FALLBACK: ask assistant to minimally correct ----------
-    # Before starting fallback, check if a project was already created successfully for this session
-    if chat_id:
-        try:
-            async with pool.acquire() as conn:
-                existing_row = await conn.fetchrow(
-                    "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
-                    uuid.UUID(chat_id),
-                )
-                if existing_row and existing_row["microproduct_content"] is not None:
-                    # Check if the existing project has valid content
-                    try:
-                        content = existing_row["microproduct_content"]
-                        if isinstance(content, dict) and content.get("sections"):
-                            logger.info(f"Found existing valid project {existing_row['id']} for chat session, returning it")
-                            return JSONResponse(content={"id": existing_row["id"]})
-                    except Exception:
-                        pass  # Continue with fallback if content validation fails
-        except Exception as e:
-            logger.warning(f"Failed to check for existing project: {e}")
-    
-    wizard_message = (
-        "WIZARD_REQUEST\n" +
-        json.dumps({
-            "product": "Course Outline",
-            "action": "finalize",
-            "prompt": payload.prompt,
-            "modules": payload.modules,
-            "lessonsPerModule": payload.lessonsPerModule,
-            "language": payload.language,
-            "editedOutline": payload.editedOutline,
-        })
-    )
-
-    async def streamer():
-        assistant_reply: str = ""
-        last_send = asyncio.get_event_loop().time()
-
-        async with httpx.AsyncClient(timeout=None) as client:
-            send_payload = {
-                "chat_session_id": chat_id,
-                "message": wizard_message,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": [],
-                "user_folder_ids": [],
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": {"run_search": "always", "real_time": False},
-                "stream_response": True,
-            }
-
-            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                async for raw_line in resp.aiter_lines():
-                    if not raw_line:
-                        continue
-                    line = raw_line.strip()
-                    if line.startswith("data:"):
-                        line = line.split("data:", 1)[1].strip()
-                    if line == "[DONE]":
-                        break
-                    try:
-                        pkt = json.loads(line)
-                        if "answer_piece" in pkt:
-                            assistant_reply += pkt["answer_piece"].replace("\\n", "\n")
-                    except Exception:
-                        continue
-
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "  # keep-alive
-                        last_send = now
-
-        # After assistant finished, push through the usual DB path
-        template_id_fallback = await _ensure_training_plan_template(pool)
-        project_name_detected_fb = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
-        project_request_fb = ProjectCreateRequest(
-            projectName=project_name_detected_fb,
-            design_template_id=template_id_fallback,
-            microProductName=None,
-            aiResponse=assistant_reply,
-            chatSessionId=uuid.UUID(chat_id) if chat_id else None,
-        )
-        onyx_user_id_current = await get_current_onyx_user_id(request)
-        project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
-
-        # Patch theme if provided (only for TrainingPlan components)
-        if payload.theme:
-            # Get the design template to check component type
-            async with pool.acquire() as conn:
-                design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id_fallback)
-                if design_template and design_template["component_name"] == COMPONENT_NAME_TRAINING_PLAN:
-                    await conn.execute(
-                        """
-                        UPDATE projects
-                        SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
-                        WHERE id = $2
-                        """,
-                        payload.theme, project_db_fb.id
+    # ---------- 3) ASSISTANT + PARSER PATH: Process changes with assistant, then parse ----------
+    if use_assistant_then_parser:
+        # Before starting assistant path, check if a project was already created successfully for this session
+        if chat_id:
+            try:
+                async with pool.acquire() as conn:
+                    existing_row = await conn.fetchrow(
+                        "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                        uuid.UUID(chat_id),
                     )
-                    row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
-                    if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
-                        project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
+                    if existing_row and existing_row["microproduct_content"] is not None:
+                        # Check if the existing project has valid content
+                        try:
+                            content = existing_row["microproduct_content"]
+                            if isinstance(content, dict) and content.get("sections"):
+                                logger.info(f"Found existing valid project {existing_row['id']} for chat session, returning it")
+                                return JSONResponse(content={"id": existing_row["id"]})
+                        except Exception:
+                            pass  # Continue with assistant path if content validation fails
+            except Exception as e:
+                logger.warning(f"Failed to check for existing project: {e}")
+        
+        wizard_message = (
+            "WIZARD_REQUEST\n" +
+            json.dumps({
+                "product": "Course Outline",
+                "action": "finalize",
+                "prompt": payload.prompt,
+                "modules": payload.modules,
+                "lessonsPerModule": payload.lessonsPerModule,
+                "language": payload.language,
+                "editedOutline": payload.editedOutline,
+            })
+        )
 
-        yield project_db_fb.model_dump_json().encode()
+        async def streamer():
+            assistant_reply: str = ""
+            last_send = asyncio.get_event_loop().time()
 
-    return StreamingResponse(streamer(), media_type="application/json")
+            async with httpx.AsyncClient(timeout=None) as client:
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": [],
+                    "user_folder_ids": [],
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "always", "real_time": False},
+                    "stream_response": True,
+                }
+
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    async for raw_line in resp.aiter_lines():
+                        if not raw_line:
+                            continue
+                        line = raw_line.strip()
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                        if line == "[DONE]":
+                            break
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                assistant_reply += pkt["answer_piece"].replace("\\n", "\n")
+                        except Exception:
+                            continue
+
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "  # keep-alive
+                            last_send = now
+
+            # After assistant finished, push through the usual DB path
+            template_id_fallback = await _ensure_training_plan_template(pool)
+            project_name_detected_fb = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
+            project_request_fb = ProjectCreateRequest(
+                projectName=project_name_detected_fb,
+                design_template_id=template_id_fallback,
+                microProductName=None,
+                aiResponse=assistant_reply,
+                chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+            )
+            onyx_user_id_current = await get_current_onyx_user_id(request)
+            project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
+
+            # Patch theme if provided (only for TrainingPlan components)
+            if payload.theme:
+                # Get the design template to check component type
+                async with pool.acquire() as conn:
+                    design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id_fallback)
+                    if design_template and design_template["component_name"] == COMPONENT_NAME_TRAINING_PLAN:
+                        await conn.execute(
+                            """
+                            UPDATE projects
+                            SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                            WHERE id = $2
+                            """,
+                            payload.theme, project_db_fb.id
+                        )
+                        row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
+                        if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
+                            project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
+
+            yield project_db_fb.model_dump_json().encode()
+
+        return StreamingResponse(streamer(), media_type="application/json")
 
 @app.post("/api/custom/course-outline/init-chat")
 async def init_course_outline_chat(request: Request):
