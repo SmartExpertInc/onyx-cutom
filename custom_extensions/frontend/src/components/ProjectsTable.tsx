@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProjectsTable.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Lock, 
@@ -672,7 +672,125 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState('All');
-    const [viewMode, setViewMode] = useState('Grid');
+    const [viewMode, setViewMode] = useState<'Grid' | 'List'>('Grid');
+
+    // Add a refresh function that can be called externally
+    const refreshProjects = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        let projectsApiUrl = `${CUSTOM_BACKEND_URL}${trashMode ? '/projects/trash' : '/projects'}`;
+        if (!trashMode && folderId !== null && folderId !== undefined) {
+            projectsApiUrl += `?folder_id=${folderId}`;
+        }
+        try {
+            const headers: HeadersInit = {};
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            const response = await fetch(projectsApiUrl, { headers, cache: 'no-store' });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
+            }
+            const data = await response.json();
+            const mappedProjects: Project[] = data.map((p: any) => ({
+                id: p.id,
+                title: p.projectName,
+                imageUrl: "/placeholder.png", // Missing from DB
+                lastViewed: formatDate(p.created_at),
+                createdAt: p.created_at,
+                createdBy: "you", // From DB context
+                isPrivate: true, // Missing from DB
+                designMicroproductType: p.design_microproduct_type,
+                instanceName: p.microproduct_name,
+                folderId: p.folder_id,
+            }));
+
+            // ---- Filter lessons that belong to outlines from the main products page ----
+            const deduplicateProjects = (projectsArr: Project[]): Project[] => {
+                const outlineNames = new Set<string>();
+                const filteredProjects: Project[] = [];
+                const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
+
+                // First pass: collect all outline names and group by title for legacy support
+                projectsArr.forEach((proj) => {
+                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                    if (isOutline) {
+                        outlineNames.add(proj.title.trim());
+                    }
+
+                    // Legacy grouping logic - group projects by exact title match
+                    if (!grouped[proj.title]) {
+                        grouped[proj.title] = { outline: null, others: [] };
+                    }
+
+                    if (isOutline) {
+                        // Keep the first outline we encounter for this project title
+                        if (!grouped[proj.title].outline) {
+                            grouped[proj.title].outline = proj;
+                        }
+                    } else {
+                        grouped[proj.title].others.push(proj);
+                    }
+                });
+
+                // Second pass: filter projects using both legacy and new logic
+                projectsArr.forEach((proj) => {
+                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                    
+                    if (isOutline) {
+                        // Always include outlines
+                        filteredProjects.push(proj);
+                    } else {
+                        const projectTitle = proj.title.trim();
+                        let belongsToOutline = false;
+
+                        // Method 1: Legacy logic - check if there's an outline with the same exact title
+                        const groupForThisTitle = grouped[proj.title];
+                        if (groupForThisTitle && groupForThisTitle.outline) {
+                            belongsToOutline = true;
+                        }
+
+                        // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
+                        if (!belongsToOutline && projectTitle.includes(': ')) {
+                            const outlinePart = projectTitle.split(': ')[0].trim();
+                            if (outlineNames.has(outlinePart)) {
+                                belongsToOutline = true;
+                            }
+                        }
+
+                        // Only include projects that don't belong to an outline (either legacy or new pattern)
+                        if (!belongsToOutline) {
+                            filteredProjects.push(proj);
+                        }
+                    }
+                });
+
+                return filteredProjects;
+            };
+
+            setProjects(deduplicateProjects(mappedProjects));
+        } catch (e: any) {
+            setError(e.message || "Failed to load projects.");
+        } finally {
+            setLoading(false);
+        }
+    }, [trashMode, folderId]);
+
+    // Listen for refresh events
+    useEffect(() => {
+        const handleRefresh = () => {
+            refreshProjects();
+        };
+        window.addEventListener('refreshProjects', handleRefresh);
+        return () => window.removeEventListener('refreshProjects', handleRefresh);
+    }, [refreshProjects]);
+
+    useEffect(() => {
+        refreshProjects();
+    }, [trashMode, folderId, refreshProjects]);
 
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -781,114 +899,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             window.location.reload();
         }
     };
-
-    useEffect(() => {
-        const fetchProjects = async () => {
-            setLoading(true);
-            setError(null);
-            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-            let projectsApiUrl = `${CUSTOM_BACKEND_URL}${trashMode ? '/projects/trash' : '/projects'}`;
-            if (!trashMode && folderId !== null && folderId !== undefined) {
-                projectsApiUrl += `?folder_id=${folderId}`;
-            }
-            try {
-                const headers: HeadersInit = {};
-                const devUserId = "dummy-onyx-user-id-for-testing";
-                if (devUserId && process.env.NODE_ENV === 'development') {
-                    headers['X-Dev-Onyx-User-ID'] = devUserId;
-                }
-                const response = await fetch(projectsApiUrl, { headers, cache: 'no-store' });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
-                }
-                const data = await response.json();
-                const mappedProjects: Project[] = data.map((p: any) => ({
-                    id: p.id,
-                    title: p.projectName,
-                    imageUrl: "/placeholder.png", // Missing from DB
-                    lastViewed: formatDate(p.created_at),
-                    createdAt: p.created_at,
-                    createdBy: "you", // From DB context
-                    isPrivate: true, // Missing from DB
-                    designMicroproductType: p.design_microproduct_type,
-                    instanceName: p.microproduct_name,
-                    folderId: p.folder_id,
-                }));
-
-                // ---- Filter lessons that belong to outlines from the main products page ----
-                const deduplicateProjects = (projectsArr: Project[]): Project[] => {
-                    const outlineNames = new Set<string>();
-                    const filteredProjects: Project[] = [];
-                    const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
-
-                    // First pass: collect all outline names and group by title for legacy support
-                    projectsArr.forEach((proj) => {
-                        const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                        if (isOutline) {
-                            outlineNames.add(proj.title.trim());
-                        }
-
-                        // Legacy grouping logic - group projects by exact title match
-                        if (!grouped[proj.title]) {
-                            grouped[proj.title] = { outline: null, others: [] };
-                        }
-
-                        if (isOutline) {
-                            // Keep the first outline we encounter for this project title
-                            if (!grouped[proj.title].outline) {
-                                grouped[proj.title].outline = proj;
-                            }
-                        } else {
-                            grouped[proj.title].others.push(proj);
-                        }
-                    });
-
-                    // Second pass: filter projects using both legacy and new logic
-                    projectsArr.forEach((proj) => {
-                        const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                        
-                        if (isOutline) {
-                            // Always include outlines
-                            filteredProjects.push(proj);
-                        } else {
-                            const projectTitle = proj.title.trim();
-                            let belongsToOutline = false;
-
-                            // Method 1: Legacy logic - check if there's an outline with the same exact title
-                            const groupForThisTitle = grouped[proj.title];
-                            if (groupForThisTitle && groupForThisTitle.outline) {
-                                belongsToOutline = true;
-                            }
-
-                            // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
-                            if (!belongsToOutline && projectTitle.includes(': ')) {
-                                const outlinePart = projectTitle.split(': ')[0].trim();
-                                if (outlineNames.has(outlinePart)) {
-                                    belongsToOutline = true;
-                                }
-                            }
-
-                            // Only include projects that don't belong to an outline (either legacy or new pattern)
-                            if (!belongsToOutline) {
-                                filteredProjects.push(proj);
-                            }
-                        }
-                    });
-
-                    return filteredProjects;
-                };
-
-                setProjects(deduplicateProjects(mappedProjects));
-            } catch (e: any) {
-                setError(e.message || "Failed to load projects.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, [trashMode, folderId]);
 
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
     const filterIcons: Record<string, LucideIcon> = {

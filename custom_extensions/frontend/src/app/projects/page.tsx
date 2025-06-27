@@ -221,15 +221,10 @@ const ProjectsPageInner: React.FC = () => {
           // Refresh folders to update project counts
           const updatedFolders = await fetchFolders();
           setFolders(updatedFolders);
-          // If currently viewing the folder where the project was moved, refresh the projects list
-          if (selectedFolderId === folderId) {
-            // Trigger a refresh of the projects table by updating the folderId prop
-            // This will cause ProjectsTable to refetch with the new folder filter
-            setSelectedFolderId(null);
-            setTimeout(() => setSelectedFolderId(folderId), 100);
-          }
-          // Show success feedback (optional)
-          console.log(`Project moved to folder successfully`);
+          // Trigger a refresh of the projects table
+          // This ensures the moved project appears in the folder view
+          window.dispatchEvent(new CustomEvent('refreshProjects'));
+          console.log(`Project moved to folder ${folderId} successfully`);
         }
       } catch (error) {
         console.error('Error moving project to folder:', error);
