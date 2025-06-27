@@ -58,9 +58,6 @@ DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
 
-# In-memory storage for user text files (virtual file system)
-USER_TEXT_FILES: Dict[str, str] = {}
-
 
 # --- Directory for Design Template Images ---
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
@@ -2558,44 +2555,6 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
 async def health_check():
     return {"status": "healthy"}
 
-
-@app.post("/api/custom/user-text", response_model=Dict[str, str])
-async def upload_user_text(
-    request: Dict[str, str],
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-):
-    """
-    Upload user text and return a virtual file ID.
-    Used for large text content to avoid URL length limits.
-    """
-    import uuid
-    
-    text_content = request.get("text", "")
-    if not text_content:
-        raise HTTPException(status_code=400, detail="Text content is required")
-    
-    # Generate a unique virtual file ID
-    virtual_file_id = f"vf_{uuid.uuid4().hex[:16]}"
-    
-    # Store the text content
-    USER_TEXT_FILES[virtual_file_id] = text_content
-    
-    return {"virtualFileId": virtual_file_id}
-
-
-@app.get("/api/custom/user-text/{virtual_file_id}", response_model=Dict[str, str])
-async def get_user_text(
-    virtual_file_id: str,
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-):
-    """
-    Retrieve user text by virtual file ID.
-    """
-    if virtual_file_id not in USER_TEXT_FILES:
-        raise HTTPException(status_code=404, detail="Virtual file not found")
-    
-    return {"text": USER_TEXT_FILES[virtual_file_id]}
-
 HeadlineBlock.model_rebuild()
 ParagraphBlock.model_rebuild()
 AlertBlock.model_rebuild()
@@ -2629,8 +2588,7 @@ class OutlineWizardPreview(BaseModel):
     # NEW: text context for creation from user text
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
-    userText: Optional[str] = None   # User's pasted text (for small text)
-    userVirtualFileId: Optional[str] = None  # Virtual file ID for large text
+    userText: Optional[str] = None   # User's pasted text
     theme: Optional[str] = None  # Selected theme from frontend
 
 class OutlineWizardFinalize(BaseModel):
@@ -2647,8 +2605,7 @@ class OutlineWizardFinalize(BaseModel):
     # NEW: text context for creation from user text
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
-    userText: Optional[str] = None   # User's pasted text (for small text)
-    userVirtualFileId: Optional[str] = None  # Virtual file ID for large text
+    userText: Optional[str] = None   # User's pasted text
     theme: Optional[str] = None  # Selected theme from frontend
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
@@ -2876,17 +2833,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     if payload.fromText:
         wiz_payload["fromText"] = True
         wiz_payload["textMode"] = payload.textMode
-        
-        # Handle virtual file ID for large text
-        if payload.userVirtualFileId:
-            # Retrieve text from virtual file system
-            if payload.userVirtualFileId in USER_TEXT_FILES:
-                wiz_payload["userText"] = USER_TEXT_FILES[payload.userVirtualFileId]
-            else:
-                logger.warning(f"Virtual file ID {payload.userVirtualFileId} not found")
-                wiz_payload["userText"] = payload.userText or ""
-        else:
-            wiz_payload["userText"] = payload.userText
+        wiz_payload["userText"] = payload.userText
 
     if payload.originalOutline:
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -3129,34 +3076,18 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         except Exception as e:
             logger.warning(f"Failed to check for existing project: {e}")
     
-    # Prepare wizard message with text context support
-    wizard_payload = {
-        "product": "Course Outline",
-        "action": "finalize",
-        "prompt": payload.prompt,
-        "modules": payload.modules,
-        "lessonsPerModule": payload.lessonsPerModule,
-        "language": payload.language,
-        "editedOutline": payload.editedOutline,
-    }
-    
-    # Add text context if provided
-    if payload.fromText:
-        wizard_payload["fromText"] = True
-        wizard_payload["textMode"] = payload.textMode
-        
-        # Handle virtual file ID for large text
-        if payload.userVirtualFileId:
-            # Retrieve text from virtual file system
-            if payload.userVirtualFileId in USER_TEXT_FILES:
-                wizard_payload["userText"] = USER_TEXT_FILES[payload.userVirtualFileId]
-            else:
-                logger.warning(f"Virtual file ID {payload.userVirtualFileId} not found")
-                wizard_payload["userText"] = payload.userText or ""
-        else:
-            wizard_payload["userText"] = payload.userText
-    
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_payload)
+    wizard_message = (
+        "WIZARD_REQUEST\n" +
+        json.dumps({
+            "product": "Course Outline",
+            "action": "finalize",
+            "prompt": payload.prompt,
+            "modules": payload.modules,
+            "lessonsPerModule": payload.lessonsPerModule,
+            "language": payload.language,
+            "editedOutline": payload.editedOutline,
+        })
+    )
 
     async def streamer():
         assistant_reply: str = ""
@@ -3377,8 +3308,7 @@ class LessonWizardPreview(BaseModel):
     # NEW: text context for creation from user text
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
-    userText: Optional[str] = None   # User's pasted text (for small text)
-    userVirtualFileId: Optional[str] = None  # Virtual file ID for large text
+    userText: Optional[str] = None   # User's pasted text
 
 
 class LessonWizardFinalize(BaseModel):
@@ -3447,17 +3377,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.fromText:
         wizard_dict["fromText"] = True
         wizard_dict["textMode"] = payload.textMode
-        
-        # Handle virtual file ID for large text
-        if payload.userVirtualFileId:
-            # Retrieve text from virtual file system
-            if payload.userVirtualFileId in USER_TEXT_FILES:
-                wizard_dict["userText"] = USER_TEXT_FILES[payload.userVirtualFileId]
-            else:
-                logger.warning(f"Virtual file ID {payload.userVirtualFileId} not found")
-                wizard_dict["userText"] = payload.userText or ""
-        else:
-            wizard_dict["userText"] = payload.userText
+        wizard_dict["userText"] = payload.userText
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
 
