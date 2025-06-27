@@ -2161,13 +2161,54 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 current_component_name = design_template["component_name"]
 
         update_clauses = []; update_values = []; arg_idx = 1
-        if project_update_data.projectName is not None: update_clauses.append(f"project_name = ${arg_idx}"); update_values.append(project_update_data.projectName); arg_idx += 1
+        
+        # Handle project name updates and sync with Training Plan mainTitle
+        project_name_updated = False
+        if project_update_data.projectName is not None: 
+            update_clauses.append(f"project_name = ${arg_idx}")
+            update_values.append(project_update_data.projectName)
+            arg_idx += 1
+            project_name_updated = True
         if db_microproduct_name_to_store is not None: update_clauses.append(f"microproduct_name = ${arg_idx}"); update_values.append(db_microproduct_name_to_store); arg_idx +=1
         if project_update_data.design_template_id is not None:
             update_clauses.append(f"design_template_id = ${arg_idx}"); update_values.append(project_update_data.design_template_id); arg_idx +=1
             if derived_product_type: update_clauses.append(f"product_type = ${arg_idx}"); update_values.append(derived_product_type); arg_idx += 1
             if derived_microproduct_type: update_clauses.append(f"microproduct_type = ${arg_idx}"); update_values.append(derived_microproduct_type); arg_idx += 1
-        if project_update_data.microProductContent is not None: update_clauses.append(f"microproduct_content = ${arg_idx}"); update_values.append(content_to_store_for_db); arg_idx += 1
+        if project_update_data.microProductContent is not None: 
+            update_clauses.append(f"microproduct_content = ${arg_idx}")
+            update_values.append(content_to_store_for_db); arg_idx += 1
+            
+            # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    # Extract mainTitle from the content
+                    main_title = content_to_store_for_db.get('mainTitle')
+                    if main_title and isinstance(main_title, str) and main_title.strip():
+                        # Update project_name to match mainTitle
+                        update_clauses.append(f"project_name = ${arg_idx}")
+                        update_values.append(main_title.strip())
+                        arg_idx += 1
+                except Exception as e:
+                    logger.warning(f"Could not sync mainTitle to project_name for project {project_id}: {e}")
+
+        # SYNC TITLES: If only project_name was updated (not content), sync it to mainTitle for Training Plans
+        if (project_name_updated and project_update_data.microProductContent is None and 
+            current_component_name == COMPONENT_NAME_TRAINING_PLAN):
+            try:
+                # Get current content to update mainTitle
+                async with pool.acquire() as conn:
+                    current_row = await conn.fetchrow(
+                        "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2", 
+                        project_id, onyx_user_id
+                    )
+                    if current_row and current_row["microproduct_content"]:
+                        current_content = dict(current_row["microproduct_content"])
+                        current_content["mainTitle"] = project_update_data.projectName
+                        update_clauses.append(f"microproduct_content = ${arg_idx}")
+                        update_values.append(current_content)
+                        arg_idx += 1
+            except Exception as e:
+                logger.warning(f"Could not sync project_name to mainTitle for project {project_id}: {e}")
 
         if not update_clauses:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
