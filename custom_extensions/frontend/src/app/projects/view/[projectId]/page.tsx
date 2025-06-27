@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/app/projects/view/[projectId]/page.tsx
 "use client";
 
-import React, { Suspense, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { Suspense, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -22,7 +22,7 @@ import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2 } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown } from 'lucide-react';
 
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -95,6 +95,37 @@ export default function ProjectInstanceViewPage() {
 
   /* --- Persist column visibility (displayOptions) once after creation --- */
   const [displayOptsSynced, setDisplayOptsSynced] = useState(false);
+
+  // Column visibility controls for Training Plan table
+  const [showColumnDropdown, setShowColumnDropdown] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState({
+    knowledgeCheck: true,
+    contentAvailability: true,
+    informationSource: true,
+    time: true,
+  });
+  const columnDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!showColumnDropdown) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node)) {
+        setShowColumnDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showColumnDropdown]);
+
+  const handleColumnVisibilityChange = (column: string, checked: boolean) => {
+    setColumnVisibility(prev => ({
+      ...prev,
+      [column]: checked
+    }));
+  };
 
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
     setPageState('fetching');
@@ -505,6 +536,7 @@ export default function ProjectInstanceViewPage() {
               allUserMicroproducts={allUserMicroproducts}
               parentProjectName={parentProjectNameForCurrentView}
               theme={trainingPlanData?.theme || 'cherry'}
+              columnVisibility={columnVisibility}
             />
           </div>
         );
@@ -603,6 +635,65 @@ export default function ProjectInstanceViewPage() {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Column Visibility Dropdown - only for Training Plans */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+              <div className="relative" ref={columnDropdownRef}>
+                <button
+                  onClick={() => setShowColumnDropdown(!showColumnDropdown)}
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                  title="Configure visible columns"
+                >
+                  <Info size={16} className="mr-2" />
+                  Columns
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
+                
+                {showColumnDropdown && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Visible Columns</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.knowledgeCheck}
+                          onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Assessment Type</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.contentAvailability}
+                          onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Content Volume</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.informationSource}
+                          onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Source</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.time}
+                          onChange={(e) => handleColumnVisibilityChange('time', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Production Hours</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
                   <button
                     onClick={handlePdfDownload}

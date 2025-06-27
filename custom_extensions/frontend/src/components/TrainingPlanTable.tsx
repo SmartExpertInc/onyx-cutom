@@ -81,6 +81,12 @@ interface TrainingPlanTableProps {
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
   theme?: string;
+  columnVisibility?: {
+    knowledgeCheck: boolean;
+    contentAvailability: boolean;
+    informationSource: boolean;
+    time: boolean;
+  };
 }
 
 const localizationConfig = {
@@ -164,6 +170,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   parentProjectName,
   sourceChatSessionId,
   theme = 'cherry', // Default theme
+  columnVisibility,
 }) => {
   const [lessonModalState, setLessonModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
@@ -281,13 +288,23 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       return undefined;
     };
 
+    // Use columnVisibility prop if provided, otherwise fall back to stored options or defaults
+    if (columnVisibility) {
+      return {
+        knowledgeCheck: columnVisibility.knowledgeCheck,
+        contentAvailability: columnVisibility.contentAvailability,
+        informationSource: columnVisibility.informationSource,
+        time: columnVisibility.time,
+      };
+    }
+
     return {
       knowledgeCheck: fromQuery('knowledgeCheck') ?? storedOpts?.knowledgeCheck ?? def.knowledgeCheck,
       contentAvailability: fromQuery('contentAvailability') ?? storedOpts?.contentAvailability ?? def.contentAvailability,
       informationSource: fromQuery('informationSource') ?? storedOpts?.informationSource ?? def.informationSource,
       time: fromQuery('time') ?? storedOpts?.time ?? def.time,
     };
-  }, [searchParams, storedOpts]);
+  }, [searchParams, storedOpts, columnVisibility]);
 
   const columnOrder: Array<{key: string; width: number}> = [
     { key: 'module', width: 4 },
