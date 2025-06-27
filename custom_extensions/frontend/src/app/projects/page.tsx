@@ -34,21 +34,15 @@ interface SidebarProps {
   currentTab: string;
   onFolderSelect: (folderId: number | null) => void;
   selectedFolderId: number | null;
+  folders: any[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId }) => {
-  const [folders, setFolders] = useState<any[]>([]);
-  const [showFolderModal, setShowFolderModal] = useState(false);
+const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders }) => {
   const [loadingFolders, setLoadingFolders] = useState(true);
 
   useEffect(() => {
-    fetchFolders().then(setFolders).catch(() => setFolders([])).finally(() => setLoadingFolders(false));
+    fetchFolders().then(() => setLoadingFolders(false));
   }, []);
-
-  const handleFolderCreated = (newFolder: any) => {
-    setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
-    setShowFolderModal(false);
-  };
 
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
@@ -87,16 +81,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
           <span>Folders</span>
-          {folders.length === 0 ? (
-            <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => setShowFolderModal(true)} />
-          ) : (
-            <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => setShowFolderModal(true)} />
-          )}
+          <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
         {folders.length === 0 && !loadingFolders ? (
           <div className="bg-gray-100 p-4 rounded-lg text-center">
             <p className="mb-2 text-gray-700">Organize your products by topic and share them with your team</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => setShowFolderModal(true)}>Create or join a folder</button>
+            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>Create or join a folder</button>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -114,7 +104,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           </div>
         )}
       </div>
-      <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />
@@ -169,10 +158,27 @@ const ProjectsPageInner: React.FC = () => {
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [folders, setFolders] = useState<any[]>([]);
+
+  useEffect(() => {
+    const handleOpenModal = () => setShowFolderModal(true);
+    window.addEventListener('openFolderModal', handleOpenModal);
+    return () => window.removeEventListener('openFolderModal', handleOpenModal);
+  }, []);
+
+  useEffect(() => {
+    fetchFolders().then(setFolders).catch(() => setFolders([]));
+  }, []);
+
+  const handleFolderCreated = (newFolder: any) => {
+    setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
+    setShowFolderModal(false);
+  };
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
-      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} />
+      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
@@ -188,6 +194,7 @@ const ProjectsPageInner: React.FC = () => {
           </button>
         </div>
       </div>
+      <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
     </div>
   );
 };
