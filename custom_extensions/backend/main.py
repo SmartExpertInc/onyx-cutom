@@ -4124,13 +4124,18 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             
             # Update the existing project with the parsed content
             if parsed_project.microproduct_content:
+                # Convert TrainingPlanDetails to dict for JSON serialization
+                content_dict = parsed_project.microproduct_content
+                if hasattr(content_dict, 'model_dump'):
+                    content_dict = content_dict.model_dump()
+                
                 # Update existing project with new content
                 async with pool.acquire() as conn:
                     await conn.execute("""
                         UPDATE projects 
                         SET microproduct_content = $1
                         WHERE id = $2 AND onyx_user_id = $3
-                    """, parsed_project.microproduct_content, payload.projectId, onyx_user_id)
+                    """, content_dict, payload.projectId, onyx_user_id)
                     
                     # Clean up the temporary project created by add_project_to_custom_db
                     await conn.execute(
@@ -4142,7 +4147,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 # Send completion packet with the parsed content
                 done_packet = {
                     "type": "done", 
-                    "updatedContent": parsed_project.microproduct_content,
+                    "updatedContent": content_dict,
                     "raw": assistant_reply
                 }
                 yield (json.dumps(done_packet) + "\n").encode()
