@@ -2562,7 +2562,7 @@ async def health_check():
 @app.post("/api/custom/user-text", response_model=Dict[str, str])
 async def upload_user_text(
     request: Dict[str, str],
-    current_user: User = Depends(get_current_user),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
 ):
     """
     Upload user text and return a virtual file ID.
@@ -2586,7 +2586,7 @@ async def upload_user_text(
 @app.get("/api/custom/user-text/{virtual_file_id}", response_model=Dict[str, str])
 async def get_user_text(
     virtual_file_id: str,
-    current_user: User = Depends(get_current_user),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
 ):
     """
     Retrieve user text by virtual file ID.
