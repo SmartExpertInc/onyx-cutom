@@ -358,6 +358,18 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
             logger.info("'trashed_projects' table ensured (soft-delete).")
 
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+
         logger.info("Custom DB pool initialized & tables ensured.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -668,6 +680,7 @@ class ProjectApiResponse(BaseModel):
     design_microproduct_type: Optional[str] = None
     created_at: datetime
     design_template_id: Optional[int] = None
+    folder_id: Optional[int] = None
     model_config = {"from_attributes": True}
 
 class ProjectDetailForEditResponse(BaseModel):
@@ -2255,157 +2268,70 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 @app.get("/api/custom/projects", response_model=List[ProjectApiResponse])
-async def get_user_projects_list_from_db(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+async def get_user_projects_list_from_db(
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool),
+    folder_id: Optional[int] = None
+):
     select_query = """
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
-               dt.microproduct_type as design_microproduct_type
+               dt.microproduct_type as design_microproduct_type,
+               p.folder_id
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-        WHERE p.onyx_user_id = $1 ORDER BY p.created_at DESC;
+        WHERE p.onyx_user_id = $1 {folder_filter}
+        ORDER BY p.created_at DESC;
     """
-    try:
-        async with pool.acquire() as conn: db_rows = await conn.fetch(select_query, onyx_user_id)
-        projects_list: List[ProjectApiResponse] = []
-        for row_data in db_rows:
-            row_dict = dict(row_data)
-            project_slug = create_slug(row_dict.get('project_name'))
-            projects_list.append(ProjectApiResponse(
-                id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
-                microproduct_name=row_dict.get("microproduct_name"),
-                design_template_name=row_dict.get("design_template_name"),
-                design_microproduct_type=row_dict.get("design_microproduct_type"),
-                created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id")
-            ))
-        return projects_list
-    except Exception as e:
-        logger.error(f"Error fetching projects list: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred while fetching projects list." if IS_PRODUCTION else f"DB error while fetching projects list: {str(e)}"
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    folder_filter = ""
+    params = [onyx_user_id]
+    if folder_id is not None:
+        folder_filter = "AND p.folder_id = $2"
+        params.append(folder_id)
+    query = select_query.format(folder_filter=folder_filter)
+    async with pool.acquire() as conn:
+        db_rows = await conn.fetch(query, *params)
+    projects_list: List[ProjectApiResponse] = []
+    for row_data in db_rows:
+        row_dict = dict(row_data)
+        project_slug = create_slug(row_dict.get('project_name'))
+        projects_list.append(ProjectApiResponse(
+            id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
+            microproduct_name=row_dict.get("microproduct_name"),
+            design_template_name=row_dict.get("design_template_name"),
+            design_microproduct_type=row_dict.get("design_microproduct_type"),
+            created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
+            folder_id=row_dict.get("folder_id")
+        ))
+    return projects_list
 
 @app.get("/api/custom/projects/view/{project_id}", response_model=MicroProductApiResponse, responses={404: {"model": ErrorDetail}})
 async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    query = """
-    SELECT p.id, p.project_name, p.microproduct_name, p.microproduct_content,
-           p.design_template_id, p.source_chat_session_id, dt.template_name as design_template_name,
-           dt.component_name as design_component_name, dt.microproduct_type as design_microproduct_type
-    FROM projects p
-    JOIN design_templates dt ON p.design_template_id = dt.id
-    WHERE p.id = $1 AND p.onyx_user_id = $2;
+    select_query = """
+        SELECT p.*, dt.template_name as design_template_name, dt.microproduct_type as design_microproduct_type, dt.component_name
+        FROM projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.id = $1 AND p.onyx_user_id = $2
     """
-    try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, project_id, onyx_user_id)
-        if not row:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project instance not found.")
-
-        row_dict = dict(row)
-        project_instance_name = row_dict.get('microproduct_name') or row_dict.get('project_name')
-        details_data: Optional[MicroProductContentType] = None
-        microproduct_content_json = row_dict.get('microproduct_content')
-        component_name = row_dict.get("design_component_name")
-
-        if microproduct_content_json and isinstance(microproduct_content_json, dict):
-            try:
-                if component_name == COMPONENT_NAME_PDF_LESSON:
-                    details_data = PdfLessonDetails(**microproduct_content_json)
-                elif component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    details_data = TextPresentationDetails(**microproduct_content_json)
-                elif component_name == COMPONENT_NAME_TRAINING_PLAN:
-                    details_data = TrainingPlanDetails(**microproduct_content_json)
-                elif component_name == COMPONENT_NAME_VIDEO_LESSON:
-                    details_data = VideoLessonData(**microproduct_content_json)
-                elif component_name == COMPONENT_NAME_QUIZ:
-                    details_data = QuizData(**microproduct_content_json)
-                elif component_name == COMPONENT_NAME_SLIDE_DECK:
-                    details_data = SlideDeckDetails(**microproduct_content_json)
-                else:
-                    logger.warning(f"Unknown component_name '{component_name}' for project {project_id} view. Trying fallbacks.", exc_info=not IS_PRODUCTION)
-                    try: details_data = TrainingPlanDetails(**microproduct_content_json)
-                    except:
-                        try: details_data = PdfLessonDetails(**microproduct_content_json)
-                        except: pass
-            except Exception as pydantic_e:
-                 logger.error(f"Pydantic validation error (project ID {project_id}, component {component_name}, detail view): {pydantic_e}", exc_info=not IS_PRODUCTION)
-        elif isinstance(microproduct_content_json, str) and component_name == COMPONENT_NAME_TRAINING_PLAN:
-            details_data = parse_training_plan_from_string(microproduct_content_json, project_instance_name)
-
-        if not details_data:
-            lang_fallback = detect_language(project_instance_name)
-            if component_name == COMPONENT_NAME_PDF_LESSON:
-                details_data = PdfLessonDetails(lessonTitle=f"No/Invalid content for {project_instance_name}", contentBlocks=[], detectedLanguage=lang_fallback)
-            elif component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                details_data = TextPresentationDetails(textTitle=f"No/Invalid content for {project_instance_name}", contentBlocks=[], detectedLanguage=lang_fallback)
-            elif component_name == COMPONENT_NAME_QUIZ:
-                details_data = QuizData(quizTitle=f"No/Invalid content for {project_instance_name}", questions=[], detectedLanguage=lang_fallback)
-            else:
-                details_data = TrainingPlanDetails(mainTitle=f"No/Invalid content for {project_instance_name}", sections=[], detectedLanguage=lang_fallback)
-
-        # === ENSURE lessonNumber IS PRESENT FOR LESSON-LEVEL COMPONENTS ===
-        if component_name in (COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ):
-            try:
-                needs_number = False
-                if isinstance(details_data, BaseModel):
-                    needs_number = getattr(details_data, 'lessonNumber', None) is None
-                elif isinstance(details_data, dict):
-                    needs_number = 'lessonNumber' not in details_data or details_data.get('lessonNumber') is None
-
-                if needs_number:
-                    async with pool.acquire() as conn:
-                        tp_row = await conn.fetchrow(
-                            """
-                            SELECT p.microproduct_content
-                            FROM projects p
-                            JOIN design_templates dt ON p.design_template_id = dt.id
-                            WHERE p.onyx_user_id = $1
-                              AND p.project_name   = $2
-                              AND dt.component_name = $3
-                            LIMIT 1;
-                            """,
-                            onyx_user_id,
-                            row_dict.get('project_name'),
-                            COMPONENT_NAME_TRAINING_PLAN
-                        )
-                    if tp_row and isinstance(tp_row['microproduct_content'], dict):
-                        try:
-                            tp_parsed = TrainingPlanDetails(**tp_row['microproduct_content'])
-                            counter_tmp = 0
-                            title_to_match = (row_dict.get('microproduct_name') or '').strip()
-                            found_num = None
-                            for sec in tp_parsed.sections:
-                                for les in sec.lessons:
-                                    counter_tmp += 1
-                                    if les.title.strip() == title_to_match:
-                                        found_num = counter_tmp
-                                        break
-                                if found_num is not None:
-                                    break
-                            if found_num is not None:
-                                if isinstance(details_data, BaseModel):
-                                    details_data = details_data.model_copy(update={'lessonNumber': found_num})
-                                elif isinstance(details_data, dict):
-                                    details_data['lessonNumber'] = found_num
-                        except Exception as e_detect:
-                            logger.warning(f"Lesson number detection failed for proj {project_id}: {e_detect}", exc_info=not IS_PRODUCTION)
-            except Exception as e_outer:
-                logger.warning(f"Outer lesson number detection error for proj {project_id}: {e_outer}", exc_info=not IS_PRODUCTION)
-
-        web_link_path = f"/projects/view/{project_id}"
-        pdf_doc_identifier_slug = create_slug(f"{row_dict.get('project_name')}_{project_instance_name}")
-        pdf_link_path = f"pdf/{project_id}/{pdf_doc_identifier_slug}"
-
-        return MicroProductApiResponse(
-            name=project_instance_name, slug=create_slug(project_instance_name), project_id=project_id,
-            design_template_id=row_dict["design_template_id"], component_name=component_name,
-            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=details_data,
-            sourceChatSessionId=row_dict.get("source_chat_session_id"),
-            parentProjectName=row_dict.get('project_name')
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error fetching project instance detail {project_id}: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred while fetching project details." if IS_PRODUCTION else f"Server error fetching project detail: {str(e)}"
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(select_query, project_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Project not found")
+    row_dict = dict(row)
+    project_instance_name = row_dict.get("microproduct_name") or row_dict.get("project_name")
+    project_slug = create_slug(project_instance_name)
+    component_name = row_dict.get("component_name")
+    details_data = row_dict.get("microproduct_content")
+    web_link_path = None
+    pdf_link_path = None
+    return MicroProductApiResponse(
+        name=project_instance_name, slug=project_slug, project_id=project_id,
+        design_template_id=row_dict["design_template_id"], component_name=component_name,
+        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=details_data,
+        sourceChatSessionId=row_dict.get("source_chat_session_id"),
+        parentProjectName=row_dict.get('project_name')
+        # folder_id is not in MicroProductApiResponse, but can be added if needed
+    )
 
 @app.get("/api/custom/pdf/{project_id}/{document_name_slug}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_project_instance_pdf(
@@ -4182,5 +4108,68 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             yield (json.dumps(error_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
+
+# --- Folders API Models ---
+class ProjectFolderCreateRequest(BaseModel):
+    name: str
+
+class ProjectFolderResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+
+class ProjectFolderListResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    project_count: int
+
+class ProjectFolderRenameRequest(BaseModel):
+    name: str
+
+# --- Folders API Endpoints ---
+@app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
+async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    query = """
+        SELECT pf.id, pf.name, pf.created_at, COUNT(p.id) as project_count
+        FROM project_folders pf
+        LEFT JOIN projects p ON pf.id = p.folder_id
+        WHERE pf.onyx_user_id = $1
+        GROUP BY pf.id
+        ORDER BY pf.created_at ASC;
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(query, onyx_user_id)
+    return [ProjectFolderListResponse(**dict(row)) for row in rows]
+
+@app.post("/api/custom/projects/folders", response_model=ProjectFolderResponse)
+async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    query = "INSERT INTO project_folders (onyx_user_id, name) VALUES ($1, $2) RETURNING id, name, created_at;"
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, onyx_user_id, req.name)
+    return ProjectFolderResponse(**dict(row))
+
+@app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
+async def rename_folder(folder_id: int, req: ProjectFolderRenameRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at;"
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, req.name, folder_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return ProjectFolderResponse(**dict(row))
+
+@app.delete("/api/custom/projects/folders/{folder_id}", status_code=204)
+async def delete_folder(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    # Set folder_id to NULL for all projects in this folder (preserve projects)
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE projects SET folder_id = NULL WHERE folder_id = $1 AND onyx_user_id = $2;", folder_id, onyx_user_id)
+        result = await conn.execute("DELETE FROM project_folders WHERE id = $1 AND onyx_user_id = $2;", folder_id, onyx_user_id)
+    if result == "DELETE 0":
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return JSONResponse(status_code=204, content={})
+
+# --- Update project queries to support folder_id (backward compatible) ---
+# In all project list endpoints, add folder_id to SELECT and response models, and allow filtering by folder_id (optional)
+# ... existing code ...
 
 

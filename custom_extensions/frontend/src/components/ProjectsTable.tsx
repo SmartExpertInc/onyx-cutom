@@ -37,11 +37,13 @@ interface Project {
   designMicroproductType?: string;
   isGamma?: boolean;
   instanceName?: string;
+  folderId?: number | null;
 }
 
 interface ProjectsTableProps {
     /** If true – table displays items from Trash and hides create/filter toolbars */
     trashMode?: boolean;
+    folderId?: number | null;
 }
 
 const ProjectCard: React.FC<{ 
@@ -624,7 +626,7 @@ const ProjectRowMenu: React.FC<{
     );
 };
 
-const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
+const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folderId = null }) => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -744,7 +746,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
             setLoading(true);
             setError(null);
             const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-            const projectsApiUrl = `${CUSTOM_BACKEND_URL}${trashMode ? '/projects/trash' : '/projects'}`;
+            let projectsApiUrl = `${CUSTOM_BACKEND_URL}${trashMode ? '/projects/trash' : '/projects'}`;
+            if (!trashMode && folderId !== null && folderId !== undefined) {
+                projectsApiUrl += `?folder_id=${folderId}`;
+            }
             try {
                 const headers: HeadersInit = {};
                 const devUserId = "dummy-onyx-user-id-for-testing";
@@ -767,6 +772,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                     isPrivate: true, // Missing from DB
                     designMicroproductType: p.design_microproduct_type,
                     instanceName: p.microproduct_name,
+                    folderId: p.folder_id,
                 }));
 
                 // ---- Filter lessons that belong to outlines from the main products page ----
@@ -841,7 +847,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
         };
 
         fetchProjects();
-    }, [trashMode]);
+    }, [trashMode, folderId]);
 
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
     const filterIcons: Record<string, LucideIcon> = {
