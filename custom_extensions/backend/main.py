@@ -21,6 +21,8 @@ import asyncio
 import typing
 import tempfile
 import io
+import gzip
+import base64
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -1383,6 +1385,39 @@ ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
 # Constants for text size thresholds
 TEXT_SIZE_THRESHOLD = 5000  # Characters - switch to virtual file for texts larger than this
 VIRTUAL_TEXT_FILE_PREFIX = "paste_text_"
+
+def compress_text(text_content: str) -> str:
+    """
+    Compress large text content using gzip and encode as base64.
+    This reduces the payload size for large texts.
+    """
+    try:
+        # Compress the text
+        text_bytes = text_content.encode('utf-8')
+        compressed = gzip.compress(text_bytes)
+        # Encode as base64 for JSON transmission
+        compressed_b64 = base64.b64encode(compressed).decode('utf-8')
+        logger.info(f"Compressed text from {len(text_content)} chars to {len(compressed_b64)} chars (reduction: {(1 - len(compressed_b64)/len(text_content))*100:.1f}%)")
+        return compressed_b64
+    except Exception as e:
+        logger.error(f"Error compressing text: {e}")
+        # Return original text if compression fails
+        return text_content
+
+def decompress_text(compressed_b64: str) -> str:
+    """
+    Decompress base64-encoded gzipped text content.
+    """
+    try:
+        # Decode from base64
+        compressed = base64.b64decode(compressed_b64.encode('utf-8'))
+        # Decompress
+        text_bytes = gzip.decompress(compressed)
+        return text_bytes.decode('utf-8')
+    except Exception as e:
+        logger.error(f"Error decompressing text: {e}")
+        # Return original if decompression fails (assume it wasn't compressed)
+        return compressed_b64
 
 async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -> int:
     """
@@ -2878,23 +2913,21 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use virtual file for large texts
-    virtual_file_id = None
+    # Add text context if provided - use compression for large texts
     if payload.fromText and payload.userText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        
         if len(payload.userText) > TEXT_SIZE_THRESHOLD:
-            # Create virtual file for large text
-            virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
-            wiz_payload["fromFiles"] = True
-            wiz_payload["fileIds"] = str(virtual_file_id)
-            # Also add text mode information for the assistant
-            wiz_payload["fromText"] = True
-            wiz_payload["textMode"] = payload.textMode
-            wiz_payload["userText"] = f"[Large text content uploaded as file ID: {virtual_file_id}]"
+            # Compress large text to reduce payload size
+            compressed_text = compress_text(payload.userText)
+            wiz_payload["userText"] = compressed_text
+            wiz_payload["textCompressed"] = True
+            logger.info(f"Using compressed text for large content ({len(payload.userText)} -> {len(compressed_text)} chars)")
         else:
             # Use direct text for smaller content
-            wiz_payload["fromText"] = True
-            wiz_payload["textMode"] = payload.textMode
             wiz_payload["userText"] = payload.userText
+            wiz_payload["textCompressed"] = False
 
     if payload.originalOutline:
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -2904,6 +2937,17 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             "lessonsPerModule": payload.lessonsPerModule,
         })
 
+    # Decompress text if it was compressed
+    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        try:
+            decompressed_text = decompress_text(wiz_payload["userText"])
+            wiz_payload["userText"] = decompressed_text
+            wiz_payload["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress text: {e}")
+            # Continue with original text if decompression fails
+    
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
@@ -2920,10 +2964,6 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             if payload.fromFiles and payload.fileIds:
                 file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
             
-            # Add virtual file ID if created for large text
-            if virtual_file_id:
-                file_ids_list.append(virtual_file_id)
-
             send_payload = {
                 "chat_session_id": chat_id,
                 "message": wizard_message,
@@ -3438,24 +3478,33 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         if payload.fileIds:
             wizard_dict["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use virtual file for large texts
-    virtual_file_id = None
+    # Add text context if provided - use compression for large texts
     if payload.fromText and payload.userText:
+        wizard_dict["fromText"] = True
+        wizard_dict["textMode"] = payload.textMode
+        
         if len(payload.userText) > TEXT_SIZE_THRESHOLD:
-            # Create virtual file for large text
-            virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
-            wizard_dict["fromFiles"] = True
-            wizard_dict["fileIds"] = str(virtual_file_id)
-            # Also add text mode information for the assistant
-            wizard_dict["fromText"] = True
-            wizard_dict["textMode"] = payload.textMode
-            wizard_dict["userText"] = f"[Large text content uploaded as file ID: {virtual_file_id}]"
+            # Compress large text to reduce payload size
+            compressed_text = compress_text(payload.userText)
+            wizard_dict["userText"] = compressed_text
+            wizard_dict["textCompressed"] = True
+            logger.info(f"Using compressed text for large lesson content ({len(payload.userText)} -> {len(compressed_text)} chars)")
         else:
             # Use direct text for smaller content
-            wizard_dict["fromText"] = True
-            wizard_dict["textMode"] = payload.textMode
             wizard_dict["userText"] = payload.userText
+            wizard_dict["textCompressed"] = False
 
+    # Decompress text if it was compressed
+    if wizard_dict.get("textCompressed") and wizard_dict.get("userText"):
+        try:
+            decompressed_text = decompress_text(wizard_dict["userText"])
+            wizard_dict["userText"] = decompressed_text
+            wizard_dict["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed lesson text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress lesson text: {e}")
+            # Continue with original text if decompression fails
+    
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
 
     async def streamer():
@@ -3470,9 +3519,6 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
             
             # Add virtual file ID if created for large text
-            if virtual_file_id:
-                file_ids_list.append(virtual_file_id)
-
             send_payload = {
                 "chat_session_id": chat_id,
                 "message": wizard_message,

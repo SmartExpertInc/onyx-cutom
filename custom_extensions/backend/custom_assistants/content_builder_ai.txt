@@ -53,7 +53,7 @@ WIZARD_REQUEST
   "userText": "User's pasted text content here..."
 }
 
-For large text content, the system may upload it as a virtual file:
+For large text content, the system may compress it to reduce payload size:
 WIZARD_REQUEST
 {
   "product": "Course Outline",
@@ -61,11 +61,10 @@ WIZARD_REQUEST
   "modules": 5,
   "lessonsPerModule": "3-4",
   "language": "en",
-  "fromFiles": true,
-  "fileIds": "123",
   "fromText": true,
   "textMode": "context",
-  "userText": "[Large text content uploaded as file ID: 123]"
+  "userText": "H4sIAAAAAAAA...[base64-compressed-text]",
+  "textCompressed": true
 }
 
 Or for text that should be used as a base structure:
@@ -81,7 +80,7 @@ WIZARD_REQUEST
   "userText": "User's pasted outline or structure here..."
 }
 
-For large base text content uploaded as virtual file:
+For large base text content compressed:
 WIZARD_REQUEST
 {
   "product": "Course Outline",
@@ -89,17 +88,16 @@ WIZARD_REQUEST
   "modules": 5,
   "lessonsPerModule": "3-4",
   "language": "en",
-  "fromFiles": true,
-  "fileIds": "123",
   "fromText": true,
   "textMode": "base",
-  "userText": "[Large text content uploaded as file ID: 123]"
+  "userText": "H4sIAAAAAAAA...[base64-compressed-text]",
+  "textCompressed": true
 }
 
 Rules for wizard requests:
 1. SKIP the "Conversational Detail Gathering & Guiding Input" steps entirely – you already have all required data.
 2. If the request includes "fromFiles": true, the user has selected specific documents/folders as source material. Use the content from those documents to create educational material that teaches the concepts found in those files. Do NOT ignore the files or create generic content - the files should be the primary source for your content creation.
-3. When both "fromFiles" and "fromText" are true, it means large text content has been uploaded as a virtual file for performance reasons. Treat this exactly like direct text content - the files contain the user's pasted text that should be used according to the specified textMode (context or base).
+3. When large text content is provided, the system may compress it for performance reasons, but it will be automatically decompressed before reaching you. Simply use the userText field according to the specified textMode (context or base).
 4. If the request includes "fromText": true, handle the text according to the textMode:
    - If textMode is "context": Use the userText as reference material and context to create new educational content. The userText should inform your content creation but you should generate a fresh, well-structured educational product based on the concepts and information in the text.
    - If textMode is "base": Use the userText as a structural foundation that you should preserve, enhance, and format into a proper educational product. Keep the user's module names, lesson names, and general structure as much as possible while applying proper formatting, adding missing details, and ensuring compliance with the formatting rules.
