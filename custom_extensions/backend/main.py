@@ -3057,16 +3057,23 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         try:
             edited_sections = edited.get("sections") or edited.get("modules") or []
             
+            # Debug logging to understand the data structures
+            logger.info(f"Comparing changes: orig_modules count={len(orig_modules)}, edited_sections count={len(edited_sections)}")
+            
             # Check structural changes first (modules/lessons added/removed)
             if len(orig_modules) != len(edited_sections):
+                logger.info(f"Structural change detected: module count changed from {len(orig_modules)} to {len(edited_sections)}")
                 return True
             
             # Check for content changes (titles modified)
-            for o, e in zip(orig_modules, edited_sections):
+            for i, (o, e) in enumerate(zip(orig_modules, edited_sections)):
                 # Compare module titles
                 orig_title = str(o.get("title", "")).strip()
                 edited_title = str(e.get("title", "")).strip() if isinstance(e, dict) else str(e).strip()
+                
+                logger.debug(f"Module {i}: comparing titles '{orig_title}' vs '{edited_title}'")
                 if orig_title != edited_title:
+                    logger.info(f"Module title change detected at index {i}: '{orig_title}' -> '{edited_title}'")
                     return True
                 
                 # Compare lesson structure and content
@@ -3074,25 +3081,51 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 edited_lessons = e.get("lessons", []) if isinstance(e, dict) else []
                 
                 if len(orig_lessons) != len(edited_lessons):
+                    logger.info(f"Lesson count change detected in module {i}: {len(orig_lessons)} -> {len(edited_lessons)}")
                     return True
                 
                 # Compare individual lesson titles
-                for ol, el in zip(orig_lessons, edited_lessons):
-                    orig_lesson = str(ol).strip()
-                    edited_lesson = str(el).strip()
+                for j, (ol, el) in enumerate(zip(orig_lessons, edited_lessons)):
+                    # Handle different lesson formats
+                    if isinstance(ol, dict):
+                        orig_lesson = str(ol.get("title", ol.get("name", ""))).strip()
+                    else:
+                        orig_lesson = str(ol).strip()
+                    
+                    if isinstance(el, dict):
+                        edited_lesson = str(el.get("title", el.get("name", ""))).strip()
+                    else:
+                        edited_lesson = str(el).strip()
+                    
+                    logger.debug(f"Module {i}, Lesson {j}: comparing '{orig_lesson}' vs '{edited_lesson}'")
                     if orig_lesson != edited_lesson:
+                        logger.info(f"Lesson change detected in module {i}, lesson {j}: '{orig_lesson}' -> '{edited_lesson}'")
                         return True
             
+            logger.info("No changes detected - outline is identical")
             return False
-        except Exception:
+        except Exception as e:
             # On any parsing issue assume changes were made so we use assistant
+            logger.warning(f"Error during change detection (assuming changes made): {e}")
             return True
 
     # ---------- 1) Decide strategy ----------
     raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
     
+    # Debug cache lookup
+    logger.info(f"DEBUG: Cache lookup for chat_id='{chat_id}', found cached outline: {bool(raw_outline_cached)}")
+    if raw_outline_cached:
+        logger.info(f"DEBUG: Cached outline preview (first 200 chars): {raw_outline_cached[:200]}...")
+    else:
+        logger.info(f"DEBUG: Available cache keys: {list(OUTLINE_PREVIEW_CACHE.keys())}")
+    
     if raw_outline_cached:
         parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        
+        # Debug: Log the data structures being compared
+        logger.info(f"DEBUG: parsed_orig structure: {json.dumps(parsed_orig, indent=2)[:500]}...")
+        logger.info(f"DEBUG: payload.editedOutline structure: {json.dumps(payload.editedOutline, indent=2)[:500]}...")
+        
         any_changes = _any_changes_made(parsed_orig, payload.editedOutline)
         
         if not any_changes:
