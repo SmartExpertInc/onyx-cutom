@@ -4006,7 +4006,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
     current_outline = ""
     
     if existing_content:
-        # Convert existing training plan to markdown format
+        # Convert existing training plan to markdown format with full details
         content_data = existing_content
         if isinstance(content_data, dict):
             main_title = content_data.get("mainTitle", "Training Plan")
@@ -4014,13 +4014,37 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             
             sections = content_data.get("sections", [])
             for section in sections:
+                section_id = section.get("id", "")
                 section_title = section.get("title", "")
-                current_outline += f"## {section_title}\n\n"
+                total_hours = section.get("totalHours", 0.0)
+                current_outline += f"## {section_id} {section_title}\n"
+                current_outline += f"**Total Hours:** {total_hours}\n\n"
                 
                 lessons = section.get("lessons", [])
-                for lesson in lessons:
-                    lesson_title = lesson.get("title", "")
-                    current_outline += f"- {lesson_title}\n"
+                if lessons:
+                    current_outline += "### Lessons:\n"
+                    for idx, lesson in enumerate(lessons, 1):
+                        lesson_title = lesson.get("title", "")
+                        lesson_hours = lesson.get("hours", 1.0)
+                        lesson_source = lesson.get("source", "Create from scratch")
+                        
+                        # Get check details
+                        check = lesson.get("check", {})
+                        check_type = check.get("type", "none")
+                        check_text = check.get("text", "No")
+                        
+                        # Get content availability
+                        content_available = lesson.get("contentAvailable", {})
+                        content_type = content_available.get("type", "yes")
+                        content_text = content_available.get("text", "100%")
+                        
+                        current_outline += f"{idx}. **{lesson_title}**\n"
+                        current_outline += f"   - Hours: {lesson_hours}\n"
+                        current_outline += f"   - Source: {lesson_source}\n"
+                        current_outline += f"   - Assessment: {check_type} ({check_text})\n"
+                        current_outline += f"   - Content Available: {content_type} ({content_text})\n\n"
+                else:
+                    current_outline += "*No lessons defined*\n\n"
                 current_outline += "\n"
 
     # Prepare wizard payload
@@ -4091,7 +4115,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 theme=existing_content.get("theme", "cherry") if existing_content else "cherry"
             )
             
-            # Convert parsed modules to sections
+            # Convert parsed modules to sections, preserving or setting reasonable defaults for lesson details
             for idx, module in enumerate(parsed_outline):
                 section = SectionDetail(
                     id=f"№{idx + 1}",
@@ -4100,13 +4124,34 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                     autoCalculateHours=True
                 )
                 
-                for lesson_title in module.get("lessons", []):
+                # Get existing section data if available to preserve lesson details
+                existing_section = None
+                if existing_content and isinstance(existing_content, dict):
+                    existing_sections = existing_content.get("sections", [])
+                    if idx < len(existing_sections):
+                        existing_section = existing_sections[idx]
+                
+                for lesson_idx, lesson_title in enumerate(module.get("lessons", [])):
+                    # Try to preserve existing lesson details if available
+                    existing_lesson = None
+                    if existing_section and existing_section.get("lessons"):
+                        existing_lessons = existing_section["lessons"]
+                        if lesson_idx < len(existing_lessons):
+                            existing_lesson = existing_lessons[lesson_idx]
+                    
+                    # Create lesson with preserved or default values
                     lesson = LessonDetail(
                         title=lesson_title,
-                        hours=1.0,
-                        source="Create from scratch",
-                        check=StatusInfo(type="none", text="No"),
-                        contentAvailable=StatusInfo(type="yes", text="100%")
+                        hours=existing_lesson.get("hours", 1.0) if existing_lesson else 1.0,
+                        source=existing_lesson.get("source", "Create from scratch") if existing_lesson else "Create from scratch",
+                        check=StatusInfo(
+                            type=existing_lesson.get("check", {}).get("type", "none") if existing_lesson else "none",
+                            text=existing_lesson.get("check", {}).get("text", "No") if existing_lesson else "No"
+                        ),
+                        contentAvailable=StatusInfo(
+                            type=existing_lesson.get("contentAvailable", {}).get("type", "yes") if existing_lesson else "yes",
+                            text=existing_lesson.get("contentAvailable", {}).get("text", "100%") if existing_lesson else "100%"
+                        )
                     )
                     section.lessons.append(lesson)
                 

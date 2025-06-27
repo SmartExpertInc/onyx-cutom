@@ -148,7 +148,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 type="button"
                 onClick={() => toggleExample(ex)}
                 disabled={loadingEdit}
-                className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                   selectedExamples.includes(ex.short)
                     ? 'bg-white shadow border-blue-300'
                     : 'bg-blue-50 hover:bg-white'
@@ -166,14 +166,14 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
               type="button"
               disabled={loadingEdit || !editPrompt.trim()}
               onClick={handleApplyEdit}
-              className="px-6 py-2 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
+              className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors text-white"
             >
               {loadingEdit ? (
                 <LoadingAnimation message="Applying..." />
               ) : (
                 <>
-                  <Sparkles size={14} />
-                  Edit with AI
+                  <Sparkles size={14} className="text-white" />
+                  <span className="text-sm font-medium text-white">Edit with AI</span>
                 </>
               )}
             </button>
