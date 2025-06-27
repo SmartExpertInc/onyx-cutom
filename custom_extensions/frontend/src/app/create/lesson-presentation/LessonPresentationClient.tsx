@@ -148,25 +148,47 @@ export default function LessonPresentationClient() {
   
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
-  // Memoize arrays to prevent infinite re-renders
-  const folderIds = useMemo(() => params?.get("folderIds")?.split(",").filter(Boolean) || [], [params?.get("folderIds")]);
-  const fileIds = useMemo(() => params?.get("fileIds")?.split(",").filter(Boolean) || [], [params?.get("fileIds")]);
+  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
+  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
   
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
   const [userText, setUserText] = useState('');
+  const [userVirtualFileId, setUserVirtualFileId] = useState<string | null>(null);
   
-  // Retrieve user text from sessionStorage
+  // Retrieve user text from sessionStorage or virtual file system
   useEffect(() => {
     if (isFromText) {
       try {
         const storedData = sessionStorage.getItem('pastedTextData');
+        console.log('LessonPresentation: Retrieving from sessionStorage:', storedData ? 'Found data' : 'No data');
         if (storedData) {
           const textData = JSON.parse(storedData);
+          console.log('LessonPresentation: Parsed text data:', { 
+            hasText: !!textData.text, 
+            textLength: textData.text?.length || 0, 
+            hasVirtualFileId: !!textData.virtualFileId,
+            isLargeText: textData.isLargeText,
+            mode: textData.mode, 
+            expectedMode: textMode,
+            isRecent: textData.timestamp && (Date.now() - textData.timestamp < 3600000)
+          });
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
-            setUserText(textData.text || '');
+            if (textData.isLargeText && textData.virtualFileId) {
+              // Large text stored as virtual file
+              setUserVirtualFileId(textData.virtualFileId);
+              setUserText(''); // Will be sent as virtual file ID
+              console.log('LessonPresentation: Set userVirtualFileId:', textData.virtualFileId);
+            } else {
+              // Small text stored directly
+              setUserText(textData.text || '');
+              setUserVirtualFileId(null);
+              console.log('LessonPresentation: Set userText:', textData.text?.substring(0, 100) + '...');
+            }
+          } else {
+            console.log('LessonPresentation: Text data validation failed');
           }
         }
       } catch (error) {
@@ -175,6 +197,7 @@ export default function LessonPresentationClient() {
     } else {
       // Clear userText if not from text
       setUserText('');
+      setUserVirtualFileId(null);
     }
   }, [isFromText, textMode]);
   
@@ -335,22 +358,14 @@ export default function LessonPresentationClient() {
   }, [selectedOutlineId, useExistingOutline]);
 
 
-  // Extract promptQuery to avoid recalculating it inside useEffect
-  const promptQuery = params?.get("prompt")?.trim() || "";
-
   // Effect to trigger streaming preview generation
   useEffect(() => {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
+    const promptQuery = params?.get("prompt")?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
-      setLoading(false);
-      return;
-    }
-    
-    // For text mode, wait until userText is loaded
-    if (isFromText && !userText) {
       setLoading(false);
       return;
     }
@@ -396,8 +411,25 @@ export default function LessonPresentationClient() {
           if (isFromText) {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
-            requestBody.userText = userText;
-
+            
+            if (userVirtualFileId) {
+              // Use virtual file ID for large text
+              requestBody.userVirtualFileId = userVirtualFileId;
+              console.log('LessonPresentation: Adding virtual file context to request:', {
+                fromText: true,
+                textMode: textMode,
+                userVirtualFileId: userVirtualFileId
+              });
+            } else {
+              // Use direct text for small text
+              requestBody.userText = userText;
+              console.log('LessonPresentation: Adding text context to request:', {
+                fromText: true,
+                textMode: textMode,
+                userTextLength: userText?.length || 0,
+                userTextPreview: userText?.substring(0, 100) + '...'
+              });
+            }
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -473,7 +505,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromFiles, folderIds, fileIds, isFromText, userText, promptQuery]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, userText, userVirtualFileId, isFromText, textMode]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {

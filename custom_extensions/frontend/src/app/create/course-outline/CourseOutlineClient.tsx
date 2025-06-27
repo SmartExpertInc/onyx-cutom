@@ -203,17 +203,40 @@ export default function CourseOutlineClient() {
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
   const [userText, setUserText] = useState('');
+  const [userVirtualFileId, setUserVirtualFileId] = useState<string | null>(null);
   
-  // Retrieve user text from sessionStorage
+  // Retrieve user text from sessionStorage or virtual file system
   useEffect(() => {
     if (isFromText) {
       try {
         const storedData = sessionStorage.getItem('pastedTextData');
+        console.log('CourseOutline: Retrieving from sessionStorage:', storedData ? 'Found data' : 'No data');
         if (storedData) {
           const textData = JSON.parse(storedData);
+          console.log('CourseOutline: Parsed text data:', { 
+            hasText: !!textData.text, 
+            textLength: textData.text?.length || 0, 
+            hasVirtualFileId: !!textData.virtualFileId,
+            isLargeText: textData.isLargeText,
+            mode: textData.mode, 
+            expectedMode: textMode,
+            isRecent: textData.timestamp && (Date.now() - textData.timestamp < 3600000)
+          });
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
-            setUserText(textData.text || '');
+            if (textData.isLargeText && textData.virtualFileId) {
+              // Large text stored as virtual file
+              setUserVirtualFileId(textData.virtualFileId);
+              setUserText(''); // Will be sent as virtual file ID
+              console.log('CourseOutline: Set userVirtualFileId:', textData.virtualFileId);
+            } else {
+              // Small text stored directly
+              setUserText(textData.text || '');
+              setUserVirtualFileId(null);
+              console.log('CourseOutline: Set userText:', textData.text?.substring(0, 100) + '...');
+            }
+          } else {
+            console.log('CourseOutline: Text data validation failed');
           }
         }
       } catch (error) {
@@ -222,12 +245,11 @@ export default function CourseOutlineClient() {
     } else {
       // Clear userText if not from text
       setUserText('');
+      setUserVirtualFileId(null);
     }
   }, [isFromText, textMode]);
-  
-  // Memoize arrays to prevent infinite re-renders
-  const folderIds = useMemo(() => params?.get("folderIds")?.split(",").filter(Boolean) || [], [params?.get("folderIds")]);
-  const fileIds = useMemo(() => params?.get("fileIds")?.split(",").filter(Boolean) || [], [params?.get("fileIds")]);
+  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
+  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
 
   // Optional pre-created chat session id (speeds up backend). If none present, we lazily
   // call the backend to obtain one and store it both in state and the URL so subsequent
@@ -416,11 +438,6 @@ export default function CourseOutlineClient() {
           modules: parsedData.modules,
           lessonsPerModule: parsedData.lessonsPerModule,
           language: parsedData.language,
-          isFromFiles: false,
-          folderIds: [],
-          fileIds: [],
-          isFromText: false,
-          userText: '',
         };
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
@@ -465,22 +482,12 @@ export default function CourseOutlineClient() {
       lastPreviewParamsRef.current.prompt === prompt &&
       lastPreviewParamsRef.current.modules === modules &&
       lastPreviewParamsRef.current.lessonsPerModule === lessonsPerModule &&
-      lastPreviewParamsRef.current.language === language &&
-      lastPreviewParamsRef.current.isFromFiles === isFromFiles &&
-      JSON.stringify(lastPreviewParamsRef.current.folderIds) === JSON.stringify(folderIds) &&
-      JSON.stringify(lastPreviewParamsRef.current.fileIds) === JSON.stringify(fileIds) &&
-      lastPreviewParamsRef.current.isFromText === isFromText &&
-      lastPreviewParamsRef.current.userText === userText;
+      lastPreviewParamsRef.current.language === language;
 
     if (same) return;
 
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
-    
-    // For text mode, wait until userText is loaded
-    if (isFromText && !userText) {
-      return;
-    }
 
     const startPreview = (attempt: number = 0) => {
       const abortController = new AbortController();
@@ -515,8 +522,25 @@ export default function CourseOutlineClient() {
           if (isFromText) {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
-            requestBody.userText = userText;
-
+            
+            if (userVirtualFileId) {
+              // Use virtual file ID for large text
+              requestBody.userVirtualFileId = userVirtualFileId;
+              console.log('CourseOutline: Adding virtual file context to request:', {
+                fromText: true,
+                textMode: textMode,
+                userVirtualFileId: userVirtualFileId
+              });
+            } else {
+              // Use direct text for small text
+              requestBody.userText = userText;
+              console.log('CourseOutline: Adding text context to request:', {
+                fromText: true,
+                textMode: textMode,
+                userTextLength: userText?.length || 0,
+                userTextPreview: userText?.substring(0, 100) + '...'
+              });
+            }
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
@@ -553,7 +577,7 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language, isFromFiles, folderIds, fileIds, isFromText, userText };
+                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
               }
             }
           }
@@ -572,7 +596,7 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language, isFromFiles, folderIds, fileIds, isFromText, userText };
+                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
               }
             } catch {/* ignore */}
           }
@@ -604,7 +628,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromFiles, folderIds, fileIds, isFromText, userText]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, userText, userVirtualFileId, isFromText, textMode]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {
@@ -683,7 +707,14 @@ export default function CourseOutlineClient() {
       if (isFromText) {
         finalizeBody.fromText = true;
         finalizeBody.textMode = textMode;
-        finalizeBody.userText = userText;
+        
+        if (userVirtualFileId) {
+          // Use virtual file ID for large text
+          finalizeBody.userVirtualFileId = userVirtualFileId;
+        } else {
+          // Use direct text for small text
+          finalizeBody.userText = userText;
+        }
       }
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {
@@ -850,11 +881,6 @@ export default function CourseOutlineClient() {
     modules: number;
     lessonsPerModule: string;
     language: string;
-    isFromFiles: boolean;
-    folderIds: string[];
-    fileIds: string[];
-    isFromText: boolean;
-    userText: string;
   } | null>(null);
 
   // Add a brand-new module to the editable preview list
@@ -895,11 +921,6 @@ export default function CourseOutlineClient() {
       modules,
       lessonsPerModule,
       language,
-      isFromFiles,
-      folderIds,
-      fileIds,
-      isFromText,
-      userText,
     };
 
     try {

@@ -10,20 +10,63 @@ export default function PasteTextPage() {
   const [text, setText] = useState("");
   const [mode, setMode] = useState<"context" | "base" | null>(null);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!text.trim() || !mode) return;
 
-    // Store text in sessionStorage to avoid URL length limits
-    const textData = {
-      text: text.trim(),
-      mode: mode,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem('pastedTextData', JSON.stringify(textData));
-
+    const trimmedText = text.trim();
     const params = new URLSearchParams();
     params.set('fromText', 'true');
     params.set('textMode', mode);
+
+    // Use virtual file system for large text (>6KB), sessionStorage for small text
+    if (trimmedText.length > 6000) {
+      try {
+        const response = await fetch('/api/custom/user-text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: trimmedText
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const virtualFileId = data.virtualFileId;
+
+        if (!virtualFileId) {
+          throw new Error('No virtual file ID received');
+        }
+
+        // Store virtual file ID in sessionStorage
+        const textData = {
+          virtualFileId: virtualFileId,
+          mode: mode,
+          timestamp: Date.now(),
+          isLargeText: true
+        };
+        sessionStorage.setItem('pastedTextData', JSON.stringify(textData));
+
+        console.log(`Large text uploaded as virtual file: ${virtualFileId}`);
+      } catch (error) {
+        console.error('Failed to upload large text:', error);
+        alert('Failed to process large text. Please try again or use smaller text.');
+        return;
+      }
+    } else {
+      // Store small text directly in sessionStorage
+      const textData = {
+        text: trimmedText,
+        mode: mode,
+        timestamp: Date.now(),
+        isLargeText: false
+      };
+      sessionStorage.setItem('pastedTextData', JSON.stringify(textData));
+    }
     
     router.push(`/create/generate?${params.toString()}`);
   };

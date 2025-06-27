@@ -112,8 +112,9 @@ function GenerateProductPicker() {
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
   
-  // Retrieve user text from sessionStorage
+  // Retrieve user text from sessionStorage or virtual file system
   const [userText, setUserText] = useState('');
+  const [virtualFileId, setVirtualFileId] = useState<string | null>(null);
   useEffect(() => {
     if (isFromText) {
       try {
@@ -122,7 +123,15 @@ function GenerateProductPicker() {
           const textData = JSON.parse(storedData);
           // Check if data is recent (within 1 hour) and matches the current mode
           if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
-            setUserText(textData.text || '');
+            if (textData.isLargeText && textData.virtualFileId) {
+              // Large text stored as virtual file
+              setVirtualFileId(textData.virtualFileId);
+              setUserText(''); // Will be retrieved when needed
+            } else {
+              // Small text stored directly
+              setUserText(textData.text || '');
+              setVirtualFileId(null);
+            }
           }
         }
       } catch (error) {
