@@ -461,6 +461,14 @@ export default function ProjectInstanceViewPage() {
        queryParams.append('lessonNumber', details.lessonNumber.toString());
     }
     
+    // Add column visibility settings for Training Plan PDFs
+    if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
+        queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
+        queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
+        queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
+        queryParams.append('time', columnVisibility.time ? '1' : '0');
+    }
+    
     if (queryParams.toString()) {
         pdfUrl += `?${queryParams.toString()}`;
     }
@@ -635,6 +643,31 @@ export default function ProjectInstanceViewPage() {
           </div>
 
           <div className="flex items-center space-x-3">
+            {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
+                  <button
+                    onClick={handlePdfDownload}
+                    disabled={isSaving}
+                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                    title="Download content as PDF"
+                  >
+                   <ArrowDownToLine size={16} className="mr-2" /> Download PDF
+                  </button>
+            )}
+            {canEditContent && projectId && (
+              <button
+                onClick={handleToggleEdit}
+                disabled={isSaving}
+                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center
+                                ${isEditing ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500'}`}
+                title={isEditing ? "Save current changes" : "Edit content"}
+              >
+                {isEditing ? (
+                  <> <Save size={16} className="mr-2" /> {isSaving ? 'Saving...' : 'Save Content'} </>
+                ) : (
+                  <> <Edit size={16} className="mr-2" /> Edit Content </>
+                )}
+              </button>
+            )}
             {/* Column Visibility Dropdown - only for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
               <div className="relative" ref={columnDropdownRef}>
@@ -692,32 +725,6 @@ export default function ProjectInstanceViewPage() {
                   </div>
                 )}
               </div>
-            )}
-
-            {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                  <button
-                    onClick={handlePdfDownload}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title="Download content as PDF"
-                  >
-                   <ArrowDownToLine size={16} className="mr-2" /> Download PDF
-                  </button>
-            )}
-            {canEditContent && projectId && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center
-                                ${isEditing ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500'}`}
-                title={isEditing ? "Save current changes" : "Edit content"}
-              >
-                {isEditing ? (
-                  <> <Save size={16} className="mr-2" /> {isSaving ? 'Saving...' : 'Save Content'} </>
-                ) : (
-                  <> <Edit size={16} className="mr-2" /> Edit Content </>
-                )}
-              </button>
             )}
             {/* Move to Trash button for non-outline microproducts placed as right-most */}
             {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (

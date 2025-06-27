@@ -2413,6 +2413,10 @@ async def download_project_instance_pdf(
     document_name_slug: str,
     parentProjectName: Optional[str] = Query(None),
     lessonNumber: Optional[int] = Query(None),
+    knowledgeCheck: Optional[str] = Query(None),
+    contentAvailability: Optional[str] = Query(None),
+    informationSource: Optional[str] = Query(None),
+    time: Optional[str] = Query(None),
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -2586,9 +2590,16 @@ async def download_project_instance_pdf(
             'parentProjectName': parentProjectName,
             'lessonNumber': lessonNumber
         }
-        # If your template expects data_for_template_render directly under 'details', adjust like so:
-        # context_for_jinja = {'details': data_for_template_render, 'locale': current_pdf_locale_strings}
-
+        
+        # Add column visibility settings for Training Plan PDFs
+        if component_name == COMPONENT_NAME_TRAINING_PLAN:
+            column_visibility = {
+                'knowledgeCheck': knowledgeCheck == '1' if knowledgeCheck else True,
+                'contentAvailability': contentAvailability == '1' if contentAvailability else True,
+                'informationSource': informationSource == '1' if informationSource else True,
+                'time': time == '1' if time else True,
+            }
+            context_for_jinja['columnVisibility'] = column_visibility
 
         logger.info(f"Project {project_id} PDF Gen: Type of context_for_jinja['details']: {type(context_for_jinja.get('details'))}")
         if isinstance(context_for_jinja.get('details'), dict) and isinstance(context_for_jinja['details'].get('details'), dict):
