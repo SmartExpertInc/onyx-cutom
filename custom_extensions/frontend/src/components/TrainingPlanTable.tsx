@@ -334,7 +334,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(isEditing || (mainTitle !== undefined && mainTitle !== null)) && (
-          <div className={`p-4 ${currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
+          <div className={`p-4 ${isEditing ? 'text-black' : currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
             {isEditing && onTextChange ? (
               <input
                 type="text" value={mainTitle || ''}

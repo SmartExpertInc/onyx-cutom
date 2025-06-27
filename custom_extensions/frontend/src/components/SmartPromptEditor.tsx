@@ -182,12 +182,12 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-black font-medium">Loading...</span>
+                  <span className="text-xs text-white font-medium">Loading...</span>
                 </div>
               ) : (
                 <>
                   <Sparkles size={14} className="text-white" />
-                  <span className="text-sm font-medium text-black">Edit with AI</span>
+                  <span className="text-sm font-medium text-white">Edit with AI</span>
                 </>
               )}
             </button>

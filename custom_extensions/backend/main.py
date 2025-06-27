@@ -4129,6 +4129,16 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 if hasattr(content_dict, 'model_dump'):
                     content_dict = content_dict.model_dump()
                 
+                # Preserve original theme and other metadata
+                if existing_content and isinstance(existing_content, dict):
+                    original_theme = existing_content.get("theme", "cherry")
+                    original_display_options = existing_content.get("displayOptions")
+                    
+                    # Apply original theme to the new content
+                    content_dict["theme"] = original_theme
+                    if original_display_options:
+                        content_dict["displayOptions"] = original_display_options
+                
                 # Update existing project with new content
                 async with pool.acquire() as conn:
                     await conn.execute("""
