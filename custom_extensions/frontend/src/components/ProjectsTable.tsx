@@ -411,6 +411,60 @@ const ProjectCard: React.FC<{
     );
 };
 
+const ProjectRowMenu: React.FC<{ project: Project; formatDate: (date: string) => string; trashMode: boolean; }> = ({ project, formatDate, trashMode }) => {
+    const [menuOpen, setMenuOpen] = React.useState(false);
+    const menuRef = React.useRef<HTMLDivElement>(null);
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+    return (
+        <div ref={menuRef} className="inline-block">
+            <button className="text-gray-400 hover:text-gray-600" onClick={() => setMenuOpen(prev => !prev)}>
+                <MoreHorizontal size={20} />
+            </button>
+            {menuOpen && (
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
+                    <div className="px-3 py-2 border-b border-gray-100">
+                        <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Created {formatDate(project.createdAt)}
+                        </p>
+                    </div>
+                    {/* Actions: Share, Rename, Favorite, Duplicate, Delete, etc. (reuse grid logic) */}
+                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        <Share2 size={16} className="text-gray-500" />
+                        <span>Share...</span>
+                    </button>
+                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        <PenLine size={16} className="text-gray-500"/>
+                        <span>Rename...</span>
+                    </button>
+                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        <Star size={16} className="text-gray-500"/>
+                        <span>Add to favorites</span>
+                    </button>
+                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        <Copy size={16} className="text-gray-500"/>
+                        <span>Duplicate</span>
+                    </button>
+                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
+                        <Trash2 size={16} className="text-red-400"/>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -749,90 +803,39 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
-                                {projects.map((p: Project) => {
-                                    // State for menu open/close per row
-                                    const [menuOpen, setMenuOpen] = React.useState(false);
-                                    const menuRef = React.useRef<HTMLDivElement>(null);
-                                    React.useEffect(() => {
-                                        const handleClickOutside = (event: MouseEvent) => {
-                                            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                                                setMenuOpen(false);
-                                            }
-                                        };
-                                        document.addEventListener("mousedown", handleClickOutside);
-                                        return () => {
-                                            document.removeEventListener("mousedown", handleClickOutside);
-                                        };
-                                    }, []);
-                                    const handleRowClick = (e: React.MouseEvent) => {
-                                        if (!trashMode) {
-                                            window.location.href = `/projects/view/${p.id}`;
-                                        }
-                                    };
-                                    return (
-                                        <tr key={p.id} className="hover:bg-gray-50 transition cursor-pointer group" onClick={handleRowClick}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                {projects.map((p: Project) => (
+                                    <tr key={p.id} className="hover:bg-gray-50 transition group">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <span className="inline-flex items-center">
+                                                <Star size={16} className="text-gray-300 mr-2" />
+                                                <span
+                                                    className="hover:underline cursor-pointer"
+                                                    onClick={() => { if (!trashMode) window.location.href = `/projects/view/${p.id}`; }}
+                                                >
                                                     {p.title}
                                                 </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-600 border border-gray-200">
-                                                    <Lock size={12} className="mr-1 text-gray-400" />
-                                                    Private
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-600 border border-gray-200">
+                                                <Lock size={12} className="mr-1 text-gray-400" />
+                                                Private
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <span className="inline-flex items-center">
+                                                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                    <span className="text-xs font-bold text-gray-700">Y</span>
                                                 </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                        <span className="text-xs font-bold text-gray-700">Y</span>
-                                                    </span>
-                                                    You
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
-                                                <div ref={menuRef} className="inline-block">
-                                                    <button className="text-gray-400 hover:text-gray-600" onClick={() => setMenuOpen(prev => !prev)}>
-                                                        <MoreHorizontal size={20} />
-                                                    </button>
-                                                    {menuOpen && (
-                                                        <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
-                                                            <div className="px-3 py-2 border-b border-gray-100">
-                                                                <p className="font-semibold text-sm text-gray-900 truncate">{p.title}</p>
-                                                                <p className="text-xs text-gray-500 mt-1">
-                                                                    Created {formatDate(p.createdAt)}
-                                                                </p>
-                                                            </div>
-                                                            {/* Actions: Share, Rename, Favorite, Duplicate, Delete, etc. (reuse grid logic) */}
-                                                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                                                <Share2 size={16} className="text-gray-500" />
-                                                                <span>Share...</span>
-                                                            </button>
-                                                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                                                <PenLine size={16} className="text-gray-500"/>
-                                                                <span>Rename...</span>
-                                                            </button>
-                                                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                                                <Star size={16} className="text-gray-500"/>
-                                                                <span>Add to favorites</span>
-                                                            </button>
-                                                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                                                                <Copy size={16} className="text-gray-500"/>
-                                                                <span>Duplicate</span>
-                                                            </button>
-                                                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
-                                                                <Trash2 size={16} className="text-red-400"/>
-                                                                <span>Delete</span>
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                                You
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                            <ProjectRowMenu project={p} formatDate={formatDate} trashMode={trashMode} />
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
