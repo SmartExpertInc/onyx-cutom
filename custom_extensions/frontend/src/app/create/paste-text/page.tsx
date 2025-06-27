@@ -141,8 +141,9 @@ export default function PasteTextPage() {
         <button
           onClick={handleContinue}
           disabled={!text.trim() || !mode}
-          className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center gap-2"
         >
+          <Sparkles size={20} />
           Continue to Generate
         </button>
       </div>

@@ -419,7 +419,7 @@ function GenerateProductPicker() {
               <p className="mt-1 text-green-600">
                 {textMode === 'context' 
                   ? "The AI will use your text as reference material and context to create new educational content."
-                  : "The AI will preserve the skeleton you provided, enhancing and formatting it into a proper educational product."}
+                  : "The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product."}
               </p>
               {userText && (
                 <p className="mt-2 text-xs text-green-600 bg-green-100 p-2 rounded max-h-20 overflow-y-auto">
