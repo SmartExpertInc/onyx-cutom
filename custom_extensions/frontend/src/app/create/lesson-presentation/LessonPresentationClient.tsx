@@ -460,7 +460,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {

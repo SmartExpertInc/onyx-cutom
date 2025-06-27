@@ -583,7 +583,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode]);
 
   const handleModuleChange = (index: number, value: string) => {
     setPreview((prev: ModulePreview[]) => {
