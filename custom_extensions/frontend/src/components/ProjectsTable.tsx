@@ -411,9 +411,22 @@ const ProjectCard: React.FC<{
     );
 };
 
-const ProjectRowMenu: React.FC<{ project: Project; formatDate: (date: string) => string; trashMode: boolean; }> = ({ project, formatDate, trashMode }) => {
+const ProjectRowMenu: React.FC<{
+    project: Project;
+    formatDate: (date: string) => string;
+    trashMode: boolean;
+    onDelete: (id: number, scope: 'self' | 'all') => void;
+    onRestore: (id: number) => void;
+    onDeletePermanently: (id: number) => void;
+}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently }) => {
     const [menuOpen, setMenuOpen] = React.useState(false);
+    const [renameModalOpen, setRenameModalOpen] = React.useState(false);
+    const [isRenaming, setIsRenaming] = React.useState(false);
+    const [newName, setNewName] = React.useState(project.title);
+    const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = React.useState(false);
+    const [trashConfirmOpen, setTrashConfirmOpen] = React.useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
+    const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -425,6 +438,16 @@ const ProjectRowMenu: React.FC<{ project: Project; formatDate: (date: string) =>
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+    const handleTrashRequest = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        if (project.designMicroproductType === 'Training Plan') {
+            setTrashConfirmOpen(true);
+        } else {
+            onDelete(project.id, 'self');
+        }
+    };
     return (
         <div ref={menuRef} className="inline-block">
             <button className="text-gray-400 hover:text-gray-600" onClick={() => setMenuOpen(prev => !prev)}>
@@ -438,27 +461,163 @@ const ProjectRowMenu: React.FC<{ project: Project; formatDate: (date: string) =>
                             Created {formatDate(project.createdAt)}
                         </p>
                     </div>
-                    {/* Actions: Share, Rename, Favorite, Duplicate, Delete, etc. (reuse grid logic) */}
-                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                        <Share2 size={16} className="text-gray-500" />
-                        <span>Share...</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                        <PenLine size={16} className="text-gray-500"/>
-                        <span>Rename...</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                        <Star size={16} className="text-gray-500"/>
-                        <span>Add to favorites</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                        <Copy size={16} className="text-gray-500"/>
-                        <span>Duplicate</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
-                        <Trash2 size={16} className="text-red-400"/>
-                        <span>Delete</span>
-                    </button>
+                    {trashMode ? (
+                        <div className="py-1">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setMenuOpen(false); onRestore(project.id); }}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <RefreshCw size={14} />
+                                <span>Restore</span>
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setMenuOpen(false); setPermanentDeleteConfirmOpen(true); }}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
+                                <Trash2 size={14} />
+                                <span>Delete permanently</span>
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="py-1">
+                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <Share2 size={16} className="text-gray-500" />
+                                    <span>Share...</span>
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); setMenuOpen(false); setRenameModalOpen(true); }}
+                                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                >
+                                    <PenLine size={16} className="text-gray-500"/>
+                                    <span>Rename...</span>
+                                </button>
+                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <Star size={16} className="text-gray-500"/>
+                                    <span>Add to favorites</span>
+                                </button>
+                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <Copy size={16} className="text-gray-500"/>
+                                    <span>Duplicate</span>
+                                </button>
+                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <LinkIcon size={16} className="text-gray-500"/>
+                                    <span>Copy link</span>
+                                </button>
+                            </div>
+                            <div className="py-1 border-t border-gray-100">
+                                <button 
+                                    onClick={handleTrashRequest}
+                                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                                >
+                                    <Trash2 size={14} />
+                                    <span>Send to trash</span>
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+            {/* Permanent Delete Modal */}
+            {permanentDeleteConfirmOpen && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setPermanentDeleteConfirmOpen(false)}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-2 text-gray-900">Are you sure?</h4>
+                        <p className="text-sm text-gray-600 mb-4">This action is permanent and cannot be undone. The project will be deleted forever.</p>
+                        <div className="flex justify-center gap-4">
+                            <button onClick={() => setPermanentDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">Cancel</button>
+                            <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDeletePermanently(project.id); setPermanentDeleteConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete Permanently</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Trash Confirm Modal */}
+            {trashConfirmOpen && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setTrashConfirmOpen(false)}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-2 text-gray-900">Move to Trash</h4>
+                        <p className="text-sm text-gray-600 mb-4">This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?</p>
+                        <div className="flex justify-center gap-3">
+                            <button onClick={() => setTrashConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">Cancel</button>
+                            <button onClick={() => { onDelete(project.id, 'self'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">Outline Only</button>
+                            <button onClick={() => { onDelete(project.id, 'all'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Move All</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Rename Modal */}
+            {renameModalOpen && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
+                        <div className="mb-6">
+                            <label htmlFor="newName" className="block text-sm font-medium text-gray-700 mb-1">New Name:</label>
+                            <input
+                                id="newName"
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
+                                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                                disabled={isRenaming}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    setIsRenaming(true);
+                                    try {
+                                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                        const devUserId = "dummy-onyx-user-id-for-testing";
+                                        if (devUserId && process.env.NODE_ENV === 'development') {
+                                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                                        }
+                                        const updateProject = async (id: number, bodyPayload: any) => {
+                                            const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${id}`, {
+                                                method: 'PUT',
+                                                headers,
+                                                body: JSON.stringify(bodyPayload)
+                                            });
+                                            if (!resp.ok) {
+                                                const errTxt = await resp.text();
+                                                throw new Error(`Failed to update project ${id}: ${resp.status} ${errTxt}`);
+                                            }
+                                        };
+                                        const tasks: Promise<void>[] = [];
+                                        const oldProjectName = project.title;
+                                        if (isOutline) {
+                                            tasks.push(updateProject(project.id, { projectName: newName }));
+                                            const listResp = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store' });
+                                            if (listResp.ok) {
+                                                const listData: any[] = await listResp.json();
+                                                listData
+                                                    .filter((p) => p.projectName === oldProjectName && p.id !== project.id)
+                                                    .forEach((p) => tasks.push(updateProject(p.id, { projectName: newName })));
+                                            }
+                                        } else {
+                                            tasks.push(updateProject(project.id, { microProductName: newName }));
+                                        }
+                                        await Promise.all(tasks);
+                                        setRenameModalOpen(false);
+                                        window.location.reload();
+                                    } catch (error) {
+                                        console.error(error);
+                                        alert((error as Error).message);
+                                    } finally {
+                                        setIsRenaming(false);
+                                    }
+                                }}
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                                disabled={isRenaming || !newName.trim()}
+                            >
+                                {isRenaming ? 'Saving...' : 'Rename'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
@@ -808,12 +967,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span className="inline-flex items-center">
                                                 <Star size={16} className="text-gray-300 mr-2" />
-                                                <span
-                                                    className="hover:underline cursor-pointer"
-                                                    onClick={() => { if (!trashMode) window.location.href = `/projects/view/${p.id}`; }}
-                                                >
+                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
                                                     {p.title}
-                                                </span>
+                                                </Link>
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -832,7 +988,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false }) => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
-                                            <ProjectRowMenu project={p} formatDate={formatDate} trashMode={trashMode} />
+                                            <ProjectRowMenu 
+                                                project={p} 
+                                                formatDate={formatDate} 
+                                                trashMode={trashMode}
+                                                onDelete={handleDeleteProject}
+                                                onRestore={handleRestoreProject}
+                                                onDeletePermanently={handleDeletePermanently}
+                                            />
                                         </td>
                                     </tr>
                                 ))}
