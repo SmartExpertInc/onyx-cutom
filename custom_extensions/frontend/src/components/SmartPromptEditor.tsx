@@ -169,11 +169,25 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
               className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors text-white"
             >
               {loadingEdit ? (
-                <LoadingAnimation message="Applying..." />
+                <div className="flex items-center justify-center gap-2">
+                  <div className="flex space-x-1">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-2 h-2 bg-white rounded-full animate-bounce"
+                        style={{
+                          animationDelay: `${i * 0.15}s`,
+                          animationDuration: "0.6s",
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-black font-medium">Loading...</span>
+                </div>
               ) : (
                 <>
                   <Sparkles size={14} className="text-white" />
-                  <span className="text-sm font-medium text-white">Edit with AI</span>
+                  <span className="text-sm font-medium text-black">Edit with AI</span>
                 </>
               )}
             </button>

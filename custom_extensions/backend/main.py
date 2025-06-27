@@ -3380,38 +3380,40 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                             yield b" "  # keep-alive
                             last_send = now
 
-            # After assistant finished, push through the usual DB path
-            template_id_fallback = await _ensure_training_plan_template(pool)
-            project_name_detected_fb = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
-            project_request_fb = ProjectCreateRequest(
-                projectName=project_name_detected_fb,
-                design_template_id=template_id_fallback,
-                microProductName=None,
-                aiResponse=assistant_reply,
-                chatSessionId=uuid.UUID(chat_id) if chat_id else None,
-            )
-            onyx_user_id_current = await get_current_onyx_user_id(request)
-            project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
+                # After assistant finished, push through the usual DB path
+                template_id_fallback = await _ensure_training_plan_template(pool)
+                project_name_detected_fb = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
+                project_request_fb = ProjectCreateRequest(
+                    projectName=project_name_detected_fb,
+                    design_template_id=template_id_fallback,
+                    microProductName=None,
+                    aiResponse=assistant_reply,
+                    chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+                )
+                onyx_user_id_current = await get_current_onyx_user_id(request)
+                project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
 
-            # Patch theme if provided (only for TrainingPlan components)
-            if payload.theme:
-                # Get the design template to check component type
-                async with pool.acquire() as conn:
-                    design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id_fallback)
-                    if design_template and design_template["component_name"] == COMPONENT_NAME_TRAINING_PLAN:
-                        await conn.execute(
-                            """
-                            UPDATE projects
-                            SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
-                            WHERE id = $2
-                            """,
-                            payload.theme, project_db_fb.id
-                        )
-                        row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
-                        if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
-                            project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
+                # Patch theme if provided (only for TrainingPlan components)
+                if payload.theme:
+                    # Get the design template to check component type
+                    async with pool.acquire() as conn:
+                        design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id_fallback)
+                        if design_template and design_template["component_name"] == COMPONENT_NAME_TRAINING_PLAN:
+                            await conn.execute(
+                                """
+                                UPDATE projects
+                                SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                                WHERE id = $2
+                                """,
+                                payload.theme, project_db_fb.id
+                            )
+                            row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
+                            if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
+                                project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
 
-            yield project_db_fb.model_dump_json().encode()
+                yield project_db_fb.model_dump_json().encode()
+
+
 
         return StreamingResponse(streamer(), media_type="application/json")
 
@@ -4102,77 +4104,52 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                         yield b" "
                         last_send = now
 
-        # Parse the AI response to training plan structure
+        # Parse the AI response using the same pipeline as course outline finalization
         try:
-            # Parse the markdown response back to structured data
-            parsed_outline = _parse_outline_markdown(assistant_reply)
+            # Use same parsing pipeline as course outline finalization
+            template_id = await _ensure_training_plan_template(pool)
+            project_name_detected = existing_content.get("mainTitle", "Training Plan") if existing_content else "Training Plan"
             
-            # Convert to TrainingPlanDetails format
-            training_plan_data = TrainingPlanDetails(
-                mainTitle=existing_content.get("mainTitle", "Training Plan") if existing_content else "Training Plan",
-                sections=[],
-                detectedLanguage=payload.language,
-                theme=existing_content.get("theme", "cherry") if existing_content else "cherry"
+            # Create ProjectCreateRequest with the AI response
+            project_request = ProjectCreateRequest(
+                projectName=project_name_detected,
+                design_template_id=template_id,
+                microProductName=None,
+                aiResponse=assistant_reply,
+                chatSessionId=uuid.UUID(payload.chatSessionId) if payload.chatSessionId else None,
             )
             
-            # Convert parsed modules to sections, preserving or setting reasonable defaults for lesson details
-            for idx, module in enumerate(parsed_outline):
-                section = SectionDetail(
-                    id=f"№{idx + 1}",
-                    title=module.get("title", ""),
-                    lessons=[],
-                    autoCalculateHours=True
-                )
-                
-                # Get existing section data if available to preserve lesson details
-                existing_section = None
-                if existing_content and isinstance(existing_content, dict):
-                    existing_sections = existing_content.get("sections", [])
-                    if idx < len(existing_sections):
-                        existing_section = existing_sections[idx]
-                
-                for lesson_idx, lesson_title in enumerate(module.get("lessons", [])):
-                    # Try to preserve existing lesson details if available
-                    existing_lesson = None
-                    if existing_section and existing_section.get("lessons"):
-                        existing_lessons = existing_section["lessons"]
-                        if lesson_idx < len(existing_lessons):
-                            existing_lesson = existing_lessons[lesson_idx]
+            # Parse using the full AI parsing pipeline (same as course outline finalization)
+            parsed_project = await add_project_to_custom_db(project_request, onyx_user_id, pool)
+            
+            # Update the existing project with the parsed content
+            if parsed_project.microproduct_content:
+                # Update existing project with new content
+                async with pool.acquire() as conn:
+                    await conn.execute("""
+                        UPDATE projects 
+                        SET microproduct_content = $1
+                        WHERE id = $2 AND onyx_user_id = $3
+                    """, parsed_project.microproduct_content, payload.projectId, onyx_user_id)
                     
-                    # Create lesson with preserved or default values
-                    lesson = LessonDetail(
-                        title=lesson_title,
-                        hours=existing_lesson.get("hours", 1.0) if existing_lesson else 1.0,
-                        source=existing_lesson.get("source", "Create from scratch") if existing_lesson else "Create from scratch",
-                        check=StatusInfo(
-                            type=existing_lesson.get("check", {}).get("type", "none") if existing_lesson else "none",
-                            text=existing_lesson.get("check", {}).get("text", "No") if existing_lesson else "No"
-                        ),
-                        contentAvailable=StatusInfo(
-                            type=existing_lesson.get("contentAvailable", {}).get("type", "yes") if existing_lesson else "yes",
-                            text=existing_lesson.get("contentAvailable", {}).get("text", "100%") if existing_lesson else "100%"
-                        )
+                    # Clean up the temporary project created by add_project_to_custom_db
+                    await conn.execute(
+                        "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        parsed_project.id,
+                        onyx_user_id
                     )
-                    section.lessons.append(lesson)
                 
-                training_plan_data.sections.append(section)
-            
-            # Update the project in database
-            async with pool.acquire() as conn:
-                await conn.execute("""
-                    UPDATE projects 
-                    SET microproduct_content = $1
-                    WHERE id = $2 AND onyx_user_id = $3
-                """, training_plan_data.model_dump(), payload.projectId, onyx_user_id)
-            
-            # Send completion packet
-            done_packet = {
-                "type": "done", 
-                "updatedContent": training_plan_data.model_dump(),
-                "raw": assistant_reply
-            }
-            yield (json.dumps(done_packet) + "\n").encode()
-            
+                # Send completion packet with the parsed content
+                done_packet = {
+                    "type": "done", 
+                    "updatedContent": parsed_project.microproduct_content,
+                    "raw": assistant_reply
+                }
+                yield (json.dumps(done_packet) + "\n").encode()
+            else:
+                error_packet = {"type": "error", "message": "Failed to parse AI response"}
+                yield (json.dumps(error_packet) + "\n").encode()
+                
         except Exception as e:
             logger.error(f"Error parsing AI response: {e}")
             error_packet = {"type": "error", "message": f"Failed to parse AI response: {str(e)}"}
