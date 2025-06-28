@@ -4086,35 +4086,6 @@ class ProjectFolderUpdateRequest(BaseModel):
     folder_id: Optional[int] = None
     model_config = {"from_attributes": True}
 
-@app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
-async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update a project's folder assignment"""
-    async with pool.acquire() as conn:
-        # Verify project belongs to user
-        project = await conn.fetchrow(
-            "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
-            project_id, onyx_user_id
-        )
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-        
-        # If folder_id is provided, verify it exists and belongs to user
-        if update_data.folder_id is not None:
-            folder = await conn.fetchrow(
-                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
-                update_data.folder_id, onyx_user_id
-            )
-            if not folder:
-                raise HTTPException(status_code=404, detail="Folder not found")
-        
-        # Update the project's folder_id
-        updated_project = await conn.fetchrow(
-            "UPDATE projects SET folder_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING *",
-            update_data.folder_id, project_id, onyx_user_id
-        )
-        
-        return ProjectDB(**dict(updated_project))
-
 @app.put("/api/custom/projects/{project_id}/folder", response_model=ProjectDB)
 async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     """Update a project's folder assignment"""
