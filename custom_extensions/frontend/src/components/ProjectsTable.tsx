@@ -180,6 +180,11 @@ const ProjectCard: React.FC<{
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                // Check if the click is on the portal modal
+                const target = event.target as Element;
+                if (target.closest('[data-modal-portal]')) {
+                    return; // Don't close if clicking inside the modal
+                }
                 setMenuOpen(false);
             }
         };
@@ -276,11 +281,21 @@ const ProjectCard: React.FC<{
                     <MoreHorizontal size={16} />
                 </button>
                 {menuOpen && (
-                    <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-                        menuPosition === 'above' 
-                            ? 'bottom-full mb-2' 
-                            : 'top-full mt-2'
-                    }`}>
+                    <div 
+                        data-modal-portal="true"
+                        className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
+                            menuPosition === 'above' 
+                                ? 'bottom-auto mb-2' 
+                                : 'top-auto mt-2'
+                        }`}
+                        style={{
+                            left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
+                            top: buttonRef.current ? (menuPosition === 'above' 
+                                ? buttonRef.current.getBoundingClientRect().top - 320
+                                : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="px-3 py-2 border-b border-gray-100">
                             <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                             <p className="text-xs text-gray-500 mt-1">
@@ -315,11 +330,11 @@ const ProjectCard: React.FC<{
                                         <span>Share...</span>
                                     </button>
                                     <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setMenuOpen(false);
-                                            setRenameModalOpen(true);
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            e.preventDefault(); 
+                                            setMenuOpen(false); 
+                                            setRenameModalOpen(true); 
                                         }}
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                     >
@@ -355,7 +370,12 @@ const ProjectCard: React.FC<{
                                 </div>
                                 <div className="py-1 border-t border-gray-100">
                                     <button 
-                                        onClick={handleTrashRequest}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setMenuOpen(false);
+                                            handleTrashRequest(e);
+                                        }}
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                                     >
                                         <Trash2 size={14} />
@@ -581,6 +601,11 @@ const ProjectRowMenu: React.FC<{
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                // Check if the click is on the portal modal
+                const target = event.target as Element;
+                if (target.closest('[data-modal-portal]')) {
+                    return; // Don't close if clicking inside the modal
+                }
                 setMenuOpen(false);
             }
         };
@@ -609,17 +634,21 @@ const ProjectRowMenu: React.FC<{
                 <MoreHorizontal size={20} />
             </button>
             {menuOpen && createPortal(
-                <div className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-                    menuPosition === 'above' 
-                        ? 'bottom-auto mb-2' 
-                        : 'top-auto mt-2'
-                }`}
-                style={{
-                    left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
-                    top: buttonRef.current ? (menuPosition === 'above' 
-                        ? buttonRef.current.getBoundingClientRect().top - 320
-                        : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
-                }}>
+                <div 
+                    data-modal-portal="true"
+                    className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
+                        menuPosition === 'above' 
+                            ? 'bottom-auto mb-2' 
+                            : 'top-auto mt-2'
+                    }`}
+                    style={{
+                        left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
+                        top: buttonRef.current ? (menuPosition === 'above' 
+                            ? buttonRef.current.getBoundingClientRect().top - 320
+                            : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="px-3 py-2 border-b border-gray-100">
                         <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                         <p className="text-xs text-gray-500 mt-1">
@@ -649,7 +678,12 @@ const ProjectRowMenu: React.FC<{
                                     <span>Share...</span>
                                 </button>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); setMenuOpen(false); setRenameModalOpen(true); }}
+                                    onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        e.preventDefault(); 
+                                        setMenuOpen(false); 
+                                        setRenameModalOpen(true); 
+                                    }}
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                 >
                                     <PenLine size={16} className="text-gray-500"/>
@@ -684,7 +718,12 @@ const ProjectRowMenu: React.FC<{
                             </div>
                             <div className="py-1 border-t border-gray-100">
                                 <button 
-                                    onClick={handleTrashRequest}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setMenuOpen(false);
+                                        handleTrashRequest(e);
+                                    }}
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                                 >
                                     <Trash2 size={14} />
