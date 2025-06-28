@@ -1294,8 +1294,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
         e.dataTransfer.setData('application/json', JSON.stringify({
             id: item.id,
-            type: 'reorder',
-            itemType: type
+            type: type === 'project' ? 'project' : 'reorder',
+            itemType: type,
+            projectId: type === 'project' ? item.id : undefined
         }));
         e.dataTransfer.effectAllowed = 'move';
         if (type === 'project') {
@@ -1331,6 +1332,37 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         
         try {
             const data = JSON.parse(e.dataTransfer.getData('application/json'));
+            
+            // Check if we're dropping a project and the target is a folder
+            if (data.type === 'project' && data.projectId) {
+                // Check if we're dropping on a folder row
+                const targetElement = e.currentTarget as HTMLElement;
+                const folderRow = targetElement.closest('tr');
+                if (folderRow && folderRow.getAttribute('data-folder-id')) {
+                    const folderId = parseInt(folderRow.getAttribute('data-folder-id') || '0');
+                    if (folderId > 0) {
+                        // Move project to folder
+                        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
+                            detail: { projectId: data.projectId, folderId }
+                        }));
+                        
+                        // Reset drag state
+                        setDraggedProject(null);
+                        setDraggedFolder(null);
+                        setDragOverIndex(null);
+                        setIsReordering(false);
+                        setIsDragging(false);
+                        
+                        // Reset visual feedback
+                        const target = e.currentTarget as HTMLElement;
+                        target.style.opacity = '1';
+                        target.style.transform = 'rotate(0deg)';
+                        return;
+                    }
+                }
+            }
+            
+            // Handle reordering
             if (data.type === 'reorder') {
                 if (data.itemType === 'folder') {
                     // Handle folder reordering
@@ -1635,6 +1667,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 }
                                             }}
                                             draggable={!trashMode}
+                                            data-folder-id={folder.id}
                                             onDragStart={(e) => handleDragStart(e, folder, 'folder')}
                                             onDragOver={(e) => {
                                                 e.preventDefault();
@@ -1717,81 +1750,82 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         
                                         {/* Expanded folder content */}
                                         {expandedFolders.has(folder.id) && (
-                                            <tr>
-                                                <td colSpan={6} className="px-0 py-0">
-                                                    <div className="bg-gray-50 border-l-4 border-blue-200 animate-in slide-in-from-top-2 duration-200">
-                                                        {folderProjects[folder.id] ? (
-                                                            folderProjects[folder.id].map((p: Project, index: number) => (
-                                                                <div 
-                                                                    key={p.id} 
-                                                                    className={`px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-100 transition-colors duration-150 cursor-grab active:cursor-grabbing ${
-                                                                        dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                                                                    } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                                                    draggable={!trashMode}
-                                                                    onDragStart={(e) => handleDragStart(e, p, 'project')}
-                                                                    onDragOver={(e) => handleDragOver(e, index)}
-                                                                    onDragLeave={handleDragLeave}
-                                                                    onDrop={(e) => handleDrop(e, index)}
-                                                                    onDragEnd={handleDragEnd}
-                                                                >
-                                                                    <div className="flex items-center justify-between">
-                                                                        <div className="flex items-center flex-1">
-                                                                            <div className="flex-1">
-                                                                                <div className="flex items-center">
-                                                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                                                            <circle cx="9" cy="5" r="2"/>
-                                                                                            <circle cx="9" cy="12" r="2"/>
-                                                                                            <circle cx="9" cy="19" r="2"/>
-                                                                                            <circle cx="15" cy="5" r="2"/>
-                                                                                            <circle cx="15" cy="12" r="2"/>
-                                                                                            <circle cx="15" cy="19" r="2"/>
-                                                                                        </svg>
-                                                                                    </div>
-                                                                                    <Star size={16} className="text-gray-300 mr-2" />
-                                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
-                                                                                        {p.title}
-                                                                                    </Link>
-                                                                                </div>
-                                                                                <div className="flex items-center mt-1 text-xs text-gray-500">
-                                                                                    <span>{formatDate(p.createdAt)}</span>
-                                                                                    <span className="mx-2">•</span>
-                                                                                    <span>Created by you</span>
-                                                                                    <span className="mx-2">•</span>
-                                                                                    <span>Lessons: {(() => {
-                                                                                        const lessonData = lessonDataCache[p.id];
-                                                                                        return lessonData ? lessonData.lessonCount : '-';
-                                                                                    })()}</span>
-                                                                                    <span className="mx-2">•</span>
-                                                                                    <span>Hours: {(() => {
-                                                                                        const lessonData = lessonDataCache[p.id];
-                                                                                        return lessonData ? lessonData.totalHours : '-';
-                                                                                    })()}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="ml-4 relative" onClick={e => e.stopPropagation()}>
-                                                                            <ProjectRowMenu 
-                                                                                project={p} 
-                                                                                formatDate={formatDate} 
-                                                                                trashMode={trashMode}
-                                                                                onDelete={handleDeleteProject}
-                                                                                onRestore={handleRestoreProject}
-                                                                                onDeletePermanently={handleDeletePermanently}
-                                                                                folderId={folder.id}
-                                                                            />
-                                                                        </div>
+                                            <>
+                                                {folderProjects[folder.id] ? (
+                                                    folderProjects[folder.id].map((p: Project, index: number) => (
+                                                        <tr 
+                                                            key={`folder-project-${p.id}`} 
+                                                            className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing bg-gray-50 ${
+                                                                dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                                            } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                                                            draggable={!trashMode}
+                                                            onDragStart={(e) => handleDragStart(e, p, 'project')}
+                                                            onDragOver={(e) => handleDragOver(e, index)}
+                                                            onDragLeave={handleDragLeave}
+                                                            onDrop={(e) => handleDrop(e, index)}
+                                                            onDragEnd={handleDragEnd}
+                                                        >
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                <span className="inline-flex items-center">
+                                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                                            <circle cx="9" cy="5" r="2"/>
+                                                                            <circle cx="9" cy="12" r="2"/>
+                                                                            <circle cx="9" cy="19" r="2"/>
+                                                                            <circle cx="15" cy="5" r="2"/>
+                                                                            <circle cx="15" cy="12" r="2"/>
+                                                                            <circle cx="15" cy="19" r="2"/>
+                                                                        </svg>
                                                                     </div>
-                                                                </div>
-                                                            ))
-                                                        ) : (
-                                                            <div className="px-6 py-4 text-sm text-gray-500 text-center">
-                                                                Loading projects...
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                                    <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
+                                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                                                        {p.title}
+                                                                    </Link>
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                <span className="inline-flex items-center">
+                                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                                    </span>
+                                                                    You
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {(() => {
+                                                                    const lessonData = lessonDataCache[p.id];
+                                                                    return lessonData ? lessonData.lessonCount : '-';
+                                                                })()}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {(() => {
+                                                                    const lessonData = lessonDataCache[p.id];
+                                                                    return lessonData ? lessonData.totalHours : '-';
+                                                                })()}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                                                <ProjectRowMenu 
+                                                                    project={p} 
+                                                                    formatDate={formatDate} 
+                                                                    trashMode={trashMode}
+                                                                    onDelete={handleDeleteProject}
+                                                                    onRestore={handleRestoreProject}
+                                                                    onDeletePermanently={handleDeletePermanently}
+                                                                    folderId={folder.id}
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={6} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50">
+                                                            Loading projects...
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </>
                                         )}
                                     </React.Fragment>
                                 ))}
