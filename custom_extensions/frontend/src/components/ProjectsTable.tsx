@@ -23,7 +23,10 @@ import {
   Link as LinkIcon,
   RefreshCw,
   AlertTriangle,
-  FolderMinus
+  FolderMinus,
+  Folder,
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 
 interface Project {
@@ -39,6 +42,13 @@ interface Project {
   isGamma?: boolean;
   instanceName?: string;
   folderId?: number | null;
+}
+
+interface Folder {
+  id: number;
+  name: string;
+  created_at: string;
+  project_count: number;
 }
 
 interface ProjectsTableProps {
@@ -512,7 +522,9 @@ const ProjectRowMenu: React.FC<{
     const [newName, setNewName] = React.useState(project.title);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = React.useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = React.useState(false);
+    const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
     const menuRef = React.useRef<HTMLDivElement>(null);
+    const buttonRef = React.useRef<HTMLButtonElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
     
     const handleRemoveFromFolder = async () => {
@@ -542,6 +554,19 @@ const ProjectRowMenu: React.FC<{
         }
     };
     
+    const handleMenuToggle = () => {
+        if (!menuOpen && buttonRef.current) {
+            // Calculate if there's enough space below
+            const buttonRect = buttonRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const spaceBelow = viewportHeight - buttonRect.bottom;
+            const menuHeight = 300; // Approximate menu height
+            
+            setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
+        }
+        setMenuOpen(prev => !prev);
+    };
+    
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -565,11 +590,19 @@ const ProjectRowMenu: React.FC<{
     };
     return (
         <div ref={menuRef} className="inline-block">
-            <button className="text-gray-400 hover:text-gray-600" onClick={() => setMenuOpen(prev => !prev)}>
+            <button 
+                ref={buttonRef}
+                className="text-gray-400 hover:text-gray-600" 
+                onClick={handleMenuToggle}
+            >
                 <MoreHorizontal size={20} />
             </button>
             {menuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1">
+                <div className={`absolute w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
+                    menuPosition === 'above' 
+                        ? 'bottom-full mb-2' 
+                        : 'top-full mt-2'
+                } ${menuPosition === 'above' ? 'right-0' : 'right-0'}`}>
                     <div className="px-3 py-2 border-b border-gray-100">
                         <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                         <p className="text-xs text-gray-500 mt-1">
@@ -755,10 +788,13 @@ const ProjectRowMenu: React.FC<{
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folderId = null }) => {
     const [projects, setProjects] = useState<Project[]>([]);
+    const [folders, setFolders] = useState<Folder[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState('All');
     const [viewMode, setViewMode] = useState<'Grid' | 'List'>('Grid');
+    const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
+    const [folderProjects, setFolderProjects] = useState<Record<number, Project[]>>({});
 
     // Add a refresh function that can be called externally
     const refreshProjects = useCallback(async () => {
@@ -769,103 +805,127 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         if (!trashMode && folderId !== null && folderId !== undefined) {
             projectsApiUrl += `?folder_id=${folderId}`;
         }
+
         try {
-            const headers: HeadersInit = {};
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
             const devUserId = "dummy-onyx-user-id-for-testing";
             if (devUserId && process.env.NODE_ENV === 'development') {
                 headers['X-Dev-Onyx-User-ID'] = devUserId;
             }
-            const response = await fetch(projectsApiUrl, { headers, cache: 'no-store' });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
+
+            const [projectsResponse, foldersResponse] = await Promise.all([
+                fetch(projectsApiUrl, { headers, cache: 'no-store' }),
+                !trashMode ? fetch(`${CUSTOM_BACKEND_URL}/projects/folders`, { headers, cache: 'no-store' }) : Promise.resolve(null)
+            ]);
+
+            if (!projectsResponse.ok) {
+                throw new Error(`Failed to fetch projects: ${projectsResponse.status}`);
             }
-            const data = await response.json();
-            const mappedProjects: Project[] = data.map((p: any) => ({
+
+            const projectsData = await projectsResponse.json();
+            const processedProjects = projectsData.map((p: any) => ({
                 id: p.id,
-                title: p.projectName,
-                imageUrl: "/placeholder.png", // Missing from DB
-                lastViewed: formatDate(p.created_at),
+                title: p.projectName || p.microproduct_name || 'Untitled',
+                imageUrl: p.imageUrl || '',
+                lastViewed: p.lastViewed || 'Never',
                 createdAt: p.created_at,
-                createdBy: "you", // From DB context
-                isPrivate: true, // Missing from DB
+                createdBy: p.createdBy || 'You',
+                isPrivate: p.isPrivate || true,
                 designMicroproductType: p.design_microproduct_type,
+                isGamma: p.isGamma || false,
                 instanceName: p.microproduct_name,
-                folderId: p.folder_id,
+                folderId: p.folder_id
             }));
 
-            // ---- Filter lessons that belong to outlines from the main products page ----
-            const deduplicateProjects = (projectsArr: Project[]): Project[] => {
-                const outlineNames = new Set<string>();
-                const filteredProjects: Project[] = [];
-                const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
+            setProjects(processedProjects);
 
-                // First pass: collect all outline names and group by title for legacy support
-                projectsArr.forEach((proj) => {
-                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    if (isOutline) {
-                        outlineNames.add(proj.title.trim());
-                    }
+            // Fetch folders if not in trash mode and not viewing a specific folder
+            if (!trashMode && folderId === null && foldersResponse) {
+                if (foldersResponse.ok) {
+                    const foldersData = await foldersResponse.json();
+                    setFolders(foldersData);
+                }
+            } else {
+                setFolders([]);
+            }
 
-                    // Legacy grouping logic - group projects by exact title match
-                    if (!grouped[proj.title]) {
-                        grouped[proj.title] = { outline: null, others: [] };
-                    }
-
-                    if (isOutline) {
-                        // Keep the first outline we encounter for this project title
-                        if (!grouped[proj.title].outline) {
-                            grouped[proj.title].outline = proj;
-                        }
-                    } else {
-                        grouped[proj.title].others.push(proj);
-                    }
-                });
-
-                // Second pass: filter projects using both legacy and new logic
-                projectsArr.forEach((proj) => {
-                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    
-                    if (isOutline) {
-                        // Always include outlines
-                        filteredProjects.push(proj);
-                    } else {
-                        const projectTitle = proj.title.trim();
-                        let belongsToOutline = false;
-
-                        // Method 1: Legacy logic - check if there's an outline with the same exact title
-                        const groupForThisTitle = grouped[proj.title];
-                        if (groupForThisTitle && groupForThisTitle.outline) {
-                            belongsToOutline = true;
-                        }
-
-                        // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
-                        if (!belongsToOutline && projectTitle.includes(': ')) {
-                            const outlinePart = projectTitle.split(': ')[0].trim();
-                            if (outlineNames.has(outlinePart)) {
-                                belongsToOutline = true;
-                            }
-                        }
-
-                        // Only include projects that don't belong to an outline (either legacy or new pattern)
-                        if (!belongsToOutline) {
-                            filteredProjects.push(proj);
-                        }
-                    }
-                });
-
-                return filteredProjects;
-            };
-
-            setProjects(deduplicateProjects(mappedProjects));
-        } catch (e: any) {
-            setError(e.message || "Failed to load projects.");
+        } catch (err) {
+            console.error('Error fetching projects:', err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch projects');
         } finally {
             setLoading(false);
         }
     }, [trashMode, folderId]);
 
-    // Listen for refresh events
+    // Fetch projects for a specific folder
+    const fetchFolderProjects = useCallback(async (folderId: number) => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        const devUserId = "dummy-onyx-user-id-for-testing";
+        if (devUserId && process.env.NODE_ENV === 'development') {
+            headers['X-Dev-Onyx-User-ID'] = devUserId;
+        }
+
+        try {
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects?folder_id=${folderId}`, { 
+                headers, 
+                cache: 'no-store' 
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch folder projects: ${response.status}`);
+            }
+
+            const projectsData = await response.json();
+            const processedProjects = projectsData.map((p: any) => ({
+                id: p.id,
+                title: p.projectName || p.microproduct_name || 'Untitled',
+                imageUrl: p.imageUrl || '',
+                lastViewed: p.lastViewed || 'Never',
+                createdAt: p.created_at,
+                createdBy: p.createdBy || 'You',
+                isPrivate: p.isPrivate || true,
+                designMicroproductType: p.design_microproduct_type,
+                isGamma: p.isGamma || false,
+                instanceName: p.microproduct_name,
+                folderId: p.folder_id
+            }));
+
+            setFolderProjects(prev => ({
+                ...prev,
+                [folderId]: processedProjects
+            }));
+        } catch (error) {
+            console.error('Error fetching folder projects:', error);
+        }
+    }, []);
+
+    // Toggle folder expansion
+    const toggleFolder = useCallback((folderId: number) => {
+        setExpandedFolders(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(folderId)) {
+                newSet.delete(folderId);
+            } else {
+                newSet.add(folderId);
+                // Fetch projects for this folder if not already loaded
+                if (!folderProjects[folderId]) {
+                    fetchFolderProjects(folderId);
+                }
+            }
+            return newSet;
+        });
+    }, [folderProjects, fetchFolderProjects]);
+
+    // Get projects that are not in any folder (for list view)
+    const getUnassignedProjects = useCallback(() => {
+        return projects.filter(project => project.folderId === null);
+    }, [projects]);
+
+    useEffect(() => {
+        refreshProjects();
+    }, [refreshProjects]);
+
     useEffect(() => {
         const handleRefresh = () => {
             refreshProjects();
@@ -874,13 +934,27 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         return () => window.removeEventListener('refreshProjects', handleRefresh);
     }, [refreshProjects]);
 
-    useEffect(() => {
-        refreshProjects();
-    }, [trashMode, folderId, refreshProjects]);
+    const deduplicateProjects = (projectsArr: Project[]): Project[] => {
+        const seen = new Set();
+        return projectsArr.filter(project => {
+            const duplicate = seen.has(project.title);
+            seen.add(project.title);
+            return !duplicate;
+        });
+    };
 
     const formatDate = (dateString: string) => {
-        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - date.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) return 'Today';
+        if (diffDays === 2) return 'Yesterday';
+        if (diffDays <= 7) return `${diffDays - 1} days ago`;
+        if (diffDays <= 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+        if (diffDays <= 365) return `${Math.floor(diffDays / 30)} months ago`;
+        return date.toLocaleDateString();
     };
 
     const handleDeleteProject = async (projectId: number, scope: 'self' | 'all' = 'self') => {
@@ -1105,7 +1179,131 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
-                                {projects.map((p: Project) => (
+                                {/* Show folders as expandable rows when not viewing a specific folder */}
+                                {!trashMode && folderId === null && folders.map((folder) => (
+                                    <React.Fragment key={`folder-${folder.id}`}>
+                                        {/* Folder row */}
+                                        <tr 
+                                            className="hover:bg-gray-50 transition cursor-pointer group"
+                                            onClick={() => toggleFolder(folder.id)}
+                                        >
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
+                                                        <ChevronRight 
+                                                            size={16} 
+                                                            className={`transition-transform duration-200 ${
+                                                                expandedFolders.has(folder.id) ? 'rotate-90' : ''
+                                                            }`}
+                                                        />
+                                                    </button>
+                                                    <Folder size={16} className="text-blue-600 mr-2" />
+                                                    <span className="font-semibold text-blue-700">{folder.name}</span>
+                                                    <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                        {folder.project_count} {folder.project_count === 1 ? 'item' : 'items'}
+                                                    </span>
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                    </span>
+                                                    You
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                {/* Empty cell for folder rows */}
+                                            </td>
+                                        </tr>
+                                        
+                                        {/* Expanded folder content */}
+                                        {expandedFolders.has(folder.id) && (
+                                            <tr>
+                                                <td colSpan={4} className="px-0 py-0">
+                                                    <div className="bg-gray-50 border-l-4 border-blue-200 animate-in slide-in-from-top-2 duration-200">
+                                                        {folderProjects[folder.id] ? (
+                                                            folderProjects[folder.id].map((p: Project) => (
+                                                                <div key={p.id} className="px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-100 transition-colors duration-150">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div className="flex items-center flex-1">
+                                                                            <div className="flex-1">
+                                                                                <div className="flex items-center">
+                                                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-sm font-medium text-gray-900">
+                                                                                        {p.title}
+                                                                                    </Link>
+                                                                                </div>
+                                                                                <div className="flex items-center mt-1 text-xs text-gray-500">
+                                                                                    <span>{formatDate(p.createdAt)}</span>
+                                                                                    <span className="mx-2">•</span>
+                                                                                    <span>Created by you</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="ml-4" onClick={e => e.stopPropagation()}>
+                                                                            <ProjectRowMenu 
+                                                                                project={p} 
+                                                                                formatDate={formatDate} 
+                                                                                trashMode={trashMode}
+                                                                                onDelete={handleDeleteProject}
+                                                                                onRestore={handleRestoreProject}
+                                                                                onDeletePermanently={handleDeletePermanently}
+                                                                                folderId={folder.id}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="px-6 py-4 text-sm text-gray-500 text-center">
+                                                                Loading projects...
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                                
+                                {/* Show unassigned projects when not viewing a specific folder */}
+                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project) => (
+                                    <tr key={p.id} className="hover:bg-gray-50 transition group">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <span className="inline-flex items-center">
+                                                <Star size={16} className="text-gray-300 mr-2" />
+                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
+                                                    {p.title}
+                                                </Link>
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <span className="inline-flex items-center">
+                                                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                    <span className="text-xs font-bold text-gray-700">Y</span>
+                                                </span>
+                                                You
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                            <ProjectRowMenu 
+                                                project={p} 
+                                                formatDate={formatDate} 
+                                                trashMode={trashMode}
+                                                onDelete={handleDeleteProject}
+                                                onRestore={handleRestoreProject}
+                                                onDeletePermanently={handleDeletePermanently}
+                                                folderId={folderId}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                                
+                                {/* Show all projects when viewing a specific folder or in trash mode */}
+                                {(trashMode || folderId !== null) && projects.map((p: Project) => (
                                     <tr key={p.id} className="hover:bg-gray-50 transition group">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span className="inline-flex items-center">
