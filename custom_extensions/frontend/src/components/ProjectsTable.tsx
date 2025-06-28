@@ -859,6 +859,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [draggedFolder, setDraggedFolder] = useState<Folder | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [isReordering, setIsReordering] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
 
     // Add a refresh function that can be called externally
     const refreshProjects = useCallback(async () => {
@@ -1058,15 +1059,77 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     }, [projects]);
 
     // Helper function to calculate lesson data for a project
-    const getLessonData = useCallback((project: Project) => {
+    const getLessonData = useCallback(async (project: Project) => {
         if (project.designMicroproductType !== 'Training Plan') {
             return { lessonCount: '-', totalHours: '-' };
         }
         
-        // For now, return placeholder data since we don't have the full project details
-        // In a production app, you might want to fetch this data on demand or cache it
-        return { lessonCount: '?', totalHours: '?' };
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/lesson-data`, {
+                method: 'GET',
+                headers
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return { 
+                    lessonCount: data.lessonCount || 0, 
+                    totalHours: data.totalHours || 0 
+                };
+            } else {
+                console.error('Failed to fetch lesson data:', response.status);
+                return { lessonCount: '?', totalHours: '?' };
+            }
+        } catch (error) {
+            console.error('Error fetching lesson data:', error);
+            return { lessonCount: '?', totalHours: '?' };
+        }
     }, []);
+
+    // State for lesson data caching
+    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string }>>({});
+
+    // Function to get cached lesson data or fetch it
+    const getCachedLessonData = useCallback(async (project: Project) => {
+        if (lessonDataCache[project.id]) {
+            return lessonDataCache[project.id];
+        }
+        
+        const data = await getLessonData(project);
+        setLessonDataCache(prev => ({ ...prev, [project.id]: data }));
+        return data;
+    }, [getLessonData, lessonDataCache]);
+
+    // Load lesson data for all Training Plan projects on mount
+    useEffect(() => {
+        const loadLessonData = async () => {
+            const trainingPlanProjects = projects.filter(p => p.designMicroproductType === 'Training Plan');
+            const newCache: Record<number, { lessonCount: number | string, totalHours: number | string }> = {};
+            
+            for (const project of trainingPlanProjects) {
+                try {
+                    const data = await getLessonData(project);
+                    newCache[project.id] = data;
+                } catch (error) {
+                    console.error(`Error loading lesson data for project ${project.id}:`, error);
+                    newCache[project.id] = { lessonCount: '?', totalHours: '?' };
+                }
+            }
+            
+            setLessonDataCache(newCache);
+        };
+        
+        if (projects.length > 0) {
+            loadLessonData();
+        }
+    }, [projects, getLessonData]);
 
     useEffect(() => {
         refreshProjects();
@@ -1241,6 +1304,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             setDraggedFolder(item as Folder);
         }
         setIsReordering(true);
+        setIsDragging(true);
         
         // Add visual feedback to dragged element
         const target = e.currentTarget as HTMLElement;
@@ -1406,7 +1470,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 }
             }
         } catch (error) {
-            console.error('Error parsing drag data:', error);
+            console.error('Error handling drop:', error);
         }
         
         // Reset drag state
@@ -1414,6 +1478,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         setDraggedFolder(null);
         setDragOverIndex(null);
         setIsReordering(false);
+        setIsDragging(false);
         
         // Reset visual feedback
         const target = e.currentTarget as HTMLElement;
@@ -1427,6 +1492,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         setDraggedFolder(null);
         setDragOverIndex(null);
         setIsReordering(false);
+        setIsDragging(false);
         
         // Reset visual feedback
         const target = e.currentTarget as HTMLElement;
@@ -1563,7 +1629,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             className={`hover:bg-gray-50 transition cursor-pointer group cursor-grab active:cursor-grabbing ${
                                                 dragOverIndex === folderIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                             } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
-                                            onClick={() => toggleFolder(folder.id)}
+                                            onClick={(e) => {
+                                                if (!isDragging) {
+                                                    toggleFolder(folder.id);
+                                                }
+                                            }}
                                             draggable={!trashMode}
                                             onDragStart={(e) => handleDragStart(e, folder, 'folder')}
                                             onDragOver={(e) => {
@@ -1579,6 +1649,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
                                                 }
                                             }}
+                                            onDrop={(e) => handleDrop(e, folderIndex)}
+                                            onDragEnd={handleDragEnd}
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
@@ -1616,8 +1688,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     You
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    if (!folderProjects[folder.id]) return '-';
+                                                    const projects = folderProjects[folder.id];
+                                                    const totalLessons = projects.reduce((sum, p) => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return sum + (lessonData && typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0);
+                                                    }, 0);
+                                                    return totalLessons > 0 ? totalLessons : '-';
+                                                })()}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    if (!folderProjects[folder.id]) return '-';
+                                                    const projects = folderProjects[folder.id];
+                                                    const totalHours = projects.reduce((sum, p) => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return sum + (lessonData && typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0);
+                                                    }, 0);
+                                                    return totalHours > 0 ? totalHours : '-';
+                                                })()}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Empty cell for folder rows */}
                                             </td>
@@ -1626,7 +1718,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         {/* Expanded folder content */}
                                         {expandedFolders.has(folder.id) && (
                                             <tr>
-                                                <td colSpan={4} className="px-0 py-0">
+                                                <td colSpan={6} className="px-0 py-0">
                                                     <div className="bg-gray-50 border-l-4 border-blue-200 animate-in slide-in-from-top-2 duration-200">
                                                         {folderProjects[folder.id] ? (
                                                             folderProjects[folder.id].map((p: Project, index: number) => (
@@ -1665,6 +1757,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                                                     <span>{formatDate(p.createdAt)}</span>
                                                                                     <span className="mx-2">•</span>
                                                                                     <span>Created by you</span>
+                                                                                    <span className="mx-2">•</span>
+                                                                                    <span>Lessons: {(() => {
+                                                                                        const lessonData = lessonDataCache[p.id];
+                                                                                        return lessonData ? lessonData.lessonCount : '-';
+                                                                                    })()}</span>
+                                                                                    <span className="mx-2">•</span>
+                                                                                    <span>Hours: {(() => {
+                                                                                        const lessonData = lessonDataCache[p.id];
+                                                                                        return lessonData ? lessonData.totalHours : '-';
+                                                                                    })()}</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1737,14 +1839,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {(() => {
-                                                const lessonData = getLessonData(p);
-                                                return lessonData.lessonCount;
+                                                const lessonData = lessonDataCache[p.id];
+                                                return lessonData ? lessonData.lessonCount : '-';
                                             })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {(() => {
-                                                const lessonData = getLessonData(p);
-                                                return lessonData.totalHours;
+                                                const lessonData = lessonDataCache[p.id];
+                                                return lessonData ? lessonData.totalHours : '-';
                                             })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
@@ -1804,14 +1906,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {(() => {
-                                                const lessonData = getLessonData(p);
-                                                return lessonData.lessonCount;
+                                                const lessonData = lessonDataCache[p.id];
+                                                return lessonData ? lessonData.lessonCount : '-';
                                             })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {(() => {
-                                                const lessonData = getLessonData(p);
-                                                return lessonData.totalHours;
+                                                const lessonData = lessonDataCache[p.id];
+                                                return lessonData ? lessonData.totalHours : '-';
                                             })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>

@@ -4275,6 +4275,55 @@ async def update_folder_order(
                 )
     return {"message": "Folder order updated successfully"}
 
-# --- Update project queries to support folder_id (backward compatible) ---
+@app.get("/api/custom/projects/{project_id}/lesson-data")
+async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get lesson data for a project (number of lessons and total hours)"""
+    try:
+        async with pool.acquire() as conn:
+            # Get project details
+            project = await conn.fetchrow(
+                "SELECT p.microproduct_content, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project:
+                raise HTTPException(status_code=404, detail="Project not found")
+            
+            content = project["microproduct_content"]
+            component_name = project["component_name"]
+            
+            # Only Training Plans have lesson data
+            if component_name != COMPONENT_NAME_TRAINING_PLAN or not content:
+                return {"lessonCount": 0, "totalHours": 0}
+            
+            # Parse the training plan content
+            try:
+                if isinstance(content, dict):
+                    sections = content.get("sections", [])
+                    total_lessons = 0
+                    total_hours = 0
+                    
+                    for section in sections:
+                        if isinstance(section, dict):
+                            lessons = section.get("lessons", [])
+                            total_lessons += len(lessons)
+                            
+                            # Sum up hours from lessons
+                            for lesson in lessons:
+                                if isinstance(lesson, dict):
+                                    total_hours += lesson.get("hours", 0)
+                    
+                    return {"lessonCount": total_lessons, "totalHours": total_hours}
+                else:
+                    return {"lessonCount": 0, "totalHours": 0}
+            except Exception as e:
+                logger.warning(f"Error parsing lesson data for project {project_id}: {e}")
+                return {"lessonCount": 0, "totalHours": 0}
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to get lesson data")
 
 
