@@ -369,6 +369,10 @@ async def startup_event():
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
 
         logger.info("Custom DB pool initialized & tables ensured.")
     except Exception as e:
@@ -681,6 +685,7 @@ class ProjectApiResponse(BaseModel):
     created_at: datetime
     design_template_id: Optional[int] = None
     folder_id: Optional[int] = None
+    order: Optional[int] = None
     model_config = {"from_attributes": True}
 
 class ProjectDetailForEditResponse(BaseModel):
@@ -2158,11 +2163,11 @@ async def get_user_projects_list_from_db(
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id
+               p.folder_id, p."order"
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
-        ORDER BY p.created_at DESC;
+        ORDER BY p."order" ASC, p.created_at DESC;
     """
     folder_filter = ""
     params = [onyx_user_id]
@@ -2182,7 +2187,7 @@ async def get_user_projects_list_from_db(
             design_template_name=row_dict.get("design_template_name"),
             design_microproduct_type=row_dict.get("design_microproduct_type"),
             created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
-            folder_id=row_dict.get("folder_id")
+            folder_id=row_dict.get("folder_id"), order=row_dict.get("order")
         ))
     return projects_list
 
@@ -4204,5 +4209,33 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
         )
         
         return ProjectDB(**dict(updated_project))
+
+class ProjectOrderUpdateRequest(BaseModel):
+    orders: List[Dict[str, int]]  # List of {projectId: int, order: int}
+
+@app.put("/api/custom/projects/update-order", status_code=status.HTTP_200_OK)
+async def update_project_order(order_data: ProjectOrderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update the order of multiple projects"""
+    try:
+        async with pool.acquire() as conn:
+            # Update each project's order
+            for order_item in order_data.orders:
+                project_id = order_item.get('projectId')
+                order = order_item.get('order')
+                
+                if project_id is not None and order is not None:
+                    # Verify project belongs to user and update order
+                    result = await conn.execute(
+                        "UPDATE projects SET \"order\" = $1 WHERE id = $2 AND onyx_user_id = $3",
+                        order, project_id, onyx_user_id
+                    )
+                    
+                    if result == "UPDATE 0":
+                        logger.warning(f"Project {project_id} not found or not owned by user {onyx_user_id}")
+        
+        return {"message": "Project order updated successfully"}
+    except Exception as e:
+        logger.error(f"Error updating project order: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update project order")
 
 

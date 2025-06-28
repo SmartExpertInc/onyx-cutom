@@ -43,6 +43,7 @@ interface Project {
   isGamma?: boolean;
   instanceName?: string;
   folderId?: number | null;
+  order?: number;
 }
 
 interface Folder {
@@ -856,8 +857,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 designMicroproductType: p.design_microproduct_type,
                 isGamma: p.isGamma || false,
                 instanceName: p.microproduct_name,
-                folderId: p.folder_id
+                folderId: p.folder_id,
+                order: p.order || 0
             }));
+
+            // Sort projects by order field
+            const sortedProjects = processedProjects.sort((a: Project, b: Project) => (a.order || 0) - (b.order || 0));
 
             // ---- Filter lessons that belong to outlines from the main products page ----
             const deduplicateProjects = (projectsArr: Project[]): Project[] => {
@@ -922,7 +927,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 return filteredProjects;
             };
 
-            setProjects(deduplicateProjects(processedProjects));
+            setProjects(deduplicateProjects(sortedProjects));
 
             // Fetch folders if not in trash mode and not viewing a specific folder
             if (!trashMode && folderId === null && foldersResponse) {
@@ -973,12 +978,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 designMicroproductType: p.design_microproduct_type,
                 isGamma: p.isGamma || false,
                 instanceName: p.microproduct_name,
-                folderId: p.folder_id
+                folderId: p.folder_id,
+                order: p.order || 0
             }));
+
+            // Sort folder projects by order field
+            const sortedProjects = processedProjects.sort((a: Project, b: Project) => (a.order || 0) - (b.order || 0));
 
             setFolderProjects(prev => ({
                 ...prev,
-                [folderId]: processedProjects
+                [folderId]: sortedProjects
             }));
         } catch (error) {
             console.error('Error fetching folder projects:', error);
@@ -1206,12 +1215,35 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             if (data.type === 'reorder') {
                 // Get the current list of projects to reorder
                 let currentProjects: Project[];
+                let updateFunction: (newProjects: Project[]) => void;
+                
                 if (folderId !== null) {
                     // Reordering within a specific folder
                     currentProjects = [...projects];
+                    updateFunction = setProjects;
                 } else {
-                    // Reordering unassigned projects
-                    currentProjects = getUnassignedProjects();
+                    // Check if we're reordering within an expanded folder
+                    const expandedFolderId = Array.from(expandedFolders).find(folderId => 
+                        folderProjects[folderId]?.some(p => p.id === draggedProject.id)
+                    );
+                    
+                    if (expandedFolderId) {
+                        // Reordering within an expanded folder
+                        currentProjects = [...(folderProjects[expandedFolderId] || [])];
+                        updateFunction = (newProjects: Project[]) => {
+                            setFolderProjects(prev => ({
+                                ...prev,
+                                [expandedFolderId]: newProjects
+                            }));
+                        };
+                    } else {
+                        // Reordering unassigned projects
+                        currentProjects = getUnassignedProjects();
+                        updateFunction = (newProjects: Project[]) => {
+                            const assignedProjects = projects.filter(p => p.folderId !== null);
+                            setProjects([...newProjects, ...assignedProjects]);
+                        };
+                    }
                 }
                 
                 // Find the current index of the dragged project
@@ -1227,17 +1259,40 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 newProjects.splice(dropIndex, 0, movedProject);
                 
                 // Update the appropriate state
-                if (folderId !== null) {
-                    setProjects(newProjects);
-                } else {
-                    // For unassigned projects, we need to update the main projects array
-                    // by replacing the unassigned projects with the new order
-                    const assignedProjects = projects.filter(p => p.folderId !== null);
-                    setProjects([...newProjects, ...assignedProjects]);
-                }
+                updateFunction(newProjects);
                 
-                // TODO: Send the new order to the backend
-                // This would require a backend endpoint to save the order
+                // Save the new order to the backend
+                const saveOrderToBackend = async () => {
+                    try {
+                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                        const devUserId = "dummy-onyx-user-id-for-testing";
+                        if (devUserId && process.env.NODE_ENV === 'development') {
+                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                        }
+                        
+                        // Update orders for all projects in the new order
+                        const orderUpdates = newProjects.map((project, index) => ({
+                            projectId: project.id,
+                            order: index
+                        }));
+                        
+                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update-order`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify({ orders: orderUpdates })
+                        });
+                        
+                        if (!response.ok) {
+                            console.error('Failed to save project order:', response.status);
+                        }
+                    } catch (error) {
+                        console.error('Error saving project order:', error);
+                    }
+                };
+                
+                // Call the backend asynchronously
+                saveOrderToBackend();
             }
         } catch (error) {
             console.error('Error parsing drag data:', error);
@@ -1252,7 +1307,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         const target = e.currentTarget as HTMLElement;
         target.style.opacity = '1';
         target.style.transform = 'rotate(0deg)';
-    }, [draggedProject, folderId, projects]);
+    }, [draggedProject, folderId, projects, expandedFolders, folderProjects, getUnassignedProjects]);
 
     const handleDragEnd = useCallback((e: React.DragEvent) => {
         // Reset drag state
@@ -1483,7 +1538,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                                                         </svg>
                                                                                     </div>
                                                                                     <Star size={16} className="text-gray-300 mr-2" />
-                                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
+                                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
                                                                                         {p.title}
                                                                                     </Link>
                                                                                 </div>
@@ -1547,7 +1602,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     </svg>
                                                 </div>
                                                 <Star size={16} className="text-gray-300 mr-2" />
-                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
+                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
                                                     {p.title}
                                                 </Link>
                                             </span>
@@ -1602,7 +1657,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     </svg>
                                                 </div>
                                                 <Star size={16} className="text-gray-300 mr-2" />
-                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
+                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
                                                     {p.title}
                                                 </Link>
                                             </span>
