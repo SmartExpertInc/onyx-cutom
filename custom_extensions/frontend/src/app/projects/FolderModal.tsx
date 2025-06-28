@@ -54,7 +54,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           <input
             type="text"
             placeholder="Find or create a new folder"
-            className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             value={folderName}
             onChange={e => { setFolderName(e.target.value); setSearch(e.target.value); }}
             onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
@@ -73,10 +73,20 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
             {filteredFolders.length === 0 && <div className="text-gray-400 text-sm">No folders found.</div>}
             {filteredFolders.map(folder => (
-              <div key={folder.id} className="flex items-center gap-2 px-2 py-2 rounded border border-gray-200">
-                <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">{folder.name[0]?.toUpperCase()}</span>
-                <span className="font-medium text-gray-800">{folder.name}</span>
-                {/* <button className="text-blue-600 text-xs ml-2">Leave</button> */}
+              <div key={folder.id} className="flex items-center justify-between gap-2 px-2 py-2 rounded border border-gray-200">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">{folder.name[0]?.toUpperCase()}</span>
+                  <span className="font-medium text-gray-800">{folder.name}</span>
+                </div>
+                <button 
+                  className="text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                  onClick={() => {
+                    // TODO: Implement delete functionality
+                    console.log('Delete folder:', folder.id);
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             ))}
           </div>
