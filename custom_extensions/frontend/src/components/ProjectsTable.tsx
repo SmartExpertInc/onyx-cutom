@@ -68,13 +68,82 @@ const ProjectCard: React.FC<{
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
-    const [renameModalOpen, setRenameModalOpen] = useState(false);
-    const [alignLeft, setAlignLeft] = useState(false);
     const [showRestorePrompt, setShowRestorePrompt] = useState(false);
+    const [renameModalOpen, setRenameModalOpen] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
-
-    const cardRef = useRef<HTMLDivElement>(null);
+    const [newName, setNewName] = useState(project.designMicroproductType ? project.title : (project.instanceName || project.title));
+    const [menuPosition, setMenuPosition] = useState<'above' | 'below'>('below');
+    const [menuAlignment, setMenuAlignment] = useState<'left' | 'right'>('right');
     const menuRef = useRef<HTMLDivElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    
+    const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
+    const displayTitle = isOutline ? project.title : (project.instanceName || project.title);
+    
+    const stringToColor = (str: string): string => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hue = Math.abs(hash) % 360;
+        return `hsl(${hue}, 70%, 60%)`;
+    };
+    
+    const bgColor = stringToColor(project.title);
+    const avatarColor = stringToColor(project.createdBy);
+
+    const handleRemoveFromFolder = async () => {
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ folder_id: null })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to remove from folder: ${response.status}`);
+            }
+            
+            // Refresh the page to update the view
+            window.location.reload();
+        } catch (error) {
+            console.error('Error removing from folder:', error);
+            alert('Failed to remove project from folder');
+        }
+    };
+
+    const handleMenuToggle = () => {
+        if (!menuOpen && buttonRef.current && cardRef.current) {
+            // Calculate if there's enough space below and to the right
+            const buttonRect = buttonRef.current.getBoundingClientRect();
+            const cardRect = cardRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
+            
+            const spaceBelow = viewportHeight - buttonRect.bottom;
+            const spaceAbove = buttonRect.top;
+            const spaceRight = viewportWidth - buttonRect.right;
+            const spaceLeft = buttonRect.left;
+            
+            const menuHeight = 300; // Approximate menu height
+            const menuWidth = 240; // Approximate menu width
+            
+            // Determine vertical position
+            setMenuPosition(spaceBelow < menuHeight && spaceAbove > menuHeight ? 'above' : 'below');
+            
+            // Determine horizontal alignment
+            setMenuAlignment(spaceRight < menuWidth && spaceLeft > menuWidth ? 'left' : 'right');
+        }
+        setMenuOpen(prev => !prev);
+    };
 
     const handleDragStart = (e: React.DragEvent) => {
         // Add visual feedback to the dragged element
@@ -129,7 +198,7 @@ const ProjectCard: React.FC<{
             const rect = cardRef.current.getBoundingClientRect();
             const menuApproxWidth = 260; // ≈ w-60 in Tailwind (15rem)
             const spaceRight = window.innerWidth - rect.right;
-            setAlignLeft(spaceRight < menuApproxWidth);
+            setMenuAlignment(spaceRight < menuApproxWidth ? 'left' : 'right');
         }
     }, [menuOpen]);
 
@@ -163,55 +232,6 @@ const ProjectCard: React.FC<{
         return new Date(dateString).toLocaleDateString('en-US', options);
     }
     
-    // A simple hash function to get a color from the title
-    const stringToColor = (str: string): string => {
-        let hash = 0;
-        if (!str) return '#CCCCCC';
-        for (let i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        let color = '#';
-        for (let i = 0; i < 3; i++) {
-            let value = (hash >> (i * 8)) & 0xFF;
-            color += ('00' + value.toString(16)).substr(-2);
-        }
-        return color;
-    };
-    
-    const displayTitle = (project.designMicroproductType && project.designMicroproductType.toLowerCase() !== 'training plan' && project.instanceName) ? `${project.title}: ${project.instanceName}` : project.title;
-    const bgColor = stringToColor(displayTitle);
-    const avatarColor = stringToColor(project.createdBy);
-
-    const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
-    const [newName, setNewName] = useState(isOutline ? project.title : (project.instanceName || ""));
-
-    const handleRemoveFromFolder = async () => {
-        try {
-            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            const devUserId = "dummy-onyx-user-id-for-testing";
-            if (devUserId && process.env.NODE_ENV === 'development') {
-                headers['X-Dev-Onyx-User-ID'] = devUserId;
-            }
-            
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ folder_id: null })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Failed to remove from folder: ${response.status}`);
-            }
-            
-            // Refresh the page to update the view
-            window.location.reload();
-        } catch (error) {
-            console.error('Error removing from folder:', error);
-            alert('Failed to remove project from folder');
-        }
-    };
-
     return (
         <div 
             ref={cardRef} 
@@ -253,7 +273,7 @@ const ProjectCard: React.FC<{
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-gray-900">Created by you</span>
-                                <span className="text-xs text-gray-500">{project.lastViewed}</span>
+                                <span className="text-xs text-gray-500">{formatDate(project.createdAt)}</span>
                             </div>
                         </div>
                         <div className="w-7 h-7" />
@@ -262,17 +282,18 @@ const ProjectCard: React.FC<{
             </Link>
             <div className="absolute bottom-4 right-3" ref={menuRef}>
                 <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(prev => !prev);
-                    }}
+                    ref={buttonRef}
+                    onClick={handleMenuToggle}
                     className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
                 >
                     <MoreHorizontal size={16} />
                 </button>
                 {menuOpen && (
-                    <div className={`absolute bottom-0 ${alignLeft ? 'right-full mr-2' : 'left-full ml-2'} w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1`}>
+                    <div className={`absolute w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
+                        menuPosition === 'above' 
+                            ? 'bottom-full mb-2' 
+                            : 'top-full mt-2'
+                    } ${menuAlignment === 'left' ? 'left-0' : 'right-0'}`}>
                         <div className="px-3 py-2 border-b border-gray-100">
                             <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                             <p className="text-xs text-gray-500 mt-1">
