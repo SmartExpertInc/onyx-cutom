@@ -132,6 +132,9 @@ const ProjectCard: React.FC<{
             const spaceBelow = viewportHeight - buttonRect.bottom;
             const menuHeight = 300; // Approximate menu height
             
+            // Also check if we're inside a folder (nested structure)
+            const isInsideFolder = folderId !== null;
+            
             setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
         setMenuOpen(prev => !prev);
@@ -271,7 +274,7 @@ const ProjectCard: React.FC<{
                     <MoreHorizontal size={16} />
                 </button>
                 {menuOpen && (
-                    <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
+                    <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-50 border border-gray-100 p-1 ${
                         menuPosition === 'above' 
                             ? 'bottom-full mb-2' 
                             : 'top-full mt-2'
@@ -565,6 +568,9 @@ const ProjectRowMenu: React.FC<{
             const spaceBelow = viewportHeight - buttonRect.bottom;
             const menuHeight = 300; // Approximate menu height
             
+            // Also check if we're inside a folder (nested structure)
+            const isInsideFolder = folderId !== null;
+            
             setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
         setMenuOpen(prev => !prev);
@@ -601,7 +607,7 @@ const ProjectRowMenu: React.FC<{
                 <MoreHorizontal size={20} />
             </button>
             {menuOpen && (
-                <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
+                <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-50 border border-gray-100 p-1 ${
                     menuPosition === 'above' 
                         ? 'bottom-full mb-2' 
                         : 'top-full mt-2'
@@ -1086,36 +1092,66 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     };
 
     const handleDeletePermanently = async (projectId: number) => {
-        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-        const deleteApiUrl = `${CUSTOM_BACKEND_URL}/projects/delete-permanently`;
-        
-        const originalProjects = [...projects];
-        setProjects(currentProjects => currentProjects.filter(p => p.id !== projectId));
-
         try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
             const headers: HeadersInit = { 'Content-Type': 'application/json' };
             const devUserId = "dummy-onyx-user-id-for-testing";
             if (devUserId && process.env.NODE_ENV === 'development') {
                 headers['X-Dev-Onyx-User-ID'] = devUserId;
             }
-            const response = await fetch(deleteApiUrl, { 
-                method: 'POST', 
-                headers,
-                body: JSON.stringify({ project_ids: [projectId] })
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/delete-permanently/${projectId}`, {
+                method: 'DELETE',
+                headers
             });
+            
             if (!response.ok) {
-                setProjects(originalProjects);
-                const errorText = await response.text();
-                throw new Error(`Failed to delete project permanently: ${response.status} ${errorText}`);
+                throw new Error(`Failed to delete project: ${response.status}`);
             }
+            
+            // Refresh the projects list
+            refreshProjects();
         } catch (error) {
-            console.error(error);
-            alert((error as Error).message);
-            setProjects(originalProjects);
-        } finally {
-            window.location.reload();
+            console.error('Error deleting project permanently:', error);
         }
     };
+
+    // Add event listener for drag-and-drop functionality
+    useEffect(() => {
+        const handleMoveProjectToFolder = async (event: Event) => {
+            const customEvent = event as CustomEvent;
+            const { projectId, folderId } = customEvent.detail;
+            try {
+                const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                const devUserId = "dummy-onyx-user-id-for-testing";
+                if (devUserId && process.env.NODE_ENV === 'development') {
+                    headers['X-Dev-Onyx-User-ID'] = devUserId;
+                }
+                
+                const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ folderId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to move project to folder: ${response.status}`);
+                }
+                
+                // Refresh the projects list
+                refreshProjects();
+            } catch (error) {
+                console.error('Error moving project to folder:', error);
+            }
+        };
+
+        window.addEventListener('moveProjectToFolder', handleMoveProjectToFolder);
+        
+        return () => {
+            window.removeEventListener('moveProjectToFolder', handleMoveProjectToFolder);
+        };
+    }, [refreshProjects]);
 
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
     const filterIcons: Record<string, LucideIcon> = {
@@ -1243,6 +1279,31 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         <tr 
                                             className="hover:bg-gray-50 transition cursor-pointer group"
                                             onClick={() => toggleFolder(folder.id)}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                e.dataTransfer.dropEffect = 'move';
+                                                e.currentTarget.classList.add('bg-blue-50', 'border-2', 'border-blue-300');
+                                            }}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
+                                                try {
+                                                    const data = JSON.parse(e.dataTransfer.getData('application/json'));
+                                                    if (data.type === 'project') {
+                                                        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
+                                                            detail: { projectId: data.projectId, folderId: folder.id }
+                                                        }));
+                                                    }
+                                                } catch (error) {
+                                                    console.error('Error parsing drag data:', error);
+                                                }
+                                            }}
+                                            onDragLeave={(e) => {
+                                                e.preventDefault();
+                                                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                                                    e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
+                                                }
+                                            }}
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
@@ -1327,7 +1388,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                 
                                 {/* Show unassigned projects when not viewing a specific folder */}
                                 {!trashMode && folderId === null && getUnassignedProjects().map((p: Project) => (
-                                    <tr key={p.id} className="hover:bg-gray-50 transition group">
+                                    <tr 
+                                        key={p.id} 
+                                        className="hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing"
+                                        draggable={!trashMode}
+                                        onDragStart={(e) => {
+                                            e.dataTransfer.setData('application/json', JSON.stringify({
+                                                projectId: p.id,
+                                                projectName: p.title,
+                                                type: 'project'
+                                            }));
+                                            e.dataTransfer.effectAllowed = 'move';
+                                        }}
+                                        onDragEnd={(e) => {
+                                            const target = e.currentTarget as HTMLElement;
+                                            target.style.opacity = '1';
+                                        }}
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span className="inline-flex items-center">
                                                 <Star size={16} className="text-gray-300 mr-2" />
@@ -1361,7 +1438,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                 
                                 {/* Show all projects when viewing a specific folder or in trash mode */}
                                 {(trashMode || folderId !== null) && projects.map((p: Project) => (
-                                    <tr key={p.id} className="hover:bg-gray-50 transition group">
+                                    <tr 
+                                        key={p.id} 
+                                        className="hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing"
+                                        draggable={!trashMode}
+                                        onDragStart={(e) => {
+                                            e.dataTransfer.setData('application/json', JSON.stringify({
+                                                projectId: p.id,
+                                                projectName: p.title,
+                                                type: 'project'
+                                            }));
+                                            e.dataTransfer.effectAllowed = 'move';
+                                        }}
+                                        onDragEnd={(e) => {
+                                            const target = e.currentTarget as HTMLElement;
+                                            target.style.opacity = '1';
+                                        }}
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span className="inline-flex items-center">
                                                 <Star size={16} className="text-gray-300 mr-2" />
