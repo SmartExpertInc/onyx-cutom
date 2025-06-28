@@ -22,7 +22,8 @@ import {
   Copy,
   Link as LinkIcon,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  FolderMinus
 } from 'lucide-react';
 
 interface Project {
@@ -52,7 +53,8 @@ const ProjectCard: React.FC<{
     onRestore: (id: number) => void;
     onDeletePermanently: (id: number) => void;
     isTrashMode: boolean;
-}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode }) => {
+    folderId?: number | null;
+}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -173,6 +175,33 @@ const ProjectCard: React.FC<{
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
     const [newName, setNewName] = useState(isOutline ? project.title : (project.instanceName || ""));
 
+    const handleRemoveFromFolder = async () => {
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ folder_id: null })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to remove from folder: ${response.status}`);
+            }
+            
+            // Refresh the page to update the view
+            window.location.reload();
+        } catch (error) {
+            console.error('Error removing from folder:', error);
+            alert('Failed to remove project from folder');
+        }
+    };
+
     return (
         <div 
             ref={cardRef} 
@@ -291,6 +320,20 @@ const ProjectCard: React.FC<{
                                         <LinkIcon size={16} className="text-gray-500"/>
                                         <span>Copy link</span>
                                     </button>
+                                    {folderId && (
+                                        <button 
+                                            onClick={(e) => { 
+                                                e.stopPropagation(); 
+                                                e.preventDefault(); 
+                                                setMenuOpen(false); 
+                                                handleRemoveFromFolder(); 
+                                            }}
+                                            className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md"
+                                        >
+                                            <FolderMinus size={16} className="text-orange-500"/>
+                                            <span>Remove from Folder</span>
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="py-1 border-t border-gray-100">
                                     <button 
@@ -461,7 +504,8 @@ const ProjectRowMenu: React.FC<{
     onDelete: (id: number, scope: 'self' | 'all') => void;
     onRestore: (id: number) => void;
     onDeletePermanently: (id: number) => void;
-}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently }) => {
+    folderId?: number | null;
+}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId }) => {
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [renameModalOpen, setRenameModalOpen] = React.useState(false);
     const [isRenaming, setIsRenaming] = React.useState(false);
@@ -470,6 +514,34 @@ const ProjectRowMenu: React.FC<{
     const [trashConfirmOpen, setTrashConfirmOpen] = React.useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
+    
+    const handleRemoveFromFolder = async () => {
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ folder_id: null })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to remove from folder: ${response.status}`);
+            }
+            
+            // Refresh the page to update the view
+            window.location.reload();
+        } catch (error) {
+            console.error('Error removing from folder:', error);
+            alert('Failed to remove project from folder');
+        }
+    };
+    
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -545,6 +617,20 @@ const ProjectRowMenu: React.FC<{
                                     <LinkIcon size={16} className="text-gray-500"/>
                                     <span>Copy link</span>
                                 </button>
+                                {folderId && (
+                                    <button 
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            e.preventDefault(); 
+                                            setMenuOpen(false); 
+                                            handleRemoveFromFolder(); 
+                                        }}
+                                        className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md"
+                                    >
+                                        <FolderMinus size={16} className="text-orange-500"/>
+                                        <span>Remove from Folder</span>
+                                    </button>
+                                )}
                             </div>
                             <div className="py-1 border-t border-gray-100">
                                 <button 
@@ -1002,6 +1088,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                 onRestore={handleRestoreProject}
                                 onDeletePermanently={handleDeletePermanently}
                                 isTrashMode={trashMode}
+                                folderId={folderId}
                             />
                         ))}
                     </div>
@@ -1012,7 +1099,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Folders</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
                                     <th className="px-6 py-3"></th>
@@ -1027,12 +1113,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
                                                     {p.title}
                                                 </Link>
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-600 border border-gray-200">
-                                                <Lock size={12} className="mr-1 text-gray-400" />
-                                                Private
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
@@ -1052,6 +1132,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 onDelete={handleDeleteProject}
                                                 onRestore={handleRestoreProject}
                                                 onDeletePermanently={handleDeletePermanently}
+                                                folderId={folderId}
                                             />
                                         </td>
                                     </tr>

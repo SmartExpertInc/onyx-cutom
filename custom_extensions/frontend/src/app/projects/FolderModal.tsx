@@ -76,7 +76,6 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
               <div key={folder.id} className="flex items-center gap-2 px-2 py-2 rounded border border-gray-200">
                 <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">{folder.name[0]?.toUpperCase()}</span>
                 <span className="font-medium text-gray-800">{folder.name}</span>
-                <span className="text-xs text-gray-500 ml-auto">{folder.project_count} member{folder.project_count === 1 ? '' : 's'}, including you</span>
                 {/* <button className="text-blue-600 text-xs ml-2">Leave</button> */}
               </div>
             ))}
