@@ -1457,7 +1457,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
                                                 try {
                                                     const data = JSON.parse(e.dataTransfer.getData('application/json'));
-                                                    if (data.type === 'project') {
+                                                    if (data.type === 'project' || data.type === 'reorder') {
                                                         window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
                                                             detail: { projectId: data.projectId, folderId: folder.id }
                                                         }));
