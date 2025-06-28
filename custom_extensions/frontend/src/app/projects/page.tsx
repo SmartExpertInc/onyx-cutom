@@ -138,7 +138,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
               >
                 <span className="text-blue-700"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
                 <span className="font-medium">{folder.name}</span>
-                <span className="text-xs text-gray-500 ml-auto">{folder.project_count} member{folder.project_count === 1 ? '' : 's'}, including you</span>
               </div>
             ))}
           </div>
@@ -212,7 +211,7 @@ const ProjectsPageInner: React.FC = () => {
       const customEvent = event as CustomEvent;
       const { projectId, folderId } = customEvent.detail;
       try {
-        const res = await fetch(`/api/custom-projects-backend/projects/update/${projectId}`, {
+        const res = await fetch(`/api/custom-projects-backend/projects/${projectId}/folder`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ folder_id: folderId })
