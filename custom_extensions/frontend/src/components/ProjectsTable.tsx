@@ -136,10 +136,10 @@ const ProjectCard: React.FC<{
             const menuHeight = 300; // Approximate menu height
             const menuWidth = 240; // Approximate menu width
             
-            // Determine vertical position
+            // Determine vertical position - prefer below, but use above if not enough space
             setMenuPosition(spaceBelow < menuHeight && spaceAbove > menuHeight ? 'above' : 'below');
             
-            // Determine horizontal alignment
+            // Determine horizontal alignment - prefer right, but use left if not enough space
             setMenuAlignment(spaceRight < menuWidth && spaceLeft > menuWidth ? 'left' : 'right');
         }
         setMenuOpen(prev => !prev);
@@ -544,6 +544,7 @@ const ProjectRowMenu: React.FC<{
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = React.useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = React.useState(false);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
+    const [menuAlignment, setMenuAlignment] = React.useState<'left' | 'right'>('right');
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
@@ -577,13 +578,24 @@ const ProjectRowMenu: React.FC<{
     
     const handleMenuToggle = () => {
         if (!menuOpen && buttonRef.current) {
-            // Calculate if there's enough space below
+            // Calculate if there's enough space below and to the right
             const buttonRect = buttonRef.current.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
-            const spaceBelow = viewportHeight - buttonRect.bottom;
-            const menuHeight = 300; // Approximate menu height
+            const viewportWidth = window.innerWidth;
             
-            setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
+            const spaceBelow = viewportHeight - buttonRect.bottom;
+            const spaceAbove = buttonRect.top;
+            const spaceRight = viewportWidth - buttonRect.right;
+            const spaceLeft = buttonRect.left;
+            
+            const menuHeight = 300; // Approximate menu height
+            const menuWidth = 240; // Approximate menu width
+            
+            // Determine vertical position - prefer below, but use above if not enough space
+            setMenuPosition(spaceBelow < menuHeight && spaceAbove > menuHeight ? 'above' : 'below');
+            
+            // Determine horizontal alignment - prefer right, but use left if not enough space
+            setMenuAlignment(spaceRight < menuWidth && spaceLeft > menuWidth ? 'left' : 'right');
         }
         setMenuOpen(prev => !prev);
     };
@@ -623,7 +635,7 @@ const ProjectRowMenu: React.FC<{
                     menuPosition === 'above' 
                         ? 'bottom-full mb-2' 
                         : 'top-full mt-2'
-                } ${menuPosition === 'above' ? 'right-0' : 'right-0'}`}>
+                } ${menuAlignment === 'left' ? 'left-0' : 'right-0'}`}>
                     <div className="px-3 py-2 border-b border-gray-100">
                         <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                         <p className="text-xs text-gray-500 mt-1">
@@ -858,7 +870,70 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 folderId: p.folder_id
             }));
 
-            setProjects(processedProjects);
+            // ---- Filter lessons that belong to outlines from the main products page ----
+            const deduplicateProjects = (projectsArr: Project[]): Project[] => {
+                const outlineNames = new Set<string>();
+                const filteredProjects: Project[] = [];
+                const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
+
+                // First pass: collect all outline names and group by title for legacy support
+                projectsArr.forEach((proj) => {
+                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                    if (isOutline) {
+                        outlineNames.add(proj.title.trim());
+                    }
+
+                    // Legacy grouping logic - group projects by exact title match
+                    if (!grouped[proj.title]) {
+                        grouped[proj.title] = { outline: null, others: [] };
+                    }
+
+                    if (isOutline) {
+                        // Keep the first outline we encounter for this project title
+                        if (!grouped[proj.title].outline) {
+                            grouped[proj.title].outline = proj;
+                        }
+                    } else {
+                        grouped[proj.title].others.push(proj);
+                    }
+                });
+
+                // Second pass: filter projects using both legacy and new logic
+                projectsArr.forEach((proj) => {
+                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                    
+                    if (isOutline) {
+                        // Always include outlines
+                        filteredProjects.push(proj);
+                    } else {
+                        const projectTitle = proj.title.trim();
+                        let belongsToOutline = false;
+
+                        // Method 1: Legacy logic - check if there's an outline with the same exact title
+                        const groupForThisTitle = grouped[proj.title];
+                        if (groupForThisTitle && groupForThisTitle.outline) {
+                            belongsToOutline = true;
+                        }
+
+                        // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
+                        if (!belongsToOutline && projectTitle.includes(': ')) {
+                            const outlinePart = projectTitle.split(': ')[0].trim();
+                            if (outlineNames.has(outlinePart)) {
+                                belongsToOutline = true;
+                            }
+                        }
+
+                        // Only include projects that don't belong to an outline (either legacy or new pattern)
+                        if (!belongsToOutline) {
+                            filteredProjects.push(proj);
+                        }
+                    }
+                });
+
+                return filteredProjects;
+            };
+
+            setProjects(deduplicateProjects(processedProjects));
 
             // Fetch folders if not in trash mode and not viewing a specific folder
             if (!trashMode && folderId === null && foldersResponse) {
@@ -954,15 +1029,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         window.addEventListener('refreshProjects', handleRefresh);
         return () => window.removeEventListener('refreshProjects', handleRefresh);
     }, [refreshProjects]);
-
-    const deduplicateProjects = (projectsArr: Project[]): Project[] => {
-        const seen = new Set();
-        return projectsArr.filter(project => {
-            const duplicate = seen.has(project.title);
-            seen.add(project.title);
-            return !duplicate;
-        });
-    };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
