@@ -363,12 +363,14 @@ async def startup_event():
                     id SERIAL PRIMARY KEY,
                     onyx_user_id TEXT NOT NULL,
                     name TEXT NOT NULL,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0
                 );
             """)
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
             
             # Add order column for project sorting
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
@@ -4008,7 +4010,9 @@ class ProjectFolderListResponse(BaseModel):
     id: int
     name: str
     created_at: datetime
+    order: int
     project_count: int
+    model_config = {"from_attributes": True}
 
 class ProjectFolderRenameRequest(BaseModel):
     name: str
@@ -4017,12 +4021,12 @@ class ProjectFolderRenameRequest(BaseModel):
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
 async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     query = """
-        SELECT pf.id, pf.name, pf.created_at, COUNT(p.id) as project_count
+        SELECT pf.id, pf.name, pf.created_at, pf."order", COUNT(p.id) as project_count
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1
         GROUP BY pf.id
-        ORDER BY pf.created_at ASC;
+        ORDER BY pf."order" ASC, pf.created_at ASC;
     """
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, onyx_user_id)
@@ -4237,5 +4241,25 @@ async def update_project_order(order_data: ProjectOrderUpdateRequest, onyx_user_
     except Exception as e:
         logger.error(f"Error updating project order: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update project order")
+
+@app.put("/api/custom/projects/folders/update-order")
+async def update_folder_order(
+    orders: List[Dict[str, int]], 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Update the order of folders"""
+    async with pool.acquire() as conn:
+        for order_data in orders:
+            folder_id = order_data.get("folderId")
+            order = order_data.get("order")
+            if folder_id is not None and order is not None:
+                await conn.execute(
+                    "UPDATE project_folders SET \"order\" = $1 WHERE id = $2 AND onyx_user_id = $3",
+                    order, folder_id, onyx_user_id
+                )
+    return {"message": "Folder order updated successfully"}
+
+# --- Update project queries to support folder_id (backward compatible) ---
 
 

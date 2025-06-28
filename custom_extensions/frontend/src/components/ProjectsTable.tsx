@@ -51,6 +51,7 @@ interface Folder {
   name: string;
   created_at: string;
   project_count: number;
+  order: number;
 }
 
 interface ProjectsTableProps {
@@ -855,6 +856,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     
     // Drag and drop reordering state
     const [draggedProject, setDraggedProject] = useState<Project | null>(null);
+    const [draggedFolder, setDraggedFolder] = useState<Folder | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [isReordering, setIsReordering] = useState(false);
 
@@ -1055,6 +1057,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         return projects.filter(p => p.folderId === null);
     }, [projects]);
 
+    // Helper function to calculate lesson data for a project
+    const getLessonData = useCallback((project: Project) => {
+        if (project.designMicroproductType !== 'Training Plan') {
+            return { lessonCount: '-', totalHours: '-' };
+        }
+        
+        // For now, return placeholder data since we don't have the full project details
+        // In a production app, you might want to fetch this data on demand or cache it
+        return { lessonCount: '?', totalHours: '?' };
+    }, []);
+
     useEffect(() => {
         refreshProjects();
     }, [refreshProjects]);
@@ -1215,13 +1228,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     }, [refreshProjects]);
 
     // Drag and drop reordering functions
-    const handleDragStart = useCallback((e: React.DragEvent, project: Project) => {
+    const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
         e.dataTransfer.setData('application/json', JSON.stringify({
-            projectId: project.id,
-            type: 'reorder'
+            id: item.id,
+            type: 'reorder',
+            itemType: type
         }));
         e.dataTransfer.effectAllowed = 'move';
-        setDraggedProject(project);
+        if (type === 'project') {
+            setDraggedProject(item as Project);
+        } else {
+            setDraggedFolder(item as Folder);
+        }
         setIsReordering(true);
         
         // Add visual feedback to dragged element
@@ -1247,91 +1265,145 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
         e.preventDefault();
         
-        if (!draggedProject) return;
-        
         try {
             const data = JSON.parse(e.dataTransfer.getData('application/json'));
             if (data.type === 'reorder') {
-                // Get the current list of projects to reorder
-                let currentProjects: Project[];
-                let updateFunction: (newProjects: Project[]) => void;
-                
-                if (folderId !== null) {
-                    // Reordering within a specific folder
-                    currentProjects = [...projects];
-                    updateFunction = setProjects;
-                } else {
-                    // Check if we're reordering within an expanded folder
-                    const expandedFolderId = Array.from(expandedFolders).find(folderId => 
-                        folderProjects[folderId]?.some(p => p.id === draggedProject.id)
-                    );
+                if (data.itemType === 'folder') {
+                    // Handle folder reordering
+                    if (!draggedFolder) return;
                     
-                    if (expandedFolderId) {
-                        // Reordering within an expanded folder
-                        currentProjects = [...(folderProjects[expandedFolderId] || [])];
-                        updateFunction = (newProjects: Project[]) => {
-                            setFolderProjects(prev => ({
-                                ...prev,
-                                [expandedFolderId]: newProjects
+                    const currentFolders = [...folders];
+                    const currentIndex = currentFolders.findIndex(f => f.id === draggedFolder.id);
+                    if (currentIndex === -1) return;
+                    
+                    // Don't reorder if dropping on itself
+                    if (currentIndex === dropIndex) return;
+                    
+                    // Create new array with reordered folders
+                    const newFolders = [...currentFolders];
+                    const [movedFolder] = newFolders.splice(currentIndex, 1);
+                    newFolders.splice(dropIndex, 0, movedFolder);
+                    
+                    // Update folders state
+                    setFolders(newFolders);
+                    
+                    // Save the new order to the backend
+                    const saveFolderOrderToBackend = async () => {
+                        try {
+                            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                            const devUserId = "dummy-onyx-user-id-for-testing";
+                            if (devUserId && process.env.NODE_ENV === 'development') {
+                                headers['X-Dev-Onyx-User-ID'] = devUserId;
+                            }
+                            
+                            // Update orders for all folders in the new order
+                            const orderUpdates = newFolders.map((folder, index) => ({
+                                folderId: folder.id,
+                                order: index
                             }));
-                        };
+                            
+                            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/update-order`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify(orderUpdates)
+                            });
+                            
+                            if (!response.ok) {
+                                console.error('Failed to save folder order:', response.status);
+                            }
+                        } catch (error) {
+                            console.error('Error saving folder order:', error);
+                        }
+                    };
+                    
+                    // Call the backend asynchronously
+                    saveFolderOrderToBackend();
+                } else {
+                    // Handle project reordering (existing logic)
+                    if (!draggedProject) return;
+                    
+                    // Get the current list of projects to reorder
+                    let currentProjects: Project[];
+                    let updateFunction: (newProjects: Project[]) => void;
+                    
+                    if (folderId !== null) {
+                        // Reordering within a specific folder
+                        currentProjects = [...projects];
+                        updateFunction = setProjects;
                     } else {
-                        // Reordering unassigned projects
-                        currentProjects = getUnassignedProjects();
-                        updateFunction = (newProjects: Project[]) => {
-                            const assignedProjects = projects.filter(p => p.folderId !== null);
-                            setProjects([...newProjects, ...assignedProjects]);
-                        };
+                        // Check if we're reordering within an expanded folder
+                        const expandedFolderId = Array.from(expandedFolders).find(folderId => 
+                            folderProjects[folderId]?.some(p => p.id === draggedProject.id)
+                        );
+                        
+                        if (expandedFolderId) {
+                            // Reordering within an expanded folder
+                            currentProjects = [...(folderProjects[expandedFolderId] || [])];
+                            updateFunction = (newProjects: Project[]) => {
+                                setFolderProjects(prev => ({
+                                    ...prev,
+                                    [expandedFolderId]: newProjects
+                                }));
+                            };
+                        } else {
+                            // Reordering unassigned projects
+                            currentProjects = getUnassignedProjects();
+                            updateFunction = (newProjects: Project[]) => {
+                                const assignedProjects = projects.filter(p => p.folderId !== null);
+                                setProjects([...newProjects, ...assignedProjects]);
+                            };
+                        }
                     }
+                    
+                    // Find the current index of the dragged project
+                    const currentIndex = currentProjects.findIndex(p => p.id === draggedProject.id);
+                    if (currentIndex === -1) return;
+                    
+                    // Don't reorder if dropping on itself
+                    if (currentIndex === dropIndex) return;
+                    
+                    // Create new array with reordered projects
+                    const newProjects = [...currentProjects];
+                    const [movedProject] = newProjects.splice(currentIndex, 1);
+                    newProjects.splice(dropIndex, 0, movedProject);
+                    
+                    // Update the appropriate state
+                    updateFunction(newProjects);
+                    
+                    // Save the new order to the backend
+                    const saveOrderToBackend = async () => {
+                        try {
+                            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                            const devUserId = "dummy-onyx-user-id-for-testing";
+                            if (devUserId && process.env.NODE_ENV === 'development') {
+                                headers['X-Dev-Onyx-User-ID'] = devUserId;
+                            }
+                            
+                            // Update orders for all projects in the new order
+                            const orderUpdates = newProjects.map((project, index) => ({
+                                projectId: project.id,
+                                order: index
+                            }));
+                            
+                            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update-order`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify({ orders: orderUpdates })
+                            });
+                            
+                            if (!response.ok) {
+                                console.error('Failed to save project order:', response.status);
+                            }
+                        } catch (error) {
+                            console.error('Error saving project order:', error);
+                        }
+                    };
+                    
+                    // Call the backend asynchronously
+                    saveOrderToBackend();
                 }
-                
-                // Find the current index of the dragged project
-                const currentIndex = currentProjects.findIndex(p => p.id === draggedProject.id);
-                if (currentIndex === -1) return;
-                
-                // Don't reorder if dropping on itself
-                if (currentIndex === dropIndex) return;
-                
-                // Create new array with reordered projects
-                const newProjects = [...currentProjects];
-                const [movedProject] = newProjects.splice(currentIndex, 1);
-                newProjects.splice(dropIndex, 0, movedProject);
-                
-                // Update the appropriate state
-                updateFunction(newProjects);
-                
-                // Save the new order to the backend
-                const saveOrderToBackend = async () => {
-                    try {
-                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-                        const devUserId = "dummy-onyx-user-id-for-testing";
-                        if (devUserId && process.env.NODE_ENV === 'development') {
-                            headers['X-Dev-Onyx-User-ID'] = devUserId;
-                        }
-                        
-                        // Update orders for all projects in the new order
-                        const orderUpdates = newProjects.map((project, index) => ({
-                            projectId: project.id,
-                            order: index
-                        }));
-                        
-                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update-order`, {
-                            method: 'PUT',
-                            headers,
-                            body: JSON.stringify({ orders: orderUpdates })
-                        });
-                        
-                        if (!response.ok) {
-                            console.error('Failed to save project order:', response.status);
-                        }
-                    } catch (error) {
-                        console.error('Error saving project order:', error);
-                    }
-                };
-                
-                // Call the backend asynchronously
-                saveOrderToBackend();
             }
         } catch (error) {
             console.error('Error parsing drag data:', error);
@@ -1339,6 +1411,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         
         // Reset drag state
         setDraggedProject(null);
+        setDraggedFolder(null);
         setDragOverIndex(null);
         setIsReordering(false);
         
@@ -1346,11 +1419,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         const target = e.currentTarget as HTMLElement;
         target.style.opacity = '1';
         target.style.transform = 'rotate(0deg)';
-    }, [draggedProject, folderId, projects, expandedFolders, folderProjects, getUnassignedProjects]);
+    }, [draggedProject, draggedFolder, folderId, projects, expandedFolders, folderProjects, getUnassignedProjects, folders]);
 
     const handleDragEnd = useCallback((e: React.DragEvent) => {
         // Reset drag state
         setDraggedProject(null);
+        setDraggedFolder(null);
         setDragOverIndex(null);
         setIsReordering(false);
         
@@ -1475,38 +1549,32 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Number of lessons</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. creation time</th>
                                     <th className="px-6 py-3"></th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
                                 {/* Show folders as expandable rows when not viewing a specific folder */}
-                                {!trashMode && folderId === null && folders.map((folder) => (
+                                {!trashMode && folderId === null && folders.map((folder, folderIndex) => (
                                     <React.Fragment key={`folder-${folder.id}`}>
                                         {/* Folder row */}
                                         <tr 
-                                            className="hover:bg-gray-50 transition cursor-pointer group"
+                                            className={`hover:bg-gray-50 transition cursor-pointer group cursor-grab active:cursor-grabbing ${
+                                                dragOverIndex === folderIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                            } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
                                             onClick={() => toggleFolder(folder.id)}
+                                            draggable={!trashMode}
+                                            onDragStart={(e) => handleDragStart(e, folder, 'folder')}
                                             onDragOver={(e) => {
                                                 e.preventDefault();
                                                 e.dataTransfer.dropEffect = 'move';
+                                                handleDragOver(e, folderIndex);
                                                 e.currentTarget.classList.add('bg-blue-50', 'border-2', 'border-blue-300');
-                                            }}
-                                            onDrop={(e) => {
-                                                e.preventDefault();
-                                                e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
-                                                try {
-                                                    const data = JSON.parse(e.dataTransfer.getData('application/json'));
-                                                    if (data.type === 'project' || data.type === 'reorder') {
-                                                        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
-                                                            detail: { projectId: data.projectId, folderId: folder.id }
-                                                        }));
-                                                    }
-                                                } catch (error) {
-                                                    console.error('Error parsing drag data:', error);
-                                                }
                                             }}
                                             onDragLeave={(e) => {
                                                 e.preventDefault();
+                                                handleDragLeave(e);
                                                 if (!e.currentTarget.contains(e.relatedTarget as Node)) {
                                                     e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
                                                 }
@@ -1514,6 +1582,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
+                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                            <circle cx="9" cy="5" r="2"/>
+                                                            <circle cx="9" cy="12" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
+                                                            <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="15" cy="12" r="2"/>
+                                                            <circle cx="15" cy="19" r="2"/>
+                                                        </svg>
+                                                    </div>
                                                     <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
                                                         <ChevronRight 
                                                             size={16} 
@@ -1538,6 +1616,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     You
                                                 </span>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Empty cell for folder rows */}
                                             </td>
@@ -1556,7 +1636,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                                         dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                                                     } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                                                     draggable={!trashMode}
-                                                                    onDragStart={(e) => handleDragStart(e, p)}
+                                                                    onDragStart={(e) => handleDragStart(e, p, 'project')}
                                                                     onDragOver={(e) => handleDragOver(e, index)}
                                                                     onDragLeave={handleDragLeave}
                                                                     onDrop={(e) => handleDrop(e, index)}
@@ -1622,7 +1702,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                         draggable={!trashMode}
-                                        onDragStart={(e) => handleDragStart(e, p)}
+                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragLeave={handleDragLeave}
                                         onDrop={(e) => handleDrop(e, index)}
@@ -1654,6 +1734,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 </span>
                                                 You
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(() => {
+                                                const lessonData = getLessonData(p);
+                                                return lessonData.lessonCount;
+                                            })()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(() => {
+                                                const lessonData = getLessonData(p);
+                                                return lessonData.totalHours;
+                                            })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                                             <ProjectRowMenu 
@@ -1677,7 +1769,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                         draggable={!trashMode}
-                                        onDragStart={(e) => handleDragStart(e, p)}
+                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragLeave={handleDragLeave}
                                         onDrop={(e) => handleDrop(e, index)}
@@ -1709,6 +1801,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 </span>
                                                 You
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(() => {
+                                                const lessonData = getLessonData(p);
+                                                return lessonData.lessonCount;
+                                            })()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(() => {
+                                                const lessonData = getLessonData(p);
+                                                return lessonData.totalHours;
+                                            })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                                             <ProjectRowMenu 
