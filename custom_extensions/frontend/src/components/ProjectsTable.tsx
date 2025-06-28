@@ -1,7 +1,8 @@
 // custom_extensions/frontend/src/components/ProjectsTable.tsx
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
   Lock, 
@@ -274,7 +275,7 @@ const ProjectCard: React.FC<{
                     <MoreHorizontal size={16} />
                 </button>
                 {menuOpen && (
-                    <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-50 border border-gray-100 p-1 ${
+                    <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
                         menuPosition === 'above' 
                             ? 'bottom-full mb-2' 
                             : 'top-full mt-2'
@@ -606,12 +607,18 @@ const ProjectRowMenu: React.FC<{
             >
                 <MoreHorizontal size={20} />
             </button>
-            {menuOpen && (
-                <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-50 border border-gray-100 p-1 ${
+            {menuOpen && createPortal(
+                <div className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
                     menuPosition === 'above' 
-                        ? 'bottom-full mb-2' 
-                        : 'top-full mt-2'
-                }`}>
+                        ? 'bottom-auto mb-2' 
+                        : 'top-auto mt-2'
+                }`}
+                style={{
+                    left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
+                    top: buttonRef.current ? (menuPosition === 'above' 
+                        ? buttonRef.current.getBoundingClientRect().top - 320
+                        : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
+                }}>
                     <div className="px-3 py-2 border-b border-gray-100">
                         <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                         <p className="text-xs text-gray-500 mt-1">
@@ -685,7 +692,8 @@ const ProjectRowMenu: React.FC<{
                             </div>
                         </>
                     )}
-                </div>
+                </div>,
+                document.body
             )}
             {/* Permanent Delete Modal */}
             {permanentDeleteConfirmOpen && (
@@ -1360,7 +1368,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="ml-4" onClick={e => e.stopPropagation()}>
+                                                                        <div className="ml-4 relative" onClick={e => e.stopPropagation()}>
                                                                             <ProjectRowMenu 
                                                                                 project={p} 
                                                                                 formatDate={formatDate} 
