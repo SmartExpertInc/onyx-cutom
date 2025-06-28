@@ -2148,34 +2148,124 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
         detail_msg = "An error occurred while fetching project details." if IS_PRODUCTION else f"DB error fetching project details for edit: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
-@app.put("/api/custom/projects/{project_id}/folder", response_model=ProjectDB)
-async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update a project's folder assignment"""
-    async with pool.acquire() as conn:
-        # Verify project belongs to user
-        project = await conn.fetchrow(
-            "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
-            project_id, onyx_user_id
+@app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
+async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    try:
+        db_microproduct_name_to_store = project_update_data.microProductName
+        current_component_name = None
+        async with pool.acquire() as conn:
+            project_row = await conn.fetchrow("SELECT dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2", project_id, onyx_user_id)
+            if not project_row:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
+            current_component_name = project_row["component_name"]
+
+        if (not db_microproduct_name_to_store or not db_microproduct_name_to_store.strip()) and project_update_data.design_template_id:
+            async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+            if design_row: db_microproduct_name_to_store = design_row["template_name"]
+
+        content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
+
+        derived_product_type = None; derived_microproduct_type = None
+        if project_update_data.design_template_id is not None:
+            async with pool.acquire() as conn: design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+            if design_template:
+                derived_product_type = design_template["microproduct_type"]
+                derived_microproduct_type = design_template["template_name"]
+                current_component_name = design_template["component_name"]
+
+        update_clauses = []; update_values = []; arg_idx = 1
+        
+        # Handle project name updates and sync with Training Plan mainTitle
+        project_name_updated = False
+        if project_update_data.projectName is not None: 
+            update_clauses.append(f"project_name = ${arg_idx}")
+            update_values.append(project_update_data.projectName)
+            arg_idx += 1
+            project_name_updated = True
+        if db_microproduct_name_to_store is not None: update_clauses.append(f"microproduct_name = ${arg_idx}"); update_values.append(db_microproduct_name_to_store); arg_idx +=1
+        if project_update_data.design_template_id is not None:
+            update_clauses.append(f"design_template_id = ${arg_idx}"); update_values.append(project_update_data.design_template_id); arg_idx +=1
+            if derived_product_type: update_clauses.append(f"product_type = ${arg_idx}"); update_values.append(derived_product_type); arg_idx += 1
+            if derived_microproduct_type: update_clauses.append(f"microproduct_type = ${arg_idx}"); update_values.append(derived_microproduct_type); arg_idx += 1
+        if project_update_data.microProductContent is not None: 
+            update_clauses.append(f"microproduct_content = ${arg_idx}")
+            update_values.append(content_to_store_for_db); arg_idx += 1
+            
+            # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    # Extract mainTitle from the content
+                    main_title = content_to_store_for_db.get('mainTitle')
+                    if main_title and isinstance(main_title, str) and main_title.strip():
+                        # Update project_name to match mainTitle
+                        update_clauses.append(f"project_name = ${arg_idx}")
+                        update_values.append(main_title.strip())
+                        arg_idx += 1
+                except Exception as e:
+                    logger.warning(f"Could not sync mainTitle to project_name for project {project_id}: {e}")
+
+        # SYNC TITLES: If only project_name was updated (not content), sync it to mainTitle for Training Plans
+        if (project_name_updated and project_update_data.microProductContent is None and 
+            current_component_name == COMPONENT_NAME_TRAINING_PLAN):
+            try:
+                # Get current content to update mainTitle
+                async with pool.acquire() as conn:
+                    current_row = await conn.fetchrow(
+                        "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2", 
+                        project_id, onyx_user_id
+                    )
+                    if current_row and current_row["microproduct_content"]:
+                        current_content = dict(current_row["microproduct_content"])
+                        current_content["mainTitle"] = project_update_data.projectName
+                        update_clauses.append(f"microproduct_content = ${arg_idx}")
+                        update_values.append(current_content)
+                        arg_idx += 1
+            except Exception as e:
+                logger.warning(f"Could not sync project_name to mainTitle for project {project_id}: {e}")
+
+        if not update_clauses:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
+
+        update_values.extend([project_id, onyx_user_id])
+        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at;"
+
+        async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
+        if not row:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
+
+        db_content = row["microproduct_content"]
+        final_content_for_model: Optional[MicroProductContentType] = None
+        if db_content and isinstance(db_content, dict):
+            try:
+                if current_component_name == COMPONENT_NAME_PDF_LESSON:
+                    final_content_for_model = PdfLessonDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
+                    final_content_for_model = TextPresentationDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
+                    final_content_for_model = VideoLessonData(**db_content)
+                elif current_component_name == COMPONENT_NAME_QUIZ:
+                    final_content_for_model = QuizData(**db_content)
+                elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                    final_content_for_model = SlideDeckDetails(**db_content)
+                else:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+            except Exception as e_parse:
+                logger.error(f"Error parsing updated content from DB (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
+
+        return ProjectDB(
+            id=row["id"], onyx_user_id=row["onyx_user_id"], project_name=row["project_name"],
+            product_type=row["product_type"], microproduct_type=row["microproduct_type"],
+            microproduct_name=row["microproduct_name"], microproduct_content=final_content_for_model,
+            design_template_id=row["design_template_id"], created_at=row["created_at"]
         )
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-        
-        # If folder_id is provided, verify it exists and belongs to user
-        if update_data.folder_id is not None:
-            folder = await conn.fetchrow(
-                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
-                update_data.folder_id, onyx_user_id
-            )
-            if not folder:
-                raise HTTPException(status_code=404, detail="Folder not found")
-        
-        # Update the project's folder_id
-        updated_project = await conn.fetchrow(
-            "UPDATE projects SET folder_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING *",
-            update_data.folder_id, project_id, onyx_user_id
-        )
-        
-        return ProjectDB(**dict(updated_project))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while updating project." if IS_PRODUCTION else f"DB error on project update: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 @app.get("/api/custom/projects", response_model=List[ProjectApiResponse])
 async def get_user_projects_list_from_db(
@@ -4086,7 +4176,7 @@ class ProjectFolderUpdateRequest(BaseModel):
     folder_id: Optional[int] = None
     model_config = {"from_attributes": True}
 
-@app.put("/api/custom/projects/{project_id}/folder", response_model=ProjectDB)
+@app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
 async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     """Update a project's folder assignment"""
     async with pool.acquire() as conn:
@@ -4114,162 +4204,5 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
         )
         
         return ProjectDB(**dict(updated_project))
-
-@app.get("/api/custom/projects", response_model=List[ProjectApiResponse])
-async def get_user_projects_list_from_db(
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-    pool: asyncpg.Pool = Depends(get_db_pool),
-    folder_id: Optional[int] = None
-):
-    select_query = """
-        SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
-               dt.template_name as design_template_name,
-               dt.microproduct_type as design_microproduct_type,
-               p.folder_id
-        FROM projects p
-        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-        WHERE p.onyx_user_id = $1 {folder_filter}
-        ORDER BY p.created_at DESC;
-    """
-    folder_filter = ""
-    params = [onyx_user_id]
-    if folder_id is not None:
-        folder_filter = "AND p.folder_id = $2"
-        params.append(folder_id)
-    query = select_query.format(folder_filter=folder_filter)
-    async with pool.acquire() as conn:
-        db_rows = await conn.fetch(query, *params)
-    projects_list: List[ProjectApiResponse] = []
-    for row_data in db_rows:
-        row_dict = dict(row_data)
-        project_slug = create_slug(row_dict.get('project_name'))
-        projects_list.append(ProjectApiResponse(
-            id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
-            microproduct_name=row_dict.get("microproduct_name"),
-            design_template_name=row_dict.get("design_template_name"),
-            design_microproduct_type=row_dict.get("design_microproduct_type"),
-            created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
-            folder_id=row_dict.get("folder_id")
-        ))
-    return projects_list
-
-@app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
-async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    try:
-        db_microproduct_name_to_store = project_update_data.microProductName
-        current_component_name = None
-        async with pool.acquire() as conn:
-            project_row = await conn.fetchrow("SELECT dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2", project_id, onyx_user_id)
-            if not project_row:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
-            current_component_name = project_row["component_name"]
-
-        if (not db_microproduct_name_to_store or not db_microproduct_name_to_store.strip()) and project_update_data.design_template_id:
-            async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
-            if design_row: db_microproduct_name_to_store = design_row["template_name"]
-
-        content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
-
-        derived_product_type = None; derived_microproduct_type = None
-        if project_update_data.design_template_id is not None:
-            async with pool.acquire() as conn: design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
-            if design_template:
-                derived_product_type = design_template["microproduct_type"]
-                derived_microproduct_type = design_template["template_name"]
-                current_component_name = design_template["component_name"]
-
-        update_clauses = []; update_values = []; arg_idx = 1
-        
-        # Handle project name updates and sync with Training Plan mainTitle
-        project_name_updated = False
-        if project_update_data.projectName is not None: 
-            update_clauses.append(f"project_name = ${arg_idx}")
-            update_values.append(project_update_data.projectName)
-            arg_idx += 1
-            project_name_updated = True
-        if db_microproduct_name_to_store is not None: update_clauses.append(f"microproduct_name = ${arg_idx}"); update_values.append(db_microproduct_name_to_store); arg_idx +=1
-        if project_update_data.design_template_id is not None:
-            update_clauses.append(f"design_template_id = ${arg_idx}"); update_values.append(project_update_data.design_template_id); arg_idx +=1
-            if derived_product_type: update_clauses.append(f"product_type = ${arg_idx}"); update_values.append(derived_product_type); arg_idx += 1
-            if derived_microproduct_type: update_clauses.append(f"microproduct_type = ${arg_idx}"); update_values.append(derived_microproduct_type); arg_idx += 1
-        if project_update_data.microProductContent is not None: 
-            update_clauses.append(f"microproduct_content = ${arg_idx}")
-            update_values.append(content_to_store_for_db); arg_idx += 1
-            
-            # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
-            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
-                try:
-                    # Extract mainTitle from the content
-                    main_title = content_to_store_for_db.get('mainTitle')
-                    if main_title and isinstance(main_title, str) and main_title.strip():
-                        # Update project_name to match mainTitle
-                        update_clauses.append(f"project_name = ${arg_idx}")
-                        update_values.append(main_title.strip())
-                        arg_idx += 1
-                except Exception as e:
-                    logger.warning(f"Could not sync mainTitle to project_name for project {project_id}: {e}")
-
-        # SYNC TITLES: If only project_name was updated (not content), sync it to mainTitle for Training Plans
-        if (project_name_updated and project_update_data.microProductContent is None and 
-            current_component_name == COMPONENT_NAME_TRAINING_PLAN):
-            try:
-                # Get current content to update mainTitle
-                async with pool.acquire() as conn:
-                    current_row = await conn.fetchrow(
-                        "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2", 
-                        project_id, onyx_user_id
-                    )
-                    if current_row and current_row["microproduct_content"]:
-                        current_content = dict(current_row["microproduct_content"])
-                        current_content["mainTitle"] = project_update_data.projectName
-                        update_clauses.append(f"microproduct_content = ${arg_idx}")
-                        update_values.append(current_content)
-                        arg_idx += 1
-            except Exception as e:
-                logger.warning(f"Could not sync project_name to mainTitle for project {project_id}: {e}")
-
-        if not update_clauses:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
-
-        update_values.extend([project_id, onyx_user_id])
-        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at;"
-
-        async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
-        if not row:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
-
-        db_content = row["microproduct_content"]
-        final_content_for_model: Optional[MicroProductContentType] = None
-        if db_content and isinstance(db_content, dict):
-            try:
-                if current_component_name == COMPONENT_NAME_PDF_LESSON:
-                    final_content_for_model = PdfLessonDetails(**db_content)
-                elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    final_content_for_model = TextPresentationDetails(**db_content)
-                elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
-                    final_content_for_model = TrainingPlanDetails(**db_content)
-                elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
-                    final_content_for_model = VideoLessonData(**db_content)
-                elif current_component_name == COMPONENT_NAME_QUIZ:
-                    final_content_for_model = QuizData(**db_content)
-                elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
-                    final_content_for_model = SlideDeckDetails(**db_content)
-                else:
-                    final_content_for_model = TrainingPlanDetails(**db_content)
-            except Exception as e_parse:
-                logger.error(f"Error parsing updated content from DB (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
-
-        return ProjectDB(
-            id=row["id"], onyx_user_id=row["onyx_user_id"], project_name=row["project_name"],
-            product_type=row["product_type"], microproduct_type=row["microproduct_type"],
-            microproduct_name=row["microproduct_name"], microproduct_content=final_content_for_model,
-            design_template_id=row["design_template_id"], created_at=row["created_at"]
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error updating project {project_id}: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred while updating project." if IS_PRODUCTION else f"DB error on project update: {str(e)}"
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 

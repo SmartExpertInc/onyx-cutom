@@ -212,7 +212,7 @@ const ProjectsPageInner: React.FC = () => {
       const customEvent = event as CustomEvent;
       const { projectId, folderId } = customEvent.detail;
       try {
-        const res = await fetch(`/api/custom-projects-backend/projects/${projectId}/folder`, {
+        const res = await fetch(`/api/custom-projects-backend/projects/update/${projectId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ folder_id: folderId })
