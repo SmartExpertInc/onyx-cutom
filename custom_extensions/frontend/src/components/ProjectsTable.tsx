@@ -1333,9 +1333,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         try {
             const data = JSON.parse(e.dataTransfer.getData('application/json'));
             
-            // Check if we're dropping a project and the target is a folder
+            // Check if we're dropping a project
             if (data.type === 'project' && data.projectId) {
-                // Check if we're dropping on a folder row
+                // Check if we're dropping on a folder row (move to folder)
                 const targetElement = e.currentTarget as HTMLElement;
                 const folderRow = targetElement.closest('tr');
                 if (folderRow && folderRow.getAttribute('data-folder-id')) {
@@ -1360,146 +1360,143 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         return;
                     }
                 }
+                
+                // If not dropping on a folder, handle as project reordering
+                if (!draggedProject) return;
+                
+                // Get the current list of projects to reorder
+                let currentProjects: Project[];
+                let updateFunction: (newProjects: Project[]) => void;
+                
+                if (folderId !== null) {
+                    // Reordering within a specific folder
+                    currentProjects = [...projects];
+                    updateFunction = setProjects;
+                } else {
+                    // Check if we're reordering within an expanded folder
+                    const expandedFolderId = Array.from(expandedFolders).find(folderId => 
+                        folderProjects[folderId]?.some(p => p.id === draggedProject.id)
+                    );
+                    
+                    if (expandedFolderId) {
+                        // Reordering within an expanded folder
+                        currentProjects = [...(folderProjects[expandedFolderId] || [])];
+                        updateFunction = (newProjects: Project[]) => {
+                            setFolderProjects(prev => ({
+                                ...prev,
+                                [expandedFolderId]: newProjects
+                            }));
+                        };
+                    } else {
+                        // Reordering unassigned projects
+                        currentProjects = getUnassignedProjects();
+                        updateFunction = (newProjects: Project[]) => {
+                            const assignedProjects = projects.filter(p => p.folderId !== null);
+                            setProjects([...newProjects, ...assignedProjects]);
+                        };
+                    }
+                }
+                
+                // Find the current index of the dragged project
+                const currentIndex = currentProjects.findIndex(p => p.id === draggedProject.id);
+                if (currentIndex === -1) return;
+                
+                // Don't reorder if dropping on itself
+                if (currentIndex === dropIndex) return;
+                
+                // Create new array with reordered projects
+                const newProjects = [...currentProjects];
+                const [movedProject] = newProjects.splice(currentIndex, 1);
+                newProjects.splice(dropIndex, 0, movedProject);
+                
+                // Update the appropriate state
+                updateFunction(newProjects);
+                
+                // Save the new order to the backend
+                const saveOrderToBackend = async () => {
+                    try {
+                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                        const devUserId = "dummy-onyx-user-id-for-testing";
+                        if (devUserId && process.env.NODE_ENV === 'development') {
+                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                        }
+                        
+                        // Update orders for all projects in the new order
+                        const orderUpdates = newProjects.map((project, index) => ({
+                            projectId: project.id,
+                            order: index
+                        }));
+                        
+                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update-order`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify({ orders: orderUpdates })
+                        });
+                        
+                        if (!response.ok) {
+                            console.error('Failed to save project order:', response.status);
+                        }
+                    } catch (error) {
+                        console.error('Error saving project order:', error);
+                    }
+                };
+                
+                // Call the backend asynchronously
+                saveOrderToBackend();
             }
             
-            // Handle reordering
-            if (data.type === 'reorder') {
-                if (data.itemType === 'folder') {
-                    // Handle folder reordering
-                    if (!draggedFolder) return;
-                    
-                    const currentFolders = [...folders];
-                    const currentIndex = currentFolders.findIndex(f => f.id === draggedFolder.id);
-                    if (currentIndex === -1) return;
-                    
-                    // Don't reorder if dropping on itself
-                    if (currentIndex === dropIndex) return;
-                    
-                    // Create new array with reordered folders
-                    const newFolders = [...currentFolders];
-                    const [movedFolder] = newFolders.splice(currentIndex, 1);
-                    newFolders.splice(dropIndex, 0, movedFolder);
-                    
-                    // Update folders state
-                    setFolders(newFolders);
-                    
-                    // Save the new order to the backend
-                    const saveFolderOrderToBackend = async () => {
-                        try {
-                            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-                            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-                            const devUserId = "dummy-onyx-user-id-for-testing";
-                            if (devUserId && process.env.NODE_ENV === 'development') {
-                                headers['X-Dev-Onyx-User-ID'] = devUserId;
-                            }
-                            
-                            // Update orders for all folders in the new order
-                            const orderUpdates = newFolders.map((folder, index) => ({
-                                folderId: folder.id,
-                                order: index
-                            }));
-                            
-                            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/update-order`, {
-                                method: 'PUT',
-                                headers,
-                                body: JSON.stringify(orderUpdates)
-                            });
-                            
-                            if (!response.ok) {
-                                console.error('Failed to save folder order:', response.status);
-                            }
-                        } catch (error) {
-                            console.error('Error saving folder order:', error);
+            // Handle folder reordering
+            if (data.type === 'reorder' && data.itemType === 'folder') {
+                if (!draggedFolder) return;
+                
+                const currentFolders = [...folders];
+                const currentIndex = currentFolders.findIndex(f => f.id === draggedFolder.id);
+                if (currentIndex === -1) return;
+                
+                // Don't reorder if dropping on itself
+                if (currentIndex === dropIndex) return;
+                
+                // Create new array with reordered folders
+                const newFolders = [...currentFolders];
+                const [movedFolder] = newFolders.splice(currentIndex, 1);
+                newFolders.splice(dropIndex, 0, movedFolder);
+                
+                // Update folders state
+                setFolders(newFolders);
+                
+                // Save the new order to the backend
+                const saveFolderOrderToBackend = async () => {
+                    try {
+                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                        const devUserId = "dummy-onyx-user-id-for-testing";
+                        if (devUserId && process.env.NODE_ENV === 'development') {
+                            headers['X-Dev-Onyx-User-ID'] = devUserId;
                         }
-                    };
-                    
-                    // Call the backend asynchronously
-                    saveFolderOrderToBackend();
-                } else {
-                    // Handle project reordering (existing logic)
-                    if (!draggedProject) return;
-                    
-                    // Get the current list of projects to reorder
-                    let currentProjects: Project[];
-                    let updateFunction: (newProjects: Project[]) => void;
-                    
-                    if (folderId !== null) {
-                        // Reordering within a specific folder
-                        currentProjects = [...projects];
-                        updateFunction = setProjects;
-                    } else {
-                        // Check if we're reordering within an expanded folder
-                        const expandedFolderId = Array.from(expandedFolders).find(folderId => 
-                            folderProjects[folderId]?.some(p => p.id === draggedProject.id)
-                        );
                         
-                        if (expandedFolderId) {
-                            // Reordering within an expanded folder
-                            currentProjects = [...(folderProjects[expandedFolderId] || [])];
-                            updateFunction = (newProjects: Project[]) => {
-                                setFolderProjects(prev => ({
-                                    ...prev,
-                                    [expandedFolderId]: newProjects
-                                }));
-                            };
-                        } else {
-                            // Reordering unassigned projects
-                            currentProjects = getUnassignedProjects();
-                            updateFunction = (newProjects: Project[]) => {
-                                const assignedProjects = projects.filter(p => p.folderId !== null);
-                                setProjects([...newProjects, ...assignedProjects]);
-                            };
+                        // Update orders for all folders in the new order
+                        const orderUpdates = newFolders.map((folder, index) => ({
+                            folderId: folder.id,
+                            order: index
+                        }));
+                        
+                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/update-order`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify(orderUpdates)
+                        });
+                        
+                        if (!response.ok) {
+                            console.error('Failed to save folder order:', response.status);
                         }
+                    } catch (error) {
+                        console.error('Error saving folder order:', error);
                     }
-                    
-                    // Find the current index of the dragged project
-                    const currentIndex = currentProjects.findIndex(p => p.id === draggedProject.id);
-                    if (currentIndex === -1) return;
-                    
-                    // Don't reorder if dropping on itself
-                    if (currentIndex === dropIndex) return;
-                    
-                    // Create new array with reordered projects
-                    const newProjects = [...currentProjects];
-                    const [movedProject] = newProjects.splice(currentIndex, 1);
-                    newProjects.splice(dropIndex, 0, movedProject);
-                    
-                    // Update the appropriate state
-                    updateFunction(newProjects);
-                    
-                    // Save the new order to the backend
-                    const saveOrderToBackend = async () => {
-                        try {
-                            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-                            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-                            const devUserId = "dummy-onyx-user-id-for-testing";
-                            if (devUserId && process.env.NODE_ENV === 'development') {
-                                headers['X-Dev-Onyx-User-ID'] = devUserId;
-                            }
-                            
-                            // Update orders for all projects in the new order
-                            const orderUpdates = newProjects.map((project, index) => ({
-                                projectId: project.id,
-                                order: index
-                            }));
-                            
-                            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update-order`, {
-                                method: 'PUT',
-                                headers,
-                                body: JSON.stringify({ orders: orderUpdates })
-                            });
-                            
-                            if (!response.ok) {
-                                console.error('Failed to save project order:', response.status);
-                            }
-                        } catch (error) {
-                            console.error('Error saving project order:', error);
-                        }
-                    };
-                    
-                    // Call the backend asynchronously
-                    saveOrderToBackend();
-                }
+                };
+                
+                // Call the backend asynchronously
+                saveFolderOrderToBackend();
             }
         } catch (error) {
             console.error('Error handling drop:', error);
