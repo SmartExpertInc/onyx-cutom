@@ -370,7 +370,22 @@ async def startup_event():
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
-            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
             
             # Add order column for project sorting
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
