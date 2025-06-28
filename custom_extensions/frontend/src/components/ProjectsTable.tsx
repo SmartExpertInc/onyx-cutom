@@ -73,7 +73,6 @@ const ProjectCard: React.FC<{
     const [isRenaming, setIsRenaming] = useState(false);
     const [newName, setNewName] = useState(project.designMicroproductType ? project.title : (project.instanceName || project.title));
     const [menuPosition, setMenuPosition] = useState<'above' | 'below'>('below');
-    const [menuAlignment, setMenuAlignment] = useState<'left' | 'right'>('right');
     const menuRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -83,11 +82,16 @@ const ProjectCard: React.FC<{
     
     const stringToColor = (str: string): string => {
         let hash = 0;
+        if (!str) return '#CCCCCC';
         for (let i = 0; i < str.length; i++) {
             hash = str.charCodeAt(i) + ((hash << 5) - hash);
         }
-        const hue = Math.abs(hash) % 360;
-        return `hsl(${hue}, 70%, 60%)`;
+        let color = '#';
+        for (let i = 0; i < 3; i++) {
+            let value = (hash >> (i * 8)) & 0xFF;
+            color += ('00' + value.toString(16)).substr(-2);
+        }
+        return color;
     };
     
     const bgColor = stringToColor(project.title);
@@ -121,26 +125,14 @@ const ProjectCard: React.FC<{
     };
 
     const handleMenuToggle = () => {
-        if (!menuOpen && buttonRef.current && cardRef.current) {
-            // Calculate if there's enough space below and to the right
+        if (!menuOpen && buttonRef.current) {
+            // Calculate if there's enough space below
             const buttonRect = buttonRef.current.getBoundingClientRect();
-            const cardRect = cardRef.current.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
-            
             const spaceBelow = viewportHeight - buttonRect.bottom;
-            const spaceAbove = buttonRect.top;
-            const spaceRight = viewportWidth - buttonRect.right;
-            const spaceLeft = buttonRect.left;
-            
             const menuHeight = 300; // Approximate menu height
-            const menuWidth = 240; // Approximate menu width
             
-            // Determine vertical position - prefer below, but use above if not enough space
-            setMenuPosition(spaceBelow < menuHeight && spaceAbove > menuHeight ? 'above' : 'below');
-            
-            // Determine horizontal alignment - prefer right, but use left if not enough space
-            setMenuAlignment(spaceRight < menuWidth && spaceLeft > menuWidth ? 'left' : 'right');
+            setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
         setMenuOpen(prev => !prev);
     };
@@ -191,16 +183,6 @@ const ProjectCard: React.FC<{
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-
-    // Re-compute alignment whenever the menu opens
-    useEffect(() => {
-        if (menuOpen && cardRef.current) {
-            const rect = cardRef.current.getBoundingClientRect();
-            const menuApproxWidth = 260; // ≈ w-60 in Tailwind (15rem)
-            const spaceRight = window.innerWidth - rect.right;
-            setMenuAlignment(spaceRight < menuApproxWidth ? 'left' : 'right');
-        }
-    }, [menuOpen]);
 
     const handleTrashRequest = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -289,11 +271,11 @@ const ProjectCard: React.FC<{
                     <MoreHorizontal size={16} />
                 </button>
                 {menuOpen && (
-                    <div className={`absolute w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
+                    <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
                         menuPosition === 'above' 
                             ? 'bottom-full mb-2' 
                             : 'top-full mt-2'
-                    } ${menuAlignment === 'left' ? 'left-0' : 'right-0'}`}>
+                    }`}>
                         <div className="px-3 py-2 border-b border-gray-100">
                             <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                             <p className="text-xs text-gray-500 mt-1">
@@ -544,7 +526,6 @@ const ProjectRowMenu: React.FC<{
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = React.useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = React.useState(false);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
-    const [menuAlignment, setMenuAlignment] = React.useState<'left' | 'right'>('right');
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
@@ -578,24 +559,13 @@ const ProjectRowMenu: React.FC<{
     
     const handleMenuToggle = () => {
         if (!menuOpen && buttonRef.current) {
-            // Calculate if there's enough space below and to the right
+            // Calculate if there's enough space below
             const buttonRect = buttonRef.current.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
-            
             const spaceBelow = viewportHeight - buttonRect.bottom;
-            const spaceAbove = buttonRect.top;
-            const spaceRight = viewportWidth - buttonRect.right;
-            const spaceLeft = buttonRect.left;
-            
             const menuHeight = 300; // Approximate menu height
-            const menuWidth = 240; // Approximate menu width
             
-            // Determine vertical position - prefer below, but use above if not enough space
-            setMenuPosition(spaceBelow < menuHeight && spaceAbove > menuHeight ? 'above' : 'below');
-            
-            // Determine horizontal alignment - prefer right, but use left if not enough space
-            setMenuAlignment(spaceRight < menuWidth && spaceLeft > menuWidth ? 'left' : 'right');
+            setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
         setMenuOpen(prev => !prev);
     };
@@ -631,11 +601,11 @@ const ProjectRowMenu: React.FC<{
                 <MoreHorizontal size={20} />
             </button>
             {menuOpen && (
-                <div className={`absolute w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
+                <div className={`absolute right-0 w-60 bg-white rounded-lg shadow-2xl z-10 border border-gray-100 p-1 ${
                     menuPosition === 'above' 
                         ? 'bottom-full mb-2' 
                         : 'top-full mt-2'
-                } ${menuAlignment === 'left' ? 'left-0' : 'right-0'}`}>
+                }`}>
                     <div className="px-3 py-2 border-b border-gray-100">
                         <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                         <p className="text-xs text-gray-500 mt-1">
