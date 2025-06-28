@@ -812,6 +812,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [viewMode, setViewMode] = useState<'Grid' | 'List'>('Grid');
     const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
     const [folderProjects, setFolderProjects] = useState<Record<number, Project[]>>({});
+    
+    // Drag and drop reordering state
+    const [draggedProject, setDraggedProject] = useState<Project | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+    const [isReordering, setIsReordering] = useState(false);
 
     // Add a refresh function that can be called externally
     const refreshProjects = useCallback(async () => {
@@ -997,9 +1002,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         });
     }, [folderProjects, fetchFolderProjects]);
 
-    // Get projects that are not in any folder (for list view)
+    // Helper function to get unassigned projects
     const getUnassignedProjects = useCallback(() => {
-        return projects.filter(project => project.folderId === null);
+        return projects.filter(p => p.folderId === null);
     }, [projects]);
 
     useEffect(() => {
@@ -1161,6 +1166,106 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         };
     }, [refreshProjects]);
 
+    // Drag and drop reordering functions
+    const handleDragStart = useCallback((e: React.DragEvent, project: Project) => {
+        e.dataTransfer.setData('application/json', JSON.stringify({
+            projectId: project.id,
+            type: 'reorder'
+        }));
+        e.dataTransfer.effectAllowed = 'move';
+        setDraggedProject(project);
+        setIsReordering(true);
+        
+        // Add visual feedback to dragged element
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '0.5';
+        target.style.transform = 'rotate(2deg)';
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverIndex(index);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        // Only clear if we're leaving the entire row
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDragOverIndex(null);
+        }
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+        e.preventDefault();
+        
+        if (!draggedProject) return;
+        
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('application/json'));
+            if (data.type === 'reorder') {
+                // Get the current list of projects to reorder
+                let currentProjects: Project[];
+                if (folderId !== null) {
+                    // Reordering within a specific folder
+                    currentProjects = [...projects];
+                } else {
+                    // Reordering unassigned projects
+                    currentProjects = getUnassignedProjects();
+                }
+                
+                // Find the current index of the dragged project
+                const currentIndex = currentProjects.findIndex(p => p.id === draggedProject.id);
+                if (currentIndex === -1) return;
+                
+                // Don't reorder if dropping on itself
+                if (currentIndex === dropIndex) return;
+                
+                // Create new array with reordered projects
+                const newProjects = [...currentProjects];
+                const [movedProject] = newProjects.splice(currentIndex, 1);
+                newProjects.splice(dropIndex, 0, movedProject);
+                
+                // Update the appropriate state
+                if (folderId !== null) {
+                    setProjects(newProjects);
+                } else {
+                    // For unassigned projects, we need to update the main projects array
+                    // by replacing the unassigned projects with the new order
+                    const assignedProjects = projects.filter(p => p.folderId !== null);
+                    setProjects([...newProjects, ...assignedProjects]);
+                }
+                
+                // TODO: Send the new order to the backend
+                // This would require a backend endpoint to save the order
+            }
+        } catch (error) {
+            console.error('Error parsing drag data:', error);
+        }
+        
+        // Reset drag state
+        setDraggedProject(null);
+        setDragOverIndex(null);
+        setIsReordering(false);
+        
+        // Reset visual feedback
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '1';
+        target.style.transform = 'rotate(0deg)';
+    }, [draggedProject, folderId, projects]);
+
+    const handleDragEnd = useCallback((e: React.DragEvent) => {
+        // Reset drag state
+        setDraggedProject(null);
+        setDragOverIndex(null);
+        setIsReordering(false);
+        
+        // Reset visual feedback
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '1';
+        target.style.transform = 'rotate(0deg)';
+    }, []);
+
     const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
     const filterIcons: Record<string, LucideIcon> = {
         'All': Home,
@@ -1269,7 +1374,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                     </div>
                 ) : (
                     // List view (table/row style)
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+                    <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${isReordering ? 'ring-2 ring-blue-200' : ''}`}>
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
@@ -1350,14 +1455,35 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 <td colSpan={4} className="px-0 py-0">
                                                     <div className="bg-gray-50 border-l-4 border-blue-200 animate-in slide-in-from-top-2 duration-200">
                                                         {folderProjects[folder.id] ? (
-                                                            folderProjects[folder.id].map((p: Project) => (
-                                                                <div key={p.id} className="px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-100 transition-colors duration-150">
+                                                            folderProjects[folder.id].map((p: Project, index: number) => (
+                                                                <div 
+                                                                    key={p.id} 
+                                                                    className={`px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-100 transition-colors duration-150 cursor-grab active:cursor-grabbing ${
+                                                                        dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                                                    } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                                                                    draggable={!trashMode}
+                                                                    onDragStart={(e) => handleDragStart(e, p)}
+                                                                    onDragOver={(e) => handleDragOver(e, index)}
+                                                                    onDragLeave={handleDragLeave}
+                                                                    onDrop={(e) => handleDrop(e, index)}
+                                                                    onDragEnd={handleDragEnd}
+                                                                >
                                                                     <div className="flex items-center justify-between">
                                                                         <div className="flex items-center flex-1">
                                                                             <div className="flex-1">
                                                                                 <div className="flex items-center">
+                                                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                                                            <circle cx="9" cy="5" r="2"/>
+                                                                                            <circle cx="9" cy="12" r="2"/>
+                                                                                            <circle cx="9" cy="19" r="2"/>
+                                                                                            <circle cx="15" cy="5" r="2"/>
+                                                                                            <circle cx="15" cy="12" r="2"/>
+                                                                                            <circle cx="15" cy="19" r="2"/>
+                                                                                        </svg>
+                                                                                    </div>
                                                                                     <Star size={16} className="text-gray-300 mr-2" />
-                                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-sm font-medium text-gray-900">
+                                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
                                                                                         {p.title}
                                                                                     </Link>
                                                                                 </div>
@@ -1395,26 +1521,31 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                 ))}
                                 
                                 {/* Show unassigned projects when not viewing a specific folder */}
-                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project) => (
+                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
-                                        className="hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing"
+                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
+                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                         draggable={!trashMode}
-                                        onDragStart={(e) => {
-                                            e.dataTransfer.setData('application/json', JSON.stringify({
-                                                projectId: p.id,
-                                                projectName: p.title,
-                                                type: 'project'
-                                            }));
-                                            e.dataTransfer.effectAllowed = 'move';
-                                        }}
-                                        onDragEnd={(e) => {
-                                            const target = e.currentTarget as HTMLElement;
-                                            target.style.opacity = '1';
-                                        }}
+                                        onDragStart={(e) => handleDragStart(e, p)}
+                                        onDragOver={(e) => handleDragOver(e, index)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, index)}
+                                        onDragEnd={handleDragEnd}
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span className="inline-flex items-center">
+                                                <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                        <circle cx="9" cy="5" r="2"/>
+                                                        <circle cx="9" cy="12" r="2"/>
+                                                        <circle cx="9" cy="19" r="2"/>
+                                                        <circle cx="15" cy="5" r="2"/>
+                                                        <circle cx="15" cy="12" r="2"/>
+                                                        <circle cx="15" cy="19" r="2"/>
+                                                    </svg>
+                                                </div>
                                                 <Star size={16} className="text-gray-300 mr-2" />
                                                 <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
                                                     {p.title}
@@ -1445,26 +1576,31 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                 ))}
                                 
                                 {/* Show all projects when viewing a specific folder or in trash mode */}
-                                {(trashMode || folderId !== null) && projects.map((p: Project) => (
+                                {(trashMode || folderId !== null) && projects.map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
-                                        className="hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing"
+                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
+                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                         draggable={!trashMode}
-                                        onDragStart={(e) => {
-                                            e.dataTransfer.setData('application/json', JSON.stringify({
-                                                projectId: p.id,
-                                                projectName: p.title,
-                                                type: 'project'
-                                            }));
-                                            e.dataTransfer.effectAllowed = 'move';
-                                        }}
-                                        onDragEnd={(e) => {
-                                            const target = e.currentTarget as HTMLElement;
-                                            target.style.opacity = '1';
-                                        }}
+                                        onDragStart={(e) => handleDragStart(e, p)}
+                                        onDragOver={(e) => handleDragOver(e, index)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, index)}
+                                        onDragEnd={handleDragEnd}
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span className="inline-flex items-center">
+                                                <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                        <circle cx="9" cy="5" r="2"/>
+                                                        <circle cx="9" cy="12" r="2"/>
+                                                        <circle cx="9" cy="19" r="2"/>
+                                                        <circle cx="15" cy="5" r="2"/>
+                                                        <circle cx="15" cy="12" r="2"/>
+                                                        <circle cx="15" cy="19" r="2"/>
+                                                    </svg>
+                                                </div>
                                                 <Star size={16} className="text-gray-300 mr-2" />
                                                 <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer">
                                                     {p.title}
