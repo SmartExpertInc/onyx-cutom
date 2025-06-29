@@ -2548,9 +2548,10 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                         CASE 
                             WHEN "order" IS NULL THEN 0
                             WHEN "order" = '' THEN 0
-                            ELSE CAST("order" AS INTEGER)
+                            WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
+                            ELSE 0
                         END,
-                        completion_time
+                        COALESCE(completion_time, '')
                     FROM projects 
                     WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
                     """,
