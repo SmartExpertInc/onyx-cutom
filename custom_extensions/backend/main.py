@@ -720,6 +720,48 @@ async def startup_event():
             except Exception as e:
                 logger.error(f"Error during schema verification: {e}")
 
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -2823,31 +2865,67 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
             if not project_ids_to_trash:
                  return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to move to trash."})
 
+            # First, fetch all the data we need to move to trash
+            projects_to_trash = await conn.fetch("""
+                SELECT 
+                    id, onyx_user_id, project_name, product_type, microproduct_type,
+                    microproduct_name, microproduct_content, design_template_id, created_at,
+                    source_chat_session_id, folder_id, "order", completion_time
+                FROM projects 
+                WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
+            """, list(project_ids_to_trash), onyx_user_id)
+
+            if not projects_to_trash:
+                return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to move to trash."})
+
             async with conn.transaction():
-                await conn.execute(
-                    """
-                    INSERT INTO trashed_projects (
-                        id, onyx_user_id, project_name, product_type, microproduct_type, 
-                        microproduct_name, microproduct_content, design_template_id, created_at,
-                        source_chat_session_id, folder_id, "order", completion_time
-                    ) 
-                    SELECT 
-                        id, onyx_user_id, project_name, product_type, microproduct_type,
-                        microproduct_name, microproduct_content, design_template_id, created_at,
-                        source_chat_session_id, folder_id, 
-                        CASE 
-                            WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
-                            ELSE CAST("order" AS INTEGER)
-                        END,
-                        CASE 
-                            WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
-                            ELSE CAST(completion_time AS INTEGER)
-                        END
-                    FROM projects 
-                    WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
+                # Process each project individually to handle data conversion safely
+                for project in projects_to_trash:
+                    # Safely convert order and completion_time to integers
+                    order_value = 0
+                    completion_time_value = 0
+                    
+                    # Handle order field
+                    if project['order'] is not None:
+                        try:
+                            if isinstance(project['order'], str):
+                                if project['order'].strip() and project['order'].isdigit():
+                                    order_value = int(project['order'])
+                                else:
+                                    order_value = 0
+                            else:
+                                order_value = int(project['order'])
+                        except (ValueError, TypeError):
+                            order_value = 0
+                    
+                    # Handle completion_time field
+                    if project['completion_time'] is not None:
+                        try:
+                            if isinstance(project['completion_time'], str):
+                                if project['completion_time'].strip() and project['completion_time'].isdigit():
+                                    completion_time_value = int(project['completion_time'])
+                                else:
+                                    completion_time_value = 0
+                            else:
+                                completion_time_value = int(project['completion_time'])
+                        except (ValueError, TypeError):
+                            completion_time_value = 0
+
+                    # Insert into trashed_projects with safe values
+                    await conn.execute("""
+                        INSERT INTO trashed_projects (
+                            id, onyx_user_id, project_name, product_type, microproduct_type, 
+                            microproduct_name, microproduct_content, design_template_id, created_at,
+                            source_chat_session_id, folder_id, "order", completion_time
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                     """,
-                    list(project_ids_to_trash), onyx_user_id
-                )
+                        project['id'], project['onyx_user_id'], project['project_name'],
+                        project['product_type'], project['microproduct_type'], project['microproduct_name'],
+                        project['microproduct_content'], project['design_template_id'], project['created_at'],
+                        project['source_chat_session_id'], project['folder_id'], order_value, completion_time_value
+                    )
+
+                # Delete from projects table
                 result_status = await conn.execute(
                     "DELETE FROM projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
                     list(project_ids_to_trash), onyx_user_id
@@ -4060,29 +4138,69 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
             if not ids_to_restore:
                 return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to restore."})
 
+            # First, fetch all the data we need to restore
+            projects_to_restore = await conn.fetch("""
+                SELECT 
+                    id, onyx_user_id, project_name, product_type, microproduct_type,
+                    microproduct_name, microproduct_content, design_template_id, created_at,
+                    source_chat_session_id, folder_id, "order", completion_time
+                FROM trashed_projects 
+                WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
+            """, list(ids_to_restore), onyx_user_id)
+
+            if not projects_to_restore:
+                return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to restore."})
+
             async with conn.transaction():
+                # Process each project individually to handle data conversion safely
+                for project in projects_to_restore:
+                    # Safely convert order and completion_time to integers
+                    order_value = 0
+                    completion_time_value = 0
+                    
+                    # Handle order field
+                    if project['order'] is not None:
+                        try:
+                            if isinstance(project['order'], str):
+                                if project['order'].strip() and project['order'].isdigit():
+                                    order_value = int(project['order'])
+                                else:
+                                    order_value = 0
+                            else:
+                                order_value = int(project['order'])
+                        except (ValueError, TypeError):
+                            order_value = 0
+                    
+                    # Handle completion_time field
+                    if project['completion_time'] is not None:
+                        try:
+                            if isinstance(project['completion_time'], str):
+                                if project['completion_time'].strip() and project['completion_time'].isdigit():
+                                    completion_time_value = int(project['completion_time'])
+                                else:
+                                    completion_time_value = 0
+                            else:
+                                completion_time_value = int(project['completion_time'])
+                        except (ValueError, TypeError):
+                            completion_time_value = 0
+
+                    # Insert into projects with safe values
+                    await conn.execute("""
+                        INSERT INTO projects (
+                            id, onyx_user_id, project_name, product_type, microproduct_type,
+                            microproduct_name, microproduct_content, design_template_id, created_at,
+                            source_chat_session_id, folder_id, "order", completion_time
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                    """,
+                        project['id'], project['onyx_user_id'], project['project_name'],
+                        project['product_type'], project['microproduct_type'], project['microproduct_name'],
+                        project['microproduct_content'], project['design_template_id'], project['created_at'],
+                        project['source_chat_session_id'], project['folder_id'], order_value, completion_time_value
+                    )
+
+                # Delete from trashed_projects table
                 await conn.execute(
-                    """INSERT INTO projects (
-                        id, onyx_user_id, project_name, product_type, microproduct_type,
-                        microproduct_name, microproduct_content, design_template_id, created_at,
-                        source_chat_session_id, folder_id, "order", completion_time
-                    ) SELECT 
-                        id, onyx_user_id, project_name, product_type, microproduct_type,
-                        microproduct_name, microproduct_content, design_template_id, created_at,
-                        source_chat_session_id, folder_id, 
-                        CASE 
-                            WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
-                            ELSE CAST("order" AS INTEGER)
-                        END,
-                        CASE 
-                            WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
-                            ELSE CAST(completion_time AS INTEGER)
-                        END
-                    FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2""",
-                    list(ids_to_restore), onyx_user_id
-                )
-                await conn.execute(
-                    "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2",
+                    "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
                     list(ids_to_restore), onyx_user_id
                 )
 
