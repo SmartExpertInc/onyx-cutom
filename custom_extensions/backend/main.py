@@ -4540,7 +4540,7 @@ async def update_folder_order(
 
 @app.get("/api/custom/projects/{project_id}/lesson-data")
 async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Get lesson data for a project (number of lessons and total hours)"""
+    """Get lesson data for a project (number of lessons, total hours, and completion time)"""
     try:
         async with pool.acquire() as conn:
             # Get project details
@@ -4557,7 +4557,7 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
             
             # Only Training Plans have lesson data
             if component_name != COMPONENT_NAME_TRAINING_PLAN or not content:
-                return {"lessonCount": 0, "totalHours": 0}
+                return {"lessonCount": 0, "totalHours": 0, "completionTime": 0}
             
             # Parse the training plan content
             try:
@@ -4565,23 +4565,35 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                     sections = content.get("sections", [])
                     total_lessons = 0
                     total_hours = 0
+                    total_completion_time = 0
                     
                     for section in sections:
                         if isinstance(section, dict):
                             lessons = section.get("lessons", [])
                             total_lessons += len(lessons)
                             
-                            # Sum up hours from lessons
+                            # Sum up hours and completion time from lessons
                             for lesson in lessons:
                                 if isinstance(lesson, dict):
                                     total_hours += lesson.get("hours", 0)
+                                    
+                                    # Parse completion time (e.g., "5m", "6m", "7m", "8m")
+                                    completion_time_str = lesson.get("completionTime", "")
+                                    if completion_time_str:
+                                        try:
+                                            # Remove 'm' suffix and convert to integer
+                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
+                                            total_completion_time += completion_time_minutes
+                                        except (ValueError, AttributeError):
+                                            # If parsing fails, skip this lesson's completion time
+                                            pass
                     
-                    return {"lessonCount": total_lessons, "totalHours": total_hours}
+                    return {"lessonCount": total_lessons, "totalHours": total_hours, "completionTime": total_completion_time}
                 else:
-                    return {"lessonCount": 0, "totalHours": 0}
+                    return {"lessonCount": 0, "totalHours": 0, "completionTime": 0}
             except Exception as e:
                 logger.warning(f"Error parsing lesson data for project {project_id}: {e}")
-                return {"lessonCount": 0, "totalHours": 0}
+                return {"lessonCount": 0, "totalHours": 0, "completionTime": 0}
                 
     except HTTPException:
         raise

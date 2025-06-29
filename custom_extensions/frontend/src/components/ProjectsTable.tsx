@@ -1063,7 +1063,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     // Helper function to calculate lesson data for a project
     const getLessonData = useCallback(async (project: Project) => {
         if (project.designMicroproductType !== 'Training Plan') {
-            return { lessonCount: '-', totalHours: '-' };
+            return { lessonCount: '-', totalHours: '-', completionTime: '-' };
         }
         
         try {
@@ -1083,20 +1083,21 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 const data = await response.json();
                 return { 
                     lessonCount: data.lessonCount || 0, 
-                    totalHours: data.totalHours || 0 
+                    totalHours: data.totalHours || 0,
+                    completionTime: data.completionTime || 0
                 };
             } else {
                 console.error('Failed to fetch lesson data:', response.status);
-                return { lessonCount: '?', totalHours: '?' };
+                return { lessonCount: '?', totalHours: '?', completionTime: '?' };
             }
         } catch (error) {
             console.error('Error fetching lesson data:', error);
-            return { lessonCount: '?', totalHours: '?' };
+            return { lessonCount: '?', totalHours: '?', completionTime: '?' };
         }
     }, []);
 
     // State for lesson data caching
-    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string }>>({});
+    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>>({});
 
     // Function to get cached lesson data or fetch it
     const getCachedLessonData = useCallback(async (project: Project) => {
@@ -1109,11 +1110,30 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         return data;
     }, [getLessonData, lessonDataCache]);
 
+    // Helper function to format completion time
+    const formatCompletionTime = (minutes: number | string): string => {
+        if (typeof minutes === 'string' || minutes === 0) {
+            return minutes.toString();
+        }
+        
+        if (minutes < 60) {
+            return `${minutes}m`;
+        } else {
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            if (remainingMinutes === 0) {
+                return `${hours}h`;
+            } else {
+                return `${hours}h ${remainingMinutes}m`;
+            }
+        }
+    };
+
     // Load lesson data for all Training Plan projects on mount
     useEffect(() => {
         const loadLessonData = async () => {
             const trainingPlanProjects = projects.filter(p => p.designMicroproductType === 'Training Plan');
-            const newCache: Record<number, { lessonCount: number | string, totalHours: number | string }> = {};
+            const newCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }> = {};
             
             for (const project of trainingPlanProjects) {
                 try {
@@ -1121,7 +1141,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                     newCache[project.id] = data;
                 } catch (error) {
                     console.error(`Error loading lesson data for project ${project.id}:`, error);
-                    newCache[project.id] = { lessonCount: '?', totalHours: '?' };
+                    newCache[project.id] = { lessonCount: '?', totalHours: '?', completionTime: '?' };
                 }
             }
             
@@ -1648,6 +1668,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Number of lessons</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. creation time</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. completion time</th>
                                     <th className="px-6 py-3"></th>
                                 </tr>
                             </thead>
@@ -1726,6 +1747,20 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {folder.total_hours > 0 ? folder.total_hours : '-'}
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {/* Calculate total completion time for folder projects */}
+                                                {(() => {
+                                                    if (!folderProjects[folder.id]) return '-';
+                                                    const totalCompletionTime = folderProjects[folder.id].reduce((total, project) => {
+                                                        const lessonData = lessonDataCache[project.id];
+                                                        if (lessonData && typeof lessonData.completionTime === 'number') {
+                                                            return total + lessonData.completionTime;
+                                                        }
+                                                        return total;
+                                                    }, 0);
+                                                    return totalCompletionTime > 0 ? formatCompletionTime(totalCompletionTime) : '-';
+                                                })()}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Empty cell for folder rows */}
                                             </td>
@@ -1788,6 +1823,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                                     return lessonData ? lessonData.totalHours : '-';
                                                                 })()}
                                                             </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {(() => {
+                                                                    const lessonData = lessonDataCache[p.id];
+                                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                                })()}
+                                                            </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                                                                 <ProjectRowMenu 
                                                                     project={p} 
@@ -1803,7 +1844,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan={6} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50">
+                                                        <td colSpan={7} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50">
                                                             Loading projects...
                                                         </td>
                                                     </tr>
@@ -1864,6 +1905,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             {(() => {
                                                 const lessonData = lessonDataCache[p.id];
                                                 return lessonData ? lessonData.totalHours : '-';
+                                            })()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(() => {
+                                                const lessonData = lessonDataCache[p.id];
+                                                return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
                                             })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
@@ -1931,6 +1978,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             {(() => {
                                                 const lessonData = lessonDataCache[p.id];
                                                 return lessonData ? lessonData.totalHours : '-';
+                                            })()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(() => {
+                                                const lessonData = lessonDataCache[p.id];
+                                                return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
                                             })()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
