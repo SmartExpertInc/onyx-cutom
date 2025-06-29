@@ -430,6 +430,52 @@ async def startup_event():
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     raise e
 
+            # Ensure the order column in trashed_projects is INTEGER type
+            try:
+                # Check if the order column exists and is the correct type
+                result = await connection.fetchval("""
+                    SELECT data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' AND column_name = 'order'
+                """)
+                
+                if result and result != 'integer':
+                    # The column exists but is not integer type, we need to fix it
+                    logger.warning(f"trashed_projects.order column is {result}, converting to integer")
+                    
+                    # Create a temporary table with correct schema
+                    await connection.execute("""
+                        CREATE TABLE trashed_projects_temp (LIKE projects INCLUDING ALL);
+                    """)
+                    
+                    # Copy data with proper type conversion
+                    await connection.execute("""
+                        INSERT INTO trashed_projects_temp 
+                        SELECT 
+                            id, onyx_user_id, project_name, product_type, microproduct_type,
+                            microproduct_name, microproduct_content, design_template_id, created_at,
+                            source_chat_session_id, folder_id, 
+                            CASE 
+                                WHEN "order" IS NULL THEN 0
+                                WHEN "order" = '' THEN 0
+                                WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
+                                ELSE 0
+                            END,
+                            COALESCE(completion_time, '')
+                        FROM trashed_projects;
+                    """)
+                    
+                    # Drop old table and rename new one
+                    await connection.execute("DROP TABLE trashed_projects;")
+                    await connection.execute("ALTER TABLE trashed_projects_temp RENAME TO trashed_projects;")
+                    
+                    # Recreate indexes
+                    await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+                    
+            except Exception as e:
+                logger.warning(f"Could not verify/fix trashed_projects schema: {e}")
+                # Continue anyway, the main operations should still work
+
         logger.info("Custom DB pool initialized & tables ensured.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -3771,7 +3817,22 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
 
             async with conn.transaction():
                 await conn.execute(
-                    "INSERT INTO projects SELECT * FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2",
+                    """INSERT INTO projects (
+                        id, onyx_user_id, project_name, product_type, microproduct_type,
+                        microproduct_name, microproduct_content, design_template_id, created_at,
+                        source_chat_session_id, folder_id, "order", completion_time
+                    ) SELECT 
+                        id, onyx_user_id, project_name, product_type, microproduct_type,
+                        microproduct_name, microproduct_content, design_template_id, created_at,
+                        source_chat_session_id, folder_id, 
+                        CASE 
+                            WHEN "order" IS NULL THEN 0
+                            WHEN "order" = '' THEN 0
+                            WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
+                            ELSE 0
+                        END,
+                        COALESCE(completion_time, '')
+                    FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2""",
                     list(ids_to_restore), onyx_user_id
                 )
                 await conn.execute(
