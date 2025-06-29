@@ -27,9 +27,8 @@ export interface DisplayOptions {
   knowledgeCheck: boolean;
   contentAvailability: boolean;
   informationSource: boolean;
-  time: boolean;
-  estCreationTime?: boolean;
-  estCompletionTime?: boolean;
+  estCreationTime: boolean;
+  estCompletionTime: boolean;
 }
 
 export interface TrainingPlanData { // This can be the generic structure for microProductContent

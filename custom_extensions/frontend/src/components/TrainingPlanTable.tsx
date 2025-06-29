@@ -85,7 +85,6 @@ interface TrainingPlanTableProps {
     knowledgeCheck: boolean;
     contentAvailability: boolean;
     informationSource: boolean;
-    time: boolean;
     estCreationTime: boolean;
     estCompletionTime: boolean;
   };

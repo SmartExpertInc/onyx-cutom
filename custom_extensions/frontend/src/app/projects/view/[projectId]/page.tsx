@@ -102,7 +102,8 @@ export default function ProjectInstanceViewPage() {
     knowledgeCheck: true,
     contentAvailability: true,
     informationSource: true,
-    time: true,
+    estCreationTime: true,
+    estCompletionTime: true,
   });
   const columnDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -246,14 +247,15 @@ export default function ProjectInstanceViewPage() {
 
     const paramVal = (key: string): string | null => searchParams?.get(key) ?? null;
 
-    const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","time"].some(k => paramVal(k) !== null);
+    const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","estCreationTime","estCompletionTime"].some(k => paramVal(k) !== null);
     if (!hasExplicitParams) return; // nothing to persist
 
     const desired = {
       knowledgeCheck: paramVal("knowledgeCheck") === "0" ? false : true,
       contentAvailability: paramVal("contentAvailability") === "0" ? false : true,
       informationSource: paramVal("informationSource") === "0" ? false : true,
-      time: paramVal("time") === "0" ? false : true,
+      estCreationTime: paramVal("estCreationTime") === "0" ? false : true,
+      estCompletionTime: paramVal("estCompletionTime") === "0" ? false : true,
     } as const;
 
     // @ts-ignore – runtime check only
@@ -466,7 +468,8 @@ export default function ProjectInstanceViewPage() {
         queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
         queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
         queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
-        queryParams.append('time', columnVisibility.time ? '1' : '0');
+        queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
+        queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
     }
     
     if (queryParams.toString()) {
@@ -715,11 +718,20 @@ export default function ProjectInstanceViewPage() {
                       <label className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={columnVisibility.time}
-                          onChange={(e) => handleColumnVisibilityChange('time', e.target.checked)}
+                          checked={columnVisibility.estCreationTime}
+                          onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Production Hours</span>
+                        <span className="text-sm text-gray-700">Est. Creation Time</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.estCompletionTime}
+                          onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Est. Completion Time</span>
                       </label>
                     </div>
                   </div>
