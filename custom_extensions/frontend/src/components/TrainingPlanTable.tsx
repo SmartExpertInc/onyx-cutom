@@ -86,13 +86,14 @@ interface TrainingPlanTableProps {
     contentAvailability: boolean;
     informationSource: boolean;
     time: boolean;
+    completionTime: boolean;
   };
 }
 
 const localizationConfig = {
-  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Время", timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", },
-  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Production Hours", timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", },
-  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Час", timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год", },
+  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Время создания", completionTime: "Время завершения", timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", },
+  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", completionTime: "Est. Completion Time", timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", },
+  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Час створення", completionTime: "Час завершення", timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год", },
 };
 
 const getRussianHourUnit = (hours: number, units: typeof localizationConfig['ru']) => {
@@ -124,6 +125,11 @@ const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk'
     if (language === 'en') { return `${numStr}${localized.timeUnitSingular}`; }
     if (language === 'ru') { return `${numStr}${getRussianHourUnit(numHours, localized as typeof localizationConfig['ru'])}`; }
     return `${numStr} ${getUkrainianHourUnit(numHours, localized as typeof localizationConfig['uk'])}`;
+};
+
+const formatCompletionTimeDisplay = (minutes: number | undefined | null, language: 'ru' | 'en' | 'uk'): string => {
+  if (!minutes || minutes <= 0) return '-';
+  return `${minutes}m`;
 };
 
 const MAX_SOURCE_LENGTH = 25;
@@ -161,6 +167,11 @@ const findMicroproductByTitle = (
   return found;
 };
 
+// Function to generate random completion time in minutes (5-8 minutes)
+const generateRandomCompletionTime = (): number => {
+  const times = [5, 6, 7, 8];
+  return times[Math.floor(Math.random() * times.length)];
+};
 
 const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   dataToDisplay,
@@ -279,6 +290,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       contentAvailability: true,
       informationSource: true,
       time: true,
+      completionTime: true,
     };
 
     const fromQuery = (key: keyof typeof def): boolean | undefined => {
@@ -295,6 +307,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         contentAvailability: columnVisibility.contentAvailability,
         informationSource: columnVisibility.informationSource,
         time: columnVisibility.time,
+        completionTime: columnVisibility.completionTime,
       };
     }
 
@@ -303,6 +316,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       contentAvailability: fromQuery('contentAvailability') ?? storedOpts?.contentAvailability ?? def.contentAvailability,
       informationSource: fromQuery('informationSource') ?? storedOpts?.informationSource ?? def.informationSource,
       time: fromQuery('time') ?? storedOpts?.time ?? def.time,
+      completionTime: fromQuery('completionTime') ?? storedOpts?.completionTime ?? def.completionTime,
     };
   }, [searchParams, storedOpts, columnVisibility]);
 
@@ -312,6 +326,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     { key: 'contentAvailability', width: 1 },
     { key: 'informationSource', width: 2 },
     { key: 'time', width: 1 },
+    { key: 'completionTime', width: 1 },
   ];
 
   const activeColumns = columnOrder.filter((c) => {
@@ -383,6 +398,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 return <div key={col.key} className={common}>{localized.source}</div>;
               case 'time':
                 return <div key={col.key} className={common}>{localized.time}</div>;
+              case 'completionTime':
+                return <div key={col.key} className={common}>{localized.completionTime}</div>;
               default:
                 return null;
             }
@@ -506,6 +523,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                 <input type="number" step="0.1" value={lesson.hours || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
                               ) : (
                                 <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span>
+                              )}
+                            </div>
+                          );
+                        case 'completionTime':
+                          return (
+                            <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 ${commonCls}`}>
+                              <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
+                              {isEditing && onTextChange ? (
+                                <input type="number" min="1" max="60" value={lesson.completionTime || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Min"/>
+                              ) : (
+                                <span className="flex-grow text-left">{formatCompletionTimeDisplay(lesson.completionTime, lang)}</span>
                               )}
                             </div>
                           );

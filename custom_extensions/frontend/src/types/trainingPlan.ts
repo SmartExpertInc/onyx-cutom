@@ -13,6 +13,7 @@ export interface Lesson {
   contentAvailable: StatusInfo;
   source: string;
   hours: number;
+  completionTime?: number; // New field for completion time in minutes
 }
 
 export interface Section {
@@ -28,6 +29,7 @@ export interface DisplayOptions {
   contentAvailability: boolean;
   informationSource: boolean;
   time: boolean;
+  completionTime: boolean; // New column visibility setting
 }
 
 export interface TrainingPlanData { // This can be the generic structure for microProductContent

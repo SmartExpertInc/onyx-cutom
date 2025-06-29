@@ -103,6 +103,7 @@ export default function ProjectInstanceViewPage() {
     contentAvailability: true,
     informationSource: true,
     time: true,
+    completionTime: true,
   });
   const columnDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -246,7 +247,7 @@ export default function ProjectInstanceViewPage() {
 
     const paramVal = (key: string): string | null => searchParams?.get(key) ?? null;
 
-    const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","time"].some(k => paramVal(k) !== null);
+    const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","time","completionTime"].some(k => paramVal(k) !== null);
     if (!hasExplicitParams) return; // nothing to persist
 
     const desired = {
@@ -254,6 +255,7 @@ export default function ProjectInstanceViewPage() {
       contentAvailability: paramVal("contentAvailability") === "0" ? false : true,
       informationSource: paramVal("informationSource") === "0" ? false : true,
       time: paramVal("time") === "0" ? false : true,
+      completionTime: paramVal("completionTime") === "0" ? false : true,
     } as const;
 
     // @ts-ignore – runtime check only
@@ -467,6 +469,7 @@ export default function ProjectInstanceViewPage() {
         queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
         queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
         queryParams.append('time', columnVisibility.time ? '1' : '0');
+        queryParams.append('completionTime', columnVisibility.completionTime ? '1' : '0');
     }
     
     if (queryParams.toString()) {
@@ -540,10 +543,10 @@ export default function ProjectInstanceViewPage() {
               dataToDisplay={trainingPlanData}
               isEditing={isEditing}
               onTextChange={handleTextChange}
-              sourceChatSessionId={projectInstanceData.sourceChatSessionId}
               allUserMicroproducts={allUserMicroproducts}
-              parentProjectName={parentProjectNameForCurrentView}
-              theme={trainingPlanData?.theme || 'cherry'}
+              parentProjectName={parentProjectName}
+              sourceChatSessionId={projectInstanceData.sourceChatSessionId}
+              theme={trainingPlanData?.theme}
               columnVisibility={columnVisibility}
             />
           </div>
@@ -719,7 +722,16 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('time', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Production Hours</span>
+                        <span className="text-sm text-gray-700">Est. Creation Time</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.completionTime}
+                          onChange={(e) => handleColumnVisibilityChange('completionTime', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Est. Completion Time</span>
                       </label>
                     </div>
                   </div>
