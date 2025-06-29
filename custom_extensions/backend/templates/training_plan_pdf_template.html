@@ -185,8 +185,8 @@
     {% set span_kc   = 5 if kc_show  else 0 %}
     {% set span_ca   = 2 if ca_show  else 0 %}
     {% set span_src  = 4 if src_show else 0 %}
-    {% set span_time = 4 if time_show else 0 %}
-    {% set span_ct   = 4 if ct_show  else 0 %}
+    {% set span_time = 3 if time_show else 0 %}
+    {% set span_ct   = 3 if ct_show  else 0 %}
     {% set modules_span = 20 - (span_kc + span_ca + span_src + span_time + span_ct) %}
     {% set module_header_span = 20 - span_time - span_ct %}
 
@@ -235,10 +235,11 @@
                              </div>
                              {% set section_completion_time = 0 %}
                              {% for lesson in section.lessons %}
-                                 {% if lesson.completionTime %}
-                                     {% set time_str = lesson.completionTime %}
+                                 {% if lesson.completionTime and lesson.completionTime != '' %}
+                                     {% set time_str = lesson.completionTime | string %}
                                      {% if time_str.endswith('m') %}
-                                         {% set section_completion_time = section_completion_time + (time_str[:-1] | int) %}
+                                         {% set minutes = time_str[:-1] | int %}
+                                         {% set section_completion_time = section_completion_time + minutes %}
                                      {% endif %}
                                  {% endif %}
                              {% endfor %}
