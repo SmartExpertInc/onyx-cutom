@@ -614,12 +614,6 @@ export default function CourseOutlineClient() {
     });
   };
 
-  // Function to generate random completion time in minutes (5-8 minutes)
-  const generateRandomCompletionTime = (): number => {
-    const times = [5, 6, 7, 8];
-    return times[Math.floor(Math.random() * times.length)];
-  };
-
   const handleGenerateFinal = async () => {
     if (isGenerating) return; // guard against double-click / duplicate requests
     // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
@@ -644,7 +638,6 @@ export default function CourseOutlineClient() {
             contentAvailable: { type: "no", text: "" },
             source: "",
             hours: 0,
-            completionTime: generateRandomCompletionTime(),
           })),
         })),
         detectedLanguage: language,
@@ -695,7 +688,6 @@ export default function CourseOutlineClient() {
       qp.set("contentAvailability", filters.contentAvailability ? "1" : "0");
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
-      qp.set("completionTime", filters.completionTime ? "1" : "0");
 
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
@@ -797,7 +789,6 @@ export default function CourseOutlineClient() {
     contentAvailability: params?.get("contentAvailability") === "0" ? false : true,
     informationSource: params?.get("informationSource") === "0" ? false : true,
     time: params?.get("time") === "0" ? false : true,
-    completionTime: params?.get("completionTime") === "0" ? false : true,
   }));
 
   // Ref for closing the dropdown when clicking outside
@@ -1088,11 +1079,10 @@ export default function CourseOutlineClient() {
             {showFilters && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
                 {[
-                  { key: "knowledgeCheck",     label: "Assessment Type"   },
-                  { key: "contentAvailability", label: "Content Volume"    },
-                  { key: "informationSource",   label: "Source"            },
-                  { key: "time",                label: "Est. Creation Time"  },
-                  { key: "completionTime",      label: "Est. Completion Time" },
+                  { key: "knowledgeCheck", label: "Assessment Type" },
+                  { key: "contentAvailability", label: "Content Volume" },
+                  { key: "informationSource", label: "Source" },
+                  { key: "time", label: "Production Hours" },
                 ].map(({ key, label }) => (
                   // @ts-ignore dynamic key
                   <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">

@@ -86,32 +86,20 @@ interface TrainingPlanTableProps {
     contentAvailability: boolean;
     informationSource: boolean;
     time: boolean;
-    completionTime: boolean;
+    estCreationTime: boolean;
+    estCompletionTime: boolean;
   };
 }
 
 const localizationConfig = {
-  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Время создания", completionTime: "Время завершения", timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", },
-  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", completionTime: "Est. Completion Time", timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", },
-  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Час створення", completionTime: "Час завершення", timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год", },
+  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения" },
+  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time" },
+  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення" },
 };
-
-const getRussianHourUnit = (hours: number, units: typeof localizationConfig['ru']) => {
-  const h_int = Math.floor(hours); const h_mod10 = h_int % 10; const h_mod100 = h_int % 100;
-  if (units.timeUnitSingular === "ч" && units.timeUnitDecimalPlural === "ч" && units.timeUnitGeneralPlural === "ч") { return units.timeUnitSingular; }
-  if (hours !== h_int) { return units.timeUnitDecimalPlural; }
-  if (h_mod100 >= 11 && h_mod100 <= 14) { return units.timeUnitGeneralPlural; }
-  if (h_mod10 === 1) { return units.timeUnitSingular; }
-  if (h_mod10 >= 2 && h_mod10 <= 4) { return units.timeUnitDecimalPlural; }
-  return units.timeUnitGeneralPlural;
-};
-const getUkrainianHourUnit = (hours: number, units: typeof localizationConfig['uk']) => {
-  const h_int = Math.floor(hours); const h_mod10 = h_int % 10; const h_mod100 = h_int % 100;
-  if (hours !== h_int && hours > 0) { if (h_int === 1 || (h_int === 0 && hours * 10 % 10 === 1 && hours * 100 % 100 !== 11) ) { return units.timeUnitSingular; } return units.timeUnitDecimalPlural; }
-  if (h_mod100 >= 11 && h_mod100 <= 14) { return units.timeUnitGeneralPlural; }
-  if (h_mod10 === 1) { return units.timeUnitSingular; }
-  if (h_mod10 >= 2 && h_mod10 <= 4) { return units.timeUnitDecimalPlural; }
-  return units.timeUnitGeneralPlural;
+const timeUnits = {
+  ru: { timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч" },
+  en: { timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h" },
+  uk: { timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год" },
 };
 
 const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk', localized: typeof localizationConfig['ru'] | typeof localizationConfig['en'] | typeof localizationConfig['uk'], isEditingContext?: boolean) => {
@@ -122,14 +110,9 @@ const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk'
     if (isEditingContext && hours === "") return "";
 
     const numStr = numHours % 1 === 0 ? numHours.toFixed(0) : numHours.toFixed(1);
-    if (language === 'en') { return `${numStr}${localized.timeUnitSingular}`; }
-    if (language === 'ru') { return `${numStr}${getRussianHourUnit(numHours, localized as typeof localizationConfig['ru'])}`; }
-    return `${numStr} ${getUkrainianHourUnit(numHours, localized as typeof localizationConfig['uk'])}`;
-};
-
-const formatCompletionTimeDisplay = (minutes: number | undefined | null, language: 'ru' | 'en' | 'uk'): string => {
-  if (!minutes || minutes <= 0) return '-';
-  return `${minutes}m`;
+    if (language === 'en') { return `${numStr}${timeUnits.en.timeUnitSingular}`; }
+    if (language === 'ru') { return `${numStr}${timeUnits.ru.timeUnitSingular}`; }
+    return `${numStr} ${timeUnits.uk.timeUnitSingular}`;
 };
 
 const MAX_SOURCE_LENGTH = 25;
@@ -167,11 +150,6 @@ const findMicroproductByTitle = (
   return found;
 };
 
-// Function to generate random completion time in minutes (5-8 minutes)
-const generateRandomCompletionTime = (): number => {
-  const times = [5, 6, 7, 8];
-  return times[Math.floor(Math.random() * times.length)];
-};
 
 const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   dataToDisplay,
@@ -289,8 +267,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       knowledgeCheck: true,
       contentAvailability: true,
       informationSource: true,
-      time: true,
-      completionTime: true,
+      estCreationTime: true,
+      estCompletionTime: true,
     };
 
     const fromQuery = (key: keyof typeof def): boolean | undefined => {
@@ -306,8 +284,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         knowledgeCheck: columnVisibility.knowledgeCheck,
         contentAvailability: columnVisibility.contentAvailability,
         informationSource: columnVisibility.informationSource,
-        time: columnVisibility.time,
-        completionTime: columnVisibility.completionTime,
+        estCreationTime: columnVisibility.estCreationTime !== false,
+        estCompletionTime: columnVisibility.estCompletionTime !== false,
       };
     }
 
@@ -315,8 +293,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       knowledgeCheck: fromQuery('knowledgeCheck') ?? storedOpts?.knowledgeCheck ?? def.knowledgeCheck,
       contentAvailability: fromQuery('contentAvailability') ?? storedOpts?.contentAvailability ?? def.contentAvailability,
       informationSource: fromQuery('informationSource') ?? storedOpts?.informationSource ?? def.informationSource,
-      time: fromQuery('time') ?? storedOpts?.time ?? def.time,
-      completionTime: fromQuery('completionTime') ?? storedOpts?.completionTime ?? def.completionTime,
+      estCreationTime: true,
+      estCompletionTime: true,
     };
   }, [searchParams, storedOpts, columnVisibility]);
 
@@ -325,8 +303,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     { key: 'knowledgeCheck', width: 2 },
     { key: 'contentAvailability', width: 1 },
     { key: 'informationSource', width: 2 },
-    { key: 'time', width: 1 },
-    { key: 'completionTime', width: 1 },
+    { key: 'estCreationTime', width: 1 },
+    { key: 'estCompletionTime', width: 1 },
   ];
 
   const activeColumns = columnOrder.filter((c) => {
@@ -345,6 +323,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   }
 
   let lessonCounter = 0;
+
+  // Helper for random minutes
+  const getRandomMinutes = () => {
+    const options = [5, 6, 7, 8];
+    return options[Math.floor(Math.random() * options.length)];
+  };
 
   return (
     <div className="font-['Inter',_sans-serif] bg-gray-50">
@@ -396,10 +380,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 return <div key={col.key} className={common}>{localized.contentAvailability}</div>;
               case 'informationSource':
                 return <div key={col.key} className={common}>{localized.source}</div>;
-              case 'time':
-                return <div key={col.key} className={common}>{localized.time}</div>;
-              case 'completionTime':
-                return <div key={col.key} className={common}>{localized.completionTime}</div>;
+              case 'estCreationTime':
+                return <div key={col.key} className={common}>{localized.estCreationTime}</div>;
+              case 'estCompletionTime':
+                return <div key={col.key} className={common}>{localized.estCompletionTime}</div>;
               default:
                 return null;
             }
@@ -431,7 +415,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 {activeColumns.slice(1).map((col, idx) => {
                   const isLast = idx === activeColumns.slice(1).length - 1;
                   const borderClasses = isLast ? '' : 'border-r border-gray-400';
-                  if (col.key === 'time') {
+                  if (col.key === 'estCreationTime') {
                     return (
                       <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
                         <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
@@ -452,6 +436,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             {formatHoursDisplay(section.totalHours, lang, localized, false)}
                           </span>
                         )}
+                      </div>
+                    );
+                  }
+                  if (col.key === 'estCompletionTime') {
+                    return (
+                      <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
+                        <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
+                        <span style={{ color: iconBaseColor }} className="flex-grow text-left">{getRandomMinutes()}m</span>
                       </div>
                     );
                   }
@@ -515,26 +507,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               )}
                             </div>
                           );
-                        case 'time':
+                        case 'estCreationTime':
                           return (
-                            <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 ${commonCls}`}>
+                            <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 px-2 ${borderClasses}`}>
                               <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
                               {isEditing && onTextChange ? (
                                 <input type="number" step="0.1" value={lesson.hours || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
-                              ) : (
-                                <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span>
-                              )}
+                              ) : ( <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span> )}
                             </div>
                           );
-                        case 'completionTime':
+                        case 'estCompletionTime':
                           return (
-                            <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 ${commonCls}`}>
+                            <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 px-2 ${borderClasses}`}>
                               <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
-                              {isEditing && onTextChange ? (
-                                <input type="number" min="1" max="60" value={lesson.completionTime || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Min"/>
-                              ) : (
-                                <span className="flex-grow text-left">{formatCompletionTimeDisplay(lesson.completionTime, lang)}</span>
-                              )}
+                              <span className="flex-grow text-left">{getRandomMinutes()}m</span>
                             </div>
                           );
                         default:
