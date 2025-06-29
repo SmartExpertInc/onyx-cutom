@@ -461,7 +461,11 @@ async def startup_event():
                                 WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
                                 ELSE 0
                             END,
-                            COALESCE(completion_time, '')
+                            CASE 
+                                WHEN completion_time IS NULL THEN ''
+                                WHEN completion_time = '' THEN ''
+                                ELSE completion_time::TEXT
+                            END
                         FROM trashed_projects;
                     """)
                     
@@ -474,6 +478,34 @@ async def startup_event():
                     
             except Exception as e:
                 logger.warning(f"Could not verify/fix trashed_projects schema: {e}")
+                # Continue anyway, the main operations should still work
+
+            # Ensure completion_time column is TEXT type in both tables
+            try:
+                # Check completion_time column type in projects table
+                projects_completion_type = await connection.fetchval("""
+                    SELECT data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' AND column_name = 'completion_time'
+                """)
+                
+                if projects_completion_type and projects_completion_type != 'text':
+                    logger.warning(f"projects.completion_time column is {projects_completion_type}, converting to text")
+                    await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE TEXT;")
+                
+                # Check completion_time column type in trashed_projects table
+                trashed_completion_type = await connection.fetchval("""
+                    SELECT data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
+                """)
+                
+                if trashed_completion_type and trashed_completion_type != 'text':
+                    logger.warning(f"trashed_projects.completion_time column is {trashed_completion_type}, converting to text")
+                    await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE TEXT;")
+                    
+            except Exception as e:
+                logger.warning(f"Could not verify/fix completion_time column types: {e}")
                 # Continue anyway, the main operations should still work
 
         logger.info("Custom DB pool initialized & tables ensured.")
@@ -2597,7 +2629,11 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                             WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
                             ELSE 0
                         END,
-                        COALESCE(completion_time, '')
+                        CASE 
+                            WHEN completion_time IS NULL THEN ''
+                            WHEN completion_time = '' THEN ''
+                            ELSE completion_time::TEXT
+                        END
                     FROM projects 
                     WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
                     """,
@@ -3831,7 +3867,11 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
                             WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
                             ELSE 0
                         END,
-                        COALESCE(completion_time, '')
+                        CASE 
+                            WHEN completion_time IS NULL THEN ''
+                            WHEN completion_time = '' THEN ''
+                            ELSE completion_time::TEXT
+                        END
                     FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2""",
                     list(ids_to_restore), onyx_user_id
                 )
@@ -3841,6 +3881,7 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
                 )
 
         return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully restored {len(ids_to_restore)} project(s)."})
+
     except Exception as e:
         logger.error(f"Error restoring projects: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while restoring projects." if IS_PRODUCTION else f"DB error while restoring projects: {str(e)}"
