@@ -147,7 +147,7 @@
             'knowledgeCheck': "Проверка знаний",
             'contentAvailability': "Наличие контента",
             'source': "Источник информации",
-            'time': "Количество часов по производству",
+            'time': "Время создания",
             'completionTime': "Время выполнения"
         },
         'en': {
@@ -155,7 +155,7 @@
             'knowledgeCheck': "Assessment Type",
             'contentAvailability': "Content Volume",
             'source': "Source",
-            'time': "Production Hours",
+            'time': "Est. Creation Time",
             'completionTime': "Est. Completion Time"
         },
         'uk': {
@@ -163,7 +163,7 @@
             'knowledgeCheck': "Перевірка знань",
             'contentAvailability': "Наявність контенту",
             'source': "Джерело інформації",
-            'time': "Час",
+            'time': "Час створення",
             'completionTime': "Час виконання"
         }
     } %}
@@ -203,8 +203,8 @@
                 {% if kc_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_kc) }}">{{ headers.knowledgeCheck }}</div>{% endif %}
                 {% if ca_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_ca) }}">{{ headers.contentAvailability }}</div>{% endif %}
                 {% if src_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_src) }}">{{ headers.source }}</div>{% endif %}
-                {% if time_show %}<div class="text-center px-2 py-3 border-r border-gray-300" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
-                {% if ct_show %}<div class="text-center px-2 py-3" style="{{ span_style(span_ct) }}">{{ headers.completionTime }}</div>{% endif %}
+                {% if time_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
+                {% if ct_show %}<div class="text-left px-2 py-3" style="{{ span_style(span_ct) }}">{{ headers.completionTime }}</div>{% endif %}
             </div>
 
             <div class="text-xxs"> 
