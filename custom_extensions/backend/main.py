@@ -464,7 +464,8 @@ async def startup_event():
                             CASE 
                                 WHEN completion_time IS NULL THEN 0
                                 WHEN completion_time = '' THEN 0
-                                ELSE completion_time::INTEGER
+                                WHEN completion_time ~ '^[0-9]+$' THEN CAST(completion_time AS INTEGER)
+                                ELSE 0
                             END
                         FROM trashed_projects;
                     """)
@@ -2673,7 +2674,8 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                         CASE 
                             WHEN completion_time IS NULL THEN 0
                             WHEN completion_time = '' THEN 0
-                            ELSE completion_time::INTEGER
+                            WHEN completion_time ~ '^[0-9]+$' THEN CAST(completion_time AS INTEGER)
+                            ELSE 0
                         END
                     FROM projects 
                     WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
@@ -3911,7 +3913,8 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
                         CASE 
                             WHEN completion_time IS NULL THEN 0
                             WHEN completion_time = '' THEN 0
-                            ELSE completion_time::INTEGER
+                            WHEN completion_time ~ '^[0-9]+$' THEN CAST(completion_time AS INTEGER)
+                            ELSE 0
                         END
                     FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2""",
                     list(ids_to_restore), onyx_user_id
