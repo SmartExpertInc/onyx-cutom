@@ -430,264 +430,47 @@ async def startup_event():
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     raise e
 
-            # Ensure the order column in trashed_projects is INTEGER type
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
             try:
-                # Check if the order column exists and is the correct type
-                result = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'trashed_projects' AND column_name = 'order'
-                """)
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
                 
-                if result and result != 'integer':
-                    # The column exists but is not integer type, we need to fix it
-                    logger.warning(f"trashed_projects.order column is {result}, converting to integer")
-                    
-                    # Create a temporary table with correct schema
-                    await connection.execute("""
-                        CREATE TABLE trashed_projects_temp (LIKE projects INCLUDING ALL);
-                    """)
-                    
-                    # Copy data with proper type conversion
-                    await connection.execute("""
-                        INSERT INTO trashed_projects_temp 
-                        SELECT 
-                            id, onyx_user_id, project_name, product_type, microproduct_type,
-                            microproduct_name, microproduct_content, design_template_id, created_at,
-                            source_chat_session_id, folder_id, 
-                            CASE 
-                                WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
-                                ELSE CAST("order" AS INTEGER)
-                            END,
-                            CASE 
-                                WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
-                                ELSE CAST(completion_time AS INTEGER)
-                            END
-                        FROM trashed_projects;
-                    """)
-                    
-                    # Drop old table and rename new one
-                    await connection.execute("DROP TABLE trashed_projects;")
-                    await connection.execute("ALTER TABLE trashed_projects_temp RENAME TO trashed_projects;")
-                    
-                    # Recreate indexes
-                    await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
-                    
-            except Exception as e:
-                logger.warning(f"Could not verify/fix trashed_projects schema: {e}")
-                # Continue anyway, the main operations should still work
-
-            # Ensure completion_time column is INTEGER type in both tables
-            try:
-                # Check completion_time column type in projects table
-                projects_completion_type = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'projects' AND column_name = 'completion_time'
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
                 """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
                 
-                if not projects_completion_type:
-                    # Column doesn't exist, add it as INTEGER
-                    logger.info("Adding completion_time column to projects table as INTEGER")
-                    await connection.execute("ALTER TABLE projects ADD COLUMN completion_time INTEGER DEFAULT 0")
-                elif projects_completion_type != 'integer':
-                    logger.warning(f"projects.completion_time column is {projects_completion_type}, converting to integer")
-                    # Handle conversion from TEXT to INTEGER
-                    if projects_completion_type == 'text':
-                        # First convert empty strings to 0, then change type
-                        await connection.execute("UPDATE projects SET completion_time = '0' WHERE completion_time = '' OR completion_time IS NULL")
-                        await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::INTEGER")
-                    else:
-                        await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER")
-                else:
-                    logger.info("projects.completion_time column is already INTEGER type")
-                
-                # Check completion_time column type in trashed_projects table
-                trashed_completion_type = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
                 """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
                 
-                if not trashed_completion_type:
-                    # Column doesn't exist, add it as INTEGER
-                    logger.info("Adding completion_time column to trashed_projects table as INTEGER")
-                    await connection.execute("ALTER TABLE trashed_projects ADD COLUMN completion_time INTEGER DEFAULT 0")
-                elif trashed_completion_type != 'integer':
-                    logger.warning(f"trashed_projects.completion_time column is {trashed_completion_type}, converting to integer")
-                    # Handle conversion from TEXT to INTEGER
-                    if trashed_completion_type == 'text':
-                        # First convert empty strings to 0, then change type
-                        await connection.execute("UPDATE trashed_projects SET completion_time = '0' WHERE completion_time = '' OR completion_time IS NULL")
-                        await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::INTEGER")
-                    else:
-                        await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER")
-                else:
-                    logger.info("trashed_projects.completion_time column is already INTEGER type")
-                    
-                # Verify the migration was successful
-                projects_final_type = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'projects' AND column_name = 'completion_time'
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
                 """)
-                trashed_final_type = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
                 """)
-                
-                if projects_final_type == 'integer' and trashed_final_type == 'integer':
-                    logger.info("✅ completion_time migration completed successfully - both tables now have INTEGER type")
-                else:
-                    logger.error(f"❌ completion_time migration failed - projects: {projects_final_type}, trashed_projects: {trashed_final_type}")
-                    
-            except Exception as e:
-                logger.error(f"❌ Could not verify/fix completion_time column types: {e}")
-                # Continue anyway, the main operations should still work
-
-            # Ensure the order column in trashed_projects is INTEGER type
-            try:
-                # Check if the order column exists and is the correct type
-                result = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'trashed_projects' AND column_name = 'order'
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
                 """)
-                
-                if result and result != 'integer':
-                    # The column exists but is not integer type, we need to fix it
-                    logger.warning(f"trashed_projects.order column is {result}, converting to integer")
-                    
-                    # Create a temporary table with correct schema
-                    await connection.execute("""
-                        CREATE TABLE trashed_projects_temp (LIKE projects INCLUDING ALL);
-                    """)
-                    
-                    # Copy data with proper type conversion
-                    await connection.execute("""
-                        INSERT INTO trashed_projects_temp 
-                        SELECT 
-                            id, onyx_user_id, project_name, product_type, microproduct_type,
-                            microproduct_name, microproduct_content, design_template_id, created_at,
-                            source_chat_session_id, folder_id, 
-                            CASE 
-                                WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
-                                ELSE CAST("order" AS INTEGER)
-                            END,
-                            CASE 
-                                WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
-                                ELSE CAST(completion_time AS INTEGER)
-                            END
-                        FROM trashed_projects;
-                    """)
-                    
-                    # Drop old table and rename new one
-                    await connection.execute("DROP TABLE trashed_projects;")
-                    await connection.execute("ALTER TABLE trashed_projects_temp RENAME TO trashed_projects;")
-                    
-                    # Recreate indexes
-                    await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
-                    
-            except Exception as e:
-                logger.warning(f"Could not verify/fix trashed_projects schema: {e}")
-                # Continue anyway, the main operations should still work
-
-            # Ensure the completion_time column in trashed_projects is INTEGER type
-            try:
-                # Check if the completion_time column exists and is the correct type
-                result = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
                 """)
-                
-                if result and result != 'integer':
-                    # The column exists but is not integer type, we need to fix it
-                    logger.warning(f"trashed_projects.completion_time column is {result}, converting to integer")
-                    
-                    # Update existing data to fix any invalid values
-                    await connection.execute("""
-                        UPDATE trashed_projects 
-                        SET completion_time = CASE 
-                            WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
-                            ELSE CAST(completion_time AS INTEGER)
-                        END
-                        WHERE completion_time IS NOT NULL;
-                    """)
-                    
-                    # Alter the column type to INTEGER
-                    await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::integer;")
-                    
-                    logger.info("Successfully converted trashed_projects.completion_time column to INTEGER type")
+                logger.info("Successfully set default values for empty order and completion_time fields")
                 
             except Exception as e:
-                logger.error(f"Error fixing trashed_projects.completion_time column: {e}")
-                # Continue with startup even if this fails
-
-            # Ensure the order column in projects table is INTEGER type
-            try:
-                # Check if the order column exists and is the correct type
-                result = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'projects' AND column_name = 'order'
-                """)
-                
-                if result and result != 'integer':
-                    # The column exists but is not integer type, we need to fix it
-                    logger.warning(f"projects.order column is {result}, converting to integer")
-                    
-                    # Update existing data to fix any invalid values
-                    await connection.execute("""
-                        UPDATE projects 
-                        SET "order" = CASE 
-                            WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
-                            ELSE CAST("order" AS INTEGER)
-                        END
-                        WHERE "order" IS NOT NULL;
-                    """)
-                    
-                    # Alter the column type to INTEGER
-                    await connection.execute("ALTER TABLE projects ALTER COLUMN \"order\" TYPE INTEGER USING \"order\"::integer;")
-                    
-                    logger.info("Successfully converted projects.order column to INTEGER type")
-                
-            except Exception as e:
-                logger.error(f"Error fixing projects.order column: {e}")
-                # Continue with startup even if this fails
-
-            # Ensure the completion_time column in projects table is INTEGER type
-            try:
-                # Check if the completion_time column exists and is the correct type
-                result = await connection.fetchval("""
-                    SELECT data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'projects' AND column_name = 'completion_time'
-                """)
-                
-                if result and result != 'integer':
-                    # The column exists but is not integer type, we need to fix it
-                    logger.warning(f"projects.completion_time column is {result}, converting to integer")
-                    
-                    # Update existing data to fix any invalid values
-                    await connection.execute("""
-                        UPDATE projects 
-                        SET completion_time = CASE 
-                            WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
-                            ELSE CAST(completion_time AS INTEGER)
-                        END
-                        WHERE completion_time IS NOT NULL;
-                    """)
-                    
-                    # Alter the column type to INTEGER
-                    await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::integer;")
-                    
-                    logger.info("Successfully converted projects.completion_time column to INTEGER type")
-                
-            except Exception as e:
-                logger.error(f"Error fixing projects.completion_time column: {e}")
-                # Continue with startup even if this fails
+                logger.error(f"Error applying critical TEXT type fix: {e}")
 
             # Final verification - ensure all required columns exist with correct types
             try:
@@ -720,11 +503,14 @@ async def startup_event():
             except Exception as e:
                 logger.error(f"Error during schema verification: {e}")
 
+            logger.info("Database schema migration completed successfully.")")
+                # Continue anyway, the main operations should still work
+
             # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
             try:
                 logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
                 
-                # Fix projects table
+                # Fix projects table - ensure TEXT type
                 await connection.execute("""
                     ALTER TABLE projects 
                     ALTER COLUMN "order" TYPE TEXT,
@@ -732,7 +518,7 @@ async def startup_event():
                 """)
                 logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
                 
-                # Fix trashed_projects table
+                # Fix trashed_projects table - ensure TEXT type
                 await connection.execute("""
                     ALTER TABLE trashed_projects 
                     ALTER COLUMN "order" TYPE TEXT,
@@ -761,6 +547,37 @@ async def startup_event():
                 
             except Exception as e:
                 logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
 
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
@@ -2881,35 +2698,37 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
             async with conn.transaction():
                 # Process each project individually to handle data conversion safely
                 for project in projects_to_trash:
-                    # Safely convert order and completion_time to integers
-                    order_value = 0
-                    completion_time_value = 0
+                    # Safely convert order and completion_time to strings (never integers)
+                    order_value = "0"
+                    completion_time_value = "0"
                     
-                    # Handle order field
+                    # Handle order field - always convert to string
                     if project['order'] is not None:
                         try:
                             if isinstance(project['order'], str):
                                 if project['order'].strip() and project['order'].isdigit():
-                                    order_value = int(project['order'])
+                                    order_value = project['order'].strip()
                                 else:
-                                    order_value = 0
+                                    order_value = "0"
                             else:
-                                order_value = int(project['order'])
+                                # Convert any non-string value to string
+                                order_value = str(project['order']) if project['order'] is not None else "0"
                         except (ValueError, TypeError):
-                            order_value = 0
+                            order_value = "0"
                     
-                    # Handle completion_time field
+                    # Handle completion_time field - always convert to string
                     if project['completion_time'] is not None:
                         try:
                             if isinstance(project['completion_time'], str):
                                 if project['completion_time'].strip() and project['completion_time'].isdigit():
-                                    completion_time_value = int(project['completion_time'])
+                                    completion_time_value = project['completion_time'].strip()
                                 else:
-                                    completion_time_value = 0
+                                    completion_time_value = "0"
                             else:
-                                completion_time_value = int(project['completion_time'])
+                                # Convert any non-string value to string
+                                completion_time_value = str(project['completion_time']) if project['completion_time'] is not None else "0"
                         except (ValueError, TypeError):
-                            completion_time_value = 0
+                            completion_time_value = "0"
 
                     # Insert into trashed_projects with safe values
                     await conn.execute("""
@@ -4154,35 +3973,37 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
             async with conn.transaction():
                 # Process each project individually to handle data conversion safely
                 for project in projects_to_restore:
-                    # Safely convert order and completion_time to integers
-                    order_value = 0
-                    completion_time_value = 0
+                    # Safely convert order and completion_time to strings (never integers)
+                    order_value = "0"
+                    completion_time_value = "0"
                     
-                    # Handle order field
+                    # Handle order field - always convert to string
                     if project['order'] is not None:
                         try:
                             if isinstance(project['order'], str):
                                 if project['order'].strip() and project['order'].isdigit():
-                                    order_value = int(project['order'])
+                                    order_value = project['order'].strip()
                                 else:
-                                    order_value = 0
+                                    order_value = "0"
                             else:
-                                order_value = int(project['order'])
+                                # Convert any non-string value to string
+                                order_value = str(project['order']) if project['order'] is not None else "0"
                         except (ValueError, TypeError):
-                            order_value = 0
+                            order_value = "0"
                     
-                    # Handle completion_time field
+                    # Handle completion_time field - always convert to string
                     if project['completion_time'] is not None:
                         try:
                             if isinstance(project['completion_time'], str):
                                 if project['completion_time'].strip() and project['completion_time'].isdigit():
-                                    completion_time_value = int(project['completion_time'])
+                                    completion_time_value = project['completion_time'].strip()
                                 else:
-                                    completion_time_value = 0
+                                    completion_time_value = "0"
                             else:
-                                completion_time_value = int(project['completion_time'])
+                                # Convert any non-string value to string
+                                completion_time_value = str(project['completion_time']) if project['completion_time'] is not None else "0"
                         except (ValueError, TypeError):
-                            completion_time_value = 0
+                            completion_time_value = "0"
 
                     # Insert into projects with safe values
                     await conn.execute("""
