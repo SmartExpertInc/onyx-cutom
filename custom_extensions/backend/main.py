@@ -4027,6 +4027,8 @@ class ProjectFolderListResponse(BaseModel):
     created_at: datetime
     order: int
     project_count: int
+    total_lessons: int
+    total_hours: float
     model_config = {"from_attributes": True}
 
 class ProjectFolderRenameRequest(BaseModel):
@@ -4036,11 +4038,44 @@ class ProjectFolderRenameRequest(BaseModel):
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
 async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     query = """
-        SELECT pf.id, pf.name, pf.created_at, pf."order", COUNT(p.id) as project_count
+        SELECT 
+            pf.id, 
+            pf.name, 
+            pf.created_at, 
+            pf."order", 
+            COUNT(p.id) as project_count,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN p.microproduct_content IS NOT NULL 
+                        AND p.microproduct_content->>'sections' IS NOT NULL 
+                        THEN (
+                            SELECT COUNT(*)::int 
+                            FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        )
+                        ELSE 0 
+                    END
+                ), 0
+            ) as total_lessons,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN p.microproduct_content IS NOT NULL 
+                        AND p.microproduct_content->>'sections' IS NOT NULL 
+                        THEN (
+                            SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
+                            FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        )
+                        ELSE 0 
+                    END
+                ), 0
+            ) as total_hours
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1
-        GROUP BY pf.id
+        GROUP BY pf.id, pf.name, pf.created_at, pf."order"
         ORDER BY pf."order" ASC, pf.created_at ASC;
     """
     async with pool.acquire() as conn:

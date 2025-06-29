@@ -52,6 +52,8 @@ interface Folder {
   created_at: string;
   project_count: number;
   order: number;
+  total_lessons: number;
+  total_hours: number;
 }
 
 interface ProjectsTableProps {
@@ -1719,26 +1721,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    if (!folderProjects[folder.id]) return '-';
-                                                    const projects = folderProjects[folder.id];
-                                                    const totalLessons = projects.reduce((sum, p) => {
-                                                        const lessonData = lessonDataCache[p.id];
-                                                        return sum + (lessonData && typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0);
-                                                    }, 0);
-                                                    return totalLessons > 0 ? totalLessons : '-';
-                                                })()}
+                                                {folder.total_lessons > 0 ? folder.total_lessons : '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    if (!folderProjects[folder.id]) return '-';
-                                                    const projects = folderProjects[folder.id];
-                                                    const totalHours = projects.reduce((sum, p) => {
-                                                        const lessonData = lessonDataCache[p.id];
-                                                        return sum + (lessonData && typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0);
-                                                    }, 0);
-                                                    return totalHours > 0 ? totalHours : '-';
-                                                })()}
+                                                {folder.total_hours > 0 ? folder.total_hours : '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Empty cell for folder rows */}
