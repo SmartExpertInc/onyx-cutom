@@ -1,5 +1,5 @@
--- IMMEDIATE FIX for completion_time column error
--- Run this script directly in your PostgreSQL database
+-- IMMEDIATE FIX for completion_time column in custom_projects_db
+-- Run this script directly in your custom_projects_db database
 
 -- Check current schema
 SELECT 'Current schema:' as info;
@@ -10,7 +10,7 @@ SELECT
     is_nullable
 FROM information_schema.columns 
 WHERE table_name IN ('projects', 'trashed_projects') 
-AND column_name IN ('completion_time', 'order');
+AND column_name = 'completion_time';
 
 -- Fix projects table
 DO $$
@@ -49,43 +49,6 @@ BEGIN
             END IF;
         ELSE
             RAISE NOTICE 'projects.completion_time is already INTEGER type';
-        END IF;
-    END IF;
-    
-    -- Check if order column exists in projects table
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'projects' AND column_name = 'order'
-    ) THEN
-        -- Add the column if it doesn't exist
-        ALTER TABLE projects ADD COLUMN "order" INTEGER DEFAULT 0;
-        RAISE NOTICE 'Added order column to projects table';
-    ELSE
-        -- Check the current type
-        IF EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'projects' 
-            AND column_name = 'order' 
-            AND data_type != 'integer'
-        ) THEN
-            -- Convert from TEXT to INTEGER if needed
-            IF EXISTS (
-                SELECT 1 FROM information_schema.columns 
-                WHERE table_name = 'projects' 
-                AND column_name = 'order' 
-                AND data_type = 'text'
-            ) THEN
-                -- Handle TEXT to INTEGER conversion
-                UPDATE projects SET "order" = '0' WHERE "order" = '' OR "order" IS NULL;
-                ALTER TABLE projects ALTER COLUMN "order" TYPE INTEGER USING "order"::INTEGER;
-                RAISE NOTICE 'Converted projects.order from TEXT to INTEGER';
-            ELSE
-                -- Handle other types
-                ALTER TABLE projects ALTER COLUMN "order" TYPE INTEGER;
-                RAISE NOTICE 'Converted projects.order to INTEGER';
-            END IF;
-        ELSE
-            RAISE NOTICE 'projects.order is already INTEGER type';
         END IF;
     END IF;
 END $$;
@@ -129,43 +92,6 @@ BEGIN
             RAISE NOTICE 'trashed_projects.completion_time is already INTEGER type';
         END IF;
     END IF;
-    
-    -- Check if order column exists in trashed_projects table
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'trashed_projects' AND column_name = 'order'
-    ) THEN
-        -- Add the column if it doesn't exist
-        ALTER TABLE trashed_projects ADD COLUMN "order" INTEGER DEFAULT 0;
-        RAISE NOTICE 'Added order column to trashed_projects table';
-    ELSE
-        -- Check the current type
-        IF EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'trashed_projects' 
-            AND column_name = 'order' 
-            AND data_type != 'integer'
-        ) THEN
-            -- Convert from TEXT to INTEGER if needed
-            IF EXISTS (
-                SELECT 1 FROM information_schema.columns 
-                WHERE table_name = 'trashed_projects' 
-                AND column_name = 'order' 
-                AND data_type = 'text'
-            ) THEN
-                -- Handle TEXT to INTEGER conversion
-                UPDATE trashed_projects SET "order" = '0' WHERE "order" = '' OR "order" IS NULL;
-                ALTER TABLE trashed_projects ALTER COLUMN "order" TYPE INTEGER USING "order"::INTEGER;
-                RAISE NOTICE 'Converted trashed_projects.order from TEXT to INTEGER';
-            ELSE
-                -- Handle other types
-                ALTER TABLE trashed_projects ALTER COLUMN "order" TYPE INTEGER;
-                RAISE NOTICE 'Converted trashed_projects.order to INTEGER';
-            END IF;
-        ELSE
-            RAISE NOTICE 'trashed_projects.order is already INTEGER type';
-        END IF;
-    END IF;
 END $$;
 
 -- Verify the fix
@@ -177,15 +103,17 @@ SELECT
     is_nullable
 FROM information_schema.columns 
 WHERE table_name IN ('projects', 'trashed_projects') 
-AND column_name IN ('completion_time', 'order');
+AND column_name = 'completion_time';
 
 -- Test the CASE statement logic
 SELECT 'Testing CASE statement logic:' as info;
 SELECT 
     'Empty string test' as test_name,
     CASE 
-        WHEN '' IS NULL OR '' = '' OR '' !~ '^[0-9]+$' THEN 0
-        ELSE CAST('' AS INTEGER)
+        WHEN '' IS NULL THEN 0
+        WHEN '' = '' THEN 0
+        WHEN '' ~ '^[0-9]+$' THEN CAST('' AS INTEGER)
+        ELSE 0
     END as test_result
 
 UNION ALL
@@ -193,17 +121,10 @@ UNION ALL
 SELECT 
     'Valid number test' as test_name,
     CASE 
-        WHEN '5' IS NULL OR '5' = '' OR '5' !~ '^[0-9]+$' THEN 0
-        ELSE CAST('5' AS INTEGER)
-    END as test_result
-
-UNION ALL
-
-SELECT 
-    'NULL value test' as test_name,
-    CASE 
-        WHEN NULL IS NULL OR NULL = '' OR NULL !~ '^[0-9]+$' THEN 0
-        ELSE CAST(NULL AS INTEGER)
+        WHEN '5' IS NULL THEN 0
+        WHEN '5' = '' THEN 0
+        WHEN '5' ~ '^[0-9]+$' THEN CAST('5' AS INTEGER)
+        ELSE 0
     END as test_result;
 
 -- Success message

@@ -456,16 +456,12 @@ async def startup_event():
                             microproduct_name, microproduct_content, design_template_id, created_at,
                             source_chat_session_id, folder_id, 
                             CASE 
-                                WHEN "order" IS NULL THEN 0
-                                WHEN "order" = '' THEN 0
-                                WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
-                                ELSE 0
+                                WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
+                                ELSE CAST("order" AS INTEGER)
                             END,
                             CASE 
-                                WHEN completion_time IS NULL THEN 0
-                                WHEN completion_time = '' THEN 0
-                                WHEN completion_time ~ '^[0-9]+$' THEN CAST(completion_time AS INTEGER)
-                                ELSE 0
+                                WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
+                                ELSE CAST(completion_time AS INTEGER)
                             END
                         FROM trashed_projects;
                     """)
@@ -2666,16 +2662,12 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                         microproduct_name, microproduct_content, design_template_id, created_at,
                         source_chat_session_id, folder_id, 
                         CASE 
-                            WHEN "order" IS NULL THEN 0
-                            WHEN "order" = '' THEN 0
-                            WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
-                            ELSE 0
+                            WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
+                            ELSE CAST("order" AS INTEGER)
                         END,
                         CASE 
-                            WHEN completion_time IS NULL THEN 0
-                            WHEN completion_time = '' THEN 0
-                            WHEN completion_time ~ '^[0-9]+$' THEN CAST(completion_time AS INTEGER)
-                            ELSE 0
+                            WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
+                            ELSE CAST(completion_time AS INTEGER)
                         END
                     FROM projects 
                     WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
@@ -3905,16 +3897,12 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
                         microproduct_name, microproduct_content, design_template_id, created_at,
                         source_chat_session_id, folder_id, 
                         CASE 
-                            WHEN "order" IS NULL THEN 0
-                            WHEN "order" = '' THEN 0
-                            WHEN "order" ~ '^[0-9]+$' THEN CAST("order" AS INTEGER)
-                            ELSE 0
+                            WHEN "order" IS NULL OR "order" = '' OR "order" !~ '^[0-9]+$' THEN 0
+                            ELSE CAST("order" AS INTEGER)
                         END,
                         CASE 
-                            WHEN completion_time IS NULL THEN 0
-                            WHEN completion_time = '' THEN 0
-                            WHEN completion_time ~ '^[0-9]+$' THEN CAST(completion_time AS INTEGER)
-                            ELSE 0
+                            WHEN completion_time IS NULL OR completion_time = '' OR completion_time !~ '^[0-9]+$' THEN 0
+                            ELSE CAST(completion_time AS INTEGER)
                         END
                     FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2""",
                     list(ids_to_restore), onyx_user_id
