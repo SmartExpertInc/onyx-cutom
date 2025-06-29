@@ -489,7 +489,11 @@ async def startup_event():
                     WHERE table_name = 'projects' AND column_name = 'completion_time'
                 """)
                 
-                if projects_completion_type and projects_completion_type != 'integer':
+                if not projects_completion_type:
+                    # Column doesn't exist, add it as INTEGER
+                    logger.info("Adding completion_time column to projects table as INTEGER")
+                    await connection.execute("ALTER TABLE projects ADD COLUMN completion_time INTEGER DEFAULT 0")
+                elif projects_completion_type != 'integer':
                     logger.warning(f"projects.completion_time column is {projects_completion_type}, converting to integer")
                     # Handle conversion from TEXT to INTEGER
                     if projects_completion_type == 'text':
@@ -498,6 +502,8 @@ async def startup_event():
                         await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::INTEGER")
                     else:
                         await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER")
+                else:
+                    logger.info("projects.completion_time column is already INTEGER type")
                 
                 # Check completion_time column type in trashed_projects table
                 trashed_completion_type = await connection.fetchval("""
@@ -506,7 +512,11 @@ async def startup_event():
                     WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
                 """)
                 
-                if trashed_completion_type and trashed_completion_type != 'integer':
+                if not trashed_completion_type:
+                    # Column doesn't exist, add it as INTEGER
+                    logger.info("Adding completion_time column to trashed_projects table as INTEGER")
+                    await connection.execute("ALTER TABLE trashed_projects ADD COLUMN completion_time INTEGER DEFAULT 0")
+                elif trashed_completion_type != 'integer':
                     logger.warning(f"trashed_projects.completion_time column is {trashed_completion_type}, converting to integer")
                     # Handle conversion from TEXT to INTEGER
                     if trashed_completion_type == 'text':
@@ -515,9 +525,28 @@ async def startup_event():
                         await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::INTEGER")
                     else:
                         await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER")
+                else:
+                    logger.info("trashed_projects.completion_time column is already INTEGER type")
+                    
+                # Verify the migration was successful
+                projects_final_type = await connection.fetchval("""
+                    SELECT data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' AND column_name = 'completion_time'
+                """)
+                trashed_final_type = await connection.fetchval("""
+                    SELECT data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
+                """)
+                
+                if projects_final_type == 'integer' and trashed_final_type == 'integer':
+                    logger.info("✅ completion_time migration completed successfully - both tables now have INTEGER type")
+                else:
+                    logger.error(f"❌ completion_time migration failed - projects: {projects_final_type}, trashed_projects: {trashed_final_type}")
                     
             except Exception as e:
-                logger.warning(f"Could not verify/fix completion_time column types: {e}")
+                logger.error(f"❌ Could not verify/fix completion_time column types: {e}")
                 # Continue anyway, the main operations should still work
 
         logger.info("Custom DB pool initialized & tables ensured.")
