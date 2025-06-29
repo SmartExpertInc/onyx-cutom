@@ -2536,7 +2536,22 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
             async with conn.transaction():
                 await conn.execute(
                     """
-                    INSERT INTO trashed_projects SELECT * FROM projects 
+                    INSERT INTO trashed_projects (
+                        id, onyx_user_id, project_name, product_type, microproduct_type, 
+                        microproduct_name, microproduct_content, design_template_id, created_at,
+                        source_chat_session_id, folder_id, "order", completion_time
+                    ) 
+                    SELECT 
+                        id, onyx_user_id, project_name, product_type, microproduct_type,
+                        microproduct_name, microproduct_content, design_template_id, created_at,
+                        source_chat_session_id, folder_id, 
+                        CASE 
+                            WHEN "order" IS NULL THEN 0
+                            WHEN "order" = '' THEN 0
+                            ELSE CAST("order" AS INTEGER)
+                        END,
+                        completion_time
+                    FROM projects 
                     WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
                     """,
                     list(project_ids_to_trash), onyx_user_id
