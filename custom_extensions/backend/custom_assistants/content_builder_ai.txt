@@ -238,9 +238,9 @@ A. Est. Completion Time: Randomly generate a value between 5-8 minutes for each 
 
 B. Est. Creation Time: Calculate based on "Est. Completion Time" using this mapping:
 - If completion time is 8m → creation time should be 5h
-- If completion time is 5m → creation time should be 2-3h  
-- If completion time is 6m → creation time should be 3-4h
-- If completion time is 7m → creation time should be 4-5h
+- If completion time is 5m → creation time should be either 2h or 3h (randomly pick one)
+- If completion time is 6m → creation time should be either 3h or 4h (randomly pick one)
+- If completion time is 7m → creation time should be either 4h or 5h (randomly pick one)
 
 The output for creation time must always be presented in hours. If any time calculation results in a fraction of an hour, it should be presented in hours and rounded up to one decimal place (e.g., 0.7 hours, 1.5 hours). Avoid presenting time in minutes or with long, unrounded decimal places (e.g., 0.33334 hours).
 
@@ -529,7 +529,7 @@ Lesson Details: Each detail MUST be on a new line, indented with EXACTLY two spa
 
 For English:
 
-- **Time**: [Estimated Time for this lesson - calculated based on Est. Completion Time: if completion time is 8m, creation time should be 5h; if completion time is 5m, creation time should be 2-3h; if completion time is 6m, creation time should be 3-4h; if completion time is 7m, creation time should be 4-5h]
+- **Time**: [Estimated Time for this lesson - calculated based on Est. Completion Time: if completion time is 8m, creation time should be 5h; if completion time is 5m, creation time should be 2h or 3h (randomly pick one); if completion time is 6m, creation time should be 3h or 4h (randomly pick one); if completion time is 7m, creation time should be 4h or 5h (randomly pick one)]
 
 - **Content Coverage**: [Content Coverage % for this lesson]%
 
@@ -541,7 +541,7 @@ For English:
 
 For Russian:
 
-- **Время**: [Расчетное время для этого урока - рассчитывается на основе Оц. времени завершения: если время завершения 8м, время создания должно быть 5ч; если время завершения 5м, время создания должно быть 2-3ч; если время завершения 6м, время создания должно быть 3-4ч; если время завершения 7м, время создания должно быть 4-5ч]
+- **Время**: [Расчетное время для этого урока - рассчитывается на основе Оц. времени завершения: если время завершения 8м, время создания должно быть 5ч; если время завершения 5м, время создания должно быть 2h или 3h (случайно выбираем одно из двух); если время завершения 6м, время создания должно быть 3h или 4h (случайно выбираем одно из двух); если время завершения 7м, время создания должно быть 4h или 5h (случайно выбираем одно из двух)]
 
 - **Покрытие контента**: [Процент покрытия контента для этого урока]%
 
@@ -553,7 +553,7 @@ For Russian:
 
 For Ukrainian:
 
-- **Час**: [Розрахований час для цього уроку - розраховується на основі Оц. часу завершення: якщо час завершення 8хв, час створення має бути 5год; якщо час завершення 5хв, час створення має бути 2-3год; якщо час завершення 6хв, час створення має бути 3-4год; якщо час завершення 7хв, час створення має бути 4-5год]
+- **Час**: [Розрахований час для цього уроку - розраховується на основі Оц. часу завершення: якщо час завершення 8хв, час створення має бути 5год; якщо час завершення 5хв, час створення має бути 2год або 3год (випадково обираємо одне з двох); якщо час завершення 6хв, час створення має бути 3год або 4год (випадково обираємо одне з двох); якщо час завершення 7хв, час створення має бути 4год або 5год (випадково обираємо одне з двох)]
 
 - **Покриття контенту**: [Відсоток покриття контенту для цього уроку]%
 
