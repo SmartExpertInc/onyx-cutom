@@ -147,21 +147,24 @@
             'knowledgeCheck': "Проверка знаний",
             'contentAvailability': "Наличие контента",
             'source': "Источник информации",
-            'time': "Количество часов по производству"
+            'time': "Количество часов по производству",
+            'completionTime': "Время выполнения"
         },
         'en': {
             'moduleAndLessons': "Module / Lesson",
             'knowledgeCheck': "Assessment Type",
             'contentAvailability': "Content Volume",
             'source': "Source",
-            'time': "Production Hours"
+            'time': "Production Hours",
+            'completionTime': "Est. Completion Time"
         },
         'uk': {
             'moduleAndLessons': "Модуль та уроки",
             'knowledgeCheck': "Перевірка знань",
             'contentAvailability': "Наявність контенту",
             'source': "Джерело інформації",
-            'time': "Час"
+            'time': "Час",
+            'completionTime': "Час виконання"
         }
     } %}
     {% set headers = column_headers[lang] or column_headers['ru'] %}
@@ -177,13 +180,15 @@
     {% set ca_show  = column_visibility.get('contentAvailability', True) %}
     {% set src_show = column_visibility.get('informationSource', True) %}
     {% set time_show= column_visibility.get('time', True) %}
+    {% set ct_show  = column_visibility.get('estCompletionTime', True) %}
 
     {% set span_kc   = 5 if kc_show  else 0 %}
     {% set span_ca   = 2 if ca_show  else 0 %}
     {% set span_src  = 4 if src_show else 0 %}
     {% set span_time = 4 if time_show else 0 %}
-    {% set modules_span = 20 - (span_kc + span_ca + span_src + span_time) %}
-    {% set module_header_span = 20 - span_time %}
+    {% set span_ct   = 4 if ct_show  else 0 %}
+    {% set modules_span = 20 - (span_kc + span_ca + span_src + span_time + span_ct) %}
+    {% set module_header_span = 20 - span_time - span_ct %}
 
     {% macro span_style(n) %}grid-column: span {{ n }} / span {{ n }};{% endmacro %}
 
@@ -198,18 +203,19 @@
                 {% if kc_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_kc) }}">{{ headers.knowledgeCheck }}</div>{% endif %}
                 {% if ca_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_ca) }}">{{ headers.contentAvailability }}</div>{% endif %}
                 {% if src_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_src) }}">{{ headers.source }}</div>{% endif %}
-                {% if time_show %}<div class="text-center px-2 py-3" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
+                {% if time_show %}<div class="text-center px-2 py-3 border-r border-gray-300" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
+                {% if ct_show %}<div class="text-center px-2 py-3" style="{{ span_style(span_ct) }}">{{ headers.completionTime }}</div>{% endif %}
             </div>
 
             <div class="text-xxs"> 
                 {% for section in details.sections %}
                 <div>
                     <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200" style="background-color: {{ current_theme.moduleHeaderBg }};">
-                        <div class="flex items-center space-x-2 pr-2 {% if time_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span) }}">
+                        <div class="flex items-center space-x-2 pr-2 {% if time_show or ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span) }}">
                             <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: {{ current_theme.iconColor }};">{{ section.id }}</span>
                             <span class="font-semibold text-gray-800">{{ section.title }}</span>
                         </div>
-                        {% if time_show %}<div class="flex items-center justify-start space-x-1 font-semibold px-2" style="{{ span_style(span_time) }}">
+                        {% if time_show %}<div class="flex items-center justify-start space-x-1 font-semibold px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                              <div class="w-3 h-3 flex justify-center items-center">
                                  <svg class="w-3 h-3" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill="#FF1414"/></svg>
                              </div>
@@ -221,6 +227,31 @@
                                                                 <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ s_formatted_hours }}{{ time_unit_general_plural }}</span>
                              {% else %}
                                <span class="text-red-500 flex-grow text-left">-</span>
+                             {% endif %}
+                        </div>{% endif %}
+                        {% if ct_show %}<div class="flex items-center justify-start space-x-1 font-semibold px-2" style="{{ span_style(span_ct) }}">
+                             <div class="w-3 h-3 flex justify-center items-center">
+                                 <svg class="w-3 h-3" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill="#FF1414"/></svg>
+                             </div>
+                             {% set section_completion_time = 0 %}
+                             {% for lesson in section.lessons %}
+                                 {% if lesson.completionTime %}
+                                     {% set time_str = lesson.completionTime %}
+                                     {% if time_str.endswith('m') %}
+                                         {% set section_completion_time = section_completion_time + (time_str[:-1] | int) %}
+                                     {% endif %}
+                                 {% endif %}
+                             {% endfor %}
+                             {% if section_completion_time > 0 %}
+                                 {% if section_completion_time < 60 %}
+                                     <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ section_completion_time }}m</span>
+                                 {% else %}
+                                     {% set hours = (section_completion_time // 60) | int %}
+                                     {% set minutes = section_completion_time % 60 %}
+                                     <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ hours }}h {{ minutes }}m</span>
+                                 {% endif %}
+                             {% else %}
+                                 <span class="text-red-500 flex-grow text-left">-</span>
                              {% endif %}
                         </div>{% endif %}
                     </div>
@@ -257,7 +288,7 @@
                                 {{ source_text }}
                             {% endif %}
                         </div>{% endif %}
-                        {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2" style="{{ span_style(span_time) }}">
+                        {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                             <div class="w-3 flex justify-center">
                                  <svg class="w-3 h-3" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill="#FF1414"/></svg>
                             </div>
@@ -273,6 +304,16 @@
                                {% endif %}
                              {% else %}
                                <span class="flex-grow text-left">-</span>
+                             {% endif %}
+                        </div>{% endif %}
+                        {% if ct_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2" style="{{ span_style(span_ct) }}">
+                            <div class="w-3 flex justify-center">
+                                 <svg class="w-3 h-3" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill="#FF1414"/></svg>
+                            </div>
+                             {% if lesson.completionTime %}
+                                 <span class="flex-grow text-left">{{ lesson.completionTime }}</span>
+                             {% else %}
+                                 <span class="flex-grow text-left">-</span>
                              {% endif %}
                         </div>{% endif %}
                     </div>
