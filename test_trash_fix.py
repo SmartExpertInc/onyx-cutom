@@ -21,7 +21,7 @@ async def test_trash_operation():
         
         print("✅ Connected to database")
         
-        # Test 1: Check if completion_time column exists and is TEXT type
+        # Test 1: Check if completion_time column exists and is INTEGER type
         print("\n🔍 Testing completion_time column schema...")
         
         # Check projects table
@@ -40,38 +40,38 @@ async def test_trash_operation():
         """)
         print(f"   trashed_projects.completion_time type: {trashed_completion_type}")
         
-        # Test 2: Test the CASE statement logic
-        print("\n🧪 Testing CASE statement logic...")
+        # Test 2: Test the CASE statement logic for INTEGER
+        print("\n🧪 Testing CASE statement logic for INTEGER...")
         
         # Test with NULL value
         result1 = await conn.fetchval("""
             SELECT CASE 
-                WHEN NULL IS NULL THEN ''
-                WHEN NULL = '' THEN ''
-                ELSE NULL::TEXT
+                WHEN NULL IS NULL THEN 0
+                WHEN NULL = '' THEN 0
+                ELSE NULL::INTEGER
             END as test_result
         """)
-        print(f"   NULL value result: '{result1}'")
+        print(f"   NULL value result: {result1}")
         
         # Test with empty string
         result2 = await conn.fetchval("""
             SELECT CASE 
-                WHEN '' IS NULL THEN ''
-                WHEN '' = '' THEN ''
-                ELSE ''::TEXT
+                WHEN '' IS NULL THEN 0
+                WHEN '' = '' THEN 0
+                ELSE ''::INTEGER
             END as test_result
         """)
-        print(f"   Empty string result: '{result2}'")
+        print(f"   Empty string result: {result2}")
         
         # Test with actual value
         result3 = await conn.fetchval("""
             SELECT CASE 
-                WHEN '5m' IS NULL THEN ''
-                WHEN '5m' = '' THEN ''
-                ELSE '5m'::TEXT
+                WHEN 5 IS NULL THEN 0
+                WHEN 5 = '' THEN 0
+                ELSE 5::INTEGER
             END as test_result
         """)
-        print(f"   '5m' value result: '{result3}'")
+        print(f"   5 value result: {result3}")
         
         # Test 3: Test the actual INSERT statement (without executing)
         print("\n📝 Testing INSERT statement syntax...")
@@ -94,9 +94,9 @@ async def test_trash_operation():
                 ELSE 0
             END,
             CASE 
-                WHEN completion_time IS NULL THEN ''
-                WHEN completion_time = '' THEN ''
-                ELSE completion_time::TEXT
+                WHEN completion_time IS NULL THEN 0
+                WHEN completion_time = '' THEN 0
+                ELSE completion_time::INTEGER
             END
         FROM projects 
         WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
@@ -111,27 +111,27 @@ async def test_trash_operation():
         print(f"   Total projects: {projects_count}")
         
         projects_with_completion = await conn.fetchval("""
-            SELECT COUNT(*) FROM projects WHERE completion_time IS NOT NULL AND completion_time != ''
+            SELECT COUNT(*) FROM projects WHERE completion_time IS NOT NULL AND completion_time != 0
         """)
         print(f"   Projects with completion_time: {projects_with_completion}")
         
         # Sample some completion_time values
         sample_values = await conn.fetch("""
             SELECT completion_time FROM projects 
-            WHERE completion_time IS NOT NULL AND completion_time != '' 
+            WHERE completion_time IS NOT NULL AND completion_time != 0 
             LIMIT 5
         """)
         
         if sample_values:
             print("   Sample completion_time values:")
             for row in sample_values:
-                print(f"     - '{row['completion_time']}'")
+                print(f"     - {row['completion_time']} minutes")
         else:
             print("   No completion_time values found")
         
         print("\n✅ All tests completed successfully!")
         print("\n📋 Summary:")
-        print("   - completion_time column is properly typed as TEXT")
+        print("   - completion_time column is properly typed as INTEGER")
         print("   - CASE statement handles NULL, empty, and valid values correctly")
         print("   - INSERT statement syntax is valid")
         print("   - Ready for trash operations with Est. Completion Time column")

@@ -394,7 +394,7 @@ async def startup_event():
 
             # Add completionTime column to projects table (for the new completion time feature)
             try:
-                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time TEXT;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
             except Exception as e:
                 # Column might already exist, which is fine
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
@@ -402,7 +402,7 @@ async def startup_event():
             
             # Add completionTime column to trashed_projects table to match projects table schema
             try:
-                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time TEXT;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
             except Exception as e:
                 # Column might already exist, which is fine
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
@@ -462,9 +462,9 @@ async def startup_event():
                                 ELSE 0
                             END,
                             CASE 
-                                WHEN completion_time IS NULL THEN ''
-                                WHEN completion_time = '' THEN ''
-                                ELSE completion_time::TEXT
+                                WHEN completion_time IS NULL THEN 0
+                                WHEN completion_time = '' THEN 0
+                                ELSE completion_time::INTEGER
                             END
                         FROM trashed_projects;
                     """)
@@ -480,7 +480,7 @@ async def startup_event():
                 logger.warning(f"Could not verify/fix trashed_projects schema: {e}")
                 # Continue anyway, the main operations should still work
 
-            # Ensure completion_time column is TEXT type in both tables
+            # Ensure completion_time column is INTEGER type in both tables
             try:
                 # Check completion_time column type in projects table
                 projects_completion_type = await connection.fetchval("""
@@ -489,9 +489,15 @@ async def startup_event():
                     WHERE table_name = 'projects' AND column_name = 'completion_time'
                 """)
                 
-                if projects_completion_type and projects_completion_type != 'text':
-                    logger.warning(f"projects.completion_time column is {projects_completion_type}, converting to text")
-                    await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE TEXT;")
+                if projects_completion_type and projects_completion_type != 'integer':
+                    logger.warning(f"projects.completion_time column is {projects_completion_type}, converting to integer")
+                    # Handle conversion from TEXT to INTEGER
+                    if projects_completion_type == 'text':
+                        # First convert empty strings to 0, then change type
+                        await connection.execute("UPDATE projects SET completion_time = '0' WHERE completion_time = '' OR completion_time IS NULL")
+                        await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::INTEGER")
+                    else:
+                        await connection.execute("ALTER TABLE projects ALTER COLUMN completion_time TYPE INTEGER")
                 
                 # Check completion_time column type in trashed_projects table
                 trashed_completion_type = await connection.fetchval("""
@@ -500,9 +506,15 @@ async def startup_event():
                     WHERE table_name = 'trashed_projects' AND column_name = 'completion_time'
                 """)
                 
-                if trashed_completion_type and trashed_completion_type != 'text':
-                    logger.warning(f"trashed_projects.completion_time column is {trashed_completion_type}, converting to text")
-                    await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE TEXT;")
+                if trashed_completion_type and trashed_completion_type != 'integer':
+                    logger.warning(f"trashed_projects.completion_time column is {trashed_completion_type}, converting to integer")
+                    # Handle conversion from TEXT to INTEGER
+                    if trashed_completion_type == 'text':
+                        # First convert empty strings to 0, then change type
+                        await connection.execute("UPDATE trashed_projects SET completion_time = '0' WHERE completion_time = '' OR completion_time IS NULL")
+                        await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER USING completion_time::INTEGER")
+                    else:
+                        await connection.execute("ALTER TABLE trashed_projects ALTER COLUMN completion_time TYPE INTEGER")
                     
             except Exception as e:
                 logger.warning(f"Could not verify/fix completion_time column types: {e}")
@@ -2630,9 +2642,9 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                             ELSE 0
                         END,
                         CASE 
-                            WHEN completion_time IS NULL THEN ''
-                            WHEN completion_time = '' THEN ''
-                            ELSE completion_time::TEXT
+                            WHEN completion_time IS NULL THEN 0
+                            WHEN completion_time = '' THEN 0
+                            ELSE completion_time::INTEGER
                         END
                     FROM projects 
                     WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
@@ -3868,9 +3880,9 @@ async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_
                             ELSE 0
                         END,
                         CASE 
-                            WHEN completion_time IS NULL THEN ''
-                            WHEN completion_time = '' THEN ''
-                            ELSE completion_time::TEXT
+                            WHEN completion_time IS NULL THEN 0
+                            WHEN completion_time = '' THEN 0
+                            ELSE completion_time::INTEGER
                         END
                     FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2""",
                     list(ids_to_restore), onyx_user_id
