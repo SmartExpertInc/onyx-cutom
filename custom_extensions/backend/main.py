@@ -4257,6 +4257,7 @@ class ProjectFolderListResponse(BaseModel):
     project_count: int
     total_lessons: int
     total_hours: float
+    total_completion_time: int
     model_config = {"from_attributes": True}
 
 class ProjectFolderRenameRequest(BaseModel):
@@ -4299,7 +4300,27 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                         ELSE 0 
                     END
                 ), 0
-            ) as total_hours
+            ) as total_hours,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN p.microproduct_content IS NOT NULL 
+                        AND p.microproduct_content->>'sections' IS NOT NULL 
+                        THEN (
+                            SELECT COALESCE(SUM(
+                                CASE 
+                                    WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
+                                    THEN (REPLACE(lesson->>'completionTime', 'm', '')::int)
+                                    ELSE 0 
+                                END
+                            ), 0)
+                            FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        )
+                        ELSE 0 
+                    END
+                ), 0
+            ) as total_completion_time
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1

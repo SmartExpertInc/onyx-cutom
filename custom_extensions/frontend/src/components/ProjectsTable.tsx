@@ -54,6 +54,7 @@ interface Folder {
   order: number;
   total_lessons: number;
   total_hours: number;
+  total_completion_time: number;
 }
 
 interface ProjectsTableProps {
@@ -1748,18 +1749,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                 {folder.total_hours > 0 ? folder.total_hours : '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {/* Calculate total completion time for folder projects */}
-                                                {(() => {
-                                                    if (!folderProjects[folder.id]) return '-';
-                                                    const totalCompletionTime = folderProjects[folder.id].reduce((total, project) => {
-                                                        const lessonData = lessonDataCache[project.id];
-                                                        if (lessonData && typeof lessonData.completionTime === 'number') {
-                                                            return total + lessonData.completionTime;
-                                                        }
-                                                        return total;
-                                                    }, 0);
-                                                    return totalCompletionTime > 0 ? formatCompletionTime(totalCompletionTime) : '-';
-                                                })()}
+                                                {folder.total_completion_time > 0 ? formatCompletionTime(folder.total_completion_time) : '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Empty cell for folder rows */}
