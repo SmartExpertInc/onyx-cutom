@@ -550,6 +550,7 @@ class SectionDetail(BaseModel):
     id: str
     title: str
     totalHours: float = 0.0
+    totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
     lessons: List[LessonDetail] = Field(default_factory=list)
     autoCalculateHours: bool = True
     model_config = {"from_attributes": True}
@@ -2360,6 +2361,7 @@ async def download_project_instance_pdf(
     contentAvailability: Optional[str] = Query(None),
     informationSource: Optional[str] = Query(None),
     time: Optional[str] = Query(None),
+    estCompletionTime: Optional[str] = Query(None),
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -2445,6 +2447,35 @@ async def download_project_instance_pdf(
                         detected_lang_for_pdf = parsed_model.detectedLanguage
                         # Update locale strings if language detection changed
                         current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
+                    
+                    # Calculate completion time for each section
+                    for section in parsed_model.sections:
+                        total_completion_minutes = 0
+                        for lesson in section.lessons:
+                            if lesson.completionTime:
+                                time_str = str(lesson.completionTime).strip()
+                                if time_str and time_str != '':
+                                    if time_str.endswith('m'):
+                                        try:
+                                            minutes = int(time_str[:-1])
+                                            total_completion_minutes += minutes
+                                        except ValueError:
+                                            pass
+                                    elif time_str.endswith('h'):
+                                        try:
+                                            hours = int(time_str[:-1])
+                                            total_completion_minutes += (hours * 60)
+                                        except ValueError:
+                                            pass
+                                    elif time_str.isdigit():
+                                        try:
+                                            total_completion_minutes += int(time_str)
+                                        except ValueError:
+                                            pass
+                        
+                        # Add the calculated completion time to the section
+                        section.totalCompletionTime = total_completion_minutes
+                    
                     temp_dumped_dict = parsed_model.model_dump(mode='json', exclude_none=True)
                     logger.info(f"PDF Gen (Proj {project_id}): Dumped dict sections length: {len(temp_dumped_dict.get('sections', []))}")
                     data_for_template_render = json.loads(json.dumps(temp_dumped_dict))
@@ -2541,6 +2572,7 @@ async def download_project_instance_pdf(
                 'contentAvailability': contentAvailability == '1' if contentAvailability else True,
                 'informationSource': informationSource == '1' if informationSource else True,
                 'time': time == '1' if time else True,
+                'estCompletionTime': estCompletionTime == '1' if estCompletionTime else True,
             }
             context_for_jinja['columnVisibility'] = column_visibility
 

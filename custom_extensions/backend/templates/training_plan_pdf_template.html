@@ -233,27 +233,12 @@
                              <div class="w-3 h-3 flex justify-center items-center">
                                  <svg class="w-3 h-3" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill="#FF1414"/></svg>
                              </div>
-                             {% set total_minutes = 0 %}
-                             {% for lesson in section.lessons %}
-                                 {% if lesson.completionTime %}
-                                     {% set time_str = lesson.completionTime | string | trim %}
-                                     {% if time_str and time_str != '' %}
-                                         {% if time_str.endswith('m') %}
-                                             {% set total_minutes = total_minutes + (time_str[:-1] | int) %}
-                                         {% elif time_str.endswith('h') %}
-                                             {% set total_minutes = total_minutes + ((time_str[:-1] | int) * 60) %}
-                                         {% elif time_str.isdigit() %}
-                                             {% set total_minutes = total_minutes + (time_str | int) %}
-                                         {% endif %}
-                                     {% endif %}
-                                 {% endif %}
-                             {% endfor %}
-                             {% if total_minutes > 0 %}
-                                 {% if total_minutes < 60 %}
-                                     <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ total_minutes }}m</span>
+                             {% if section.totalCompletionTime and section.totalCompletionTime > 0 %}
+                                 {% if section.totalCompletionTime < 60 %}
+                                     <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ section.totalCompletionTime }}m</span>
                                  {% else %}
-                                     {% set hours = (total_minutes // 60) | int %}
-                                     {% set minutes = total_minutes % 60 %}
+                                     {% set hours = (section.totalCompletionTime // 60) | int %}
+                                     {% set minutes = section.totalCompletionTime % 60 %}
                                      <span class="flex-grow text-left" style="color: {{ current_theme.iconColor }};">{{ hours }}h {{ minutes }}m</span>
                                  {% endif %}
                              {% else %}
