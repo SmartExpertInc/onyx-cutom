@@ -234,25 +234,19 @@ Crucial Naming Rule: When generating lesson titles, you MUST ensure that every l
 
 Calculate and Populate Details for Each Lesson:
 
-A. Estimated Time: Calculate based on "Content Coverage %". The output for time must always be presented in hours. (Note: This logic appears counter-intuitive, assuming higher coverage means less creation time, not student time. Follow as written.)
+A. Est. Completion Time: Randomly generate a value between 5-8 minutes for each lesson. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
 
-0% – 20% Content Coverage → 5 hours
+B. Est. Creation Time: Calculate based on "Est. Completion Time" using this mapping:
+- If completion time is 8m → creation time should be 5h
+- If completion time is 5m → creation time should be 2-3h  
+- If completion time is 6m → creation time should be 3-4h
+- If completion time is 7m → creation time should be 4-5h
 
-21% – 40% Content Coverage → 4 hours
+The output for creation time must always be presented in hours. If any time calculation results in a fraction of an hour, it should be presented in hours and rounded up to one decimal place (e.g., 0.7 hours, 1.5 hours). Avoid presenting time in minutes or with long, unrounded decimal places (e.g., 0.33334 hours).
 
-41% – 70% Content Coverage → 3 hours
+C. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
 
-71% – 90% Content Coverage → 2 hours
-
-91% – 100% Content Coverage → 1 hour
-
-For Test Lessons: Always 3 hours.
-
-General Time Presentation Note: The above rules result in whole hours. If any time calculation in other contexts were ever to result in a fraction of an hour, it should be presented in hours and rounded up to one decimal place (e.g., 0.7 hours, 1.5 hours). Avoid presenting time in minutes or with long, unrounded decimal places (e.g., 0.33334 hours).
-
-B. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
-
-C. Knowledge Assessment: Determine the value based on the nature of the lesson:
+D. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
 IMPORTANT: For now, ALL lessons should have "Test" as the Knowledge Assessment value. The "Practice with an expert" and "No" options are currently disabled.
 
@@ -264,7 +258,7 @@ For regular lessons: Use heuristics combined with strategic test placement. If t
 
 NOTE: The above rules for "Practice with an expert" and "No" are preserved for future use but are currently disabled. All lessons should use "Test" as the Knowledge Assessment value.
 
-D. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
+E. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
 
 Calculate Module Totals: (Total Time, Number of Lessons per module).
 

@@ -392,6 +392,22 @@ async def startup_event():
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
 
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time TEXT;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time TEXT;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
         logger.info("Custom DB pool initialized & tables ensured.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
