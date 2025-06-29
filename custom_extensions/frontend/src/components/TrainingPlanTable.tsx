@@ -250,10 +250,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const truncateText = (text: string | undefined | null, maxLength: number): string => {
     if (!text) return '';
-    if (text.length <= maxLength) {
-      return text;
-    }
-    return text.substring(0, maxLength) + "...";
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
+
+  // Calculate total completion time for a section
+  const calculateTotalCompletionTime = (section: SectionType): string => {
+    if (!section.lessons || section.lessons.length === 0) return '0m';
+    
+    const totalMinutes = section.lessons.reduce((total, lesson) => {
+      const completionTime = lesson.completionTime || '5m';
+      const minutes = parseInt(completionTime.replace('m', '')) || 5;
+      return total + minutes;
+    }, 0);
+    
+    return `${totalMinutes}m`;
   };
 
   // ---- Determine column visibility based on query params OR stored displayOptions ----
@@ -436,7 +446,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     return (
                       <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
                         <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
-                        <span style={{ color: iconBaseColor }} className="flex-grow text-left">-</span>
+                        <span style={{ color: iconBaseColor }} className="flex-grow text-left">{calculateTotalCompletionTime(section)}</span>
                       </div>
                     );
                   }
@@ -513,7 +523,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           return (
                             <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 px-2 ${borderClasses}`}>
                               <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
-                              <span className="flex-grow text-left">{lesson.completionTime}</span>
+                              {isEditing && onTextChange ? (
+                                <input 
+                                  type="text" 
+                                  value={lesson.completionTime || ''} 
+                                  onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e)} 
+                                  className={`${editingInputSmallClass} w-16 text-right`} 
+                                  placeholder="5m"
+                                />
+                              ) : (
+                                <span className="flex-grow text-left">{lesson.completionTime}</span>
+                              )}
                             </div>
                           );
                         default:

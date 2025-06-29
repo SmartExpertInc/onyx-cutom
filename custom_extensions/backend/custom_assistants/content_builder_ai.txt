@@ -535,7 +535,7 @@ Lesson Details: Each detail MUST be on a new line, indented with EXACTLY two spa
 
 For English:
 
-- **Time**: [Estimated Time for this lesson]
+- **Time**: [Estimated Time for this lesson - calculated based on Est. Completion Time: if completion time is 8m, creation time should be 5h; if completion time is 5m, creation time should be 2-3h; if completion time is 6m, creation time should be 3-4h; if completion time is 7m, creation time should be 4-5h]
 
 - **Content Coverage**: [Content Coverage % for this lesson]%
 
@@ -547,7 +547,7 @@ For English:
 
 For Russian:
 
-- **Время**: [Расчетное время для этого урока]
+- **Время**: [Расчетное время для этого урока - рассчитывается на основе Оц. времени завершения: если время завершения 8м, время создания должно быть 5ч; если время завершения 5м, время создания должно быть 2-3ч; если время завершения 6м, время создания должно быть 3-4ч; если время завершения 7м, время создания должно быть 4-5ч]
 
 - **Покрытие контента**: [Процент покрытия контента для этого урока]%
 
@@ -559,7 +559,7 @@ For Russian:
 
 For Ukrainian:
 
-- **Час**: [Розрахований час для цього уроку]
+- **Час**: [Розрахований час для цього уроку - розраховується на основі Оц. часу завершення: якщо час завершення 8хв, час створення має бути 5год; якщо час завершення 5хв, час створення має бути 2-3год; якщо час завершення 6хв, час створення має бути 3-4год; якщо час завершення 7хв, час створення має бути 4-5год]
 
 - **Покриття контенту**: [Відсоток покриття контенту для цього уроку]%
 
