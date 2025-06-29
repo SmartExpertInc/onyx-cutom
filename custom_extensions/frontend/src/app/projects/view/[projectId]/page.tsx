@@ -185,6 +185,16 @@ export default function ProjectInstanceViewPage() {
       if (instanceData.details) {
         const copiedDetails = JSON.parse(JSON.stringify(instanceData.details));
         if (instanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
+          // Normalize completionTime for all lessons
+          if (copiedDetails.sections) {
+            copiedDetails.sections.forEach((section: any) => {
+              if (section.lessons) {
+                section.lessons.forEach((lesson: any) => {
+                  if (!lesson.completionTime) lesson.completionTime = '5m';
+                });
+              }
+            });
+          }
           setEditableData(copiedDetails as TrainingPlanData);
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData(copiedDetails as PdfLessonData);

@@ -29,6 +29,7 @@ export interface Lesson {
   contentAvailable: StatusInfo;
   source: string;
   hours: number;
+  completionTime: string; // Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
 }
 
 export interface Section {

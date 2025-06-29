@@ -323,12 +323,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   let lessonCounter = 0;
 
-  // Helper for random minutes
-  const getRandomMinutes = () => {
-    const options = [5, 6, 7, 8];
-    return options[Math.floor(Math.random() * options.length)];
-  };
-
   return (
     <div className="font-['Inter',_sans-serif] bg-gray-50">
       <CreateLessonTypeModal
@@ -442,7 +436,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     return (
                       <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
                         <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
-                        <span style={{ color: iconBaseColor }} className="flex-grow text-left">{getRandomMinutes()}m</span>
+                        <span style={{ color: iconBaseColor }} className="flex-grow text-left">-</span>
                       </div>
                     );
                   }
@@ -519,7 +513,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           return (
                             <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 px-2 ${borderClasses}`}>
                               <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
-                              <span className="flex-grow text-left">{getRandomMinutes()}m</span>
+                              <span className="flex-grow text-left">{lesson.completionTime}</span>
                             </div>
                           );
                         default:

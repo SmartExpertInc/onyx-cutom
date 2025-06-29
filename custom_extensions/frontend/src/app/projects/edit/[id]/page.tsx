@@ -22,6 +22,7 @@ const createEmptyStatusInfo = (): StatusInfo => ({ type: 'unknown', text: '' });
 const createEmptyLesson = (idSuffix: string | number = Date.now()): LessonType => ({
   id: `L${idSuffix}_${Math.random().toString(36).substr(2, 5)}`, title: '',
   check: createEmptyStatusInfo(), contentAvailable: createEmptyStatusInfo(), source: '', hours: 0,
+  completionTime: '5m', // Default completion time
 });
 const createEmptySection = (idSuffix: string | number = Date.now()): SectionType => ({
   id: `S_${idSuffix}_${Math.random().toString(36).substr(2, 5)}`, title: '', totalHours: 0,
@@ -210,19 +211,6 @@ const EditProjectPageComponent = () => {
     );
     setTrainingPlanData({ ...trainingPlanData, sections: newSections });
   };
-  const toggleAutoCalculateHours = (sectionIndex: number) => {
-    if (!trainingPlanData) return;
-    const newSections = [...trainingPlanData.sections];
-    const section = newSections[sectionIndex];
-    if (section) {
-      const newAutoCalculateState = !section.autoCalculateHours;
-      newSections[sectionIndex] = { ...section, autoCalculateHours: newAutoCalculateState };
-      if (newAutoCalculateState) {
-        newSections[sectionIndex].totalHours = section.lessons.reduce((sum, lesson) => sum + (Number(lesson.hours) || 0), 0);
-      }
-      setTrainingPlanData({ ...trainingPlanData, sections: newSections });
-    }
-  };
   const handleLessonChange = (sectionIndex: number, lessonIndex: number, field: keyof LessonType, value: any) => {
     if (!trainingPlanData) return;
     const newSections = [...trainingPlanData.sections];
@@ -252,11 +240,9 @@ const EditProjectPageComponent = () => {
       setTrainingPlanData({ ...trainingPlanData, sections: newSections });
   };
   const addSection = () => {
-    setTrainingPlanData(prev => {
-        const basePlan = prev || createEmptyTrainingPlan(projectName);
-        const newSection = createEmptySection(basePlan.sections?.length ? basePlan.sections.length + 1 : 1);
-        return { ...basePlan, sections: [...(basePlan.sections || []), newSection] };
-    });
+    if (!trainingPlanData) return;
+    const newSections = [...trainingPlanData.sections, createEmptySection()];
+    setTrainingPlanData({ ...trainingPlanData, sections: newSections });
   };
   const removeSection = (sectionIndex: number) => {
     if (!trainingPlanData) return;
@@ -300,6 +286,19 @@ const EditProjectPageComponent = () => {
     currentSection.lessons = lessons;
     newSections[sectionIndex] = currentSection;
     setTrainingPlanData({ ...trainingPlanData, sections: newSections });
+  };
+  const toggleAutoCalculateHours = (sectionIndex: number) => {
+    if (!trainingPlanData) return;
+    const newSections = [...trainingPlanData.sections];
+    const section = newSections[sectionIndex];
+    if (section) {
+      const newAutoCalculateState = !section.autoCalculateHours;
+      newSections[sectionIndex] = { ...section, autoCalculateHours: newAutoCalculateState };
+      if (newAutoCalculateState) {
+        newSections[sectionIndex].totalHours = section.lessons.reduce((sum, lesson) => sum + (Number(lesson.hours) || 0), 0);
+      }
+      setTrainingPlanData({ ...trainingPlanData, sections: newSections });
+    }
   };
 
   if (isLoading && !initialDataLoaded) return <div className="p-8 text-center font-['Inter',_sans-serif]">Loading project details...</div>;

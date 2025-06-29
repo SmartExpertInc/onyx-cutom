@@ -97,7 +97,8 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
           "check": {"type": "test", "text": "Knowledge Test"},
           "contentAvailable": {"type": "yes", "text": "100%"},
           "source": "Internal Documentation",
-          "hours": 2.0
+          "hours": 2.0,
+          "completionTime": "6m"
         }
       ]
     }
@@ -431,6 +432,7 @@ class LessonDetail(BaseModel):
     contentAvailable: StatusInfo = Field(default_factory=StatusInfo)
     source: str = ""
     hours: float = 0.0
+    completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -1683,6 +1685,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `title` (string): Lesson title WITHOUT leading numeration like "Lesson 1.1".
             * `hours` (number): Duration in hours. If absent, default to 1.
             * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
+            * `completionTime` (string): Estimated completion time in minutes, randomly generated between 5-8 minutes. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
             * `check` (object):
                 - `type` (string): One of "test", "quiz", "practice", "none".
                 - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
