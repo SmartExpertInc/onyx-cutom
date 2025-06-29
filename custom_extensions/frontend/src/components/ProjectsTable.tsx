@@ -27,7 +27,9 @@ import {
   FolderMinus,
   Folder,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 
 interface Project {
@@ -61,6 +63,15 @@ interface ProjectsTableProps {
     /** If true – table displays items from Trash and hides create/filter toolbars */
     trashMode?: boolean;
     folderId?: number | null;
+}
+
+interface ColumnVisibility {
+    title: boolean;
+    created: boolean;
+    creator: boolean;
+    numberOfLessons: boolean;
+    estCreationTime: boolean;
+    estCompletionTime: boolean;
 }
 
 const ProjectCard: React.FC<{ 
@@ -857,6 +868,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
     const [folderProjects, setFolderProjects] = useState<Record<number, Project[]>>({});
     
+    // Column visibility state
+    const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
+        title: true,
+        created: false,
+        creator: false,
+        numberOfLessons: true,
+        estCreationTime: true,
+        estCompletionTime: true
+    });
+    const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
+    
     // Drag and drop reordering state
     const [draggedProject, setDraggedProject] = useState<Project | null>(null);
     const [draggedFolder, setDraggedFolder] = useState<Folder | null>(null);
@@ -1165,6 +1187,24 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         window.addEventListener('refreshProjects', handleRefresh);
         return () => window.removeEventListener('refreshProjects', handleRefresh);
     }, [refreshProjects]);
+
+    // Handle clicking outside the columns dropdown
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Element;
+            if (!target.closest('[data-columns-dropdown]')) {
+                setShowColumnsDropdown(false);
+            }
+        };
+
+        if (showColumnsDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showColumnsDropdown]);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -1625,6 +1665,55 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         <ArrowUpDown size={16} className="text-gray-800" />
                         Sort
                     </button>
+                    
+                    {/* Columns Dropdown */}
+                    <div className="relative" data-columns-dropdown>
+                        <button 
+                            onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
+                            className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700"
+                        >
+                            <List size={16} className="text-gray-800" />
+                            Columns
+                            <ChevronDown size={14} className="text-gray-600" />
+                        </button>
+                        
+                        {showColumnsDropdown && (
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                <div className="p-2">
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Show columns</div>
+                                    {[
+                                        { key: 'title', label: 'Title' },
+                                        { key: 'created', label: 'Created' },
+                                        { key: 'creator', label: 'Creator' },
+                                        { key: 'numberOfLessons', label: 'Number of lessons' },
+                                        { key: 'estCreationTime', label: 'Est. creation time' },
+                                        { key: 'estCompletionTime', label: 'Est. completion time' }
+                                    ].map((column) => (
+                                        <label key={column.key} className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                            {columnVisibility[column.key as keyof ColumnVisibility] ? (
+                                                <CheckSquare size={16} className="text-blue-600" />
+                                            ) : (
+                                                <Square size={16} className="text-gray-400" />
+                                            )}
+                                            <span className="text-sm text-gray-700">{column.label}</span>
+                                            <input
+                                                type="checkbox"
+                                                checked={columnVisibility[column.key as keyof ColumnVisibility]}
+                                                onChange={(e) => {
+                                                    setColumnVisibility(prev => ({
+                                                        ...prev,
+                                                        [column.key]: e.target.checked
+                                                    }));
+                                                }}
+                                                className="sr-only"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
                     <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
                         <button 
                             onClick={() => setViewMode('Grid')}
@@ -1664,12 +1753,24 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Number of lessons</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. creation time</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. completion time</th>
+                                    {columnVisibility.title && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                                    )}
+                                    {columnVisibility.created && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
+                                    )}
+                                    {columnVisibility.creator && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
+                                    )}
+                                    {columnVisibility.numberOfLessons && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Number of lessons</th>
+                                    )}
+                                    {columnVisibility.estCreationTime && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. creation time</th>
+                                    )}
+                                    {columnVisibility.estCompletionTime && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. completion time</th>
+                                    )}
                                     <th className="px-6 py-3"></th>
                                 </tr>
                             </thead>
@@ -1706,51 +1807,63 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             onDrop={(e) => handleDrop(e, folderIndex)}
                                             onDragEnd={handleDragEnd}
                                         >
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                            <circle cx="9" cy="5" r="2"/>
-                                                            <circle cx="9" cy="12" r="2"/>
-                                                            <circle cx="9" cy="19" r="2"/>
-                                                            <circle cx="15" cy="5" r="2"/>
-                                                            <circle cx="15" cy="12" r="2"/>
-                                                            <circle cx="15" cy="19" r="2"/>
-                                                        </svg>
-                                                    </div>
-                                                    <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
-                                                        <ChevronRight 
-                                                            size={16} 
-                                                            className={`transition-transform duration-200 ${
-                                                                expandedFolders.has(folder.id) ? 'rotate-90' : ''
-                                                            }`}
-                                                        />
-                                                    </button>
-                                                    <Folder size={16} className="text-blue-600 mr-2" />
-                                                    <span className="font-semibold text-blue-700">{folder.name}</span>
-                                                    <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                                        {folder.project_count} {folder.project_count === 1 ? 'item' : 'items'}
+                                            {columnVisibility.title && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    <span className="inline-flex items-center">
+                                                        <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                                <circle cx="9" cy="5" r="2"/>
+                                                                <circle cx="9" cy="12" r="2"/>
+                                                                <circle cx="9" cy="19" r="2"/>
+                                                                <circle cx="15" cy="5" r="2"/>
+                                                                <circle cx="15" cy="12" r="2"/>
+                                                                <circle cx="15" cy="19" r="2"/>
+                                                            </svg>
+                                                        </div>
+                                                        <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
+                                                            <ChevronRight 
+                                                                size={16} 
+                                                                className={`transition-transform duration-200 ${
+                                                                    expandedFolders.has(folder.id) ? 'rotate-90' : ''
+                                                                }`}
+                                                            />
+                                                        </button>
+                                                        <Folder size={16} className="text-blue-600 mr-2" />
+                                                        <span className="font-semibold text-blue-700">{folder.name}</span>
+                                                        <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                            {folder.project_count} {folder.project_count === 1 ? 'item' : 'items'}
+                                                        </span>
                                                     </span>
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                </td>
+                                            )}
+                                            {columnVisibility.created && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
+                                            )}
+                                            {columnVisibility.creator && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <span className="inline-flex items-center">
+                                                        <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                            <span className="text-xs font-bold text-gray-700">Y</span>
+                                                        </span>
+                                                        You
                                                     </span>
-                                                    You
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {folder.total_lessons > 0 ? folder.total_lessons : '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {folder.total_hours > 0 ? folder.total_hours : '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {folder.total_completion_time > 0 ? formatCompletionTime(folder.total_completion_time) : '-'}
-                                            </td>
+                                                </td>
+                                            )}
+                                            {columnVisibility.numberOfLessons && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {folder.total_lessons > 0 ? folder.total_lessons : '-'}
+                                                </td>
+                                            )}
+                                            {columnVisibility.estCreationTime && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {folder.total_hours > 0 ? folder.total_hours : '-'}
+                                                </td>
+                                            )}
+                                            {columnVisibility.estCompletionTime && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {folder.total_completion_time > 0 ? formatCompletionTime(folder.total_completion_time) : '-'}
+                                                </td>
+                                            )}
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Empty cell for folder rows */}
                                             </td>
@@ -1773,52 +1886,64 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                             onDrop={(e) => handleDrop(e, index)}
                                                             onDragEnd={handleDragEnd}
                                                         >
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                                <span className="inline-flex items-center">
-                                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                                            <circle cx="9" cy="5" r="2"/>
-                                                                            <circle cx="9" cy="12" r="2"/>
-                                                                            <circle cx="9" cy="19" r="2"/>
-                                                                            <circle cx="15" cy="5" r="2"/>
-                                                                            <circle cx="15" cy="12" r="2"/>
-                                                                            <circle cx="15" cy="19" r="2"/>
-                                                                        </svg>
-                                                                    </div>
-                                                                    <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
-                                                                    <Star size={16} className="text-gray-300 mr-2" />
-                                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
-                                                                        {p.title}
-                                                                    </Link>
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                                <span className="inline-flex items-center">
-                                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                            {columnVisibility.title && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    <span className="inline-flex items-center">
+                                                                        <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                                                <circle cx="9" cy="5" r="2"/>
+                                                                                <circle cx="9" cy="12" r="2"/>
+                                                                                <circle cx="9" cy="19" r="2"/>
+                                                                                <circle cx="15" cy="5" r="2"/>
+                                                                                <circle cx="15" cy="12" r="2"/>
+                                                                                <circle cx="15" cy="19" r="2"/>
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
+                                                                        <Star size={16} className="text-gray-300 mr-2" />
+                                                                        <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                                                            {p.title}
+                                                                        </Link>
                                                                     </span>
-                                                                    You
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                {(() => {
-                                                                    const lessonData = lessonDataCache[p.id];
-                                                                    return lessonData ? lessonData.lessonCount : '-';
-                                                                })()}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                {(() => {
-                                                                    const lessonData = lessonDataCache[p.id];
-                                                                    return lessonData ? lessonData.totalHours : '-';
-                                                                })()}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                {(() => {
-                                                                    const lessonData = lessonDataCache[p.id];
-                                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
-                                                                })()}
-                                                            </td>
+                                                                </td>
+                                                            )}
+                                                            {columnVisibility.created && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                                            )}
+                                                            {columnVisibility.creator && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                    <span className="inline-flex items-center">
+                                                                        <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                                            <span className="text-xs font-bold text-gray-700">Y</span>
+                                                                        </span>
+                                                                        You
+                                                                    </span>
+                                                                </td>
+                                                            )}
+                                                            {columnVisibility.numberOfLessons && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {(() => {
+                                                                        const lessonData = lessonDataCache[p.id];
+                                                                        return lessonData ? lessonData.lessonCount : '-';
+                                                                    })()}
+                                                                </td>
+                                                            )}
+                                                            {columnVisibility.estCreationTime && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {(() => {
+                                                                        const lessonData = lessonDataCache[p.id];
+                                                                        return lessonData ? lessonData.totalHours : '-';
+                                                                    })()}
+                                                                </td>
+                                                            )}
+                                                            {columnVisibility.estCompletionTime && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {(() => {
+                                                                        const lessonData = lessonDataCache[p.id];
+                                                                        return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                                    })()}
+                                                                </td>
+                                                            )}
                                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                                                                 <ProjectRowMenu 
                                                                     project={p} 
@@ -1834,7 +1959,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan={7} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50">
+                                                        <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 1} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50">
                                                             Loading projects...
                                                         </td>
                                                     </tr>
@@ -1858,51 +1983,63 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         onDrop={(e) => handleDrop(e, index)}
                                         onDragEnd={handleDragEnd}
                                     >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            <span className="inline-flex items-center">
-                                                <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                        <circle cx="9" cy="5" r="2"/>
-                                                        <circle cx="9" cy="12" r="2"/>
-                                                        <circle cx="9" cy="19" r="2"/>
-                                                        <circle cx="15" cy="5" r="2"/>
-                                                        <circle cx="15" cy="12" r="2"/>
-                                                        <circle cx="15" cy="19" r="2"/>
-                                                    </svg>
-                                                </div>
-                                                <Star size={16} className="text-gray-300 mr-2" />
-                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
-                                                    {p.title}
-                                                </Link>
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <span className="inline-flex items-center">
-                                                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                    <span className="text-xs font-bold text-gray-700">Y</span>
+                                        {columnVisibility.title && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                            <circle cx="9" cy="5" r="2"/>
+                                                            <circle cx="9" cy="12" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
+                                                            <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="15" cy="12" r="2"/>
+                                                            <circle cx="15" cy="19" r="2"/>
+                                                        </svg>
+                                                    </div>
+                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                                        {p.title}
+                                                    </Link>
                                                 </span>
-                                                You
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(() => {
-                                                const lessonData = lessonDataCache[p.id];
-                                                return lessonData ? lessonData.lessonCount : '-';
-                                            })()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(() => {
-                                                const lessonData = lessonDataCache[p.id];
-                                                return lessonData ? lessonData.totalHours : '-';
-                                            })()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(() => {
-                                                const lessonData = lessonDataCache[p.id];
-                                                return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
-                                            })()}
-                                        </td>
+                                            </td>
+                                        )}
+                                        {columnVisibility.created && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        )}
+                                        {columnVisibility.creator && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                    </span>
+                                                    You
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.numberOfLessons && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.lessonCount : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCreationTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.totalHours : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCompletionTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                })()}
+                                            </td>
+                                        )}
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                                             <ProjectRowMenu 
                                                 project={p} 
@@ -1931,51 +2068,63 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         onDrop={(e) => handleDrop(e, index)}
                                         onDragEnd={handleDragEnd}
                                     >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            <span className="inline-flex items-center">
-                                                <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                        <circle cx="9" cy="5" r="2"/>
-                                                        <circle cx="9" cy="12" r="2"/>
-                                                        <circle cx="9" cy="19" r="2"/>
-                                                        <circle cx="15" cy="5" r="2"/>
-                                                        <circle cx="15" cy="12" r="2"/>
-                                                        <circle cx="15" cy="19" r="2"/>
-                                                    </svg>
-                                                </div>
-                                                <Star size={16} className="text-gray-300 mr-2" />
-                                                <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
-                                                    {p.title}
-                                                </Link>
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <span className="inline-flex items-center">
-                                                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                    <span className="text-xs font-bold text-gray-700">Y</span>
+                                        {columnVisibility.title && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                            <circle cx="9" cy="5" r="2"/>
+                                                            <circle cx="9" cy="12" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
+                                                            <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="15" cy="12" r="2"/>
+                                                            <circle cx="15" cy="19" r="2"/>
+                                                        </svg>
+                                                    </div>
+                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                                        {p.title}
+                                                    </Link>
                                                 </span>
-                                                You
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(() => {
-                                                const lessonData = lessonDataCache[p.id];
-                                                return lessonData ? lessonData.lessonCount : '-';
-                                            })()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(() => {
-                                                const lessonData = lessonDataCache[p.id];
-                                                return lessonData ? lessonData.totalHours : '-';
-                                            })()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(() => {
-                                                const lessonData = lessonDataCache[p.id];
-                                                return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
-                                            })()}
-                                        </td>
+                                            </td>
+                                        )}
+                                        {columnVisibility.created && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        )}
+                                        {columnVisibility.creator && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                    </span>
+                                                    You
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.numberOfLessons && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.lessonCount : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCreationTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.totalHours : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCompletionTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                })()}
+                                            </td>
+                                        )}
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                                             <ProjectRowMenu 
                                                 project={p} 
