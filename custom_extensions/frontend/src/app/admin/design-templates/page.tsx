@@ -11,7 +11,6 @@ import { DesignTemplate } from '@/types/designTemplates';
 import { fetchDesignTemplates } from '@/lib/designTemplateApi'; // Will add deleteDesignTemplate here later
 import { Plus, Edit3, Trash2 } from 'lucide-react'; // Added Edit3, Trash2
 import { useRouter } from 'next/navigation'; // For navigation
-import { useAuth } from '../../../hooks/useAuth';
 
 // Assume deleteDesignTemplate will be added to lib/designTemplateApi.ts
 async function deleteDesignTemplateAPI(templateId: number): Promise<{ detail: string }> {
@@ -33,22 +32,6 @@ const DesignTemplatesListPageComponent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
-
-  // Don't render anything until authentication is checked
-  if (isLoading) {
-    return (
-      <div className="p-8 text-center font-['Inter',_sans-serif] text-black">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p>Checking authentication...</p>
-      </div>
-    );
-  }
-
-  // Don't render if not authenticated (should redirect above, but just in case)
-  if (isAuthenticated === false) {
-    return null;
-  }
 
   const loadTemplates = async () => {
     setLoading(true);
@@ -85,6 +68,7 @@ const DesignTemplatesListPageComponent = () => {
       }
     }
   };
+
 
   if (loading) {
     return <div className="p-8 text-center font-['Inter',_sans-serif] text-black">Loading Design Templates...</div>;
