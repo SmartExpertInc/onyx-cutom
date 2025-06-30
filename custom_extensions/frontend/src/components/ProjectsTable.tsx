@@ -28,7 +28,7 @@ import {
   FolderMinus,
   Folder,
   FolderPlus,
-  Boxes,
+  Box,
   ChevronRight,
   ChevronDown,
   CheckSquare,

@@ -21,7 +21,7 @@ import {
   Plus,
   Bell,
   MessageSquare,
-  Boxes
+  Box
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -111,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 px-2 py-1 rounded bg-blue-50 text-blue-700 font-semibold border border-transparent">
-            <Boxes size={18} className="text-blue-700" />
+            <Box size={18} className="text-blue-700" />
             <span className="font-medium">General</span>
           </div>
         </div>
