@@ -59,26 +59,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders }) => {
-  const [loadingFolders, setLoadingFolders] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    const loadFolders = async () => {
-      try {
-        await fetchFolders();
-        setLoadingFolders(false);
-      } catch (error) {
-        if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-          router.push('/auth/login');
-          return;
-        }
-        console.error('Error loading folders in sidebar:', error);
-        setLoadingFolders(false);
-      }
-    };
-
-    loadFolders();
-  }, [router]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -155,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>Folders</span>
           <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
-        {folders.length === 0 && !loadingFolders ? (
+        {folders.length === 0 ? (
           <div className="bg-gray-100 p-4 rounded-lg text-center">
             <p className="mb-2 text-gray-700">Organize your products by topic and share them with your team</p>
             <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>Create or join a folder</button>
@@ -237,41 +218,56 @@ const ProjectsPageInner: React.FC = () => {
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check authentication on component mount
   useEffect(() => {
     const checkAuth = async () => {
-      const authenticated = await checkAuthentication();
-      setIsAuthenticated(authenticated);
-      
-      if (!authenticated) {
-        // Redirect to login with return URL
+      try {
+        const authenticated = await checkAuthentication();
+        setIsAuthenticated(authenticated);
+        
+        if (!authenticated) {
+          // Redirect to login with return URL
+          const currentUrl = window.location.pathname + window.location.search;
+          router.push(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
+          return;
+        }
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        setIsAuthenticated(false);
         const currentUrl = window.location.pathname + window.location.search;
         router.push(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
-        return;
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkAuth();
   }, [router]);
 
-  // Don't render anything while checking authentication
-  if (isAuthenticated === null) {
-    return (
-      <div className="bg-[#F7F7F7] min-h-screen font-sans flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
+  // Load folders after authentication is confirmed
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      const loadFolders = async () => {
+        try {
+          const foldersData = await fetchFolders();
+          setFolders(foldersData);
+        } catch (error) {
+          if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+            router.push('/auth/login');
+            return;
+          }
+          console.error('Error loading folders:', error);
+          setFolders([]);
+        }
+      };
 
-  // Don't render if not authenticated (will redirect)
-  if (isAuthenticated === false) {
-    return null;
-  }
+      loadFolders();
+    }
+  }, [isAuthenticated, router]);
 
+  // Event listeners
   useEffect(() => {
     const handleOpenModal = () => setShowFolderModal(true);
     window.addEventListener('openFolderModal', handleOpenModal);
@@ -302,7 +298,6 @@ const ProjectsPageInner: React.FC = () => {
             console.error('Error refreshing folders:', error);
           }
           // Trigger a refresh of the projects table
-          // This ensures the moved project appears in the folder view
           window.dispatchEvent(new CustomEvent('refreshProjects'));
           console.log(`Project moved to folder ${folderId} successfully`);
         } else if (res.status === 401 || res.status === 403) {
@@ -315,32 +310,29 @@ const ProjectsPageInner: React.FC = () => {
 
     window.addEventListener('moveProjectToFolder', handleMoveProject);
     return () => window.removeEventListener('moveProjectToFolder', handleMoveProject);
-  }, [selectedFolderId, router]);
-
-  useEffect(() => {
-    const loadFolders = async () => {
-      try {
-        const foldersData = await fetchFolders();
-        setFolders(foldersData);
-      } catch (error) {
-        if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-          router.push('/auth/login');
-          return;
-        }
-        console.error('Error loading folders:', error);
-        setFolders([]);
-      }
-    };
-
-    if (isAuthenticated) {
-      loadFolders();
-    }
-  }, [isAuthenticated, router]);
+  }, [router]);
 
   const handleFolderCreated = (newFolder: any) => {
     setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
     setShowFolderModal(false);
   };
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="bg-[#F7F7F7] min-h-screen font-sans flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (isAuthenticated === false) {
+    return null;
+  }
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
