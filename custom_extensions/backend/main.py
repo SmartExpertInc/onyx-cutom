@@ -4654,4 +4654,174 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
         logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to get lesson data")
 
+@app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+async def download_projects_list_pdf(
+    folder_id: Optional[int] = Query(None),
+    column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download projects list as PDF with all folders expanded"""
+    try:
+        # Parse column visibility settings
+        column_visibility_settings = {
+            'title': True,
+            'created': False,
+            'creator': False,
+            'numberOfLessons': True,
+            'estCreationTime': True,
+            'estCompletionTime': True
+        }
+        if column_visibility:
+            try:
+                parsed_settings = json.loads(column_visibility)
+                column_visibility_settings.update(parsed_settings)
+            except json.JSONDecodeError:
+                logger.warning("Invalid column_visibility JSON, using defaults")
+
+        # Fetch projects and folders data
+        async with pool.acquire() as conn:
+            # Fetch projects
+            projects_query = """
+                SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+                       dt.template_name as design_template_name,
+                       dt.microproduct_type as design_microproduct_type,
+                       p.folder_id, p."order"
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.onyx_user_id = $1
+                ORDER BY p."order" ASC, p.created_at DESC;
+            """
+            projects_params = [onyx_user_id]
+            
+            if folder_id is not None:
+                projects_query = projects_query.replace("WHERE p.onyx_user_id = $1", "WHERE p.onyx_user_id = $1 AND p.folder_id = $2")
+                projects_params.append(folder_id)
+            
+            projects_rows = await conn.fetch(projects_query, *projects_params)
+            
+            # Fetch folders (only if not viewing a specific folder)
+            folders_data = []
+            if folder_id is None:
+                folders_query = """
+                    SELECT 
+                        pf.id, 
+                        pf.name, 
+                        pf.created_at, 
+                        pf."order", 
+                        COUNT(p.id) as project_count,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COUNT(*)::int 
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_lessons,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_hours,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COALESCE(SUM(
+                                            CASE 
+                                                WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
+                                                THEN (REPLACE(lesson->>'completionTime', 'm', '')::int)
+                                                ELSE 0 
+                                            END
+                                        ), 0)
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_completion_time
+                    FROM project_folders pf
+                    LEFT JOIN projects p ON pf.id = p.folder_id
+                    WHERE pf.onyx_user_id = $1
+                    GROUP BY pf.id, pf.name, pf.created_at, pf."order"
+                    ORDER BY pf."order" ASC, pf.created_at ASC;
+                """
+                folders_rows = await conn.fetch(folders_query, onyx_user_id)
+                folders_data = [dict(row) for row in folders_rows]
+
+        # Process projects data
+        projects_data = []
+        for row in projects_rows:
+            row_dict = dict(row)
+            projects_data.append({
+                'id': row_dict['id'],
+                'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
+                'created_at': row_dict['created_at'],
+                'created_by': 'You',
+                'design_microproduct_type': row_dict.get('design_microproduct_type'),
+                'folder_id': row_dict.get('folder_id'),
+                'order': row_dict.get('order', 0)
+            })
+
+        # Group projects by folder
+        folder_projects = {}
+        unassigned_projects = []
+        
+        for project in projects_data:
+            if project['folder_id']:
+                if project['folder_id'] not in folder_projects:
+                    folder_projects[project['folder_id']] = []
+                folder_projects[project['folder_id']].append(project)
+            else:
+                unassigned_projects.append(project)
+
+        # Prepare data for template
+        template_data = {
+            'folders': folders_data,
+            'folder_projects': folder_projects,
+            'unassigned_projects': unassigned_projects,
+            'column_visibility': column_visibility_settings,
+            'folder_id': folder_id,
+            'generated_at': datetime.now().isoformat()
+        }
+
+        # Generate PDF
+        unique_output_filename = f"projects_list_{onyx_user_id}_{uuid.uuid4().hex[:12]}.pdf"
+        pdf_path = await generate_pdf_from_html_template("projects_list_pdf_template.html", template_data, unique_output_filename)
+        
+        if not os.path.exists(pdf_path):
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")
+        
+        user_friendly_filename = f"projects_list_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        return FileResponse(
+            path=pdf_path, 
+            filename=user_friendly_filename, 
+            media_type='application/pdf', 
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
+
 

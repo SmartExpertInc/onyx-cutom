@@ -29,7 +29,8 @@ import {
   ChevronRight,
   ChevronDown,
   CheckSquare,
-  Square
+  Square,
+  ArrowDownToLine
 } from 'lucide-react';
 
 interface Project {
@@ -1600,6 +1601,31 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         'Favorites': Star,
     };
 
+    // Add PDF download function
+    const handlePdfDownload = () => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        
+        // Add folder_id if viewing a specific folder
+        if (folderId !== null) {
+            queryParams.append('folder_id', folderId.toString());
+        }
+        
+        // Add column visibility settings
+        queryParams.append('column_visibility', JSON.stringify(columnVisibility));
+        
+        // Build the PDF URL
+        let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/projects-list`;
+        if (queryParams.toString()) {
+            pdfUrl += `?${queryParams.toString()}`;
+        }
+        
+        // Open PDF in new tab
+        window.open(pdfUrl, '_blank');
+    };
+
     if (loading) {
         return <div className="text-center p-8">Loading projects...</div>;
     }
@@ -1713,6 +1739,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             </div>
                         )}
                     </div>
+                    
+                    {/* PDF Download Button - only show in list view */}
+                    {viewMode === 'List' && (
+                        <button
+                            onClick={handlePdfDownload}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                            title="Download projects list as PDF"
+                        >
+                            <ArrowDownToLine size={16} />
+                            Download PDF
+                        </button>
+                    )}
                     
                     <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
                         <button 
