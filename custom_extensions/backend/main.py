@@ -2295,7 +2295,7 @@ async def get_user_projects_list_from_db(
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id, p."order"
+               p.folder_id, p."order", p.microproduct_content
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
@@ -2319,7 +2319,8 @@ async def get_user_projects_list_from_db(
             design_template_name=row_dict.get("design_template_name"),
             design_microproduct_type=row_dict.get("design_microproduct_type"),
             created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
-            folder_id=row_dict.get("folder_id"), order=row_dict.get("order")
+            folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
+            microproduct_content=row_dict.get("microproduct_content")
         ))
     return projects_list
 
@@ -4686,7 +4687,7 @@ async def download_projects_list_pdf(
                 SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                        dt.template_name as design_template_name,
                        dt.microproduct_type as design_microproduct_type,
-                       p.folder_id, p."order"
+                       p.folder_id, p."order", p.microproduct_content
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.onyx_user_id = $1
@@ -4771,6 +4772,45 @@ async def download_projects_list_pdf(
         projects_data = []
         for row in projects_rows:
             row_dict = dict(row)
+            
+            # Calculate individual project times
+            total_lessons = 0
+            total_hours = 0.0
+            total_completion_time = 0
+            
+            if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
+                content = row_dict['microproduct_content']
+                if content.get('sections') and isinstance(content['sections'], list):
+                    for section in content['sections']:
+                        if section.get('lessons') and isinstance(section['lessons'], list):
+                            for lesson in section['lessons']:
+                                total_lessons += 1
+                                if lesson.get('hours'):
+                                    try:
+                                        total_hours += float(lesson['hours'])
+                                    except (ValueError, TypeError):
+                                        pass
+                                if lesson.get('completionTime'):
+                                    time_str = str(lesson['completionTime']).strip()
+                                    if time_str and time_str != '':
+                                        if time_str.endswith('m'):
+                                            try:
+                                                minutes = int(time_str[:-1])
+                                                total_completion_time += minutes
+                                            except ValueError:
+                                                pass
+                                        elif time_str.endswith('h'):
+                                            try:
+                                                hours = int(time_str[:-1])
+                                                total_completion_time += (hours * 60)
+                                            except ValueError:
+                                                pass
+                                        elif time_str.isdigit():
+                                            try:
+                                                total_completion_time += int(time_str)
+                                            except ValueError:
+                                                pass
+            
             projects_data.append({
                 'id': row_dict['id'],
                 'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
@@ -4778,7 +4818,11 @@ async def download_projects_list_pdf(
                 'created_by': 'You',
                 'design_microproduct_type': row_dict.get('design_microproduct_type'),
                 'folder_id': row_dict.get('folder_id'),
-                'order': row_dict.get('order', 0)
+                'order': row_dict.get('order', 0),
+                'microproduct_content': row_dict.get('microproduct_content'),
+                'total_lessons': total_lessons,
+                'total_hours': total_hours,
+                'total_completion_time': total_completion_time
             })
 
         # --- Deduplicate projects: only show top-level products and outlines, hide lessons/quizzes that belong to an outline ---

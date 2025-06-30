@@ -88,7 +88,7 @@
         }
         .blue-stripe {
             display: inline-block;
-            width: 4px;
+            width: 1px;
             height: 24px;
             background: #2563eb;
             border-radius: 2px;
@@ -160,13 +160,19 @@
                                     </td>
                                 {% endif %}
                                 {% if column_visibility.numberOfLessons %}
-                                    <td class="center gray">-</td>
+                                    <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                                 {% endif %}
                                 {% if column_visibility.estCreationTime %}
-                                    <td class="center gray">-</td>
+                                    <td class="center gray">{{ project.total_hours if project.total_hours > 0 else '-' }}</td>
                                 {% endif %}
                                 {% if column_visibility.estCompletionTime %}
-                                    <td class="center gray">-</td>
+                                    <td class="center gray">
+                                        {% if project.total_completion_time > 0 %}
+                                            {% set h = project.total_completion_time // 60 %}
+                                            {% set m = project.total_completion_time % 60 %}
+                                            {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                        {% else %}-{% endif %}
+                                    </td>
                                 {% endif %}
                             </tr>
                         {% endfor %}
@@ -185,13 +191,19 @@
                                 </td>
                             {% endif %}
                             {% if column_visibility.numberOfLessons %}
-                                <td class="center gray">-</td>
+                                <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="center gray">-</td>
+                                <td class="center gray">{{ project.total_hours if project.total_hours > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
-                                <td class="center gray">-</td>
+                                <td class="center gray">
+                                    {% if project.total_completion_time > 0 %}
+                                        {% set h = project.total_completion_time // 60 %}
+                                        {% set m = project.total_completion_time % 60 %}
+                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                    {% else %}-{% endif %}
+                                </td>
                             {% endif %}
                         </tr>
                     {% endfor %}
@@ -210,13 +222,19 @@
                                 </td>
                             {% endif %}
                             {% if column_visibility.numberOfLessons %}
-                                <td class="center gray">-</td>
+                                <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="center gray">-</td>
+                                <td class="center gray">{{ project.total_hours if project.total_hours > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
-                                <td class="center gray">-</td>
+                                <td class="center gray">
+                                    {% if project.total_completion_time > 0 %}
+                                        {% set h = project.total_completion_time // 60 %}
+                                        {% set m = project.total_completion_time % 60 %}
+                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                    {% else %}-{% endif %}
+                                </td>
                             {% endif %}
                         </tr>
                     {% endfor %}
