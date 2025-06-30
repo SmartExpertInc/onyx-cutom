@@ -940,13 +940,14 @@ async def get_current_onyx_user_id(request: Request) -> str:
             # Don't retry on HTTP status errors (4xx, 5xx) - these are not connection issues
             logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
             
-            # Special handling for 403 Forbidden - redirect to login page
-            if e.response.status_code == 403:
+            # Special handling for 401 Unauthorized and 403 Forbidden - redirect to login page
+            if e.response.status_code in [401, 403]:
                 # Redirect to the main Onyx login page
                 login_url = f"{ONYX_API_SERVER_URL}/login"
+                error_message = "Session expired. Please log in again." if e.response.status_code == 403 else "Authentication required. Please log in."
                 raise HTTPException(
                     status_code=status.HTTP_303_SEE_OTHER,
-                    detail=f"Session expired. Please log in again.",
+                    detail=error_message,
                     headers={"Location": login_url}
                 )
             
