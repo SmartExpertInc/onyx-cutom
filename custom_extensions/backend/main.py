@@ -4661,7 +4661,7 @@ async def download_projects_list_pdf(
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Download projects list as PDF with all folders expanded"""
+    """Download projects list as PDF with all folders expanded, deduplicated like the products page."""
     try:
         # Parse column visibility settings
         column_visibility_settings = {
@@ -4780,6 +4780,44 @@ async def download_projects_list_pdf(
                 'folder_id': row_dict.get('folder_id'),
                 'order': row_dict.get('order', 0)
             })
+
+        # --- Deduplicate projects: only show top-level products and outlines, hide lessons/quizzes that belong to an outline ---
+        def deduplicate_projects(projects_arr):
+            outline_names = set()
+            filtered_projects = []
+            grouped = {}
+            # First pass: collect all outline names and group by title
+            for proj in projects_arr:
+                is_outline = (proj.get('design_microproduct_type') or '').lower() == 'training plan'
+                if is_outline:
+                    outline_names.add(proj['title'].strip())
+                if proj['title'] not in grouped:
+                    grouped[proj['title']] = {'outline': None, 'others': []}
+                if is_outline:
+                    if not grouped[proj['title']]['outline']:
+                        grouped[proj['title']]['outline'] = proj
+                else:
+                    grouped[proj['title']]['others'].append(proj)
+            # Second pass: filter projects
+            for proj in projects_arr:
+                is_outline = (proj.get('design_microproduct_type') or '').lower() == 'training plan'
+                if is_outline:
+                    filtered_projects.append(proj)
+                else:
+                    project_title = proj['title'].strip()
+                    belongs_to_outline = False
+                    group_for_this_title = grouped[proj['title']]
+                    if group_for_this_title and group_for_this_title['outline']:
+                        belongs_to_outline = True
+                    if not belongs_to_outline and ': ' in project_title:
+                        outline_part = project_title.split(': ')[0].strip()
+                        if outline_part in outline_names:
+                            belongs_to_outline = True
+                    if not belongs_to_outline:
+                        filtered_projects.append(proj)
+            return filtered_projects
+
+        projects_data = deduplicate_projects(projects_data)
 
         # Group projects by folder
         folder_projects = {}

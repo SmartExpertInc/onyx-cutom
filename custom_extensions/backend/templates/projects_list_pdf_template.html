@@ -6,152 +6,94 @@
     <title>Projects List</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body { 
-            font-family: 'Inter', Arial, sans-serif; 
-            font-size: 10pt; 
-            line-height: 1.6;
-            color: #4B4B4B;
-            background-color: #ffffff;
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 14px;
+            color: #1a1a1a;
+            background: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-
-        .projects-table {
+        table.projects-table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            overflow: hidden;
+            background: #fff;
         }
-
-        .projects-table th {
-            background-color: #f9fafb;
-            color: #374151;
+        th, td {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 14px;
+            padding: 0 0 0 0;
+            height: 48px;
+            border: none;
+            vertical-align: middle;
+        }
+        th {
+            color: #6b7280;
             font-weight: 600;
             text-align: left;
-            padding: 12px 16px;
+            background: #fff;
+            font-size: 13px;
+            letter-spacing: 0.02em;
             border-bottom: 1px solid #e5e7eb;
-            font-size: 9pt;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            height: 40px;
         }
-
-        .projects-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 9pt;
-            vertical-align: top;
-        }
-
-        .projects-table tr:hover {
-            background-color: #f9fafb;
-        }
-
         .folder-row {
-            background-color: #f8fafc !important;
-            font-weight: 600;
+            background: #f8fafc;
+            font-weight: 700;
         }
-
-        .folder-row td {
-            border-bottom: 2px solid #e5e7eb;
+        .folder-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2563eb;
+            font-weight: 700;
         }
-
+        .chevron {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: 2px;
+            color: #2563eb;
+        }
         .folder-icon {
-            color: #3b82f6;
-            margin-right: 8px;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            color: #2563eb;
         }
-
-        .folder-name {
-            color: #1e40af;
-            font-weight: 600;
-        }
-
-        .folder-count {
-            background-color: #e5e7eb;
+        .folder-badge {
+            display: inline-block;
+            background: #f3f4f6;
             color: #6b7280;
-            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 500;
             border-radius: 12px;
-            font-size: 8pt;
+            padding: 2px 10px;
             margin-left: 8px;
         }
-
-        .project-row {
-            background-color: #ffffff;
+        .product-row {
+            background: #fff;
+            font-weight: 400;
         }
-
-        .project-row td {
-            padding-left: 32px;
-        }
-
-        .project-title {
-            color: #1f2937;
+        .product-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1a1a1a;
             font-weight: 500;
+            padding-left: 36px;
         }
-
-        .project-type {
-            color: #6b7280;
-            font-size: 8pt;
-            margin-top: 2px;
+        .star {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            color: #d1d5db;
         }
-
-        .creator-cell {
-            display: flex;
-            align-items: center;
-        }
-
-        .creator-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-            font-size: 8pt;
-            font-weight: 600;
+        .gray {
             color: #6b7280;
         }
-
-        .date-cell {
-            color: #6b7280;
-        }
-
-        .stats-cell {
-            color: #6b7280;
+        .center {
             text-align: center;
-        }
-
-        .no-projects {
-            text-align: center;
-            color: #6b7280;
-            font-style: italic;
-            padding: 40px 20px;
-        }
-
-        .page-break {
-            page-break-before: always;
-        }
-
-        @media print {
-            body {
-                margin: 0;
-                padding: 15px;
-            }
-            
-            .projects-table {
-                page-break-inside: avoid;
-            }
-            
-            .folder-row {
-                page-break-inside: avoid;
-            }
         }
     </style>
 </head>
@@ -159,167 +101,116 @@
     <table class="projects-table">
         <thead>
             <tr>
-                {% if column_visibility.title %}<th>Title</th>{% endif %}
-                {% if column_visibility.created %}<th>Created</th>{% endif %}
-                {% if column_visibility.creator %}<th>Creator</th>{% endif %}
-                {% if column_visibility.numberOfLessons %}<th>Number of lessons</th>{% endif %}
-                {% if column_visibility.estCreationTime %}<th>Est. creation time</th>{% endif %}
-                {% if column_visibility.estCompletionTime %}<th>Est. completion time</th>{% endif %}
+                {% if column_visibility.title %}<th>TITLE</th>{% endif %}
+                {% if column_visibility.numberOfLessons %}<th class="center">NUMBER OF LESSONS</th>{% endif %}
+                {% if column_visibility.estCreationTime %}<th class="center">EST. CREATION TIME</th>{% endif %}
+                {% if column_visibility.estCompletionTime %}<th class="center">EST. COMPLETION TIME</th>{% endif %}
             </tr>
         </thead>
         <tbody>
+            {# Folders and their products #}
             {% if folders and not folder_id %}
-                <!-- Folders and their projects -->
                 {% for folder in folders %}
-                    <!-- Folder row -->
                     <tr class="folder-row">
                         {% if column_visibility.title %}
                             <td>
-                                <span class="folder-icon">📁</span>
-                                <span class="folder-name">{{ folder.name }}</span>
-                                <span class="folder-count">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
-                            </td>
-                        {% endif %}
-                        {% if column_visibility.created %}
-                            <td class="date-cell">{{ folder.created_at.split('T')[0] if folder.created_at else '-' }}</td>
-                        {% endif %}
-                        {% if column_visibility.creator %}
-                            <td>
-                                <div class="creator-cell">
-                                    <div class="creator-avatar">Y</div>
-                                    You
-                                </div>
+                                <span class="chevron">&#x25BC;</span>
+                                <span class="folder-icon">&#128193;</span>
+                                <span class="folder-title">{{ folder.name }}</span>
+                                <span class="folder-badge">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
                             </td>
                         {% endif %}
                         {% if column_visibility.numberOfLessons %}
-                            <td class="stats-cell">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
+                            <td class="center gray">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
                         {% endif %}
                         {% if column_visibility.estCreationTime %}
-                            <td class="stats-cell">{{ folder.total_hours if folder.total_hours > 0 else '-' }}</td>
+                            <td class="center gray">{{ folder.total_hours if folder.total_hours > 0 else '-' }}</td>
                         {% endif %}
                         {% if column_visibility.estCompletionTime %}
-                            <td class="stats-cell">
+                            <td class="center gray">
                                 {% if folder.total_completion_time > 0 %}
-                                    {{ (folder.total_completion_time // 60) }}h {{ folder.total_completion_time % 60 }}m
-                                {% else %}
-                                    -
-                                {% endif %}
+                                    {% set h = folder.total_completion_time // 60 %}
+                                    {% set m = folder.total_completion_time % 60 %}
+                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                {% else %}-{% endif %}
                             </td>
                         {% endif %}
                     </tr>
-                    
-                    <!-- Projects in this folder -->
                     {% if folder.id in folder_projects %}
                         {% for project in folder_projects[folder.id] %}
-                            <tr class="project-row">
+                            <tr class="product-row">
                                 {% if column_visibility.title %}
                                     <td>
-                                        <div class="project-title">⭐ {{ project.title }}</div>
-                                        {% if project.design_microproduct_type %}
-                                            <div class="project-type">{{ project.design_microproduct_type }}</div>
-                                        {% endif %}
-                                    </td>
-                                {% endif %}
-                                {% if column_visibility.created %}
-                                    <td class="date-cell">{{ project.created_at.split('T')[0] if project.created_at else '-' }}</td>
-                                {% endif %}
-                                {% if column_visibility.creator %}
-                                    <td>
-                                        <div class="creator-cell">
-                                            <div class="creator-avatar">Y</div>
-                                            {{ project.created_by }}
-                                        </div>
+                                        <span class="product-title">
+                                            <span class="star">&#9734;</span>
+                                            {{ project.title }}
+                                        </span>
                                     </td>
                                 {% endif %}
                                 {% if column_visibility.numberOfLessons %}
-                                    <td class="stats-cell">-</td>
+                                    <td class="center gray">-</td>
                                 {% endif %}
                                 {% if column_visibility.estCreationTime %}
-                                    <td class="stats-cell">-</td>
+                                    <td class="center gray">-</td>
                                 {% endif %}
                                 {% if column_visibility.estCompletionTime %}
-                                    <td class="stats-cell">-</td>
+                                    <td class="center gray">-</td>
                                 {% endif %}
                             </tr>
                         {% endfor %}
                     {% endif %}
                 {% endfor %}
-
-                <!-- Unassigned projects -->
+                {# Unassigned products #}
                 {% if unassigned_projects %}
                     {% for project in unassigned_projects %}
-                        <tr class="project-row">
+                        <tr class="product-row">
                             {% if column_visibility.title %}
                                 <td>
-                                    <div class="project-title">⭐ {{ project.title }}</div>
-                                    {% if project.design_microproduct_type %}
-                                        <div class="project-type">{{ project.design_microproduct_type }}</div>
-                                    {% endif %}
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.created %}
-                                <td class="date-cell">{{ project.created_at.split('T')[0] if project.created_at else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.creator %}
-                                <td>
-                                    <div class="creator-cell">
-                                        <div class="creator-avatar">Y</div>
-                                        {{ project.created_by }}
-                                    </div>
+                                    <span class="product-title">
+                                        <span class="star">&#9734;</span>
+                                        {{ project.title }}
+                                    </span>
                                 </td>
                             {% endif %}
                             {% if column_visibility.numberOfLessons %}
-                                <td class="stats-cell">-</td>
+                                <td class="center gray">-</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="stats-cell">-</td>
+                                <td class="center gray">-</td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
-                                <td class="stats-cell">-</td>
+                                <td class="center gray">-</td>
                             {% endif %}
                         </tr>
                     {% endfor %}
                 {% endif %}
             {% else %}
-                <!-- Single folder view or all projects view -->
+                {# Single folder view or all products view #}
                 {% if unassigned_projects %}
                     {% for project in unassigned_projects %}
-                        <tr class="project-row">
+                        <tr class="product-row">
                             {% if column_visibility.title %}
                                 <td>
-                                    <div class="project-title">⭐ {{ project.title }}</div>
-                                    {% if project.design_microproduct_type %}
-                                        <div class="project-type">{{ project.design_microproduct_type }}</div>
-                                    {% endif %}
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.created %}
-                                <td class="date-cell">{{ project.created_at.split('T')[0] if project.created_at else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.creator %}
-                                <td>
-                                    <div class="creator-cell">
-                                        <div class="creator-avatar">Y</div>
-                                        {{ project.created_by }}
-                                    </div>
+                                    <span class="product-title">
+                                        <span class="star">&#9734;</span>
+                                        {{ project.title }}
+                                    </span>
                                 </td>
                             {% endif %}
                             {% if column_visibility.numberOfLessons %}
-                                <td class="stats-cell">-</td>
+                                <td class="center gray">-</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="stats-cell">-</td>
+                                <td class="center gray">-</td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
-                                <td class="stats-cell">-</td>
+                                <td class="center gray">-</td>
                             {% endif %}
                         </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="{{ column_visibility.values() | select | list | length }}" class="no-projects">
-                            No projects found.
-                        </td>
+                        <td colspan="{{ column_visibility.values() | select | list | length }}" class="center gray">No projects found.</td>
                     </tr>
                 {% endif %}
             {% endif %}
