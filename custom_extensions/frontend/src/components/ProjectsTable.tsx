@@ -34,6 +34,15 @@ import {
   ArrowDownToLine
 } from 'lucide-react';
 
+// Helper function to redirect to main app's auth endpoint
+const redirectToMainAuth = (path: string) => {
+  // Get the current domain and protocol
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  const mainAppUrl = `${protocol}//${host}${path}`;
+  window.location.href = mainAppUrl;
+};
+
 interface Project {
   id: number;
   title: string;
@@ -134,7 +143,7 @@ const ProjectCard: React.FC<{
             
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
-                    window.location.href = '/auth/login';
+                    redirectToMainAuth('/auth/login');
                     return;
                 }
                 throw new Error(`Failed to remove from folder: ${response.status}`);
@@ -510,7 +519,7 @@ const ProjectCard: React.FC<{
                                             });
                                             if (!resp.ok) {
                                                 if (resp.status === 401 || resp.status === 403) {
-                                                    window.location.href = '/auth/login';
+                                                    redirectToMainAuth('/auth/login');
                                                     return;
                                                 }
                                                 const errTxt = await resp.text();
@@ -530,7 +539,7 @@ const ProjectCard: React.FC<{
                                                     .filter((p) => p.projectName === oldProjectName && p.id !== project.id)
                                                     .forEach((p) => tasks.push(updateProject(p.id, { projectName: newName })));
                                             } else if (listResp.status === 401 || listResp.status === 403) {
-                                                window.location.href = '/auth/login';
+                                                redirectToMainAuth('/auth/login');
                                                 return;
                                             }
                                         } else {
@@ -599,7 +608,7 @@ const ProjectRowMenu: React.FC<{
             
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
-                    window.location.href = '/auth/login';
+                    redirectToMainAuth('/auth/login');
                     return;
                 }
                 throw new Error(`Failed to remove from folder: ${response.status}`);
@@ -835,7 +844,7 @@ const ProjectRowMenu: React.FC<{
                                             });
                                             if (!resp.ok) {
                                                 if (resp.status === 401 || resp.status === 403) {
-                                                    window.location.href = '/auth/login';
+                                                    redirectToMainAuth('/auth/login');
                                                     return;
                                                 }
                                                 const errTxt = await resp.text();
@@ -853,7 +862,7 @@ const ProjectRowMenu: React.FC<{
                                                     .filter((p) => p.projectName === oldProjectName && p.id !== project.id)
                                                     .forEach((p) => tasks.push(updateProject(p.id, { projectName: newName })));
                                             } else if (listResp.status === 401 || listResp.status === 403) {
-                                                window.location.href = '/auth/login';
+                                                redirectToMainAuth('/auth/login');
                                                 return;
                                             }
                                         } else {
@@ -939,7 +948,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
 
             if (!projectsResponse.ok) {
                 if (projectsResponse.status === 401 || projectsResponse.status === 403) {
-                    router.push('/auth/login');
+                    redirectToMainAuth('/auth/login');
                     return;
                 }
                 throw new Error(`Failed to fetch projects: ${projectsResponse.status}`);
@@ -1035,7 +1044,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                     const foldersData = await foldersResponse.json();
                     setFolders(foldersData);
                 } else if (foldersResponse.status === 401 || foldersResponse.status === 403) {
-                    router.push('/auth/login');
+                    redirectToMainAuth('/auth/login');
                     return;
                 }
             } else {
@@ -1068,7 +1077,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
-                    router.push('/auth/login');
+                    redirectToMainAuth('/auth/login');
                     return;
                 }
                 throw new Error(`Failed to fetch folder projects: ${response.status}`);

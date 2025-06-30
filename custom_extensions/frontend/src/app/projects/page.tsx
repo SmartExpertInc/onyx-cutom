@@ -51,6 +51,15 @@ const fetchFolders = async () => {
   return res.json();
 };
 
+// Helper function to redirect to main app's auth endpoint
+const redirectToMainAuth = (path: string) => {
+  // Get the current domain and protocol
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  const mainAppUrl = `${protocol}//${host}${path}`;
+  window.location.href = mainAppUrl;
+};
+
 interface SidebarProps {
   currentTab: string;
   onFolderSelect: (folderId: number | null) => void;
@@ -228,23 +237,23 @@ const ProjectsPageInner: React.FC = () => {
         setIsAuthenticated(authenticated);
         
         if (!authenticated) {
-          // Redirect to login with return URL
+          // Redirect to main app's login with return URL
           const currentUrl = window.location.pathname + window.location.search;
-          router.push(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
+          redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
       } catch (error) {
         console.error('Authentication check failed:', error);
         setIsAuthenticated(false);
         const currentUrl = window.location.pathname + window.location.search;
-        router.push(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
+        redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
   // Load folders after authentication is confirmed
   useEffect(() => {
@@ -255,7 +264,7 @@ const ProjectsPageInner: React.FC = () => {
           setFolders(foldersData);
         } catch (error) {
           if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-            router.push('/auth/login');
+            redirectToMainAuth('/auth/login');
             return;
           }
           console.error('Error loading folders:', error);
@@ -265,7 +274,7 @@ const ProjectsPageInner: React.FC = () => {
 
       loadFolders();
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   // Event listeners
   useEffect(() => {
@@ -292,7 +301,7 @@ const ProjectsPageInner: React.FC = () => {
             setFolders(updatedFolders);
           } catch (error) {
             if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-              router.push('/auth/login');
+              redirectToMainAuth('/auth/login');
               return;
             }
             console.error('Error refreshing folders:', error);
@@ -301,7 +310,7 @@ const ProjectsPageInner: React.FC = () => {
           window.dispatchEvent(new CustomEvent('refreshProjects'));
           console.log(`Project moved to folder ${folderId} successfully`);
         } else if (res.status === 401 || res.status === 403) {
-          router.push('/auth/login');
+          redirectToMainAuth('/auth/login');
         }
       } catch (error) {
         console.error('Error moving project to folder:', error);
@@ -310,7 +319,7 @@ const ProjectsPageInner: React.FC = () => {
 
     window.addEventListener('moveProjectToFolder', handleMoveProject);
     return () => window.removeEventListener('moveProjectToFolder', handleMoveProject);
-  }, [router]);
+  }, []);
 
   const handleFolderCreated = (newFolder: any) => {
     setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
