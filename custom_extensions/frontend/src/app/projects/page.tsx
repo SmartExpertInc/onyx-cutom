@@ -20,7 +20,8 @@ import {
   Trash2,
   Plus,
   Bell,
-  MessageSquare
+  MessageSquare,
+  Boxes
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -103,14 +104,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
           <ImageIcon size={18} />
           <span>AI Images</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
-          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600 cursor-pointer"
-        >
-          <FolderPlus size={18} className="text-gray-600" />
-          <span>Folders</span>
-        </button>
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
@@ -118,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 px-2 py-1 rounded bg-blue-50 text-blue-700 font-semibold border border-transparent">
-            <span className="text-blue-700"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            <Boxes size={18} className="text-blue-700" />
             <span className="font-medium">General</span>
           </div>
         </div>
