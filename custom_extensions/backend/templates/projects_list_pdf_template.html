@@ -135,7 +135,15 @@
                             <td class="center gray">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
                         {% endif %}
                         {% if column_visibility.estCreationTime %}
-                            <td class="center gray">{{ folder.total_hours }}h{% if folder.total_hours == 0 or folder.total_hours == 0.0 %} {% else %}{% endif %}</td>
+                            <td class="center gray">
+                                {% if folder.total_hours > 0 %}
+                                    {% if folder.total_hours == folder.total_hours|int %}
+                                        {{ folder.total_hours|int }}h
+                                    {% else %}
+                                        {{ folder.total_hours }}h
+                                    {% endif %}
+                                {% else %}-{% endif %}
+                            </td>
                         {% endif %}
                         {% if column_visibility.estCompletionTime %}
                             <td class="center gray">
@@ -163,7 +171,15 @@
                                     <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                                 {% endif %}
                                 {% if column_visibility.estCreationTime %}
-                                    <td class="center gray">{{ project.total_hours }}h{% if project.total_hours == 0 or project.total_hours == 0.0 %} {% else %}{% endif %}</td>
+                                    <td class="center gray">
+                                        {% if project.total_hours > 0 %}
+                                            {% if project.total_hours == project.total_hours|int %}
+                                                {{ project.total_hours|int }}h
+                                            {% else %}
+                                                {{ project.total_hours }}h
+                                            {% endif %}
+                                        {% else %}-{% endif %}
+                                    </td>
                                 {% endif %}
                                 {% if column_visibility.estCompletionTime %}
                                     <td class="center gray">
@@ -194,7 +210,15 @@
                                 <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="center gray">{{ project.total_hours }}h{% if project.total_hours == 0 or project.total_hours == 0.0 %} {% else %}{% endif %}</td>
+                                <td class="center gray">
+                                    {% if project.total_hours > 0 %}
+                                        {% if project.total_hours == project.total_hours|int %}
+                                            {{ project.total_hours|int }}h
+                                        {% else %}
+                                            {{ project.total_hours }}h
+                                        {% endif %}
+                                    {% else %}-{% endif %}
+                                </td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
                                 <td class="center gray">
@@ -225,7 +249,15 @@
                                 <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="center gray">{{ project.total_hours }}h{% if project.total_hours == 0 or project.total_hours == 0.0 %} {% else %}{% endif %}</td>
+                                <td class="center gray">
+                                    {% if project.total_hours > 0 %}
+                                        {% if project.total_hours == project.total_hours|int %}
+                                            {{ project.total_hours|int }}h
+                                        {% else %}
+                                            {{ project.total_hours }}h
+                                        {% endif %}
+                                    {% else %}-{% endif %}
+                                </td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
                                 <td class="center gray">
