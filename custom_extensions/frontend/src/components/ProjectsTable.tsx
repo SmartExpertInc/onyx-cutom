@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   FolderMinus,
   Folder,
+  FolderPlus,
   ChevronRight,
   ChevronDown,
   CheckSquare,
@@ -1709,11 +1710,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         </button>
                     </Link>
                     <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
                         className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm"
                     >
-                        <Plus size={16} />
-                        New from blank
-                        <ChevronsUpDown size={16} className="text-gray-500" />
+                        <FolderPlus size={16} className="text-gray-600" />
+                        Folders
                     </button>
                     <button
                         className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm"
