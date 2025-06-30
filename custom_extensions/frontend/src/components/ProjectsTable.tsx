@@ -1894,7 +1894,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             )}
                                             {columnVisibility.estCreationTime && (
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {folder.total_hours > 0 ? folder.total_hours : '-'}
+                                                    {folder.total_hours > 0 ? `${folder.total_hours}h` : '-'}
                                                 </td>
                                             )}
                                             {columnVisibility.estCompletionTime && (
@@ -1970,7 +1970,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                                     {(() => {
                                                                         const lessonData = lessonDataCache[p.id];
-                                                                        return lessonData ? lessonData.totalHours : '-';
+                                                                        return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                                     })()}
                                                                 </td>
                                                             )}
@@ -2066,7 +2066,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? lessonData.totalHours : '-';
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -2151,7 +2151,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? lessonData.totalHours : '-';
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}

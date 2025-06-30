@@ -135,7 +135,7 @@
                             <td class="center gray">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
                         {% endif %}
                         {% if column_visibility.estCreationTime %}
-                            <td class="center gray">{{ folder.total_hours if folder.total_hours > 0 else '-' }}</td>
+                            <td class="center gray">{{ folder.total_hours }}h{% if folder.total_hours == 0 or folder.total_hours == 0.0 %} {% else %}{% endif %}</td>
                         {% endif %}
                         {% if column_visibility.estCompletionTime %}
                             <td class="center gray">
@@ -163,7 +163,7 @@
                                     <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                                 {% endif %}
                                 {% if column_visibility.estCreationTime %}
-                                    <td class="center gray">{{ project.total_hours if project.total_hours > 0 else '-' }}</td>
+                                    <td class="center gray">{{ project.total_hours }}h{% if project.total_hours == 0 or project.total_hours == 0.0 %} {% else %}{% endif %}</td>
                                 {% endif %}
                                 {% if column_visibility.estCompletionTime %}
                                     <td class="center gray">
@@ -194,7 +194,7 @@
                                 <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="center gray">{{ project.total_hours if project.total_hours > 0 else '-' }}</td>
+                                <td class="center gray">{{ project.total_hours }}h{% if project.total_hours == 0 or project.total_hours == 0.0 %} {% else %}{% endif %}</td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
                                 <td class="center gray">
@@ -225,7 +225,7 @@
                                 <td class="center gray">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="center gray">{{ project.total_hours if project.total_hours > 0 else '-' }}</td>
+                                <td class="center gray">{{ project.total_hours }}h{% if project.total_hours == 0 or project.total_hours == 0.0 %} {% else %}{% endif %}</td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
                                 <td class="center gray">
