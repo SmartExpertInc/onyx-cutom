@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse, RedirectResponse
 
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
 from pydantic import BaseModel, Field, RootModel
@@ -919,29 +919,55 @@ async def get_current_onyx_user_id(request: Request) -> str:
 
     onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
     cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
-            response.raise_for_status()
-            user_data = response.json()
-            onyx_user_id = user_data.get("userId") or user_data.get("id")
-            if not onyx_user_id:
-                logger.error("Could not extract user ID from Onyx user data.")
-                detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
-            return str(onyx_user_id)
-    except httpx.HTTPStatusError as e:
-        logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
-        detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
-        raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
-    except httpx.RequestError as e:
-        logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}': {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
-    except Exception as e:
-        logger.error(f"Unexpected error in get_current_onyx_user_id: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    
+    # Retry configuration
+    max_retries = 3
+    base_delay = 0.5  # Start with 0.5 seconds
+    
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+                response.raise_for_status()
+                user_data = response.json()
+                onyx_user_id = user_data.get("userId") or user_data.get("id")
+                if not onyx_user_id:
+                    logger.error("Could not extract user ID from Onyx user data.")
+                    detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
+                    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+                return str(onyx_user_id)
+        except httpx.HTTPStatusError as e:
+            # Don't retry on HTTP status errors (4xx, 5xx) - these are not connection issues
+            logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
+            
+            # Special handling for 403 Forbidden - redirect to login page
+            if e.response.status_code == 403:
+                # Redirect to the main Onyx login page
+                login_url = f"{ONYX_API_SERVER_URL}/login"
+                raise HTTPException(
+                    status_code=status.HTTP_303_SEE_OTHER,
+                    detail=f"Session expired. Please log in again.",
+                    headers={"Location": login_url}
+                )
+            
+            detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
+            raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
+        except httpx.RequestError as e:
+            # Retry on connection errors
+            if attempt < max_retries - 1:
+                delay = base_delay * (2 ** attempt)  # Exponential backoff: 0.5s, 1s, 2s
+                logger.warning(f"Connection error requesting user info from Onyx '{onyx_user_info_url}' (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {delay}s...")
+                await asyncio.sleep(delay)
+                continue
+            else:
+                # Final attempt failed
+                logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}' after {max_retries} attempts: {e}", exc_info=not IS_PRODUCTION)
+                detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
+                raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
+        except Exception as e:
+            logger.error(f"Unexpected error in get_current_onyx_user_id: {e}", exc_info=not IS_PRODUCTION)
+            detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 def create_slug(text: Optional[str]) -> str:
     if not text: return "default-slug"
