@@ -21,7 +21,8 @@ import {
   Plus,
   Bell,
   MessageSquare,
-  Box
+  Box,
+  PackagePlus
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -108,6 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
           <span>Projects</span>
+          <PackagePlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 px-2 py-1 rounded bg-blue-50 text-blue-700 font-semibold border border-transparent">
