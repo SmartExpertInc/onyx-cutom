@@ -3,6 +3,7 @@
 
 import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import { 
   Search, 
@@ -24,9 +25,29 @@ import {
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
 
+// Authentication check function
+const checkAuthentication = async (): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/me', {
+      credentials: 'same-origin',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Authentication check failed:', error);
+    return false;
+  }
+};
+
 const fetchFolders = async () => {
-  const res = await fetch('/api/custom-projects-backend/projects/folders');
-  if (!res.ok) throw new Error('Failed to fetch folders');
+  const res = await fetch('/api/custom-projects-backend/projects/folders', {
+    credentials: 'same-origin',
+  });
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('UNAUTHORIZED');
+    }
+    throw new Error('Failed to fetch folders');
+  }
   return res.json();
 };
 
@@ -39,10 +60,25 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders }) => {
   const [loadingFolders, setLoadingFolders] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchFolders().then(() => setLoadingFolders(false));
-  }, []);
+    const loadFolders = async () => {
+      try {
+        await fetchFolders();
+        setLoadingFolders(false);
+      } catch (error) {
+        if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+          router.push('/auth/login');
+          return;
+        }
+        console.error('Error loading folders in sidebar:', error);
+        setLoadingFolders(false);
+      }
+    };
+
+    loadFolders();
+  }, [router]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -193,12 +229,48 @@ const Header = ({ isTrash }: { isTrash: boolean }) => (
 
 // --- Inner client component that can read search params ---
 const ProjectsPageInner: React.FC = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = await checkAuthentication();
+      setIsAuthenticated(authenticated);
+      
+      if (!authenticated) {
+        // Redirect to login with return URL
+        const currentUrl = window.location.pathname + window.location.search;
+        router.push(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
+        return;
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Don't render anything while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="bg-[#F7F7F7] min-h-screen font-sans flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (isAuthenticated === false) {
+    return null;
+  }
 
   useEffect(() => {
     const handleOpenModal = () => setShowFolderModal(true);
@@ -214,16 +286,27 @@ const ProjectsPageInner: React.FC = () => {
         const res = await fetch(`/api/custom-projects-backend/projects/${projectId}/folder`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ folder_id: folderId })
         });
         if (res.ok) {
           // Refresh folders to update project counts
-          const updatedFolders = await fetchFolders();
-          setFolders(updatedFolders);
+          try {
+            const updatedFolders = await fetchFolders();
+            setFolders(updatedFolders);
+          } catch (error) {
+            if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+              router.push('/auth/login');
+              return;
+            }
+            console.error('Error refreshing folders:', error);
+          }
           // Trigger a refresh of the projects table
           // This ensures the moved project appears in the folder view
           window.dispatchEvent(new CustomEvent('refreshProjects'));
           console.log(`Project moved to folder ${folderId} successfully`);
+        } else if (res.status === 401 || res.status === 403) {
+          router.push('/auth/login');
         }
       } catch (error) {
         console.error('Error moving project to folder:', error);
@@ -232,11 +315,27 @@ const ProjectsPageInner: React.FC = () => {
 
     window.addEventListener('moveProjectToFolder', handleMoveProject);
     return () => window.removeEventListener('moveProjectToFolder', handleMoveProject);
-  }, [selectedFolderId]);
+  }, [selectedFolderId, router]);
 
   useEffect(() => {
-    fetchFolders().then(setFolders).catch(() => setFolders([]));
-  }, []);
+    const loadFolders = async () => {
+      try {
+        const foldersData = await fetchFolders();
+        setFolders(foldersData);
+      } catch (error) {
+        if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+          router.push('/auth/login');
+          return;
+        }
+        console.error('Error loading folders:', error);
+        setFolders([]);
+      }
+    };
+
+    if (isAuthenticated) {
+      loadFolders();
+    }
+  }, [isAuthenticated, router]);
 
   const handleFolderCreated = (newFolder: any) => {
     setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);

@@ -4,6 +4,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Lock, 
   MoreHorizontal, 
@@ -127,10 +128,15 @@ const ProjectCard: React.FC<{
             const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`, {
                 method: 'PUT',
                 headers,
+                credentials: 'same-origin',
                 body: JSON.stringify({ folder_id: null })
             });
             
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/auth/login';
+                    return;
+                }
                 throw new Error(`Failed to remove from folder: ${response.status}`);
             }
             
@@ -499,9 +505,14 @@ const ProjectCard: React.FC<{
                                             const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${id}`, {
                                                 method: 'PUT',
                                                 headers,
+                                                credentials: 'same-origin',
                                                 body: JSON.stringify(bodyPayload)
                                             });
                                             if (!resp.ok) {
+                                                if (resp.status === 401 || resp.status === 403) {
+                                                    window.location.href = '/auth/login';
+                                                    return;
+                                                }
                                                 const errTxt = await resp.text();
                                                 throw new Error(`Failed to update project ${id}: ${resp.status} ${errTxt}`);
                                             }
@@ -511,19 +522,18 @@ const ProjectCard: React.FC<{
                                         const oldProjectName = project.title;
 
                                         if (isOutline) {
-                                            // 1) Update outline itself
                                             tasks.push(updateProject(project.id, { projectName: newName }));
-
-                                            // 2) Fetch all user projects to find ones with same old project name (lessons/tests)
-                                            const listResp = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store' });
+                                            const listResp = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store', credentials: 'same-origin' });
                                             if (listResp.ok) {
                                                 const listData: any[] = await listResp.json();
                                                 listData
                                                     .filter((p) => p.projectName === oldProjectName && p.id !== project.id)
                                                     .forEach((p) => tasks.push(updateProject(p.id, { projectName: newName })));
+                                            } else if (listResp.status === 401 || listResp.status === 403) {
+                                                window.location.href = '/auth/login';
+                                                return;
                                             }
                                         } else {
-                                            // Stand-alone lesson/test
                                             tasks.push(updateProject(project.id, { microProductName: newName }));
                                         }
 
@@ -583,10 +593,15 @@ const ProjectRowMenu: React.FC<{
             const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`, {
                 method: 'PUT',
                 headers,
+                credentials: 'same-origin',
                 body: JSON.stringify({ folder_id: null })
             });
             
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/auth/login';
+                    return;
+                }
                 throw new Error(`Failed to remove from folder: ${response.status}`);
             }
             
@@ -815,9 +830,14 @@ const ProjectRowMenu: React.FC<{
                                             const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${id}`, {
                                                 method: 'PUT',
                                                 headers,
+                                                credentials: 'same-origin',
                                                 body: JSON.stringify(bodyPayload)
                                             });
                                             if (!resp.ok) {
+                                                if (resp.status === 401 || resp.status === 403) {
+                                                    window.location.href = '/auth/login';
+                                                    return;
+                                                }
                                                 const errTxt = await resp.text();
                                                 throw new Error(`Failed to update project ${id}: ${resp.status} ${errTxt}`);
                                             }
@@ -826,12 +846,15 @@ const ProjectRowMenu: React.FC<{
                                         const oldProjectName = project.title;
                                         if (isOutline) {
                                             tasks.push(updateProject(project.id, { projectName: newName }));
-                                            const listResp = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store' });
+                                            const listResp = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store', credentials: 'same-origin' });
                                             if (listResp.ok) {
                                                 const listData: any[] = await listResp.json();
                                                 listData
                                                     .filter((p) => p.projectName === oldProjectName && p.id !== project.id)
                                                     .forEach((p) => tasks.push(updateProject(p.id, { projectName: newName })));
+                                            } else if (listResp.status === 401 || listResp.status === 403) {
+                                                window.location.href = '/auth/login';
+                                                return;
                                             }
                                         } else {
                                             tasks.push(updateProject(project.id, { microProductName: newName }));
@@ -860,23 +883,28 @@ const ProjectRowMenu: React.FC<{
 };
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folderId = null }) => {
+    const router = useRouter();
     const [projects, setProjects] = useState<Project[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState<'title' | 'created' | 'lastViewed'>('lastViewed');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
+    const [showBulkActions, setShowBulkActions] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
-    const [viewMode, setViewMode] = useState<'Grid' | 'List'>('Grid');
     const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
     const [folderProjects, setFolderProjects] = useState<Record<number, Project[]>>({});
-    
-    // Column visibility state
+    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>>({});
     const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
         title: true,
-        created: false,
-        creator: false,
+        created: true,
+        creator: true,
         numberOfLessons: true,
         estCreationTime: true,
-        estCompletionTime: true
+        estCompletionTime: true,
     });
     const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
     
@@ -905,11 +933,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             }
 
             const [projectsResponse, foldersResponse] = await Promise.all([
-                fetch(projectsApiUrl, { headers, cache: 'no-store' }),
-                !trashMode ? fetch(`${CUSTOM_BACKEND_URL}/projects/folders`, { headers, cache: 'no-store' }) : Promise.resolve(null)
+                fetch(projectsApiUrl, { headers, cache: 'no-store', credentials: 'same-origin' }),
+                !trashMode ? fetch(`${CUSTOM_BACKEND_URL}/projects/folders`, { headers, cache: 'no-store', credentials: 'same-origin' }) : Promise.resolve(null)
             ]);
 
             if (!projectsResponse.ok) {
+                if (projectsResponse.status === 401 || projectsResponse.status === 403) {
+                    router.push('/auth/login');
+                    return;
+                }
                 throw new Error(`Failed to fetch projects: ${projectsResponse.status}`);
             }
 
@@ -1002,6 +1034,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 if (foldersResponse.ok) {
                     const foldersData = await foldersResponse.json();
                     setFolders(foldersData);
+                } else if (foldersResponse.status === 401 || foldersResponse.status === 403) {
+                    router.push('/auth/login');
+                    return;
                 }
             } else {
                 setFolders([]);
@@ -1013,7 +1048,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         } finally {
             setLoading(false);
         }
-    }, [trashMode, folderId]);
+    }, [trashMode, folderId, router]);
 
     // Fetch projects for a specific folder
     const fetchFolderProjects = useCallback(async (folderId: number) => {
@@ -1027,10 +1062,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         try {
             const response = await fetch(`${CUSTOM_BACKEND_URL}/projects?folder_id=${folderId}`, { 
                 headers, 
-                cache: 'no-store' 
+                cache: 'no-store',
+                credentials: 'same-origin'
             });
             
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    router.push('/auth/login');
+                    return;
+                }
                 throw new Error(`Failed to fetch folder projects: ${response.status}`);
             }
 
@@ -1060,7 +1100,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         } catch (error) {
             console.error('Error fetching folder projects:', error);
         }
-    }, []);
+    }, [router]);
 
     // Toggle folder expansion
     const toggleFolder = useCallback((folderId: number) => {
@@ -1100,7 +1140,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             
             const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${project.id}/lesson-data`, {
                 method: 'GET',
-                headers
+                headers,
+                credentials: 'same-origin'
             });
             
             if (response.ok) {
@@ -1110,6 +1151,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                     totalHours: data.totalHours || 0,
                     completionTime: data.completionTime || 0
                 };
+            } else if (response.status === 401 || response.status === 403) {
+                router.push('/auth/login');
+                return { lessonCount: '?', totalHours: '?', completionTime: '?' };
             } else {
                 console.error('Failed to fetch lesson data:', response.status);
                 return { lessonCount: '?', totalHours: '?', completionTime: '?' };
@@ -1118,21 +1162,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             console.error('Error fetching lesson data:', error);
             return { lessonCount: '?', totalHours: '?', completionTime: '?' };
         }
-    }, []);
-
-    // State for lesson data caching
-    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>>({});
-
-    // Function to get cached lesson data or fetch it
-    const getCachedLessonData = useCallback(async (project: Project) => {
-        if (lessonDataCache[project.id]) {
-            return lessonDataCache[project.id];
-        }
-        
-        const data = await getLessonData(project);
-        setLessonDataCache(prev => ({ ...prev, [project.id]: data }));
-        return data;
-    }, [getLessonData, lessonDataCache]);
+    }, [router]);
 
     // Helper function to format completion time
     const formatCompletionTime = (minutes: number | string): string => {
@@ -1241,10 +1271,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             const response = await fetch(deleteApiUrl, { 
                 method: 'POST', 
                 headers,
+                credentials: 'same-origin',
                 body: JSON.stringify({ project_ids: [projectId], scope: scope })
             });
             
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    router.push('/auth/login');
+                    return;
+                }
                 // Revert if API call fails
                 setProjects(originalProjects);
                 const errorText = await response.text();
@@ -1276,9 +1311,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             const response = await fetch(restoreApiUrl, { 
                 method: 'POST', 
                 headers,
+                credentials: 'same-origin',
                 body: JSON.stringify({ project_ids: [projectId], scope: (projects.find(p=>p.id===projectId)?.designMicroproductType?.toLowerCase().includes('plan') ? 'all' : 'self') })
             });
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    router.push('/auth/login');
+                    return;
+                }
                 setProjects(originalProjects);
                 const errorText = await response.text();
                 throw new Error(`Failed to restore project: ${response.status} ${errorText}`);
@@ -1303,10 +1343,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             
             const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/delete-permanently/${projectId}`, {
                 method: 'DELETE',
-                headers
+                headers,
+                credentials: 'same-origin'
             });
             
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    router.push('/auth/login');
+                    return;
+                }
                 throw new Error(`Failed to delete project: ${response.status}`);
             }
             
@@ -1333,10 +1378,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
                     method: 'PUT',
                     headers,
+                    credentials: 'same-origin',
                     body: JSON.stringify({ folderId })
                 });
                 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        router.push('/auth/login');
+                        return;
+                    }
                     throw new Error(`Failed to move project to folder: ${response.status}`);
                 }
                 
@@ -1348,11 +1398,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         };
 
         window.addEventListener('moveProjectToFolder', handleMoveProjectToFolder);
-        
-        return () => {
-            window.removeEventListener('moveProjectToFolder', handleMoveProjectToFolder);
-        };
-    }, [refreshProjects]);
+        return () => window.removeEventListener('moveProjectToFolder', handleMoveProjectToFolder);
+    }, [refreshProjects, router]);
 
     // Drag and drop reordering functions
     const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
@@ -1741,7 +1788,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                     </div>
                     
                     {/* PDF Download Button - only show in list view */}
-                    {viewMode === 'List' && (
+                    {viewMode === 'list' && (
                         <button
                             onClick={handlePdfDownload}
                             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
@@ -1754,14 +1801,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                     
                     <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
                         <button 
-                            onClick={() => setViewMode('Grid')}
-                            className={`p-1.5 rounded-md ${viewMode === 'Grid' ? 'bg-white shadow-sm' : ''}`}
+                            onClick={() => setViewMode('grid')}
+                            className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
                         >
                             <LayoutGrid size={16} className="text-gray-800" />
                         </button>
                         <button
-                            onClick={() => setViewMode('List')}
-                            className={`p-1.5 rounded-md ${viewMode === 'List' ? 'bg-white shadow-sm' : ''}`}
+                            onClick={() => setViewMode('list')}
+                            className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
                         >
                             <List size={16} className="text-gray-800" />
                         </button>
@@ -1771,7 +1818,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             ) }
 
             {projects.length > 0 ? (
-                viewMode === 'Grid' ? (
+                viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {projects.map((p: Project) => (
                             <ProjectCard
