@@ -38,28 +38,12 @@
             height: 40px;
         }
         .folder-row {
-            background: #f8fafc;
+            background: #fff;
             font-weight: 700;
         }
         .folder-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             color: #2563eb;
             font-weight: 700;
-        }
-        .chevron {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            margin-right: 2px;
-            color: #2563eb;
-        }
-        .folder-icon {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            color: #2563eb;
         }
         .folder-badge {
             display: inline-block;
@@ -73,6 +57,10 @@
         }
         .product-row {
             background: #fff;
+            font-weight: 400;
+        }
+        .product-in-folder-row {
+            background: #f8fafc;
             font-weight: 400;
         }
         .product-title {
@@ -114,8 +102,6 @@
                     <tr class="folder-row">
                         {% if column_visibility.title %}
                             <td>
-                                <span class="chevron">&#x25BC;</span>
-                                <span class="folder-icon">&#128193;</span>
                                 <span class="folder-title">{{ folder.name }}</span>
                                 <span class="folder-badge">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
                             </td>
@@ -138,7 +124,7 @@
                     </tr>
                     {% if folder.id in folder_projects %}
                         {% for project in folder_projects[folder.id] %}
-                            <tr class="product-row">
+                            <tr class="product-in-folder-row">
                                 {% if column_visibility.title %}
                                     <td>
                                         <span class="product-title">
