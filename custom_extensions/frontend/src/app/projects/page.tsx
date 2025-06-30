@@ -62,45 +62,10 @@ const redirectToMainAuth = (path: string) => {
 
 interface SidebarProps {
   currentTab: string;
-  onFolderSelect: (folderId: number | null) => void;
-  selectedFolderId: number | null;
-  folders: any[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
   const router = useRouter();
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, folderId: number) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105');
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('application/json'));
-      if (data.type === 'project') {
-        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
-          detail: { projectId: data.projectId, folderId }
-        }));
-      }
-    } catch (error) {
-      console.error('Error parsing drag data:', error);
-    }
-  };
-
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
-    }
-  };
 
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
@@ -122,7 +87,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link 
           href="/projects" 
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
           <span>Products</span>
@@ -139,36 +103,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <ImageIcon size={18} />
           <span>AI Images</span>
         </Link>
-      </nav>
-      <div className="mt-4">
-        <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
+          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600 cursor-pointer"
+        >
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="text-blue-700">
+            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <span>Folders</span>
-          <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
-        </div>
-        {folders.length === 0 ? (
-          <div className="bg-gray-100 p-4 rounded-lg text-center">
-            <p className="mb-2 text-gray-700">Organize your products by topic and share them with your team</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>Create or join a folder</button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {folders.map((folder) => (
-              <div
-                key={folder.id}
-                className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
-                onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, folder.id)}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-              >
-                <span className="text-blue-700"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
-                <span className="font-medium">{folder.name}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        </button>
+      </nav>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />
@@ -223,7 +168,7 @@ const ProjectsPageInner: React.FC = () => {
   const searchParams = useSearchParams();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -345,11 +290,11 @@ const ProjectsPageInner: React.FC = () => {
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
-      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} />
+      <Sidebar currentTab={currentTab} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
-          <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
+          <ProjectsTable trashMode={isTrash} folderId={null} />
         </main>
         <div className="fixed bottom-4 right-4">
           <button
