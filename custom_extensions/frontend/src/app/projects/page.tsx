@@ -21,11 +21,12 @@ import {
   Bell,
   MessageSquare
 } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import FolderModal from './FolderModal';
+import { useAuth, authenticatedFetch } from '../../hooks/useAuth';
 
 const fetchFolders = async () => {
-  const res = await fetch('/api/custom-projects-backend/projects/folders');
+  const res = await authenticatedFetch('/api/custom-projects-backend/projects/folders');
   if (!res.ok) throw new Error('Failed to fetch folders');
   return res.json();
 };
@@ -41,7 +42,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const [loadingFolders, setLoadingFolders] = useState(true);
 
   useEffect(() => {
-    fetchFolders().then(() => setLoadingFolders(false));
+    fetchFolders()
+      .then(() => setLoadingFolders(false))
+      .catch((error) => {
+        console.error('Error loading folders:', error);
+        setLoadingFolders(false);
+      });
   }, []);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -194,11 +200,30 @@ const Header = ({ isTrash }: { isTrash: boolean }) => (
 // --- Inner client component that can read search params ---
 const ProjectsPageInner: React.FC = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
+
+  // Don't render anything until authentication is checked
+  if (isLoading) {
+    return (
+      <div className="bg-[#F7F7F7] min-h-screen font-sans flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (should redirect above, but just in case)
+  if (isAuthenticated === false) {
+    return null;
+  }
 
   useEffect(() => {
     const handleOpenModal = () => setShowFolderModal(true);
@@ -211,7 +236,7 @@ const ProjectsPageInner: React.FC = () => {
       const customEvent = event as CustomEvent;
       const { projectId, folderId } = customEvent.detail;
       try {
-        const res = await fetch(`/api/custom-projects-backend/projects/${projectId}/folder`, {
+        const res = await authenticatedFetch(`/api/custom-projects-backend/projects/${projectId}/folder`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ folder_id: folderId })
