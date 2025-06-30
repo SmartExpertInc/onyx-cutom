@@ -108,12 +108,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
           onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600 cursor-pointer"
         >
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="text-blue-700">
-            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <FolderPlus size={18} className="text-blue-700" />
           <span>Folders</span>
         </button>
       </nav>
+      <div className="mt-4">
+        <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
+          <span>Projects</span>
+        </div>
+        <div className="bg-gray-100 p-4 rounded-lg text-center">
+          <p className="mb-2 text-gray-700">Your projects will appear here</p>
+          <p className="text-xs text-gray-500">No projects yet</p>
+        </div>
+      </div>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />
