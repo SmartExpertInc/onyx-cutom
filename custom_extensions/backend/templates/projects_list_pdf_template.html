@@ -21,37 +21,9 @@
             padding: 20px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #FF1414;
-            padding-bottom: 15px;
-        }
-
-        .title {
-            font-size: 24pt;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 10px 0;
-        }
-
-        .subtitle {
-            font-size: 12pt;
-            color: #666;
-            margin: 0;
-        }
-
-        .generated-info {
-            font-size: 8pt;
-            color: #999;
-            text-align: right;
-            margin-bottom: 20px;
-        }
-
         .projects-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
             background-color: #ffffff;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
@@ -156,19 +128,6 @@
             text-align: center;
         }
 
-        .unassigned-section {
-            margin-top: 30px;
-        }
-
-        .section-title {
-            font-size: 14pt;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
         .no-projects {
             text-align: center;
             color: #6b7280;
@@ -197,131 +156,61 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 class="title">Projects List</h1>
-        <p class="subtitle">
-            {% if folder_id %}
-                Folder Contents
-            {% else %}
-                All Projects and Folders
-            {% endif %}
-        </p>
-    </div>
-
-    <div class="generated-info">
-        Generated on: {{ generated_at.split('T')[0] }} at {{ generated_at.split('T')[1][:5] }}
-    </div>
-
-    {% if folders and not folder_id %}
-        <!-- Folders and their projects -->
-        {% for folder in folders %}
-            <div class="folder-section">
-                <table class="projects-table">
-                    <thead>
-                        <tr>
-                            {% if column_visibility.title %}<th>Title</th>{% endif %}
-                            {% if column_visibility.created %}<th>Created</th>{% endif %}
-                            {% if column_visibility.creator %}<th>Creator</th>{% endif %}
-                            {% if column_visibility.numberOfLessons %}<th>Number of lessons</th>{% endif %}
-                            {% if column_visibility.estCreationTime %}<th>Est. creation time</th>{% endif %}
-                            {% if column_visibility.estCompletionTime %}<th>Est. completion time</th>{% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Folder row -->
-                        <tr class="folder-row">
-                            {% if column_visibility.title %}
-                                <td>
-                                    <span class="folder-icon">📁</span>
-                                    <span class="folder-name">{{ folder.name }}</span>
-                                    <span class="folder-count">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.created %}
-                                <td class="date-cell">{{ folder.created_at.split('T')[0] if folder.created_at else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.creator %}
-                                <td>
-                                    <div class="creator-cell">
-                                        <div class="creator-avatar">Y</div>
-                                        You
-                                    </div>
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.numberOfLessons %}
-                                <td class="stats-cell">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.estCreationTime %}
-                                <td class="stats-cell">{{ folder.total_hours if folder.total_hours > 0 else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.estCompletionTime %}
-                                <td class="stats-cell">
-                                    {% if folder.total_completion_time > 0 %}
-                                        {{ (folder.total_completion_time // 60) }}h {{ folder.total_completion_time % 60 }}m
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                        
-                        <!-- Projects in this folder -->
-                        {% if folder.id in folder_projects %}
-                            {% for project in folder_projects[folder.id] %}
-                                <tr class="project-row">
-                                    {% if column_visibility.title %}
-                                        <td>
-                                            <div class="project-title">⭐ {{ project.title }}</div>
-                                            {% if project.design_microproduct_type %}
-                                                <div class="project-type">{{ project.design_microproduct_type }}</div>
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                    {% if column_visibility.created %}
-                                        <td class="date-cell">{{ project.created_at.split('T')[0] if project.created_at else '-' }}</td>
-                                    {% endif %}
-                                    {% if column_visibility.creator %}
-                                        <td>
-                                            <div class="creator-cell">
-                                                <div class="creator-avatar">Y</div>
-                                                {{ project.created_by }}
-                                            </div>
-                                        </td>
-                                    {% endif %}
-                                    {% if column_visibility.numberOfLessons %}
-                                        <td class="stats-cell">-</td>
-                                    {% endif %}
-                                    {% if column_visibility.estCreationTime %}
-                                        <td class="stats-cell">-</td>
-                                    {% endif %}
-                                    {% if column_visibility.estCompletionTime %}
-                                        <td class="stats-cell">-</td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
+    <table class="projects-table">
+        <thead>
+            <tr>
+                {% if column_visibility.title %}<th>Title</th>{% endif %}
+                {% if column_visibility.created %}<th>Created</th>{% endif %}
+                {% if column_visibility.creator %}<th>Creator</th>{% endif %}
+                {% if column_visibility.numberOfLessons %}<th>Number of lessons</th>{% endif %}
+                {% if column_visibility.estCreationTime %}<th>Est. creation time</th>{% endif %}
+                {% if column_visibility.estCompletionTime %}<th>Est. completion time</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if folders and not folder_id %}
+                <!-- Folders and their projects -->
+                {% for folder in folders %}
+                    <!-- Folder row -->
+                    <tr class="folder-row">
+                        {% if column_visibility.title %}
+                            <td>
+                                <span class="folder-icon">📁</span>
+                                <span class="folder-name">{{ folder.name }}</span>
+                                <span class="folder-count">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
+                            </td>
                         {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        {% endfor %}
-
-        <!-- Unassigned projects section -->
-        {% if unassigned_projects %}
-            <div class="unassigned-section">
-                <h2 class="section-title">Unassigned Projects</h2>
-                <table class="projects-table">
-                    <thead>
-                        <tr>
-                            {% if column_visibility.title %}<th>Title</th>{% endif %}
-                            {% if column_visibility.created %}<th>Created</th>{% endif %}
-                            {% if column_visibility.creator %}<th>Creator</th>{% endif %}
-                            {% if column_visibility.numberOfLessons %}<th>Number of lessons</th>{% endif %}
-                            {% if column_visibility.estCreationTime %}<th>Est. creation time</th>{% endif %}
-                            {% if column_visibility.estCompletionTime %}<th>Est. completion time</th>{% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for project in unassigned_projects %}
+                        {% if column_visibility.created %}
+                            <td class="date-cell">{{ folder.created_at.split('T')[0] if folder.created_at else '-' }}</td>
+                        {% endif %}
+                        {% if column_visibility.creator %}
+                            <td>
+                                <div class="creator-cell">
+                                    <div class="creator-avatar">Y</div>
+                                    You
+                                </div>
+                            </td>
+                        {% endif %}
+                        {% if column_visibility.numberOfLessons %}
+                            <td class="stats-cell">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
+                        {% endif %}
+                        {% if column_visibility.estCreationTime %}
+                            <td class="stats-cell">{{ folder.total_hours if folder.total_hours > 0 else '-' }}</td>
+                        {% endif %}
+                        {% if column_visibility.estCompletionTime %}
+                            <td class="stats-cell">
+                                {% if folder.total_completion_time > 0 %}
+                                    {{ (folder.total_completion_time // 60) }}h {{ folder.total_completion_time % 60 }}m
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                    
+                    <!-- Projects in this folder -->
+                    {% if folder.id in folder_projects %}
+                        {% for project in folder_projects[folder.id] %}
                             <tr class="project-row">
                                 {% if column_visibility.title %}
                                     <td>
@@ -353,24 +242,46 @@
                                 {% endif %}
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
-    {% else %}
-        <!-- Single folder view or all projects view -->
-        <table class="projects-table">
-            <thead>
-                <tr>
-                    {% if column_visibility.title %}<th>Title</th>{% endif %}
-                    {% if column_visibility.created %}<th>Created</th>{% endif %}
-                    {% if column_visibility.creator %}<th>Creator</th>{% endif %}
-                    {% if column_visibility.numberOfLessons %}<th>Number of lessons</th>{% endif %}
-                    {% if column_visibility.estCreationTime %}<th>Est. creation time</th>{% endif %}
-                    {% if column_visibility.estCompletionTime %}<th>Est. completion time</th>{% endif %}
-                </tr>
-            </thead>
-            <tbody>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Unassigned projects -->
+                {% if unassigned_projects %}
+                    {% for project in unassigned_projects %}
+                        <tr class="project-row">
+                            {% if column_visibility.title %}
+                                <td>
+                                    <div class="project-title">⭐ {{ project.title }}</div>
+                                    {% if project.design_microproduct_type %}
+                                        <div class="project-type">{{ project.design_microproduct_type }}</div>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                            {% if column_visibility.created %}
+                                <td class="date-cell">{{ project.created_at.split('T')[0] if project.created_at else '-' }}</td>
+                            {% endif %}
+                            {% if column_visibility.creator %}
+                                <td>
+                                    <div class="creator-cell">
+                                        <div class="creator-avatar">Y</div>
+                                        {{ project.created_by }}
+                                    </div>
+                                </td>
+                            {% endif %}
+                            {% if column_visibility.numberOfLessons %}
+                                <td class="stats-cell">-</td>
+                            {% endif %}
+                            {% if column_visibility.estCreationTime %}
+                                <td class="stats-cell">-</td>
+                            {% endif %}
+                            {% if column_visibility.estCompletionTime %}
+                                <td class="stats-cell">-</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                <!-- Single folder view or all projects view -->
                 {% if unassigned_projects %}
                     {% for project in unassigned_projects %}
                         <tr class="project-row">
@@ -411,8 +322,8 @@
                         </td>
                     </tr>
                 {% endif %}
-            </tbody>
-        </table>
-    {% endif %}
+            {% endif %}
+        </tbody>
+    </table>
 </body>
 </html> 
