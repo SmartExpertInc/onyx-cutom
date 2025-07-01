@@ -90,6 +90,41 @@ const buildFolderTree = (folders: any[]): Folder[] => {
   return rootFolders;
 };
 
+// Helper function to get tier color for folder icons
+const getTierColor = (tier?: string): string => {
+  switch (tier) {
+    case 'starter':
+      return '#eab308'; // yellow-500
+    case 'medium':
+      return '#f97316'; // orange-500
+    case 'advanced':
+      return '#a855f7'; // purple-500
+    case 'professional':
+      return '#3b82f6'; // blue-500
+    default:
+      return '#f97316'; // orange-500 (medium as default)
+  }
+};
+
+// Helper function to get tier color for folder icons (inherited from parent)
+const getFolderTierColor = (folder: Folder, folders: Folder[]): string => {
+  // If folder has its own tier, use it
+  if (folder.quality_tier) {
+    return getTierColor(folder.quality_tier);
+  }
+  
+  // Otherwise, inherit from parent folder
+  if (folder.parent_id) {
+    const parentFolder = folders.find(f => f.id === folder.parent_id);
+    if (parentFolder) {
+      return getFolderTierColor(parentFolder, folders);
+    }
+  }
+  
+  // Default to medium tier
+  return getTierColor('medium');
+};
+
 // Helper function to count total items in a folder (projects + subfolders recursively)
 const getTotalItemsInFolder = (folder: Folder, folderProjects?: Record<number, any[]>): number => {
   // If we have folderProjects data, use it for accurate counting (like list view)
@@ -128,6 +163,7 @@ interface Folder {
   name: string;
   parent_id?: number | null;
   project_count: number;
+  quality_tier?: string;
   children?: Folder[];
 }
 
@@ -142,7 +178,8 @@ const FolderItem: React.FC<{
   onDragEnter: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
   folderProjects?: Record<number, any[]>;
-}> = ({ folder, level, selectedFolderId, onFolderSelect, onDragOver, onDrop, onDragEnter, onDragLeave, folderProjects }) => {
+  allFolders: Folder[];
+}> = ({ folder, level, selectedFolderId, onFolderSelect, onDragOver, onDrop, onDragEnter, onDragLeave, folderProjects, allFolders }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = folder.children && folder.children.length > 0;
 
@@ -195,29 +232,30 @@ const FolderItem: React.FC<{
           </button>
         )}
         {!hasChildren && <div className="w-4" />}
-        <span className="text-blue-700">
+        <span style={{ color: getFolderTierColor(folder, allFolders) }}>
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
         <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
       </div>
       {hasChildren && isExpanded && (
         <div>
-          {folder.children!.map((child) => (
-            <FolderItem
-              key={child.id}
-              folder={child}
-              level={level + 1}
-              selectedFolderId={selectedFolderId}
-              onFolderSelect={onFolderSelect}
-              onDragOver={onDragOver}
-              onDrop={onDrop}
-              onDragEnter={onDragEnter}
-              onDragLeave={onDragLeave}
-              folderProjects={folderProjects}
-            />
-          ))}
+                      {folder.children!.map((child) => (
+              <FolderItem
+                key={child.id}
+                folder={child}
+                level={level + 1}
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={onFolderSelect}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+                onDragEnter={onDragEnter}
+                onDragLeave={onDragLeave}
+                folderProjects={folderProjects}
+                allFolders={allFolders}
+              />
+            ))}
         </div>
       )}
     </div>
@@ -339,6 +377,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
                 folderProjects={folderProjects}
+                allFolders={folders}
               />
             ))}
           </div>

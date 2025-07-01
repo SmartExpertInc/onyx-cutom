@@ -4294,12 +4294,14 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 class ProjectFolderCreateRequest(BaseModel):
     name: str
     parent_id: Optional[int] = None
+    quality_tier: Optional[str] = "medium"  # Default to medium tier
 
 class ProjectFolderResponse(BaseModel):
     id: int
     name: str
     created_at: datetime
     parent_id: Optional[int] = None
+    quality_tier: Optional[str] = "medium"  # Default to medium tier
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -4307,6 +4309,7 @@ class ProjectFolderListResponse(BaseModel):
     created_at: datetime
     order: int
     parent_id: Optional[int] = None
+    quality_tier: Optional[str] = "medium"  # Default to medium tier
     project_count: int
     total_lessons: int
     total_hours: float
@@ -4319,6 +4322,9 @@ class ProjectFolderRenameRequest(BaseModel):
 class ProjectFolderMoveRequest(BaseModel):
     parent_id: Optional[int] = None
 
+class ProjectFolderTierRequest(BaseModel):
+    quality_tier: str
+
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
 async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
@@ -4329,6 +4335,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf.created_at, 
             pf."order", 
             pf.parent_id,
+            COALESCE(pf.quality_tier, 'medium') as quality_tier,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -4400,8 +4407,8 @@ async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Dep
             if not parent_folder:
                 raise HTTPException(status_code=404, detail="Parent folder not found")
         
-        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id) VALUES ($1, $2, $3) RETURNING id, name, created_at, parent_id;"
-        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id)
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier) VALUES ($1, $2, $3, $4) RETURNING id, name, created_at, parent_id, quality_tier;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
@@ -4465,6 +4472,26 @@ async def move_folder(folder_id: int, req: ProjectFolderMoveRequest, onyx_user_i
         updated_folder = await conn.fetchrow(
             "UPDATE project_folders SET parent_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id",
             req.parent_id, folder_id, onyx_user_id
+        )
+        
+        return ProjectFolderResponse(**dict(updated_folder))
+
+@app.patch("/api/custom/projects/folders/{folder_id}/tier", response_model=ProjectFolderResponse)
+async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update the quality tier of a folder"""
+    async with pool.acquire() as conn:
+        # Verify the folder exists and belongs to user
+        folder = await conn.fetchrow(
+            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+            folder_id, onyx_user_id
+        )
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # Update the folder's quality_tier
+        updated_folder = await conn.fetchrow(
+            "UPDATE project_folders SET quality_tier = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier",
+            req.quality_tier, folder_id, onyx_user_id
         )
         
         return ProjectFolderResponse(**dict(updated_folder))

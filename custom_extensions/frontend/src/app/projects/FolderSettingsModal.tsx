@@ -5,6 +5,7 @@ interface FolderSettingsModalProps {
   open: boolean;
   onClose: () => void;
   folderName: string;
+  folderId: number;
   currentTier?: string;
   onTierChange?: (tier: string) => void;
 }
@@ -25,7 +26,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   open, 
   onClose, 
   folderName, 
-  currentTier = 'starter',
+  folderId,
+  currentTier = 'medium',
   onTierChange 
 }) => {
   const [selectedTier, setSelectedTier] = useState(currentTier);
@@ -94,19 +96,28 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // TODO: Implement API call to save folder tier setting
-      console.log('Saving tier:', selectedTier, 'for folder:', folderName);
+      const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ quality_tier: selectedTier })
+      });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error('Failed to save folder tier');
+      }
       
       if (onTierChange) {
         onTierChange(selectedTier);
       }
       
+      // Refresh the page to update folder colors
+      window.location.reload();
+      
       onClose();
     } catch (error) {
       console.error('Error saving folder settings:', error);
+      alert('Failed to save folder tier setting');
     } finally {
       setSaving(false);
     }

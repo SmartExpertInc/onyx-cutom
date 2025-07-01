@@ -74,6 +74,41 @@ const buildFolderTree = (folders: Folder[]): Folder[] => {
   return rootFolders;
 };
 
+// Helper function to get tier color for folder icons
+const getTierColor = (tier?: string): string => {
+  switch (tier) {
+    case 'starter':
+      return '#eab308'; // yellow-500
+    case 'medium':
+      return '#f97316'; // orange-500
+    case 'advanced':
+      return '#a855f7'; // purple-500
+    case 'professional':
+      return '#3b82f6'; // blue-500
+    default:
+      return '#f97316'; // orange-500 (medium as default)
+  }
+};
+
+// Helper function to get tier color for folder icons (inherited from parent)
+const getFolderTierColor = (folder: Folder, folders: Folder[]): string => {
+  // If folder has its own tier, use it
+  if (folder.quality_tier) {
+    return getTierColor(folder.quality_tier);
+  }
+  
+  // Otherwise, inherit from parent folder
+  if (folder.parent_id) {
+    const parentFolder = folders.find(f => f.id === folder.parent_id);
+    if (parentFolder) {
+      return getFolderTierColor(parentFolder, folders);
+    }
+  }
+  
+  // Default to medium tier
+  return getTierColor('medium');
+};
+
 // Helper function to count total items in a folder (projects + subfolders recursively)
 const getTotalItemsInFolder = (folder: Folder, folderProjects: Record<number, Project[]>): number => {
   const projectCount = folderProjects[folder.id]?.length || 0;
@@ -148,6 +183,7 @@ interface Folder {
   total_hours: number;
   total_completion_time: number;
   parent_id?: number | null;
+  quality_tier?: string;
   children?: Folder[];
 }
 
@@ -193,6 +229,7 @@ const FolderRow: React.FC<{
     handleRestoreProject: (projectId: number) => void;
     handleDeletePermanently: (projectId: number) => void;
     handleDeleteFolder: (folderId: number) => void;
+    allFolders: Folder[];
 }> = ({ 
     folder, 
     level, 
@@ -218,7 +255,8 @@ const FolderRow: React.FC<{
     handleDeleteProject,
     handleRestoreProject,
     handleDeletePermanently,
-    handleDeleteFolder
+    handleDeleteFolder,
+    allFolders
 }) => {
 
     const hasChildren = folder.children && folder.children.length > 0;
@@ -277,7 +315,7 @@ const FolderRow: React.FC<{
                                     }`}
                                 />
                             </button>
-                            <Folder size={16} className="text-blue-600 mr-2" />
+                            <Folder size={16} style={{ color: getFolderTierColor(folder, allFolders) }} className="mr-2" />
                             <span className="font-semibold text-blue-700 truncate max-w-[200px]" title={folder.name}>{folder.name}</span>
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? 'item' : 'items'}
@@ -458,6 +496,7 @@ const FolderRow: React.FC<{
                     handleRestoreProject={handleRestoreProject}
                     handleDeletePermanently={handleDeletePermanently}
                     handleDeleteFolder={handleDeleteFolder}
+                    allFolders={allFolders}
                 />
             ))}
         </>
@@ -1420,10 +1459,10 @@ const FolderRowMenu: React.FC<{
                 open={showSettingsModal}
                 onClose={() => setShowSettingsModal(false)}
                 folderName={folder.name}
-                currentTier="starter"
+                folderId={folder.id}
+                currentTier={folder.quality_tier || 'medium'}
                 onTierChange={(tier) => {
                     console.log('Folder tier changed to:', tier);
-                    // TODO: Implement API call to save folder tier
                 }}
             />
         </>
@@ -2514,7 +2553,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         folder={folder}
                                         level={0}
                                         index={folderIndex}
-                                                                    trashMode={trashMode}
+                                        trashMode={trashMode}
                                         columnVisibility={columnVisibility}
                                         expandedFolders={expandedFolders}
                                         folderProjects={folderProjects}
@@ -2536,6 +2575,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         handleRestoreProject={handleRestoreProject}
                                         handleDeletePermanently={handleDeletePermanently}
                                         handleDeleteFolder={handleDeleteFolder}
+                                        allFolders={folders}
                                     />
                                 ))}
                                 
