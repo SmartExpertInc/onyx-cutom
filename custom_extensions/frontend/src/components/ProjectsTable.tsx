@@ -34,6 +34,7 @@ import {
   ArrowDownToLine,
   Settings
 } from 'lucide-react';
+import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 
 // Helper function to redirect to main app's auth endpoint
 const redirectToMainAuth = (path: string) => {
@@ -1277,6 +1278,7 @@ const FolderRowMenu: React.FC<{
 }> = ({ folder, formatDate, trashMode, onDeleteFolder }) => {
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
+    const [showSettingsModal, setShowSettingsModal] = React.useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     
@@ -1317,64 +1319,86 @@ const FolderRowMenu: React.FC<{
         onDeleteFolder(folder.id);
     };
 
+    const handleSettingsClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        setShowSettingsModal(true);
+    };
+
     return (
-        <div ref={menuRef} className="inline-block">
-            <button 
-                ref={buttonRef}
-                className="text-gray-400 hover:text-gray-600" 
-                onClick={handleMenuToggle}
-            >
-                <MoreHorizontal size={20} />
-            </button>
-            {menuOpen && createPortal(
-                <div 
-                    data-modal-portal="true"
-                    className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-                        menuPosition === 'above' 
-                            ? 'bottom-auto mb-2' 
-                            : 'top-auto mt-2'
-                    }`}
-                    style={{
-                        left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
-                        top: buttonRef.current ? (menuPosition === 'above' 
-                            ? buttonRef.current.getBoundingClientRect().top - 220
-                            : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
-                    }}
-                    onClick={(e) => e.stopPropagation()}
+        <>
+            <div ref={menuRef} className="inline-block">
+                <button 
+                    ref={buttonRef}
+                    className="text-gray-400 hover:text-gray-600" 
+                    onClick={handleMenuToggle}
                 >
-                    <div className="px-3 py-2 border-b border-gray-100">
-                        <p className="font-semibold text-sm text-gray-900 truncate">{folder.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                            Created {formatDate(folder.created_at)}
-                        </p>
-                    </div>
-                    <div className="py-1">
-                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                            <Share2 size={16} className="text-gray-500" />
-                            <span>Share</span>
-                        </button>
-                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                            <PenLine size={16} className="text-gray-500" />
-                            <span>Rename</span>
-                        </button>
-                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                            <Settings size={16} className="text-gray-500" />
-                            <span>Settings</span>
-                        </button>
-                    </div>
-                    <div className="py-1 border-t border-gray-100">
-                        <button 
-                            onClick={handleDeleteFolder}
-                            className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
-                        >
-                            <Trash2 size={14} />
-                            <span>Delete</span>
-                        </button>
-                    </div>
-                </div>,
-                document.body
-            )}
-        </div>
+                    <MoreHorizontal size={20} />
+                </button>
+                {menuOpen && createPortal(
+                    <div 
+                        data-modal-portal="true"
+                        className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
+                            menuPosition === 'above' 
+                                ? 'bottom-auto mb-2' 
+                                : 'top-auto mt-2'
+                        }`}
+                        style={{
+                            left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
+                            top: buttonRef.current ? (menuPosition === 'above' 
+                                ? buttonRef.current.getBoundingClientRect().top - 220
+                                : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-3 py-2 border-b border-gray-100">
+                            <p className="font-semibold text-sm text-gray-900 truncate">{folder.name}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Created {formatDate(folder.created_at)}
+                            </p>
+                        </div>
+                        <div className="py-1">
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <Share2 size={16} className="text-gray-500" />
+                                <span>Share</span>
+                            </button>
+                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <PenLine size={16} className="text-gray-500" />
+                                <span>Rename</span>
+                            </button>
+                            <button 
+                                onClick={handleSettingsClick}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                                <Settings size={16} className="text-gray-500" />
+                                <span>Settings</span>
+                            </button>
+                        </div>
+                        <div className="py-1 border-t border-gray-100">
+                            <button 
+                                onClick={handleDeleteFolder}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                            >
+                                <Trash2 size={14} />
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>,
+                    document.body
+                )}
+            </div>
+            <FolderSettingsModal
+                open={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
+                folderName={folder.name}
+                currentTier="starter"
+                onTierChange={(tier) => {
+                    console.log('Folder tier changed to:', tier);
+                    // TODO: Implement API call to save folder tier
+                }}
+            />
+        </>
     );
 };
 
