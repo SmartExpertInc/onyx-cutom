@@ -25,13 +25,6 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
       .catch(() => setAllProjects([]));
   }, [open]);
 
-  // Dispatch event when modal opens
-  useEffect(() => {
-    if (open && typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('openFolderModal'));
-    }
-  }, [open]);
-
   if (!open) {
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
