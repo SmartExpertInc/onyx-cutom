@@ -1007,6 +1007,25 @@ def calculate_creation_hours(completion_time_minutes: int, tier: str) -> int:
     creation_hours = completion_hours * ratio
     return round(creation_hours)
 
+def round_hours_in_content(content: Any) -> Any:
+    """Recursively round all hours fields to integers in content structure"""
+    if isinstance(content, dict):
+        result = {}
+        for key, value in content.items():
+            if key == 'hours' and isinstance(value, (int, float)):
+                result[key] = round(value)
+            elif key == 'totalHours' and isinstance(value, (int, float)):
+                result[key] = round(value)
+            elif isinstance(value, (dict, list)):
+                result[key] = round_hours_in_content(value)
+            else:
+                result[key] = value
+        return result
+    elif isinstance(content, list):
+        return [round_hours_in_content(item) for item in content]
+    else:
+        return content
+
 async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
     """Get the tier of a folder, inheriting from parent if not set"""
     async with pool.acquire() as conn:
@@ -2327,6 +2346,10 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
         parsed_content_for_response: Optional[MicroProductContentType] = None
         component_name = row_dict.get("design_component_name")
 
+        # Round hours to integers in the content before parsing
+        if db_content_json and isinstance(db_content_json, dict):
+            db_content_json = round_hours_in_content(db_content_json)
+            
         if db_content_json and isinstance(db_content_json, dict):
             try:
                 if component_name == COMPONENT_NAME_PDF_LESSON:
@@ -2421,6 +2444,11 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     project_slug = create_slug(project_instance_name)
     component_name = row_dict.get("component_name")
     details_data = row_dict.get("microproduct_content")
+    
+    # Round hours to integers in the content before returning
+    if details_data:
+        details_data = round_hours_in_content(details_data)
+    
     web_link_path = None
     pdf_link_path = None
     return MicroProductApiResponse(
