@@ -31,7 +31,8 @@ import {
   ChevronDown,
   CheckSquare,
   Square,
-  ArrowDownToLine
+  ArrowDownToLine,
+  Settings
 } from 'lucide-react';
 
 // Helper function to redirect to main app's auth endpoint
@@ -190,6 +191,7 @@ const FolderRow: React.FC<{
     handleDeleteProject: (projectId: number, scope: 'self' | 'all') => void;
     handleRestoreProject: (projectId: number) => void;
     handleDeletePermanently: (projectId: number) => void;
+    handleDeleteFolder: (folderId: number) => void;
 }> = ({ 
     folder, 
     level, 
@@ -214,7 +216,8 @@ const FolderRow: React.FC<{
     handleDragEnd,
     handleDeleteProject,
     handleRestoreProject,
-    handleDeletePermanently
+    handleDeletePermanently,
+    handleDeleteFolder
 }) => {
 
     const hasChildren = folder.children && folder.children.length > 0;
@@ -318,8 +321,13 @@ const FolderRow: React.FC<{
                         })()}
                     </td>
                 )}
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {/* Empty cell for folder rows */}
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                    <FolderRowMenu 
+                        folder={folder} 
+                        formatDate={formatDate} 
+                        trashMode={trashMode}
+                        onDeleteFolder={handleDeleteFolder}
+                    />
                 </td>
             </tr>
             
@@ -448,6 +456,7 @@ const FolderRow: React.FC<{
                     handleDeleteProject={handleDeleteProject}
                     handleRestoreProject={handleRestoreProject}
                     handleDeletePermanently={handleDeletePermanently}
+                    handleDeleteFolder={handleDeleteFolder}
                 />
             ))}
         </>
@@ -1260,6 +1269,107 @@ const ProjectRowMenu: React.FC<{
     );
 };
 
+const FolderRowMenu: React.FC<{
+    folder: Folder;
+    formatDate: (date: string) => string;
+    trashMode: boolean;
+    onDeleteFolder: (id: number) => void;
+}> = ({ folder, formatDate, trashMode, onDeleteFolder }) => {
+    const [menuOpen, setMenuOpen] = React.useState(false);
+    const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
+    const menuRef = React.useRef<HTMLDivElement>(null);
+    const buttonRef = React.useRef<HTMLButtonElement>(null);
+    
+    const handleMenuToggle = () => {
+        if (!menuOpen && buttonRef.current) {
+            // Calculate if there's enough space below
+            const buttonRect = buttonRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const spaceBelow = viewportHeight - buttonRect.bottom;
+            const menuHeight = 200; // Approximate menu height
+            
+            setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
+        }
+        setMenuOpen(prev => !prev);
+    };
+    
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                // Check if the click is on the portal modal
+                const target = event.target as Element;
+                if (target.closest('[data-modal-portal]')) {
+                    return; // Don't close if clicking inside the modal
+                }
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleDeleteFolder = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        onDeleteFolder(folder.id);
+    };
+
+    return (
+        <div ref={menuRef} className="inline-block">
+            <button 
+                ref={buttonRef}
+                className="text-gray-400 hover:text-gray-600" 
+                onClick={handleMenuToggle}
+            >
+                <MoreHorizontal size={20} />
+            </button>
+            {menuOpen && createPortal(
+                <div 
+                    data-modal-portal="true"
+                    className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
+                        menuPosition === 'above' 
+                            ? 'bottom-auto mb-2' 
+                            : 'top-auto mt-2'
+                    }`}
+                    style={{
+                        left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
+                        top: buttonRef.current ? (menuPosition === 'above' 
+                            ? buttonRef.current.getBoundingClientRect().top - 220
+                            : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="px-3 py-2 border-b border-gray-100">
+                        <p className="font-semibold text-sm text-gray-900 truncate">{folder.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Created {formatDate(folder.created_at)}
+                        </p>
+                    </div>
+                    <div className="py-1">
+                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                            <Settings size={16} className="text-gray-500" />
+                            <span>Settings</span>
+                        </button>
+                    </div>
+                    <div className="py-1 border-t border-gray-100">
+                        <button 
+                            onClick={handleDeleteFolder}
+                            className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                        >
+                            <Trash2 size={14} />
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+};
+
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folderId = null }) => {
     const router = useRouter();
     const [projects, setProjects] = useState<Project[]>([]);
@@ -1774,6 +1884,41 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             refreshProjects();
         } catch (error) {
             console.error('Error deleting project permanently:', error);
+        }
+    };
+
+    const handleDeleteFolder = async (folderId: number) => {
+        if (!confirm('Are you sure you want to delete this folder? This will also delete all projects inside it.')) {
+            return;
+        }
+        
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/${folderId}`, {
+                method: 'DELETE',
+                headers,
+                credentials: 'same-origin'
+            });
+            
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    redirectToMainAuth('/auth/login');
+                    return;
+                }
+                throw new Error(`Failed to delete folder: ${response.status}`);
+            }
+            
+            // Refresh the projects list
+            refreshProjects();
+        } catch (error) {
+            console.error('Error deleting folder:', error);
+            alert('Failed to delete folder');
         }
     };
 
@@ -2303,6 +2448,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         handleDeleteProject={handleDeleteProject}
                                         handleRestoreProject={handleRestoreProject}
                                         handleDeletePermanently={handleDeletePermanently}
+                                        handleDeleteFolder={handleDeleteFolder}
                                     />
                                 ))}
                                 
