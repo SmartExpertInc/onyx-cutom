@@ -101,10 +101,7 @@ const getTotalItemsInFolder = (folder: Folder, folderProjects?: Record<number, a
       return total + getTotalItemsInFolder(childFolder, folderProjects);
     }, 0) || 0;
     
-    const total = projectCount + subfolderItemsCount;
-    console.log(`Folder ${folder.name} (${folder.id}): ${projectCount} direct projects + ${subfolderItemsCount} subfolder items = ${total} total`);
-    
-    return total;
+    return projectCount + subfolderItemsCount;
   }
   
   // Fallback to using project_count from backend (less accurate)
@@ -194,9 +191,6 @@ const FolderItem: React.FC<{
           </svg>
         </span>
         <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
-        <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-          {getTotalItemsInFolder(folder, folderProjects)}
-        </span>
       </div>
       {hasChildren && isExpanded && (
         <div>
@@ -223,10 +217,7 @@ const FolderItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
 
-  // Debug logging
-  console.log('Sidebar received folders:', folders);
-  console.log('Sidebar received folderProjects:', folderProjects);
-  console.log('Sidebar folder tree:', buildFolderTree(folders));
+
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
