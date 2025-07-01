@@ -81,10 +81,43 @@ const getTotalItemsInFolder = (folder: Folder, folderProjects: Record<number, Pr
     return total + getTotalItemsInFolder(childFolder, folderProjects);
   }, 0) || 0;
   
-  const total = projectCount + subfolderItemsCount;
-  console.log(`List View - Folder ${folder.name} (${folder.id}): ${projectCount} direct projects + ${subfolderItemsCount} subfolder items = ${total} total`);
+  return projectCount + subfolderItemsCount;
+};
+
+// Helper function to get total lessons in a folder (including subfolders)
+const getTotalLessonsInFolder = (folder: Folder): number => {
+  const directLessons = folder.total_lessons || 0;
   
-  return total;
+  // Recursively sum lessons from all subfolders
+  const subfolderLessons = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalLessonsInFolder(childFolder);
+  }, 0) || 0;
+  
+  return directLessons + subfolderLessons;
+};
+
+// Helper function to get total hours in a folder (including subfolders)
+const getTotalHoursInFolder = (folder: Folder): number => {
+  const directHours = folder.total_hours || 0;
+  
+  // Recursively sum hours from all subfolders
+  const subfolderHours = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalHoursInFolder(childFolder);
+  }, 0) || 0;
+  
+  return directHours + subfolderHours;
+};
+
+// Helper function to get total completion time in a folder (including subfolders)
+const getTotalCompletionTimeInFolder = (folder: Folder): number => {
+  const directCompletionTime = folder.total_completion_time || 0;
+  
+  // Recursively sum completion time from all subfolders
+  const subfolderCompletionTime = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalCompletionTimeInFolder(childFolder);
+  }, 0) || 0;
+  
+  return directCompletionTime + subfolderCompletionTime;
 };
 
 interface Project {
@@ -183,14 +216,7 @@ const FolderRow: React.FC<{
     handleRestoreProject,
     handleDeletePermanently
 }) => {
-    // Debug logging for FolderRow
-    console.log(`FolderRow - Folder ${folder.name} (${folder.id}):`, {
-        folder,
-        level,
-        folderProjects: Object.keys(folderProjects),
-        folderProjectsForThisFolder: folderProjects[folder.id],
-        totalItems: getTotalItemsInFolder(folder, folderProjects)
-    });
+
     const hasChildren = folder.children && folder.children.length > 0;
     const isExpanded = expandedFolders.has(folder.id);
     const folderProjectsList = folderProjects[folder.id] || [];
@@ -270,17 +296,26 @@ const FolderRow: React.FC<{
                 )}
                 {columnVisibility.numberOfLessons && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {folder.total_lessons > 0 ? folder.total_lessons : '-'}
+                        {(() => {
+                            const totalLessons = getTotalLessonsInFolder(folder);
+                            return totalLessons > 0 ? totalLessons : '-';
+                        })()}
                     </td>
                 )}
                 {columnVisibility.estCreationTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {folder.total_hours > 0 ? `${folder.total_hours}h` : '-'}
+                        {(() => {
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
+                        })()}
                     </td>
                 )}
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {folder.total_completion_time > 0 ? formatCompletionTime(folder.total_completion_time) : '-'}
+                        {(() => {
+                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
+                            return totalCompletionTime > 0 ? formatCompletionTime(totalCompletionTime) : '-';
+                        })()}
                     </td>
                 )}
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -1401,11 +1436,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 setFolders([]);
             }
 
-            // Debug logging for list view
-            console.log('List View - Folder Projects Map:', folderProjectsMap);
-            console.log('List View - Folders Data:', foldersData);
-            console.log('List View - All Projects:', allProjects);
-            console.log('List View - Folder Tree:', buildFolderTree(foldersData));
+
 
         } catch (err) {
             console.error('Error fetching projects:', err);
