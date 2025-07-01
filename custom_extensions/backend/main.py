@@ -4424,13 +4424,13 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                                 CASE 
                                     WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
                                     THEN (
-                                        -- Calculate tier-adjusted creation hours based on completion time
+                                        -- Calculate tier-adjusted creation hours based on completion time and round to integer
                                         CASE 
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'starter' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 120.0 / 60.0
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'medium' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'advanced' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 320.0 / 60.0
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'professional' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 450.0 / 60.0
-                                            ELSE (REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'starter' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 120.0 / 60.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'medium' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'advanced' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 320.0 / 60.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'professional' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 450.0 / 60.0)
+                                            ELSE ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0)
                                         END
                                     )
                                     ELSE 0 
