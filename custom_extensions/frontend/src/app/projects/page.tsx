@@ -146,10 +146,17 @@ const FolderItem: React.FC<{
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = folder.children && folder.children.length > 0;
 
-  const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen : true;
+  // Check if any modal is open - prevent dragging completely
+  const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
 
   const handleDragStart = (e: React.DragEvent) => {
-    if (!isDraggable) return;
+    // Prevent dragging if any modal is open
+    if (isModalOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    
     e.dataTransfer.setData('application/json', JSON.stringify({
       folderId: folder.id,
       folderName: folder.name,
@@ -164,12 +171,12 @@ const FolderItem: React.FC<{
         className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
-        draggable={isDraggable}
+        draggable={!isModalOpen}
         onDragStart={handleDragStart}
-        onDragOver={onDragOver}
-        onDrop={(e) => onDrop(e, folder.id)}
-        onDragEnter={onDragEnter}
-        onDragLeave={onDragLeave}
+        onDragOver={isModalOpen ? undefined : onDragOver}
+        onDrop={isModalOpen ? undefined : (e) => onDrop(e, folder.id)}
+        onDragEnter={isModalOpen ? undefined : onDragEnter}
+        onDragLeave={isModalOpen ? undefined : onDragLeave}
       >
         {hasChildren && (
           <button
@@ -220,14 +227,23 @@ const FolderItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
 
+  // Check if any modal is open
+  const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+
   const handleDragOver = (e: React.DragEvent) => {
-    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
+    if (isModalOpen) {
+      e.preventDefault();
+      return;
+    }
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e: React.DragEvent, folderId: number) => {
-    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
+    if (isModalOpen) {
+      e.preventDefault();
+      return;
+    }
     e.preventDefault();
     e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105');
     try {
@@ -247,13 +263,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   };
 
   const handleDragEnter = (e: React.DragEvent) => {
-    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
+    if (isModalOpen) {
+      e.preventDefault();
+      return;
+    }
     e.preventDefault();
     e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
+    if (isModalOpen) {
+      e.preventDefault();
+      return;
+    }
     e.preventDefault();
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');

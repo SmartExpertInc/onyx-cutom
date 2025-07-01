@@ -237,7 +237,7 @@ const FolderRow: React.FC<{
                         toggleFolder(folder.id);
                     }
                 }}
-                draggable={!trashMode}
+                draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
                 data-folder-id={folder.id}
                 onDragStart={(e) => handleDragStart(e, folder, 'folder')}
                 onDragOver={(e) => {
@@ -340,7 +340,7 @@ const FolderRow: React.FC<{
                         className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing bg-gray-50 ${
                             dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                        draggable={!trashMode}
+                        draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
                         onDragStart={(e) => handleDragStart(e, p, 'project')}
                         onDragOver={(e) => handleDragOver(e, projectIndex)}
                         onDragLeave={handleDragLeave}
@@ -557,6 +557,14 @@ const ProjectCard: React.FC<{
     };
 
     const handleDragStart = (e: React.DragEvent) => {
+        // Check if any modal is open - prevent dragging completely
+        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        if (isModalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         // Add visual feedback to the dragged element
         const target = e.currentTarget as HTMLElement;
         target.style.opacity = '0.5';
@@ -644,7 +652,7 @@ const ProjectCard: React.FC<{
         <div 
             ref={cardRef} 
             className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-grab active:cursor-grabbing"
-            draggable={!isTrashMode}
+            draggable={!isTrashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
@@ -2015,6 +2023,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     // Drag and drop reordering functions
     const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
+        // Check if any modal is open - prevent dragging completely
+        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        if (isModalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         e.dataTransfer.setData('application/json', JSON.stringify({
             id: item.id,
             type: type === 'project' ? 'project' : 'reorder',
@@ -2037,12 +2053,24 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     }, []);
 
     const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+        // Check if any modal is open - prevent drag over
+        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        if (isModalOpen) {
+            e.preventDefault();
+            return;
+        }
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
         setDragOverIndex(index);
     }, []);
 
     const handleDragLeave = useCallback((e: React.DragEvent) => {
+        // Check if any modal is open - prevent drag leave
+        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        if (isModalOpen) {
+            e.preventDefault();
+            return;
+        }
         e.preventDefault();
         // Only clear if we're leaving the entire row
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -2051,6 +2079,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     }, []);
 
     const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+        // Check if any modal is open - prevent drop
+        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        if (isModalOpen) {
+            e.preventDefault();
+            return;
+        }
+        
         e.preventDefault();
         
         try {
@@ -2207,7 +2242,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                         const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/update-order`, {
                             method: 'PUT',
                             headers,
-                            body: JSON.stringify(orderUpdates)
+                            body: JSON.stringify({ orders: orderUpdates })
                         });
                         
                         if (!response.ok) {
@@ -2511,7 +2546,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode}
+                                        draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
                                         onDragStart={(e) => handleDragStart(e, p, 'project')}
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragLeave={handleDragLeave}
@@ -2596,7 +2631,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode}
+                                        draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
                                         onDragStart={(e) => handleDragStart(e, p, 'project')}
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragLeave={handleDragLeave}
