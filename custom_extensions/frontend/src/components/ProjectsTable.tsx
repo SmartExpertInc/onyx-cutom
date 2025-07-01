@@ -549,7 +549,11 @@ const ProjectCard: React.FC<{
             
             setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
-        setMenuOpen(prev => !prev);
+        setMenuOpen(prev => {
+            if (!prev && typeof window !== 'undefined') (window as any).__modalOpen = true;
+            if (prev && typeof window !== 'undefined') (window as any).__modalOpen = false;
+            return !prev;
+        });
     };
 
     const handleDragStart = (e: React.DragEvent) => {
@@ -596,11 +600,13 @@ const ProjectCard: React.FC<{
                     return; // Don't close if clicking inside the modal
                 }
                 setMenuOpen(false);
+                if (typeof window !== 'undefined') (window as any).__modalOpen = false;
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         };
     }, []);
 
@@ -1014,7 +1020,11 @@ const ProjectRowMenu: React.FC<{
             
             setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
-        setMenuOpen(prev => !prev);
+        setMenuOpen(prev => {
+            if (!prev && typeof window !== 'undefined') (window as any).__modalOpen = true;
+            if (prev && typeof window !== 'undefined') (window as any).__modalOpen = false;
+            return !prev;
+        });
     };
     
     React.useEffect(() => {
@@ -1026,21 +1036,15 @@ const ProjectRowMenu: React.FC<{
                     return; // Don't close if clicking inside the modal
                 }
                 setMenuOpen(false);
+                if (typeof window !== 'undefined') (window as any).__modalOpen = false;
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    React.useEffect(() => {
-        if (typeof window !== 'undefined') (window as any).__modalOpen = menuOpen;
-        return () => {
             if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         };
-    }, [menuOpen]);
-
+    }, []);
     const handleTrashRequest = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -1300,7 +1304,11 @@ const FolderRowMenu: React.FC<{
             
             setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
         }
-        setMenuOpen(prev => !prev);
+        setMenuOpen(prev => {
+            if (!prev && typeof window !== 'undefined') (window as any).__modalOpen = true;
+            if (prev && typeof window !== 'undefined') (window as any).__modalOpen = false;
+            return !prev;
+        });
     };
     
     React.useEffect(() => {
@@ -1312,25 +1320,21 @@ const FolderRowMenu: React.FC<{
                     return; // Don't close if clicking inside the modal
                 }
                 setMenuOpen(false);
+                if (typeof window !== 'undefined') (window as any).__modalOpen = false;
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    React.useEffect(() => {
-        if (typeof window !== 'undefined') (window as any).__modalOpen = menuOpen;
-        return () => {
             if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         };
-    }, [menuOpen]);
+    }, []);
 
     const handleDeleteFolder = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
+        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         onDeleteFolder(folder.id);
     };
 
@@ -1338,6 +1342,7 @@ const FolderRowMenu: React.FC<{
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
+        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         setShowSettingsModal(true);
     };
 
@@ -1673,9 +1678,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     }, [folderProjects, fetchFolderProjects]);
 
     // Helper function to get unassigned projects
-const getUnassignedProjects = useCallback(() => {
-    return projects.filter(p => p.folderId === null);
-}, [projects]);
+    const getUnassignedProjects = useCallback(() => {
+        return projects.filter(p => p.folderId === null);
+    }, [projects]);
 
 // Helper function to get projects for a specific folder (including subfolders)
 const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
@@ -1982,4 +1987,701 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     headers['X-Dev-Onyx-User-ID'] = devUserId;
                 }
                 
-                const response = await fetch(`
+                const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+                    method: 'PUT',
+                    headers,
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ folderId })
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        router.push('/auth/login');
+                        return;
+                    }
+                    throw new Error(`Failed to move project to folder: ${response.status}`);
+                }
+                
+                // Refresh the projects list
+                refreshProjects();
+            } catch (error) {
+                console.error('Error moving project to folder:', error);
+            }
+        };
+
+        window.addEventListener('moveProjectToFolder', handleMoveProjectToFolder);
+        return () => window.removeEventListener('moveProjectToFolder', handleMoveProjectToFolder);
+    }, [refreshProjects, router]);
+
+    // Drag and drop reordering functions
+    const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
+        e.dataTransfer.setData('application/json', JSON.stringify({
+            id: item.id,
+            type: type === 'project' ? 'project' : 'reorder',
+            itemType: type,
+            projectId: type === 'project' ? item.id : undefined
+        }));
+        e.dataTransfer.effectAllowed = 'move';
+        if (type === 'project') {
+            setDraggedProject(item as Project);
+        } else {
+            setDraggedFolder(item as Folder);
+        }
+        setIsReordering(true);
+        setIsDragging(true);
+        
+        // Add visual feedback to dragged element
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '0.5';
+        target.style.transform = 'rotate(2deg)';
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverIndex(index);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        // Only clear if we're leaving the entire row
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDragOverIndex(null);
+        }
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+        e.preventDefault();
+        
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('application/json'));
+            
+            // Check if we're dropping a project
+            if (data.type === 'project' && data.projectId) {
+                // Check if we're dropping on a folder row (move to folder)
+                const targetElement = e.currentTarget as HTMLElement;
+                const folderRow = targetElement.closest('tr');
+                if (folderRow && folderRow.getAttribute('data-folder-id')) {
+                    const folderId = parseInt(folderRow.getAttribute('data-folder-id') || '0');
+                    if (folderId > 0) {
+                        // Move project to folder
+                        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
+                            detail: { projectId: data.projectId, folderId }
+                        }));
+                        
+                        // Reset drag state
+                        setDraggedProject(null);
+                        setDraggedFolder(null);
+                        setDragOverIndex(null);
+                        setIsReordering(false);
+                        setIsDragging(false);
+                        
+                        // Reset visual feedback
+                        const target = e.currentTarget as HTMLElement;
+                        target.style.opacity = '1';
+                        target.style.transform = 'rotate(0deg)';
+                        return;
+                    }
+                }
+                
+                // If not dropping on a folder, handle as project reordering
+                if (!draggedProject) return;
+                
+                // Get the current list of projects to reorder
+                let currentProjects: Project[];
+                let updateFunction: (newProjects: Project[]) => void;
+                
+                if (folderId !== null) {
+                    // Reordering within a specific folder
+                    currentProjects = [...projects];
+                    updateFunction = setProjects;
+                } else {
+                    // Check if we're reordering within an expanded folder
+                    const expandedFolderId = Array.from(expandedFolders).find(folderId => 
+                        folderProjects[folderId]?.some(p => p.id === draggedProject.id)
+                    );
+                    
+                    if (expandedFolderId) {
+                        // Reordering within an expanded folder
+                        currentProjects = [...(folderProjects[expandedFolderId] || [])];
+                        updateFunction = (newProjects: Project[]) => {
+                            setFolderProjects(prev => ({
+                                ...prev,
+                                [expandedFolderId]: newProjects
+                            }));
+                        };
+                    } else {
+                        // Reordering unassigned projects
+                        currentProjects = getUnassignedProjects();
+                        updateFunction = (newProjects: Project[]) => {
+                            const assignedProjects = projects.filter(p => p.folderId !== null);
+                            setProjects([...newProjects, ...assignedProjects]);
+                        };
+                    }
+                }
+                
+                // Find the current index of the dragged project
+                const currentIndex = currentProjects.findIndex(p => p.id === draggedProject.id);
+                if (currentIndex === -1) return;
+                
+                // Don't reorder if dropping on itself
+                if (currentIndex === dropIndex) return;
+                
+                // Create new array with reordered projects
+                const newProjects = [...currentProjects];
+                const [movedProject] = newProjects.splice(currentIndex, 1);
+                newProjects.splice(dropIndex, 0, movedProject);
+                
+                // Update the appropriate state
+                updateFunction(newProjects);
+                
+                // Save the new order to the backend
+                const saveOrderToBackend = async () => {
+                    try {
+                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                        const devUserId = "dummy-onyx-user-id-for-testing";
+                        if (devUserId && process.env.NODE_ENV === 'development') {
+                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                        }
+                        
+                        // Update orders for all projects in the new order
+                        const orderUpdates = newProjects.map((project, index) => ({
+                            projectId: project.id,
+                            order: index
+                        }));
+                        
+                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update-order`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify({ orders: orderUpdates })
+                        });
+                        
+                        if (!response.ok) {
+                            console.error('Failed to save project order:', response.status);
+                        }
+                    } catch (error) {
+                        console.error('Error saving project order:', error);
+                    }
+                };
+                
+                // Call the backend asynchronously
+                saveOrderToBackend();
+            }
+            
+            // Handle folder reordering
+            if (data.type === 'reorder' && data.itemType === 'folder') {
+                if (!draggedFolder) return;
+                
+                const currentFolders = [...folders];
+                const currentIndex = currentFolders.findIndex(f => f.id === draggedFolder.id);
+                if (currentIndex === -1) return;
+                
+                // Don't reorder if dropping on itself
+                if (currentIndex === dropIndex) return;
+                
+                // Create new array with reordered folders
+                const newFolders = [...currentFolders];
+                const [movedFolder] = newFolders.splice(currentIndex, 1);
+                newFolders.splice(dropIndex, 0, movedFolder);
+                
+                // Update folders state
+                setFolders(newFolders);
+                
+                // Save the new order to the backend
+                const saveFolderOrderToBackend = async () => {
+                    try {
+                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                        const devUserId = "dummy-onyx-user-id-for-testing";
+                        if (devUserId && process.env.NODE_ENV === 'development') {
+                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                        }
+                        
+                        // Update orders for all folders in the new order
+                        const orderUpdates = newFolders.map((folder, index) => ({
+                            folderId: folder.id,
+                            order: index
+                        }));
+                        
+                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/update-order`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify(orderUpdates)
+                        });
+                        
+                        if (!response.ok) {
+                            console.error('Failed to save folder order:', response.status);
+                        }
+                    } catch (error) {
+                        console.error('Error saving folder order:', error);
+                    }
+                };
+                
+                // Call the backend asynchronously
+                saveFolderOrderToBackend();
+            }
+        } catch (error) {
+            console.error('Error handling drop:', error);
+        }
+        
+        // Reset drag state
+        setDraggedProject(null);
+        setDraggedFolder(null);
+        setDragOverIndex(null);
+        setIsReordering(false);
+        setIsDragging(false);
+        
+        // Reset visual feedback
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '1';
+        target.style.transform = 'rotate(0deg)';
+    }, [draggedProject, draggedFolder, folderId, projects, expandedFolders, folderProjects, getUnassignedProjects, folders]);
+
+    const handleDragEnd = useCallback((e: React.DragEvent) => {
+        // Reset drag state
+        setDraggedProject(null);
+        setDraggedFolder(null);
+        setDragOverIndex(null);
+        setIsReordering(false);
+        setIsDragging(false);
+        
+        // Reset visual feedback
+        const target = e.currentTarget as HTMLElement;
+        target.style.opacity = '1';
+        target.style.transform = 'rotate(0deg)';
+    }, []);
+
+    const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
+    const filterIcons: Record<string, LucideIcon> = {
+        'All': Home,
+        'Recently viewed': Clock,
+        'Created by you': User,
+        'Favorites': Star,
+    };
+
+    // Add PDF download function
+    const handlePdfDownload = () => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        
+        // Add folder_id if viewing a specific folder
+        if (folderId !== null) {
+            queryParams.append('folder_id', folderId.toString());
+        }
+        
+        // Add column visibility settings
+        queryParams.append('column_visibility', JSON.stringify(columnVisibility));
+        
+        // Build the PDF URL
+        let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/projects-list`;
+        if (queryParams.toString()) {
+            pdfUrl += `?${queryParams.toString()}`;
+        }
+        
+        // Open PDF in new tab
+        window.open(pdfUrl, '_blank');
+    };
+
+    if (loading) {
+        return <div className="text-center p-8">Loading projects...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center p-8 text-red-500">Error: {error}</div>;
+    }
+
+    return (
+        <div>
+            { !trashMode && (
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                    <Link href="/create">
+                        <button
+                            className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg"
+                        >
+                            <Plus size={16} className="text-white" />
+                            Create new
+                            <span
+                                className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide"
+                            >
+                                AI
+                            </span>
+                        </button>
+                    </Link>
+                    <button
+                        className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm"
+                    >
+                        <Plus size={16} />
+                        New from blank
+                        <ChevronsUpDown size={16} className="text-gray-500" />
+                    </button>
+                    <button
+                        className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm"
+                    >
+                        Import
+                        <ChevronsUpDown size={16} className="text-gray-500" />
+                    </button>
+                </div>
+            </div>
+            ) }
+
+            { !trashMode && (
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                    {filters.map(filter => {
+                        const Icon = filterIcons[filter];
+                        return (
+                            <button 
+                                key={filter}
+                                onClick={() => setActiveFilter(filter)}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${activeFilter === filter ? 'bg-white shadow-sm border border-gray-200 text-black' : 'text-gray-600 hover:bg-gray-100'}`}
+                            >
+                                <Icon size={16} />
+                                {filter}
+                            </button>
+                        )
+                    })}
+                </div>
+                <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700">
+                        <ArrowUpDown size={16} className="text-gray-800" />
+                        Sort
+                    </button>
+                    
+                    {/* Columns Dropdown */}
+                    <div className="relative" data-columns-dropdown>
+                        <button 
+                            onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
+                            className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700"
+                        >
+                            <List size={16} className="text-gray-800" />
+                            Columns
+                            <ChevronDown size={14} className="text-gray-600" />
+                        </button>
+                        
+                        {showColumnsDropdown && (
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                <div className="p-2">
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Show columns</div>
+                                    {[
+                                        { key: 'title', label: 'Title' },
+                                        { key: 'created', label: 'Created' },
+                                        { key: 'creator', label: 'Creator' },
+                                        { key: 'numberOfLessons', label: 'Number of lessons' },
+                                        { key: 'estCreationTime', label: 'Est. creation time' },
+                                        { key: 'estCompletionTime', label: 'Est. completion time' }
+                                    ].map((column) => (
+                                        <label key={column.key} className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                            {columnVisibility[column.key as keyof ColumnVisibility] ? (
+                                                <CheckSquare size={16} className="text-blue-600" />
+                                            ) : (
+                                                <Square size={16} className="text-gray-400" />
+                                            )}
+                                            <span className="text-sm text-gray-700">{column.label}</span>
+                                            <input
+                                                type="checkbox"
+                                                checked={columnVisibility[column.key as keyof ColumnVisibility]}
+                                                onChange={(e) => {
+                                                    setColumnVisibility(prev => ({
+                                                        ...prev,
+                                                        [column.key]: e.target.checked
+                                                    }));
+                                                }}
+                                                className="sr-only"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* PDF Download Button - only show in list view */}
+                    {viewMode === 'list' && (
+                        <button
+                            onClick={handlePdfDownload}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                            title="Download projects list as PDF"
+                        >
+                            <ArrowDownToLine size={16} />
+                            Download PDF
+                        </button>
+                    )}
+                    
+                    <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
+                        <button 
+                            onClick={() => setViewMode('grid')}
+                            className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
+                        >
+                            <LayoutGrid size={16} className="text-gray-800" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+                        >
+                            <List size={16} className="text-gray-800" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+            ) }
+
+            {projects.length > 0 ? (
+                viewMode === 'grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {getProjectsForFolder(folderId).map((p: Project) => (
+                            <ProjectCard
+                                key={p.id}
+                                project={p}
+                                onDelete={handleDeleteProject}
+                                onRestore={handleRestoreProject}
+                                onDeletePermanently={handleDeletePermanently}
+                                isTrashMode={trashMode}
+                                folderId={folderId}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    // List view (table/row style)
+                    <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${isReordering ? 'ring-2 ring-blue-200' : ''}`}>
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    {columnVisibility.title && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                                    )}
+                                    {columnVisibility.created && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
+                                    )}
+                                    {columnVisibility.creator && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
+                                    )}
+                                    {columnVisibility.numberOfLessons && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Number of lessons</th>
+                                    )}
+                                    {columnVisibility.estCreationTime && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. creation time</th>
+                                    )}
+                                    {columnVisibility.estCompletionTime && (
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. completion time</th>
+                                    )}
+                                    <th className="px-6 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                                {/* Show nested folders as expandable rows when not viewing a specific folder */}
+                                {!trashMode && folderId === null && buildFolderTree(folders).map((folder, folderIndex) => (
+                                    <FolderRow
+                                        key={`folder-${folder.id}`}
+                                        folder={folder}
+                                        level={0}
+                                        index={folderIndex}
+                                                                    trashMode={trashMode}
+                                        columnVisibility={columnVisibility}
+                                        expandedFolders={expandedFolders}
+                                        folderProjects={folderProjects}
+                                        lessonDataCache={lessonDataCache}
+                                        draggedFolder={draggedFolder}
+                                        draggedProject={draggedProject}
+                                        dragOverIndex={dragOverIndex}
+                                        isDragging={isDragging}
+                                        isReordering={isReordering}
+                                        formatDate={formatDate}
+                                        formatCompletionTime={formatCompletionTime}
+                                        toggleFolder={toggleFolder}
+                                        handleDragStart={handleDragStart}
+                                        handleDragOver={handleDragOver}
+                                        handleDragLeave={handleDragLeave}
+                                        handleDrop={handleDrop}
+                                        handleDragEnd={handleDragEnd}
+                                        handleDeleteProject={handleDeleteProject}
+                                        handleRestoreProject={handleRestoreProject}
+                                        handleDeletePermanently={handleDeletePermanently}
+                                        handleDeleteFolder={handleDeleteFolder}
+                                    />
+                                ))}
+                                
+                                {/* Show unassigned projects when not viewing a specific folder */}
+                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project, index: number) => (
+                                    <tr 
+                                        key={p.id} 
+                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
+                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                                        draggable={!trashMode}
+                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
+                                        onDragOver={(e) => handleDragOver(e, index)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, index)}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        {columnVisibility.title && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                            <circle cx="9" cy="5" r="2"/>
+                                                            <circle cx="9" cy="12" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
+                                                            <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="15" cy="12" r="2"/>
+                                                            <circle cx="15" cy="19" r="2"/>
+                                                        </svg>
+                                                    </div>
+                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
+                                                        {p.title}
+                                                    </Link>
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.created && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        )}
+                                        {columnVisibility.creator && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                    </span>
+                                                    You
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.numberOfLessons && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.lessonCount : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCreationTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCompletionTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                            <ProjectRowMenu 
+                                                project={p} 
+                                                formatDate={formatDate} 
+                                                trashMode={trashMode}
+                                                onDelete={handleDeleteProject}
+                                                onRestore={handleRestoreProject}
+                                                onDeletePermanently={handleDeletePermanently}
+                                                folderId={folderId}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                                
+                                {/* Show projects for specific folder or all projects in trash mode */}
+                                {(trashMode || folderId !== null) && getProjectsForFolder(folderId).map((p: Project, index: number) => (
+                                    <tr 
+                                        key={p.id} 
+                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
+                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                                        draggable={!trashMode}
+                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
+                                        onDragOver={(e) => handleDragOver(e, index)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, index)}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        {columnVisibility.title && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                            <circle cx="9" cy="5" r="2"/>
+                                                            <circle cx="9" cy="12" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
+                                                            <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="15" cy="12" r="2"/>
+                                                            <circle cx="15" cy="19" r="2"/>
+                                                        </svg>
+                                                    </div>
+                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
+                                                        {p.title}
+                                                    </Link>
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.created && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        )}
+                                        {columnVisibility.creator && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                    </span>
+                                                    You
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.numberOfLessons && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.lessonCount : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCreationTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCompletionTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                            <ProjectRowMenu 
+                                                project={p} 
+                                                formatDate={formatDate} 
+                                                trashMode={trashMode}
+                                                onDelete={handleDeleteProject}
+                                                onRestore={handleRestoreProject}
+                                                onDeletePermanently={handleDeletePermanently}
+                                                folderId={folderId}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )
+            ) : (
+                <div className="text-center p-8 text-gray-500">No projects found.</div>
+            )}
+        </div>
+    );
+}
+
+export default ProjectsTable;
