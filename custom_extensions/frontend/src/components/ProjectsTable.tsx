@@ -81,7 +81,10 @@ const getTotalItemsInFolder = (folder: Folder, folderProjects: Record<number, Pr
     return total + getTotalItemsInFolder(childFolder, folderProjects);
   }, 0) || 0;
   
-  return projectCount + subfolderItemsCount;
+  const total = projectCount + subfolderItemsCount;
+  console.log(`List View - Folder ${folder.name} (${folder.id}): ${projectCount} direct projects + ${subfolderItemsCount} subfolder items = ${total} total`);
+  
+  return total;
 };
 
 interface Project {
@@ -180,6 +183,14 @@ const FolderRow: React.FC<{
     handleRestoreProject,
     handleDeletePermanently
 }) => {
+    // Debug logging for FolderRow
+    console.log(`FolderRow - Folder ${folder.name} (${folder.id}):`, {
+        folder,
+        level,
+        folderProjects: Object.keys(folderProjects),
+        folderProjectsForThisFolder: folderProjects[folder.id],
+        totalItems: getTotalItemsInFolder(folder, folderProjects)
+    });
     const hasChildren = folder.children && folder.children.length > 0;
     const isExpanded = expandedFolders.has(folder.id);
     const folderProjectsList = folderProjects[folder.id] || [];
@@ -1377,9 +1388,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             setFolderProjects(folderProjectsMap);
 
             // Fetch folders if not in trash mode
+            let foldersData: any[] = [];
             if (!trashMode && foldersResponse) {
                 if (foldersResponse.ok) {
-                    const foldersData = await foldersResponse.json();
+                    foldersData = await foldersResponse.json();
                     setFolders(foldersData);
                 } else if (foldersResponse.status === 401 || foldersResponse.status === 403) {
                     redirectToMainAuth('/auth/login');
@@ -1388,6 +1400,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             } else {
                 setFolders([]);
             }
+
+            // Debug logging for list view
+            console.log('List View - Folder Projects Map:', folderProjectsMap);
+            console.log('List View - Folders Data:', foldersData);
+            console.log('List View - All Projects:', allProjects);
+            console.log('List View - Folder Tree:', buildFolderTree(foldersData));
 
         } catch (err) {
             console.error('Error fetching projects:', err);
