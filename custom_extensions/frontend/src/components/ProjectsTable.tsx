@@ -1516,9 +1516,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     }, [folderProjects, fetchFolderProjects]);
 
     // Helper function to get unassigned projects
-    const getUnassignedProjects = useCallback(() => {
-        return projects.filter(p => p.folderId === null);
-    }, [projects]);
+const getUnassignedProjects = useCallback(() => {
+    return projects.filter(p => p.folderId === null);
+}, [projects]);
+
+// Helper function to get projects for a specific folder (including subfolders)
+const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
+    if (targetFolderId === null) {
+        return projects;
+    }
+    
+    // Get all projects that belong to this folder or any of its subfolders
+    const getFolderAndSubfolderIds = (folderId: number): number[] => {
+        const folder = folders.find(f => f.id === folderId);
+        if (!folder) return [folderId];
+        
+        const subfolderIds = folder.children?.flatMap(child => getFolderAndSubfolderIds(child.id)) || [];
+        return [folderId, ...subfolderIds];
+    };
+    
+    const folderIds = getFolderAndSubfolderIds(targetFolderId);
+    return projects.filter(p => p.folderId && folderIds.includes(p.folderId));
+}, [projects, folders]);
 
     // Helper function to calculate lesson data for a project
     const getLessonData = useCallback(async (project: Project) => {
@@ -2216,7 +2235,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             {projects.length > 0 ? (
                 viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {projects.map((p: Project) => (
+                        {getProjectsForFolder(folderId).map((p: Project) => (
                             <ProjectCard
                                 key={p.id}
                                 project={p}
@@ -2372,8 +2391,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                     </tr>
                                 ))}
                                 
-                                {/* Show all projects when viewing a specific folder or in trash mode */}
-                                {(trashMode || folderId !== null) && projects.map((p: Project, index: number) => (
+                                {/* Show projects for specific folder or all projects in trash mode */}
+                                {(trashMode || folderId !== null) && getProjectsForFolder(folderId).map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
                                         className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${

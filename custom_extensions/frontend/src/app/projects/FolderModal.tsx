@@ -80,7 +80,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 value={selectedParentId || ''}
                 onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
               >
-                <option value="">Create in root (no parent)</option>
+                <option value="">Create at top level (no parent folder)</option>
                 {existingFolders.map(folder => (
                   <option key={folder.id} value={folder.id}>
                     {folder.name}
