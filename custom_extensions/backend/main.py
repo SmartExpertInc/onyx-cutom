@@ -986,6 +986,50 @@ def create_slug(text: Optional[str]) -> str:
     text_processed = re.sub(r'[^\wа-яёa-z0-9\-]+', '', text_processed, flags=re.UNICODE | re.IGNORECASE)
     return text_processed or "generated-slug"
 
+def get_tier_ratio(tier: str) -> int:
+    """Get the creation hours ratio for a given tier"""
+    ratios = {
+        'starter': 120,
+        'medium': 200,
+        'advanced': 320,
+        'professional': 450
+    }
+    return ratios.get(tier, 200)  # Default to medium (200) if tier not found
+
+def calculate_creation_hours(completion_time_minutes: int, tier: str) -> float:
+    """Calculate creation hours based on completion time and tier ratio"""
+    if completion_time_minutes <= 0:
+        return 0.0
+    
+    ratio = get_tier_ratio(tier)
+    # Convert completion time from minutes to hours, then multiply by ratio
+    completion_hours = completion_time_minutes / 60.0
+    creation_hours = completion_hours * ratio
+    return round(creation_hours, 1)
+
+async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
+    """Get the tier of a folder, inheriting from parent if not set"""
+    async with pool.acquire() as conn:
+        # Get the folder and its tier
+        folder = await conn.fetchrow(
+            "SELECT quality_tier, parent_id FROM project_folders WHERE id = $1",
+            folder_id
+        )
+        
+        if not folder:
+            return 'medium'  # Default tier
+        
+        # If folder has its own tier, use it
+        if folder['quality_tier']:
+            return folder['quality_tier']
+        
+        # Otherwise, inherit from parent folder
+        if folder['parent_id']:
+            return await get_folder_tier(folder['parent_id'], pool)
+        
+        # Default to medium tier
+        return 'medium'
+
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
         'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Видео урок',
@@ -4376,7 +4420,22 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                         WHEN p.microproduct_content IS NOT NULL 
                         AND p.microproduct_content->>'sections' IS NOT NULL 
                         THEN (
-                            SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
+                            SELECT COALESCE(SUM(
+                                CASE 
+                                    WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
+                                    THEN (
+                                        -- Calculate tier-adjusted creation hours based on completion time
+                                        CASE 
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'starter' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 120.0 / 60.0
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'medium' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'advanced' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 320.0 / 60.0
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'professional' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 450.0 / 60.0
+                                            ELSE (REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0
+                                        END
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0)
                             FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
                             CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
                         )
@@ -4497,7 +4556,7 @@ async def move_folder(folder_id: int, req: ProjectFolderMoveRequest, onyx_user_i
 
 @app.patch("/api/custom/projects/folders/{folder_id}/tier", response_model=ProjectFolderResponse)
 async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update the quality tier of a folder"""
+    """Update the quality tier of a folder and recalculate creation hours for all projects in the folder"""
     async with pool.acquire() as conn:
         # Verify the folder exists and belongs to user
         folder = await conn.fetchrow(
@@ -4512,6 +4571,65 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
             "UPDATE project_folders SET quality_tier = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier",
             req.quality_tier, folder_id, onyx_user_id
         )
+        
+        # Get all projects in this folder (including subfolders recursively)
+        projects_to_update = await conn.fetch("""
+            WITH RECURSIVE folder_tree AS (
+                -- Base case: the target folder
+                SELECT id, parent_id FROM project_folders WHERE id = $1
+                UNION ALL
+                -- Recursive case: child folders
+                SELECT pf.id, pf.parent_id 
+                FROM project_folders pf
+                INNER JOIN folder_tree ft ON pf.parent_id = ft.id
+            )
+            SELECT DISTINCT p.id, p.microproduct_content, p.folder_id
+            FROM projects p
+            INNER JOIN folder_tree ft ON p.folder_id = ft.id
+            WHERE p.microproduct_content IS NOT NULL 
+            AND p.microproduct_content->>'sections' IS NOT NULL
+        """, folder_id)
+        
+        # Update creation hours for each project based on the new tier
+        for project in projects_to_update:
+            try:
+                content = project['microproduct_content']
+                if isinstance(content, dict) and 'sections' in content:
+                    sections = content['sections']
+                    total_completion_time = 0
+                    
+                    # Calculate total completion time
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict):
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    if completion_time_str:
+                                        try:
+                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
+                                            total_completion_time += completion_time_minutes
+                                        except (ValueError, AttributeError):
+                                            pass
+                    
+                    # Update the hours in each lesson
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                    # Calculate proportional hours for this lesson
+                                    lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
+                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, req.quality_tier)
+                                    lesson['hours'] = lesson_creation_hours
+                    
+                    # Update the project in the database
+                    await conn.execute(
+                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                        json.dumps(content), project['id']
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project['id']} creation hours: {e}")
+                continue
         
         return ProjectFolderResponse(**dict(updated_folder))
 
@@ -4644,7 +4762,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
 
 @app.put("/api/custom/projects/{project_id}/folder", response_model=ProjectDB)
 async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update a project's folder assignment"""
+    """Update a project's folder assignment and recalculate creation hours based on the new folder's tier"""
     async with pool.acquire() as conn:
         # Verify project belongs to user
         project = await conn.fetchrow(
@@ -4668,6 +4786,41 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             "UPDATE projects SET folder_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING *",
             update_data.folder_id, project_id, onyx_user_id
         )
+        
+        # If the project has content and is being moved to a folder, recalculate creation hours
+        if update_data.folder_id is not None and project['microproduct_content']:
+            try:
+                # Get the folder's tier
+                folder_tier = await get_folder_tier(update_data.folder_id, pool)
+                
+                content = project['microproduct_content']
+                if isinstance(content, dict) and 'sections' in content:
+                    sections = content['sections']
+                    
+                    # Update the hours in each lesson based on the new folder's tier
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                    # Calculate new hours for this lesson
+                                    lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
+                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, folder_tier)
+                                    lesson['hours'] = lesson_creation_hours
+                    
+                    # Update the project in the database with new hours
+                    await conn.execute(
+                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                        json.dumps(content), project_id
+                    )
+                    
+                    # Update the returned project data
+                    updated_project = await conn.fetchrow(
+                        "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        project_id, onyx_user_id
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project_id} creation hours after folder move: {e}")
         
         return ProjectDB(**dict(updated_project))
 
@@ -4719,12 +4872,12 @@ async def update_folder_order(
 
 @app.get("/api/custom/projects/{project_id}/lesson-data")
 async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Get lesson data for a project (number of lessons, total hours, and completion time)"""
+    """Get lesson data for a project with tier-adjusted creation hours"""
     try:
         async with pool.acquire() as conn:
-            # Get project details
+            # Get project details including folder_id
             project = await conn.fetchrow(
-                "SELECT p.microproduct_content, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2",
+                "SELECT p.microproduct_content, p.folder_id, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2",
                 project_id, onyx_user_id
             )
             
@@ -4733,10 +4886,16 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
             
             content = project["microproduct_content"]
             component_name = project["component_name"]
+            folder_id = project["folder_id"]
             
             # Only Training Plans have lesson data
             if component_name != COMPONENT_NAME_TRAINING_PLAN or not content:
                 return {"lessonCount": 0, "totalHours": 0, "completionTime": 0}
+            
+            # Get the folder's tier (with inheritance from parent)
+            folder_tier = 'medium'  # Default tier
+            if folder_id:
+                folder_tier = await get_folder_tier(folder_id, pool)
             
             # Parse the training plan content
             try:
@@ -4751,11 +4910,9 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                             lessons = section.get("lessons", [])
                             total_lessons += len(lessons)
                             
-                            # Sum up hours and completion time from lessons
+                            # Sum up completion time and calculate tier-adjusted hours
                             for lesson in lessons:
                                 if isinstance(lesson, dict):
-                                    total_hours += lesson.get("hours", 0)
-                                    
                                     # Parse completion time (e.g., "5m", "6m", "7m", "8m")
                                     completion_time_str = lesson.get("completionTime", "")
                                     if completion_time_str:
@@ -4763,11 +4920,15 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                             # Remove 'm' suffix and convert to integer
                                             completion_time_minutes = int(completion_time_str.replace('m', ''))
                                             total_completion_time += completion_time_minutes
+                                            
+                                            # Calculate tier-adjusted creation hours
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_tier)
+                                            total_hours += lesson_creation_hours
                                         except (ValueError, AttributeError):
                                             # If parsing fails, skip this lesson's completion time
                                             pass
                     
-                    return {"lessonCount": total_lessons, "totalHours": total_hours, "completionTime": total_completion_time}
+                    return {"lessonCount": total_lessons, "totalHours": round(total_hours, 1), "completionTime": total_completion_time}
                 else:
                     return {"lessonCount": 0, "totalHours": 0, "completionTime": 0}
             except Exception as e:
