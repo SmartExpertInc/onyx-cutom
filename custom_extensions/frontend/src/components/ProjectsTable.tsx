@@ -72,11 +72,16 @@ const buildFolderTree = (folders: Folder[]): Folder[] => {
   return rootFolders;
 };
 
-// Helper function to count total items in a folder (projects + subfolders)
+// Helper function to count total items in a folder (projects + subfolders recursively)
 const getTotalItemsInFolder = (folder: Folder, folderProjects: Record<number, Project[]>): number => {
   const projectCount = folderProjects[folder.id]?.length || 0;
-  const subfolderCount = folder.children?.length || 0;
-  return projectCount + subfolderCount;
+  
+  // Recursively count items in all subfolders
+  const subfolderItemsCount = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalItemsInFolder(childFolder, folderProjects);
+  }, 0) || 0;
+  
+  return projectCount + subfolderItemsCount;
 };
 
 interface Project {

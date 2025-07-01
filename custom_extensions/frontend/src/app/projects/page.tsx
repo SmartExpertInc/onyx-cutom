@@ -90,11 +90,20 @@ const buildFolderTree = (folders: any[]): Folder[] => {
   return rootFolders;
 };
 
-// Helper function to count total items in a folder (projects + subfolders)
+// Helper function to count total items in a folder (projects + subfolders recursively)
 const getTotalItemsInFolder = (folder: Folder): number => {
+  // The backend should provide project_count that includes recursive counts
+  // For now, we'll use the project_count and add direct subfolder count
+  // In a full implementation, the backend would provide the recursive count
   const projectCount = folder.project_count || 0;
   const subfolderCount = folder.children?.length || 0;
-  return projectCount + subfolderCount;
+  
+  // Recursively count items in all subfolders
+  const subfolderItemsCount = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalItemsInFolder(childFolder);
+  }, 0) || 0;
+  
+  return projectCount + subfolderItemsCount;
 };
 
 interface SidebarProps {
