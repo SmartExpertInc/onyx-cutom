@@ -9,6 +9,10 @@
 .venv
 .mypy_cache
 .idea
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # testing
 /web/test-results/
