@@ -161,7 +161,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                           {tier.completionRate}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2 break-words whitespace-normal leading-relaxed">{tier.description}</p>
+                      <p className="text-xs text-gray-600 mb-2 break-words whitespace-normal leading-relaxed italic text-left">{tier.description}</p>
                       <ul className="space-y-1">
                         {tier.features.map((feature, index) => (
                           <li key={index} className="text-xs text-gray-500 flex items-start gap-1">
