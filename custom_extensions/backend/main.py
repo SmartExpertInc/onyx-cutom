@@ -23,7 +23,6 @@ import tempfile
 import io
 import gzip
 import base64
-import math
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -997,8 +996,8 @@ def get_tier_ratio(tier: str) -> int:
     }
     return ratios.get(tier, 200)  # Default to medium (200) if tier not found
 
-def calculate_creation_hours(completion_time_minutes: int, tier: str) -> int:
-    """Calculate creation hours based on completion time and tier ratio, always rounding up to the nearest integer"""
+def calculate_creation_hours(completion_time_minutes: int, tier: str) -> float:
+    """Calculate creation hours based on completion time and tier ratio"""
     if completion_time_minutes <= 0:
         return 0.0
     
