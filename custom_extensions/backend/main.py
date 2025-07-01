@@ -405,6 +405,25 @@ async def startup_event():
                 if "already exists" not in str(e) and "duplicate key" not in str(e):
                     raise e
             
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
             # Add order column for project sorting
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
