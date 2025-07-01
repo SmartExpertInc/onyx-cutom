@@ -146,8 +146,10 @@ const FolderItem: React.FC<{
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = folder.children && folder.children.length > 0;
 
+  const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen : true;
+
   const handleDragStart = (e: React.DragEvent) => {
-    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
+    if (!isDraggable) return;
     e.dataTransfer.setData('application/json', JSON.stringify({
       folderId: folder.id,
       folderName: folder.name,
@@ -162,7 +164,7 @@ const FolderItem: React.FC<{
         className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
-        draggable
+        draggable={isDraggable}
         onDragStart={handleDragStart}
         onDragOver={onDragOver}
         onDrop={(e) => onDrop(e, folder.id)}
