@@ -578,14 +578,14 @@ class LessonDetail(BaseModel):
     check: StatusInfo = Field(default_factory=StatusInfo)
     contentAvailable: StatusInfo = Field(default_factory=StatusInfo)
     source: str = ""
-    hours: float = 0.0
+    hours: int = 0
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
     id: str
     title: str
-    totalHours: float = 0.0
+    totalHours: int = 0
     totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
     lessons: List[LessonDetail] = Field(default_factory=list)
     autoCalculateHours: bool = True
@@ -996,16 +996,16 @@ def get_tier_ratio(tier: str) -> int:
     }
     return ratios.get(tier, 200)  # Default to medium (200) if tier not found
 
-def calculate_creation_hours(completion_time_minutes: int, tier: str) -> float:
-    """Calculate creation hours based on completion time and tier ratio"""
+def calculate_creation_hours(completion_time_minutes: int, tier: str) -> int:
+    """Calculate creation hours based on completion time and tier ratio, rounded to nearest whole number"""
     if completion_time_minutes <= 0:
-        return 0.0
+        return 0
     
     ratio = get_tier_ratio(tier)
     # Convert completion time from minutes to hours, then multiply by ratio
     completion_hours = completion_time_minutes / 60.0
     creation_hours = completion_hours * ratio
-    return round(creation_hours, 1)
+    return round(creation_hours)
 
 async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
     """Get the tier of a folder, inheriting from parent if not set"""
@@ -3001,7 +3001,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
             m_time = re.match(r"(?:Total Time|Общее время|Загальний час)\s*:\s*([0-9]+(?:\.[0-9]+)?)", line, re.IGNORECASE)
             if m_time:
                 try:
-                    current["totalHours"] = float(m_time.group(1))
+                    current["totalHours"] = int(float(m_time.group(1)))
                 except ValueError:
                     pass  # leave default 0.0 if parsing fails
 
@@ -4375,7 +4375,7 @@ class ProjectFolderListResponse(BaseModel):
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     project_count: int
     total_lessons: int
-    total_hours: float
+    total_hours: int
     total_completion_time: int
     model_config = {"from_attributes": True}
 
@@ -5017,7 +5017,7 @@ async def download_projects_list_pdf(
                                     WHEN p.microproduct_content IS NOT NULL 
                                     AND p.microproduct_content->>'sections' IS NOT NULL 
                                     THEN (
-                                        SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
+                                        SELECT COALESCE(SUM((lesson->>'hours')::integer), 0)
                                         FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
                                         CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
                                     )
@@ -5073,7 +5073,7 @@ async def download_projects_list_pdf(
                                 total_lessons += 1
                                 if lesson.get('hours'):
                                     try:
-                                        total_hours += float(lesson['hours'])
+                                        total_hours += int(lesson['hours'])
                                     except (ValueError, TypeError):
                                         pass
                                 if lesson.get('completionTime'):
