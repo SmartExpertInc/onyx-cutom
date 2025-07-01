@@ -4831,15 +4831,24 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 if isinstance(content, dict) and 'sections' in content:
                     sections = content['sections']
                     
-                    # Update the hours in each lesson based on the new folder's tier
+                    # Update the hours in each lesson and recalculate section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
+                            section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict) and lesson.get('completionTime'):
                                     # Calculate new hours for this lesson
                                     lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
                                     lesson_creation_hours = calculate_creation_hours(lesson_completion_time, folder_tier)
                                     lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
+                            
+                            # Update the section's totalHours with tier-adjusted sum
+                            if 'totalHours' in section:
+                                section['totalHours'] = round(section_total_hours)
+                    
+                    # Round all hours in the content to ensure they are integers
+                    content = round_hours_in_content(content)
                     
                     # Update the project in the database with new hours
                     await conn.execute(
@@ -4856,7 +4865,47 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             except Exception as e:
                 logger.error(f"Error updating project {project_id} creation hours after folder move: {e}")
         
-        return ProjectDB(**dict(updated_project))
+        # Parse the content properly based on component type
+        db_content = updated_project["microproduct_content"]
+        final_content_for_model: Optional[MicroProductContentType] = None
+        
+        if db_content and isinstance(db_content, dict):
+            try:
+                # Get the component name to determine the content type
+                component_row = await conn.fetchrow(
+                    "SELECT dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1",
+                    project_id
+                )
+                current_component_name = component_row["component_name"] if component_row else COMPONENT_NAME_TRAINING_PLAN
+                
+                if current_component_name == COMPONENT_NAME_PDF_LESSON:
+                    final_content_for_model = PdfLessonDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
+                    final_content_for_model = TextPresentationDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
+                    final_content_for_model = VideoLessonData(**db_content)
+                elif current_component_name == COMPONENT_NAME_QUIZ:
+                    final_content_for_model = QuizData(**db_content)
+                elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                    final_content_for_model = SlideDeckDetails(**db_content)
+                else:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+            except Exception as e_parse:
+                logger.error(f"Error parsing updated content from DB (proj ID {updated_project['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
+        
+        return ProjectDB(
+            id=updated_project["id"], 
+            onyx_user_id=updated_project["onyx_user_id"], 
+            project_name=updated_project["project_name"],
+            product_type=updated_project["product_type"], 
+            microproduct_type=updated_project["microproduct_type"],
+            microproduct_name=updated_project["microproduct_name"], 
+            microproduct_content=final_content_for_model,
+            design_template_id=updated_project["design_template_id"], 
+            created_at=updated_project["created_at"]
+        )
 
 class ProjectOrderUpdateRequest(BaseModel):
     orders: List[Dict[str, int]]  # List of {projectId: int, order: int}
