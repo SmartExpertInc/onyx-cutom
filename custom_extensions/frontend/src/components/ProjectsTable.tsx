@@ -224,29 +224,40 @@ const FolderRow: React.FC<{
     const hasChildren = folder.children && folder.children.length > 0;
     const isExpanded = expandedFolders.has(folder.id);
     const folderProjectsList = folderProjects[folder.id] || [];
+    const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen && !trashMode : !trashMode;
 
     return (
         <>
             {/* Folder row */}
             <tr 
-                className={`hover:bg-gray-50 transition cursor-pointer group cursor-grab active:cursor-grabbing ${
+                className={`hover:bg-gray-50 transition cursor-pointer group ${isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${
                     dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''} ${level > 0 ? 'bg-gray-50' : ''}`}
+                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''} ${level > 0 ? 'bg-gray-50' : ''} ${!isDraggable ? 'pointer-events-none' : ''}`}
                 onClick={(e) => {
                     if (!isDragging) {
                         toggleFolder(folder.id);
                     }
                 }}
-                draggable={!trashMode}
+                draggable={isDraggable}
                 data-folder-id={folder.id}
                 onDragStart={(e) => handleDragStart(e, folder, 'folder')}
                 onDragOver={(e) => {
+                    if (!isDraggable) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
                     e.preventDefault();
                     e.dataTransfer.dropEffect = 'move';
                     handleDragOver(e, index);
                     e.currentTarget.classList.add('bg-blue-50', 'border-2', 'border-blue-300');
                 }}
                 onDragLeave={(e) => {
+                    if (!isDraggable) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
                     e.preventDefault();
                     handleDragLeave(e);
                     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -255,6 +266,12 @@ const FolderRow: React.FC<{
                 }}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
+                onMouseDown={(e) => {
+                    if (!isDraggable) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }}
             >
                 {columnVisibility.title && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -337,15 +354,21 @@ const FolderRow: React.FC<{
                 folderProjectsList.map((p: Project, projectIndex: number) => (
                     <tr 
                         key={`folder-project-${p.id}`} 
-                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing bg-gray-50 ${
+                        className={`hover:bg-gray-50 transition group ${isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} bg-gray-50 ${
                             dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                        draggable={!trashMode}
+                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''} ${!isDraggable ? 'pointer-events-none' : ''}`}
+                        draggable={isDraggable}
                         onDragStart={(e) => handleDragStart(e, p, 'project')}
                         onDragOver={(e) => handleDragOver(e, projectIndex)}
                         onDragLeave={handleDragLeave}
                         onDrop={(e) => handleDrop(e, projectIndex)}
                         onDragEnd={handleDragEnd}
+                        onMouseDown={(e) => {
+                            if (!isDraggable) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
+                        }}
                     >
                         {columnVisibility.title && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -557,6 +580,13 @@ const ProjectCard: React.FC<{
     };
 
     const handleDragStart = (e: React.DragEvent) => {
+        // Check if any modal is open
+        if ((typeof window !== 'undefined') && (window as any).__modalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         // Add visual feedback to the dragged element
         const target = e.currentTarget as HTMLElement;
         target.style.opacity = '0.5';
@@ -585,6 +615,13 @@ const ProjectCard: React.FC<{
     };
 
     const handleDragEnd = (e: React.DragEvent) => {
+        // Check if any modal is open
+        if ((typeof window !== 'undefined') && (window as any).__modalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         // Reset visual feedback
         const target = e.currentTarget as HTMLElement;
         target.style.opacity = '1';
@@ -640,13 +677,21 @@ const ProjectCard: React.FC<{
         return new Date(dateString).toLocaleDateString('en-US', options);
     }
     
+    const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen && !isTrashMode : !isTrashMode;
+
     return (
         <div 
             ref={cardRef} 
-            className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-grab active:cursor-grabbing"
-            draggable={!isTrashMode}
+            className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative ${isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${!isDraggable ? 'pointer-events-none' : ''}`}
+            draggable={isDraggable}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onMouseDown={(e) => {
+                if (!isDraggable) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }}
         >
             <Link href={isTrashMode ? '#' : `/projects/view/${project.id}`} onClick={handleCardClick} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
@@ -2015,6 +2060,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     // Drag and drop reordering functions
     const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
+        // Check if any modal is open
+        if ((typeof window !== 'undefined') && (window as any).__modalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         e.dataTransfer.setData('application/json', JSON.stringify({
             id: item.id,
             type: type === 'project' ? 'project' : 'reorder',
@@ -2037,12 +2089,26 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     }, []);
 
     const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+        // Check if any modal is open
+        if ((typeof window !== 'undefined') && (window as any).__modalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
         setDragOverIndex(index);
     }, []);
 
     const handleDragLeave = useCallback((e: React.DragEvent) => {
+        // Check if any modal is open
+        if ((typeof window !== 'undefined') && (window as any).__modalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         e.preventDefault();
         // Only clear if we're leaving the entire row
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -2051,6 +2117,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     }, []);
 
     const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+        // Check if any modal is open
+        if ((typeof window !== 'undefined') && (window as any).__modalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
         e.preventDefault();
         
         try {
@@ -2505,174 +2578,192 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 ))}
                                 
                                 {/* Show unassigned projects when not viewing a specific folder */}
-                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project, index: number) => (
-                                    <tr 
-                                        key={p.id} 
-                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
-                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode}
-                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
-                                        onDragOver={(e) => handleDragOver(e, index)}
-                                        onDragLeave={handleDragLeave}
-                                        onDrop={(e) => handleDrop(e, index)}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        {columnVisibility.title && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                            <circle cx="9" cy="5" r="2"/>
-                                                            <circle cx="9" cy="12" r="2"/>
-                                                            <circle cx="9" cy="19" r="2"/>
-                                                            <circle cx="15" cy="5" r="2"/>
-                                                            <circle cx="15" cy="12" r="2"/>
-                                                            <circle cx="15" cy="19" r="2"/>
-                                                        </svg>
-                                                    </div>
-                                                    <Star size={16} className="text-gray-300 mr-2" />
-                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
-                                                        {p.title}
-                                                    </Link>
-                                                </span>
-                                            </td>
-                                        )}
-                                        {columnVisibility.created && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                        )}
-                                        {columnVisibility.creator && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project, index: number) => {
+                                    const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen && !trashMode : !trashMode;
+                                    return (
+                                        <tr 
+                                            key={p.id} 
+                                            className={`hover:bg-gray-50 transition group ${isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${
+                                                dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                            } ${draggedProject?.id === p.id ? 'opacity-50' : ''} ${!isDraggable ? 'pointer-events-none' : ''}`}
+                                            draggable={isDraggable}
+                                            onDragStart={(e) => handleDragStart(e, p, 'project')}
+                                            onDragOver={(e) => handleDragOver(e, index)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, index)}
+                                            onDragEnd={handleDragEnd}
+                                            onMouseDown={(e) => {
+                                                if (!isDraggable) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                }
+                                            }}
+                                        >
+                                            {columnVisibility.title && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    <span className="inline-flex items-center">
+                                                        <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                                <circle cx="9" cy="5" r="2"/>
+                                                                <circle cx="9" cy="12" r="2"/>
+                                                                <circle cx="9" cy="19" r="2"/>
+                                                                <circle cx="15" cy="5" r="2"/>
+                                                                <circle cx="15" cy="12" r="2"/>
+                                                                <circle cx="15" cy="19" r="2"/>
+                                                            </svg>
+                                                        </div>
+                                                        <Star size={16} className="text-gray-300 mr-2" />
+                                                        <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
+                                                            {p.title}
+                                                        </Link>
                                                     </span>
-                                                    You
-                                                </span>
+                                                </td>
+                                            )}
+                                            {columnVisibility.created && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                            )}
+                                            {columnVisibility.creator && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <span className="inline-flex items-center">
+                                                        <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                            <span className="text-xs font-bold text-gray-700">Y</span>
+                                                        </span>
+                                                        You
+                                                    </span>
+                                                </td>
+                                            )}
+                                            {columnVisibility.numberOfLessons && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {(() => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return lessonData ? lessonData.lessonCount : '-';
+                                                    })()}
+                                                </td>
+                                            )}
+                                            {columnVisibility.estCreationTime && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {(() => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                    })()}
+                                                </td>
+                                            )}
+                                            {columnVisibility.estCompletionTime && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {(() => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                    })()}
+                                                </td>
+                                            )}
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                                <ProjectRowMenu 
+                                                    project={p} 
+                                                    formatDate={formatDate} 
+                                                    trashMode={trashMode}
+                                                    onDelete={handleDeleteProject}
+                                                    onRestore={handleRestoreProject}
+                                                    onDeletePermanently={handleDeletePermanently}
+                                                    folderId={folderId}
+                                                />
                                             </td>
-                                        )}
-                                        {columnVisibility.numberOfLessons && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? lessonData.lessonCount : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.estCreationTime && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.estCompletionTime && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
-                                            <ProjectRowMenu 
-                                                project={p} 
-                                                formatDate={formatDate} 
-                                                trashMode={trashMode}
-                                                onDelete={handleDeleteProject}
-                                                onRestore={handleRestoreProject}
-                                                onDeletePermanently={handleDeletePermanently}
-                                                folderId={folderId}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
+                                        </tr>
+                                    );
+                                })}
                                 
                                 {/* Show projects for specific folder or all projects in trash mode */}
-                                {(trashMode || folderId !== null) && getProjectsForFolder(folderId).map((p: Project, index: number) => (
-                                    <tr 
-                                        key={p.id} 
-                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
-                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode}
-                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
-                                        onDragOver={(e) => handleDragOver(e, index)}
-                                        onDragLeave={handleDragLeave}
-                                        onDrop={(e) => handleDrop(e, index)}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        {columnVisibility.title && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                            <circle cx="9" cy="5" r="2"/>
-                                                            <circle cx="9" cy="12" r="2"/>
-                                                            <circle cx="9" cy="19" r="2"/>
-                                                            <circle cx="15" cy="5" r="2"/>
-                                                            <circle cx="15" cy="12" r="2"/>
-                                                            <circle cx="15" cy="19" r="2"/>
-                                                        </svg>
-                                                    </div>
-                                                    <Star size={16} className="text-gray-300 mr-2" />
-                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
-                                                        {p.title}
-                                                    </Link>
-                                                </span>
-                                            </td>
-                                        )}
-                                        {columnVisibility.created && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                        )}
-                                        {columnVisibility.creator && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                {(trashMode || folderId !== null) && getProjectsForFolder(folderId).map((p: Project, index: number) => {
+                                    const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen && !trashMode : !trashMode;
+                                    return (
+                                        <tr 
+                                            key={p.id} 
+                                            className={`hover:bg-gray-50 transition group ${isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${
+                                                dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                            } ${draggedProject?.id === p.id ? 'opacity-50' : ''} ${!isDraggable ? 'pointer-events-none' : ''}`}
+                                            draggable={isDraggable}
+                                            onDragStart={(e) => handleDragStart(e, p, 'project')}
+                                            onDragOver={(e) => handleDragOver(e, index)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => handleDrop(e, index)}
+                                            onDragEnd={handleDragEnd}
+                                            onMouseDown={(e) => {
+                                                if (!isDraggable) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                }
+                                            }}
+                                        >
+                                            {columnVisibility.title && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    <span className="inline-flex items-center">
+                                                        <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                                <circle cx="9" cy="5" r="2"/>
+                                                                <circle cx="9" cy="12" r="2"/>
+                                                                <circle cx="9" cy="19" r="2"/>
+                                                                <circle cx="15" cy="5" r="2"/>
+                                                                <circle cx="15" cy="12" r="2"/>
+                                                                <circle cx="15" cy="19" r="2"/>
+                                                            </svg>
+                                                        </div>
+                                                        <Star size={16} className="text-gray-300 mr-2" />
+                                                        <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
+                                                            {p.title}
+                                                        </Link>
                                                     </span>
-                                                    You
-                                                </span>
+                                                </td>
+                                            )}
+                                            {columnVisibility.created && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                            )}
+                                            {columnVisibility.creator && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <span className="inline-flex items-center">
+                                                        <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                            <span className="text-xs font-bold text-gray-700">Y</span>
+                                                        </span>
+                                                        You
+                                                    </span>
+                                                </td>
+                                            )}
+                                            {columnVisibility.numberOfLessons && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {(() => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return lessonData ? lessonData.lessonCount : '-';
+                                                    })()}
+                                                </td>
+                                            )}
+                                            {columnVisibility.estCreationTime && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {(() => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                    })()}
+                                                </td>
+                                            )}
+                                            {columnVisibility.estCompletionTime && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {(() => {
+                                                        const lessonData = lessonDataCache[p.id];
+                                                        return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                    })()}
+                                                </td>
+                                            )}
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                                <ProjectRowMenu 
+                                                    project={p} 
+                                                    formatDate={formatDate} 
+                                                    trashMode={trashMode}
+                                                    onDelete={handleDeleteProject}
+                                                    onRestore={handleRestoreProject}
+                                                    onDeletePermanently={handleDeletePermanently}
+                                                    folderId={folderId}
+                                                />
                                             </td>
-                                        )}
-                                        {columnVisibility.numberOfLessons && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? lessonData.lessonCount : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.estCreationTime && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.estCompletionTime && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
-                                            <ProjectRowMenu 
-                                                project={p} 
-                                                formatDate={formatDate} 
-                                                trashMode={trashMode}
-                                                onDelete={handleDeleteProject}
-                                                onRestore={handleRestoreProject}
-                                                onDeletePermanently={handleDeletePermanently}
-                                                folderId={folderId}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

@@ -149,7 +149,11 @@ const FolderItem: React.FC<{
   const isDraggable = (typeof window !== 'undefined') ? !(window as any).__modalOpen : true;
 
   const handleDragStart = (e: React.DragEvent) => {
-    if (!isDraggable) return;
+    if (!isDraggable) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     e.dataTransfer.setData('application/json', JSON.stringify({
       folderId: folder.id,
       folderName: folder.name,
@@ -158,18 +162,60 @@ const FolderItem: React.FC<{
     e.dataTransfer.effectAllowed = 'move';
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    if (!isDraggable) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragOver(e);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (!isDraggable) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDrop(e, folder.id);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    if (!isDraggable) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragEnter(e);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!isDraggable) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onDragLeave(e);
+  };
+
   return (
     <div>
       <div
-        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
+        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'} ${!isDraggable ? 'pointer-events-none' : ''}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
         draggable={isDraggable}
         onDragStart={handleDragStart}
-        onDragOver={onDragOver}
-        onDrop={(e) => onDrop(e, folder.id)}
-        onDragEnter={onDragEnter}
-        onDragLeave={onDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onMouseDown={(e) => {
+          if (!isDraggable) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
       >
         {hasChildren && (
           <button
@@ -378,6 +424,7 @@ const ProjectsPageInner: React.FC = () => {
   const isTrash = currentTab === 'trash';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
   const [folderProjects, setFolderProjects] = useState<Record<number, any[]>>({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -488,9 +535,64 @@ const ProjectsPageInner: React.FC = () => {
   // Event listeners
   useEffect(() => {
     const handleOpenModal = () => setShowFolderModal(true);
+    const handleOpenSettingsModal = () => setShowSettingsModal(true);
+    
     window.addEventListener('openFolderModal', handleOpenModal);
-    return () => window.removeEventListener('openFolderModal', handleOpenModal);
+    window.addEventListener('openSettingsModal', handleOpenSettingsModal);
+    
+    return () => {
+      window.removeEventListener('openFolderModal', handleOpenModal);
+      window.removeEventListener('openSettingsModal', handleOpenSettingsModal);
+    };
   }, []);
+
+  // Global modal state management for drag prevention
+  useEffect(() => {
+    const updateGlobalDragState = () => {
+      const isModalOpen = showFolderModal || showSettingsModal;
+      if (typeof window !== 'undefined') {
+        (window as any).__modalOpen = isModalOpen;
+        
+        // Add/remove global CSS to prevent dragging when modal is open
+        const styleId = 'modal-drag-prevention';
+        let styleElement = document.getElementById(styleId) as HTMLStyleElement;
+        
+        if (isModalOpen) {
+          if (!styleElement) {
+            styleElement = document.createElement('style');
+            styleElement.id = styleId;
+            document.head.appendChild(styleElement);
+          }
+          styleElement.textContent = `
+            * {
+              -webkit-user-select: none !important;
+              -moz-user-select: none !important;
+              -ms-user-select: none !important;
+              user-select: none !important;
+              -webkit-user-drag: none !important;
+              -khtml-user-drag: none !important;
+              -moz-user-drag: none !important;
+              -o-user-drag: none !important;
+              user-drag: none !important;
+            }
+            [draggable="true"] {
+              -webkit-user-drag: none !important;
+              -khtml-user-drag: none !important;
+              -moz-user-drag: none !important;
+              -o-user-drag: none !important;
+              user-drag: none !important;
+            }
+          `;
+        } else {
+          if (styleElement) {
+            styleElement.remove();
+          }
+        }
+      }
+    };
+
+    updateGlobalDragState();
+  }, [showFolderModal, showSettingsModal]);
 
   useEffect(() => {
     const handleMoveProject = async (event: Event) => {

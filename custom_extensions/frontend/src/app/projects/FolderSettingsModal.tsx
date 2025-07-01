@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Star, Zap, Crown, Award } from 'lucide-react';
 
 interface FolderSettingsModalProps {
@@ -30,6 +30,13 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
 }) => {
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [saving, setSaving] = useState(false);
+
+  // Dispatch event when modal opens
+  useEffect(() => {
+    if (open && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('openSettingsModal'));
+    }
+  }, [open]);
 
   const qualityTiers: QualityTier[] = [
     {
