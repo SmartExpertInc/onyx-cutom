@@ -111,7 +111,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto mx-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl p-8 relative mx-4">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors" 
           onClick={onClose}
