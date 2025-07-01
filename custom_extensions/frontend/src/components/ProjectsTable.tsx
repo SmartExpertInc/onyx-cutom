@@ -1252,10 +1252,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         setLoading(true);
         setError(null);
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
+        // Always fetch all projects to calculate folder counts, but filter display based on folderId
         let projectsApiUrl = `${CUSTOM_BACKEND_URL}${trashMode ? '/projects/trash' : '/projects'}`;
-        if (!trashMode && folderId !== null && folderId !== undefined) {
-            projectsApiUrl += `?folder_id=${folderId}`;
-        }
+        
+        // If viewing a specific folder, we'll still fetch all projects but filter display
+        // This allows us to calculate folder counts for the sidebar
 
         try {
             const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -1359,10 +1361,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 return filteredProjects;
             };
 
-            setProjects(deduplicateProjects(sortedProjects));
+            const allProjects = deduplicateProjects(sortedProjects);
+            setProjects(allProjects);
 
-            // Fetch folders if not in trash mode and not viewing a specific folder
-            if (!trashMode && folderId === null && foldersResponse) {
+            // Calculate folder projects mapping for all folders
+            const folderProjectsMap: Record<number, Project[]> = {};
+            allProjects.forEach(project => {
+                if (project.folderId) {
+                    if (!folderProjectsMap[project.folderId]) {
+                        folderProjectsMap[project.folderId] = [];
+                    }
+                    folderProjectsMap[project.folderId].push(project);
+                }
+            });
+            setFolderProjects(folderProjectsMap);
+
+            // Fetch folders if not in trash mode
+            if (!trashMode && foldersResponse) {
                 if (foldersResponse.ok) {
                     const foldersData = await foldersResponse.json();
                     setFolders(foldersData);

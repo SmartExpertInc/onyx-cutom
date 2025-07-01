@@ -92,11 +92,8 @@ const buildFolderTree = (folders: any[]): Folder[] => {
 
 // Helper function to count total items in a folder (projects + subfolders recursively)
 const getTotalItemsInFolder = (folder: Folder): number => {
-  // The backend should provide project_count that includes recursive counts
-  // For now, we'll use the project_count and add direct subfolder count
-  // In a full implementation, the backend would provide the recursive count
+  // Use the project_count that we calculated upfront when loading data
   const projectCount = folder.project_count || 0;
-  const subfolderCount = folder.children?.length || 0;
   
   // Recursively count items in all subfolders
   const subfolderItemsCount = folder.children?.reduce((total, childFolder) => {
@@ -393,24 +390,72 @@ const ProjectsPageInner: React.FC = () => {
     checkAuth();
   }, []);
 
-  // Load folders after authentication is confirmed
+  // Load folders and projects after authentication is confirmed
   useEffect(() => {
     if (isAuthenticated === true) {
-      const loadFolders = async () => {
+      const loadFoldersAndProjects = async () => {
         try {
-          const foldersData = await fetchFolders();
-          setFolders(foldersData);
+          const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+          const headers: HeadersInit = { 'Content-Type': 'application/json' };
+          const devUserId = "dummy-onyx-user-id-for-testing";
+          if (devUserId && process.env.NODE_ENV === 'development') {
+            headers['X-Dev-Onyx-User-ID'] = devUserId;
+          }
+
+          // Fetch both folders and all projects in parallel
+          const [foldersResponse, projectsResponse] = await Promise.all([
+            fetch(`${CUSTOM_BACKEND_URL}/projects/folders`, { headers, cache: 'no-store', credentials: 'same-origin' }),
+            fetch(`${CUSTOM_BACKEND_URL}/projects`, { headers, cache: 'no-store', credentials: 'same-origin' })
+          ]);
+
+          if (!foldersResponse.ok) {
+            if (foldersResponse.status === 401 || foldersResponse.status === 403) {
+              redirectToMainAuth('/auth/login');
+              return;
+            }
+            throw new Error('Failed to fetch folders');
+          }
+
+          if (!projectsResponse.ok) {
+            if (projectsResponse.status === 401 || projectsResponse.status === 403) {
+              redirectToMainAuth('/auth/login');
+              return;
+            }
+            throw new Error('Failed to fetch projects');
+          }
+
+          const foldersData = await foldersResponse.json();
+          const projectsData = await projectsResponse.json();
+
+          // Process projects to get folder mappings
+          const folderProjectsMap: Record<number, any[]> = {};
+          projectsData.forEach((project: any) => {
+            if (project.folder_id) {
+              if (!folderProjectsMap[project.folder_id]) {
+                folderProjectsMap[project.folder_id] = [];
+              }
+              folderProjectsMap[project.folder_id].push(project);
+            }
+          });
+
+          // Update folders with accurate project counts
+          const updatedFolders = foldersData.map((folder: any) => ({
+            ...folder,
+            project_count: folderProjectsMap[folder.id]?.length || 0
+          }));
+
+          setFolders(updatedFolders);
         } catch (error) {
           if (error instanceof Error && error.message === 'UNAUTHORIZED') {
             redirectToMainAuth('/auth/login');
             return;
           }
-          console.error('Error loading folders:', error);
+          console.error('Error loading folders and projects:', error);
           setFolders([]);
         }
       };
 
-      loadFolders();
+      loadFoldersAndProjects();
     }
   }, [isAuthenticated]);
 
