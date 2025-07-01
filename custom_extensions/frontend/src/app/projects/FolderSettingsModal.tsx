@@ -111,7 +111,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto mx-4">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors" 
           onClick={onClose}
@@ -121,18 +121,18 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
           </svg>
         </button>
         
-        <div className="mb-6">
+        <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Folder Settings</h2>
           <p className="text-gray-600">Configure production quality for <span className="font-semibold text-blue-600">{folderName}</span></p>
         </div>
 
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Production Quality Tiers</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {qualityTiers.map((tier) => (
               <div
                 key={tier.id}
-                className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[140px] ${
                   selectedTier === tier.id
                     ? `${tier.borderColor} ${tier.bgColor} shadow-md`
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -149,23 +149,23 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                   <div className={`p-2 rounded-lg ${tier.bgColor}`}>
                     {tier.icon}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className={`font-semibold ${tier.color}`}>{tier.name}</h4>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                        {tier.completionRate}
-                      </span>
+                                      <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className={`font-semibold ${tier.color} truncate`}>{tier.name}</h4>
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full flex-shrink-0">
+                          {tier.completionRate}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2 break-words leading-relaxed">{tier.description}</p>
+                      <ul className="space-y-1">
+                        {tier.features.map((feature, index) => (
+                          <li key={index} className="text-xs text-gray-500 flex items-start gap-1">
+                            <div className="w-1 h-1 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span className="break-words">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{tier.description}</p>
-                    <ul className="space-y-1">
-                      {tier.features.map((feature, index) => (
-                        <li key={index} className="text-xs text-gray-500 flex items-center gap-1">
-                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                 </div>
               </div>
             ))}
