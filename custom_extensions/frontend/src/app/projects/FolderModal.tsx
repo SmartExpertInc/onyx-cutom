@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface FolderModalProps {
   open: boolean;
@@ -13,6 +13,17 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
+  const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null);
+
+  // Fetch all projects for folder content move
+  const [allProjects, setAllProjects] = useState<any[]>([]);
+  useEffect(() => {
+    if (!open) return;
+    fetch('/api/custom-projects-backend/projects', { credentials: 'same-origin' })
+      .then(res => res.json())
+      .then(setAllProjects)
+      .catch(() => setAllProjects([]));
+  }, [open]);
 
   if (!open) {
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;
@@ -52,6 +63,39 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
       setError(e.message || 'Error creating folder');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleDeleteFolder = async (folderId: number) => {
+    setDeletingFolderId(folderId);
+    setError('');
+    try {
+      // Find the folder and its parent
+      const folder = existingFolders.find(f => f.id === folderId);
+      const parentId = folder?.parent_id ?? null;
+      // Move all projects in this folder to the parent (or root)
+      const projectsToMove = allProjects.filter(p => p.folder_id === folderId);
+      for (const project of projectsToMove) {
+        await fetch(`/api/custom-projects-backend/projects/${project.id}/folder`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ folder_id: parentId })
+        });
+      }
+      // Delete the folder
+      const res = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      });
+      if (!res.ok) throw new Error('Failed to delete folder');
+      // Refresh UI
+      if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+      onClose();
+    } catch (e: any) {
+      setError(e.message || 'Error deleting folder');
+    } finally {
+      setDeletingFolderId(null);
     }
   };
 
@@ -110,13 +154,11 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                   <span className="font-medium text-gray-800">{folder.name}</span>
                 </div>
                 <button 
-                  className="text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                  onClick={() => {
-                    // TODO: Implement delete functionality
-                    console.log('Delete folder:', folder.id);
-                  }}
+                  className="text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors disabled:opacity-50"
+                  disabled={deletingFolderId === folder.id}
+                  onClick={() => handleDeleteFolder(folder.id)}
                 >
-                  Delete
+                  {deletingFolderId === folder.id ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             ))}
