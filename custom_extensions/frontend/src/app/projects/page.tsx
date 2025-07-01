@@ -147,6 +147,7 @@ const FolderItem: React.FC<{
   const hasChildren = folder.children && folder.children.length > 0;
 
   const handleDragStart = (e: React.DragEvent) => {
+    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
     e.dataTransfer.setData('application/json', JSON.stringify({
       folderId: folder.id,
       folderName: folder.name,
@@ -217,14 +218,14 @@ const FolderItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
 
-
-
   const handleDragOver = (e: React.DragEvent) => {
+    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e: React.DragEvent, folderId: number) => {
+    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
     e.preventDefault();
     e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105');
     try {
@@ -244,11 +245,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   };
 
   const handleDragEnter = (e: React.DragEvent) => {
+    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
     e.preventDefault();
     e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
+    if ((typeof window !== 'undefined') && (window as any).__modalOpen) return;
     e.preventDefault();
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');

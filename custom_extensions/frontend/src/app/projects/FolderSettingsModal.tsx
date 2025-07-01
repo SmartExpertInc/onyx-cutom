@@ -78,10 +78,15 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     }
   ];
 
-  if (!open) return null;
+  if (!open) {
+    if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+    return null;
+  }
+  if (typeof window !== 'undefined') (window as any).__modalOpen = true;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
+      if (typeof window !== 'undefined') (window as any).__modalOpen = false;
       onClose();
     }
   };
@@ -114,7 +119,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl p-8 relative mx-4">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors" 
-          onClick={onClose}
+          onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
         >
           <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -156,7 +161,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                           {tier.completionRate}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2 break-words leading-relaxed">{tier.description}</p>
+                      <p className="text-xs text-gray-600 mb-2 break-words whitespace-normal leading-relaxed">{tier.description}</p>
                       <ul className="space-y-1">
                         {tier.features.map((feature, index) => (
                           <li key={index} className="text-xs text-gray-500 flex items-start gap-1">
@@ -188,7 +193,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
         <div className="flex justify-end gap-3">
           <button
             className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            onClick={onClose}
+            onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
             disabled={saving}
           >
             Cancel
