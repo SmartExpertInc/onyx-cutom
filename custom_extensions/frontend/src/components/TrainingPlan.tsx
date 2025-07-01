@@ -123,10 +123,13 @@ const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk'
     if (isEditingContext && numHours === 0 && (typeof hours === 'number' || hours === "0")) return "0";
     if (isEditingContext && hours === "") return "";
 
-    const numStr = numHours % 1 === 0 ? numHours.toFixed(0) : numHours.toFixed(1);
+    // Round to nearest integer for display
+    const roundedHours = Math.round(numHours);
+    const numStr = roundedHours.toString();
+    
     if (language === 'en') { return `${numStr}${localized.timeUnits.singular}`; }
-    if (language === 'ru') { return `${numStr}${getRussianHourUnit(numHours, localized.timeUnits)}`; }
-    return `${numStr} ${getUkrainianHourUnit(numHours, localized.timeUnits)}`;
+    if (language === 'ru') { return `${numStr}${getRussianHourUnit(roundedHours, localized.timeUnits)}`; }
+    return `${numStr} ${getUkrainianHourUnit(roundedHours, localized.timeUnits)}`;
 };
 
 const MAX_SOURCE_LENGTH = 25;
@@ -293,8 +296,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                   <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
                   {isEditing && onTextChange ? (
                     <input
-                      type="number" step="0.1"
-                      value={section.totalHours === null || section.totalHours === undefined ? '' : section.totalHours}
+                      type="number" step="1"
+                      value={section.totalHours === null || section.totalHours === undefined ? '' : Math.round(section.totalHours)}
                       onChange={(e) => handleNumericInputChange(
                           ['sections', sectionIdx, 'totalHours'], e,
                           ['sections', sectionIdx, 'autoCalculateHours']
@@ -348,7 +351,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     </div>
                     <div className="col-span-10 sm:col-span-1 flex items-center justify-start space-x-2 text-gray-500 px-2">
                       <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
-                      {isEditing && onTextChange ? (<input type="number" step="0.1" value={lesson.hours || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
+                      {isEditing && onTextChange ? (<input type="number" step="1" value={Math.round(lesson.hours || 0)} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
                       ) : ( <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span> )}
                     </div>
                   </div>

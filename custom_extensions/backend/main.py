@@ -578,14 +578,14 @@ class LessonDetail(BaseModel):
     check: StatusInfo = Field(default_factory=StatusInfo)
     contentAvailable: StatusInfo = Field(default_factory=StatusInfo)
     source: str = ""
-    hours: float = 0.0
+    hours: int = 0
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
     id: str
     title: str
-    totalHours: float = 0.0
+    totalHours: int = 0
     totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
     lessons: List[LessonDetail] = Field(default_factory=list)
     autoCalculateHours: bool = True
@@ -996,16 +996,16 @@ def get_tier_ratio(tier: str) -> int:
     }
     return ratios.get(tier, 200)  # Default to medium (200) if tier not found
 
-def calculate_creation_hours(completion_time_minutes: int, tier: str) -> float:
-    """Calculate creation hours based on completion time and tier ratio"""
+def calculate_creation_hours(completion_time_minutes: int, tier: str) -> int:
+    """Calculate creation hours based on completion time and tier ratio, rounded to nearest integer"""
     if completion_time_minutes <= 0:
-        return 0.0
+        return 0
     
     ratio = get_tier_ratio(tier)
     # Convert completion time from minutes to hours, then multiply by ratio
     completion_hours = completion_time_minutes / 60.0
     creation_hours = completion_hours * ratio
-    return round(creation_hours, 1)
+    return round(creation_hours)
 
 async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
     """Get the tier of a folder, inheriting from parent if not set"""
@@ -4375,7 +4375,7 @@ class ProjectFolderListResponse(BaseModel):
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     project_count: int
     total_lessons: int
-    total_hours: float
+    total_hours: int
     total_completion_time: int
     model_config = {"from_attributes": True}
 
@@ -4928,7 +4928,7 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                             # If parsing fails, skip this lesson's completion time
                                             pass
                     
-                    return {"lessonCount": total_lessons, "totalHours": round(total_hours, 1), "completionTime": total_completion_time}
+                    return {"lessonCount": total_lessons, "totalHours": round(total_hours), "completionTime": total_completion_time}
                 else:
                     return {"lessonCount": 0, "totalHours": 0, "completionTime": 0}
             except Exception as e:
@@ -5107,7 +5107,7 @@ async def download_projects_list_pdf(
                 'order': row_dict.get('order', 0),
                 'microproduct_content': row_dict.get('microproduct_content'),
                 'total_lessons': total_lessons,
-                'total_hours': total_hours,
+                'total_hours': round(total_hours),
                 'total_completion_time': total_completion_time
             })
 

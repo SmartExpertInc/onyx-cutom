@@ -401,7 +401,7 @@ const EditProjectPageComponent = () => {
                     <div className="flex items-end space-x-3">
                         <div className="flex-grow">
                             <label className="block text-xs font-medium text-black">Total Hours {section.autoCalculateHours ? "(auto-calculated)" : "(manual)"}:</label>
-                            <input type="number" value={section.totalHours.toFixed(1)} readOnly={section.autoCalculateHours} onChange={(e) => !section.autoCalculateHours && handleSectionChange(sectionIdx, 'totalHours', parseFloat(e.target.value) || 0)} className={`${smallInputClasses} ${section.autoCalculateHours ? 'bg-gray-100' : 'bg-white'}`} />
+                            <input type="number" value={Math.round(section.totalHours)} readOnly={section.autoCalculateHours} onChange={(e) => !section.autoCalculateHours && handleSectionChange(sectionIdx, 'totalHours', parseInt(e.target.value) || 0)} className={`${smallInputClasses} ${section.autoCalculateHours ? 'bg-gray-100' : 'bg-white'}`} />
                         </div>
                         <div className={switchContainerClasses} title="Toggle auto-calculation of total hours">
                             <button type="button" onClick={() => toggleAutoCalculateHours(sectionIdx)} className={`${switchBaseClasses} ${section.autoCalculateHours ? 'bg-green-600' : 'bg-gray-300'}`} aria-pressed={section.autoCalculateHours}>
@@ -429,7 +429,7 @@ const EditProjectPageComponent = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div>
                             <label className="block text-xs font-medium text-black">Hours (if applicable):</label>
-                            <input type="number" step="0.1" value={lesson.hours} onChange={(e) => handleLessonChange(sectionIdx, lessonIdx, 'hours', parseFloat(e.target.value) || 0)} placeholder="Hours" className={smallInputClasses}/>
+                            <input type="number" step="1" value={Math.round(lesson.hours)} onChange={(e) => handleLessonChange(sectionIdx, lessonIdx, 'hours', parseInt(e.target.value) || 0)} placeholder="Hours" className={smallInputClasses}/>
                         </div>
                         <div>
                             <label className="block text-xs font-medium text-black">Source (if applicable):</label>
