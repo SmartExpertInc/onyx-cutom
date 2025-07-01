@@ -591,6 +591,35 @@ const ProjectsPageInner: React.FC = () => {
     return null;
   }
 
+  useEffect(() => {
+    // Prevent all drag events globally when any modal is open
+    function preventDrag(e: Event) {
+      e.preventDefault();
+      return false;
+    }
+    function checkAndBind() {
+      if ((window as any).__modalOpen) {
+        document.body.addEventListener('dragstart', preventDrag, { passive: false });
+        document.body.addEventListener('dragover', preventDrag, { passive: false });
+        document.body.addEventListener('drop', preventDrag, { passive: false });
+      } else {
+        document.body.removeEventListener('dragstart', preventDrag);
+        document.body.removeEventListener('dragover', preventDrag);
+        document.body.removeEventListener('drop', preventDrag);
+      }
+    }
+    // Initial check
+    checkAndBind();
+    // Listen for changes to __modalOpen
+    const observer = setInterval(checkAndBind, 100);
+    return () => {
+      clearInterval(observer);
+      document.body.removeEventListener('dragstart', preventDrag);
+      document.body.removeEventListener('dragover', preventDrag);
+      document.body.removeEventListener('drop', preventDrag);
+    };
+  }, []);
+
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
