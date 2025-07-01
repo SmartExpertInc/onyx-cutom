@@ -1350,6 +1350,14 @@ const FolderRowMenu: React.FC<{
                     </div>
                     <div className="py-1">
                         <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                            <Share2 size={16} className="text-gray-500" />
+                            <span>Share</span>
+                        </button>
+                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                            <PenLine size={16} className="text-gray-500" />
+                            <span>Rename</span>
+                        </button>
+                        <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                             <Settings size={16} className="text-gray-500" />
                             <span>Settings</span>
                         </button>
