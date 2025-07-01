@@ -178,7 +178,7 @@ const FolderRow: React.FC<{
             <tr 
                 className={`hover:bg-gray-50 transition cursor-pointer group cursor-grab active:cursor-grabbing ${
                     dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
+                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''} ${level > 0 ? 'bg-gray-50' : ''}`}
                 onClick={(e) => {
                     if (!isDragging) {
                         toggleFolder(folder.id);
