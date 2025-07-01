@@ -34,7 +34,7 @@ def test_sql_syntax():
                         WHEN p.microproduct_content IS NOT NULL 
                         AND p.microproduct_content->>'sections' IS NOT NULL 
                         THEN (
-                            SELECT COALESCE(SUM((lesson->>'hours')::integer), 0)
+                            SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
                             FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
                             CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
                         )
