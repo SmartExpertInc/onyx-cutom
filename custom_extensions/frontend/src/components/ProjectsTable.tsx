@@ -72,6 +72,13 @@ const buildFolderTree = (folders: Folder[]): Folder[] => {
   return rootFolders;
 };
 
+// Helper function to count total items in a folder (projects + subfolders)
+const getTotalItemsInFolder = (folder: Folder, folderProjects: Record<number, Project[]>): number => {
+  const projectCount = folderProjects[folder.id]?.length || 0;
+  const subfolderCount = folder.children?.length || 0;
+  return projectCount + subfolderCount;
+};
+
 interface Project {
   id: number;
   title: string;
@@ -227,7 +234,7 @@ const FolderRow: React.FC<{
                             <Folder size={16} className="text-blue-600 mr-2" />
                             <span className="font-semibold text-blue-700 truncate max-w-[200px]" title={folder.name}>{folder.name}</span>
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {folder.project_count} {folder.project_count === 1 ? 'item' : 'items'}
+                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? 'item' : 'items'}
                             </span>
                         </span>
                     </td>
@@ -354,7 +361,7 @@ const FolderRow: React.FC<{
             )}
             
             {/* Loading state for folder projects */}
-            {isExpanded && folderProjectsList.length === 0 && (
+            {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
                     <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 1} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
@@ -586,7 +593,7 @@ const ProjectCard: React.FC<{
                         </div>
                     ) : (
                         <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
-                            <h3 className="font-bold text-lg text-center">{displayTitle}</h3>
+                            <h3 className="font-bold text-lg text-center truncate max-w-full" title={displayTitle}>{displayTitle}</h3>
                         </div>
                     )}
                 </div>

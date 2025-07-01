@@ -90,6 +90,13 @@ const buildFolderTree = (folders: any[]): Folder[] => {
   return rootFolders;
 };
 
+// Helper function to count total items in a folder (projects + subfolders)
+const getTotalItemsInFolder = (folder: Folder): number => {
+  const projectCount = folder.project_count || 0;
+  const subfolderCount = folder.children?.length || 0;
+  return projectCount + subfolderCount;
+};
+
 interface SidebarProps {
   currentTab: string;
   onFolderSelect: (folderId: number | null) => void;
@@ -164,9 +171,9 @@ const FolderItem: React.FC<{
           </svg>
         </span>
         <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
-        {folder.project_count > 0 && (
+        {getTotalItemsInFolder(folder) > 0 && (
           <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-            {folder.project_count}
+            {getTotalItemsInFolder(folder)}
           </span>
         )}
       </div>
