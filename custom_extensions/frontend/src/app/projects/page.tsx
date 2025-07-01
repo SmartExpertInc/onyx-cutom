@@ -20,9 +20,7 @@ import {
   Trash2,
   Plus,
   Bell,
-  MessageSquare,
-  Box,
-  PackagePlus
+  MessageSquare
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -62,12 +60,169 @@ const redirectToMainAuth = (path: string) => {
   window.location.href = mainAppUrl;
 };
 
+// Helper function to build folder tree from flat list
+const buildFolderTree = (folders: any[]): Folder[] => {
+  const folderMap = new Map<number, Folder>();
+  const rootFolders: Folder[] = [];
+
+  // First pass: create folder objects
+  folders.forEach(folder => {
+    folderMap.set(folder.id, {
+      ...folder,
+      children: []
+    });
+  });
+
+  // Second pass: build tree structure
+  folders.forEach(folder => {
+    const folderObj = folderMap.get(folder.id)!;
+    if (folder.parent_id === null || folder.parent_id === undefined) {
+      rootFolders.push(folderObj);
+    } else {
+      const parent = folderMap.get(folder.parent_id);
+      if (parent) {
+        parent.children!.push(folderObj);
+      }
+    }
+  });
+
+  return rootFolders;
+};
+
 interface SidebarProps {
   currentTab: string;
+  onFolderSelect: (folderId: number | null) => void;
+  selectedFolderId: number | null;
+  folders: any[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
+interface Folder {
+  id: number;
+  name: string;
+  parent_id?: number | null;
+  project_count: number;
+  children?: Folder[];
+}
+
+// Recursive folder component for nested display
+const FolderItem: React.FC<{
+  folder: Folder;
+  level: number;
+  selectedFolderId: number | null;
+  onFolderSelect: (folderId: number | null) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, folderId: number) => void;
+  onDragEnter: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+}> = ({ folder, level, selectedFolderId, onFolderSelect, onDragOver, onDrop, onDragEnter, onDragLeave }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const hasChildren = folder.children && folder.children.length > 0;
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      folderId: folder.id,
+      folderName: folder.name,
+      type: 'folder'
+    }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  return (
+    <div>
+      <div
+        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
+        style={{ paddingLeft: `${level * 16 + 8}px` }}
+        onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
+        draggable
+        onDragStart={handleDragStart}
+        onDragOver={onDragOver}
+        onDrop={(e) => onDrop(e, folder.id)}
+        onDragEnter={onDragEnter}
+        onDragLeave={onDragLeave}
+      >
+        {hasChildren && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-700"
+          >
+            {isExpanded ? '▼' : '▶'}
+          </button>
+        )}
+        {!hasChildren && <div className="w-4" />}
+        <span className="text-blue-700">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </span>
+        <span className="font-medium">{folder.name}</span>
+        {folder.project_count > 0 && (
+          <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            {folder.project_count}
+          </span>
+        )}
+      </div>
+      {hasChildren && isExpanded && (
+        <div>
+          {folder.children!.map((child) => (
+            <FolderItem
+              key={child.id}
+              folder={child}
+              level={level + 1}
+              selectedFolderId={selectedFolderId}
+              onFolderSelect={onFolderSelect}
+              onDragOver={onDragOver}
+              onDrop={onDrop}
+              onDragEnter={onDragEnter}
+              onDragLeave={onDragLeave}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders }) => {
   const router = useRouter();
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, folderId: number) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105');
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'project') {
+        window.dispatchEvent(new CustomEvent('moveProjectToFolder', {
+          detail: { projectId: data.projectId, folderId }
+        }));
+      } else if (data.type === 'folder') {
+        window.dispatchEvent(new CustomEvent('moveFolderToFolder', {
+          detail: { folderId: data.folderId, targetParentId: folderId }
+        }));
+      }
+    } catch (error) {
+      console.error('Error parsing drag data:', error);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      e.currentTarget.classList.remove('bg-blue-100', 'border-2', 'border-blue-300', 'scale-105', 'shadow-lg');
+    }
+  };
 
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
@@ -89,6 +244,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
         <Link 
           href="/projects" 
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
           <span>Products</span>
@@ -108,15 +264,31 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab }) => {
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
-          <span>Projects</span>
-          <PackagePlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
+          <span>Folders</span>
+          <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 px-2 py-1 rounded bg-blue-50 text-blue-700 font-semibold border border-transparent">
-            <Box size={18} className="text-blue-700" />
-            <span className="font-medium">General</span>
+        {folders.length === 0 ? (
+          <div className="bg-gray-100 p-4 rounded-lg text-center">
+            <p className="mb-2 text-gray-700">Organize your products by topic and share them with your team</p>
+            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>Create or join a folder</button>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {buildFolderTree(folders).map((folder) => (
+              <FolderItem
+                key={folder.id}
+                folder={folder}
+                level={0}
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={onFolderSelect}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
@@ -172,7 +344,7 @@ const ProjectsPageInner: React.FC = () => {
   const searchParams = useSearchParams();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
-
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -266,8 +438,47 @@ const ProjectsPageInner: React.FC = () => {
       }
     };
 
+    const handleMoveFolder = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { folderId, targetParentId } = customEvent.detail;
+      try {
+        const res = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/move`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ parent_id: targetParentId })
+        });
+        if (res.ok) {
+          // Refresh folders to update the tree structure
+          try {
+            const updatedFolders = await fetchFolders();
+            setFolders(updatedFolders);
+          } catch (error) {
+            if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+              redirectToMainAuth('/auth/login');
+              return;
+            }
+            console.error('Error refreshing folders:', error);
+          }
+          console.log(`Folder moved to parent ${targetParentId} successfully`);
+        } else if (res.status === 401 || res.status === 403) {
+          redirectToMainAuth('/auth/login');
+        } else {
+          const errorData = await res.json();
+          alert(`Error moving folder: ${errorData.detail || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error moving folder:', error);
+        alert('Failed to move folder');
+      }
+    };
+
     window.addEventListener('moveProjectToFolder', handleMoveProject);
-    return () => window.removeEventListener('moveProjectToFolder', handleMoveProject);
+    window.addEventListener('moveFolderToFolder', handleMoveFolder);
+    return () => {
+      window.removeEventListener('moveProjectToFolder', handleMoveProject);
+      window.removeEventListener('moveFolderToFolder', handleMoveFolder);
+    };
   }, []);
 
   const handleFolderCreated = (newFolder: any) => {
@@ -294,11 +505,11 @@ const ProjectsPageInner: React.FC = () => {
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
-      <Sidebar currentTab={currentTab} />
+      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
-          <ProjectsTable trashMode={isTrash} folderId={null} />
+          <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
         </main>
         <div className="fixed bottom-4 right-4">
           <button

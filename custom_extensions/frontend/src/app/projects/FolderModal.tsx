@@ -12,6 +12,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
 
   if (!open) return null;
 
@@ -29,12 +30,16 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
       const res = await fetch('/api/custom-projects-backend/projects/folders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: folderName.trim() })
+        body: JSON.stringify({ 
+          name: folderName.trim(),
+          parent_id: selectedParentId
+        })
       });
       if (!res.ok) throw new Error('Failed to create folder');
       const data = await res.json();
       onFolderCreated(data);
       setFolderName('');
+      setSelectedParentId(null);
     } catch (e: any) {
       setError(e.message || 'Error creating folder');
     } finally {
@@ -50,22 +55,40 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={onClose}>&times;</button>
         <h2 className="text-2xl font-bold mb-2 text-black">Create or join a folder</h2>
         <p className="text-gray-600 mb-4">You can join a folder to keep track of what folks are working on.</p>
-        <div className="flex items-center mb-4 gap-2">
-          <input
-            type="text"
-            placeholder="Find or create a new folder"
-            className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-            value={folderName}
-            onChange={e => { setFolderName(e.target.value); setSearch(e.target.value); }}
-            onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-          />
-          <button
-            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleCreate}
-            disabled={creating || !folderName.trim()}
-          >
-            Create folder
-          </button>
+        <div className="flex flex-col mb-4 gap-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Find or create a new folder"
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              value={folderName}
+              onChange={e => { setFolderName(e.target.value); setSearch(e.target.value); }}
+              onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+            />
+            <button
+              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50"
+              onClick={handleCreate}
+              disabled={creating || !folderName.trim()}
+            >
+              Create folder
+            </button>
+          </div>
+          {existingFolders.length > 0 && (
+            <div className="flex items-center gap-2">
+              <select
+                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                value={selectedParentId || ''}
+                onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
+              >
+                <option value="">Create in root (no parent)</option>
+                {existingFolders.map(folder => (
+                  <option key={folder.id} value={folder.id}>
+                    {folder.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
         {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
         <div className="mb-4">

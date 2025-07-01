@@ -365,12 +365,29 @@ async def startup_event():
                     onyx_user_id TEXT NOT NULL,
                     name TEXT NOT NULL,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                    "order" INTEGER DEFAULT 0
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
                 );
             """)
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
             
             # Add order column to existing project_folders table if it doesn't exist
             try:
@@ -4276,17 +4293,20 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 # --- Folders API Models ---
 class ProjectFolderCreateRequest(BaseModel):
     name: str
+    parent_id: Optional[int] = None
 
 class ProjectFolderResponse(BaseModel):
     id: int
     name: str
     created_at: datetime
+    parent_id: Optional[int] = None
 
 class ProjectFolderListResponse(BaseModel):
     id: int
     name: str
     created_at: datetime
     order: int
+    parent_id: Optional[int] = None
     project_count: int
     total_lessons: int
     total_hours: float
@@ -4295,6 +4315,9 @@ class ProjectFolderListResponse(BaseModel):
 
 class ProjectFolderRenameRequest(BaseModel):
     name: str
+
+class ProjectFolderMoveRequest(BaseModel):
+    parent_id: Optional[int] = None
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
@@ -4305,6 +4328,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf.name, 
             pf.created_at, 
             pf."order", 
+            pf.parent_id,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -4357,7 +4381,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1
-        GROUP BY pf.id, pf.name, pf.created_at, pf."order"
+        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id
         ORDER BY pf."order" ASC, pf.created_at ASC;
     """
     async with pool.acquire() as conn:
@@ -4366,9 +4390,18 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
 
 @app.post("/api/custom/projects/folders", response_model=ProjectFolderResponse)
 async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    query = "INSERT INTO project_folders (onyx_user_id, name) VALUES ($1, $2) RETURNING id, name, created_at;"
     async with pool.acquire() as conn:
-        row = await conn.fetchrow(query, onyx_user_id, req.name)
+        # If parent_id is provided, verify it exists and belongs to user
+        if req.parent_id is not None:
+            parent_folder = await conn.fetchrow(
+                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                req.parent_id, onyx_user_id
+            )
+            if not parent_folder:
+                raise HTTPException(status_code=404, detail="Parent folder not found")
+        
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id) VALUES ($1, $2, $3) RETURNING id, name, created_at, parent_id;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
@@ -4389,6 +4422,52 @@ async def delete_folder(folder_id: int, onyx_user_id: str = Depends(get_current_
     if result == "DELETE 0":
         raise HTTPException(status_code=404, detail="Folder not found")
     return JSONResponse(status_code=204, content={})
+
+@app.put("/api/custom/projects/folders/{folder_id}/move", response_model=ProjectFolderResponse)
+async def move_folder(folder_id: int, req: ProjectFolderMoveRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Move a folder to a different parent folder"""
+    async with pool.acquire() as conn:
+        # Verify the folder exists and belongs to user
+        folder = await conn.fetchrow(
+            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+            folder_id, onyx_user_id
+        )
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # If parent_id is provided, verify it exists and belongs to user
+        if req.parent_id is not None:
+            parent_folder = await conn.fetchrow(
+                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                req.parent_id, onyx_user_id
+            )
+            if not parent_folder:
+                raise HTTPException(status_code=404, detail="Parent folder not found")
+            
+            # Prevent circular references - check if the target parent is a descendant of this folder
+            if req.parent_id == folder_id:
+                raise HTTPException(status_code=400, detail="Cannot move folder into itself")
+            
+            # Check for circular references by traversing up the tree
+            current_parent_id = req.parent_id
+            while current_parent_id is not None:
+                if current_parent_id == folder_id:
+                    raise HTTPException(status_code=400, detail="Cannot move folder into its own descendant")
+                parent = await conn.fetchrow(
+                    "SELECT parent_id FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                    current_parent_id, onyx_user_id
+                )
+                if not parent:
+                    break
+                current_parent_id = parent['parent_id']
+        
+        # Update the folder's parent_id
+        updated_folder = await conn.fetchrow(
+            "UPDATE project_folders SET parent_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id",
+            req.parent_id, folder_id, onyx_user_id
+        )
+        
+        return ProjectFolderResponse(**dict(updated_folder))
 
 # --- Update project queries to support folder_id (backward compatible) ---
 # In all project list endpoints, add folder_id to SELECT and response models, and allow filtering by folder_id (optional)
