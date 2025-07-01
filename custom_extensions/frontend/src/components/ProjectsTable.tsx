@@ -2199,7 +2199,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                         folder={folder}
                                         level={0}
                                         index={folderIndex}
-                                        trashMode={trashMode}
+                                                                    trashMode={trashMode}
                                         columnVisibility={columnVisibility}
                                         expandedFolders={expandedFolders}
                                         folderProjects={folderProjects}
