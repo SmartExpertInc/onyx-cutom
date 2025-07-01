@@ -91,8 +91,20 @@ const buildFolderTree = (folders: any[]): Folder[] => {
 };
 
 // Helper function to count total items in a folder (projects + subfolders recursively)
-const getTotalItemsInFolder = (folder: Folder): number => {
-  // Use the project_count that we calculated upfront when loading data
+const getTotalItemsInFolder = (folder: Folder, folderProjects?: Record<number, any[]>): number => {
+  // If we have folderProjects data, use it for accurate counting (like list view)
+  if (folderProjects) {
+    const projectCount = folderProjects[folder.id]?.length || 0;
+    
+    // Recursively count items in all subfolders
+    const subfolderItemsCount = folder.children?.reduce((total, childFolder) => {
+      return total + getTotalItemsInFolder(childFolder, folderProjects);
+    }, 0) || 0;
+    
+    return projectCount + subfolderItemsCount;
+  }
+  
+  // Fallback to using project_count from backend (less accurate)
   const projectCount = folder.project_count || 0;
   
   // Recursively count items in all subfolders
@@ -108,6 +120,7 @@ interface SidebarProps {
   onFolderSelect: (folderId: number | null) => void;
   selectedFolderId: number | null;
   folders: any[];
+  folderProjects?: Record<number, any[]>;
 }
 
 interface Folder {
@@ -128,7 +141,8 @@ const FolderItem: React.FC<{
   onDrop: (e: React.DragEvent, folderId: number) => void;
   onDragEnter: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
-}> = ({ folder, level, selectedFolderId, onFolderSelect, onDragOver, onDrop, onDragEnter, onDragLeave }) => {
+  folderProjects?: Record<number, any[]>;
+}> = ({ folder, level, selectedFolderId, onFolderSelect, onDragOver, onDrop, onDragEnter, onDragLeave, folderProjects }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = folder.children && folder.children.length > 0;
 
@@ -177,9 +191,9 @@ const FolderItem: React.FC<{
           </svg>
         </span>
         <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
-        {getTotalItemsInFolder(folder) > 0 && (
+        {getTotalItemsInFolder(folder, folderProjects) > 0 && (
           <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-            {getTotalItemsInFolder(folder)}
+            {getTotalItemsInFolder(folder, folderProjects)}
           </span>
         )}
       </div>
@@ -196,6 +210,7 @@ const FolderItem: React.FC<{
               onDrop={onDrop}
               onDragEnter={onDragEnter}
               onDragLeave={onDragLeave}
+              folderProjects={folderProjects}
             />
           ))}
         </div>
@@ -204,7 +219,7 @@ const FolderItem: React.FC<{
   );
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -299,6 +314,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 onDrop={handleDrop}
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
+                folderProjects={folderProjects}
               />
             ))}
           </div>
@@ -361,6 +377,7 @@ const ProjectsPageInner: React.FC = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
+  const [folderProjects, setFolderProjects] = useState<Record<number, any[]>>({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -445,6 +462,7 @@ const ProjectsPageInner: React.FC = () => {
           }));
 
           setFolders(updatedFolders);
+          setFolderProjects(folderProjectsMap);
         } catch (error) {
           if (error instanceof Error && error.message === 'UNAUTHORIZED') {
             redirectToMainAuth('/auth/login');
@@ -452,6 +470,7 @@ const ProjectsPageInner: React.FC = () => {
           }
           console.error('Error loading folders and projects:', error);
           setFolders([]);
+          setFolderProjects({});
         }
       };
 
@@ -567,7 +586,7 @@ const ProjectsPageInner: React.FC = () => {
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
-      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} />
+      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
