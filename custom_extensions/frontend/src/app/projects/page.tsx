@@ -20,7 +20,8 @@ import {
   Trash2,
   Plus,
   Bell,
-  MessageSquare
+  MessageSquare,
+  ChevronRight
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -148,7 +149,12 @@ const FolderItem: React.FC<{
             }}
             className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-700"
           >
-            {isExpanded ? '▼' : '▶'}
+            <ChevronRight 
+              size={16} 
+              className={`transition-transform duration-200 ${
+                isExpanded ? 'rotate-90' : ''
+              }`}
+            />
           </button>
         )}
         {!hasChildren && <div className="w-4" />}
@@ -157,7 +163,7 @@ const FolderItem: React.FC<{
             <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
-        <span className="font-medium">{folder.name}</span>
+        <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
         {folder.project_count > 0 && (
           <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
             {folder.project_count}

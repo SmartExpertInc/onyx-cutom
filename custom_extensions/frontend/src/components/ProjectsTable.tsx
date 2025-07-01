@@ -225,7 +225,7 @@ const FolderRow: React.FC<{
                                 />
                             </button>
                             <Folder size={16} className="text-blue-600 mr-2" />
-                            <span className="font-semibold text-blue-700">{folder.name}</span>
+                            <span className="font-semibold text-blue-700 truncate max-w-[200px]" title={folder.name}>{folder.name}</span>
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {folder.project_count} {folder.project_count === 1 ? 'item' : 'items'}
                             </span>
@@ -295,7 +295,7 @@ const FolderRow: React.FC<{
                                     </div>
                                     <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
                                     <Star size={16} className="text-gray-300 mr-2" />
-                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
                                         {p.title}
                                     </Link>
                                 </span>
@@ -591,7 +591,7 @@ const ProjectCard: React.FC<{
                     )}
                 </div>
                 <div className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-2 truncate text-sm">{displayTitle}</h3>
+                    <h3 className="font-semibold text-gray-800 mb-2 truncate text-sm max-w-full" title={displayTitle}>{displayTitle}</h3>
                     <div className="flex items-center text-xs text-gray-500 mb-3">
                         {project.isPrivate && (
                             <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
@@ -2239,7 +2239,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                         </svg>
                                                     </div>
                                                     <Star size={16} className="text-gray-300 mr-2" />
-                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
                                                         {p.title}
                                                     </Link>
                                                 </span>
@@ -2324,7 +2324,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                                         </svg>
                                                     </div>
                                                     <Star size={16} className="text-gray-300 mr-2" />
-                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900">
+                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
                                                         {p.title}
                                                     </Link>
                                                 </span>
