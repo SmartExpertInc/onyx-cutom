@@ -1440,8 +1440,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>>({});
     const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
         title: true,
-        created: true,
-        creator: true,
+        created: false,
+        creator: false,
         numberOfLessons: true,
         estCreationTime: true,
         estCompletionTime: true,
