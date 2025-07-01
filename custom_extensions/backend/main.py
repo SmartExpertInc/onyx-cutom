@@ -4624,7 +4624,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                     # Update the project in the database
                     await conn.execute(
                         "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
-                        json.dumps(content), project['id']
+                        content, project['id']
                     )
                     
             except Exception as e:
@@ -4810,7 +4810,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                     # Update the project in the database with new hours
                     await conn.execute(
                         "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
-                        json.dumps(content), project_id
+                        content, project_id
                     )
                     
                     # Update the returned project data
