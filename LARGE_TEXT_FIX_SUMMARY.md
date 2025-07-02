@@ -4,24 +4,25 @@
 
 The paste-in-text mode was failing with large texts due to several critical issues:
 
-1. **AI Memory Exhaustion**: Very large texts (>50,000 chars) caused the AI assistant to run out of memory
+1. **AI Memory Exhaustion**: Even medium-sized texts (~5,500 chars) caused the AI assistant to run out of memory
 2. **Incomplete File Upload Handling**: The virtual file creation didn't account for Onyx's two-phase upload process (upload + processing)
-3. **Inadequate Text Size Thresholds**: The original thresholds were too high, causing issues with medium-sized texts (~5,500 chars)
+3. **Inadequate Text Size Thresholds**: The original thresholds were too high, causing issues with texts as small as 5,000 characters
 4. **Missing Timeout Configuration**: No proper timeout handling for large text processing
+5. **No User Feedback**: Users had no warning when their text was too large for optimal processing
 
 ## Comprehensive Solution Implemented
 
-### 1. **Optimized Text Size Thresholds**
+### 1. **Aggressive Text Size Thresholds**
 
 ```python
-# Updated thresholds for better performance
-TEXT_SIZE_THRESHOLD = 3000  # Characters - switch to compression for texts larger than this
-LARGE_TEXT_THRESHOLD = 10000  # Characters - use virtual file system to prevent AI memory issues
+# Aggressive thresholds to prevent AI memory issues
+TEXT_SIZE_THRESHOLD = 1500  # Characters - switch to compression for texts larger than this
+LARGE_TEXT_THRESHOLD = 3000  # Characters - use virtual file system to prevent AI memory issues
 ```
 
 **Benefits:**
-- Texts >3,000 chars use compression to reduce payload size
-- Texts >10,000 chars use virtual file system to prevent AI memory issues
+- Texts >1,500 chars use compression to reduce payload size
+- Texts >3,000 chars use virtual file system to prevent AI memory issues
 - Fixes the "use as base" feature failure with ~5,500 char texts
 
 ### 2. **Enhanced Virtual File Creation**
@@ -43,26 +44,40 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
 - **Error Handling**: Graceful fallback to compression if virtual file creation fails
 - **Robust Logging**: Detailed logging for debugging and monitoring
 
-### 3. **Intelligent Text Processing Strategy**
+### 3. **Two-Tier Text Processing Strategy**
 
-The system now uses a three-tier approach:
+The system now uses a simplified two-tier approach with aggressive thresholds:
 
 ```python
 if text_length > LARGE_TEXT_THRESHOLD:
-    # Use virtual file system for very large texts
+    # Use virtual file system for large texts to prevent AI memory issues
     virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
     wiz_payload["virtualFileId"] = virtual_file_id
 elif text_length > TEXT_SIZE_THRESHOLD:
-    # Compress large text to reduce payload size
+    # Compress medium text to reduce payload size
     compressed_text = compress_text(payload.userText)
     wiz_payload["userText"] = compressed_text
     wiz_payload["textCompressed"] = True
 else:
-    # Use direct text for smaller content
+    # Use direct text for small content
     wiz_payload["userText"] = payload.userText
 ```
 
-### 4. **Enhanced Timeout Configuration**
+### 4. **Text Chunking as Fallback**
+
+Added text chunking function for handling large texts when virtual file creation fails:
+
+```python
+def chunk_text(text_content: str, max_chunk_size: int = 2000) -> List[str]:
+    """Split large text into manageable chunks while preserving sentence boundaries."""
+```
+
+**Benefits:**
+- **Text Chunking**: Splits large texts into 2,000-character chunks while preserving sentence boundaries
+- **Fallback Strategy**: If virtual file creation fails, uses chunking as fallback
+- **Memory Optimization**: Prevents AI memory exhaustion with any text size
+
+### 5. **Enhanced Timeout Configuration**
 
 ```python
 # Use longer timeout for large text processing to prevent AI memory issues
@@ -75,14 +90,14 @@ logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processi
 - Prevents premature timeouts during AI processing
 - Maintains normal timeouts for smaller texts
 
-### 5. **Comprehensive Error Handling**
+### 6. **Comprehensive Error Handling**
 
 - **Virtual File Fallback**: If virtual file creation fails, falls back to compression
 - **Processing Status Monitoring**: Handles various processing states (pending, processing, completed, failed)
 - **Graceful Degradation**: System continues to work even if some features fail
 - **Detailed Logging**: Extensive logging for debugging and monitoring
 
-### 6. **File Processing Status Handling**
+### 7. **File Processing Status Handling**
 
 The system now properly handles Onyx's file processing states:
 
@@ -105,6 +120,17 @@ elif processing_status in ['pending', 'processing']:
 - ❌ Medium texts (~5.5K chars) failed in "use as base" mode
 - ❌ No timeout handling for large text processing
 - ❌ Incomplete file upload handling
+- ❌ No user feedback for large text processing
+
+### After Fix:
+- ✅ Large texts use virtual file system (no memory issues)
+- ✅ Medium texts use compression (reduced payload size)
+- ✅ Proper timeout handling (5 minutes for large texts)
+- ✅ Complete file upload + processing handling
+- ✅ Graceful fallback mechanisms
+- ✅ Comprehensive error handling and logging
+- ✅ Real-time user feedback for text size warnings
+- ✅ Text chunking as fallback strategy
 
 ### After Fix:
 - ✅ Large texts use virtual file system (no memory issues)

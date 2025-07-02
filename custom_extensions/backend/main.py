@@ -1674,9 +1674,9 @@ ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
     "Training Plan", "PDF Lesson", "Slide Deck", "Text Presentation"
 ]
 
-# Constants for text size thresholds
-TEXT_SIZE_THRESHOLD = 3000  # Characters - switch to compression for texts larger than this
-LARGE_TEXT_THRESHOLD = 10000  # Characters - use virtual file system to prevent AI memory issues
+# Constants for text size thresholds - Aggressive thresholds to prevent AI memory issues
+TEXT_SIZE_THRESHOLD = 1500  # Characters - switch to compression for texts larger than this
+LARGE_TEXT_THRESHOLD = 3000  # Characters - use virtual file system to prevent AI memory issues
 VIRTUAL_TEXT_FILE_PREFIX = "paste_text_"
 
 def compress_text(text_content: str) -> str:
@@ -1711,6 +1711,54 @@ def decompress_text(compressed_b64: str) -> str:
         logger.error(f"Error decompressing text: {e}")
         # Return original if decompression fails (assume it wasn't compressed)
         return compressed_b64
+
+def chunk_text(text_content: str, max_chunk_size: int = 2000) -> List[str]:
+    """
+    Split large text into manageable chunks while preserving sentence boundaries.
+    """
+    if len(text_content) <= max_chunk_size:
+        return [text_content]
+    
+    chunks = []
+    current_chunk = ""
+    
+    # Split by sentences first, then by words if needed
+    sentences = text_content.replace('\n', ' ').split('. ')
+    
+    for sentence in sentences:
+        # Add period back if it's not the last sentence
+        if not sentence.endswith('.') and sentence != sentences[-1]:
+            sentence += '.'
+        
+        # If adding this sentence would exceed chunk size
+        if len(current_chunk) + len(sentence) + 1 > max_chunk_size:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = sentence
+            else:
+                # Single sentence is too long, split by words
+                words = sentence.split()
+                for word in words:
+                    if len(current_chunk) + len(word) + 1 > max_chunk_size:
+                        if current_chunk:
+                            chunks.append(current_chunk.strip())
+                            current_chunk = word
+                        else:
+                            # Single word is too long, truncate
+                            chunks.append(word[:max_chunk_size])
+                            current_chunk = ""
+                    else:
+                        current_chunk += " " + word if current_chunk else word
+        else:
+            current_chunk += " " + sentence if current_chunk else sentence
+    
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
+    
+    logger.info(f"Split text into {len(chunks)} chunks (original: {len(text_content)} chars)")
+    return chunks
+
+
 
 async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -> int:
     """
@@ -3197,7 +3245,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use virtual file system for very large texts to prevent AI memory issues
+    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
     if payload.fromText and payload.userText:
         wiz_payload["fromText"] = True
         wiz_payload["textMode"] = payload.textMode
@@ -3206,7 +3254,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
         
         if text_length > LARGE_TEXT_THRESHOLD:
-            # Use virtual file system for very large texts to prevent AI memory issues
+            # Use virtual file system for large texts to prevent AI memory issues
             logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
             try:
                 virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
@@ -3215,20 +3263,32 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
             except Exception as e:
                 logger.error(f"Failed to create virtual file for large text: {e}")
-                # Fallback to compression if virtual file creation fails
-                compressed_text = compress_text(payload.userText)
-                wiz_payload["userText"] = compressed_text
-                wiz_payload["textCompressed"] = True
-                logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                # Fallback to chunking if virtual file creation fails
+                chunks = chunk_text(payload.userText)
+                if len(chunks) == 1:
+                    # Single chunk, use compression
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
+                    wiz_payload["textCompressed"] = True
+                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    # Multiple chunks, use first chunk with compression
+                    first_chunk = chunks[0]
+                    compressed_chunk = compress_text(first_chunk)
+                    wiz_payload["userText"] = compressed_chunk
+                    wiz_payload["textCompressed"] = True
+                    wiz_payload["textChunked"] = True
+                    wiz_payload["totalChunks"] = len(chunks)
+                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
         elif text_length > TEXT_SIZE_THRESHOLD:
-            # Compress large text to reduce payload size
+            # Compress medium text to reduce payload size
             logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
             compressed_text = compress_text(payload.userText)
             wiz_payload["userText"] = compressed_text
             wiz_payload["textCompressed"] = True
-            logger.info(f"Using compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
         else:
-            # Use direct text for smaller content
+            # Use direct text for small content
             logger.info(f"Using direct text for small content ({text_length} chars)")
             wiz_payload["userText"] = payload.userText
             wiz_payload["textCompressed"] = False

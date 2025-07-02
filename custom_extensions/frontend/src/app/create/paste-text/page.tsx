@@ -9,6 +9,30 @@ export default function PasteTextPage() {
   const router = useRouter();
   const [text, setText] = useState("");
   const [mode, setMode] = useState<"context" | "base" | null>(null);
+  
+  // Text size thresholds (matching backend)
+  const TEXT_SIZE_THRESHOLD = 1500;
+  const LARGE_TEXT_THRESHOLD = 3000;
+  
+  const getTextSizeWarning = () => {
+    const length = text.length;
+    if (length > LARGE_TEXT_THRESHOLD) {
+      return {
+        type: "warning",
+        message: "Text is very large and will be processed as a file to prevent AI memory issues.",
+        color: "text-orange-600"
+      };
+    } else if (length > TEXT_SIZE_THRESHOLD) {
+      return {
+        type: "info",
+        message: "Text is large and will be compressed for optimal processing.",
+        color: "text-blue-600"
+      };
+    }
+    return null;
+  };
+  
+  const warning = getTextSizeWarning();
 
   const handleContinue = () => {
     if (!text.trim() || !mode) return;
@@ -73,8 +97,16 @@ export default function PasteTextPage() {
             placeholder="Paste your text, notes, outline, or any content you'd like to work with..."
             className="w-full h-96 p-6 rounded-xl border border-gray-300 bg-white shadow-sm text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-base leading-relaxed"
           />
-          <div className="mt-2 text-sm text-gray-500 text-right">
-            {text.length} characters
+          <div className="mt-2 flex justify-between items-center">
+            <div className="text-sm text-gray-500">
+              {text.length} characters
+            </div>
+            {warning && (
+              <div className={`text-sm font-medium ${warning.color} flex items-center gap-1`}>
+                <span className="w-2 h-2 rounded-full bg-current"></span>
+                {warning.message}
+              </div>
+            )}
           </div>
         </div>
 
