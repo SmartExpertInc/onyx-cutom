@@ -89,9 +89,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return userData;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // First, try to logout from Onyx's system
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+    } catch (error) {
+      console.error('Error logging out from Onyx:', error);
+    }
+    
+    // Clear custom user data
     setUser(null);
     localStorage.removeItem('customUserData');
+    
     // Redirect to login page
     window.location.href = '/auth/login';
   };

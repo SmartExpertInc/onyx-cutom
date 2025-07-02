@@ -37,10 +37,10 @@ export default function LoginPage() {
         // Check if user needs to complete their profile
         if (userData.needs_profile_completion) {
           // Redirect to projects page where the profile completion modal will show
-          router.push('/projects');
+          window.location.href = '/projects';
         } else {
           // Redirect to projects page normally
-          router.push('/projects');
+          window.location.href = '/projects';
         }
       } else {
         const errorData = await response.json();
