@@ -117,7 +117,7 @@ server {
     }
 
 
-    # Custom auth routes
+    # Custom auth routes (MUST come before the general / location)
     location ~ ^/auth/(login|register) {
         proxy_pass http://custom_frontend_server;
         
@@ -134,7 +134,7 @@ server {
         proxy_pass_request_headers on;
     }
 
-    # Custom projects routes
+    # Custom projects routes (MUST come before the general / location)
     location ~ ^/(projects|create|editor|pipelines|add-to-project) {
         proxy_pass http://custom_frontend_server;
         
@@ -151,7 +151,7 @@ server {
         proxy_pass_request_headers on;
     }
 
-    # Default to original Onyx web server for everything else
+    # Default to original Onyx web server for everything else (MUST be last)
     location / {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
