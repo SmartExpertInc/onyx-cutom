@@ -962,6 +962,7 @@ class AuthResponse(BaseModel):
     first_name: str
     last_name: str
     display_name: str
+    needs_profile_completion: bool = False
     model_config = {"from_attributes": True}
 
 class ProjectsDeleteRequest(BaseModel):
@@ -3075,7 +3076,16 @@ async def login_user(auth_data: AuthLoginRequest, pool: asyncpg.Pool = Depends(g
         profile = await get_user_profile(onyx_user_id, pool)
         
         if not profile:
-            raise HTTPException(status_code=404, detail="User profile not found")
+            # Legacy user - exists in Onyx but not in our custom database
+            # Return a special response indicating profile completion is needed
+            return AuthResponse(
+                onyx_user_id=onyx_user_id,
+                email=auth_data.email,
+                first_name="",
+                last_name="",
+                display_name="",
+                needs_profile_completion=True
+            )
         
         # 3. Return combined user data
         return AuthResponse(
@@ -3083,7 +3093,8 @@ async def login_user(auth_data: AuthLoginRequest, pool: asyncpg.Pool = Depends(g
             email=auth_data.email,
             first_name=profile.first_name,
             last_name=profile.last_name,
-            display_name=profile.display_name
+            display_name=profile.display_name,
+            needs_profile_completion=False
         )
         
     except HTTPException:
@@ -3143,13 +3154,47 @@ async def update_user_profile_endpoint(
             email="",  # You can add email to custom DB if needed
             first_name=updated_profile.first_name,
             last_name=updated_profile.last_name,
-            display_name=updated_profile.display_name
+            display_name=updated_profile.display_name,
+            needs_profile_completion=False
         )
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error updating user profile: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.post("/api/custom/auth/complete-profile", response_model=AuthResponse)
+async def complete_user_profile(
+    profile_data: UserProfileCreate, 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Complete profile for legacy users"""
+    try:
+        if not profile_data.first_name or not profile_data.last_name:
+            raise HTTPException(status_code=400, detail="First name and last name are required")
+        
+        # Create user profile in custom database
+        profile = await create_user_profile(
+            onyx_user_id=profile_data.onyx_user_id,
+            first_name=profile_data.first_name,
+            last_name=profile_data.last_name,
+            pool=pool
+        )
+        
+        return AuthResponse(
+            onyx_user_id=profile_data.onyx_user_id,
+            email="",  # Email not stored in custom DB
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            display_name=profile.display_name,
+            needs_profile_completion=False
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error completing user profile: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/custom/health")

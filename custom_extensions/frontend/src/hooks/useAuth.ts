@@ -8,6 +8,7 @@ interface User {
   first_name: string;
   last_name: string;
   display_name: string;
+  needs_profile_completion?: boolean;
 }
 
 interface AuthContextType {
@@ -17,6 +18,7 @@ interface AuthContextType {
   register: (email: string, password: string, first_name: string, last_name: string) => Promise<User>;
   logout: () => void;
   updateProfile: (first_name: string, last_name: string) => Promise<User>;
+  completeProfile: (onyx_user_id: string, first_name: string, last_name: string) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -115,6 +117,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return userData;
   };
 
+  const completeProfile = async (onyx_user_id: string, first_name: string, last_name: string): Promise<User> => {
+    const response = await fetch('/api/custom-projects-backend/auth/complete-profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({ 
+        onyx_user_id, 
+        first_name, 
+        last_name 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Profile completion failed');
+    }
+
+    const userData = await response.json();
+    setUser(userData);
+    localStorage.setItem('customUserData', JSON.stringify(userData));
+    return userData;
+  };
+
   const value = {
     user,
     isLoading,
@@ -122,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     updateProfile,
+    completeProfile,
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);

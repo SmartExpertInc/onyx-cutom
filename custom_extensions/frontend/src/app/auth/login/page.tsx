@@ -34,8 +34,14 @@ export default function LoginPage() {
         // Store user data in localStorage for easy access
         localStorage.setItem('customUserData', JSON.stringify(userData));
         
-        // Redirect to projects page
-        router.push('/projects');
+        // Check if user needs to complete their profile
+        if (userData.needs_profile_completion) {
+          // Redirect to projects page where the profile completion modal will show
+          router.push('/projects');
+        } else {
+          // Redirect to projects page normally
+          router.push('/projects');
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.detail || 'Login failed');

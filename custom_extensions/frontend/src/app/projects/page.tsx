@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../hooks/useAuth';
+import ProfileCompletionModal from '../../components/ProfileCompletionModal';
 import { 
   Search, 
   ChevronsUpDown, 
@@ -504,7 +505,12 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2 text-sm text-gray-700">
               <User className="w-4 h-4" />
-              <span>Welcome, {user.first_name}!</span>
+              <span>
+                {user.needs_profile_completion 
+                  ? `Welcome, ${user.email}!` 
+                  : `Welcome, ${user.first_name}!`
+                }
+              </span>
             </div>
             <button
               onClick={logout}
@@ -771,11 +777,32 @@ const ProjectsPageInner: React.FC = () => {
 };
 
 export default function ProjectsPage() {
+  const { user } = useAuth();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Show profile completion modal if user needs to complete their profile
+  React.useEffect(() => {
+    if (user?.needs_profile_completion) {
+      setShowProfileModal(true);
+    }
+  }, [user?.needs_profile_completion]);
+
+  const handleProfileComplete = () => {
+    setShowProfileModal(false);
+    // Optionally refresh the page or redirect
+    window.location.reload();
+  };
+
   return (
     <ProtectedRoute>
       <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
         <ProjectsPageInner />
       </Suspense>
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onComplete={handleProfileComplete}
+      />
     </ProtectedRoute>
   );
 }
