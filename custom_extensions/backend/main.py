@@ -5093,7 +5093,7 @@ async def download_projects_list_pdf(
             
             projects_rows = await conn.fetch(projects_query, *projects_params)
             
-            # Fetch folders (only if not viewing a specific folder)
+            # Fetch folders with hierarchical structure (only if not viewing a specific folder)
             folders_data = []
             if folder_id is None:
                 folders_query = """
@@ -5102,6 +5102,7 @@ async def download_projects_list_pdf(
                         pf.name, 
                         pf.created_at, 
                         pf."order", 
+                        pf.parent_id,
                         COUNT(p.id) as project_count,
                         COALESCE(
                             SUM(
@@ -5154,7 +5155,7 @@ async def download_projects_list_pdf(
                     FROM project_folders pf
                     LEFT JOIN projects p ON pf.id = p.folder_id
                     WHERE pf.onyx_user_id = $1
-                    GROUP BY pf.id, pf.name, pf.created_at, pf."order"
+                    GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id
                     ORDER BY pf."order" ASC, pf.created_at ASC;
                 """
                 folders_rows = await conn.fetch(folders_query, onyx_user_id)
@@ -5255,6 +5256,27 @@ async def download_projects_list_pdf(
 
         projects_data = deduplicate_projects(projects_data)
 
+        # Build folder tree structure
+        def build_folder_tree(folders):
+            folder_map = {}
+            root_folders = []
+            
+            # Create folder map
+            for folder in folders:
+                folder['children'] = []
+                folder_map[folder['id']] = folder
+            
+            # Build tree structure
+            for folder in folders:
+                if folder['parent_id'] is None:
+                    root_folders.append(folder)
+                else:
+                    parent = folder_map.get(folder['parent_id'])
+                    if parent:
+                        parent['children'].append(folder)
+            
+            return root_folders
+
         # Group projects by folder
         folder_projects = {}
         unassigned_projects = []
@@ -5267,9 +5289,12 @@ async def download_projects_list_pdf(
             else:
                 unassigned_projects.append(project)
 
+        # Build hierarchical folder structure
+        folder_tree = build_folder_tree(folders_data) if folders_data else []
+
         # Prepare data for template
         template_data = {
-            'folders': folders_data,
+            'folders': folder_tree,  # Use hierarchical structure
             'folder_projects': folder_projects,
             'unassigned_projects': unassigned_projects,
             'column_visibility': column_visibility_settings,
