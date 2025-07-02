@@ -14,9 +14,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/auth/login');
+      // Use window.location.href for a full page redirect to ensure proper authentication flow
+      window.location.href = '/auth/login';
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (

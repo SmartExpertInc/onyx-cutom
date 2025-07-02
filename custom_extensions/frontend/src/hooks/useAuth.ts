@@ -29,17 +29,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check for existing user data on mount
-    const storedUser = localStorage.getItem('customUserData');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('customUserData');
+    const checkUserData = async () => {
+      const storedUser = localStorage.getItem('customUserData');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          
+          // Verify the user data is still valid by checking with our backend
+          const response = await fetch('/api/custom-projects-backend/auth/profile', {
+            credentials: 'same-origin',
+          });
+          
+          if (response.ok) {
+            setUser(userData);
+          } else {
+            // User data is invalid, clear it
+            localStorage.removeItem('customUserData');
+            setUser(null);
+          }
+        } catch (error) {
+          console.error('Error checking user data:', error);
+          localStorage.removeItem('customUserData');
+          setUser(null);
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+    
+    checkUserData();
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
