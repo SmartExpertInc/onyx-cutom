@@ -5,9 +5,6 @@ import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import { useAuth } from '../../hooks/useAuth';
-import ProfileCompletionModal from '../../components/ProfileCompletionModal';
 import { 
   Search, 
   ChevronsUpDown, 
@@ -24,9 +21,7 @@ import {
   Plus,
   Bell,
   MessageSquare,
-  ChevronRight,
-  User,
-  LogOut
+  ChevronRight
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -34,14 +29,7 @@ import FolderModal from './FolderModal';
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
   try {
-    // Check if we have custom user data in localStorage
-    const storedUser = localStorage.getItem('customUserData');
-    if (!storedUser) {
-      return false;
-    }
-    
-    // Verify the user data is valid by checking with our backend
-    const response = await fetch('/api/custom-projects-backend/auth/profile', {
+    const response = await fetch('/api/me', {
       credentials: 'same-origin',
     });
     return response.ok;
@@ -96,13 +84,13 @@ const getModalState = (): boolean => {
   return windowFlag || domDetection;
 };
 
-// Helper function to redirect to our custom auth endpoint
-const redirectToCustomAuth = (path: string) => {
+// Helper function to redirect to main app's auth endpoint
+const redirectToMainAuth = (path: string) => {
   // Get the current domain and protocol
   const protocol = window.location.protocol;
   const host = window.location.host;
-  const customAuthUrl = `${protocol}//${host}${path}`;
-  window.location.href = customAuthUrl;
+  const mainAppUrl = `${protocol}//${host}${path}`;
+  window.location.href = mainAppUrl;
 };
 
 // Helper function to build folder tree from flat list
@@ -501,43 +489,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash }: { isTrash: boolean }) => {
-  const { user, logout } = useAuth();
-  
-  return (
-    <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
-      <div className="flex items-center gap-4">
-        {user && (
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-700">
-              <User className="w-4 h-4" />
-              <span>
-                {user.needs_profile_completion 
-                  ? `Welcome, ${user.email}!` 
-                  : `Welcome, ${user.first_name}!`
-                }
-              </span>
-            </div>
-            <button
-              onClick={() => logout()}
-              className="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
-            >
-              <LogOut className="w-4 h-4 mr-1" />
-              Logout
-            </button>
-          </div>
-        )}
-        <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
-          <Sparkles size={16} className="text-yellow-500" />
-          Get unlimited AI
-        </Link>
-        <span className="text-sm font-semibold text-gray-800">80 credits</span>
-        <Bell size={20} className="text-gray-600 cursor-pointer" />
-      </div>
-    </header>
-  );
-};
+const Header = ({ isTrash }: { isTrash: boolean }) => (
+  <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
+    <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
+    <div className="flex items-center gap-4">
+      <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
+        <Sparkles size={16} className="text-yellow-500" />
+        Get unlimited AI
+      </Link>
+      <span className="text-sm font-semibold text-gray-800">80 credits</span>
+      <Bell size={20} className="text-gray-600 cursor-pointer" />
+    </div>
+  </header>
+);
 
 // --- Inner client component that can read search params ---
 const ProjectsPageInner: React.FC = () => {
@@ -560,16 +524,16 @@ const ProjectsPageInner: React.FC = () => {
         setIsAuthenticated(authenticated);
         
         if (!authenticated) {
-          // Redirect to our custom login with return URL
+          // Redirect to main app's login with return URL
           const currentUrl = window.location.pathname + window.location.search;
-          redirectToCustomAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
+          redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
       } catch (error) {
         console.error('Authentication check failed:', error);
         setIsAuthenticated(false);
         const currentUrl = window.location.pathname + window.location.search;
-        redirectToCustomAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
+        redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
       } finally {
         setIsLoading(false);
       }
@@ -598,7 +562,7 @@ const ProjectsPageInner: React.FC = () => {
 
           if (!foldersResponse.ok) {
             if (foldersResponse.status === 401 || foldersResponse.status === 403) {
-              redirectToCustomAuth('/auth/login');
+              redirectToMainAuth('/auth/login');
               return;
             }
             throw new Error('Failed to fetch folders');
@@ -606,7 +570,7 @@ const ProjectsPageInner: React.FC = () => {
 
           if (!projectsResponse.ok) {
             if (projectsResponse.status === 401 || projectsResponse.status === 403) {
-              redirectToCustomAuth('/auth/login');
+              redirectToMainAuth('/auth/login');
               return;
             }
             throw new Error('Failed to fetch projects');
@@ -641,7 +605,7 @@ const ProjectsPageInner: React.FC = () => {
           console.log('Folder Tree:', buildFolderTree(updatedFolders));
         } catch (error) {
           if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-            redirectToCustomAuth('/auth/login');
+            redirectToMainAuth('/auth/login');
             return;
           }
           console.error('Error loading folders and projects:', error);
@@ -679,7 +643,7 @@ const ProjectsPageInner: React.FC = () => {
             setFolders(updatedFolders);
           } catch (error) {
             if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-              redirectToCustomAuth('/auth/login');
+              redirectToMainAuth('/auth/login');
               return;
             }
             console.error('Error refreshing folders:', error);
@@ -688,7 +652,7 @@ const ProjectsPageInner: React.FC = () => {
           window.dispatchEvent(new CustomEvent('refreshProjects'));
           console.log(`Project moved to folder ${folderId} successfully`);
         } else if (res.status === 401 || res.status === 403) {
-          redirectToCustomAuth('/auth/login');
+          redirectToMainAuth('/auth/login');
         }
       } catch (error) {
         console.error('Error moving project to folder:', error);
@@ -712,14 +676,14 @@ const ProjectsPageInner: React.FC = () => {
             setFolders(updatedFolders);
           } catch (error) {
             if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-              redirectToCustomAuth('/auth/login');
+              redirectToMainAuth('/auth/login');
               return;
             }
             console.error('Error refreshing folders:', error);
           }
           console.log(`Folder moved to parent ${targetParentId} successfully`);
         } else if (res.status === 401 || res.status === 403) {
-          redirectToCustomAuth('/auth/login');
+          redirectToMainAuth('/auth/login');
         } else {
           const errorData = await res.json();
           alert(`Error moving folder: ${errorData.detail || 'Unknown error'}`);
@@ -784,32 +748,9 @@ const ProjectsPageInner: React.FC = () => {
 };
 
 export default function ProjectsPage() {
-  const { user, isLoading: authLoading } = useAuth();
-  const [showProfileModal, setShowProfileModal] = useState(false);
-
-  // Show profile completion modal if user needs to complete their profile
-  React.useEffect(() => {
-    if (user?.needs_profile_completion && !authLoading) {
-      setShowProfileModal(true);
-    }
-  }, [user?.needs_profile_completion, authLoading]);
-
-  const handleProfileComplete = () => {
-    setShowProfileModal(false);
-    // Refresh the page to update the user state
-    window.location.reload();
-  };
-
   return (
-    <ProtectedRoute>
-      <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
-        <ProjectsPageInner />
-      </Suspense>
-      <ProfileCompletionModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        onComplete={handleProfileComplete}
-      />
-    </ProtectedRoute>
+    <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
+      <ProjectsPageInner />
+    </Suspense>
   );
 }

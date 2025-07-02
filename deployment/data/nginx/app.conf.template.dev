@@ -33,22 +33,7 @@ server {
         access_log off;
     }
 
-    # Original Onyx Web Server location (accessible at /onyx/)
-    location /onyx/ {
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header X-Forwarded-Port $server_port;
-        proxy_set_header Host $host;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_redirect off;
-        proxy_pass http://web_server/;
-    }
-
-    # Location for Custom Frontend UI (legacy path)
+    # Location for Custom Frontend UI
     location /custom-projects-ui/ {
         proxy_pass http://custom_frontend_server; 
         
@@ -117,41 +102,7 @@ server {
     }
 
 
-    # Custom auth routes (MUST come before the general / location)
-    location ~ ^/auth/(login|register) {
-        proxy_pass http://custom_frontend_server;
-        
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_buffering off;
-        proxy_redirect off;
-        proxy_pass_request_headers on;
-    }
-
-    # Custom projects routes (MUST come before the general / location)
-    location ~ ^/(projects|create|editor|pipelines|add-to-project) {
-        proxy_pass http://custom_frontend_server;
-        
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_buffering off;
-        proxy_redirect off;
-        proxy_pass_request_headers on;
-    }
-
-    # Default to original Onyx web server for everything else (MUST be last)
+    # Original Onyx Web Server location (main UI)
     location / {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

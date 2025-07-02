@@ -38,14 +38,6 @@ upstream web_server {
     server ${ONYX_WEB_SERVER_HOST}:3000 fail_timeout=0;
 }
 
-upstream custom_frontend {
-    server ${CUSTOM_FRONTEND_HOST}:3001 fail_timeout=0;
-}
-
-upstream custom_backend {
-    server ${CUSTOM_BACKEND_HOST}:8000 fail_timeout=0;
-}
-
 server {
     listen 80 default_server;
 
@@ -78,47 +70,6 @@ server {
         # redirects, we set the Host: header above already.
         proxy_redirect off;
         proxy_pass http://api_server;
-    }
-
-    # Custom extensions backend API routes
-    location ~ ^/api/custom-projects-backend(/.*)?$ {
-        # Rewrite to remove the prefix
-        rewrite ^/api/custom-projects-backend(/.*)$ $1 break;
-
-        # misc headers
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $forwarded_proto;
-        proxy_set_header X-Forwarded-Host $forwarded_host; 
-        proxy_set_header X-Forwarded-Port $forwarded_port;
-        proxy_set_header Host $host;
-
-        proxy_http_version 1.1;
-        proxy_connect_timeout 900s;
-        proxy_send_timeout 1800s;
-        proxy_read_timeout 1800s;
-        proxy_buffering off;
-        proxy_redirect off;
-        proxy_pass http://custom_backend;
-    }
-
-    # Custom extensions frontend routes
-    location ~ ^/(auth|projects|create|editor|pipelines|add-to-project|admin)(/.*)?$ {
-        # misc headers
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $forwarded_proto;
-        proxy_set_header X-Forwarded-Host $forwarded_host; 
-        proxy_set_header X-Forwarded-Port $forwarded_port;
-        proxy_set_header Host $host;
-
-        proxy_http_version 1.1;
-        proxy_connect_timeout 900s;
-        proxy_send_timeout 1800s;
-        proxy_read_timeout 1800s;
-        proxy_buffering off;
-        proxy_redirect off;
-        proxy_pass http://custom_frontend;
     }
 
     location / {
