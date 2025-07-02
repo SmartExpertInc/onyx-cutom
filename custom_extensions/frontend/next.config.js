@@ -5,7 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
 
   // CRITICAL: Set the basePath for your custom frontend
-  basePath: '/custom-projects-ui',
+  // Commented out since we're now serving at root domain
+  // basePath: '/custom-projects-ui',
 
   // assetPrefix: '/custom-projects-ui', // Usually, basePath is sufficient. Test first.
 
