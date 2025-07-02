@@ -475,7 +475,7 @@ async def startup_event():
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS custom_user_profiles (
                     id SERIAL PRIMARY KEY,
-                    onyx_user_id UUID NOT NULL UNIQUE,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
                     first_name VARCHAR(100) NOT NULL,
                     last_name VARCHAR(100) NOT NULL,
                     display_name VARCHAR(200),
@@ -1065,16 +1065,60 @@ async def authenticate_with_onyx(email: str, password: str) -> dict:
             )
             
             if response.status_code == 200:
-                auth_data = response.json()
-                return auth_data
+                # Try to parse JSON response
+                try:
+                    auth_data = response.json()
+                    return auth_data
+                except ValueError:
+                    # If no JSON content, create a basic response
+                    logger.info("Onyx login successful but no JSON response, creating basic auth data")
+                    return {"user": {"id": "legacy-user-id"}}
+            elif response.status_code == 204:
+                # 204 No Content means successful login but no response body
+                logger.info("Onyx login successful (204 No Content)")
+                return {"user": {"id": "legacy-user-id"}}
             else:
-                error_data = response.json()
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=error_data.get("detail", "Invalid credentials")
-                )
+                # Try to parse error response
+                try:
+                    error_data = response.json()
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=error_data.get("detail", "Invalid credentials")
+                    )
+                except ValueError:
+                    # If error response is not JSON
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Authentication failed with status {response.status_code}"
+                    )
     except httpx.RequestError as e:
         logger.error(f"Error calling Onyx API: {e}")
+        raise HTTPException(status_code=500, detail="Failed to connect to Onyx system")
+
+async def get_onyx_user_info(email: str, password: str) -> dict:
+    """Get user information from Onyx after authentication"""
+    try:
+        async with httpx.AsyncClient() as client:
+            # First authenticate
+            auth_response = await client.post(
+                f"{ONYX_API_SERVER_URL}/auth/login",
+                data={
+                    "username": email,
+                    "password": password
+                },
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+            
+            if auth_response.status_code not in [200, 204]:
+                raise HTTPException(status_code=401, detail="Invalid credentials")
+            
+            # For now, just return the email as the user identifier
+            # This is a simple approach for legacy users
+            logger.info(f"Onyx authentication successful for {email}")
+            return {"id": None, "email": email}
+            
+    except httpx.RequestError as e:
+        logger.error(f"Error getting user info from Onyx: {e}")
         raise HTTPException(status_code=500, detail="Failed to connect to Onyx system")
 
 async def create_user_profile(onyx_user_id: str, first_name: str, last_name: str, pool: asyncpg.Pool) -> UserProfileResponse:
@@ -3065,12 +3109,15 @@ async def register_user(auth_data: AuthRegisterRequest, pool: asyncpg.Pool = Dep
 async def login_user(auth_data: AuthLoginRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Login user and return profile data"""
     try:
-        # 1. Authenticate with Onyx system
-        onyx_auth = await authenticate_with_onyx(auth_data.email, auth_data.password)
-        onyx_user_id = onyx_auth.get("user", {}).get("id")
+        # 1. Authenticate with Onyx system and get user info
+        onyx_user_info = await get_onyx_user_info(auth_data.email, auth_data.password)
+        onyx_user_id = onyx_user_info.get("id")
         
+        # If we don't get a proper user ID from Onyx, use email hash as fallback
         if not onyx_user_id:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+            import hashlib
+            onyx_user_id = hashlib.md5(auth_data.email.encode()).hexdigest()
+            logger.info(f"Using email hash as user ID for legacy user: {onyx_user_id}")
         
         # 2. Get user profile from custom database
         profile = await get_user_profile(onyx_user_id, pool)
