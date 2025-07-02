@@ -93,16 +93,23 @@ const buildFolderTree = (folders: any[]): Folder[] => {
 // Helper function to get tier color for folder icons
 const getTierColor = (tier?: string): string => {
   switch (tier) {
-    case 'starter':
-      return '#eab308'; // yellow-500
-    case 'medium':
+    case 'basic':
+      return '#22c55e'; // green-500
+    case 'interactive':
       return '#f97316'; // orange-500
     case 'advanced':
       return '#a855f7'; // purple-500
-    case 'professional':
+    case 'immersive':
       return '#3b82f6'; // blue-500
+    // Legacy tier support
+    case 'starter':
+      return '#22c55e'; // green-500 (mapped to basic)
+    case 'medium':
+      return '#f97316'; // orange-500 (mapped to interactive)
+    case 'professional':
+      return '#3b82f6'; // blue-500 (mapped to immersive)
     default:
-      return '#f97316'; // orange-500 (medium as default)
+      return '#f97316'; // orange-500 (interactive as default)
   }
 };
 
@@ -121,8 +128,8 @@ const getFolderTierColor = (folder: Folder, folders: Folder[]): string => {
     }
   }
   
-  // Default to medium tier
-  return getTierColor('medium');
+  // Default to interactive tier
+  return getTierColor('interactive');
 };
 
 // Helper function to count total items in a folder (projects + subfolders recursively)

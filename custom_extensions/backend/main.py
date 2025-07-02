@@ -424,6 +424,25 @@ async def startup_event():
                     logger.error(f"Error adding quality_tier column: {e}")
                     raise e
             
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
             # Add order column for project sorting
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
@@ -987,24 +1006,26 @@ def create_slug(text: Optional[str]) -> str:
     return text_processed or "generated-slug"
 
 def get_tier_ratio(tier: str) -> int:
-    """Get the creation hours ratio for a given tier"""
+    """Get the creation hours ratio for a given tier (legacy support)"""
     ratios = {
         'starter': 120,
         'medium': 200,
         'advanced': 320,
-        'professional': 450
+        'professional': 450,
+        'basic': 120,
+        'interactive': 200,
+        'immersive': 700
     }
     return ratios.get(tier, 200)  # Default to medium (200) if tier not found
 
-def calculate_creation_hours(completion_time_minutes: int, tier: str) -> int:
-    """Calculate creation hours based on completion time and tier ratio, rounded to nearest integer"""
+def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> int:
+    """Calculate creation hours based on completion time and custom rate, rounded to nearest integer"""
     if completion_time_minutes <= 0:
         return 0
     
-    ratio = get_tier_ratio(tier)
-    # Convert completion time from minutes to hours, then multiply by ratio
+    # Convert completion time from minutes to hours, then multiply by custom rate
     completion_hours = completion_time_minutes / 60.0
-    creation_hours = completion_hours * ratio
+    creation_hours = completion_hours * custom_rate
     return round(creation_hours)
 
 def round_hours_in_content(content: Any) -> Any:
@@ -1036,7 +1057,7 @@ async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
         )
         
         if not folder:
-            return 'medium'  # Default tier
+            return 'interactive'  # Default tier
         
         # If folder has its own tier, use it
         if folder['quality_tier']:
@@ -1046,8 +1067,31 @@ async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
         if folder['parent_id']:
             return await get_folder_tier(folder['parent_id'], pool)
         
-        # Default to medium tier
-        return 'medium'
+        # Default to interactive tier
+        return 'interactive'
+
+async def get_folder_custom_rate(folder_id: int, pool: asyncpg.Pool) -> int:
+    """Get the custom rate of a folder, inheriting from parent if not set"""
+    async with pool.acquire() as conn:
+        # Get the folder and its custom rate
+        folder = await conn.fetchrow(
+            "SELECT custom_rate, parent_id FROM project_folders WHERE id = $1",
+            folder_id
+        )
+        
+        if not folder:
+            return 200  # Default custom rate
+        
+        # If folder has its own custom rate, use it
+        if folder['custom_rate']:
+            return folder['custom_rate']
+        
+        # Otherwise, inherit from parent folder
+        if folder['parent_id']:
+            return await get_folder_custom_rate(folder['parent_id'], pool)
+        
+        # Default to 200 custom rate
+        return 200
 
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
@@ -4386,6 +4430,7 @@ class ProjectFolderCreateRequest(BaseModel):
     name: str
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
+    custom_rate: Optional[int] = 200  # Default to 200 custom rate
 
 class ProjectFolderResponse(BaseModel):
     id: int
@@ -4393,6 +4438,7 @@ class ProjectFolderResponse(BaseModel):
     created_at: datetime
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
+    custom_rate: Optional[int] = 200  # Default to 200 custom rate
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -4401,6 +4447,7 @@ class ProjectFolderListResponse(BaseModel):
     order: int
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
+    custom_rate: Optional[int] = 200  # Default to 200 custom rate
     project_count: int
     total_lessons: int
     total_hours: int
@@ -4415,6 +4462,7 @@ class ProjectFolderMoveRequest(BaseModel):
 
 class ProjectFolderTierRequest(BaseModel):
     quality_tier: str
+    custom_rate: int
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
@@ -4427,6 +4475,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf."order", 
             pf.parent_id,
             COALESCE(pf.quality_tier, 'medium') as quality_tier,
+            COALESCE(pf.custom_rate, 200) as custom_rate,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -4455,13 +4504,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                                         -- Calculate tier-adjusted creation hours using the same method as Python calculate_creation_hours
                                         -- Python: round((completion_time_minutes / 60.0) * ratio)
                                         -- SQL equivalent: ROUND((completion_time_minutes / 60.0) * ratio)
-                                        CASE 
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'starter' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 120.0)
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'medium' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 200.0)
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'advanced' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 320.0)
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'professional' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 450.0)
-                                            ELSE ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 200.0)
-                                        END
+                                        ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * COALESCE(pf.custom_rate, 200))
                                     )
                                     ELSE 0 
                                 END
@@ -4515,8 +4558,8 @@ async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Dep
             if not parent_folder:
                 raise HTTPException(status_code=404, detail="Parent folder not found")
         
-        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier) VALUES ($1, $2, $3, $4) RETURNING id, name, created_at, parent_id, quality_tier;"
-        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier)
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
@@ -4596,10 +4639,10 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
         if not folder:
             raise HTTPException(status_code=404, detail="Folder not found")
         
-        # Update the folder's quality_tier
+        # Update the folder's quality_tier and custom_rate
         updated_folder = await conn.fetchrow(
-            "UPDATE project_folders SET quality_tier = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier",
-            req.quality_tier, folder_id, onyx_user_id
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate",
+            req.quality_tier, req.custom_rate, folder_id, onyx_user_id
         )
         
         # Get all projects in this folder (including subfolders recursively)
@@ -4620,7 +4663,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
             AND p.microproduct_content->>'sections' IS NOT NULL
         """, folder_id)
         
-        # Update creation hours for each project based on the new tier
+        # Update creation hours for each project based on the new tier and custom rate
         for project in projects_to_update:
             try:
                 content = project['microproduct_content']
@@ -4649,7 +4692,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                 if isinstance(lesson, dict) and lesson.get('completionTime'):
                                     # Calculate proportional hours for this lesson
                                     lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
-                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, req.quality_tier)
+                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
@@ -4826,8 +4869,8 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
         # If the project has content and is being moved to a folder, recalculate creation hours
         if update_data.folder_id is not None and project['microproduct_content']:
             try:
-                # Get the folder's tier
-                folder_tier = await get_folder_tier(update_data.folder_id, pool)
+                # Get the folder's custom rate
+                folder_custom_rate = await get_folder_custom_rate(update_data.folder_id, pool)
                 
                 content = project['microproduct_content']
                 if isinstance(content, dict) and 'sections' in content:
@@ -4841,7 +4884,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                                 if isinstance(lesson, dict) and lesson.get('completionTime'):
                                     # Calculate new hours for this lesson
                                     lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
-                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, folder_tier)
+                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, folder_custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
@@ -4977,10 +5020,10 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
             if component_name != COMPONENT_NAME_TRAINING_PLAN or not content:
                 return {"lessonCount": 0, "totalHours": 0, "completionTime": 0, "sections": []}
             
-            # Get the folder's tier (with inheritance from parent)
-            folder_tier = 'medium'  # Default tier
+            # Get the folder's custom rate (with inheritance from parent)
+            folder_custom_rate = 200  # Default custom rate
             if folder_id:
-                folder_tier = await get_folder_tier(folder_id, pool)
+                folder_custom_rate = await get_folder_custom_rate(folder_id, pool)
             
             # Parse the training plan content
             try:
@@ -5012,8 +5055,8 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                             section_completion_time += completion_time_minutes
                                             total_completion_time += completion_time_minutes
                                             
-                                            # Calculate tier-adjusted creation hours
-                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_tier)
+                                            # Calculate custom rate-adjusted creation hours
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
                                             section_hours += lesson_creation_hours
                                             total_hours += lesson_creation_hours
                                         except (ValueError, AttributeError):
@@ -5104,6 +5147,7 @@ async def download_projects_list_pdf(
                         pf."order", 
                         pf.parent_id,
                         pf.quality_tier,
+                        pf.custom_rate,
                         COUNT(p.id) as project_count,
                         COALESCE(
                             SUM(
@@ -5156,7 +5200,7 @@ async def download_projects_list_pdf(
                     FROM project_folders pf
                     LEFT JOIN projects p ON pf.id = p.folder_id
                     WHERE pf.onyx_user_id = $1
-                    GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.quality_tier
+                    GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.quality_tier, pf.custom_rate
                     ORDER BY pf."order" ASC, pf.created_at ASC;
                 """
                 folders_rows = await conn.fetch(folders_query, onyx_user_id)
@@ -5331,12 +5375,16 @@ async def download_projects_list_pdf(
         # Helper function to get tier color
         def get_tier_color(tier):
             tier_colors = {
-                'starter': '#eab308',      # yellow-500
-                'medium': '#f97316',       # orange-500
+                'basic': '#22c55e',        # green-500
+                'interactive': '#f97316',  # orange-500
                 'advanced': '#a855f7',     # purple-500
-                'professional': '#3b82f6'  # blue-500
+                'immersive': '#3b82f6',    # blue-500
+                # Legacy tier support
+                'starter': '#22c55e',      # green-500 (mapped to basic)
+                'medium': '#f97316',       # orange-500 (mapped to interactive)
+                'professional': '#3b82f6'  # blue-500 (mapped to immersive)
             }
-            return tier_colors.get(tier, '#f97316')  # default to medium
+            return tier_colors.get(tier, '#f97316')  # default to interactive
 
         # Helper function to check if folder has course outlines
         def has_course_outlines(folder_id):
@@ -5359,7 +5407,7 @@ async def download_projects_list_pdf(
 
         # Add tier information and check for course outlines
         def add_tier_info(folder):
-            folder['tier_color'] = get_tier_color(folder.get('quality_tier', 'medium'))
+            folder['tier_color'] = get_tier_color(folder.get('quality_tier', 'interactive'))
             folder['has_course_outlines'] = has_course_outlines_recursive(folder)
             
             # Recursively process children

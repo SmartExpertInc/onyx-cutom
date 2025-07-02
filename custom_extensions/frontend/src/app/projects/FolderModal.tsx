@@ -51,7 +51,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         body: JSON.stringify({ 
           name: folderName.trim(),
           parent_id: selectedParentId,
-          quality_tier: 'medium'
+          quality_tier: 'interactive'
         })
       });
       if (!res.ok) throw new Error('Failed to create folder');
