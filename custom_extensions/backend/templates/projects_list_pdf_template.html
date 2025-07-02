@@ -179,7 +179,8 @@
                                     {% if folder.total_completion_time > 0 %}
                                         {% set h = folder.total_completion_time // 60 %}
                                         {% set m = folder.total_completion_time % 60 %}
-                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
                                     {% else %}-{% endif %}
                                 </td>
                             {% endif %}
@@ -207,7 +208,8 @@
                                             {% if project.total_completion_time > 0 %}
                                                 {% set h = project.total_completion_time // 60 %}
                                                 {% set m = project.total_completion_time % 60 %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
                                     {% endif %}

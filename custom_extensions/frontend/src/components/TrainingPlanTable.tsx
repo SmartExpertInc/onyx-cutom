@@ -96,9 +96,9 @@ const localizationConfig = {
   uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення" },
 };
 const timeUnits = {
-  ru: { timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч" },
-  en: { timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h" },
-  uk: { timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год" },
+  ru: { timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", minuteUnit: "м" },
+  en: { timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", minuteUnit: "m" },
+  uk: { timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год", minuteUnit: "хв" },
 };
 
 const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk', localized: typeof localizationConfig['ru'] | typeof localizationConfig['en'] | typeof localizationConfig['uk'], isEditingContext?: boolean) => {
@@ -112,6 +112,21 @@ const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk'
     if (language === 'en') { return `${numStr}${timeUnits.en.timeUnitSingular}`; }
     if (language === 'ru') { return `${numStr}${timeUnits.ru.timeUnitSingular}`; }
     return `${numStr} ${timeUnits.uk.timeUnitSingular}`;
+};
+
+const formatCompletionTimeDisplay = (completionTime: string, language: 'ru' | 'en' | 'uk'): string => {
+    if (!completionTime) return '-';
+    
+    // Extract minutes from completion time string (e.g., "5m", "6m", "7m", "8m")
+    const minutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 0;
+    
+    if (language === 'en') {
+        return `${minutes}${timeUnits.en.minuteUnit}`;
+    } else if (language === 'ru') {
+        return `${minutes}${timeUnits.ru.minuteUnit}`;
+    } else {
+        return `${minutes}${timeUnits.uk.minuteUnit}`;
+    }
 };
 
 const MAX_SOURCE_LENGTH = 25;
@@ -255,15 +270,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Calculate total completion time for a section
   const calculateTotalCompletionTime = (section: SectionType): string => {
-    if (!section.lessons || section.lessons.length === 0) return '0m';
+    if (!section.lessons || section.lessons.length === 0) return formatCompletionTimeDisplay('0m', lang);
     
     const totalMinutes = section.lessons.reduce((total, lesson) => {
       const completionTime = lesson.completionTime || '5m';
-      const minutes = parseInt(completionTime.replace('m', '')) || 5;
+      const minutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
       return total + minutes;
     }, 0);
     
-    return `${totalMinutes}m`;
+    return formatCompletionTimeDisplay(`${totalMinutes}m`, lang);
   };
 
   // ---- Determine column visibility based on query params OR stored displayOptions ----
@@ -532,7 +547,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                   placeholder="5m"
                                 />
                               ) : (
-                                <span className="flex-grow text-left">{lesson.completionTime}</span>
+                                <span className="flex-grow text-left">{formatCompletionTimeDisplay(lesson.completionTime, lang)}</span>
                               )}
                             </div>
                           );

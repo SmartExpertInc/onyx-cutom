@@ -157,6 +157,37 @@ const getTotalCompletionTimeInFolder = (folder: Folder): number => {
   return directCompletionTime + subfolderCompletionTime;
 };
 
+// Localized completion time formatting
+const timeUnits = {
+    ru: { minuteUnit: "м" },
+    en: { minuteUnit: "m" },
+    uk: { minuteUnit: "хв" },
+};
+
+const formatCompletionTimeLocalized = (completionTime: string | number, language?: 'ru' | 'en' | 'uk'): string => {
+    if (typeof completionTime === 'string' || completionTime === 0) {
+        return completionTime.toString();
+    }
+    
+    const minutes = Number(completionTime);
+    if (isNaN(minutes)) return '-';
+    
+    // Default to English if no language specified
+    const lang = language || 'en';
+    
+    if (minutes < 60) {
+        return `${minutes}${timeUnits[lang].minuteUnit}`;
+    } else {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        if (remainingMinutes === 0) {
+            return `${hours}h`;
+        } else {
+            return `${hours}h ${remainingMinutes}${timeUnits[lang].minuteUnit}`;
+        }
+    }
+};
+
 interface Project {
   id: number;
   title: string;
@@ -356,7 +387,7 @@ const FolderRow: React.FC<{
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
                             const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
-                            return totalCompletionTime > 0 ? formatCompletionTime(totalCompletionTime) : '-';
+                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
                         })()}
                     </td>
                 )}
@@ -439,7 +470,7 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                 })()}
                             </td>
                         )}
@@ -485,7 +516,7 @@ const FolderRow: React.FC<{
                     isDragging={isDragging}
                     isReordering={isReordering}
                     formatDate={formatDate}
-                    formatCompletionTime={formatCompletionTime}
+                    formatCompletionTime={formatCompletionTimeLocalized}
                     toggleFolder={toggleFolder}
                     handleDragStart={handleDragStart}
                     handleDragOver={handleDragOver}
@@ -1788,23 +1819,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         }
     }, [router]);
 
-    // Helper function to format completion time
+    // Helper function to format completion time (legacy, kept for backward compatibility)
     const formatCompletionTime = (minutes: number | string): string => {
-        if (typeof minutes === 'string' || minutes === 0) {
-            return minutes.toString();
-        }
-        
-        if (minutes < 60) {
-            return `${minutes}m`;
-        } else {
-            const hours = Math.floor(minutes / 60);
-            const remainingMinutes = minutes % 60;
-            if (remainingMinutes === 0) {
-                return `${hours}h`;
-            } else {
-                return `${hours}h ${remainingMinutes}m`;
-            }
-        }
+        return formatCompletionTimeLocalized(minutes);
     };
 
     // Load lesson data for all Training Plan projects on mount
@@ -2564,7 +2581,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         isDragging={isDragging}
                                         isReordering={isReordering}
                                         formatDate={formatDate}
-                                        formatCompletionTime={formatCompletionTime}
+                                        formatCompletionTime={formatCompletionTimeLocalized}
                                         toggleFolder={toggleFolder}
                                         handleDragStart={handleDragStart}
                                         handleDragOver={handleDragOver}
@@ -2646,7 +2663,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -2731,7 +2748,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTime(lessonData.completionTime) : '-';
+                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
                                             </td>
                                         )}
