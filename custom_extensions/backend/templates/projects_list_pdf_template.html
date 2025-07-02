@@ -77,7 +77,7 @@
             display: inline-block;
             background: #f3f4f6;
             color: #6b7280;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             border-radius: 12px;
             padding: 2px 10px;
@@ -85,7 +85,7 @@
         }
         .tier-badge {
             display: inline-block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             border-radius: 12px;
             padding: 2px 10px;
@@ -95,6 +95,9 @@
         .product-row {
             background: #f9fafb;
             font-weight: 400;
+        }
+        .product-row.unassigned {
+            background: #fff;
         }
         .product-title {
             display: flex;
@@ -216,7 +219,7 @@
                 {% if unassigned_projects %}
                     {# No header row for unassigned projects #}
                     {% for project in unassigned_projects %}
-                        <tr class="product-row">
+                        <tr class="product-row unassigned">
                             <td class="product-title indent-1">
                                 <span class="star">&#9734;</span>
                                 {{ project.title }}
