@@ -97,7 +97,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onComplete }: 
               value={formData.first_name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="Enter your first name"
             />
           </div>
@@ -113,7 +113,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onComplete }: 
               value={formData.last_name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="Enter your last name"
             />
           </div>
