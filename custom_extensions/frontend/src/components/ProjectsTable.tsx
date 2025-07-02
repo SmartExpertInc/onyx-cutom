@@ -317,18 +317,6 @@ const FolderRow: React.FC<{
                             </button>
                             <Folder size={16} style={{ color: getFolderTierColor(folder, allFolders) }} className="mr-2" />
                             <span className="font-semibold text-blue-700 truncate max-w-[200px]" title={folder.name}>{folder.name}</span>
-                            {/* Show tier pill if folder contains projects (recursively) */}
-                            {getTotalItemsInFolder(folder, folderProjects) > 0 && (
-                              <span 
-                                className="ml-2 px-2 py-0.5 text-xs font-medium rounded-full text-white"
-                                style={{ 
-                                  backgroundColor: getFolderTierColor(folder, allFolders),
-                                  fontSize: '10px'
-                                }}
-                              >
-                                tier: {folder.quality_tier || 'medium'}
-                              </span>
-                            )}
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? 'item' : 'items'}
                             </span>
