@@ -83,6 +83,15 @@
             padding: 2px 10px;
             margin-left: 8px;
         }
+        .tier-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 12px;
+            padding: 2px 10px;
+            margin-left: 8px;
+            color: white;
+        }
         .product-row {
             background: #fff;
             font-weight: 400;
@@ -142,6 +151,9 @@
                                 </svg>
                                 {{ folder.name }}
                                 <span class="folder-badge">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
+                                {% if folder.has_course_outlines %}
+                                    <span class="tier-badge" style="background-color: {{ folder.tier_color }};">Tier: {{ folder.quality_tier|title if folder.quality_tier else 'Medium' }}</span>
+                                {% endif %}
                             </td>
                             {% if column_visibility.numberOfLessons %}
                                 <td style="text-align:center;">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>

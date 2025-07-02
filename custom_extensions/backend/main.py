@@ -1801,7 +1801,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
     * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
     * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
     * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
-    * Do NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+    * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
     * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
 
     Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
@@ -5103,6 +5103,7 @@ async def download_projects_list_pdf(
                         pf.created_at, 
                         pf."order", 
                         pf.parent_id,
+                        pf.quality_tier,
                         COUNT(p.id) as project_count,
                         COALESCE(
                             SUM(
@@ -5155,7 +5156,7 @@ async def download_projects_list_pdf(
                     FROM project_folders pf
                     LEFT JOIN projects p ON pf.id = p.folder_id
                     WHERE pf.onyx_user_id = $1
-                    GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id
+                    GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.quality_tier
                     ORDER BY pf."order" ASC, pf.created_at ASC;
                 """
                 folders_rows = await conn.fetch(folders_query, onyx_user_id)
@@ -5291,6 +5292,84 @@ async def download_projects_list_pdf(
 
         # Build hierarchical folder structure
         folder_tree = build_folder_tree(folders_data) if folders_data else []
+
+        # Calculate recursive totals for folders (including subfolder projects)
+        def calculate_recursive_totals(folder):
+            # Start with direct project totals
+            direct_projects = folder_projects.get(folder['id'], [])
+            total_lessons = sum(p['total_lessons'] for p in direct_projects)
+            total_hours = sum(p['total_hours'] for p in direct_projects)
+            total_completion_time = sum(p['total_completion_time'] for p in direct_projects)
+            total_items = len(direct_projects)
+            
+            # Add subfolder totals recursively
+            if folder.get('children'):
+                for child in folder['children']:
+                    child_totals = calculate_recursive_totals(child)
+                    total_lessons += child_totals['total_lessons']
+                    total_hours += child_totals['total_hours']
+                    total_completion_time += child_totals['total_completion_time']
+                    total_items += child_totals['total_items']
+            
+            # Update folder with recursive totals
+            folder['total_lessons'] = total_lessons
+            folder['total_hours'] = total_hours
+            folder['total_completion_time'] = total_completion_time
+            folder['project_count'] = total_items
+            
+            return {
+                'total_lessons': total_lessons,
+                'total_hours': total_hours,
+                'total_completion_time': total_completion_time,
+                'total_items': total_items
+            }
+
+        # Calculate recursive totals for all root folders
+        for folder in folder_tree:
+            calculate_recursive_totals(folder)
+
+        # Helper function to get tier color
+        def get_tier_color(tier):
+            tier_colors = {
+                'starter': '#eab308',      # yellow-500
+                'medium': '#f97316',       # orange-500
+                'advanced': '#a855f7',     # purple-500
+                'professional': '#3b82f6'  # blue-500
+            }
+            return tier_colors.get(tier, '#f97316')  # default to medium
+
+        # Helper function to check if folder has course outlines
+        def has_course_outlines(folder_id):
+            projects = folder_projects.get(folder_id, [])
+            return any(p.get('design_microproduct_type', '').lower() == 'training plan' for p in projects)
+
+        # Helper function to check if folder or any subfolder has course outlines
+        def has_course_outlines_recursive(folder):
+            # Check direct projects
+            if has_course_outlines(folder['id']):
+                return True
+            
+            # Check subfolders recursively
+            if folder.get('children'):
+                for child in folder['children']:
+                    if has_course_outlines_recursive(child):
+                        return True
+            
+            return False
+
+        # Add tier information and check for course outlines
+        def add_tier_info(folder):
+            folder['tier_color'] = get_tier_color(folder.get('quality_tier', 'medium'))
+            folder['has_course_outlines'] = has_course_outlines_recursive(folder)
+            
+            # Recursively process children
+            if folder.get('children'):
+                for child in folder['children']:
+                    add_tier_info(child)
+
+        # Add tier information to all folders
+        for folder in folder_tree:
+            add_tier_info(folder)
 
         # Prepare data for template
         template_data = {
