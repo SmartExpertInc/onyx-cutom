@@ -196,7 +196,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const iconBaseColor = '#FF1414';
   const sections = dataToDisplay?.sections;
   const mainTitle = dataToDisplay?.mainTitle;
-  const lang = dataToDisplay?.detectedLanguage === 'en' ? 'en' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : 'ru';
+  const lang = dataToDisplay?.detectedLanguage === 'ru' ? 'ru' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : 'en';
   const localized = localizationConfig[lang];
 
   const handleGenericInputChange = (path: (string|number)[], event: React.ChangeEvent<HTMLInputElement>) => {
