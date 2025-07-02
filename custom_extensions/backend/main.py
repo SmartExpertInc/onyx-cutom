@@ -4501,7 +4501,51 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
     """
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, onyx_user_id)
-    return [ProjectFolderListResponse(**dict(row)) for row in rows]
+    
+    # Convert to dicts for easier manipulation
+    folders = [dict(row) for row in rows]
+
+    # Build folder map and tree
+    folder_map = {f['id']: f for f in folders}
+    for f in folders:
+        f['children'] = []
+    
+    # Build tree structure
+    for f in folders:
+        if f['parent_id'] is not None:
+            parent = folder_map.get(f['parent_id'])
+            if parent:
+                parent['children'].append(f)
+
+    # Recursive function to sum stats
+    def sum_recursive(folder):
+        # Start with direct stats
+        total_project_count = folder['project_count']
+        total_lessons = folder['total_lessons']
+        total_hours = folder['total_hours']
+        total_completion_time = folder['total_completion_time']
+        
+        # Add stats from all children recursively
+        for child in folder['children']:
+            c_proj, c_less, c_hours, c_time = sum_recursive(child)
+            total_project_count += c_proj
+            total_lessons += c_less
+            total_hours += c_hours
+            total_completion_time += c_time
+        
+        # Store recursive totals for API response
+        folder['project_count'] = total_project_count
+        folder['total_lessons'] = total_lessons
+        folder['total_hours'] = total_hours
+        folder['total_completion_time'] = total_completion_time
+        
+        return total_project_count, total_lessons, total_hours, total_completion_time
+
+    # Apply recursive sum to all folders (so every folder has correct totals)
+    for f in folders:
+        sum_recursive(f)
+
+    return [ProjectFolderListResponse(**f) for f in folders]
 
 @app.post("/api/custom/projects/folders", response_model=ProjectFolderResponse)
 async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):

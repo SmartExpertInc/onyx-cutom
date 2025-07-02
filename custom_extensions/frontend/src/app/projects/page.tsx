@@ -238,6 +238,18 @@ const FolderItem: React.FC<{
           </svg>
         </span>
         <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
+        {/* Show tier pill if folder contains projects (recursively) */}
+        {getTotalItemsInFolder(folder, folderProjects) > 0 && (
+          <span 
+            className="ml-2 px-2 py-0.5 text-xs font-medium rounded-full text-white"
+            style={{ 
+              backgroundColor: getFolderTierColor(folder, allFolders),
+              fontSize: '10px'
+            }}
+          >
+            tier: {folder.quality_tier || 'medium'}
+          </span>
+        )}
       </div>
       {hasChildren && isExpanded && (
         <div>
