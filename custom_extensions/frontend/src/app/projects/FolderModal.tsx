@@ -60,6 +60,11 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
       setFolderName('');
       setSelectedParentId(null);
       if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+      
+      // Reload the page to ensure all changes are visually applied
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Small delay to show success state
     } catch (e: any) {
       setError(e.message || 'Error creating folder');
     } finally {
@@ -90,9 +95,15 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         credentials: 'same-origin',
       });
       if (!res.ok) throw new Error('Failed to delete folder');
+      
       // Refresh UI
       if (typeof window !== 'undefined') (window as any).__modalOpen = false;
       onClose();
+      
+      // Reload the page to ensure all changes are visually applied
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Small delay to show success state
     } catch (e: any) {
       setError(e.message || 'Error deleting folder');
     } finally {

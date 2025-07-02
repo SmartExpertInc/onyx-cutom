@@ -2039,6 +2039,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             
             // Refresh the projects list
             refreshProjects();
+            
+            // Reload the page to ensure all changes are visually applied
+            setTimeout(() => {
+                window.location.reload();
+            }, 500); // Small delay to show success state
         } catch (error) {
             console.error('Error deleting folder:', error);
             alert('Failed to delete folder');
