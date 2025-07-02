@@ -305,32 +305,53 @@ const FolderRow: React.FC<{
         <>
             {/* Folder row */}
             <tr 
-                className={`hover:bg-gray-50 transition cursor-pointer group cursor-grab active:cursor-grabbing ${
-                    dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''} ${level > 0 ? 'bg-gray-50' : ''}`}
-                onClick={(e) => {
-                    if (!isDragging) {
-                        toggleFolder(folder.id);
-                    }
-                }}
-                draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                key={`folder-${folder.id}`}
                 data-folder-id={folder.id}
-                onDragStart={(e) => handleDragStart(e, folder, 'folder')}
+                className={`hover:bg-gray-50 transition group ${
+                    !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                        ? 'cursor-grab active:cursor-grabbing' 
+                        : 'cursor-default'
+                } ${
+                    dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
+                draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                onDragStart={(e) => {
+                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    handleDragStart(e, folder, 'folder');
+                }}
                 onDragOver={(e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
+                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                        e.preventDefault();
+                        return;
+                    }
                     handleDragOver(e, index);
-                    e.currentTarget.classList.add('bg-blue-50', 'border-2', 'border-blue-300');
                 }}
                 onDragLeave={(e) => {
-                    e.preventDefault();
-                    handleDragLeave(e);
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                        e.currentTarget.classList.remove('bg-blue-50', 'border-2', 'border-blue-300');
+                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                        e.preventDefault();
+                        return;
                     }
+                    handleDragLeave(e);
                 }}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
+                onDrop={(e) => {
+                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDrop(e, index);
+                }}
+                onDragEnd={(e) => {
+                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragEnd(e);
+                }}
+                onClick={() => toggleFolder(folder.id)}
             >
                 {columnVisibility.title && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -413,20 +434,59 @@ const FolderRow: React.FC<{
                 folderProjectsList.map((p: Project, projectIndex: number) => (
                     <tr 
                         key={`folder-project-${p.id}`} 
-                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing bg-gray-50 ${
+                        className={`hover:bg-gray-50 transition group bg-gray-50 ${
+                            !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                ? 'cursor-grab active:cursor-grabbing' 
+                                : 'cursor-default'
+                        } ${
                             dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                         draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
-                        onDragStart={(e) => handleDragStart(e, p, 'project')}
-                        onDragOver={(e) => handleDragOver(e, projectIndex)}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, projectIndex)}
-                        onDragEnd={handleDragEnd}
+                        onDragStart={(e) => {
+                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return;
+                            }
+                            handleDragStart(e, p, 'project');
+                        }}
+                        onDragOver={(e) => {
+                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragOver(e, projectIndex);
+                        }}
+                        onDragLeave={(e) => {
+                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragLeave(e);
+                        }}
+                        onDrop={(e) => {
+                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDrop(e, projectIndex);
+                        }}
+                        onDragEnd={(e) => {
+                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragEnd(e);
+                        }}
                     >
                         {columnVisibility.title && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <span className="inline-flex items-center" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
-                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                        !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                            ? 'cursor-grab active:cursor-grabbing' 
+                                            : 'cursor-default opacity-30'
+                                    }`}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
                                             <circle cx="9" cy="5" r="2"/>
                                             <circle cx="9" cy="12" r="2"/>
@@ -728,10 +788,27 @@ const ProjectCard: React.FC<{
     return (
         <div 
             ref={cardRef} 
-            className="bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-grab active:cursor-grabbing"
+            className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative ${
+                !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                    ? 'cursor-grab active:cursor-grabbing' 
+                    : 'cursor-default'
+            }`}
             draggable={!isTrashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
+            onDragStart={(e) => {
+                if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                handleDragStart(e);
+            }}
+            onDragEnd={(e) => {
+                if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    e.preventDefault();
+                    return;
+                }
+                handleDragEnd(e);
+            }}
         >
             <Link href={isTrashMode ? '#' : `/projects/view/${project.id}`} onClick={handleCardClick} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
@@ -2612,20 +2689,59 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 {!trashMode && folderId === null && getUnassignedProjects().map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
-                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
+                                        className={`hover:bg-gray-50 transition group ${
+                                            !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                                ? 'cursor-grab active:cursor-grabbing' 
+                                                : 'cursor-default'
+                                        } ${
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                         draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
-                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
-                                        onDragOver={(e) => handleDragOver(e, index)}
-                                        onDragLeave={handleDragLeave}
-                                        onDrop={(e) => handleDrop(e, index)}
-                                        onDragEnd={handleDragEnd}
+                                        onDragStart={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                return;
+                                            }
+                                            handleDragStart(e, p, 'project');
+                                        }}
+                                        onDragOver={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragOver(e, index);
+                                        }}
+                                        onDragLeave={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragLeave(e);
+                                        }}
+                                        onDrop={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDrop(e, index);
+                                        }}
+                                        onDragEnd={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragEnd(e);
+                                        }}
                                     >
                                         {columnVisibility.title && (
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
-                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                                        !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                                            ? 'cursor-grab active:cursor-grabbing' 
+                                                            : 'cursor-default opacity-30'
+                                                    }`}>
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
                                                             <circle cx="9" cy="5" r="2"/>
                                                             <circle cx="9" cy="12" r="2"/>
@@ -2697,20 +2813,59 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 {(trashMode || folderId !== null) && getProjectsForFolder(folderId).map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
-                                        className={`hover:bg-gray-50 transition group cursor-grab active:cursor-grabbing ${
+                                        className={`hover:bg-gray-50 transition group ${
+                                            !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                                ? 'cursor-grab active:cursor-grabbing' 
+                                                : 'cursor-default'
+                                        } ${
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
                                         draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
-                                        onDragStart={(e) => handleDragStart(e, p, 'project')}
-                                        onDragOver={(e) => handleDragOver(e, index)}
-                                        onDragLeave={handleDragLeave}
-                                        onDrop={(e) => handleDrop(e, index)}
-                                        onDragEnd={handleDragEnd}
+                                        onDragStart={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                return;
+                                            }
+                                            handleDragStart(e, p, 'project');
+                                        }}
+                                        onDragOver={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragOver(e, index);
+                                        }}
+                                        onDragLeave={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragLeave(e);
+                                        }}
+                                        onDrop={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDrop(e, index);
+                                        }}
+                                        onDragEnd={(e) => {
+                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragEnd(e);
+                                        }}
                                     >
                                         {columnVisibility.title && (
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
-                                                    <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                                        !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                                            ? 'cursor-grab active:cursor-grabbing' 
+                                                            : 'cursor-default opacity-30'
+                                                    }`}>
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
                                                             <circle cx="9" cy="5" r="2"/>
                                                             <circle cx="9" cy="12" r="2"/>

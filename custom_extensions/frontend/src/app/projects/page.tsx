@@ -212,15 +212,50 @@ const FolderItem: React.FC<{
   return (
     <div>
       <div
-        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
+        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${
+          !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+            ? 'cursor-grab active:cursor-grabbing' 
+            : 'cursor-default'
+        } ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
         draggable={!isModalOpen}
-        onDragStart={handleDragStart}
-        onDragOver={isModalOpen ? undefined : onDragOver}
-        onDrop={isModalOpen ? undefined : (e) => onDrop(e, folder.id)}
-        onDragEnter={isModalOpen ? undefined : onDragEnter}
-        onDragLeave={isModalOpen ? undefined : onDragLeave}
+        onDragStart={(e) => {
+          if (isModalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          handleDragStart(e);
+        }}
+        onDragOver={(e) => {
+          if (isModalOpen) {
+            e.preventDefault();
+            return;
+          }
+          onDragOver(e);
+        }}
+        onDrop={(e) => {
+          if (isModalOpen) {
+            e.preventDefault();
+            return;
+          }
+          onDrop(e, folder.id);
+        }}
+        onDragEnter={(e) => {
+          if (isModalOpen) {
+            e.preventDefault();
+            return;
+          }
+          onDragEnter(e);
+        }}
+        onDragLeave={(e) => {
+          if (isModalOpen) {
+            e.preventDefault();
+            return;
+          }
+          onDragLeave(e);
+        }}
       >
         {hasChildren && (
           <button
