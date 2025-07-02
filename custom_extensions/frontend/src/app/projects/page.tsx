@@ -5,6 +5,8 @@ import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
+import ProtectedRoute from '../../components/ProtectedRoute';
+import { useAuth } from '../../hooks/useAuth';
 import { 
   Search, 
   ChevronsUpDown, 
@@ -21,7 +23,9 @@ import {
   Plus,
   Bell,
   MessageSquare,
-  ChevronRight
+  ChevronRight,
+  User,
+  LogOut
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -489,19 +493,38 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash }: { isTrash: boolean }) => (
-  <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-    <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
-    <div className="flex items-center gap-4">
-      <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
-        <Sparkles size={16} className="text-yellow-500" />
-        Get unlimited AI
-      </Link>
-      <span className="text-sm font-semibold text-gray-800">80 credits</span>
-      <Bell size={20} className="text-gray-600 cursor-pointer" />
-    </div>
-  </header>
-);
+const Header = ({ isTrash }: { isTrash: boolean }) => {
+  const { user, logout } = useAuth();
+  
+  return (
+    <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
+      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
+      <div className="flex items-center gap-4">
+        {user && (
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 text-sm text-gray-700">
+              <User className="w-4 h-4" />
+              <span>Welcome, {user.first_name}!</span>
+            </div>
+            <button
+              onClick={logout}
+              className="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Logout
+            </button>
+          </div>
+        )}
+        <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
+          <Sparkles size={16} className="text-yellow-500" />
+          Get unlimited AI
+        </Link>
+        <span className="text-sm font-semibold text-gray-800">80 credits</span>
+        <Bell size={20} className="text-gray-600 cursor-pointer" />
+      </div>
+    </header>
+  );
+};
 
 // --- Inner client component that can read search params ---
 const ProjectsPageInner: React.FC = () => {
@@ -749,8 +772,10 @@ const ProjectsPageInner: React.FC = () => {
 
 export default function ProjectsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
-      <ProjectsPageInner />
-    </Suspense>
+    <ProtectedRoute>
+      <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
+        <ProjectsPageInner />
+      </Suspense>
+    </ProtectedRoute>
   );
 }

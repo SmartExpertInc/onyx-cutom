@@ -471,6 +471,21 @@ async def startup_event():
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     raise e
 
+            # Create custom user profiles table for additional user data
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS custom_user_profiles (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id UUID NOT NULL UNIQUE,
+                    first_name VARCHAR(100) NOT NULL,
+                    last_name VARCHAR(100) NOT NULL,
+                    display_name VARCHAR(200),
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_custom_user_profiles_onyx_id ON custom_user_profiles(onyx_user_id);")
+            logger.info("'custom_user_profiles' table ensured.")
+
             try:
                 await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
             except Exception as e:
@@ -907,6 +922,48 @@ TrainingPlanDetails.model_rebuild()
 class ErrorDetail(BaseModel):
     detail: str
 
+# Authentication Models
+class UserProfileCreate(BaseModel):
+    onyx_user_id: str
+    first_name: str
+    last_name: str
+    model_config = {"from_attributes": True}
+
+class UserProfileResponse(BaseModel):
+    id: int
+    onyx_user_id: str
+    first_name: str
+    last_name: str
+    display_name: str
+    created_at: datetime
+    updated_at: datetime
+    model_config = {"from_attributes": True}
+
+class UserProfileUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class AuthRegisterRequest(BaseModel):
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    model_config = {"from_attributes": True}
+
+class AuthLoginRequest(BaseModel):
+    email: str
+    password: str
+    model_config = {"from_attributes": True}
+
+class AuthResponse(BaseModel):
+    onyx_user_id: str
+    email: str
+    first_name: str
+    last_name: str
+    display_name: str
+    model_config = {"from_attributes": True}
+
 class ProjectsDeleteRequest(BaseModel):
     project_ids: List[int]
     scope: Optional[str] = 'self'
@@ -964,6 +1021,104 @@ class MicroproductPipelineGetResponse(BaseModel):
         )
 
 # --- Authentication and Utility Functions ---
+# Authentication Service Functions
+async def create_onyx_user(email: str, password: str, pool: asyncpg.Pool) -> dict:
+    """Create a new user in Onyx system"""
+    try:
+        async with httpx.AsyncClient() as client:
+            # Call Onyx API to create user
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/auth/register",
+                json={
+                    "email": email,
+                    "password": password
+                },
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 201:
+                user_data = response.json()
+                return user_data
+            else:
+                error_data = response.json()
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=error_data.get("detail", "Failed to create user in Onyx")
+                )
+    except httpx.RequestError as e:
+        logger.error(f"Error calling Onyx API: {e}")
+        raise HTTPException(status_code=500, detail="Failed to connect to Onyx system")
+
+async def authenticate_with_onyx(email: str, password: str) -> dict:
+    """Authenticate user with Onyx system"""
+    try:
+        async with httpx.AsyncClient() as client:
+            # Call Onyx API to authenticate
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/auth/login",
+                data={
+                    "username": email,
+                    "password": password
+                },
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+            
+            if response.status_code == 200:
+                auth_data = response.json()
+                return auth_data
+            else:
+                error_data = response.json()
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=error_data.get("detail", "Invalid credentials")
+                )
+    except httpx.RequestError as e:
+        logger.error(f"Error calling Onyx API: {e}")
+        raise HTTPException(status_code=500, detail="Failed to connect to Onyx system")
+
+async def create_user_profile(onyx_user_id: str, first_name: str, last_name: str, pool: asyncpg.Pool) -> UserProfileResponse:
+    """Create user profile in custom database"""
+    display_name = f"{first_name} {last_name}"
+    
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            INSERT INTO custom_user_profiles (onyx_user_id, first_name, last_name, display_name)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id, onyx_user_id, first_name, last_name, display_name, created_at, updated_at
+        """, onyx_user_id, first_name, last_name, display_name)
+        
+        return UserProfileResponse(**dict(row))
+
+async def get_user_profile(onyx_user_id: str, pool: asyncpg.Pool) -> Optional[UserProfileResponse]:
+    """Get user profile from custom database"""
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT id, onyx_user_id, first_name, last_name, display_name, created_at, updated_at
+            FROM custom_user_profiles
+            WHERE onyx_user_id = $1
+        """, onyx_user_id)
+        
+        if row:
+            return UserProfileResponse(**dict(row))
+        return None
+
+async def update_user_profile(onyx_user_id: str, first_name: str, last_name: str, pool: asyncpg.Pool) -> UserProfileResponse:
+    """Update user profile in custom database"""
+    display_name = f"{first_name} {last_name}"
+    
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            UPDATE custom_user_profiles 
+            SET first_name = $2, last_name = $3, display_name = $4, updated_at = CURRENT_TIMESTAMP
+            WHERE onyx_user_id = $1
+            RETURNING id, onyx_user_id, first_name, last_name, display_name, created_at, updated_at
+        """, onyx_user_id, first_name, last_name, display_name)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="User profile not found")
+        
+        return UserProfileResponse(**dict(row))
+
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
     if not session_cookie_value:
@@ -2869,6 +3024,133 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
         logger.error(f"Error moving projects to trash for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while sending projects to trash." if IS_PRODUCTION else f"Database error during trash operation: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+# Authentication API Endpoints
+@app.post("/api/custom/auth/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
+async def register_user(auth_data: AuthRegisterRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Register a new user with custom profile data"""
+    try:
+        # 1. Create user in Onyx system
+        onyx_user = await create_onyx_user(auth_data.email, auth_data.password, pool)
+        onyx_user_id = onyx_user.get("id")
+        
+        if not onyx_user_id:
+            raise HTTPException(status_code=500, detail="Failed to get user ID from Onyx")
+        
+        # 2. Create user profile in custom database
+        profile = await create_user_profile(
+            onyx_user_id=onyx_user_id,
+            first_name=auth_data.first_name,
+            last_name=auth_data.last_name,
+            pool=pool
+        )
+        
+        # 3. Return combined user data
+        return AuthResponse(
+            onyx_user_id=onyx_user_id,
+            email=auth_data.email,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            display_name=profile.display_name
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error registering user: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during registration")
+
+@app.post("/api/custom/auth/login", response_model=AuthResponse)
+async def login_user(auth_data: AuthLoginRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Login user and return profile data"""
+    try:
+        # 1. Authenticate with Onyx system
+        onyx_auth = await authenticate_with_onyx(auth_data.email, auth_data.password)
+        onyx_user_id = onyx_auth.get("user", {}).get("id")
+        
+        if not onyx_user_id:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        # 2. Get user profile from custom database
+        profile = await get_user_profile(onyx_user_id, pool)
+        
+        if not profile:
+            raise HTTPException(status_code=404, detail="User profile not found")
+        
+        # 3. Return combined user data
+        return AuthResponse(
+            onyx_user_id=onyx_user_id,
+            email=auth_data.email,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            display_name=profile.display_name
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error logging in user: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during login")
+
+@app.get("/api/custom/auth/profile", response_model=AuthResponse)
+async def get_user_profile_endpoint(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get current user's profile data"""
+    try:
+        profile = await get_user_profile(onyx_user_id, pool)
+        
+        if not profile:
+            raise HTTPException(status_code=404, detail="User profile not found")
+        
+        # Get email from Onyx system (you might want to store this in custom DB too)
+        return AuthResponse(
+            onyx_user_id=onyx_user_id,
+            email="",  # You can add email to custom DB if needed
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            display_name=profile.display_name
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user profile: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.put("/api/custom/auth/profile", response_model=AuthResponse)
+async def update_user_profile_endpoint(
+    profile_data: UserProfileUpdate, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Update current user's profile data"""
+    try:
+        if not profile_data.first_name and not profile_data.last_name:
+            raise HTTPException(status_code=400, detail="At least first_name or last_name must be provided")
+        
+        # Get current profile to merge with updates
+        current_profile = await get_user_profile(onyx_user_id, pool)
+        if not current_profile:
+            raise HTTPException(status_code=404, detail="User profile not found")
+        
+        # Update only provided fields
+        first_name = profile_data.first_name or current_profile.first_name
+        last_name = profile_data.last_name or current_profile.last_name
+        
+        updated_profile = await update_user_profile(onyx_user_id, first_name, last_name, pool)
+        
+        return AuthResponse(
+            onyx_user_id=onyx_user_id,
+            email="",  # You can add email to custom DB if needed
+            first_name=updated_profile.first_name,
+            last_name=updated_profile.last_name,
+            display_name=updated_profile.display_name
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user profile: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/custom/health")
 async def health_check():
