@@ -149,8 +149,8 @@
                     {% for folder in folders %}
                         <tr class="folder-row">
                             <td class="folder-title indent-{{level}}">
-                                <div style="display: flex; align-items: flex-start; gap: 8px;">
-                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
                                         <div style="display: flex; align-items: center; gap: 8px;">
                                             <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
                                                 <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -158,9 +158,7 @@
                                             {{ folder.name }}
                                         </div>
                                         {% if folder.has_course_outlines and folder.id in folder_projects %}
-                                            <div style="margin-left: 26px;">
-                                                <span class="tier-badge" style="background-color: {{ folder.tier_color }};">Tier: {{ folder.quality_tier|title if folder.quality_tier else 'Medium' }}</span>
-                                            </div>
+                                            <span class="tier-badge" style="background-color: {{ folder.tier_color }};">Tier: {{ folder.quality_tier|title if folder.quality_tier else 'Medium' }}</span>
                                         {% endif %}
                                     </div>
                                     <span class="folder-badge">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
