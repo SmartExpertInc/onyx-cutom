@@ -1294,7 +1294,7 @@ async def parse_ai_response_with_llm(
     prompt_message = f"""
 You are a highly accurate text-to-JSON parsing assistant. Your task is to convert the *entirety* of the following unstructured text into a single, structured JSON object.
 Ensure *all* relevant information from the "Raw text to parse" is included in your JSON output.
-Pay close attention to data types: strings should be quoted, numerical values should be numbers, and lists should be arrays. Null values are not permitted for string fields; use an empty string "" instead if text is absent but the field itself is required according to the example structure.
+Pay close attention to data types: strings should be quoted, numerical values should be numbers, and lists should be arrays. Null values are not permitted for string fields; use an empty string "" instead if text is absent but the field is required according to the example structure.
 Maintain the original language of the input text for all textual content in the JSON.
 
 Specific Instructions for this Content Type ({target_model.__name__}):
@@ -1675,7 +1675,8 @@ ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
 ]
 
 # Constants for text size thresholds
-TEXT_SIZE_THRESHOLD = 5000  # Characters - switch to virtual file for texts larger than this
+TEXT_SIZE_THRESHOLD = 3000  # Characters - switch to compression for texts larger than this
+LARGE_TEXT_THRESHOLD = 10000  # Characters - use virtual file system to prevent AI memory issues
 VIRTUAL_TEXT_FILE_PREFIX = "paste_text_"
 
 def compress_text(text_content: str) -> str:
@@ -1714,8 +1715,7 @@ def decompress_text(compressed_b64: str) -> str:
 async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -> int:
     """
     Create a virtual text file for large text content and return the file ID.
-    This allows large text to be processed efficiently through the file system
-    instead of being sent in JSON payloads.
+    This handles both upload and processing phases of Onyx file system.
     """
     try:
         # Create a temporary file-like object with the text content
@@ -1731,8 +1731,10 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
             'files': (filename, text_file, 'text/plain')
         }
         
-        # Upload to Onyx file system
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        # Step 1: Upload file to Onyx file system
+        async with httpx.AsyncClient(timeout=180.0) as client:  # 3 minutes timeout for large files
+            logger.info(f"Uploading virtual text file: {filename} ({len(text_content)} chars)")
+            
             response = await client.post(
                 f"{ONYX_API_SERVER_URL}/user/file/upload",
                 files=files,
@@ -1742,14 +1744,61 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
             
             # Parse response to get file ID
             upload_result = response.json()
-            if upload_result and len(upload_result) > 0:
-                file_id = upload_result[0].get('id')
-                if file_id:
-                    logger.info(f"Created virtual text file with ID {file_id} for {len(text_content)} characters")
+            if not upload_result or len(upload_result) == 0:
+                raise HTTPException(status_code=500, detail="No file ID returned from upload response")
+            
+            file_id = upload_result[0].get('id')
+            if not file_id:
+                raise HTTPException(status_code=500, detail="Invalid file ID in upload response")
+            
+            logger.info(f"File uploaded successfully with ID: {file_id}")
+            
+            # Step 2: Wait for file processing to complete
+            max_processing_time = 300  # 5 minutes max processing time
+            processing_start = asyncio.get_event_loop().time()
+            
+            while True:
+                # Check if processing time exceeded
+                if asyncio.get_event_loop().time() - processing_start > max_processing_time:
+                    logger.error(f"File processing timeout for file ID: {file_id}")
+                    raise HTTPException(status_code=500, detail="File processing timeout")
+                
+                # Check file processing status
+                try:
+                    status_response = await client.get(
+                        f"{ONYX_API_SERVER_URL}/user/file/{file_id}",
+                        cookies=cookies,
+                        timeout=30.0
+                    )
+                    
+                    if status_response.status_code == 200:
+                        file_data = status_response.json()
+                        processing_status = file_data.get('processing_status', 'unknown')
+                        
+                        if processing_status == 'completed':
+                            logger.info(f"File processing completed for ID: {file_id}")
+                            return file_id
+                        elif processing_status == 'failed':
+                            logger.error(f"File processing failed for ID: {file_id}")
+                            raise HTTPException(status_code=500, detail="File processing failed")
+                        elif processing_status in ['pending', 'processing']:
+                            logger.info(f"File still processing for ID: {file_id}, status: {processing_status}")
+                            await asyncio.sleep(2)  # Wait 2 seconds before checking again
+                            continue
+                        else:
+                            logger.warning(f"Unknown processing status: {processing_status} for file ID: {file_id}")
+                            # If status is unknown, assume it's ready (some files might not have processing)
+                            return file_id
+                    else:
+                        logger.warning(f"Failed to get file status for ID: {file_id}, status code: {status_response.status_code}")
+                        # If we can't get status, assume file is ready
+                        return file_id
+                        
+                except Exception as status_error:
+                    logger.warning(f"Error checking file status for ID: {file_id}: {status_error}")
+                    # If status check fails, assume file is ready
                     return file_id
                     
-        raise HTTPException(status_code=500, detail="Failed to get file ID from upload response")
-        
     except Exception as e:
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
@@ -3148,19 +3197,39 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use compression for large texts
+    # Add text context if provided - use virtual file system for very large texts to prevent AI memory issues
     if payload.fromText and payload.userText:
         wiz_payload["fromText"] = True
         wiz_payload["textMode"] = payload.textMode
         
-        if len(payload.userText) > TEXT_SIZE_THRESHOLD:
+        text_length = len(payload.userText)
+        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        if text_length > LARGE_TEXT_THRESHOLD:
+            # Use virtual file system for very large texts to prevent AI memory issues
+            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            try:
+                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                wiz_payload["virtualFileId"] = virtual_file_id
+                wiz_payload["textCompressed"] = False
+                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+            except Exception as e:
+                logger.error(f"Failed to create virtual file for large text: {e}")
+                # Fallback to compression if virtual file creation fails
+                compressed_text = compress_text(payload.userText)
+                wiz_payload["userText"] = compressed_text
+                wiz_payload["textCompressed"] = True
+                logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+        elif text_length > TEXT_SIZE_THRESHOLD:
             # Compress large text to reduce payload size
+            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
             compressed_text = compress_text(payload.userText)
             wiz_payload["userText"] = compressed_text
             wiz_payload["textCompressed"] = True
-            logger.info(f"Using compressed text for large content ({len(payload.userText)} -> {len(compressed_text)} chars)")
+            logger.info(f"Using compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
         else:
             # Use direct text for smaller content
+            logger.info(f"Using direct text for small content ({text_length} chars)")
             wiz_payload["userText"] = payload.userText
             wiz_payload["textCompressed"] = False
     elif payload.fromText and not payload.userText:
@@ -3196,7 +3265,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
-        async with httpx.AsyncClient(timeout=None) as client:
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+        async with httpx.AsyncClient(timeout=timeout_duration) as client:
             # Parse folder and file IDs for Onyx
             folder_ids_list = []
             file_ids_list = []
@@ -3204,6 +3276,11 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
             if payload.fromFiles and payload.fileIds:
                 file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+            
+            # Add virtual file ID if created for large text
+            if wiz_payload.get("virtualFileId"):
+                file_ids_list.append(wiz_payload["virtualFileId"])
+                logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
             
             send_payload = {
                 "chat_session_id": chat_id,
