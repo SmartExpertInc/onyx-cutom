@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, createContext, useContext } from 'react';
 
 interface User {
