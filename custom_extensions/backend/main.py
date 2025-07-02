@@ -939,6 +939,15 @@ class UserProfileResponse(BaseModel):
     updated_at: datetime
     model_config = {"from_attributes": True}
 
+    @classmethod
+    def from_db_row(cls, row):
+        """Create UserProfileResponse from database row, handling UUID conversion"""
+        data = dict(row)
+        # Convert UUID to string if needed
+        if isinstance(data.get('onyx_user_id'), uuid.UUID):
+            data['onyx_user_id'] = str(data['onyx_user_id'])
+        return cls(**data)
+
 class UserProfileUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -1132,7 +1141,7 @@ async def create_user_profile(onyx_user_id: str, first_name: str, last_name: str
             RETURNING id, onyx_user_id, first_name, last_name, display_name, created_at, updated_at
         """, onyx_user_id, first_name, last_name, display_name)
         
-        return UserProfileResponse(**dict(row))
+        return UserProfileResponse.from_db_row(row)
 
 async def get_user_profile(onyx_user_id: str, pool: asyncpg.Pool) -> Optional[UserProfileResponse]:
     """Get user profile from custom database"""
@@ -1144,7 +1153,7 @@ async def get_user_profile(onyx_user_id: str, pool: asyncpg.Pool) -> Optional[Us
         """, onyx_user_id)
         
         if row:
-            return UserProfileResponse(**dict(row))
+            return UserProfileResponse.from_db_row(row)
         return None
 
 async def update_user_profile(onyx_user_id: str, first_name: str, last_name: str, pool: asyncpg.Pool) -> UserProfileResponse:
@@ -1162,7 +1171,7 @@ async def update_user_profile(onyx_user_id: str, first_name: str, last_name: str
         if not row:
             raise HTTPException(status_code=404, detail="User profile not found")
         
-        return UserProfileResponse(**dict(row))
+        return UserProfileResponse.from_db_row(row)
 
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
