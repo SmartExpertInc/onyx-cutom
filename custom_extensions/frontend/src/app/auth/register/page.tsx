@@ -31,10 +31,30 @@ export default function RegisterPage() {
       setError('Passwords do not match');
       return false;
     }
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    
+    // Password validation
+    const password = formData.password;
+    if (password.length < 12) {
+      setError('Password must be at least 12 characters long');
       return false;
     }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return false;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter');
+      return false;
+    }
+    if (!/\d/.test(password)) {
+      setError('Password must contain at least one number');
+      return false;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError('Password must contain at least one special symbol');
+      return false;
+    }
+    
     if (!formData.first_name.trim() || !formData.last_name.trim()) {
       setError('First name and last name are required');
       return false;
@@ -185,7 +205,9 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters long</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Must be at least 12 characters with uppercase, lowercase, number, and special symbol
+              </p>
             </div>
 
             <div>
