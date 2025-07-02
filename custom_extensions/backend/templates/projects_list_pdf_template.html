@@ -158,9 +158,7 @@
                                             {{ folder.name }}
                                         </div>
                                         {% if folder.has_course_outlines and folder.id in folder_projects %}
-                                            <div style="padding-left: 26px;">
-                                                <span class="tier-badge" style="background-color: {{ folder.tier_color }}; padding-left: 0;">Tier: {{ folder.quality_tier|title if folder.quality_tier else 'Medium' }}</span>
-                                            </div>
+                                            <span class="tier-badge" style="background-color: {{ folder.tier_color }};">Tier: {{ folder.quality_tier|title if folder.quality_tier else 'Medium' }}</span>
                                         {% endif %}
                                     </div>
                                     <span class="folder-badge">{{ folder.project_count }} {{ 'item' if folder.project_count == 1 else 'items' }}</span>
