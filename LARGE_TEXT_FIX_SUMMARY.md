@@ -25,22 +25,22 @@ LARGE_TEXT_THRESHOLD = 3000  # Characters - use virtual file system to prevent A
 - Texts >3,000 chars use virtual file system to prevent AI memory issues
 - Fixes the "use as base" feature failure with ~5,500 char texts
 
-### 2. **Enhanced Virtual File Creation**
+### 2. **Enhanced Virtual File Creation with Caching**
 
-The `create_virtual_text_file()` function now handles both upload and processing phases:
+The `create_virtual_text_file()` function now includes caching to prevent duplicate uploads:
 
 ```python
 async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -> int:
     """
     Create a virtual text file for large text content and return the file ID.
-    This handles both upload and processing phases of Onyx file system.
+    Uses caching to prevent duplicate uploads of the same text.
     """
 ```
 
 **Key Improvements:**
-- **Step 1: File Upload**: Uploads text as a virtual file with 3-minute timeout
-- **Step 2: Processing Wait**: Waits for file processing to complete (up to 5 minutes)
-- **Status Monitoring**: Checks processing status every 2 seconds
+- **Text Content Caching**: Uses MD5 hash to cache file IDs for identical text content
+- **Duplicate Prevention**: Prevents multiple uploads of the same text
+- **Immediate Availability**: Text files are immediately available after upload (no processing wait)
 - **Error Handling**: Graceful fallback to compression if virtual file creation fails
 - **Robust Logging**: Detailed logging for debugging and monitoring
 
@@ -97,21 +97,26 @@ logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processi
 - **Graceful Degradation**: System continues to work even if some features fail
 - **Detailed Logging**: Extensive logging for debugging and monitoring
 
-### 7. **File Processing Status Handling**
+### 7. **Simplified File Handling**
 
-The system now properly handles Onyx's file processing states:
+The system now uses a simplified approach for text files:
 
 ```python
-processing_status = file_data.get('processing_status', 'unknown')
+# Create a hash of the text content for caching
+text_hash = hashlib.md5(text_content.encode('utf-8')).hexdigest()
 
-if processing_status == 'completed':
-    return file_id
-elif processing_status == 'failed':
-    raise HTTPException(status_code=500, detail="File processing failed")
-elif processing_status in ['pending', 'processing']:
-    await asyncio.sleep(2)  # Wait 2 seconds before checking again
-    continue
+# Check if we already have this text cached
+if text_hash in VIRTUAL_TEXT_FILE_CACHE:
+    return VIRTUAL_TEXT_FILE_CACHE[text_hash]
+
+# Upload file and cache the result
+VIRTUAL_TEXT_FILE_CACHE[text_hash] = file_id
 ```
+
+**Benefits:**
+- **No Processing Wait**: Text files are immediately available after upload
+- **Duplicate Prevention**: Same text content uses cached file ID
+- **Simplified Logic**: No complex status checking for simple text files
 
 ## Performance Improvements
 

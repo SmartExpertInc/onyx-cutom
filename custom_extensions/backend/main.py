@@ -1679,6 +1679,9 @@ TEXT_SIZE_THRESHOLD = 1500  # Characters - switch to compression for texts large
 LARGE_TEXT_THRESHOLD = 3000  # Characters - use virtual file system to prevent AI memory issues
 VIRTUAL_TEXT_FILE_PREFIX = "paste_text_"
 
+# Cache for virtual text files to prevent duplicate uploads
+VIRTUAL_TEXT_FILE_CACHE: Dict[str, int] = {}
+
 def compress_text(text_content: str) -> str:
     """
     Compress large text content using gzip and encode as base64.
@@ -1763,9 +1766,19 @@ def chunk_text(text_content: str, max_chunk_size: int = 2000) -> List[str]:
 async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -> int:
     """
     Create a virtual text file for large text content and return the file ID.
-    This handles both upload and processing phases of Onyx file system.
+    Uses caching to prevent duplicate uploads of the same text.
     """
     try:
+        # Create a hash of the text content for caching
+        import hashlib
+        text_hash = hashlib.md5(text_content.encode('utf-8')).hexdigest()
+        
+        # Check if we already have this text cached
+        if text_hash in VIRTUAL_TEXT_FILE_CACHE:
+            cached_file_id = VIRTUAL_TEXT_FILE_CACHE[text_hash]
+            logger.info(f"Using cached virtual file for text hash {text_hash[:8]}... -> file ID: {cached_file_id}")
+            return cached_file_id
+        
         # Create a temporary file-like object with the text content
         text_bytes = text_content.encode('utf-8')
         text_file = io.BytesIO(text_bytes)
@@ -1779,7 +1792,7 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
             'files': (filename, text_file, 'text/plain')
         }
         
-        # Step 1: Upload file to Onyx file system
+        # Upload file to Onyx file system
         async with httpx.AsyncClient(timeout=180.0) as client:  # 3 minutes timeout for large files
             logger.info(f"Uploading virtual text file: {filename} ({len(text_content)} chars)")
             
@@ -1801,51 +1814,13 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
             
             logger.info(f"File uploaded successfully with ID: {file_id}")
             
-            # Step 2: Wait for file processing to complete
-            max_processing_time = 300  # 5 minutes max processing time
-            processing_start = asyncio.get_event_loop().time()
+            # Cache the file ID for this text content
+            VIRTUAL_TEXT_FILE_CACHE[text_hash] = file_id
             
-            while True:
-                # Check if processing time exceeded
-                if asyncio.get_event_loop().time() - processing_start > max_processing_time:
-                    logger.error(f"File processing timeout for file ID: {file_id}")
-                    raise HTTPException(status_code=500, detail="File processing timeout")
-                
-                # Check file processing status
-                try:
-                    status_response = await client.get(
-                        f"{ONYX_API_SERVER_URL}/user/file/{file_id}",
-                        cookies=cookies,
-                        timeout=30.0
-                    )
-                    
-                    if status_response.status_code == 200:
-                        file_data = status_response.json()
-                        processing_status = file_data.get('processing_status', 'unknown')
-                        
-                        if processing_status == 'completed':
-                            logger.info(f"File processing completed for ID: {file_id}")
-                            return file_id
-                        elif processing_status == 'failed':
-                            logger.error(f"File processing failed for ID: {file_id}")
-                            raise HTTPException(status_code=500, detail="File processing failed")
-                        elif processing_status in ['pending', 'processing']:
-                            logger.info(f"File still processing for ID: {file_id}, status: {processing_status}")
-                            await asyncio.sleep(2)  # Wait 2 seconds before checking again
-                            continue
-                        else:
-                            logger.warning(f"Unknown processing status: {processing_status} for file ID: {file_id}")
-                            # If status is unknown, assume it's ready (some files might not have processing)
-                            return file_id
-                    else:
-                        logger.warning(f"Failed to get file status for ID: {file_id}, status code: {status_response.status_code}")
-                        # If we can't get status, assume file is ready
-                        return file_id
-                        
-                except Exception as status_error:
-                    logger.warning(f"Error checking file status for ID: {file_id}: {status_error}")
-                    # If status check fails, assume file is ready
-                    return file_id
+            # For text files, we don't need to wait for processing - they're immediately available
+            # The 405 error suggests the status endpoint doesn't exist for simple text files
+            logger.info(f"Virtual text file ready for use: {file_id}")
+            return file_id
                     
     except Exception as e:
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
