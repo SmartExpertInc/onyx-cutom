@@ -458,7 +458,10 @@ export default function CourseOutlineClient() {
       lastPreviewParamsRef.current.prompt === prompt &&
       lastPreviewParamsRef.current.modules === modules &&
       lastPreviewParamsRef.current.lessonsPerModule === lessonsPerModule &&
-      lastPreviewParamsRef.current.language === language;
+      lastPreviewParamsRef.current.language === language &&
+      lastPreviewParamsRef.current.userText === userText &&
+      lastPreviewParamsRef.current.textMode === textMode &&
+      lastPreviewParamsRef.current.isFromText === isFromText;
 
     if (same) return;
 
@@ -535,7 +538,15 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+                lastPreviewParamsRef.current = {
+                  prompt,
+                  modules,
+                  lessonsPerModule,
+                  language,
+                  userText,
+                  textMode: textMode || undefined,
+                  isFromText
+                };
               }
             }
           }
@@ -554,7 +565,15 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
-                lastPreviewParamsRef.current = { prompt, modules, lessonsPerModule, language };
+                lastPreviewParamsRef.current = {
+                  prompt,
+                  modules,
+                  lessonsPerModule,
+                  language,
+                  userText,
+                  textMode: textMode || undefined,
+                  isFromText
+                };
               }
             } catch {/* ignore */}
           }
@@ -837,6 +856,9 @@ export default function CourseOutlineClient() {
     modules: number;
     lessonsPerModule: string;
     language: string;
+    userText?: string;
+    textMode?: string;
+    isFromText?: boolean;
   } | null>(null);
 
   // Add a brand-new module to the editable preview list
