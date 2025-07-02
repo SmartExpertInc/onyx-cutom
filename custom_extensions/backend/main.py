@@ -4452,13 +4452,15 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                                 CASE 
                                     WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
                                     THEN (
-                                        -- Calculate tier-adjusted creation hours based on completion time and round to integer
+                                        -- Calculate tier-adjusted creation hours using the same method as Python calculate_creation_hours
+                                        -- Python: round((completion_time_minutes / 60.0) * ratio)
+                                        -- SQL equivalent: ROUND((completion_time_minutes / 60.0) * ratio)
                                         CASE 
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'starter' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 120.0 / 60.0)
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'medium' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0)
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'advanced' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 320.0 / 60.0)
-                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'professional' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 450.0 / 60.0)
-                                            ELSE ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int) * 200.0 / 60.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'starter' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 120.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'medium' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 200.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'advanced' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 320.0)
+                                            WHEN COALESCE(pf.quality_tier, 'medium') = 'professional' THEN ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 450.0)
+                                            ELSE ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * 200.0)
                                         END
                                     )
                                     ELSE 0 
