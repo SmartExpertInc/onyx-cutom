@@ -52,6 +52,38 @@ const fetchFolders = async () => {
   return res.json();
 };
 
+// Helper function to check if any modal is present in the DOM
+const isAnyModalPresent = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  // Check for various modal selectors that might be present
+  const modalSelectors = [
+    '[data-modal-portal="true"]',
+    '.fixed.inset-0.z-\\[9999\\]', // FolderModal and FolderSettingsModal
+    '.fixed.inset-0.z-50', // Generic modals
+    '.fixed.inset-0.bg-neutral-950', // Modal component
+    '.fixed.inset-0.overflow-hidden.z-50', // SlideOverModal
+    '.fixed.inset-0.bg-black', // Various modal overlays
+    '[role="dialog"]',
+    '[aria-modal="true"]'
+  ];
+  
+  return modalSelectors.some(selector => {
+    try {
+      return document.querySelector(selector) !== null;
+    } catch {
+      return false;
+    }
+  });
+};
+
+// Helper function to get modal state - combines window flag and DOM detection
+const getModalState = (): boolean => {
+  const windowFlag = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+  const domDetection = isAnyModalPresent();
+  return windowFlag || domDetection;
+};
+
 // Helper function to redirect to main app's auth endpoint
 const redirectToMainAuth = (path: string) => {
   // Get the current domain and protocol
@@ -191,7 +223,7 @@ const FolderItem: React.FC<{
   const hasChildren = folder.children && folder.children.length > 0;
 
   // Check if any modal is open - prevent dragging completely
-  const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+  const isModalOpen = getModalState();
 
   const handleDragStart = (e: React.DragEvent) => {
     // Prevent dragging if any modal is open
@@ -213,9 +245,7 @@ const FolderItem: React.FC<{
     <div>
       <div
         className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${
-          !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
-            ? 'cursor-grab active:cursor-grabbing' 
-            : 'cursor-default'
+          !isModalOpen ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
         } ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
@@ -308,7 +338,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const router = useRouter();
 
   // Check if any modal is open
-  const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+  const isModalOpen = getModalState();
 
   const handleDragOver = (e: React.DragEvent) => {
     if (isModalOpen) {

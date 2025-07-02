@@ -36,6 +36,38 @@ import {
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 
+// Helper function to check if any modal is present in the DOM
+const isAnyModalPresent = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  // Check for various modal selectors that might be present
+  const modalSelectors = [
+    '[data-modal-portal="true"]',
+    '.fixed.inset-0.z-\\[9999\\]', // FolderModal and FolderSettingsModal
+    '.fixed.inset-0.z-50', // Generic modals
+    '.fixed.inset-0.bg-neutral-950', // Modal component
+    '.fixed.inset-0.overflow-hidden.z-50', // SlideOverModal
+    '.fixed.inset-0.bg-black', // Various modal overlays
+    '[role="dialog"]',
+    '[aria-modal="true"]'
+  ];
+  
+  return modalSelectors.some(selector => {
+    try {
+      return document.querySelector(selector) !== null;
+    } catch {
+      return false;
+    }
+  });
+};
+
+// Helper function to get modal state - combines window flag and DOM detection
+const getModalState = (): boolean => {
+  const windowFlag = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+  const domDetection = isAnyModalPresent();
+  return windowFlag || domDetection;
+};
+
 // Helper function to redirect to main app's auth endpoint
 const redirectToMainAuth = (path: string) => {
   // Get the current domain and protocol
@@ -307,16 +339,16 @@ const FolderRow: React.FC<{
             <tr 
                 key={`folder-${folder.id}`}
                 data-folder-id={folder.id}
-                className={`hover:bg-gray-50 transition group ${
-                    !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
-                        ? 'cursor-grab active:cursor-grabbing' 
-                        : 'cursor-default'
-                } ${
-                    dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
-                draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                                  className={`hover:bg-gray-50 transition group ${
+                     !getModalState() 
+                          ? 'cursor-grab active:cursor-grabbing' 
+                          : 'cursor-default'
+                  } ${
+                      dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                  } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
+                draggable={!trashMode && !getModalState()}
                 onDragStart={(e) => {
-                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    if (getModalState()) {
                         e.preventDefault();
                         e.stopPropagation();
                         return;
@@ -324,28 +356,28 @@ const FolderRow: React.FC<{
                     handleDragStart(e, folder, 'folder');
                 }}
                 onDragOver={(e) => {
-                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    if (getModalState()) {
                         e.preventDefault();
                         return;
                     }
                     handleDragOver(e, index);
                 }}
                 onDragLeave={(e) => {
-                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    if (getModalState()) {
                         e.preventDefault();
                         return;
                     }
                     handleDragLeave(e);
                 }}
                 onDrop={(e) => {
-                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    if (getModalState()) {
                         e.preventDefault();
                         return;
                     }
                     handleDrop(e, index);
                 }}
                 onDragEnd={(e) => {
-                    if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                    if (getModalState()) {
                         e.preventDefault();
                         return;
                     }
@@ -434,16 +466,16 @@ const FolderRow: React.FC<{
                 folderProjectsList.map((p: Project, projectIndex: number) => (
                     <tr 
                         key={`folder-project-${p.id}`} 
-                        className={`hover:bg-gray-50 transition group bg-gray-50 ${
-                            !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
-                                ? 'cursor-grab active:cursor-grabbing' 
-                                : 'cursor-default'
-                        } ${
+                                                  className={`hover:bg-gray-50 transition group bg-gray-50 ${
+                             !getModalState() 
+                                  ? 'cursor-grab active:cursor-grabbing' 
+                                  : 'cursor-default'
+                          } ${
                             dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                        draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                        draggable={!trashMode && !getModalState()}
                         onDragStart={(e) => {
-                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                            if (getModalState()) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 return;
@@ -451,28 +483,28 @@ const FolderRow: React.FC<{
                             handleDragStart(e, p, 'project');
                         }}
                         onDragOver={(e) => {
-                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                            if (getModalState()) {
                                 e.preventDefault();
                                 return;
                             }
                             handleDragOver(e, projectIndex);
                         }}
                         onDragLeave={(e) => {
-                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                            if (getModalState()) {
                                 e.preventDefault();
                                 return;
                             }
                             handleDragLeave(e);
                         }}
                         onDrop={(e) => {
-                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                            if (getModalState()) {
                                 e.preventDefault();
                                 return;
                             }
                             handleDrop(e, projectIndex);
                         }}
                         onDragEnd={(e) => {
-                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                            if (getModalState()) {
                                 e.preventDefault();
                                 return;
                             }
@@ -483,7 +515,7 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <span className="inline-flex items-center" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                                     <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                        !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                        getModalState() 
                                             ? 'cursor-grab active:cursor-grabbing' 
                                             : 'cursor-default opacity-30'
                                     }`}>
@@ -695,7 +727,7 @@ const ProjectCard: React.FC<{
 
     const handleDragStart = (e: React.DragEvent) => {
         // Check if any modal is open - prevent dragging completely
-        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        const isModalOpen = getModalState();
         if (isModalOpen) {
             e.preventDefault();
             e.stopPropagation();
@@ -788,14 +820,14 @@ const ProjectCard: React.FC<{
     return (
         <div 
             ref={cardRef} 
-            className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative ${
-                !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
-                    ? 'cursor-grab active:cursor-grabbing' 
-                    : 'cursor-default'
-            }`}
-            draggable={!isTrashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                          className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative ${
+                 !getModalState() 
+                      ? 'cursor-grab active:cursor-grabbing' 
+                      : 'cursor-default'
+              }`}
+            draggable={!isTrashMode && !getModalState()}
             onDragStart={(e) => {
-                if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                if (getModalState()) {
                     e.preventDefault();
                     e.stopPropagation();
                     return;
@@ -803,7 +835,7 @@ const ProjectCard: React.FC<{
                 handleDragStart(e);
             }}
             onDragEnd={(e) => {
-                if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                if (getModalState()) {
                     e.preventDefault();
                     return;
                 }
@@ -2169,7 +2201,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     // Drag and drop reordering functions
     const handleDragStart = useCallback((e: React.DragEvent, item: Project | Folder, type: 'project' | 'folder') => {
         // Check if any modal is open - prevent dragging completely
-        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        const isModalOpen = getModalState();
         if (isModalOpen) {
             e.preventDefault();
             e.stopPropagation();
@@ -2199,7 +2231,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
         // Check if any modal is open - prevent drag over
-        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        const isModalOpen = getModalState();
         if (isModalOpen) {
             e.preventDefault();
             return;
@@ -2211,7 +2243,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     const handleDragLeave = useCallback((e: React.DragEvent) => {
         // Check if any modal is open - prevent drag leave
-        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        const isModalOpen = getModalState();
         if (isModalOpen) {
             e.preventDefault();
             return;
@@ -2225,7 +2257,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
         // Check if any modal is open - prevent drop
-        const isModalOpen = (typeof window !== 'undefined') ? (window as any).__modalOpen : false;
+        const isModalOpen = getModalState();
         if (isModalOpen) {
             e.preventDefault();
             return;
@@ -2690,15 +2722,15 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                     <tr 
                                         key={p.id} 
                                         className={`hover:bg-gray-50 transition group ${
-                                            !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                            !getModalState() 
                                                 ? 'cursor-grab active:cursor-grabbing' 
                                                 : 'cursor-default'
                                         } ${
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                                        draggable={!trashMode && !getModalState()}
                                         onDragStart={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                                 return;
@@ -2706,28 +2738,28 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             handleDragStart(e, p, 'project');
                                         }}
                                         onDragOver={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
                                             handleDragOver(e, index);
                                         }}
                                         onDragLeave={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
                                             handleDragLeave(e);
                                         }}
                                         onDrop={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
                                             handleDrop(e, index);
                                         }}
                                         onDragEnd={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
@@ -2738,7 +2770,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
                                                     <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                                        !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                                        getModalState() 
                                                             ? 'cursor-grab active:cursor-grabbing' 
                                                             : 'cursor-default opacity-30'
                                                     }`}>
@@ -2814,15 +2846,15 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                     <tr 
                                         key={p.id} 
                                         className={`hover:bg-gray-50 transition group ${
-                                            !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                            !getModalState() 
                                                 ? 'cursor-grab active:cursor-grabbing' 
                                                 : 'cursor-default'
                                         } ${
                                             dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
                                         } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode && !(typeof window !== 'undefined' ? (window as any).__modalOpen : false)}
+                                        draggable={!trashMode && !getModalState()}
                                         onDragStart={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                                 return;
@@ -2830,28 +2862,28 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             handleDragStart(e, p, 'project');
                                         }}
                                         onDragOver={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
                                             handleDragOver(e, index);
                                         }}
                                         onDragLeave={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
                                             handleDragLeave(e);
                                         }}
                                         onDrop={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
                                             handleDrop(e, index);
                                         }}
                                         onDragEnd={(e) => {
-                                            if ((typeof window !== 'undefined' ? (window as any).__modalOpen : false)) {
+                                            if (getModalState()) {
                                                 e.preventDefault();
                                                 return;
                                             }
@@ -2862,7 +2894,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <span className="inline-flex items-center">
                                                     <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                                        !(typeof window !== 'undefined' ? (window as any).__modalOpen : false) 
+                                                        getModalState() 
                                                             ? 'cursor-grab active:cursor-grabbing' 
                                                             : 'cursor-default opacity-30'
                                                     }`}>
