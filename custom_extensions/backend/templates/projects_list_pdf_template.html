@@ -113,10 +113,10 @@
         .indent-4 { padding-left: 112px; }
         .indent-5 { padding-left: 136px; }
         .unassigned-header { display: none; }
-        .column-projects { width: 60%; }
-        .column-lessons { width: 13%; }
-        .column-creation { width: 13.5%; }
-        .column-completion { width: 13.5%; }
+        .column-projects { width: {{ column_widths.get('title', 60) }}%; }
+        .column-lessons { width: {{ column_widths.get('numberOfLessons', 13) }}%; }
+        .column-creation { width: {{ column_widths.get('estCreationTime', 13.5) }}%; }
+        .column-completion { width: {{ column_widths.get('estCompletionTime', 13.5) }}%; }
     </style>
 </head>
 <body>

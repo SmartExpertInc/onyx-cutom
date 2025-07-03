@@ -5209,6 +5209,7 @@ async def download_projects_list_pdf(
     client_name: Optional[str] = Query(None),  # Client name for PDF header customization
     selected_folders: Optional[str] = Query(None),  # JSON string of selected folder IDs
     selected_projects: Optional[str] = Query(None),  # JSON string of selected project IDs
+    column_widths: Optional[str] = Query(None),  # JSON string of column width settings
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -5593,12 +5594,22 @@ async def download_projects_list_pdf(
                 logger.warning(f"Error parsing selected folders/projects: {e}. Using all data.")
                 # If parsing fails, use all data (fallback)
 
+        # Parse column widths if provided
+        column_widths_settings = {}
+        if column_widths:
+            try:
+                column_widths_settings = json.loads(column_widths)
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing column widths: {e}. Using default widths.")
+                column_widths_settings = {}
+
         # Prepare data for template
         template_data = {
             'folders': folder_tree,  # Use hierarchical structure
             'folder_projects': folder_projects,
             'unassigned_projects': unassigned_projects,
             'column_visibility': column_visibility_settings,
+            'column_widths': column_widths_settings,
             'folder_id': folder_id,
             'client_name': client_name,  # Client name for header customization
             'generated_at': datetime.now().isoformat()

@@ -516,6 +516,15 @@ interface ColumnVisibility {
     estCompletionTime: boolean;
 }
 
+interface ColumnWidths {
+    title: number;
+    created: number;
+    creator: number;
+    numberOfLessons: number;
+    estCreationTime: number;
+    estCompletionTime: number;
+}
+
 // Recursive folder row component for nested display in list view
 const FolderRow: React.FC<{
     folder: Folder;
@@ -1884,7 +1893,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         estCreationTime: true,
         estCompletionTime: true,
     });
+    const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
+        title: 60,
+        created: 15,
+        creator: 15,
+        numberOfLessons: 13,
+        estCreationTime: 13.5,
+        estCompletionTime: 13.5,
+    });
     const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
+    const [resizingColumn, setResizingColumn] = useState<string | null>(null);
     
     // Drag and drop reordering state
     const [draggedProject, setDraggedProject] = useState<Project | null>(null);
@@ -1895,6 +1913,39 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     
     // Client name modal state
     const [showClientNameModal, setShowClientNameModal] = useState(false);
+
+    // Column resizing functionality
+    const handleColumnResize = (columnKey: string, newWidth: number) => {
+        setColumnWidths(prev => ({
+            ...prev,
+            [columnKey]: Math.max(10, Math.min(80, newWidth)) // Min 10%, Max 80%
+        }));
+    };
+
+    const handleResizeStart = (e: React.MouseEvent, columnKey: string) => {
+        e.preventDefault();
+        setResizingColumn(columnKey);
+        
+        const startX = e.clientX;
+        const startWidth = columnWidths[columnKey as keyof ColumnWidths];
+        
+        const handleMouseMove = (e: MouseEvent) => {
+            const deltaX = e.clientX - startX;
+            const containerWidth = (e.target as Element).closest('table')?.clientWidth || 1000;
+            const deltaPercent = (deltaX / containerWidth) * 100;
+            const newWidth = startWidth + deltaPercent;
+            handleColumnResize(columnKey, newWidth);
+        };
+        
+        const handleMouseUp = () => {
+            setResizingColumn(null);
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    };
 
     // Add a refresh function that can be called externally
     const refreshProjects = useCallback(async () => {
@@ -2741,6 +2792,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         // Add column visibility settings
         queryParams.append('column_visibility', JSON.stringify(columnVisibility));
         
+        // Add column widths settings
+        queryParams.append('column_widths', JSON.stringify(columnWidths));
+        
         // Add client name if provided
         if (clientName) {
             queryParams.append('client_name', clientName);
@@ -2927,28 +2981,93 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 ) : (
                     // List view (table/row style)
                     <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${isReordering ? 'ring-2 ring-blue-200' : ''}`}>
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <style jsx>{`
+                            .cursor-col-resize {
+                                cursor: col-resize !important;
+                            }
+                            .cursor-col-resize:hover {
+                                background-color: #3b82f6 !important;
+                            }
+                            .resizing {
+                                user-select: none;
+                            }
+                        `}</style>
+                        <table className={`min-w-full divide-y divide-gray-200 ${resizingColumn ? 'resizing' : ''}`}>
                             <thead className="bg-gray-50">
                                 <tr>
                                     {columnVisibility.title && (
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.title}%` }}
+                                        >
+                                            Title
+                                            <div 
+                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                onMouseDown={(e) => handleResizeStart(e, 'title')}
+                                            />
+                                        </th>
                                     )}
                                     {columnVisibility.created && (
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.created}%` }}
+                                        >
+                                            Created
+                                            <div 
+                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                onMouseDown={(e) => handleResizeStart(e, 'created')}
+                                            />
+                                        </th>
                                     )}
                                     {columnVisibility.creator && (
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Creator</th>
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.creator}%` }}
+                                        >
+                                            Creator
+                                            <div 
+                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                onMouseDown={(e) => handleResizeStart(e, 'creator')}
+                                            />
+                                        </th>
                                     )}
                                     {columnVisibility.numberOfLessons && (
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Number of lessons</th>
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.numberOfLessons}%` }}
+                                        >
+                                            Number of lessons
+                                            <div 
+                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                onMouseDown={(e) => handleResizeStart(e, 'numberOfLessons')}
+                                            />
+                                        </th>
                                     )}
                                     {columnVisibility.estCreationTime && (
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. creation time</th>
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.estCreationTime}%` }}
+                                        >
+                                            Est. creation time
+                                            <div 
+                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                onMouseDown={(e) => handleResizeStart(e, 'estCreationTime')}
+                                            />
+                                        </th>
                                     )}
                                     {columnVisibility.estCompletionTime && (
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Est. completion time</th>
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.estCompletionTime}%` }}
+                                        >
+                                            Est. completion time
+                                            <div 
+                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
+                                            />
+                                        </th>
                                     )}
-                                    <th className="px-6 py-3"></th>
+                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '80px' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
