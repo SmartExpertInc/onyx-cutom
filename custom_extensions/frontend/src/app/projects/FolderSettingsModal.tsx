@@ -144,7 +144,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] p-6 relative mx-4 flex flex-col">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] p-6 relative mx-4 flex flex-col">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
           onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
@@ -155,7 +155,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
         </button>
         
         {/* Header - Fixed */}
-        <div className="mb-4 text-center flex-shrink-0">
+        <div className="mb-6 text-center flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Folder Settings</h2>
           <p className="text-gray-600">Configure production quality for <span className="font-semibold text-blue-600">{folderName}</span></p>
         </div>
@@ -164,115 +164,160 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Production Quality Tiers</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {qualityTiers.map((tier) => (
-                <div
-                  key={tier.id}
-                  className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[140px] ${
-                    selectedTier === tier.id
-                      ? `${tier.borderColor} ${tier.bgColor} shadow-md`
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedTier(tier.id)}
-                >
-                  {selectedTier === tier.id && (
-                    <div className={`absolute -top-2 -right-2 w-6 h-6 ${tier.bgColor} border-2 ${tier.borderColor} rounded-full flex items-center justify-center`}>
-                      <Check size={14} className={tier.color} />
-                    </div>
-                  )}
-                  
-                  <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg ${tier.bgColor}`}>
-                      {tier.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className={`font-semibold ${tier.color} truncate`}>{tier.name}</h4>
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full flex-shrink-0">
-                          {tier.hoursRange.min}-{tier.hoursRange.max}h
-                        </span>
+            
+            {/* Table-like Layout */}
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              {/* Table Header */}
+              <div className="bg-gray-50 border-b border-gray-200">
+                <div className="grid grid-cols-12 gap-4 px-6 py-3">
+                  <div className="col-span-3">
+                    <h4 className="font-semibold text-gray-700 text-sm">Tier</h4>
+                  </div>
+                  <div className="col-span-6">
+                    <h4 className="font-semibold text-gray-700 text-sm">Content Examples</h4>
+                  </div>
+                  <div className="col-span-3">
+                    <h4 className="font-semibold text-gray-700 text-sm">Hours Range</h4>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table Rows */}
+              <div className="divide-y divide-gray-200">
+                {qualityTiers.map((tier) => (
+                  <div
+                    key={tier.id}
+                    className={`transition-all duration-200 cursor-pointer hover:bg-gray-50 ${
+                      selectedTier === tier.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                    }`}
+                    onClick={() => setSelectedTier(tier.id)}
+                  >
+                    <div className="grid grid-cols-12 gap-4 px-6 py-4">
+                      {/* Tier Column */}
+                      <div className="col-span-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${tier.bgColor}`}>
+                            {tier.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h4 className={`font-semibold ${tier.color} truncate`}>{tier.name}</h4>
+                              {selectedTier === tier.id && (
+                                <Check size={16} className={`${tier.color}`} />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{tier.description}</p>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2 break-words whitespace-normal leading-relaxed italic text-left">{tier.description}</p>
-                      <ul className="space-y-1">
-                        {tier.features.map((feature, index) => (
-                          <li key={index} className="text-xs text-gray-500 flex items-start gap-1">
-                            <div className="w-1 h-1 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                            <span className="break-words">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
+
+                      {/* Content Examples Column */}
+                      <div className="col-span-6">
+                        <div className="flex flex-wrap gap-1">
+                          {tier.features.map((feature, index) => (
+                            <span
+                              key={index}
+                              className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                selectedTier === tier.id 
+                                  ? `${tier.bgColor} ${tier.color} border ${tier.borderColor}`
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Hours Range Column */}
+                      <div className="col-span-3">
+                        {selectedTier === tier.id ? (
+                          <div className="space-y-3">
+                            {/* Slider */}
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {customRate}h
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {tier.hoursRange.min}-{tier.hoursRange.max}h
+                                </span>
+                              </div>
+                              <div className="relative">
+                                <input
+                                  type="range"
+                                  min={tier.hoursRange.min}
+                                  max={tier.hoursRange.max}
+                                  value={customRate}
+                                  onChange={(e) => setCustomRate(parseInt(e.target.value))}
+                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                  style={{
+                                    background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                  }}
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                  <span>{tier.hoursRange.min}h</span>
+                                  <span>{tier.hoursRange.max}h</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Rate Information */}
+                            <div className="text-xs text-gray-600 space-y-1">
+                              <p><span className="font-medium">Ratio:</span> 1:{customRate}</p>
+                              <p><span className="font-medium">Example:</span> 10min = {(10 * customRate / 60).toFixed(1)}h</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              {tier.defaultHours}h
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {tier.hoursRange.min}-{tier.hoursRange.max}h
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Additional Information for Selected Tier */}
+            {selectedTierData && (
+              <div className={`mt-4 p-4 rounded-lg ${selectedTierData.bgColor} border ${selectedTierData.borderColor}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {selectedTierData.icon}
+                  <h4 className={`font-semibold ${selectedTierData.color}`}>Selected: {selectedTierData.name}</h4>
+                </div>
+                <p className="text-sm text-gray-700 mb-3">{selectedTierData.description}</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <h5 className="font-semibold text-gray-800 mb-2">Features Included:</h5>
+                    <ul className="space-y-1">
+                      {selectedTierData.features.map((feature, index) => (
+                        <li key={index} className="text-gray-600 flex items-start gap-1">
+                          <div className="w-1 h-1 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-gray-800 mb-2">Rate Information:</h5>
+                    <div className="space-y-1 text-gray-600">
+                      <p><span className="font-medium">Default Rate:</span> {selectedTierData.defaultHours}h</p>
+                      <p><span className="font-medium">Current Rate:</span> {customRate}h</p>
+                      <p><span className="font-medium">Ratio:</span> 1:{customRate} (completion:creation)</p>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-
-          {selectedTierData && (
-            <div className={`mb-6 p-4 rounded-lg ${selectedTierData.bgColor} border ${selectedTierData.borderColor}`}>
-              <div className="flex items-center gap-2 mb-3">
-                {selectedTierData.icon}
-                <h4 className={`font-semibold ${selectedTierData.color}`}>Selected: {selectedTierData.name}</h4>
-              </div>
-              <p className="text-sm text-gray-700 mb-4">{selectedTierData.description}</p>
-              
-              {/* Custom Rate Slider */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Custom Creation Rate: <span className="font-bold text-blue-600">{customRate}h</span>
-                  </label>
-                  <span className="text-xs text-gray-500">
-                    Range: {selectedTierData.hoursRange.min}-{selectedTierData.hoursRange.max}h
-                  </span>
-                </div>
-                <div className="relative">
-                  <input
-                    type="range"
-                    min={selectedTierData.hoursRange.min}
-                    max={selectedTierData.hoursRange.max}
-                    value={customRate}
-                    onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                    style={{
-                      background: `linear-gradient(to right, ${selectedTierData.color.replace('text-', '')} 0%, ${selectedTierData.color.replace('text-', '')} ${((customRate - selectedTierData.hoursRange.min) / (selectedTierData.hoursRange.max - selectedTierData.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - selectedTierData.hoursRange.min) / (selectedTierData.hoursRange.max - selectedTierData.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>{selectedTierData.hoursRange.min}h</span>
-                    <span>{selectedTierData.hoursRange.max}h</span>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  This rate determines how many creation hours are calculated for each minute of completion time.
-                  <br />
-                  <span className="font-medium">Example:</span> A 10-minute lesson will require {(10 * customRate / 60).toFixed(1)}h of creation time.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <h5 className="font-semibold text-gray-800 mb-2">Features Included:</h5>
-                  <ul className="space-y-1">
-                    {selectedTierData.features.map((feature, index) => (
-                      <li key={index} className="text-gray-600 flex items-start gap-1">
-                        <div className="w-1 h-1 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h5 className="font-semibold text-gray-800 mb-2">Rate Information:</h5>
-                  <div className="space-y-1 text-gray-600">
-                    <p><span className="font-medium">Default Rate:</span> {selectedTierData.defaultHours}h</p>
-                    <p><span className="font-medium">Current Rate:</span> {customRate}h</p>
-                    <p><span className="font-medium">Ratio:</span> 1:{customRate} (completion:creation)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer - Fixed */}
@@ -324,6 +369,12 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
           cursor: pointer;
           border: 2px solid white;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>
