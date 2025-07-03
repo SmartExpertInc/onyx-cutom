@@ -206,7 +206,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                                 <Check size={16} className={`${tier.color}`} />
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{tier.description}</p>
                           </div>
                         </div>
                       </div>
@@ -264,7 +263,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">Ratio:</span> 1:{customRate}</p>
+                              <p>1:{customRate}</p>
                               <p><span className="font-medium">Example:</span> 10min = {(10 * customRate / 60).toFixed(1)}h</p>
                             </div>
                           </div>
