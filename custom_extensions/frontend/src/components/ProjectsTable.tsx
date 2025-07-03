@@ -159,7 +159,7 @@ const ClientNameModal: React.FC<{
                 Select Folders & Products
               </label>
               <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                {selectedFolders.size + selectedProjects.size} selected
+                {selectedProjects.size} selected
               </span>
             </div>
             <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50/50 shadow-inner">
