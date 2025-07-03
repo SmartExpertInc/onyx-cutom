@@ -5206,6 +5206,7 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
 async def download_projects_list_pdf(
     folder_id: Optional[int] = Query(None),
     column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
+    client_name: Optional[str] = Query(None),  # Client name for PDF header customization
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -5538,6 +5539,7 @@ async def download_projects_list_pdf(
             'unassigned_projects': unassigned_projects,
             'column_visibility': column_visibility_settings,
             'folder_id': folder_id,
+            'client_name': client_name,  # Client name for header customization
             'generated_at': datetime.now().isoformat()
         }
 

@@ -99,7 +99,7 @@
 <body>
     <div style="max-width: 900px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px #0001;">
         <div class="pdf-header">
-            <h1>Production Time Estimate</h1>
+            <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
         </div>
         <table class="projects-table">
             <thead>

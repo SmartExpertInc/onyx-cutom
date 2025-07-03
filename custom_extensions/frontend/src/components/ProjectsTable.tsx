@@ -36,6 +36,88 @@ import {
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 
+// Client Name Modal Component
+const ClientNameModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (clientName: string | null) => void;
+}> = ({ isOpen, onClose, onConfirm }) => {
+  const [clientName, setClientName] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onConfirm(clientName.trim() || null);
+    setClientName('');
+  };
+
+  const handleSkip = () => {
+    onConfirm(null);
+    setClientName('');
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+        <button 
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" 
+          onClick={onClose}
+        >
+          &times;
+        </button>
+        <h2 className="text-2xl font-bold mb-2 text-black">Customize PDF Header</h2>
+        <p className="text-gray-600 mb-4">Enter a client name to customize the PDF header, or skip to use the default.</p>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="client-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Client Name (optional)
+            </label>
+            <input
+              id="client-name"
+              type="text"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmit(e as any);
+                }
+              }}
+              placeholder="Enter client name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+              autoFocus
+            />
+          </div>
+          
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              Skip
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold"
+            >
+              Download PDF
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // Helper function to check if any modal is present in the DOM
 const isAnyModalPresent = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -1648,6 +1730,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [isReordering, setIsReordering] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    
+    // Client name modal state
+    const [showClientNameModal, setShowClientNameModal] = useState(false);
 
     // Add a refresh function that can be called externally
     const refreshProjects = useCallback(async () => {
@@ -2474,6 +2559,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     // Add PDF download function
     const handlePdfDownload = () => {
+        setShowClientNameModal(true);
+    };
+
+    // Handle client name confirmation
+    const handleClientNameConfirm = (clientName: string | null) => {
+        setShowClientNameModal(false);
+        
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
         
         // Build query parameters
@@ -2486,6 +2578,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         
         // Add column visibility settings
         queryParams.append('column_visibility', JSON.stringify(columnVisibility));
+        
+        // Add client name if provided
+        if (clientName) {
+            queryParams.append('client_name', clientName);
+        }
         
         // Build the PDF URL
         let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/projects-list`;
@@ -2971,6 +3068,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             ) : (
                 <div className="text-center p-8 text-gray-500">No projects found.</div>
             )}
+            
+            {/* Client Name Modal */}
+            <ClientNameModal
+                isOpen={showClientNameModal}
+                onClose={() => setShowClientNameModal(false)}
+                onConfirm={handleClientNameConfirm}
+            />
         </div>
     );
 }
