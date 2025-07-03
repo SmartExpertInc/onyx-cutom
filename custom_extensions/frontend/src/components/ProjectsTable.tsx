@@ -40,19 +40,29 @@ import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 const ClientNameModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (clientName: string | null) => void;
-}> = ({ isOpen, onClose, onConfirm }) => {
+  onConfirm: (clientName: string | null, selectedFolders: number[], selectedProjects: number[]) => void;
+  folders: Folder[];
+  folderProjects: Record<number, Project[]>;
+  unassignedProjects: Project[];
+}> = ({ isOpen, onClose, onConfirm, folders, folderProjects, unassignedProjects }) => {
   const [clientName, setClientName] = useState('');
+  const [selectedFolders, setSelectedFolders] = useState<Set<number>>(new Set());
+  const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
+  const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onConfirm(clientName.trim() || null);
+    onConfirm(clientName.trim() || null, Array.from(selectedFolders), Array.from(selectedProjects));
     setClientName('');
+    setSelectedFolders(new Set());
+    setSelectedProjects(new Set());
   };
 
   const handleSkip = () => {
-    onConfirm(null);
+    onConfirm(null, Array.from(selectedFolders), Array.from(selectedProjects));
     setClientName('');
+    setSelectedFolders(new Set());
+    setSelectedProjects(new Set());
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -72,8 +82,8 @@ const ClientNameModal: React.FC<{
         >
           &times;
         </button>
-        <h2 className="text-2xl font-bold mb-2 text-black">Customize PDF Header</h2>
-        <p className="text-gray-600 mb-4">Enter a client name to customize the PDF header, or skip to use the default.</p>
+        <h2 className="text-2xl font-bold mb-2 text-black">Customize PDF</h2>
+        <p className="text-gray-600 mb-4">Enter a client name and select which folders/products to include in the PDF.</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -95,6 +105,106 @@ const ClientNameModal: React.FC<{
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
               autoFocus
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Folders & Products
+              <span className="text-xs text-gray-500 ml-2">
+                ({selectedFolders.size + selectedProjects.size} selected)
+              </span>
+            </label>
+            <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3 bg-gray-50">
+              {/* Folders */}
+              {folders.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-xs font-semibold text-gray-600 mb-2">Folders</div>
+                  {folders.map((folder) => (
+                    <div key={folder.id} className="ml-2">
+                      <label className="flex items-center gap-2 py-1 hover:bg-gray-100 rounded px-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedFolders.has(folder.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedFolders(prev => new Set([...prev, folder.id]));
+                            } else {
+                              setSelectedFolders(prev => {
+                                const newSet = new Set(prev);
+                                newSet.delete(folder.id);
+                                return newSet;
+                              });
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{folder.name}</span>
+                        <span className="text-xs text-gray-500">({folderProjects[folder.id]?.length || 0} items)</span>
+                      </label>
+                      
+                      {/* Projects in this folder */}
+                      {folderProjects[folder.id] && folderProjects[folder.id].length > 0 && (
+                        <div className="ml-6 mt-1">
+                          {folderProjects[folder.id].map((project) => (
+                            <label key={project.id} className="flex items-center gap-2 py-1 hover:bg-gray-100 rounded px-1 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedProjects.has(project.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedProjects(prev => new Set([...prev, project.id]));
+                                  } else {
+                                    setSelectedProjects(prev => {
+                                      const newSet = new Set(prev);
+                                      newSet.delete(project.id);
+                                      return newSet;
+                                    });
+                                  }
+                                }}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-600">{project.title}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Unassigned Projects */}
+              {unassignedProjects.length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold text-gray-600 mb-2">Unassigned Products</div>
+                  {unassignedProjects.map((project) => (
+                    <label key={project.id} className="flex items-center gap-2 py-1 hover:bg-gray-100 rounded px-1 cursor-pointer ml-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedProjects.has(project.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedProjects(prev => new Set([...prev, project.id]));
+                          } else {
+                            setSelectedProjects(prev => {
+                              const newSet = new Set(prev);
+                              newSet.delete(project.id);
+                              return newSet;
+                            });
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-600">{project.title}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {folders.length === 0 && unassignedProjects.length === 0 && (
+                <div className="text-sm text-gray-500 text-center py-4">No folders or products available</div>
+              )}
+            </div>
           </div>
           
           <div className="flex justify-end gap-3 pt-2">
@@ -2563,7 +2673,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     };
 
     // Handle client name confirmation
-    const handleClientNameConfirm = (clientName: string | null) => {
+    const handleClientNameConfirm = (clientName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
         setShowClientNameModal(false);
         
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -2582,6 +2692,15 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         // Add client name if provided
         if (clientName) {
             queryParams.append('client_name', clientName);
+        }
+        
+        // Add selected folders and projects if any are selected
+        if (selectedFolders.length > 0) {
+            queryParams.append('selected_folders', JSON.stringify(selectedFolders));
+        }
+        
+        if (selectedProjects.length > 0) {
+            queryParams.append('selected_projects', JSON.stringify(selectedProjects));
         }
         
         // Build the PDF URL
@@ -3074,6 +3193,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 isOpen={showClientNameModal}
                 onClose={() => setShowClientNameModal(false)}
                 onConfirm={handleClientNameConfirm}
+                folders={folders}
+                folderProjects={folderProjects}
+                unassignedProjects={getProjectsForFolder(null).filter(p => !p.folderId)}
             />
         </div>
     );

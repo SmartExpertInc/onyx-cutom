@@ -5207,6 +5207,8 @@ async def download_projects_list_pdf(
     folder_id: Optional[int] = Query(None),
     column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
     client_name: Optional[str] = Query(None),  # Client name for PDF header customization
+    selected_folders: Optional[str] = Query(None),  # JSON string of selected folder IDs
+    selected_projects: Optional[str] = Query(None),  # JSON string of selected project IDs
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -5531,6 +5533,65 @@ async def download_projects_list_pdf(
         # Add tier information to all folders
         for folder in folder_tree:
             add_tier_info(folder)
+
+        # Filter data based on selected folders and projects
+        if selected_folders or selected_projects:
+            try:
+                selected_folder_ids = set()
+                selected_project_ids = set()
+                
+                # Parse selected folders
+                if selected_folders:
+                    selected_folder_ids = set(json.loads(selected_folders))
+                
+                # Parse selected projects
+                if selected_projects:
+                    selected_project_ids = set(json.loads(selected_projects))
+                
+                # Filter folders - only include selected folders and their children
+                def filter_folders_recursive(folders_list):
+                    filtered_folders = []
+                    for folder in folders_list:
+                        # Include folder if it's selected or if any of its children are selected
+                        if folder['id'] in selected_folder_ids:
+                            filtered_folders.append(folder)
+                        else:
+                            # Check if any children are selected
+                            if folder.get('children'):
+                                filtered_children = filter_folders_recursive(folder['children'])
+                                if filtered_children:
+                                    folder_copy = folder.copy()
+                                    folder_copy['children'] = filtered_children
+                                    filtered_folders.append(folder_copy)
+                    return filtered_folders
+                
+                filtered_folder_tree = filter_folders_recursive(folder_tree)
+                
+                # Filter folder projects - only include projects from selected folders
+                filtered_folder_projects = {}
+                for folder_id, projects in folder_projects.items():
+                    if folder_id in selected_folder_ids:
+                        # Filter projects within this folder
+                        if selected_project_ids:
+                            filtered_projects = [p for p in projects if p['id'] in selected_project_ids]
+                            if filtered_projects:
+                                filtered_folder_projects[folder_id] = filtered_projects
+                        else:
+                            filtered_folder_projects[folder_id] = projects
+                
+                # Filter unassigned projects
+                filtered_unassigned_projects = unassigned_projects
+                if selected_project_ids:
+                    filtered_unassigned_projects = [p for p in unassigned_projects if p['id'] in selected_project_ids]
+                
+                # Use filtered data
+                folder_tree = filtered_folder_tree
+                folder_projects = filtered_folder_projects
+                unassigned_projects = filtered_unassigned_projects
+                
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing selected folders/projects: {e}. Using all data.")
+                # If parsing fails, use all data (fallback)
 
         # Prepare data for template
         template_data = {
