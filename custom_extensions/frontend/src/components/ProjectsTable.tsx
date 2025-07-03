@@ -50,6 +50,48 @@ const ClientNameModal: React.FC<{
   const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
 
+  // Helper function to get all project IDs in a folder (including subfolders)
+  const getAllProjectIdsInFolder = (folderId: number): number[] => {
+    const projectIds: number[] = [];
+    
+    // Add direct projects in this folder
+    const directProjects = folderProjects[folderId] || [];
+    projectIds.push(...directProjects.map(p => p.id));
+    
+    // Add projects from subfolders recursively
+    const folder = folders.find(f => f.id === folderId);
+    if (folder?.children) {
+      for (const child of folder.children) {
+        projectIds.push(...getAllProjectIdsInFolder(child.id));
+      }
+    }
+    
+    return projectIds;
+  };
+
+  // Handle folder selection with auto-selection of projects
+  const handleFolderSelection = (folderId: number, isChecked: boolean) => {
+    if (isChecked) {
+      // Select folder and all its projects
+      setSelectedFolders(prev => new Set([...prev, folderId]));
+      const projectIds = getAllProjectIdsInFolder(folderId);
+      setSelectedProjects(prev => new Set([...prev, ...projectIds]));
+    } else {
+      // Deselect folder and all its projects
+      setSelectedFolders(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(folderId);
+        return newSet;
+      });
+      const projectIds = getAllProjectIdsInFolder(folderId);
+      setSelectedProjects(prev => {
+        const newSet = new Set(prev);
+        projectIds.forEach(id => newSet.delete(id));
+        return newSet;
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onConfirm(clientName.trim() || null, Array.from(selectedFolders), Array.from(selectedProjects));
@@ -74,20 +116,24 @@ const ClientNameModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
         <button 
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" 
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" 
           onClick={onClose}
         >
-          &times;
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
         </button>
-        <h2 className="text-2xl font-bold mb-2 text-black">Customize PDF</h2>
-        <p className="text-gray-600 mb-4">Enter a client name and select which folders/products to include in the PDF.</p>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Customize PDF</h2>
+          <p className="text-gray-600">Enter a client name and select which folders/products to include in the PDF.</p>
+        </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="client-name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="client-name" className="block text-sm font-semibold text-gray-700 mb-2">
               Client Name (optional)
             </label>
             <input
@@ -102,51 +148,50 @@ const ClientNameModal: React.FC<{
                 }
               }}
               placeholder="Enter client name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Folders & Products
-              <span className="text-xs text-gray-500 ml-2">
-                ({selectedFolders.size + selectedProjects.size} selected)
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-semibold text-gray-700">
+                Select Folders & Products
+              </label>
+              <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                {selectedFolders.size + selectedProjects.size} selected
               </span>
-            </label>
-            <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3 bg-gray-50">
+            </div>
+            <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50/50 shadow-inner">
               {/* Folders */}
               {folders.length > 0 && (
-                <div className="mb-3">
-                  <div className="text-xs font-semibold text-gray-600 mb-2">Folders</div>
+                <div className="mb-4">
+                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Folders</div>
                   {folders.map((folder) => (
-                    <div key={folder.id} className="ml-2">
-                      <label className="flex items-center gap-2 py-1 hover:bg-gray-100 rounded px-1 cursor-pointer">
+                    <div key={folder.id} className="mb-2">
+                      <label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
                         <input
                           type="checkbox"
                           checked={selectedFolders.has(folder.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedFolders(prev => new Set([...prev, folder.id]));
-                            } else {
-                              setSelectedFolders(prev => {
-                                const newSet = new Set(prev);
-                                newSet.delete(folder.id);
-                                return newSet;
-                              });
-                            }
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          onChange={(e) => handleFolderSelection(folder.id, e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
                         />
-                        <span className="text-sm text-gray-700">{folder.name}</span>
-                        <span className="text-xs text-gray-500">({folderProjects[folder.id]?.length || 0} items)</span>
+                        <div className="flex items-center gap-2 flex-1">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-blue-500 group-hover:text-blue-600 transition-colors">
+                            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">{folder.name}</span>
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            {folderProjects[folder.id]?.length || 0} items
+                          </span>
+                        </div>
                       </label>
                       
                       {/* Projects in this folder */}
                       {folderProjects[folder.id] && folderProjects[folder.id].length > 0 && (
-                        <div className="ml-6 mt-1">
+                        <div className="ml-8 mt-2 space-y-1">
                           {folderProjects[folder.id].map((project) => (
-                            <label key={project.id} className="flex items-center gap-2 py-1 hover:bg-gray-100 rounded px-1 cursor-pointer">
+                            <label key={project.id} className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group">
                               <input
                                 type="checkbox"
                                 checked={selectedProjects.has(project.id)}
@@ -161,9 +206,9 @@ const ClientNameModal: React.FC<{
                                     });
                                   }
                                 }}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
                               />
-                              <span className="text-sm text-gray-600">{project.title}</span>
+                              <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">{project.title}</span>
                             </label>
                           ))}
                         </div>
@@ -176,48 +221,60 @@ const ClientNameModal: React.FC<{
               {/* Unassigned Projects */}
               {unassignedProjects.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold text-gray-600 mb-2">Unassigned Products</div>
-                  {unassignedProjects.map((project) => (
-                    <label key={project.id} className="flex items-center gap-2 py-1 hover:bg-gray-100 rounded px-1 cursor-pointer ml-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedProjects.has(project.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedProjects(prev => new Set([...prev, project.id]));
-                          } else {
-                            setSelectedProjects(prev => {
-                              const newSet = new Set(prev);
-                              newSet.delete(project.id);
-                              return newSet;
-                            });
-                          }
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-600">{project.title}</span>
-                    </label>
-                  ))}
+                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Unassigned Products</div>
+                  <div className="space-y-1">
+                    {unassignedProjects.map((project) => (
+                      <label key={project.id} className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group">
+                        <input
+                          type="checkbox"
+                          checked={selectedProjects.has(project.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedProjects(prev => new Set([...prev, project.id]));
+                            } else {
+                              setSelectedProjects(prev => {
+                                const newSet = new Set(prev);
+                                newSet.delete(project.id);
+                                return newSet;
+                              });
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                        />
+                        <div className="flex items-center gap-2 flex-1">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-gray-400 group-hover:text-gray-600 transition-colors">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <span className="text-sm text-gray-600 group-hover:text-gray-800">{project.title}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {folders.length === 0 && unassignedProjects.length === 0 && (
-                <div className="text-sm text-gray-500 text-center py-4">No folders or products available</div>
+                <div className="text-sm text-gray-500 text-center py-8">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="mx-auto mb-3 text-gray-300">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  No folders or products available
+                </div>
               )}
             </div>
           </div>
           
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               type="button"
               onClick={handleSkip}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300"
             >
               Skip
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
             >
               Download PDF
             </button>
