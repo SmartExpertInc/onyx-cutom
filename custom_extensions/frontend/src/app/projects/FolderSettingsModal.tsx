@@ -163,7 +163,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Production Quality Tiers</h3>
             
             {/* Table-like Layout */}
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
@@ -238,9 +237,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                                 <span className="text-sm font-medium text-gray-700">
                                   {customRate}h
                                 </span>
-                                <span className="text-xs text-gray-500">
-                                  {tier.hoursRange.min}-{tier.hoursRange.max}h
-                                </span>
                               </div>
                               <div className="relative">
                                 <input
@@ -263,7 +259,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p>1:{customRate}</p>
                               <p><span className="font-medium">Example:</span> 10min = {(10 * customRate / 60).toFixed(1)}h</p>
                             </div>
                           </div>
@@ -283,39 +278,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                 ))}
               </div>
             </div>
-
-            {/* Additional Information for Selected Tier */}
-            {selectedTierData && (
-              <div className={`mt-4 p-4 rounded-lg ${selectedTierData.bgColor} border ${selectedTierData.borderColor}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  {selectedTierData.icon}
-                  <h4 className={`font-semibold ${selectedTierData.color}`}>Selected: {selectedTierData.name}</h4>
-                </div>
-                <p className="text-sm text-gray-700 mb-3">{selectedTierData.description}</p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <h5 className="font-semibold text-gray-800 mb-2">Features Included:</h5>
-                    <ul className="space-y-1">
-                      {selectedTierData.features.map((feature, index) => (
-                        <li key={index} className="text-gray-600 flex items-start gap-1">
-                          <div className="w-1 h-1 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-gray-800 mb-2">Rate Information:</h5>
-                    <div className="space-y-1 text-gray-600">
-                      <p><span className="font-medium">Default Rate:</span> {selectedTierData.defaultHours}h</p>
-                      <p><span className="font-medium">Current Rate:</span> {customRate}h</p>
-                      <p><span className="font-medium">Ratio:</span> 1:{customRate} (completion:creation)</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
