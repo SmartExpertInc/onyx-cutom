@@ -8,9 +8,9 @@
     {% set theme_name = 'cherry' %}
     {% set theme_config = {
         'cherry': {
-            'courseHeaderBg': '#1e2937',
+            'courseHeaderBg': '#f8fafc',
             'moduleHeaderBg': '#F1F1F1',
-            'courseHeaderTextColor': '#FFFFFF',
+            'courseHeaderTextColor': '#1e293b',
             'numberColor': '#6B7280',
             'iconColor': '#FF1414'
         }
@@ -20,23 +20,24 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', Arial, sans-serif;
-            font-size: 14px;
-            color: #1a1a1a;
+            font-size: 12px;
+            color: #374151;
             background: #fff;
             margin: 0;
             padding: 0;
+            line-height: 1.4;
         }
         .pdf-header {
             background: {{ current_theme.courseHeaderBg }};
             color: {{ current_theme.courseHeaderTextColor }};
-            padding: 24px 24px 16px 24px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
+            padding: 32px 24px 24px 24px;
+            border-bottom: 1px solid #e5e7eb;
         }
         .pdf-header h1 {
             margin: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1f2937;
         }
         .projects-table {
             width: 100%;
@@ -45,8 +46,8 @@
         }
         th, td {
             font-family: 'Inter', Arial, sans-serif;
-            font-size: 14px;
-            padding: 12px 8px;
+            font-size: 11px;
+            padding: 10px 8px;
             border: none;
             vertical-align: middle;
         }
@@ -54,27 +55,28 @@
             color: #6b7280;
             font-weight: 600;
             text-align: left;
-            background: #fff;
-            font-size: 13px;
+            background: #f9fafb;
+            font-size: 10px;
             letter-spacing: 0.02em;
             border-bottom: 1px solid #e5e7eb;
+            line-height: 1.3;
         }
         td {
-            border-bottom: 1px solid #f1f1f1;
+            border-bottom: 1px solid #f3f4f6;
         }
         .folder-row {
             background: #fff;
-            font-weight: 700;
+            font-weight: 600;
         }
         .folder-title {
             color: #2563eb;
-            font-weight: 700;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .product-row {
-            background: #f9fafb;
+            background: #fafbfc;
             font-weight: 400;
         }
         .product-row.unassigned {
@@ -84,8 +86,21 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #1a1a1a;
+            color: #374151;
             font-weight: 500;
+        }
+        .product-number {
+            background: #e5e7eb;
+            color: #6b7280;
+            font-size: 9px;
+            font-weight: 600;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
         .indent-0 { padding-left: 16px; }
         .indent-1 { padding-left: 40px; }
@@ -94,29 +109,34 @@
         .indent-4 { padding-left: 112px; }
         .indent-5 { padding-left: 136px; }
         .unassigned-header { display: none; }
+        .column-projects { width: 50%; }
+        .column-lessons { width: 16%; }
+        .column-creation { width: 17%; }
+        .column-completion { width: 17%; }
     </style>
 </head>
 <body>
-    <div style="max-width: 900px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px #0001;">
+    <div style="max-width: 900px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <div class="pdf-header">
             <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
         </div>
         <table class="projects-table">
             <thead>
                 <tr>
-                    <th style="width: 44%">PROJECTS</th>
-                    {% if column_visibility.numberOfLessons %}<th style="width: 14%; text-align:center;">NUMBER OF LESSONS</th>{% endif %}
-                    {% if column_visibility.estCreationTime %}<th style="width: 21%; text-align:center;">EST. CREATION TIME</th>{% endif %}
-                    {% if column_visibility.estCompletionTime %}<th style="width: 21%; text-align:center;">EST. COMPLETION TIME</th>{% endif %}
+                    <th class="column-projects">PROJECTS</th>
+                    {% if column_visibility.numberOfLessons %}<th class="column-lessons" style="text-align:center;">NUMBER OF<br>LESSONS</th>{% endif %}
+                    {% if column_visibility.estCreationTime %}<th class="column-creation" style="text-align:center;">EST. CREATION<br>TIME</th>{% endif %}
+                    {% if column_visibility.estCompletionTime %}<th class="column-completion" style="text-align:center;">EST. COMPLETION<br>TIME</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
+                {% set product_counter = namespace(value=1) %}
                 {% macro render_folder_rows(folders, level=0) %}
                     {% for folder in folders %}
                         <tr class="folder-row">
                             <td class="folder-title indent-{{level}}">
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                                         <path d="M6 9l6 6 6-6" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                     {{ folder.name }}
@@ -147,6 +167,7 @@
                             {% for project in folder_projects[folder.id] %}
                                 <tr class="product-row">
                                     <td class="product-title indent-{{level+1}}">
+                                        <div class="product-number">{{ product_counter.value }}</div>
                                         {{ project.title }}
                                     </td>
                                     {% if column_visibility.numberOfLessons %}
@@ -170,6 +191,7 @@
                                         </td>
                                     {% endif %}
                                 </tr>
+                                {% set product_counter.value = product_counter.value + 1 %}
                             {% endfor %}
                         {% endif %}
                         {% if folder.children %}
@@ -185,6 +207,7 @@
                     {% for project in unassigned_projects %}
                         <tr class="product-row unassigned">
                             <td class="product-title indent-1">
+                                <div class="product-number">{{ product_counter.value }}</div>
                                 {{ project.title }}
                             </td>
                             {% if column_visibility.numberOfLessons %}
@@ -207,6 +230,7 @@
                                 </td>
                             {% endif %}
                         </tr>
+                        {% set product_counter.value = product_counter.value + 1 %}
                     {% endfor %}
                 {% endif %}
                 {% if not folders and not unassigned_projects %}
