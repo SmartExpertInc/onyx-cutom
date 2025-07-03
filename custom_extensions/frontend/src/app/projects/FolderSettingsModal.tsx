@@ -259,7 +259,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">Example:</span> 10min = {(10 * customRate / 60).toFixed(1)}h</p>
+                              <p><span className="font-medium">Example:</span> 1h = {customRate}h</p>
                             </div>
                           </div>
                         ) : (
