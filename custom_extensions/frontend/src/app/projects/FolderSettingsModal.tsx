@@ -263,11 +263,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center">
                             <span className="text-sm font-medium text-gray-700">
-                              {tier.defaultHours}h
-                            </span>
-                            <span className="text-xs text-gray-500">
                               {tier.hoursRange.min}-{tier.hoursRange.max}h
                             </span>
                           </div>
