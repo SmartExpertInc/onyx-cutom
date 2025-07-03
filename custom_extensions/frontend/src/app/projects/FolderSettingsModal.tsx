@@ -170,13 +170,13 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
               <div className="bg-gray-50 border-b border-gray-200">
                 <div className="grid grid-cols-12 gap-4 px-6 py-3">
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm">Tier</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">Tier</h4>
                   </div>
                   <div className="col-span-6">
-                    <h4 className="font-semibold text-gray-700 text-sm">Content Examples</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">Content Examples</h4>
                   </div>
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm">Hours Range</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">Hours Range</h4>
                   </div>
                 </div>
               </div>
