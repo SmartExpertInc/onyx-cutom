@@ -241,12 +241,7 @@ const ClientNameModal: React.FC<{
                           }}
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
                         />
-                        <div className="flex items-center gap-2 flex-1">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-gray-400 group-hover:text-gray-600 transition-colors">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          <span className="text-sm text-gray-600 group-hover:text-gray-800">{project.title}</span>
-                        </div>
+                        <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">{project.title}</span>
                       </label>
                     ))}
                   </div>
