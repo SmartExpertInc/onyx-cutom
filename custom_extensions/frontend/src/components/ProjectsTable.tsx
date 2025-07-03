@@ -3002,7 +3002,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         >
                                             Title
                                             <div 
-                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-gray-300 hover:bg-blue-500 transition-colors"
                                                 onMouseDown={(e) => handleResizeStart(e, 'title')}
                                             />
                                         </th>
@@ -3014,7 +3014,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         >
                                             Created
                                             <div 
-                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-gray-300 hover:bg-blue-500 transition-colors"
                                                 onMouseDown={(e) => handleResizeStart(e, 'created')}
                                             />
                                         </th>
@@ -3026,7 +3026,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         >
                                             Creator
                                             <div 
-                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-gray-300 hover:bg-blue-500 transition-colors"
                                                 onMouseDown={(e) => handleResizeStart(e, 'creator')}
                                             />
                                         </th>
@@ -3038,7 +3038,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         >
                                             Number of lessons
                                             <div 
-                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-gray-300 hover:bg-blue-500 transition-colors"
                                                 onMouseDown={(e) => handleResizeStart(e, 'numberOfLessons')}
                                             />
                                         </th>
@@ -3050,7 +3050,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         >
                                             Est. creation time
                                             <div 
-                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-gray-300 hover:bg-blue-500 transition-colors"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCreationTime')}
                                             />
                                         </th>
@@ -3062,7 +3062,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         >
                                             Est. completion time
                                             <div 
-                                                className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+                                                className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-gray-300 hover:bg-blue-500 transition-colors"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
                                             />
                                         </th>
