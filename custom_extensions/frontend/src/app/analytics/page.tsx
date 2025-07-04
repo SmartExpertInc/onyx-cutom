@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { format, subDays } from 'date-fns';
 import { 
-  Download, RefreshCw, TrendingUp, AlertTriangle, Clock, Users, Activity
+  Download, RefreshCw, TrendingUp, AlertTriangle, Clock, Users, Activity, Filter, X, Calendar, Search
 } from 'lucide-react';
 
 interface RequestAnalytics {
@@ -93,7 +93,24 @@ const AnalyticsPage = () => {
     method: '',
     statusCode: ''
   });
+  const [appliedFilters, setAppliedFilters] = useState({
+    endpoint: '',
+    method: '',
+    statusCode: ''
+  });
+  const [isFiltering, setIsFiltering] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Debounced filter application
+  useEffect(() => {
+    setIsFiltering(true);
+    const timer = setTimeout(() => {
+      setAppliedFilters(filters);
+      setIsFiltering(false);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [filters]);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -109,9 +126,9 @@ const AnalyticsPage = () => {
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
-      if (filters.endpoint) params.append('endpoint', filters.endpoint);
-      if (filters.method) params.append('method', filters.method);
-      if (filters.statusCode) params.append('status_code', filters.statusCode);
+      if (appliedFilters.endpoint) params.append('endpoint', appliedFilters.endpoint);
+      if (appliedFilters.method) params.append('method', appliedFilters.method);
+      if (appliedFilters.statusCode) params.append('status_code', appliedFilters.statusCode);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/dashboard?${params}`, {
         headers,
@@ -133,7 +150,7 @@ const AnalyticsPage = () => {
 
   useEffect(() => {
     fetchDashboard();
-  }, [dateRange, filters, refreshKey]);
+  }, [dateRange, appliedFilters, refreshKey]);
 
   const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
@@ -147,9 +164,9 @@ const AnalyticsPage = () => {
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
-      if (filters.endpoint) params.append('endpoint', filters.endpoint);
-      if (filters.method) params.append('method', filters.method);
-      if (filters.statusCode) params.append('status_code', filters.statusCode);
+      if (appliedFilters.endpoint) params.append('endpoint', appliedFilters.endpoint);
+      if (appliedFilters.method) params.append('method', appliedFilters.method);
+      if (appliedFilters.statusCode) params.append('status_code', appliedFilters.statusCode);
       params.append('format', exportFormat);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/export?${params}`, {
@@ -175,6 +192,11 @@ const AnalyticsPage = () => {
       alert('Failed to export data');
     }
   };
+
+  const clearAllFilters = useCallback(() => {
+    setFilters({ endpoint: '', method: '', statusCode: '' });
+    setAppliedFilters({ endpoint: '', method: '', statusCode: '' });
+  }, []);
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -247,115 +269,166 @@ const AnalyticsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-        {/* Header */}
+      {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Request Analytics Dashboard</h1>
-              <p className="text-gray-600 mt-1">Comprehensive tracking of all API requests across all accounts</p>
-              {(filters.endpoint || filters.method || filters.statusCode) && (
-                <div className="mt-2 flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">Active filters:</span>
-                  {filters.endpoint && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      Endpoint: {filters.endpoint}
-                    </span>
-                  )}
-                  {filters.method && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Method: {filters.method}
-                    </span>
-                  )}
-                  {filters.statusCode && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      Status: {filters.statusCode}
-                    </span>
-                  )}
+          {/* Title Section */}
+          <div className="py-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Request Analytics Dashboard</h1>
+                <p className="text-gray-600 mt-1">Comprehensive tracking of all API requests across all accounts</p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setRefreshKey(prev => prev + 1)}
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Refresh data"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleExport('csv')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export CSV</span>
+                  </button>
+                  <button
+                    onClick={() => handleExport('json')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export JSON</span>
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              {/* Date Range Filters */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="date"
-                  value={dateRange.from}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
-                />
-                <span className="text-black">to</span>
-                <input
-                  type="date"
-                  value={dateRange.to}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
-                />
+
+            {/* Active Filters Display */}
+            {(appliedFilters.endpoint || appliedFilters.method || appliedFilters.statusCode) && (
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Filter className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">
+                      Active Filters:
+                      {isFiltering && (
+                        <span className="ml-2 inline-flex items-center">
+                          <RefreshCw className="w-3 h-3 animate-spin text-blue-600" />
+                        </span>
+                      )}
+                    </span>
+                    {appliedFilters.endpoint && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Endpoint: {appliedFilters.endpoint}
+                      </span>
+                    )}
+                    {appliedFilters.method && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Method: {appliedFilters.method}
+                      </span>
+                    )}
+                    {appliedFilters.statusCode && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Status: {appliedFilters.statusCode}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                    title="Clear all filters"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Filters Section */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="flex items-center space-x-2 mb-3">
+                <Filter className="w-4 h-4 text-gray-600" />
+                <h3 className="text-sm font-medium text-gray-700">Filters</h3>
               </div>
               
-              {/* Additional Filters */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="text"
-                  placeholder="Filter by endpoint..."
-                  value={filters.endpoint}
-                  onChange={(e) => setFilters(prev => ({ ...prev, endpoint: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black w-40"
-                />
-                <select
-                  value={filters.method}
-                  onChange={(e) => setFilters(prev => ({ ...prev, method: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
-                >
-                  <option value="">All Methods</option>
-                  <option value="GET">GET</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                  <option value="DELETE">DELETE</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
-                <input
-                  type="number"
-                  placeholder="Status code..."
-                  value={filters.statusCode}
-                  onChange={(e) => setFilters(prev => ({ ...prev, statusCode: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black w-24"
-                />
-                <button
-                  onClick={() => setFilters({ endpoint: '', method: '', statusCode: '' })}
-                  className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg border border-gray-300"
-                  title="Clear filters"
-                >
-                  Clear Filters
-                </button>
-              </div>
-              <button
-                onClick={() => setRefreshKey(prev => prev + 1)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
-                title="Refresh data"
-              >
-                <RefreshCw className="w-5 h-5" />
-              </button>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleExport('csv')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export CSV</span>
-                </button>
-                <button
-                  onClick={() => handleExport('json')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export JSON</span>
-                </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Date Range */}
+                <div className="lg:col-span-2">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Date Range</label>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative flex-1">
+                      <Calendar className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        value={dateRange.from}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+                    <span className="text-gray-500 text-sm">to</span>
+                    <div className="relative flex-1">
+                      <Calendar className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        value={dateRange.to}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Endpoint Filter */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Endpoint</label>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Filter endpoint..."
+                      value={filters.endpoint}
+                      onChange={(e) => setFilters(prev => ({ ...prev, endpoint: e.target.value }))}
+                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Method Filter */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">HTTP Method</label>
+                  <select
+                    value={filters.method}
+                    onChange={(e) => setFilters(prev => ({ ...prev, method: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  >
+                    <option value="">All Methods</option>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                  </select>
+                </div>
+
+                {/* Status Code Filter */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Status Code</label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 200, 404"
+                    value={filters.statusCode}
+                    onChange={(e) => setFilters(prev => ({ ...prev, statusCode: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Overview Cards */}
