@@ -290,15 +290,15 @@ const AnalyticsPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
               <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Activity className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Requests</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboard.overview.total_requests.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-black">Total Requests</p>
+                <p className="text-2xl font-bold text-black">{dashboard.overview.total_requests.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -309,8 +309,8 @@ const AnalyticsPage = () => {
                 <TrendingUp className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboard.overview.success_rate}%</p>
+                  <p className="text-sm font-medium text-black">Success Rate</p>
+                <p className="text-2xl font-bold text-black">{dashboard.overview.success_rate}%</p>
                 </div>
               </div>
             </div>
@@ -321,23 +321,11 @@ const AnalyticsPage = () => {
                 <Clock className="w-6 h-6 text-orange-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
-                <p className="text-2xl font-bold text-gray-900">{formatDuration(dashboard.overview.avg_response_time)}</p>
+                  <p className="text-sm font-medium text-black">Avg Response Time</p>
+                <p className="text-2xl font-bold text-black">{formatDuration(dashboard.overview.avg_response_time)}</p>
                 </div>
               </div>
             </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Unique Users</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboard.overview.unique_users}</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Performance Metrics */}
