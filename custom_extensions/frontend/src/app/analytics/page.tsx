@@ -335,15 +335,15 @@ const AnalyticsPage = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-black">P50 (Median)</span>
-                <span className="font-semibold">{formatDuration(dashboard.performance_percentiles.p50)}</span>
+                <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p50)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">P95</span>
-                <span className="font-semibold">{formatDuration(dashboard.performance_percentiles.p95)}</span>
+                <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p95)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">P99</span>
-                <span className="font-semibold">{formatDuration(dashboard.performance_percentiles.p99)}</span>
+                <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p99)}</span>
               </div>
             </div>
           </div>
@@ -353,7 +353,7 @@ const AnalyticsPage = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-black">Total Transferred</span>
-                <span className="font-semibold">{formatBytes(dashboard.overview.total_data_transferred)}</span>
+                <span className="font-semibold text-gray-900">{formatBytes(dashboard.overview.total_data_transferred)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Failed Requests</span>
@@ -375,7 +375,7 @@ const AnalyticsPage = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Average</span>
-                <span className="font-semibold">{formatDuration(dashboard.overview.avg_response_time)}</span>
+                <span className="font-semibold text-gray-900">{formatDuration(dashboard.overview.avg_response_time)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Slowest</span>
