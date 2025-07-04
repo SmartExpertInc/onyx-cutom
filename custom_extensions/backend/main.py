@@ -3335,113 +3335,180 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         chunks_received = 0
         total_bytes_received = 0
         done_received = False
+        search_timeout_start = None
+        max_search_wait_time = 60.0  # Wait up to 60 seconds for search to complete
+        retry_count = 0
+        max_retries = 2
 
         # Use longer timeout for large text processing to prevent AI memory issues
         timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"[PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
-        try:
-            async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                # Parse folder and file IDs for Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": file_ids_list,
-                    "user_folder_ids": folder_ids_list,
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "always", "real_time": False},
-                    "stream_response": True,
-                }
-                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                logger.info(f"[PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
-                
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
-                    logger.info(f"[PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
+        while retry_count <= max_retries:
+            try:
+                async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                    # Parse folder and file IDs for Onyx
+                    folder_ids_list = []
+                    file_ids_list = []
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
                     
-                    if resp.status_code != 200:
-                        logger.error(f"[PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
-                        error_text = await resp.text()
-                        logger.error(f"[PREVIEW_ONYX] Error response: {error_text}")
-                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    async for raw_line in resp.aiter_lines():
-                        total_bytes_received += len(raw_line.encode('utf-8'))
-                        chunks_received += 1
+                    send_payload = {
+                        "chat_session_id": chat_id,
+                        "message": wizard_message,
+                        "parent_message_id": None,
+                        "file_descriptors": [],
+                        "user_file_ids": file_ids_list,
+                        "user_folder_ids": folder_ids_list,
+                        "prompt_id": None,
+                        "search_doc_ids": None,
+                        "retrieval_options": {"run_search": "always", "real_time": False},
+                        "stream_response": True,
+                    }
+                    logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                    logger.info(f"[PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
+                    logger.info(f"[PREVIEW_ONYX] Retry attempt: {retry_count + 1}/{max_retries + 1}")
+                    
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                        logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                        logger.info(f"[PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
                         
-                        # Log every chunk in detail for debugging
-                        logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: raw_line length={len(raw_line)}, bytes={len(raw_line.encode('utf-8'))}")
-                        logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: raw_line content: {repr(raw_line)}")
+                        if resp.status_code != 200:
+                            logger.error(f"[PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
+                            error_text = await resp.text()
+                            logger.error(f"[PREVIEW_ONYX] Error response: {error_text}")
+                            raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
                         
-                        if not raw_line:
-                            logger.info(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
-                            continue
+                        async for raw_line in resp.aiter_lines():
+                            total_bytes_received += len(raw_line.encode('utf-8'))
+                            chunks_received += 1
                             
-                        line = raw_line.strip()
-                        logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: stripped line: {repr(line)}")
-                        
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: processed data line: {repr(line)}")
+                            # Log every chunk in detail for debugging
+                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: raw_line length={len(raw_line)}, bytes={len(raw_line.encode('utf-8'))}")
+                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: raw_line content: {repr(raw_line)}")
                             
-                        if line == "[DONE]":
-                            logger.info(f"[PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
-                            done_received = True
+                            if not raw_line:
+                                logger.info(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
+                                continue
+                                
+                            line = raw_line.strip()
+                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: stripped line: {repr(line)}")
+                            
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: processed data line: {repr(line)}")
+                                
+                            if line == "[DONE]":
+                                logger.info(f"[PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
+                                done_received = True
+                                break
+                                
+                            try:
+                                pkt = json.loads(line)
+                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: parsed JSON keys: {list(pkt.keys())}")
+                                
+                                # Check for search operations and track them
+                                if "tool_name" in pkt and pkt["tool_name"] == "run_search":
+                                    logger.info(f"[PREVIEW_ONYX] Search operation detected: {pkt.get('tool_args', {})}")
+                                    search_timeout_start = asyncio.get_event_loop().time()
+                                
+                                # Check for search results
+                                if "top_documents" in pkt:
+                                    logger.info(f"[PREVIEW_ONYX] Search results received: {len(pkt.get('top_documents', []))} documents")
+                                    search_timeout_start = None  # Reset search timeout
+                                
+                                if "answer_piece" in pkt:
+                                    delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                    assistant_reply += delta_text
+                                    logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                    logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: delta_text content: {repr(delta_text)}")
+                                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                else:
+                                    logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, full packet: {pkt}")
+                                    
+                            except json.JSONDecodeError as e:
+                                logger.error(f"[PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {repr(line)}")
+                                continue
+                            except Exception as e:
+                                logger.error(f"[PREVIEW_ONYX] Unexpected error processing chunk {chunks_received}: {e} | Raw: {repr(line)}")
+                                continue
+
+                            # Check for search timeout
+                            if search_timeout_start and (asyncio.get_event_loop().time() - search_timeout_start) > max_search_wait_time:
+                                logger.warning(f"[PREVIEW_ONYX] Search timeout detected after {max_search_wait_time}s, stream may be stuck")
+                                if retry_count < max_retries:
+                                    logger.info(f"[PREVIEW_ONYX] Will retry due to search timeout")
+                                    break
+                                else:
+                                    logger.error(f"[PREVIEW_ONYX] Max retries reached, giving up")
+                                    error_packet = {"type": "error", "message": "Search operation timed out. Please try again."}
+                                    yield (json.dumps(error_packet) + "\n").encode()
+                                    return
+
+                            # send keep-alive every 8s
+                            now = asyncio.get_event_loop().time()
+                            if now - last_send > 8:
+                                yield b" "
+                                last_send = now
+                                logger.debug(f"[PREVIEW_ONYX] Sent keep-alive after {now - last_send}s")
+                        
+                        if not done_received:
+                            logger.warning(f"[PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
+                            
+                            # If we have some content but no [DONE], try to continue
+                            if assistant_reply.strip() and retry_count < max_retries:
+                                logger.info(f"[PREVIEW_ONYX] Stream ended prematurely but have content, will retry")
+                                retry_count += 1
+                                continue
+                            elif retry_count >= max_retries:
+                                logger.error(f"[PREVIEW_ONYX] Max retries reached, stream ended prematurely")
+                                if assistant_reply.strip():
+                                    logger.info(f"[PREVIEW_ONYX] Using partial content from {len(assistant_reply)} chars")
+                                    break  # Use partial content
+                                else:
+                                    error_packet = {"type": "error", "message": "Stream ended unexpectedly. Please try again."}
+                                    yield (json.dumps(error_packet) + "\n").encode()
+                                    return
+                            else:
+                                retry_count += 1
+                                logger.info(f"[PREVIEW_ONYX] Will retry due to premature stream end")
+                                continue
+                        else:
+                            # Successfully received [DONE], break out of retry loop
                             break
                             
-                        try:
-                            pkt = json.loads(line)
-                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: parsed JSON keys: {list(pkt.keys())}")
-                            if "answer_piece" in pkt:
-                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                assistant_reply += delta_text
-                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: delta_text content: {repr(delta_text)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                            else:
-                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, full packet: {pkt}")
-                        except json.JSONDecodeError as e:
-                            logger.error(f"[PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {repr(line)}")
-                            continue
-                        except Exception as e:
-                            logger.error(f"[PREVIEW_ONYX] Unexpected error processing chunk {chunks_received}: {e} | Raw: {repr(line)}")
-                            continue
-
-                        # send keep-alive every 8s
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "
-                            last_send = now
-                            logger.debug(f"[PREVIEW_ONYX] Sent keep-alive after {now - last_send}s")
-                    
-                    if not done_received:
-                        logger.warning(f"[PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
-                        
-        except httpx.TimeoutException as e:
-            logger.error(f"[PREVIEW_ONYX] Timeout error: {e}")
-            raise HTTPException(status_code=408, detail=f"Request timeout: {e}")
-        except httpx.RequestError as e:
-            logger.error(f"[PREVIEW_ONYX] Request error: {e}")
-            raise HTTPException(status_code=502, detail=f"Onyx API request failed: {e}")
-        except Exception as e:
-            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}", exc_info=True)
-            raise
+            except httpx.TimeoutException as e:
+                logger.error(f"[PREVIEW_ONYX] Timeout error: {e}")
+                if retry_count < max_retries:
+                    retry_count += 1
+                    logger.info(f"[PREVIEW_ONYX] Will retry due to timeout")
+                    continue
+                else:
+                    raise HTTPException(status_code=408, detail=f"Request timeout: {e}")
+            except httpx.RequestError as e:
+                logger.error(f"[PREVIEW_ONYX] Request error: {e}")
+                if retry_count < max_retries:
+                    retry_count += 1
+                    logger.info(f"[PREVIEW_ONYX] Will retry due to request error")
+                    continue
+                else:
+                    raise HTTPException(status_code=502, detail=f"Onyx API request failed: {e}")
+            except Exception as e:
+                logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}", exc_info=True)
+                if retry_count < max_retries:
+                    retry_count += 1
+                    logger.info(f"[PREVIEW_ONYX] Will retry due to exception")
+                    continue
+                else:
+                    raise
 
         logger.info(f"[PREVIEW_STREAM] Stream completed. Total chunks: {chunks_received}, total bytes: {total_bytes_received}")
         logger.info(f"[PREVIEW_STREAM] Final assistant_reply length: {len(assistant_reply)}")
@@ -3455,7 +3522,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if not assistant_reply.strip():
             logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
             # Send error packet to frontend
-            error_packet = {"type": "error", "message": "No content received from AI service"}
+            error_packet = {"type": "error", "message": "No content received from AI service. Please try again."}
             yield (json.dumps(error_packet) + "\n").encode()
             return
 
