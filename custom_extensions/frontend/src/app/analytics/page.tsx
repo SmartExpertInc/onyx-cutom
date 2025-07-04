@@ -116,12 +116,12 @@ const AnalyticsPage = () => {
     fetchDashboard();
   }, [dateRange, refreshKey]);
 
-  const handleExport = async (format: 'csv' | 'json') => {
+  const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
-      params.append('format', format);
+      params.append('format', exportFormat);
 
       const response = await fetch(`/api/custom/analytics/export?${params}`);
       if (!response.ok) {
@@ -132,7 +132,7 @@ const AnalyticsPage = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `analytics_export_${format}_${format(new Date(), 'yyyyMMdd_HHmmss')}.${format}`;
+      a.download = `analytics_export_${exportFormat}_${format(new Date(), 'yyyyMMdd_HHmmss')}.${exportFormat}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
