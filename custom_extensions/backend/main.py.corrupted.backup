@@ -1,3 +1,404 @@
+﻿# custom_extensions/backend/main.py
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from pydantic import BaseModel, Field, RootModel
+import re
+import os
+import asyncpg
+from datetime import datetime, timezone
+import httpx
+from httpx import HTTPStatusError
+import json
+import uuid
+import shutil
+import logging
+from locales.__init__ import LANG_CONFIG
+import asyncio
+import typing
+import tempfile
+import io
+import gzip
+import base64
+import time
+import uuid
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+
+# --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
+# SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
+IS_PRODUCTION = False  # Or True for production
+
+# --- Logger ---
+logger = logging.getLogger(__name__)
+if IS_PRODUCTION:
+    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
+else:
+    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+
+
+# --- Constants & DB Setup ---
+CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
+ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
+ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
+
+# Component name constants
+COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
+COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
+COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
+COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
+COMPONENT_NAME_QUIZ = "QuizDisplay"
+COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+
+# --- LLM Configuration for JSON Parsing ---
+# === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
+LLM_API_KEY = os.getenv("OPENAI_API_KEY")
+LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+# Endpoint for Chat Completions
+LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+# Default model to use – gpt-4o-mini provides strong JSON adherence
+LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+DB_POOL = None
+# Track in-flight project creations to avoid duplicate processing (keyed by user+project)
+ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
+
+
+# --- Directory for Design Template Images ---
+STATIC_DESIGN_IMAGES_DIR = "static_design_images"
+os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
+
+def inspect_list_items_recursively(data_structure: Any, path: str = ""):
+    if isinstance(data_structure, dict):
+        for key, value in data_structure.items():
+            new_path = f"{path}.{key}" if path else key
+            if key == "items": # Focus on 'items' keys
+                logger.info(f"PDF Deep Inspect: Path: {new_path}, Type: {type(value)}, Is List: {isinstance(value, list)}, Value (first 100): {str(value)[:100]}")
+                if not isinstance(value, list) and value is not None:
+                    logger.error(f"PDF DEEP ERROR: Non-list 'items' at {new_path}. Type: {type(value)}, Value: {str(value)[:200]}")
+            if isinstance(value, (dict, list)):
+                inspect_list_items_recursively(value, new_path)
+    elif isinstance(data_structure, list):
+        for i, item in enumerate(data_structure):
+            new_path = f"{path}[{i}]"
+            if isinstance(item, (dict, list)):
+                inspect_list_items_recursively(item, new_path)
+
+DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
+{
+  "mainTitle": "Example Training Program",
+  "sections": [
+    {
+      "id": "№1",
+      "title": "Introduction to Topic",
+      "totalHours": 5.5,
+      "lessons": [
+        {
+          "title": "Lesson 1.1: Basic Concepts",
+          "check": {"type": "test", "text": "Knowledge Test"},
+          "contentAvailable": {"type": "yes", "text": "100%"},
+          "source": "Internal Documentation",
+          "hours": 2.0,
+          "completionTime": "6m"
+        }
+      ]
+    }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Slide Deck Lesson",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "deckgoTemplate": "deckgo-slide-title",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
+        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Key point 1",
+            "Key point 2", 
+            "Key point 3"
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND",
+          "description": "Educational theme background"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "deckgoTemplate": "deckgo-slide-content",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        {
+          "type": "numbered_list",
+          "items": [
+            "First important concept",
+            "Second important concept"
+          ]
+        },
+        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "MEDIUM",
+          "position": "RIGHT",
+          "description": "Concept visualization or diagram"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_3_data",
+      "slideNumber": 3,
+      "slideTitle": "Understanding Schedules",
+      "deckgoTemplate": "deckgo-slide-chart",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Timetable Chart" },
+        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Check the departure and arrival columns carefully.",
+            "The station code is listed beside each time."
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND", 
+          "description": "A train timetable board"
+        }
+      ]
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+}
+"""
+
+async def get_db_pool():
+    if DB_POOL is None:
+        detail_msg = "Database service not available." # Generic enough for production
+        raise HTTPException(status_code=503, detail=detail_msg)
+    return DB_POOL
+
+app = FastAPI(title="Custom Extension Backend")
+
+app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+
+@app.middleware("http")
+async def track_request_analytics(request: Request, call_next):
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Get user ID if available
+    user_id = None
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Get request size
+    request_size = None
+    try:
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            body = await request.body()
+            request_size = len(body)
+    except:
+        pass
+    
+    try:
+        response = await call_next(request)
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Get response size
+        response_size = None
+        try:
+            if hasattr(response, 'body'):
+                response_size = len(response.body)
+        except:
+            pass
+        
+        # Store analytics in database
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     response.status_code, response_time_ms, request_size,
+                     response_size, None, datetime.now(timezone.utc))
+        except Exception as e:
+            logger.error(f"Failed to store request analytics: {e}")
+        
+        return response
+        
+    except Exception as e:
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Store error analytics
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     500, response_time_ms, request_size, None,
+                     str(e), datetime.now(timezone.utc))
+        except Exception as db_error:
+            logger.error(f"Failed to store error analytics: {db_error}")
+        
+        raise
+
+try:
+    from app.services.pdf_generator import generate_pdf_from_html_template
+    from app.core.config import settings
+except ImportError:
+    logger.warning("Could not import pdf_generator or settings from 'app' module. Using dummy implementations for PDF generation.")
+    class DummySettings:
+        CUSTOM_FRONTEND_URL = os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+    settings = DummySettings()
+    async def generate_pdf_from_html_template(template_name: str, context_data: Dict[str, Any], output_filename: str) -> str:
+        logger.info(f"PDF Generation Skipped (Dummy Service): Would generate for template {template_name} to {output_filename}")
+        dummy_path = os.path.join("/app/tmp_pdf", output_filename)
+        os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
+        with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
+        return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    DB_POOL = await asyncpg.create_pool(CUSTOM_PROJECTS_DATABASE_URL)
+    logger.info("Database connection pool created.")
+
+    # Create request_analytics table if not exists
+    try:
+        async with DB_POOL.acquire() as conn:
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id UUID PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+                )
+            """)
+        logger.info("request_analytics table created or already exists.")
+    except Exception as e:
+        logger.error(f"Error creating request_analytics table: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL is not None:
+        await DB_POOL.close()
+        logger.info("Database connection pool closed.")
+
+@app.get("/api/custom/health")
+async def health_check():
+    return {"status": "ok"}
+
+@app.get("/api/custom/analytics/dashboard")
+async def get_analytics_dashboard(
+    date_from: Optional[str] = Query(None, description="Start date for analytics (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="End date for analytics (YYYY-MM-DD)")
+):
+    logger.info(f"=== DASHBOARD DEBUG: Incoming parameters ===")
+    logger.info(f"date_from: {date_from}")
+    logger.info(f"date_to: {date_to}")
+    logger.info(f"=== END PARAMETERS ===")
+
+    # Fetch latest 10 rows from request_analytics
+    logger.info(f"=== DEBUG: Latest 10 rows from request_analytics ===")
+    async with DB_POOL.acquire() as conn:
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,7 +460,7 @@ LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
 # Endpoint for Chat Completions
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
-# Default model to use � gpt-4o-mini provides strong JSON adherence
+# Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
 DB_POOL = None
@@ -92,7 +493,7 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
   "mainTitle": "Example Training Program",
   "sections": [
     {
-      "id": "?1",
+      "id": "№1",
       "title": "Introduction to Topic",
       "totalHours": 5.5,
       "lessons": [
@@ -411,7 +812,7 @@ LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
 # Endpoint for Chat Completions
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
-# Default model to use � gpt-4o-mini provides strong JSON adherence
+# Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
 DB_POOL = None
@@ -444,7 +845,7 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
   "mainTitle": "Example Training Program",
   "sections": [
     {
-      "id": "?1",
+      "id": "№1",
       "title": "Introduction to Topic",
       "totalHours": 5.5,
       "lessons": [
@@ -1359,7 +1760,7 @@ LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
 # Endpoint for Chat Completions
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
-# Default model to use � gpt-4o-mini provides strong JSON adherence
+# Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
 DB_POOL = None
@@ -1392,7 +1793,7 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
   "mainTitle": "Example Training Program",
   "sections": [
     {
-      "id": "?1",
+      "id": "№1",
       "title": "Introduction to Topic",
       "totalHours": 5.5,
       "lessons": [
@@ -2413,7 +2814,7 @@ def create_slug(text: Optional[str]) -> str:
     if not text: return "default-slug"
     text_processed = str(text).lower()
     text_processed = re.sub(r'\s+', '-', text_processed)
-    text_processed = re.sub(r'[^\w?-??a-z0-9\-]+', '', text_processed, flags=re.UNICODE | re.IGNORECASE)
+    text_processed = re.sub(r'[^\wа-яёa-z0-9\-]+', '', text_processed, flags=re.UNICODE | re.IGNORECASE)
     return text_processed or "generated-slug"
 
 def get_tier_ratio(tier: str) -> int:
@@ -2506,40 +2907,40 @@ async def get_folder_custom_rate(folder_id: int, pool: asyncpg.Pool) -> int:
 
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
-        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': '????? ????',
-        'SLIDE_NUMBER_PREFIX': '????? ?',
-        'DISPLAYED_TEXT_LABEL': '???????????? ?????:',
-        'DISPLAYED_IMAGE_LABEL': '???????????? ????????:',
-        'DISPLAYED_VIDEO_LABEL': '???????????? ?????:',
-        'VOICEOVER_TEXT_LABEL': '????? ???????:',
-        'NO_SLIDES_TEXT': '??? ??????? ??? ???????????.',
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Видео урок',
+        'SLIDE_NUMBER_PREFIX': 'СЛАЙД №',
+        'DISPLAYED_TEXT_LABEL': 'Отображаемый текст:',
+        'DISPLAYED_IMAGE_LABEL': 'Отображаемая картинка:',
+        'DISPLAYED_VIDEO_LABEL': 'Отображаемое видео:',
+        'VOICEOVER_TEXT_LABEL': 'Текст озвучки:',
+        'NO_SLIDES_TEXT': 'Нет слайдов для отображения.',
         'EMPTY_CONTENT_PLACEHOLDER': '...',
-        'courseLabel': '????',
-        'lessonLabel': '????',
+        'courseLabel': 'КУРС',
+        'lessonLabel': 'УРОК',
         'quiz': {
-            'quizTitle': '???????? ?????',
-            'question': '??????',
-            'correctAnswer': '?????????? ?????',
-            'correctAnswers': '?????????? ??????',
-            'acceptableAnswers': '?????????? ??????',
-            'prompts': '????????',
-            'options': '????????',
-            'correctMatches': '?????????? ????????????',
-            'itemsToSort': '???????? ??? ??????????',
-            'explanation': '??????????',
-            'multipleChoice': '???? ?????????? ?????',
-            'multiSelect': '????????? ?????????? ???????',
-            'matching': '????????????',
-            'sorting': '??????????',
-            'openAnswer': '????????? ?????',
-            'answerKey': '???? ???????',
-            'correctOrder': '?????????? ???????',
+            'quizTitle': 'Название теста',
+            'question': 'Вопрос',
+            'correctAnswer': 'Правильный ответ',
+            'correctAnswers': 'Правильные ответы',
+            'acceptableAnswers': 'Допустимые ответы',
+            'prompts': 'Элементы',
+            'options': 'Варианты',
+            'correctMatches': 'Правильные соответствия',
+            'itemsToSort': 'Элементы для сортировки',
+            'explanation': 'Объяснение',
+            'multipleChoice': 'Один правильный ответ',
+            'multiSelect': 'Несколько правильных ответов',
+            'matching': 'Соответствие',
+            'sorting': 'Сортировка',
+            'openAnswer': 'Свободный ответ',
+            'answerKey': 'Ключ ответов',
+            'correctOrder': 'Правильный порядок',
             'emptyContent': '...',
         }
     },
     'en': {
         'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Video Lesson Script',
-        'SLIDE_NUMBER_PREFIX': 'SLIDE ?',
+        'SLIDE_NUMBER_PREFIX': 'SLIDE №',
         'DISPLAYED_TEXT_LABEL': 'Displayed Text:',
         'DISPLAYED_IMAGE_LABEL': 'Displayed Image:',
         'DISPLAYED_VIDEO_LABEL': 'Displayed Video:',
@@ -2570,40 +2971,40 @@ VIDEO_SCRIPT_LANG_STRINGS = {
         }
     },
     'uk': {
-        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': '????? ????',
-        'SLIDE_NUMBER_PREFIX': '????? ?',
-        'DISPLAYED_TEXT_LABEL': '?????, ?? ??????????????:',
-        'DISPLAYED_IMAGE_LABEL': '??????????, ?? ??????????????:',
-        'DISPLAYED_VIDEO_LABEL': '?????, ?? ??????????????:',
-        'VOICEOVER_TEXT_LABEL': '????? ?????????:',
-        'NO_SLIDES_TEXT': '????? ??????? ??? ????????????.',
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Відео урок',
+        'SLIDE_NUMBER_PREFIX': 'СЛАЙД №',
+        'DISPLAYED_TEXT_LABEL': 'Текст, що відображається:',
+        'DISPLAYED_IMAGE_LABEL': 'Зображення, що відображається:',
+        'DISPLAYED_VIDEO_LABEL': 'Відео, що відображається:',
+        'VOICEOVER_TEXT_LABEL': 'Текст озвучення:',
+        'NO_SLIDES_TEXT': 'Немає слайдів для відображення.',
         'EMPTY_CONTENT_PLACEHOLDER': '...',
-        'courseLabel': '????',
-        'lessonLabel': '????',
+        'courseLabel': 'КУРС',
+        'lessonLabel': 'УРОК',
         'quiz': {
-            'quizTitle': '????? ?????',
-            'question': '???????',
-            'correctAnswer': '????????? ?????????',
-            'correctAnswers': '????????? ?????????',
-            'acceptableAnswers': '????????? ?????????',
-            'prompts': '????????',
-            'options': '????????',
-            'correctMatches': '????????? ?????????????',
-            'itemsToSort': '???????? ??? ??????????',
-            'explanation': '?????????',
-            'multipleChoice': '???? ????????? ?????????',
-            'multiSelect': '???????? ?????????? ??????????',
-            'matching': '?????????????',
-            'sorting': '??????????',
-            'openAnswer': '?????? ?????????',
-            'answerKey': '???? ??????????',
-            'correctOrder': '?????????? ???????',
+            'quizTitle': 'Назва тесту',
+            'question': 'Питання',
+            'correctAnswer': 'Правильна відповідь',
+            'correctAnswers': 'Правильні відповіді',
+            'acceptableAnswers': 'Допустимі відповіді',
+            'prompts': 'Елементи',
+            'options': 'Варіанти',
+            'correctMatches': 'Правильні відповідності',
+            'itemsToSort': 'Елементи для сортування',
+            'explanation': 'Пояснення',
+            'multipleChoice': 'Одна правильна відповідь',
+            'multiSelect': 'Декілька правильних відповідей',
+            'matching': 'Відповідність',
+            'sorting': 'Сортування',
+            'openAnswer': 'Вільна відповідь',
+            'answerKey': 'Ключ відповідей',
+            'correctOrder': 'Правильний порядок',
             'emptyContent': '...',
         }
     },
     'es': {
-        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Gui�n de la lecci�n en video',
-        'SLIDE_NUMBER_PREFIX': 'DIAPOSITIVA ?',
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Guión de la lección en video',
+        'SLIDE_NUMBER_PREFIX': 'DIAPOSITIVA №',
         'DISPLAYED_TEXT_LABEL': 'Texto mostrado:',
         'DISPLAYED_IMAGE_LABEL': 'Imagen mostrada:',
         'DISPLAYED_VIDEO_LABEL': 'Video mostrado:',
@@ -2611,9 +3012,9 @@ VIDEO_SCRIPT_LANG_STRINGS = {
         'NO_SLIDES_TEXT': 'No hay diapositivas para mostrar.',
         'EMPTY_CONTENT_PLACEHOLDER': '...',
         'courseLabel': 'CURSO',
-        'lessonLabel': 'LECCI�N',
+        'lessonLabel': 'LECCIÓN',
         'quiz': {
-            'quizTitle': 'T�tulo del cuestionario',
+            'quizTitle': 'Título del cuestionario',
             'question': 'Pregunta',
             'correctAnswer': 'Respuesta correcta',
             'correctAnswers': 'Respuestas correctas',
@@ -2622,9 +3023,9 @@ VIDEO_SCRIPT_LANG_STRINGS = {
             'options': 'Opciones',
             'correctMatches': 'Correspondencias correctas',
             'itemsToSort': 'Elementos para ordenar',
-            'explanation': 'Explicaci�n',
-            'multipleChoice': 'Opci�n m�ltiple',
-            'multiSelect': 'Selecci�n m�ltiple',
+            'explanation': 'Explicación',
+            'multipleChoice': 'Opción múltiple',
+            'multiSelect': 'Selección múltiple',
             'matching': 'Correspondencia',
             'sorting': 'Ordenamiento',
             'openAnswer': 'Respuesta abierta',
@@ -2665,13 +3066,13 @@ def detect_language(text: str, configs: Dict[str, Dict[str, str]] = LANG_CONFIG)
         if uk_config.get('TIME_KEYWORD') and uk_config['TIME_KEYWORD'] in text: uk_score +=1
         if en_score == 0 and ru_score == 0 and uk_score == 0:
             en_chars = sum(1 for char_ in text if 'a' <= char_.lower() <= 'z')
-            cyrillic_chars = sum(1 for char_ in text if '?' <= char_.lower() <= '?' or char_.lower() in ['?', '?', '?', '?'])
+            cyrillic_chars = sum(1 for char_ in text if 'а' <= char_.lower() <= 'я' or char_.lower() in ['і', 'ї', 'є', 'ґ'])
             if en_chars > cyrillic_chars and en_chars > 10 :
                  en_score += 0.1
             elif cyrillic_chars > en_chars and cyrillic_chars > 10:
                 if uk_score == 0: uk_score += 0.05
                 if ru_score == 0: ru_score += 0.05
-                ukrainian_specific_chars = sum(1 for char_ in text if char_.lower() in ['?', '?', '?', '?'])
+                ukrainian_specific_chars = sum(1 for char_ in text if char_.lower() in ['і', 'ї', 'є', 'ґ'])
                 if ukrainian_specific_chars > 0:
                     uk_score += 0.05 * ukrainian_specific_chars
     if en_score > ru_score and en_score > uk_score: return 'en'
@@ -2751,7 +3152,7 @@ The entire output must be a single, valid JSON object and must include all relev
                 except httpx.HTTPStatusError as he:
                     # OpenAI returns 400 when response_format isn't supported for a given model
                     if he.response.status_code in (400, 422) and pf_idx == 0:
-                        logger.info("LLM rejected response_format � retrying without it.")
+                        logger.info("LLM rejected response_format – retrying without it.")
                         continue
                     raise
 
@@ -3310,7 +3711,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
     2.  **`type: "paragraph"`**
         * `text` (string): Full paragraph text.
-        * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thoght in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation � e.g., 'Recommendation', '????????????', '????????????' � or their localized equivalents, and isn't a part of the buller list.
+        * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thoght in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендация', 'Рекомендація' — or their localized equivalents, and isn't a part of the buller list.
 
     3.  **`type: "bullet_list"`**
         * `items` (array of `ListItem`): Can be strings or other nested content blocks.
@@ -3336,9 +3737,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
     * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
 
     Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
-      � Ukrainian ? "????????????", "????????", "???????? ? ????"
-      � Russian   ? "????????????", "??????????", "??????? ? ????"
-      � Spanish   ? "Recomendaci�n", "Conclusi�n", "Crear desde cero"
+      • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+      • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+      • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
 
     Return ONLY the JSON object. 
             """
@@ -3389,15 +3790,15 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             *   Parse `{isImportant}` on headlines to the `isImportant` boolean field.
             *   Parse `{iconName}` on headlines to the `iconName` string field.
             *   After extracting `iconName` and `isImportant` values, you MUST remove their corresponding `{...}` tags from the final headline `text` field. The user should not see these tags in the output text.
-            *   If a paragraph starts with `**Recommendation:**` (or a localized translation like `**????????????:**`, `**????????????:**`), you MUST set the `isRecommendation` field on that paragraph block to `true` and remove the keyword itself from the final `text` field.
+            *   If a paragraph starts with `**Recommendation:**` (or a localized translation like `**Рекомендация:**`, `**Рекомендація:**`), you MUST set the `isRecommendation` field on that paragraph block to `true` and remove the keyword itself from the final `text` field.
             *   Do NOT remove the `**` from the text for any other purpose; treat it as part of the text. It is critical that you preserve the double-asterisk (`**`) markdown for bold text within all `text` fields.
             *   You are encouraged to use a diverse range of the available `iconName` values to make the presentation visually engaging.
             *   If the raw text starts with `# Title`, this becomes the `textTitle`. The `contentBlocks` should not include this Level 1 headline. All other headlines (`##`, `###`, `####`) are content blocks.
 
             Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
-              � Ukrainian ? "????????????", "????????", "???????? ? ????"
-              � Russian   ? "????????????", "??????????", "??????? ? ????"
-              � Spanish   ? "Recomendaci�n", "Conclusi�n", "Crear desde cero"
+              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
 
             Return ONLY the JSON object.
             """
@@ -3417,7 +3818,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             3.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk", "es".
 
             **Section Object (`sections` array items):**
-            * `id` (string): Sequential number formatted as "?1", "?2", � Always use this exact format; never "Module 1".
+            * `id` (string): Sequential number formatted as "№1", "№2", … Always use this exact format; never "Module 1".
             * `title` (string): Module name without the word "Module".
             * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
             * `lessons` (array): List of lesson objects belonging to the module.
@@ -3431,28 +3832,28 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `check` (object):
                 - `type` (string): One of "test", "quiz", "practice", "none".
                 - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
-+                - IMPORTANT: When the raw text explicitly names the assessment (for example just "Test"), copy that word *exactly*�do not expand it to phrases such as "Knowledge Test", "Proficiency Test", or similar, and do not spell-correct it.
++                - IMPORTANT: When the raw text explicitly names the assessment (for example just "Test"), copy that word *exactly*—do not expand it to phrases such as "Knowledge Test", "Proficiency Test", or similar, and do not spell-correct it.
             * `contentAvailable` (object):
                 - `type` (string): One of "yes", "no", "percentage".
                 - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}. DO NOT use "Content missing" or "Content Coverage:" or similar phrases in the text.
 
             **Parsing Rules & Constraints:**
-+            � Except where explicit transformations are required by these instructions, reproduce every extracted text fragment verbatim � preserving spelling, punctuation, capitalisation, and line breaks. Absolutely do NOT paraphrase, translate, or autocorrect the source text.
-            � Detect modules and lessons from headings, tables, or enumerations in the source text. Preserve their original order.
-            � Always use dot as decimal separator for `hours` (e.g., 2.5).
-            � If `hours` is written as "2 h 30 min", convert to 2.5.
-            � Do not create empty arrays; if a module has no lessons, set `lessons: []`.
-            � Never output null values for required string fields; use an empty string instead.
-            � Ensure that every lesson belongs to a module; do not leave stray lessons.
-            � Preserve bold (`**`) or italic (`*`) markdown that exists inside titles or texts.
-            � Auxiliary keywords like "Goal", "Outcome", "Assessment" must be translated to the language of the content using the same localization rules described earlier.
++            • Except where explicit transformations are required by these instructions, reproduce every extracted text fragment verbatim — preserving spelling, punctuation, capitalisation, and line breaks. Absolutely do NOT paraphrase, translate, or autocorrect the source text.
+            • Detect modules and lessons from headings, tables, or enumerations in the source text. Preserve their original order.
+            • Always use dot as decimal separator for `hours` (e.g., 2.5).
+            • If `hours` is written as "2 h 30 min", convert to 2.5.
+            • Do not create empty arrays; if a module has no lessons, set `lessons: []`.
+            • Never output null values for required string fields; use an empty string instead.
+            • Ensure that every lesson belongs to a module; do not leave stray lessons.
+            • Preserve bold (`**`) or italic (`*`) markdown that exists inside titles or texts.
+            • Auxiliary keywords like "Goal", "Outcome", "Assessment" must be translated to the language of the content using the same localization rules described earlier.
 
             **Validation Checklist BEFORE returning JSON:**
-            ? Each module id follows the "?X" pattern.
-            ? No lesson titles start with "Lesson X.Y" or similar numbering patterns.
-            ? Sum of `hours` in lessons equals `totalHours` if `autoCalculateHours` is false.
-            ? Every `check.type` other than "none" has non-empty `text`.
-            ? `detectedLanguage` is filled with a 2-letter code.
+            □ Each module id follows the "№X" pattern.
+            □ No lesson titles start with "Lesson X.Y" or similar numbering patterns.
+            □ Sum of `hours` in lessons equals `totalHours` if `autoCalculateHours` is false.
+            □ Every `check.type` other than "none" has non-empty `text`.
+            □ `detectedLanguage` is filled with a 2-letter code.
 
             Return ONLY the JSON object.
             """
@@ -3544,25 +3945,25 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             )
             llm_json_example = selected_design_template.template_structuring_prompt or """
             {
-  "mainPresentationTitle": "????: ???????? ??? ?????????",
+  "mainPresentationTitle": "Курс: Обучение для рекрутера",
   "slides": [
     {
       "slideId": "slide_1_znakomstvo",
       "slideNumber": 1,
-      "slideTitle": "??????????",
-      "displayedText": "?????????? ? ???????? ?????????? ? ????????? ?????????????.",
-      "displayedPictureDescription": "??????????? ????????????? ? ??????????? ?????.",
-      "displayedVideoDescription": "???????? ??????? ??????????: ?????, ?????, ????????, ?????.",
-      "voiceoverText": "??????????? ??? ?? ????? '???????? ??? ?????????'! ?????? ? ?????. ???? ?????? ???????? ???????? ???????? ?????????."
+      "slideTitle": "Знакомство",
+      "displayedText": "Знакомимся с основами рекрутинга и ключевыми обязанностями.",
+      "displayedPictureDescription": "Улыбающиеся профессионалы в современном офисе.",
+      "displayedVideoDescription": "Анимация воронки рекрутинга: поиск, отбор, интервью, оффер.",
+      "voiceoverText": "Приветствую вас на курсе 'Обучение для рекрутера'! Начнем с основ. Этот модуль посвящен ключевым аспектам профессии."
     },
     {
       "slideId": "slide_2_instrumenty",
       "slideNumber": 2,
-      "slideTitle": "??????????? ?????????",
-      "displayedText": "????????????? ???????? ??????????? ??? ???????????? ?????????.",
-      "displayedPictureDescription": "?????? ?????????: LinkedIn, ATS, GitHub, ?????, ?????????.",
-      "displayedVideoDescription": "???????? ?????? ?? ??????? ???????????? ? ???????? ??????????? ?? ???????.",
-      "voiceoverText": "??? ?????? ????????? ????? ??????? ????????????. ?????????? ???????? ????????? ? ?? ??????????. ??????????? ????????????? ??????? ???? ??????????????????."
+      "slideTitle": "Инструменты Рекрутера",
+      "displayedText": "Рассматриваем основные инструменты для современного рекрутера.",
+      "displayedPictureDescription": "Коллаж логотипов: LinkedIn, ATS, GitHub, поиск, календарь.",
+      "displayedVideoDescription": "Анимация кликов по иконкам инструментов с краткими пояснениями их функций.",
+      "voiceoverText": "Для успеха рекрутеру нужен арсенал инструментов. Рассмотрим основные категории и их назначение. Эффективное использование повысит вашу производительность."
     }
   ],
   "detectedLanguage": "ru"
@@ -3574,38 +3975,38 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 Your output MUST be a single, valid JSON object, and it must strictly adhere to the exact structure provided in the example JSON you have been given separately. Do not include any additional text, explanations, or conversational fillers outside the JSON object.
 
 Input Text Structure and Extraction Rules:
-The input text will describe a presentation or video lesson. The content within the fields (like slide titles, descriptions) can be in various languages (e.g., Ukrainian, Russian, English). You must extract the content exactly as it appears, preserving its original language, including any original formatting like line breaks within the content where present (e.g., in "?????????????? ?????").
+The input text will describe a presentation or video lesson. The content within the fields (like slide titles, descriptions) can be in various languages (e.g., Ukrainian, Russian, English). You must extract the content exactly as it appears, preserving its original language, including any original formatting like line breaks within the content where present (e.g., in "Відображуваний Текст").
 
 Overall Presentation Title:
 
-This will be identified by a header like "????????? ????????? ?????:" (or its equivalent in other languages like "????? ????????? ?????:" or "Overall Course Title:").
+This will be identified by a header like "Загальний Заголовок Курсу:" (or its equivalent in other languages like "ОБЩИЙ ЗАГОЛОВОК КУРСА:" or "Overall Course Title:").
 Extract the text that immediately follows this bolded header as the value for the mainPresentationTitle field.
 Individual Slides:
 
 Each slide's information is clearly marked by consistently bolded headers.
-slideNumber (integer): Look for "????? ??????:" (or equivalent, e.g., "????? ??????:", "Slide Number:"). Extract the numerical value that immediately follows this bolded header.
-slideTitle (string): Look for "????????? ??????:" (or equivalent, e.g., "????????? ??????:", "Slide Title:"). Extract the text that immediately follows this bolded header.
-displayedText (string): Look for "?????????????? ?????:" (or equivalent, e.g., "?????????????? ?????:", "Displayed Text:"). Extract all text that immediately follows this bolded header, up until the next bolded header. Preserve any internal line breaks or numbering.
-displayedPictureDescription (string): Look for "???? ??????????:" (or equivalent, e.g., "???? ??????????:", "Image Description:"). Extract the text that immediately follows this bolded header, up until the next bolded header.
-displayedVideoDescription (string): Look for "???? ?????:" (or equivalent, e.g., "???? ?????:", "Video Description:"). Extract the text that immediately follows this bolded header, up until the next bolded header.
-voiceoverText (string): Look for "????? ?????????:" (or equivalent, e.g., "????? ?????????:", "Voiceover Text:"). Extract the text that immediately follows this bolded header, up until the next bolded header or the end of the slide's content block.
+slideNumber (integer): Look for "Номер Слайда:" (or equivalent, e.g., "Номер Слайда:", "Slide Number:"). Extract the numerical value that immediately follows this bolded header.
+slideTitle (string): Look for "Заголовок Слайда:" (or equivalent, e.g., "Заголовок Слайда:", "Slide Title:"). Extract the text that immediately follows this bolded header.
+displayedText (string): Look for "Відображуваний Текст:" (or equivalent, e.g., "Відображуваний Текст:", "Displayed Text:"). Extract all text that immediately follows this bolded header, up until the next bolded header. Preserve any internal line breaks or numbering.
+displayedPictureDescription (string): Look for "Опис Зображення:" (or equivalent, e.g., "Опис Зображення:", "Image Description:"). Extract the text that immediately follows this bolded header, up until the next bolded header.
+displayedVideoDescription (string): Look for "Опис Відео:" (or equivalent, e.g., "Опис Відео:", "Video Description:"). Extract the text that immediately follows this bolded header, up until the next bolded header.
+voiceoverText (string): Look for "Текст Озвучення:" (or equivalent, e.g., "Текст Озвучення:", "Voiceover Text:"). Extract the text that immediately follows this bolded header, up until the next bolded header or the end of the slide's content block.
 slideId Generation:
 
 For each slide, you must generate a unique slideId.
 This ID should be a concatenation of the literal string "slide_", the slideNumber, and a simplified, lowercase version of the slideTitle.
 To simplify the slideTitle for the ID, convert it to lowercase and replace all spaces with underscores (_). Remove any punctuation or special characters from the simplified title part of the ID. If the title is very long, consider using only the first few words to keep the ID concise, but ensure uniqueness. For example:
-slideNumber: 1, slideTitle: "?????" -> slideId: "slide_1_?????"
-slideNumber: 2, slideTitle: "??????? 1" -> slideId: "slide_2_???????_1"
-slideNumber: 3, slideTitle: "???????? ?????????" -> slideId: "slide_3_????????_?????????"
-slideNumber: 4, slideTitle: "????????? ?? ??????? 1" -> slideId: "slide_4_?????????_??_???????_1"
+slideNumber: 1, slideTitle: "Вступ" -> slideId: "slide_1_вступ"
+slideNumber: 2, slideTitle: "Питання 1" -> slideId: "slide_2_питання_1"
+slideNumber: 3, slideTitle: "Варіанти відповіді" -> slideId: "slide_3_варіанти_відповіді"
+slideNumber: 4, slideTitle: "Пояснення до Питання 1" -> slideId: "slide_4_пояснення_до_питання_1"
 detectedLanguage (string):
 
-This will be identified by a header like "Language of Content:" (or its equivalent, e.g., "???? ????????:", "???? ????????:").
+This will be identified by a header like "Language of Content:" (or its equivalent, e.g., "Язык Контента:", "Мова Контенту:").
 Extract the two-letter ISO 639-1 language code (e.g., "uk", "ru", "en") that immediately follows this label.
 If this "Language of Content:" label is missing from the input, infer the primary language from the majority of the content (specifically the mainPresentationTitle and slideTitle fields) and use the appropriate two-letter ISO 639-1 code.
 Key Parsing Rules & Constraints for 100% Reliability:
 
-Header Recognition: Always identify fields by their bolded headers (e.g., "????? ??????:", "????????? ??????:"). These bolded headers consistently precede the data you need to extract.
+Header Recognition: Always identify fields by their bolded headers (e.g., "Номер Слайда:", "Заголовок Слайда:"). These bolded headers consistently precede the data you need to extract.
 Exact Text Extraction: All extracted text content must be preserved exactly as it appears in the input, including its original capitalization, punctuation, and line breaks within the content block for a given field.
 Field Presence: If a field's bolded header is present in the input but the text following it is empty before the next header, the corresponding JSON field should be an empty string (""). Do not use null or omit fields that are defined as strings in the target schema if their labels are present in the input.
 Sequential Parsing: Process the text sequentially, extracting content associated with each bolded header until the next bolded header is encountered.
@@ -4270,7 +4671,7 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                     outline_name: str = row["project_name"]
                     # Treat both 'Training Plan' and 'Course Outline' as outline types
                     if row["microproduct_type"] not in ("Training Plan", "Course Outline"):
-                        # Not an outline � nothing extra to move
+                        # Not an outline – nothing extra to move
                         continue
 
                     # Select IDs of all projects whose name equals outline_name OR starts with outline_name + ': '
@@ -4398,13 +4799,13 @@ async def get_analytics_dashboard(
         date_filter = ""
         params = []
         if date_from and date_to:
-            date_filter = "WHERE DATE(created_at) >= $1 AND DATE(created_at) <= $2"
+            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
             params = [datetime.strptime(date_from, '%Y-%m-%d').date(), datetime.strptime(date_to, '%Y-%m-%d').date()]
         elif date_from:
-            date_filter = "WHERE DATE(created_at) >= $1"
+            date_filter = "WHERE created_at >= $1"
             params = [datetime.strptime(date_from, '%Y-%m-%d').date()]
         elif date_to:
-            date_filter = "WHERE DATE(created_at) <= $1"
+            date_filter = "WHERE created_at <= $1"
             params = [datetime.strptime(date_to, '%Y-%m-%d').date()]
         
         print(f"=== DASHBOARD DEBUG: Date filter and params ===")
@@ -4658,12 +5059,12 @@ async def get_analytics_requests(
         
         if date_from:
             param_count += 1
-            conditions.append(f"DATE(created_at) >= ${param_count}")
+            conditions.append(f"created_at >= ${param_count}")
             params.append(datetime.strptime(date_from, '%Y-%m-%d').date())
         
         if date_to:
             param_count += 1
-            conditions.append(f"DATE(created_at) <= ${param_count}")
+            conditions.append(f"created_at <= ${param_count}")
             params.append(datetime.strptime(date_to, '%Y-%m-%d').date())
         
         if status_code is not None:
@@ -4743,13 +5144,13 @@ async def export_analytics_data(
         date_filter = ""
         params = []
         if date_from and date_to:
-            date_filter = "WHERE DATE(created_at) >= $1 AND DATE(created_at) <= $2"
+            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
             params = [datetime.strptime(date_from, '%Y-%m-%d').date(), datetime.strptime(date_to, '%Y-%m-%d').date()]
         elif date_from:
-            date_filter = "WHERE DATE(created_at) >= $1"
+            date_filter = "WHERE created_at >= $1"
             params = [datetime.strptime(date_from, '%Y-%m-%d').date()]
         elif date_to:
-            date_filter = "WHERE DATE(created_at) <= $1"
+            date_filter = "WHERE created_at <= $1"
             params = [datetime.strptime(date_to, '%Y-%m-%d').date()]
 
         async with pool.acquire() as conn:
@@ -5020,10 +5421,10 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
             logger.debug(f"[PARSE_OUTLINE] Found module: {title_part}")
             continue
 
-        # Lesson detection � only consider top-level list items (indent == 0)
+        # Lesson detection – only consider top-level list items (indent == 0)
         if current:
             # Capture Total Time lines before lessons
-            m_time = re.match(r"(?:Total Time|????? ?????|????????? ???)\s*:\s*([0-9]+(?:\.[0-9]+)?)", line, re.IGNORECASE)
+            m_time = re.match(r"(?:Total Time|Общее время|Загальний час)\s*:\s*([0-9]+(?:\.[0-9]+)?)", line, re.IGNORECASE)
             if m_time:
                 try:
                     current["totalHours"] = float(m_time.group(1))
@@ -5031,7 +5432,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
                     pass  # leave default 0.0 if parsing fails
 
             if indent == 0 and list_item_regex.match(line):
-                # Starting a new top-level lesson ? flush previous buffer
+                # Starting a new top-level lesson → flush previous buffer
                 ls_string = flush_current_lesson(_buf) if '_buf' in locals() else None
                 if ls_string:
                     current["lessons"].append(ls_string)
@@ -5549,7 +5950,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             
             # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
             if isinstance(direct_e, HTTPException) and direct_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-                logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion�")
+                logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
                 max_wait_sec = 900  # 15 minutes
                 poll_every_sec = 1
                 waited = 0
@@ -5572,9 +5973,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                         return JSONResponse(content={"id": row["id"]})
                     await asyncio.sleep(poll_every_sec)
                     waited += poll_every_sec
-                logger.warning("wizard_outline_finalize waited too long for existing creation � giving up")
+                logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
             else:
-                logger.warning(f"wizard_outline_finalize direct parser path failed � will use assistant path. Details: {direct_e}")
+                logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
             
             # Fall back to assistant path
             use_direct_parser = False
