@@ -4094,7 +4094,7 @@ async def get_analytics_dashboard(
                     MAX(created_at) as last_request
                 FROM request_analytics
                 {date_filter}
-                WHERE user_id IS NOT NULL
+                {"AND user_id IS NOT NULL" if date_filter else "WHERE user_id IS NOT NULL"}
                 GROUP BY user_id
                 ORDER BY request_count DESC
                 LIMIT 20
@@ -4156,7 +4156,7 @@ async def get_analytics_dashboard(
                     created_at
                 FROM request_analytics
                 {date_filter}
-                WHERE error_message IS NOT NULL OR status_code >= 400
+                {"AND (error_message IS NOT NULL OR status_code >= 400)" if date_filter else "WHERE error_message IS NOT NULL OR status_code >= 400"}
                 ORDER BY created_at DESC
                 LIMIT 50
             """
