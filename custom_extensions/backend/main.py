@@ -4021,6 +4021,20 @@ async def get_analytics_dashboard(
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Get comprehensive analytics dashboard data"""
+
+    try:
+        # DEBUG: Print the latest 10 rows from request_analytics
+        async with pool.acquire() as conn:
+            debug_rows = await conn.fetch(
+                "SELECT id, endpoint, method, status_code, created_at FROM request_analytics ORDER BY created_at DESC LIMIT 10"
+            )
+            print("=== DEBUG: Latest 10 rows from request_analytics ===")
+            for row in debug_rows:
+                print(dict(row))
+            print("=== END DEBUG ===")
+    except Exception as e:
+        print(f"DEBUG ERROR: Could not fetch request_analytics: {e}")
+
     try:
         # Build date filter with proper date conversion
         date_filter = ""
