@@ -1416,6 +1416,10 @@ The entire output must be a single, valid JSON object and must include all relev
             elif target_model == PdfLessonDetails and ('lessonTitle' not in parsed_json_data or not parsed_json_data['lessonTitle']):
                 parsed_json_data['lessonTitle'] = project_name
             
+            # Round hours to integers before validation to prevent float validation errors
+            if target_model == TrainingPlanDetails:
+                parsed_json_data = round_hours_in_content(parsed_json_data)
+            
             validated_model = target_model.model_validate(parsed_json_data)
             logger.info(f"LLM parsing for '{project_name}' succeeded on attempt #{attempt_number}.")
             return validated_model
@@ -2387,6 +2391,8 @@ Return ONLY the JSON object.
                     final_content_for_response = TextPresentationDetails(**db_content_dict)
                     logger.info("Re-parsed as TextPresentationDetails.")
                 elif component_name_from_db == COMPONENT_NAME_TRAINING_PLAN:
+                    # Round hours to integers before parsing to prevent float validation errors
+                    db_content_dict = round_hours_in_content(db_content_dict)
                     final_content_for_response = TrainingPlanDetails(**db_content_dict)
                     logger.info("Re-parsed as TrainingPlanDetails.")
                 elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON:
@@ -2400,6 +2406,8 @@ Return ONLY the JSON object.
                     logger.info("Re-parsed as SlideDeckDetails.")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
+                    # Round hours to integers before parsing to prevent float validation errors
+                    db_content_dict = round_hours_in_content(db_content_dict)
                     final_content_for_response = TrainingPlanDetails(**db_content_dict)
             except Exception as e_parse:
                 logger.error(f"Error parsing content from DB on add (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
@@ -2664,6 +2672,9 @@ async def download_project_instance_pdf(
                     logger.info(f"PDF Gen (Proj {project_id}): Raw content_json keys: {list(content_json.keys()) if isinstance(content_json, dict) else 'Not a dict'}")
                     if 'sections' in content_json:
                         logger.info(f"PDF Gen (Proj {project_id}): sections type: {type(content_json['sections'])}, length: {len(content_json['sections']) if isinstance(content_json['sections'], list) else 'Not a list'}")
+                    
+                    # Round hours to integers before parsing to prevent float validation errors
+                    content_json = round_hours_in_content(content_json)
                     
                     parsed_model = TrainingPlanDetails(**content_json)
                     logger.info(f"PDF Gen (Proj {project_id}): Parsed model sections length: {len(parsed_model.sections)}")
@@ -5014,6 +5025,10 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         db_content = row["microproduct_content"]
         final_content_for_model: Optional[MicroProductContentType] = None
         if db_content and isinstance(db_content, dict):
+            # Round hours to integers before parsing to prevent float validation errors
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                db_content = round_hours_in_content(db_content)
+            
             try:
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
@@ -5128,6 +5143,10 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                     project_id
                 )
                 current_component_name = component_row["component_name"] if component_row else COMPONENT_NAME_TRAINING_PLAN
+                
+                # Round hours to integers before parsing to prevent float validation errors
+                if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = round_hours_in_content(db_content)
                 
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
