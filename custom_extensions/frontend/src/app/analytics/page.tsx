@@ -299,7 +299,7 @@ const AnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Requests</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboard.overview.total_requests.toLocaleString()}</p>
-              </div>
+                </div>
               </div>
             </div>
 
@@ -311,7 +311,7 @@ const AnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Success Rate</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboard.overview.success_rate}%</p>
-              </div>
+                </div>
               </div>
             </div>
 
@@ -323,7 +323,7 @@ const AnalyticsPage = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
                 <p className="text-2xl font-bold text-gray-900">{formatDuration(dashboard.overview.avg_response_time)}</p>
-              </div>
+                </div>
               </div>
             </div>
 

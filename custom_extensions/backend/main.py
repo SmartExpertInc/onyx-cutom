@@ -352,6 +352,759 @@ except ImportError:
 @app.on_event("startup")
 async def startup_event():
     global DB_POOL
+    DB_POOL = await asyncpg.create_pool(CUSTOM_PROJECTS_DATABASE_URL)
+    logger.info("Database connection pool created.")
+
+    # Create request_analytics table if not exists
+    try:
+        async with DB_POOL.acquire() as conn:
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id UUID PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+                )
+            """)
+        logger.info("request_analytics table created or already exists.")
+    except Exception as e:
+        logger.error(f"Error creating request_analytics table: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL is not None:
+        await DB_POOL.close()
+        logger.info("Database connection pool closed.")
+
+@app.get("/api/custom/health")
+async def health_check():
+    return {"status": "ok"}
+
+@app.get("/api/custom/analytics/dashboard")
+async def get_analytics_dashboard(
+    date_from: Optional[str] = Query(None, description="Start date for analytics (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="End date for analytics (YYYY-MM-DD)")
+):
+    logger.info(f"=== DASHBOARD DEBUG: Incoming parameters ===")
+    logger.info(f"date_from: {date_from}")
+    logger.info(f"date_to: {date_to}")
+    logger.info(f"=== END PARAMETERS ===")
+
+    # Fetch latest 10 rows from request_analytics
+    logger.info(f"=== DEBUG: Latest 10 rows from request_analytics ===")
+    async with DB_POOL.acquire() as conn:
+# custom_extensions/backend/main.py
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from pydantic import BaseModel, Field, RootModel
+import re
+import os
+import asyncpg
+from datetime import datetime, timezone
+import httpx
+from httpx import HTTPStatusError
+import json
+import uuid
+import shutil
+import logging
+from locales.__init__ import LANG_CONFIG
+import asyncio
+import typing
+import tempfile
+import io
+import gzip
+import base64
+import time
+import uuid
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+
+# --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
+# SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
+IS_PRODUCTION = False  # Or True for production
+
+# --- Logger ---
+logger = logging.getLogger(__name__)
+if IS_PRODUCTION:
+    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
+else:
+    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+
+
+# --- Constants & DB Setup ---
+CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
+ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
+ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
+
+# Component name constants
+COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
+COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
+COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
+COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
+COMPONENT_NAME_QUIZ = "QuizDisplay"
+COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+
+# --- LLM Configuration for JSON Parsing ---
+# === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
+LLM_API_KEY = os.getenv("OPENAI_API_KEY")
+LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+# Endpoint for Chat Completions
+LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+# Default model to use – gpt-4o-mini provides strong JSON adherence
+LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+DB_POOL = None
+# Track in-flight project creations to avoid duplicate processing (keyed by user+project)
+ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
+
+
+# --- Directory for Design Template Images ---
+STATIC_DESIGN_IMAGES_DIR = "static_design_images"
+os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
+
+def inspect_list_items_recursively(data_structure: Any, path: str = ""):
+    if isinstance(data_structure, dict):
+        for key, value in data_structure.items():
+            new_path = f"{path}.{key}" if path else key
+            if key == "items": # Focus on 'items' keys
+                logger.info(f"PDF Deep Inspect: Path: {new_path}, Type: {type(value)}, Is List: {isinstance(value, list)}, Value (first 100): {str(value)[:100]}")
+                if not isinstance(value, list) and value is not None:
+                    logger.error(f"PDF DEEP ERROR: Non-list 'items' at {new_path}. Type: {type(value)}, Value: {str(value)[:200]}")
+            if isinstance(value, (dict, list)):
+                inspect_list_items_recursively(value, new_path)
+    elif isinstance(data_structure, list):
+        for i, item in enumerate(data_structure):
+            new_path = f"{path}[{i}]"
+            if isinstance(item, (dict, list)):
+                inspect_list_items_recursively(item, new_path)
+
+DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
+{
+  "mainTitle": "Example Training Program",
+  "sections": [
+    {
+      "id": "№1",
+      "title": "Introduction to Topic",
+      "totalHours": 5.5,
+      "lessons": [
+        {
+          "title": "Lesson 1.1: Basic Concepts",
+          "check": {"type": "test", "text": "Knowledge Test"},
+          "contentAvailable": {"type": "yes", "text": "100%"},
+          "source": "Internal Documentation",
+          "hours": 2.0,
+          "completionTime": "6m"
+        }
+      ]
+    }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Slide Deck Lesson",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "deckgoTemplate": "deckgo-slide-title",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
+        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Key point 1",
+            "Key point 2", 
+            "Key point 3"
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND",
+          "description": "Educational theme background"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "deckgoTemplate": "deckgo-slide-content",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        {
+          "type": "numbered_list",
+          "items": [
+            "First important concept",
+            "Second important concept"
+          ]
+        },
+        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "MEDIUM",
+          "position": "RIGHT",
+          "description": "Concept visualization or diagram"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_3_data",
+      "slideNumber": 3,
+      "slideTitle": "Understanding Schedules",
+      "deckgoTemplate": "deckgo-slide-chart",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Timetable Chart" },
+        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Check the departure and arrival columns carefully.",
+            "The station code is listed beside each time."
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND", 
+          "description": "A train timetable board"
+        }
+      ]
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+}
+"""
+
+async def get_db_pool():
+    if DB_POOL is None:
+        detail_msg = "Database service not available." # Generic enough for production
+        raise HTTPException(status_code=503, detail=detail_msg)
+    return DB_POOL
+
+app = FastAPI(title="Custom Extension Backend")
+
+app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+
+@app.middleware("http")
+async def track_request_analytics(request: Request, call_next):
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Get user ID if available
+    user_id = None
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Get request size
+    request_size = None
+    try:
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            body = await request.body()
+            request_size = len(body)
+    except:
+        pass
+    
+    try:
+        response = await call_next(request)
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Get response size
+        response_size = None
+        try:
+            if hasattr(response, 'body'):
+                response_size = len(response.body)
+        except:
+            pass
+        
+        # Store analytics in database
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     response.status_code, response_time_ms, request_size,
+                     response_size, None, datetime.now(timezone.utc))
+        except Exception as e:
+            logger.error(f"Failed to store request analytics: {e}")
+        
+        return response
+        
+    except Exception as e:
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Store error analytics
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     500, response_time_ms, request_size, None,
+                     str(e), datetime.now(timezone.utc))
+        except Exception as db_error:
+            logger.error(f"Failed to store error analytics: {db_error}")
+        
+        raise
+
+try:
+    from app.services.pdf_generator import generate_pdf_from_html_template
+    from app.core.config import settings
+except ImportError:
+    logger.warning("Could not import pdf_generator or settings from 'app' module. Using dummy implementations for PDF generation.")
+    class DummySettings:
+        CUSTOM_FRONTEND_URL = os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+    settings = DummySettings()
+    async def generate_pdf_from_html_template(template_name: str, context_data: Dict[str, Any], output_filename: str) -> str:
+        logger.info(f"PDF Generation Skipped (Dummy Service): Would generate for template {template_name} to {output_filename}")
+        dummy_path = os.path.join("/app/tmp_pdf", output_filename)
+        os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
+        with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
+        return dummy_path
+
+@app.on_event("startup")
+# custom_extensions/backend/main.py
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from pydantic import BaseModel, Field, RootModel
+import re
+import os
+import asyncpg
+from datetime import datetime, timezone
+import httpx
+from httpx import HTTPStatusError
+import json
+import uuid
+import shutil
+import logging
+from locales.__init__ import LANG_CONFIG
+import asyncio
+import typing
+import tempfile
+import io
+import gzip
+import base64
+import time
+import uuid
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+
+# --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
+# SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
+IS_PRODUCTION = False  # Or True for production
+
+# --- Logger ---
+logger = logging.getLogger(__name__)
+if IS_PRODUCTION:
+    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
+else:
+    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+
+
+# --- Constants & DB Setup ---
+CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
+ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
+ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
+
+# Component name constants
+COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
+COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
+COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
+COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
+COMPONENT_NAME_QUIZ = "QuizDisplay"
+COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+
+# --- LLM Configuration for JSON Parsing ---
+# === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
+LLM_API_KEY = os.getenv("OPENAI_API_KEY")
+LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+# Endpoint for Chat Completions
+LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+# Default model to use – gpt-4o-mini provides strong JSON adherence
+LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+DB_POOL = None
+# Track in-flight project creations to avoid duplicate processing (keyed by user+project)
+ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
+
+
+# --- Directory for Design Template Images ---
+STATIC_DESIGN_IMAGES_DIR = "static_design_images"
+os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
+
+def inspect_list_items_recursively(data_structure: Any, path: str = ""):
+    if isinstance(data_structure, dict):
+        for key, value in data_structure.items():
+            new_path = f"{path}.{key}" if path else key
+            if key == "items": # Focus on 'items' keys
+                logger.info(f"PDF Deep Inspect: Path: {new_path}, Type: {type(value)}, Is List: {isinstance(value, list)}, Value (first 100): {str(value)[:100]}")
+                if not isinstance(value, list) and value is not None:
+                    logger.error(f"PDF DEEP ERROR: Non-list 'items' at {new_path}. Type: {type(value)}, Value: {str(value)[:200]}")
+            if isinstance(value, (dict, list)):
+                inspect_list_items_recursively(value, new_path)
+    elif isinstance(data_structure, list):
+        for i, item in enumerate(data_structure):
+            new_path = f"{path}[{i}]"
+            if isinstance(item, (dict, list)):
+                inspect_list_items_recursively(item, new_path)
+
+DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
+{
+  "mainTitle": "Example Training Program",
+  "sections": [
+    {
+      "id": "№1",
+      "title": "Introduction to Topic",
+      "totalHours": 5.5,
+      "lessons": [
+        {
+          "title": "Lesson 1.1: Basic Concepts",
+          "check": {"type": "test", "text": "Knowledge Test"},
+          "contentAvailable": {"type": "yes", "text": "100%"},
+          "source": "Internal Documentation",
+          "hours": 2.0,
+          "completionTime": "6m"
+        }
+      ]
+    }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Slide Deck Lesson",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "deckgoTemplate": "deckgo-slide-title",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
+        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Key point 1",
+            "Key point 2", 
+            "Key point 3"
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND",
+          "description": "Educational theme background"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "deckgoTemplate": "deckgo-slide-content",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        {
+          "type": "numbered_list",
+          "items": [
+            "First important concept",
+            "Second important concept"
+          ]
+        },
+        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "MEDIUM",
+          "position": "RIGHT",
+          "description": "Concept visualization or diagram"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_3_data",
+      "slideNumber": 3,
+      "slideTitle": "Understanding Schedules",
+      "deckgoTemplate": "deckgo-slide-chart",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Timetable Chart" },
+        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Check the departure and arrival columns carefully.",
+            "The station code is listed beside each time."
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND", 
+          "description": "A train timetable board"
+        }
+      ]
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+}
+"""
+
+async def get_db_pool():
+    if DB_POOL is None:
+        detail_msg = "Database service not available." # Generic enough for production
+        raise HTTPException(status_code=503, detail=detail_msg)
+    return DB_POOL
+
+app = FastAPI(title="Custom Extension Backend")
+
+app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+
+@app.middleware("http")
+async def track_request_analytics(request: Request, call_next):
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Get user ID if available
+    user_id = None
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Get request size
+    request_size = None
+    try:
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            body = await request.body()
+            request_size = len(body)
+    except:
+        pass
+    
+    try:
+        response = await call_next(request)
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Get response size
+        response_size = None
+        try:
+            if hasattr(response, 'body'):
+                response_size = len(response.body)
+        except:
+            pass
+        
+        # Store analytics in database
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     response.status_code, response_time_ms, request_size,
+                     response_size, None, datetime.now(timezone.utc))
+        except Exception as e:
+            logger.error(f"Failed to store request analytics: {e}")
+        
+        return response
+        
+    except Exception as e:
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Store error analytics
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     500, response_time_ms, request_size, None,
+                     str(e), datetime.now(timezone.utc))
+        except Exception as db_error:
+            logger.error(f"Failed to store error analytics: {db_error}")
+        
+        raise
+
+try:
+    from app.services.pdf_generator import generate_pdf_from_html_template
+    from app.core.config import settings
+except ImportError:
+    logger.warning("Could not import pdf_generator or settings from 'app' module. Using dummy implementations for PDF generation.")
+    class DummySettings:
+        CUSTOM_FRONTEND_URL = os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+    settings = DummySettings()
+    async def generate_pdf_from_html_template(template_name: str, context_data: Dict[str, Any], output_filename: str) -> str:
+        logger.info(f"PDF Generation Skipped (Dummy Service): Would generate for template {template_name} to {output_filename}")
+        dummy_path = os.path.join("/app/tmp_pdf", output_filename)
+        os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
+        with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
+        return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
     logger.info("Custom Backend starting...")
     if not CUSTOM_PROJECTS_DATABASE_URL:
         logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
