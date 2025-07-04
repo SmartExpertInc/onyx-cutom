@@ -10,6 +10,7 @@ import re
 import os
 import asyncpg
 from datetime import datetime, timezone, timedelta
+import time
 import httpx
 from httpx import HTTPStatusError
 import json
@@ -3421,17 +3422,16 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     request_id = f"preview_{int(start_time * 1000)}"
     user_id = request.headers.get('x-onyx-user-id', 'unknown')
     
-    try:
-        # Track request start
-        track_request(
-            request_id=request_id,
-            user_id=user_id,
-            endpoint='/api/custom/course-outline/preview',
-            start_time=start_time,
-            status='in_progress',
-            request_type='preview',
-            project_type='Training Plan'
-        )
+    # Track request start
+    track_request(
+        request_id=request_id,
+        user_id=user_id,
+        endpoint='/api/custom/course-outline/preview',
+        start_time=start_time,
+        status='in_progress',
+        request_type='preview',
+        project_type='Training Plan'
+    )
     logger.info(f"[PREVIEW_START] Course outline preview initiated")
     logger.info(f"[PREVIEW_PARAMS] prompt='{payload.prompt[:50]}...' modules={payload.modules} lessonsPerModule={payload.lessonsPerModule} lang={payload.language}")
     logger.info(f"[PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
@@ -3702,21 +3702,20 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
     request_id = f"finalize_{int(start_time * 1000)}"
     user_id = request.headers.get('x-onyx-user-id', 'unknown')
     
-    try:
-        # Track request start
-        track_request(
-            request_id=request_id,
-            user_id=user_id,
-            endpoint='/api/custom/course-outline/finalize',
-            start_time=start_time,
-            status='in_progress',
-            request_type='finalize',
-            project_type='Training Plan'
-        )
-        
-        cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-        if not cookies[ONYX_SESSION_COOKIE_NAME]:
-            raise HTTPException(status_code=401, detail="Not authenticated")
+    # Track request start
+    track_request(
+        request_id=request_id,
+        user_id=user_id,
+        endpoint='/api/custom/course-outline/finalize',
+        start_time=start_time,
+        status='in_progress',
+        request_type='finalize',
+        project_type='Training Plan'
+    )
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    if not cookies[ONYX_SESSION_COOKIE_NAME]:
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     # Ensure we have a chat session id (needed both for cache lookup and possible assistant fallback)
     if payload.chatSessionId:
@@ -3992,7 +3991,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             last_send = asyncio.get_event_loop().time()
 
             # Use longer timeout for large text processing to prevent AI memory issues
-            timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+            timeout_duration = 300.0  # 5 minutes for large texts
             logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
             try:
                 async with httpx.AsyncClient(timeout=timeout_duration) as client:
@@ -4003,11 +4002,6 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                         folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
                     if payload.fromFiles and payload.fileIds:
                         file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                    
-                    # Add virtual file ID if created for large text
-                    if wiz_payload.get("virtualFileId"):
-                        file_ids_list.append(wiz_payload["virtualFileId"])
-                        logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
                     send_payload = {
                         "chat_session_id": chat_id,
@@ -4065,22 +4059,6 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             yield (json.dumps(done_packet) + "\n").encode()
 
         return StreamingResponse(streamer(), media_type="application/json")
-        
-    except Exception as e:
-        # Track error
-        duration = time.time() - start_time
-        track_request(
-            request_id=request_id,
-            user_id=user_id,
-            endpoint='/api/custom/course-outline/finalize',
-            start_time=start_time,
-            status='error',
-            duration=duration,
-            error_message=str(e),
-            request_type='finalize',
-            project_type='Training Plan'
-        )
-        raise
 
 @app.post("/api/custom/course-outline/init-chat")
 async def init_course_outline_chat(request: Request):
