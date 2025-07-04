@@ -23,46 +23,17 @@ import tempfile
 import io
 import gzip
 import base64
-import traceback
-import time
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
 
-# --- Enhanced Logger Setup ---
+# --- Logger ---
 logger = logging.getLogger(__name__)
-
-# Create a detailed logging formatter
-class DetailedFormatter(logging.Formatter):
-    def format(self, record):
-        # Add timestamp, function name, and line number
-        record.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-        record.func_info = f"{record.funcName}:{record.lineno}"
-        
-        # Add request ID if available
-        if hasattr(record, 'request_id'):
-            record.request_id_str = f"[{record.request_id}]"
-        else:
-            record.request_id_str = "[NO-REQ-ID]"
-            
-        return super().format(record)
-
-# Configure logging with detailed formatter
 if IS_PRODUCTION:
-    logging.basicConfig(
-        level=logging.ERROR,
-        format='%(timestamp)s %(levelname)s %(request_id_str)s %(func_info)s: %(message)s'
-    )
+    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
 else:
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(timestamp)s %(levelname)s %(request_id_str)s %(func_info)s: %(message)s'
-    )
-
-# Apply the detailed formatter
-for handler in logging.root.handlers:
-    handler.setFormatter(DetailedFormatter())
+    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
 
 
 # --- Constants & DB Setup ---
@@ -95,69 +66,6 @@ ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
 # --- Directory for Design Template Images ---
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
-
-# --- Enhanced Logging Helper Functions ---
-def log_preview_step(request_id: str, step: str, details: Dict[str, Any] = None, error: Exception = None):
-    """Centralized logging for preview generation steps"""
-    log_data = {
-        "request_id": request_id,
-        "step": step,
-        "timestamp": datetime.now().isoformat(),
-        "details": details or {}
-    }
-    
-    if error:
-        log_data["error"] = {
-            "type": type(error).__name__,
-            "message": str(error),
-            "traceback": traceback.format_exc()
-        }
-        logger.error(f"PREVIEW_STEP_FAILED: {json.dumps(log_data, default=str)}")
-    else:
-        logger.info(f"PREVIEW_STEP: {json.dumps(log_data, default=str)}")
-
-def log_onyx_request(request_id: str, endpoint: str, payload: Dict[str, Any], response_status: int = None, response_data: Any = None, error: Exception = None):
-    """Log Onyx API requests and responses"""
-    log_data = {
-        "request_id": request_id,
-        "onyx_endpoint": endpoint,
-        "payload_size": len(json.dumps(payload, default=str)),
-        "payload_keys": list(payload.keys()) if isinstance(payload, dict) else "N/A"
-    }
-    
-    if response_status:
-        log_data["response_status"] = response_status
-    if response_data:
-        log_data["response_size"] = len(str(response_data))
-    if error:
-        log_data["error"] = {
-            "type": type(error).__name__,
-            "message": str(error)
-        }
-        logger.error(f"ONYX_REQUEST_FAILED: {json.dumps(log_data, default=str)}")
-    else:
-        logger.info(f"ONYX_REQUEST: {json.dumps(log_data, default=str)}")
-
-def log_streaming_chunk(request_id: str, chunk_type: str, chunk_size: int, chunk_preview: str = None):
-    """Log streaming response chunks"""
-    log_data = {
-        "request_id": request_id,
-        "chunk_type": chunk_type,
-        "chunk_size": chunk_size
-    }
-    if chunk_preview:
-        log_data["chunk_preview"] = chunk_preview[:100] + "..." if len(chunk_preview) > 100 else chunk_preview
-    
-    logger.debug(f"STREAMING_CHUNK: {json.dumps(log_data, default=str)}")
-
-# --- Enhanced Error Handling ---
-class PreviewGenerationError(Exception):
-    """Custom exception for preview generation errors"""
-    def __init__(self, step: str, message: str, original_error: Exception = None):
-        self.step = step
-        self.message = message
-        self.original_error = original_error
-        super().__init__(f"Preview generation failed at step '{step}': {message}")
 
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
@@ -3289,56 +3197,34 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
 @app.post("/api/custom/course-outline/preview")
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
-    # Generate unique request ID for tracking
-    request_id = str(uuid.uuid4())[:8]
-    start_time = time.time()
+    logger.info(f"[PREVIEW_START] Course outline preview initiated")
+    logger.info(f"[PREVIEW_PARAMS] prompt='{payload.prompt[:50]}...' modules={payload.modules} lessonsPerModule={payload.lessonsPerModule} lang={payload.language}")
+    logger.info(f"[PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
+    logger.info(f"[PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
     
-    log_preview_step(request_id, "preview_start", {
-        "endpoint": "course-outline/preview",
-        "prompt_length": len(payload.prompt),
-        "prompt_preview": payload.prompt[:100] + "..." if len(payload.prompt) > 100 else payload.prompt,
-        "modules": payload.modules,
-        "lessons_per_module": payload.lessonsPerModule,
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[PREVIEW_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[PREVIEW_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[PREVIEW_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Course Outline",
+        "prompt": payload.prompt,
         "language": payload.language,
-        "from_files": payload.fromFiles,
-        "from_text": payload.fromText,
-        "text_mode": payload.textMode,
-        "user_text_length": len(payload.userText) if payload.userText else 0,
-        "has_chat_session": bool(payload.chatSessionId)
-    })
-    
-    try:
-        cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-        
-        if not cookies[ONYX_SESSION_COOKIE_NAME]:
-            log_preview_step(request_id, "authentication_failed", {"error": "No session cookie found"})
-            raise HTTPException(status_code=401, detail="Not authenticated")
-        
-        log_preview_step(request_id, "authentication_success", {"session_cookie_present": True})
-
-        # Handle chat session setup
-        if payload.chatSessionId:
-            chat_id = payload.chatSessionId
-            log_preview_step(request_id, "chat_session_reused", {"chat_id": chat_id})
-        else:
-            log_preview_step(request_id, "chat_session_creation_start")
-            try:
-                persona_id = await get_contentbuilder_persona_id(cookies)
-                log_preview_step(request_id, "persona_id_retrieved", {"persona_id": persona_id})
-                
-                chat_id = await create_onyx_chat_session(persona_id, cookies)
-                log_preview_step(request_id, "chat_session_created", {"chat_id": chat_id})
-            except Exception as e:
-                log_preview_step(request_id, "chat_session_creation_failed", error=e)
-                raise PreviewGenerationError("chat_session_creation", f"Failed to create chat session: {str(e)}", e)
-
-        log_preview_step(request_id, "payload_preparation_start")
-        
-        wiz_payload = {
-            "product": "Course Outline",
-            "prompt": payload.prompt,
-            "language": payload.language,
-        }
+    }
 
     # Add file context if provided
     if payload.fromFiles:
@@ -3431,86 +3317,77 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         # Use longer timeout for large text processing to prevent AI memory issues
         timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
-        async with httpx.AsyncClient(timeout=timeout_duration) as client:
-            # Parse folder and file IDs for Onyx
-            folder_ids_list = []
-            file_ids_list = []
-            if payload.fromFiles and payload.folderIds:
-                folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-            if payload.fromFiles and payload.fileIds:
-                file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-            
-            # Add virtual file ID if created for large text
-            if wiz_payload.get("virtualFileId"):
-                file_ids_list.append(wiz_payload["virtualFileId"])
-                logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-            
-            send_payload = {
-                "chat_session_id": chat_id,
-                "message": wizard_message,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": file_ids_list,
-                "user_folder_ids": folder_ids_list,
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": {"run_search": "always", "real_time": False},
-                "stream_response": True,
-            }
-            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                async for raw_line in resp.aiter_lines():
-                    if not raw_line:
-                        continue
-                    line = raw_line.strip()
-                    if line.startswith("data:"):
-                        line = line.split("data:", 1)[1].strip()
-                    if line == "[DONE]":
-                        break
-                    try:
-                        pkt = json.loads(line)
-                        if "answer_piece" in pkt:
-                            # Forward each assistant chunk directly to the client instead of
-                            # waiting for the whole answer. This lets the UI render a live
-                            # streaming preview.
-                            delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                            assistant_reply += delta_text
+        try:
+            async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                # Parse folder and file IDs for Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                if payload.fromFiles and payload.folderIds:
+                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                if payload.fromFiles and payload.fileIds:
+                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": file_ids_list,
+                    "user_folder_ids": folder_ids_list,
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "always", "real_time": False},
+                    "stream_response": True,
+                }
+                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                    async for raw_line in resp.aiter_lines():
+                        if not raw_line:
+                            continue
+                        line = raw_line.strip()
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                        if line == "[DONE]":
+                            logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                            break
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        except Exception as e:
+                            logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                            continue
 
-                            # Send newline-delimited JSON so the frontend can parse chunks
-                            # with a simple TextDecoder / line splitter.
-                            yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                    except Exception:
-                        continue
+                        # send keep-alive every 8s
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+        except Exception as e:
+            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+            raise
 
-                    # send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
-
-        assistant_reply = assistant_reply  # preserve
         # Cache full raw outline for later finalize step
         if chat_id:
             OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
 
         modules_preview = _parse_outline_markdown(assistant_reply)
+        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
         # Send completion packet with the parsed outline.
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
         yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
-    
-    except Exception as e:
-        log_preview_step(request_id, "preview_generation_failed", {
-            "total_duration": time.time() - start_time,
-            "error_type": type(e).__name__,
-            "error_message": str(e)
-        }, error=e)
-        
-        # Re-raise the exception with additional context
-        if isinstance(e, HTTPException):
-            raise e
-        else:
-            raise PreviewGenerationError("preview_generation", f"Unexpected error during preview generation: {str(e)}", e)
 
 async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
     async with pool.acquire() as conn:
@@ -3792,75 +3669,78 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             assistant_reply: str = ""
             last_send = asyncio.get_event_loop().time()
 
-            async with httpx.AsyncClient(timeout=None) as client:
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": [],
-                    "user_folder_ids": [],
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "always", "real_time": False},
-                    "stream_response": True,
-                }
+            # Use longer timeout for large text processing to prevent AI memory issues
+            timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+            logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+            try:
+                async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                    # Parse folder and file IDs for Onyx
+                    folder_ids_list = []
+                    file_ids_list = []
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    send_payload = {
+                        "chat_session_id": chat_id,
+                        "message": wizard_message,
+                        "parent_message_id": None,
+                        "file_descriptors": [],
+                        "user_file_ids": file_ids_list,
+                        "user_folder_ids": folder_ids_list,
+                        "prompt_id": None,
+                        "search_doc_ids": None,
+                        "retrieval_options": {"run_search": "always", "real_time": False},
+                        "stream_response": True,
+                    }
+                    logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                        logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                    assistant_reply += delta_text
+                                    logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            except Exception as e:
+                                logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                                continue
 
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    async for raw_line in resp.aiter_lines():
-                        if not raw_line:
-                            continue
-                        line = raw_line.strip()
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                        if line == "[DONE]":
-                            break
-                        try:
-                            pkt = json.loads(line)
-                            if "answer_piece" in pkt:
-                                assistant_reply += pkt["answer_piece"].replace("\\n", "\n")
-                        except Exception:
-                            continue
+                            # send keep-alive every 8s
+                            now = asyncio.get_event_loop().time()
+                            if now - last_send > 8:
+                                yield b" "
+                                last_send = now
+            except Exception as e:
+                logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+                raise
 
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "  # keep-alive
-                            last_send = now
+            # Cache full raw outline for later finalize step
+            if chat_id:
+                OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
 
-                # After assistant finished, push through the usual DB path
-                template_id_fallback = await _ensure_training_plan_template(pool)
-                project_name_detected_fb = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
-                project_request_fb = ProjectCreateRequest(
-                    projectName=project_name_detected_fb,
-                    design_template_id=template_id_fallback,
-                    microProductName=None,
-                    aiResponse=assistant_reply,
-                    chatSessionId=uuid.UUID(chat_id) if chat_id else None,
-                )
-                onyx_user_id_current = await get_current_onyx_user_id(request)
-                project_db_fb = await add_project_to_custom_db(project_request_fb, onyx_user_id_current, pool)  # type: ignore[arg-type]
-
-                # Patch theme if provided (only for TrainingPlan components)
-                if payload.theme:
-                    # Get the design template to check component type
-                    async with pool.acquire() as conn:
-                        design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id_fallback)
-                        if design_template and design_template["component_name"] == COMPONENT_NAME_TRAINING_PLAN:
-                            await conn.execute(
-                                """
-                                UPDATE projects
-                                SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
-                                WHERE id = $2
-                                """,
-                                payload.theme, project_db_fb.id
-                            )
-                            row_patch_fb = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_fb.id)
-                            if row_patch_fb and row_patch_fb["microproduct_content"] is not None:
-                                project_db_fb.microproduct_content = row_patch_fb["microproduct_content"]
-
-                yield project_db_fb.model_dump_json().encode()
-
-
+            modules_preview = _parse_outline_markdown(assistant_reply)
+            logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
+            # Send completion packet with the parsed outline.
+            done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+            yield (json.dumps(done_packet) + "\n").encode()
 
         return StreamingResponse(streamer(), media_type="application/json")
 
@@ -4110,51 +3990,81 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict)
 
     async def streamer():
+        assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
-        async with httpx.AsyncClient(timeout=None) as client:
-            # Parse folder and file IDs for Onyx
-            folder_ids_list = []
-            file_ids_list = []
-            if payload.fromFiles and payload.folderIds:
-                folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-            if payload.fromFiles and payload.fileIds:
-                file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-            
-            # Add virtual file ID if created for large text
-            send_payload = {
-                "chat_session_id": chat_id,
-                "message": wizard_message,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": file_ids_list,
-                "user_folder_ids": folder_ids_list,
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": {"run_search": "always", "real_time": False},
-                "stream_response": True,
-            }
 
-            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                async for raw_line in resp.aiter_lines():
-                    if not raw_line:
-                        continue
-                    line = raw_line.strip()
-                    if line.startswith("data:"):
-                        line = line.split("data:", 1)[1].strip()
-                    if line == "[DONE]":
-                        break
-                    try:
-                        pkt = json.loads(line)
-                        if "answer_piece" in pkt:
-                            text_piece = pkt["answer_piece"].replace("\\n", "\n")
-                            yield text_piece.encode()
-                    except Exception:
-                        continue
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+        try:
+            async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                # Parse folder and file IDs for Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                if payload.fromFiles and payload.folderIds:
+                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                if payload.fromFiles and payload.fileIds:
+                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": file_ids_list,
+                    "user_folder_ids": folder_ids_list,
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "always", "real_time": False},
+                    "stream_response": True,
+                }
+                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                    async for raw_line in resp.aiter_lines():
+                        if not raw_line:
+                            continue
+                        line = raw_line.strip()
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                        if line == "[DONE]":
+                            logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                            break
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        except Exception as e:
+                            logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                            continue
 
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "  # keep-alive
-                        last_send = now
+                        # send keep-alive every 8s
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+        except Exception as e:
+            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+            raise
+
+        # Cache full raw outline for later finalize step
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+        modules_preview = _parse_outline_markdown(assistant_reply)
+        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
+        # Send completion packet with the parsed outline.
+        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+        yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="text/plain")
 
@@ -4571,110 +4481,78 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
-        async with httpx.AsyncClient(timeout=None) as client:
-            send_payload = {
-                "chat_session_id": chat_id,
-                "message": wizard_message,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": [],
-                "user_folder_ids": [],
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": {"run_search": "always", "real_time": False},
-                "stream_response": True,
-            }
-            
-            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                async for raw_line in resp.aiter_lines():
-                    if not raw_line:
-                        continue
-                    line = raw_line.strip()
-                    if line.startswith("data:"):
-                        line = line.split("data:", 1)[1].strip()
-                    if line == "[DONE]":
-                        break
-                    try:
-                        pkt = json.loads(line)
-                        if "answer_piece" in pkt:
-                            delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                            assistant_reply += delta_text
-                            # Send delta to frontend
-                            yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                    except Exception:
-                        continue
-
-                    # Keep-alive
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
-
-        # Parse the AI response using the same pipeline as course outline finalization
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
         try:
-            # Use same parsing pipeline as course outline finalization
-            template_id = await _ensure_training_plan_template(pool)
-            project_name_detected = existing_content.get("mainTitle", "Training Plan") if existing_content else "Training Plan"
-            
-            # Create ProjectCreateRequest with the AI response
-            project_request = ProjectCreateRequest(
-                projectName=project_name_detected,
-                design_template_id=template_id,
-                microProductName=None,
-                aiResponse=assistant_reply,
-                chatSessionId=uuid.UUID(payload.chatSessionId) if payload.chatSessionId else None,
-            )
-            
-            # Parse using the full AI parsing pipeline (same as course outline finalization)
-            parsed_project = await add_project_to_custom_db(project_request, onyx_user_id, pool)
-            
-            # Update the existing project with the parsed content
-            if parsed_project.microproduct_content:
-                # Convert TrainingPlanDetails to dict for JSON serialization
-                content_dict = parsed_project.microproduct_content
-                if hasattr(content_dict, 'model_dump'):
-                    content_dict = content_dict.model_dump()
+            async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                # Parse folder and file IDs for Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                if payload.fromFiles and payload.folderIds:
+                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                if payload.fromFiles and payload.fileIds:
+                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
                 
-                # Preserve original theme and other metadata
-                if existing_content and isinstance(existing_content, dict):
-                    original_theme = existing_content.get("theme", "cherry")
-                    original_display_options = existing_content.get("displayOptions")
-                    
-                    # Apply original theme to the new content
-                    content_dict["theme"] = original_theme
-                    if original_display_options:
-                        content_dict["displayOptions"] = original_display_options
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                 
-                # Update existing project with new content
-                async with pool.acquire() as conn:
-                    await conn.execute("""
-                        UPDATE projects 
-                        SET microproduct_content = $1
-                        WHERE id = $2 AND onyx_user_id = $3
-                    """, content_dict, payload.projectId, onyx_user_id)
-                    
-                    # Clean up the temporary project created by add_project_to_custom_db
-                    await conn.execute(
-                        "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                        parsed_project.id,
-                        onyx_user_id
-                    )
-                
-                # Send completion packet with the parsed content
-                done_packet = {
-                    "type": "done", 
-                    "updatedContent": content_dict,
-                    "raw": assistant_reply
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": file_ids_list,
+                    "user_folder_ids": folder_ids_list,
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "always", "real_time": False},
+                    "stream_response": True,
                 }
-                yield (json.dumps(done_packet) + "\n").encode()
-            else:
-                error_packet = {"type": "error", "message": "Failed to parse AI response"}
-                yield (json.dumps(error_packet) + "\n").encode()
-                
+                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                    async for raw_line in resp.aiter_lines():
+                        if not raw_line:
+                            continue
+                        line = raw_line.strip()
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                        if line == "[DONE]":
+                            logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                            break
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        except Exception as e:
+                            logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                            continue
+
+                        # send keep-alive every 8s
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
         except Exception as e:
-            logger.error(f"Error parsing AI response: {e}")
-            error_packet = {"type": "error", "message": f"Failed to parse AI response: {str(e)}"}
-            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+            raise
+
+        # Cache full raw outline for later finalize step
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+        modules_preview = _parse_outline_markdown(assistant_reply)
+        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
+        # Send completion packet with the parsed outline.
+        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+        yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
 
@@ -5342,17 +5220,6 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
     except Exception as e:
         logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to get lesson data")
-
-@app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
-async def download_projects_list_pdf(
-    folder_id: Optional[int] = Query(None),
-    column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
-    client_name: Optional[str] = Query(None),  # Client name for PDF header customization
-    selected_folders: Optional[str] = Query(None),  # JSON string of selected folder IDs
-    selected_projects: Optional[str] = Query(None),  # JSON string of selected project IDs
-    column_widths: Optional[str] = Query(None),  # JSON string of column width settings
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-    pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Download projects list as PDF with all folders expanded, deduplicated like the products page."""
     try:
