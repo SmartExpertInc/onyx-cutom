@@ -403,7 +403,7 @@ const AnalyticsPage = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Endpoints</h3>
             <div className="space-y-3">
-              {dashboard.top_endpoints.slice(0, 10).map((endpoint, index) => (
+              {(dashboard.top_endpoints || []).slice(0, 10).map((endpoint, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
@@ -435,7 +435,7 @@ const AnalyticsPage = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Users</h3>
             <div className="space-y-3">
-              {dashboard.top_users.slice(0, 10).map((user, index) => (
+              {(dashboard.top_users || []).slice(0, 10).map((user, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
@@ -479,7 +479,7 @@ const AnalyticsPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {dashboard.recent_errors.slice(0, 20).map((error) => (
+                {(dashboard.recent_errors || []).slice(0, 20).map((error) => (
                   <tr key={error.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {format(new Date(error.created_at), 'MMM dd, HH:mm:ss')}
@@ -520,10 +520,10 @@ const AnalyticsPage = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                      <div className="text-red-600 text-xs" title={error.error_message}>
-                        {error.error_message.length > 50 
+                      <div className="text-red-600 text-xs" title={error.error_message || 'No error message'}>
+                        {error.error_message && error.error_message.length > 50 
                           ? `${error.error_message.substring(0, 50)}...`
-                          : error.error_message
+                          : error.error_message || 'No error message'
                           }
                         </div>
                     </td>
