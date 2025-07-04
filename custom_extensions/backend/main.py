@@ -9,8 +9,7 @@ from pydantic import BaseModel, Field, RootModel
 import re
 import os
 import asyncpg
-from datetime import datetime, timezone, timedelta
-import time
+from datetime import datetime, timezone
 import httpx
 from httpx import HTTPStatusError
 import json
@@ -24,8 +23,6 @@ import tempfile
 import io
 import gzip
 import base64
-import threading
-from collections import defaultdict, deque
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -64,12 +61,6 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
-
-# Request tracking for analytics
-REQUEST_TRACKING = {
-    'requests': deque(maxlen=10000),  # Keep last 10k requests
-    'lock': threading.Lock()
-}
 
 
 # --- Directory for Design Template Images ---
@@ -1101,188 +1092,6 @@ async def get_folder_custom_rate(folder_id: int, pool: asyncpg.Pool) -> int:
         
         # Default to 200 custom rate
         return 200
-
-def track_request(request_id: str, user_id: str, endpoint: str, start_time: float, 
-                 status: str, duration: float = None, attempts: int = 1, 
-                 error_message: str = None, request_type: str = 'other', 
-                 project_type: str = 'unknown'):
-    """Track a request for analytics purposes"""
-    with REQUEST_TRACKING['lock']:
-        request_data = {
-            'id': request_id,
-            'userId': user_id,
-            'userName': f"User {user_id[-4:] if len(user_id) > 4 else user_id}",  # Simplified for demo
-            'endpoint': endpoint,
-            'status': status,
-            'startTime': datetime.fromtimestamp(start_time).isoformat(),
-            'endTime': datetime.fromtimestamp(start_time + (duration or 0)).isoformat() if duration else None,
-            'duration': round(duration) if duration else None,
-            'attempts': attempts,
-            'errorMessage': error_message,
-            'requestType': request_type,
-            'projectType': project_type,
-            'userTier': 'premium'  # Simplified for demo
-        }
-        REQUEST_TRACKING['requests'].append(request_data)
-
-def calculate_analytics(time_range: str = '24h') -> dict:
-    """Calculate analytics from tracked requests"""
-    with REQUEST_TRACKING['lock']:
-        requests = list(REQUEST_TRACKING['requests'])
-    
-    if not requests:
-        return {
-            'totalRequests': 0,
-            'completedRequests': 0,
-            'failedRequests': 0,
-            'inProgressRequests': 0,
-            'averageCompletionTime': 0,
-            'successRate': 0,
-            'topEndpoints': [],
-            'userActivity': [],
-            'hourlyDistribution': [],
-            'dailyTrends': [],
-            'errorBreakdown': [],
-            'performanceMetrics': {'p50': 0, 'p90': 0, 'p95': 0, 'p99': 0}
-        }
-    
-    # Filter by time range
-    now = datetime.now()
-    if time_range == '1h':
-        cutoff = now - timedelta(hours=1)
-    elif time_range == '24h':
-        cutoff = now - timedelta(days=1)
-    elif time_range == '7d':
-        cutoff = now - timedelta(days=7)
-    elif time_range == '30d':
-        cutoff = now - timedelta(days=30)
-    else:
-        cutoff = now - timedelta(days=1)
-    
-    filtered_requests = [
-        r for r in requests 
-        if datetime.fromisoformat(r['startTime'].replace('Z', '+00:00')) > cutoff
-    ]
-    
-    if not filtered_requests:
-        return calculate_analytics('24h')  # Fallback to 24h if no data in range
-    
-    completed = [r for r in filtered_requests if r['status'] == 'completed']
-    failed = [r for r in filtered_requests if r['status'] in ['error', 'timeout']]
-    in_progress = [r for r in filtered_requests if r['status'] == 'in_progress']
-    
-    avg_time = sum(r['duration'] or 0 for r in completed) / len(completed) if completed else 0
-    success_rate = (len(completed) / len(filtered_requests)) * 100 if filtered_requests else 0
-    
-    # Top endpoints
-    endpoint_stats = defaultdict(lambda: {'count': 0, 'total_time': 0})
-    for r in completed:
-        endpoint_stats[r['endpoint']]['count'] += 1
-        endpoint_stats[r['endpoint']]['total_time'] += r['duration'] or 0
-    
-    top_endpoints = [
-        {
-            'endpoint': endpoint,
-            'count': stats['count'],
-            'avgTime': stats['total_time'] / stats['count'] if stats['count'] > 0 else 0
-        }
-        for endpoint, stats in sorted(endpoint_stats.items(), key=lambda x: x[1]['count'], reverse=True)[:5]
-    ]
-    
-    # User activity
-    user_stats = defaultdict(lambda: {'count': 0, 'total_time': 0, 'name': ''})
-    for r in completed:
-        user_stats[r['userId']]['count'] += 1
-        user_stats[r['userId']]['total_time'] += r['duration'] or 0
-        user_stats[r['userId']]['name'] = r['userName']
-    
-    user_activity = [
-        {
-            'userId': user_id,
-            'userName': stats['name'],
-            'requestCount': stats['count'],
-            'avgTime': stats['total_time'] / stats['count'] if stats['count'] > 0 else 0
-        }
-        for user_id, stats in sorted(user_stats.items(), key=lambda x: x[1]['count'], reverse=True)[:10]
-    ]
-    
-    # Performance percentiles
-    durations = sorted([r['duration'] or 0 for r in completed])
-    if durations:
-        p50 = durations[int(len(durations) * 0.5)]
-        p90 = durations[int(len(durations) * 0.9)]
-        p95 = durations[int(len(durations) * 0.95)]
-        p99 = durations[int(len(durations) * 0.99)]
-    else:
-        p50 = p90 = p95 = p99 = 0
-    
-    # Hourly distribution
-    hourly_dist = [0] * 24
-    for r in filtered_requests:
-        hour = datetime.fromisoformat(r['startTime'].replace('Z', '+00:00')).hour
-        hourly_dist[hour] += 1
-    
-    hourly_distribution = [{'hour': i, 'count': count} for i, count in enumerate(hourly_dist)]
-    
-    # Daily trends (last 7 days)
-    daily_trends = []
-    for i in range(7):
-        date = now - timedelta(days=i)
-        day_start = date.replace(hour=0, minute=0, second=0, microsecond=0)
-        day_end = day_start + timedelta(days=1)
-        
-        day_requests = [
-            r for r in filtered_requests
-            if day_start <= datetime.fromisoformat(r['startTime'].replace('Z', '+00:00')) < day_end
-        ]
-        day_completed = [r for r in day_requests if r['status'] == 'completed']
-        
-        daily_trends.append({
-            'date': date.strftime('%m/%d'),
-            'count': len(day_requests),
-            'avgTime': sum(r['duration'] or 0 for r in day_completed) / len(day_completed) if day_completed else 0
-        })
-    
-    daily_trends.reverse()
-    
-    # Error breakdown
-    error_counts = defaultdict(int)
-    for r in failed:
-        if r['errorMessage']:
-            if 'Validation' in r['errorMessage']:
-                error_counts['Validation Error'] += 1
-            elif 'Server' in r['errorMessage']:
-                error_counts['Server Error'] += 1
-            elif 'Network' in r['errorMessage']:
-                error_counts['Network Error'] += 1
-            else:
-                error_counts['Other Error'] += 1
-        elif r['status'] == 'timeout':
-            error_counts['Timeout'] += 1
-        else:
-            error_counts['Unknown Error'] += 1
-    
-    error_breakdown = [{'error': error, 'count': count} for error, count in error_counts.items()]
-    
-    return {
-        'totalRequests': len(filtered_requests),
-        'completedRequests': len(completed),
-        'failedRequests': len(failed),
-        'inProgressRequests': len(in_progress),
-        'averageCompletionTime': round(avg_time),
-        'successRate': round(success_rate, 2),
-        'topEndpoints': top_endpoints,
-        'userActivity': user_activity,
-        'hourlyDistribution': hourly_distribution,
-        'dailyTrends': daily_trends,
-        'errorBreakdown': error_breakdown,
-        'performanceMetrics': {
-            'p50': p50,
-            'p90': p90,
-            'p95': p95,
-            'p99': p99
-        }
-    }
 
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
@@ -3418,20 +3227,6 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
 @app.post("/api/custom/course-outline/preview")
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
-    start_time = time.time()
-    request_id = f"preview_{int(start_time * 1000)}"
-    user_id = request.headers.get('x-onyx-user-id', 'unknown')
-    
-    # Track request start
-    track_request(
-        request_id=request_id,
-        user_id=user_id,
-        endpoint='/api/custom/course-outline/preview',
-        start_time=start_time,
-        status='in_progress',
-        request_type='preview',
-        project_type='Training Plan'
-    )
     logger.info(f"[PREVIEW_START] Course outline preview initiated")
     logger.info(f"[PREVIEW_PARAMS] prompt='{payload.prompt[:50]}...' modules={payload.modules} lessonsPerModule={payload.lessonsPerModule} lang={payload.language}")
     logger.info(f"[PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
@@ -3697,22 +3492,6 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 
 @app.post("/api/custom/course-outline/finalize")
 async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    # Analytics tracking
-    start_time = time.time()
-    request_id = f"finalize_{int(start_time * 1000)}"
-    user_id = request.headers.get('x-onyx-user-id', 'unknown')
-    
-    # Track request start
-    track_request(
-        request_id=request_id,
-        user_id=user_id,
-        endpoint='/api/custom/course-outline/finalize',
-        start_time=start_time,
-        status='in_progress',
-        request_type='finalize',
-        project_type='Training Plan'
-    )
-    
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -3873,20 +3652,6 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Success when we have valid parsed content
             if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
-                
-                # Track successful completion
-                duration = time.time() - start_time
-                track_request(
-                    request_id=request_id,
-                    user_id=user_id,
-                    endpoint='/api/custom/course-outline/finalize',
-                    start_time=start_time,
-                    status='completed',
-                    duration=duration,
-                    request_type='finalize',
-                    project_type='Training Plan'
-                )
-                
                 return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
             else:
                 # Direct parser path validation failed - clean up the created project and fall back to assistant
@@ -3991,7 +3756,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             last_send = asyncio.get_event_loop().time()
 
             # Use longer timeout for large text processing to prevent AI memory issues
-            timeout_duration = 300.0  # 5 minutes for large texts
+            timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
             logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
             try:
                 async with httpx.AsyncClient(timeout=timeout_duration) as client:
@@ -4002,6 +3767,11 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                         folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
                     if payload.fromFiles and payload.fileIds:
                         file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
                     send_payload = {
                         "chat_session_id": chat_id,
@@ -4382,20 +4152,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
         yield (json.dumps(done_packet) + "\n").encode()
 
-            # Track successful completion
-        duration = time.time() - start_time
-        track_request(
-            request_id=request_id,
-            user_id=user_id,
-            endpoint='/api/custom/course-outline/preview',
-            start_time=start_time,
-            status='completed',
-            duration=duration,
-            request_type='preview',
-            project_type='Training Plan'
-        )
-        
-        return StreamingResponse(streamer(), media_type="text/plain")
+    return StreamingResponse(streamer(), media_type="text/plain")
 
 
 @app.post("/api/custom/lesson-presentation/finalize")
@@ -5991,149 +5748,5 @@ async def download_projects_list_pdf(
     except Exception as e:
         logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
-
-# Analytics API endpoints
-@app.get("/api/custom/analytics/requests")
-async def get_analytics_requests(
-    time_range: str = Query('24h', description="Time range: 1h, 24h, 7d, 30d"),
-    status: str = Query('all', description="Filter by status"),
-    request_type: str = Query('all', description="Filter by request type"),
-    search: str = Query('', description="Search term"),
-    limit: int = Query(50, description="Number of requests to return"),
-    onyx_user_id: str = Depends(get_current_onyx_user_id)
-):
-    """Get tracked requests for analytics dashboard"""
-    try:
-        with REQUEST_TRACKING['lock']:
-            requests = list(REQUEST_TRACKING['requests'])
-        
-        # Filter by time range
-        now = datetime.now()
-        if time_range == '1h':
-            cutoff = now - timedelta(hours=1)
-        elif time_range == '24h':
-            cutoff = now - timedelta(days=1)
-        elif time_range == '7d':
-            cutoff = now - timedelta(days=7)
-        elif time_range == '30d':
-            cutoff = now - timedelta(days=30)
-        else:
-            cutoff = now - timedelta(days=1)
-        
-        filtered_requests = [
-            r for r in requests 
-            if datetime.fromisoformat(r['startTime'].replace('Z', '+00:00')) > cutoff
-        ]
-        
-        # Apply filters
-        if status != 'all':
-            filtered_requests = [r for r in filtered_requests if r['status'] == status]
-        
-        if request_type != 'all':
-            filtered_requests = [r for r in filtered_requests if r['requestType'] == request_type]
-        
-        if search:
-            search_lower = search.lower()
-            filtered_requests = [
-                r for r in filtered_requests 
-                if search_lower in r['userName'].lower() or search_lower in r['endpoint'].lower()
-            ]
-        
-        # Sort by start time (newest first) and limit
-        filtered_requests.sort(key=lambda x: x['startTime'], reverse=True)
-        filtered_requests = filtered_requests[:limit]
-        
-        return {
-            'requests': filtered_requests,
-            'total': len(filtered_requests),
-            'timeRange': time_range
-        }
-        
-    except Exception as e:
-        logger.error(f"Error fetching analytics requests: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=500, detail="Failed to fetch analytics data")
-
-@app.get("/api/custom/analytics/metrics")
-async def get_analytics_metrics(
-    time_range: str = Query('24h', description="Time range: 1h, 24h, 7d, 30d"),
-    onyx_user_id: str = Depends(get_current_onyx_user_id)
-):
-    """Get analytics metrics and calculations"""
-    try:
-        analytics_data = calculate_analytics(time_range)
-        return analytics_data
-        
-    except Exception as e:
-        logger.error(f"Error calculating analytics metrics: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=500, detail="Failed to calculate analytics metrics")
-
-@app.get("/api/custom/analytics/export")
-async def export_analytics_data(
-    time_range: str = Query('24h', description="Time range: 1h, 24h, 7d, 30d"),
-    format: str = Query('json', description="Export format: json, csv"),
-    onyx_user_id: str = Depends(get_current_onyx_user_id)
-):
-    """Export analytics data"""
-    try:
-        with REQUEST_TRACKING['lock']:
-            requests = list(REQUEST_TRACKING['requests'])
-        
-        # Filter by time range
-        now = datetime.now()
-        if time_range == '1h':
-            cutoff = now - timedelta(hours=1)
-        elif time_range == '24h':
-            cutoff = now - timedelta(days=1)
-        elif time_range == '7d':
-            cutoff = now - timedelta(days=7)
-        elif time_range == '30d':
-            cutoff = now - timedelta(days=30)
-        else:
-            cutoff = now - timedelta(days=1)
-        
-        filtered_requests = [
-            r for r in requests 
-            if datetime.fromisoformat(r['startTime'].replace('Z', '+00:00')) > cutoff
-        ]
-        
-        if format == 'csv':
-            import csv
-            import io
-            
-            output = io.StringIO()
-            writer = csv.writer(output)
-            
-            # Write header
-            writer.writerow([
-                'Request ID', 'User ID', 'User Name', 'Endpoint', 'Status', 
-                'Start Time', 'End Time', 'Duration (s)', 'Attempts', 
-                'Error Message', 'Request Type', 'Project Type', 'User Tier'
-            ])
-            
-            # Write data
-            for r in filtered_requests:
-                writer.writerow([
-                    r['id'], r['userId'], r['userName'], r['endpoint'], r['status'],
-                    r['startTime'], r['endTime'] or '', r['duration'] or '', r['attempts'],
-                    r['errorMessage'] or '', r['requestType'], r['projectType'], r['userTier']
-                ])
-            
-            output.seek(0)
-            return Response(
-                content=output.getvalue(),
-                media_type='text/csv',
-                headers={'Content-Disposition': f'attachment; filename="analytics_export_{time_range}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'}
-            )
-        else:
-            return {
-                'requests': filtered_requests,
-                'analytics': calculate_analytics(time_range),
-                'exported_at': datetime.now().isoformat(),
-                'time_range': time_range
-            }
-            
-    except Exception as e:
-        logger.error(f"Error exporting analytics data: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=500, detail="Failed to export analytics data")
 
 
