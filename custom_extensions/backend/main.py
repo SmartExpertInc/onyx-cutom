@@ -5220,6 +5220,17 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
     except Exception as e:
         logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to get lesson data")
+
+@app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+async def download_projects_list_pdf(
+    folder_id: Optional[int] = Query(None),
+    column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
+    client_name: Optional[str] = Query(None),  # Client name for PDF header customization
+    selected_folders: Optional[str] = Query(None),  # JSON string of selected folder IDs
+    selected_projects: Optional[str] = Query(None),  # JSON string of selected project IDs
+    column_widths: Optional[str] = Query(None),  # JSON string of column width settings
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Download projects list as PDF with all folders expanded, deduplicated like the products page."""
     try:
