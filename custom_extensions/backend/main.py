@@ -4069,7 +4069,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         last_send = asyncio.get_event_loop().time()
 
         # Use longer timeout for large text processing to prevent AI memory issues
-        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        timeout_duration = 300.0 if wizard_dict.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
@@ -4082,9 +4082,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
                 
                 # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                if wizard_dict.get("virtualFileId"):
+                    file_ids_list.append(wizard_dict["virtualFileId"])
+                    logger.info(f"Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
                 
                 send_payload = {
                     "chat_session_id": chat_id,
