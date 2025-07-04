@@ -4018,6 +4018,9 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
 async def get_analytics_dashboard(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    method: Optional[str] = Query(None, description="Filter by HTTP method"),
+    status_code: Optional[int] = Query(None, description="Filter by status code"),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Get comprehensive analytics dashboard data"""
@@ -4042,28 +4045,44 @@ async def get_analytics_dashboard(
         print(f"DEBUG ERROR: Could not fetch request_analytics: {e}")
 
     try:
-        # Build date filter with proper datetime conversion including timezone
-        date_filter = ""
+        # Build comprehensive filter with proper datetime conversion including timezone
+        conditions = []
         params = []
-        if date_from and date_to:
-            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
-            # Convert to datetime with start of day for date_from and end of day for date_to
-            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
-            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
-            params = [start_datetime, end_datetime]
-        elif date_from:
-            date_filter = "WHERE created_at >= $1"
-            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
-            params = [start_datetime]
-        elif date_to:
-            date_filter = "WHERE created_at <= $1"
-            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
-            params = [end_datetime]
+        param_count = 0
         
-        print(f"=== DASHBOARD DEBUG: Date filter and params ===")
-        print(f"date_filter: {date_filter}")
+        if date_from:
+            param_count += 1
+            conditions.append(f"created_at >= ${param_count}")
+            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+            params.append(start_datetime)
+        
+        if date_to:
+            param_count += 1
+            conditions.append(f"created_at <= ${param_count}")
+            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
+            params.append(end_datetime)
+        
+        if endpoint:
+            param_count += 1
+            conditions.append(f"endpoint ILIKE ${param_count}")
+            params.append(f"%{endpoint}%")
+        
+        if method:
+            param_count += 1
+            conditions.append(f"method = ${param_count}")
+            params.append(method.upper())
+        
+        if status_code is not None:
+            param_count += 1
+            conditions.append(f"status_code = ${param_count}")
+            params.append(status_code)
+        
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+        
+        print(f"=== DASHBOARD DEBUG: Filter and params ===")
+        print(f"where_clause: {where_clause}")
         print(f"params: {params}")
-        print(f"=== END DATE FILTER ===")
+        print(f"=== END FILTER ===")
 
         async with pool.acquire() as conn:
             # Overall statistics
@@ -4080,7 +4099,7 @@ async def get_analytics_dashboard(
                     COUNT(DISTINCT user_id) as unique_users,
                     COUNT(DISTINCT endpoint) as unique_endpoints
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
             """
             print(f"=== DASHBOARD DEBUG: Stats query ===")
             print(f"Query: {stats_query}")
@@ -4096,7 +4115,7 @@ async def get_analytics_dashboard(
                     COUNT(*) as count,
                     AVG(response_time_ms) as avg_time
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
                 GROUP BY status_code
                 ORDER BY count DESC
             """
@@ -4118,7 +4137,7 @@ async def get_analytics_dashboard(
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count,
                     SUM(COALESCE(request_size_bytes, 0) + COALESCE(response_size_bytes, 0)) as total_data
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
                 GROUP BY endpoint, method
                 ORDER BY request_count DESC
                 LIMIT 20
@@ -4134,8 +4153,8 @@ async def get_analytics_dashboard(
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count,
                     MAX(created_at) as last_request
                 FROM request_analytics
-                {date_filter}
-                {"AND user_id IS NOT NULL" if date_filter else "WHERE user_id IS NOT NULL"}
+                {where_clause}
+                {"AND user_id IS NOT NULL" if where_clause else "WHERE user_id IS NOT NULL"}
                 GROUP BY user_id
                 ORDER BY request_count DESC
                 LIMIT 20
@@ -4149,7 +4168,7 @@ async def get_analytics_dashboard(
                     COUNT(*) as request_count,
                     AVG(response_time_ms) as avg_response_time
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
                 GROUP BY EXTRACT(HOUR FROM created_at)
                 ORDER BY hour
             """
@@ -4163,7 +4182,7 @@ async def get_analytics_dashboard(
                     AVG(response_time_ms) as avg_response_time,
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
                 GROUP BY DATE(created_at)
                 ORDER BY date DESC
                 LIMIT 30
@@ -4178,7 +4197,7 @@ async def get_analytics_dashboard(
                     AVG(response_time_ms) as avg_response_time,
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
                 GROUP BY method
                 ORDER BY request_count DESC
             """
@@ -4196,8 +4215,8 @@ async def get_analytics_dashboard(
                     user_id,
                     created_at
                 FROM request_analytics
-                {date_filter}
-                {"AND (error_message IS NOT NULL OR status_code >= 400)" if date_filter else "WHERE error_message IS NOT NULL OR status_code >= 400"}
+                {where_clause}
+                {"AND (error_message IS NOT NULL OR status_code >= 400)" if where_clause else "WHERE error_message IS NOT NULL OR status_code >= 400"}
                 ORDER BY created_at DESC
                 LIMIT 50
             """
@@ -4210,7 +4229,7 @@ async def get_analytics_dashboard(
                     percentile_cont(0.95) WITHIN GROUP (ORDER BY response_time_ms) as p95,
                     percentile_cont(0.99) WITHIN GROUP (ORDER BY response_time_ms) as p99
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
             """
             percentile_row = await conn.fetchrow(percentile_query, *params)
 
@@ -4389,27 +4408,47 @@ async def get_analytics_requests(
 async def export_analytics_data(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    method: Optional[str] = Query(None, description="Filter by HTTP method"),
+    status_code: Optional[int] = Query(None, description="Filter by status code"),
     format: str = Query("csv", description="Export format (csv or json)"),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Export analytics data as CSV or JSON"""
     try:
-        # Build date filter with proper datetime conversion including timezone
-        date_filter = ""
+        # Build comprehensive filter with proper datetime conversion including timezone
+        conditions = []
         params = []
-        if date_from and date_to:
-            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
+        param_count = 0
+        
+        if date_from:
+            param_count += 1
+            conditions.append(f"created_at >= ${param_count}")
             start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+            params.append(start_datetime)
+        
+        if date_to:
+            param_count += 1
+            conditions.append(f"created_at <= ${param_count}")
             end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
-            params = [start_datetime, end_datetime]
-        elif date_from:
-            date_filter = "WHERE created_at >= $1"
-            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
-            params = [start_datetime]
-        elif date_to:
-            date_filter = "WHERE created_at <= $1"
-            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
-            params = [end_datetime]
+            params.append(end_datetime)
+        
+        if endpoint:
+            param_count += 1
+            conditions.append(f"endpoint ILIKE ${param_count}")
+            params.append(f"%{endpoint}%")
+        
+        if method:
+            param_count += 1
+            conditions.append(f"method = ${param_count}")
+            params.append(method.upper())
+        
+        if status_code is not None:
+            param_count += 1
+            conditions.append(f"status_code = ${param_count}")
+            params.append(status_code)
+        
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
         async with pool.acquire() as conn:
             query = f"""
@@ -4418,7 +4457,7 @@ async def export_analytics_data(
                     response_time_ms, request_size_bytes, response_size_bytes,
                     error_message, created_at
                 FROM request_analytics
-                {date_filter}
+                {where_clause}
                 ORDER BY created_at DESC
             """
             rows = await conn.fetch(query, *params)

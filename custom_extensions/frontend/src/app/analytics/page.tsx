@@ -88,6 +88,11 @@ const AnalyticsPage = () => {
     from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd')
   });
+  const [filters, setFilters] = useState({
+    endpoint: '',
+    method: '',
+    statusCode: ''
+  });
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchDashboard = async () => {
@@ -104,6 +109,9 @@ const AnalyticsPage = () => {
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
+      if (filters.endpoint) params.append('endpoint', filters.endpoint);
+      if (filters.method) params.append('method', filters.method);
+      if (filters.statusCode) params.append('status_code', filters.statusCode);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/dashboard?${params}`, {
         headers,
@@ -125,7 +133,7 @@ const AnalyticsPage = () => {
 
   useEffect(() => {
     fetchDashboard();
-  }, [dateRange, refreshKey]);
+  }, [dateRange, filters, refreshKey]);
 
   const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
@@ -139,6 +147,9 @@ const AnalyticsPage = () => {
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
+      if (filters.endpoint) params.append('endpoint', filters.endpoint);
+      if (filters.method) params.append('method', filters.method);
+      if (filters.statusCode) params.append('status_code', filters.statusCode);
       params.append('format', exportFormat);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/export?${params}`, {
@@ -243,8 +254,29 @@ const AnalyticsPage = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Request Analytics Dashboard</h1>
               <p className="text-gray-600 mt-1">Comprehensive tracking of all API requests across all accounts</p>
+              {(filters.endpoint || filters.method || filters.statusCode) && (
+                <div className="mt-2 flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">Active filters:</span>
+                  {filters.endpoint && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Endpoint: {filters.endpoint}
+                    </span>
+                  )}
+                  {filters.method && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Method: {filters.method}
+                    </span>
+                  )}
+                  {filters.statusCode && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Status: {filters.statusCode}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-4">
+              {/* Date Range Filters */}
               <div className="flex items-center space-x-2">
                 <input
                   type="date"
@@ -259,6 +291,43 @@ const AnalyticsPage = () => {
                   onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
                   className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
                 />
+              </div>
+              
+              {/* Additional Filters */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  placeholder="Filter by endpoint..."
+                  value={filters.endpoint}
+                  onChange={(e) => setFilters(prev => ({ ...prev, endpoint: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black w-40"
+                />
+                <select
+                  value={filters.method}
+                  onChange={(e) => setFilters(prev => ({ ...prev, method: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
+                >
+                  <option value="">All Methods</option>
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                  <option value="PATCH">PATCH</option>
+                </select>
+                <input
+                  type="number"
+                  placeholder="Status code..."
+                  value={filters.statusCode}
+                  onChange={(e) => setFilters(prev => ({ ...prev, statusCode: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black w-24"
+                />
+                <button
+                  onClick={() => setFilters({ endpoint: '', method: '', statusCode: '' })}
+                  className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg border border-gray-300"
+                  title="Clear filters"
+                >
+                  Clear Filters
+                </button>
               </div>
               <button
                 onClick={() => setRefreshKey(prev => prev + 1)}
@@ -324,9 +393,9 @@ const AnalyticsPage = () => {
                   <p className="text-sm font-medium text-black">Avg Response Time</p>
                 <p className="text-2xl font-bold text-black">{formatDuration(dashboard.overview.avg_response_time)}</p>
                 </div>
+                </div>
               </div>
             </div>
-        </div>
 
         {/* Performance Metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -336,11 +405,11 @@ const AnalyticsPage = () => {
               <div className="flex justify-between">
                 <span className="text-black">P50 (Median)</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p50)}</span>
-              </div>
+                </div>
               <div className="flex justify-between">
                 <span className="text-black">P95</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p95)}</span>
-              </div>
+                </div>
               <div className="flex justify-between">
                 <span className="text-black">P99</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p99)}</span>
@@ -364,7 +433,7 @@ const AnalyticsPage = () => {
                 <span className="font-semibold text-red-600">{dashboard.overview.error_requests}</span>
               </div>
             </div>
-          </div>
+            </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Response Time Range</h3>
@@ -372,15 +441,15 @@ const AnalyticsPage = () => {
               <div className="flex justify-between">
                 <span className="text-black">Fastest</span>
                 <span className="font-semibold text-green-600">{formatDuration(dashboard.overview.min_response_time)}</span>
-              </div>
+            </div>
               <div className="flex justify-between">
                 <span className="text-black">Average</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.overview.avg_response_time)}</span>
-              </div>
+            </div>
               <div className="flex justify-between">
                 <span className="text-black">Slowest</span>
                 <span className="font-semibold text-red-600">{formatDuration(dashboard.overview.max_response_time)}</span>
-              </div>
+            </div>
             </div>
           </div>
         </div>
