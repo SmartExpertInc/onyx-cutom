@@ -250,14 +250,14 @@ const AnalyticsPage = () => {
                   type="date"
                   value={dateRange.from}
                   onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
                 />
-                <span className="text-gray-500">to</span>
+                <span className="text-black">to</span>
                 <input
                   type="date"
                   value={dateRange.to}
                   onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
                 />
               </div>
               <button
@@ -346,15 +346,15 @@ const AnalyticsPage = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Percentiles</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">P50 (Median)</span>
+                <span className="text-black">P50 (Median)</span>
                 <span className="font-semibold">{formatDuration(dashboard.performance_percentiles.p50)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">P95</span>
+                <span className="text-black">P95</span>
                 <span className="font-semibold">{formatDuration(dashboard.performance_percentiles.p95)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">P99</span>
+                <span className="text-black">P99</span>
                 <span className="font-semibold">{formatDuration(dashboard.performance_percentiles.p99)}</span>
               </div>
             </div>
@@ -364,15 +364,15 @@ const AnalyticsPage = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Data Transfer</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Transferred</span>
+                <span className="text-black">Total Transferred</span>
                 <span className="font-semibold">{formatBytes(dashboard.overview.total_data_transferred)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Failed Requests</span>
+                <span className="text-black">Failed Requests</span>
                 <span className="font-semibold text-red-600">{dashboard.overview.failed_requests}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Error Requests</span>
+                <span className="text-black">Error Requests</span>
                 <span className="font-semibold text-red-600">{dashboard.overview.error_requests}</span>
               </div>
             </div>
@@ -382,15 +382,15 @@ const AnalyticsPage = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Response Time Range</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">Fastest</span>
+                <span className="text-black">Fastest</span>
                 <span className="font-semibold text-green-600">{formatDuration(dashboard.overview.min_response_time)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Average</span>
+                <span className="text-black">Average</span>
                 <span className="font-semibold">{formatDuration(dashboard.overview.avg_response_time)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Slowest</span>
+                <span className="text-black">Slowest</span>
                 <span className="font-semibold text-red-600">{formatDuration(dashboard.overview.max_response_time)}</span>
               </div>
             </div>
@@ -402,7 +402,7 @@ const AnalyticsPage = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Endpoints</h3>
             <div className="space-y-3">
-              {(dashboard.top_endpoints || []).slice(0, 10).map((endpoint, index) => (
+              {(dashboard.top_endpoints || []).slice(0, 3).map((endpoint, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
