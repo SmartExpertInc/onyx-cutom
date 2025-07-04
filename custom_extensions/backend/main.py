@@ -3034,7 +3034,7 @@ async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[
 
     async with httpx.AsyncClient(timeout=300.0) as client:
         minimal_retrieval = {
-            "run_search": "always",
+            "run_search": "never",
             "real_time": False,
         }
         payload = {
@@ -3370,7 +3370,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         "user_folder_ids": folder_ids_list,
                         "prompt_id": None,
                         "search_doc_ids": None,
-                        "retrieval_options": {"run_search": "always", "real_time": False},
+                        "retrieval_options": {"run_search": "never", "real_time": False},
                         "stream_response": True,
                     }
                     logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
@@ -3844,7 +3844,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                         "user_folder_ids": folder_ids_list,
                         "prompt_id": None,
                         "search_doc_ids": None,
-                        "retrieval_options": {"run_search": "always", "real_time": False},
+                        "retrieval_options": {"run_search": "never", "real_time": False},
                         "stream_response": True,
                     }
                     logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
@@ -4168,7 +4168,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     "user_folder_ids": folder_ids_list,
                     "prompt_id": None,
                     "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "always", "real_time": False},
+                    "retrieval_options": {"run_search": "never", "real_time": False},
                     "stream_response": True,
                 }
                 logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
@@ -4656,7 +4656,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                     "user_folder_ids": folder_ids_list,
                     "prompt_id": None,
                     "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "always", "real_time": False},
+                    "retrieval_options": {"run_search": "never", "real_time": False},
                     "stream_response": True,
                 }
                 logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
