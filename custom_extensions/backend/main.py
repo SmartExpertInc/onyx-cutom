@@ -4022,18 +4022,18 @@ async def get_analytics_dashboard(
 ):
     """Get comprehensive analytics dashboard data"""
     try:
-        # Build date filter with proper date casting
+        # Build date filter with proper date conversion
         date_filter = ""
         params = []
         if date_from and date_to:
-            date_filter = "WHERE created_at >= $1::date AND created_at <= $2::date"
-            params = [date_from, date_to]
+            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
+            params = [datetime.strptime(date_from, '%Y-%m-%d').date(), datetime.strptime(date_to, '%Y-%m-%d').date()]
         elif date_from:
-            date_filter = "WHERE created_at >= $1::date"
-            params = [date_from]
+            date_filter = "WHERE created_at >= $1"
+            params = [datetime.strptime(date_from, '%Y-%m-%d').date()]
         elif date_to:
-            date_filter = "WHERE created_at <= $1::date"
-            params = [date_to]
+            date_filter = "WHERE created_at <= $1"
+            params = [datetime.strptime(date_to, '%Y-%m-%d').date()]
 
         async with pool.acquire() as conn:
             # Overall statistics
@@ -4262,13 +4262,13 @@ async def get_analytics_requests(
         
         if date_from:
             param_count += 1
-            conditions.append(f"created_at >= ${param_count}::date")
-            params.append(date_from)
+            conditions.append(f"created_at >= ${param_count}")
+            params.append(datetime.strptime(date_from, '%Y-%m-%d').date())
         
         if date_to:
             param_count += 1
-            conditions.append(f"created_at <= ${param_count}::date")
-            params.append(date_to)
+            conditions.append(f"created_at <= ${param_count}")
+            params.append(datetime.strptime(date_to, '%Y-%m-%d').date())
         
         if status_code is not None:
             param_count += 1
@@ -4343,18 +4343,18 @@ async def export_analytics_data(
 ):
     """Export analytics data as CSV or JSON"""
     try:
-        # Build date filter with proper date casting
+        # Build date filter with proper date conversion
         date_filter = ""
         params = []
         if date_from and date_to:
-            date_filter = "WHERE created_at >= $1::date AND created_at <= $2::date"
-            params = [date_from, date_to]
+            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
+            params = [datetime.strptime(date_from, '%Y-%m-%d').date(), datetime.strptime(date_to, '%Y-%m-%d').date()]
         elif date_from:
-            date_filter = "WHERE created_at >= $1::date"
-            params = [date_from]
+            date_filter = "WHERE created_at >= $1"
+            params = [datetime.strptime(date_from, '%Y-%m-%d').date()]
         elif date_to:
-            date_filter = "WHERE created_at <= $1::date"
-            params = [date_to]
+            date_filter = "WHERE created_at <= $1"
+            params = [datetime.strptime(date_to, '%Y-%m-%d').date()]
 
         async with pool.acquire() as conn:
             query = f"""
