@@ -23,17 +23,46 @@ import tempfile
 import io
 import gzip
 import base64
+import traceback
+import time
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
 
-# --- Logger ---
+# --- Enhanced Logger Setup ---
 logger = logging.getLogger(__name__)
+
+# Create a detailed logging formatter
+class DetailedFormatter(logging.Formatter):
+    def format(self, record):
+        # Add timestamp, function name, and line number
+        record.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        record.func_info = f"{record.funcName}:{record.lineno}"
+        
+        # Add request ID if available
+        if hasattr(record, 'request_id'):
+            record.request_id_str = f"[{record.request_id}]"
+        else:
+            record.request_id_str = "[NO-REQ-ID]"
+            
+        return super().format(record)
+
+# Configure logging with detailed formatter
 if IS_PRODUCTION:
-    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
+    logging.basicConfig(
+        level=logging.ERROR,
+        format='%(timestamp)s %(levelname)s %(request_id_str)s %(func_info)s: %(message)s'
+    )
 else:
-    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(timestamp)s %(levelname)s %(request_id_str)s %(func_info)s: %(message)s'
+    )
+
+# Apply the detailed formatter
+for handler in logging.root.handlers:
+    handler.setFormatter(DetailedFormatter())
 
 
 # --- Constants & DB Setup ---
@@ -66,6 +95,69 @@ ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
 # --- Directory for Design Template Images ---
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
+
+# --- Enhanced Logging Helper Functions ---
+def log_preview_step(request_id: str, step: str, details: Dict[str, Any] = None, error: Exception = None):
+    """Centralized logging for preview generation steps"""
+    log_data = {
+        "request_id": request_id,
+        "step": step,
+        "timestamp": datetime.now().isoformat(),
+        "details": details or {}
+    }
+    
+    if error:
+        log_data["error"] = {
+            "type": type(error).__name__,
+            "message": str(error),
+            "traceback": traceback.format_exc()
+        }
+        logger.error(f"PREVIEW_STEP_FAILED: {json.dumps(log_data, default=str)}")
+    else:
+        logger.info(f"PREVIEW_STEP: {json.dumps(log_data, default=str)}")
+
+def log_onyx_request(request_id: str, endpoint: str, payload: Dict[str, Any], response_status: int = None, response_data: Any = None, error: Exception = None):
+    """Log Onyx API requests and responses"""
+    log_data = {
+        "request_id": request_id,
+        "onyx_endpoint": endpoint,
+        "payload_size": len(json.dumps(payload, default=str)),
+        "payload_keys": list(payload.keys()) if isinstance(payload, dict) else "N/A"
+    }
+    
+    if response_status:
+        log_data["response_status"] = response_status
+    if response_data:
+        log_data["response_size"] = len(str(response_data))
+    if error:
+        log_data["error"] = {
+            "type": type(error).__name__,
+            "message": str(error)
+        }
+        logger.error(f"ONYX_REQUEST_FAILED: {json.dumps(log_data, default=str)}")
+    else:
+        logger.info(f"ONYX_REQUEST: {json.dumps(log_data, default=str)}")
+
+def log_streaming_chunk(request_id: str, chunk_type: str, chunk_size: int, chunk_preview: str = None):
+    """Log streaming response chunks"""
+    log_data = {
+        "request_id": request_id,
+        "chunk_type": chunk_type,
+        "chunk_size": chunk_size
+    }
+    if chunk_preview:
+        log_data["chunk_preview"] = chunk_preview[:100] + "..." if len(chunk_preview) > 100 else chunk_preview
+    
+    logger.debug(f"STREAMING_CHUNK: {json.dumps(log_data, default=str)}")
+
+# --- Enhanced Error Handling ---
+class PreviewGenerationError(Exception):
+    """Custom exception for preview generation errors"""
+    def __init__(self, step: str, message: str, original_error: Exception = None):
+        self.step = step
+        self.message = message
+        self.original_error = original_error
+        super().__init__(f"Preview generation failed at step '{step}': {message}")
 
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
@@ -3197,20 +3289,56 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
 @app.post("/api/custom/course-outline/preview")
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
-    logger.info(f"[wizard_outline_preview] prompt='{payload.prompt[:50]}...' modules={payload.modules} lessonsPerModule={payload.lessonsPerModule} lang={payload.language}")
-    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-
-    if payload.chatSessionId:
-        chat_id = payload.chatSessionId
-    else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
-        chat_id = await create_onyx_chat_session(persona_id, cookies)
-
-    wiz_payload = {
-        "product": "Course Outline",
-        "prompt": payload.prompt,
+    # Generate unique request ID for tracking
+    request_id = str(uuid.uuid4())[:8]
+    start_time = time.time()
+    
+    log_preview_step(request_id, "preview_start", {
+        "endpoint": "course-outline/preview",
+        "prompt_length": len(payload.prompt),
+        "prompt_preview": payload.prompt[:100] + "..." if len(payload.prompt) > 100 else payload.prompt,
+        "modules": payload.modules,
+        "lessons_per_module": payload.lessonsPerModule,
         "language": payload.language,
-    }
+        "from_files": payload.fromFiles,
+        "from_text": payload.fromText,
+        "text_mode": payload.textMode,
+        "user_text_length": len(payload.userText) if payload.userText else 0,
+        "has_chat_session": bool(payload.chatSessionId)
+    })
+    
+    try:
+        cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+        
+        if not cookies[ONYX_SESSION_COOKIE_NAME]:
+            log_preview_step(request_id, "authentication_failed", {"error": "No session cookie found"})
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        
+        log_preview_step(request_id, "authentication_success", {"session_cookie_present": True})
+
+        # Handle chat session setup
+        if payload.chatSessionId:
+            chat_id = payload.chatSessionId
+            log_preview_step(request_id, "chat_session_reused", {"chat_id": chat_id})
+        else:
+            log_preview_step(request_id, "chat_session_creation_start")
+            try:
+                persona_id = await get_contentbuilder_persona_id(cookies)
+                log_preview_step(request_id, "persona_id_retrieved", {"persona_id": persona_id})
+                
+                chat_id = await create_onyx_chat_session(persona_id, cookies)
+                log_preview_step(request_id, "chat_session_created", {"chat_id": chat_id})
+            except Exception as e:
+                log_preview_step(request_id, "chat_session_creation_failed", error=e)
+                raise PreviewGenerationError("chat_session_creation", f"Failed to create chat session: {str(e)}", e)
+
+        log_preview_step(request_id, "payload_preparation_start")
+        
+        wiz_payload = {
+            "product": "Course Outline",
+            "prompt": payload.prompt,
+            "language": payload.language,
+        }
 
     # Add file context if provided
     if payload.fromFiles:
@@ -3370,6 +3498,19 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
+    
+    except Exception as e:
+        log_preview_step(request_id, "preview_generation_failed", {
+            "total_duration": time.time() - start_time,
+            "error_type": type(e).__name__,
+            "error_message": str(e)
+        }, error=e)
+        
+        # Re-raise the exception with additional context
+        if isinstance(e, HTTPException):
+            raise e
+        else:
+            raise PreviewGenerationError("preview_generation", f"Unexpected error during preview generation: {str(e)}", e)
 
 async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
     async with pool.acquire() as conn:
