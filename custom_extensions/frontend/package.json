@@ -13,6 +13,7 @@
     "@deckdeckgo/slide-content": "^2.5.0",
     "@deckdeckgo/slide-split": "^2.4.0",
     "@deckdeckgo/slide-title": "^2.4.0",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.508.0",
     "next": "15.3.2",
     "react": "^19.0.0",
