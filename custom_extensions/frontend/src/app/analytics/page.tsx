@@ -21,16 +21,16 @@ interface RequestAnalytics {
 
 interface AnalyticsDashboard {
   overview: {
-    total_requests: number;
-    successful_requests: number;
-    failed_requests: number;
+  total_requests: number;
+  successful_requests: number;
+  failed_requests: number;
     error_requests: number;
     success_rate: number;
     avg_response_time: number;
     max_response_time: number;
     min_response_time: number;
-    total_data_transferred: number;
-    unique_users: number;
+  total_data_transferred: number;
+  unique_users: number;
     unique_endpoints: number;
   };
   status_distribution: Array<{ status_code: number; count: number; avg_time: number }>;
@@ -94,11 +94,22 @@ const AnalyticsPage = () => {
     setLoading(true);
     setError(null);
     try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        headers['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
 
-      const response = await fetch(`/api/custom/analytics/dashboard?${params}`);
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/dashboard?${params}`, {
+        headers,
+        cache: 'no-store',
+        credentials: 'same-origin'
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch analytics: ${response.status}`);
       }
@@ -118,12 +129,23 @@ const AnalyticsPage = () => {
 
   const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        headers['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
       params.append('format', exportFormat);
 
-      const response = await fetch(`/api/custom/analytics/export?${params}`);
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/export?${params}`, {
+        headers,
+        cache: 'no-store',
+        credentials: 'same-origin'
+      });
       if (!response.ok) {
         throw new Error(`Failed to export: ${response.status}`);
       }
@@ -181,8 +203,8 @@ const AnalyticsPage = () => {
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">Loading analytics data...</p>
-        </div>
-      </div>
+            </div>
+          </div>
     );
   }
 
@@ -214,7 +236,7 @@ const AnalyticsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+        {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -264,54 +286,54 @@ const AnalyticsPage = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
+              <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Activity className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Requests</p>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total Requests</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboard.overview.total_requests.toLocaleString()}</p>
               </div>
+              </div>
             </div>
-          </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
+              <div className="flex items-center">
               <div className="p-3 bg-green-100 rounded-lg">
                 <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Success Rate</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboard.overview.success_rate}%</p>
               </div>
+              </div>
             </div>
-          </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
+              <div className="flex items-center">
               <div className="p-3 bg-orange-100 rounded-lg">
                 <Clock className="w-6 h-6 text-orange-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
                 <p className="text-2xl font-bold text-gray-900">{formatDuration(dashboard.overview.avg_response_time)}</p>
               </div>
+              </div>
             </div>
-          </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
+              <div className="flex items-center">
               <div className="p-3 bg-purple-100 rounded-lg">
                 <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Unique Users</p>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Unique Users</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboard.overview.unique_users}</p>
               </div>
             </div>
@@ -434,7 +456,7 @@ const AnalyticsPage = () => {
                       </div>
                     )}
                   </div>
-                </div>
+            </div>
               ))}
             </div>
           </div>
@@ -502,8 +524,8 @@ const AnalyticsPage = () => {
                         {error.error_message.length > 50 
                           ? `${error.error_message.substring(0, 50)}...`
                           : error.error_message
-                        }
-                      </div>
+                          }
+                        </div>
                     </td>
                   </tr>
                 ))}
