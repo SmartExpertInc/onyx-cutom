@@ -3099,6 +3099,9 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
     Now also captures the "Total Time" line for each module and stores it as
     `totalHours` (float).
     """
+    logger.info(f"[PARSE_OUTLINE] Starting parse with input length: {len(md)}")
+    logger.info(f"[PARSE_OUTLINE] Input preview: {md[:200]}{'...' if len(md) > 200 else ''}")
+    
     modules: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
 
@@ -3111,7 +3114,9 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
             return None
         return "\n".join(buf)
 
+    lines_processed = 0
     for raw_line in md.splitlines():
+        lines_processed += 1
         if not raw_line.strip():
             continue  # skip empty lines
 
@@ -3137,6 +3142,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
                 "lessons": [],
             }
             modules.append(current)
+            logger.debug(f"[PARSE_OUTLINE] Found module: {title_part}")
             continue
 
         # Lesson detection – only consider top-level list items (indent == 0)
@@ -3160,6 +3166,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
                 if lesson_title.startswith("**") and "**" in lesson_title[2:]:
                     lesson_title = lesson_title.split("**", 2)[1].strip()
                 _buf.append(lesson_title)
+                logger.debug(f"[PARSE_OUTLINE] Found lesson: {lesson_title}")
                 continue
             elif current.get('lessons') is not None and '_buf' in locals():
                 # inside a lesson details block (indented)
@@ -3173,9 +3180,13 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
         if last_lesson:
             current["lessons"].append(last_lesson)
 
+    logger.info(f"[PARSE_OUTLINE] After main parsing: {len(modules)} modules found, {lines_processed} lines processed")
+
     # Fallback when no module headings present
     if not modules:
+        logger.warning(f"[PARSE_OUTLINE] No modules found, using fallback parsing")
         tmp_module = {"id": "mod1", "title": "Outline", "lessons": []}
+        fallback_lessons = 0
         for raw_line in md.splitlines():
             if not raw_line.strip():
                 continue
@@ -3186,10 +3197,18 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
                 if txt.startswith("**") and "**" in txt[2:]:
                     txt = txt.split("**", 2)[1].strip()
                 tmp_module["lessons"].append(txt)
+                fallback_lessons += 1
         if not tmp_module["lessons"]:
             # As very last resort just dump all lines
+            logger.warning(f"[PARSE_OUTLINE] No list items found, dumping all non-empty lines")
             tmp_module["lessons"] = [l.strip() for l in md.splitlines() if l.strip()]
+            fallback_lessons = len(tmp_module["lessons"])
         modules.append(tmp_module)
+        logger.info(f"[PARSE_OUTLINE] Fallback created 1 module with {fallback_lessons} lessons")
+
+    logger.info(f"[PARSE_OUTLINE] Final result: {len(modules)} modules")
+    for i, module in enumerate(modules):
+        logger.info(f"[PARSE_OUTLINE] Module {i+1}: '{module.get('title', 'No title')}' with {len(module.get('lessons', []))} lessons")
 
     return modules
 
@@ -3313,10 +3332,15 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     async def streamer():
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
 
         # Use longer timeout for large text processing to prevent AI memory issues
         timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
-        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+        logger.info(f"[PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
+        logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
                 # Parse folder and file IDs for Onyx
@@ -3330,7 +3354,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 # Add virtual file ID if created for large text
                 if wiz_payload.get("virtualFileId"):
                     file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    logger.info(f"[PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                 
                 send_payload = {
                     "chat_session_id": chat_id,
@@ -3345,26 +3369,52 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     "stream_response": True,
                 }
                 logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                logger.info(f"[PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
+                
                 async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
                     logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                    logger.info(f"[PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
+                    
+                    if resp.status_code != 200:
+                        logger.error(f"[PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
+                        error_text = await resp.text()
+                        logger.error(f"[PREVIEW_ONYX] Error response: {error_text}")
+                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                    
                     async for raw_line in resp.aiter_lines():
+                        total_bytes_received += len(raw_line.encode('utf-8'))
+                        chunks_received += 1
+                        
                         if not raw_line:
+                            logger.debug(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
                             continue
+                            
                         line = raw_line.strip()
+                        logger.debug(f"[PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
+                        
                         if line.startswith("data:"):
                             line = line.split("data:", 1)[1].strip()
+                            logger.debug(f"[PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
+                            
                         if line == "[DONE]":
-                            logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                            logger.info(f"[PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
+                            done_received = True
                             break
+                            
                         try:
                             pkt = json.loads(line)
                             if "answer_piece" in pkt:
                                 delta_text = pkt["answer_piece"].replace("\\n", "\n")
                                 assistant_reply += delta_text
-                                logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                logger.debug(f"[PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
                                 yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            else:
+                                logger.debug(f"[PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
+                        except json.JSONDecodeError as e:
+                            logger.error(f"[PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
+                            continue
                         except Exception as e:
-                            logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                            logger.error(f"[PREVIEW_ONYX] Unexpected error processing chunk {chunks_received}: {e} | Raw: {line[:200]}")
                             continue
 
                         # send keep-alive every 8s
@@ -3372,20 +3422,45 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         if now - last_send > 8:
                             yield b" "
                             last_send = now
+                            logger.debug(f"[PREVIEW_ONYX] Sent keep-alive after {now - last_send}s")
+                    
+                    if not done_received:
+                        logger.warning(f"[PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
+                        
+        except httpx.TimeoutException as e:
+            logger.error(f"[PREVIEW_ONYX] Timeout error: {e}")
+            raise HTTPException(status_code=408, detail=f"Request timeout: {e}")
+        except httpx.RequestError as e:
+            logger.error(f"[PREVIEW_ONYX] Request error: {e}")
+            raise HTTPException(status_code=502, detail=f"Onyx API request failed: {e}")
         except Exception as e:
-            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}", exc_info=True)
             raise
+
+        logger.info(f"[PREVIEW_STREAM] Stream completed. Total chunks: {chunks_received}, total bytes: {total_bytes_received}")
+        logger.info(f"[PREVIEW_STREAM] Final assistant_reply length: {len(assistant_reply)}")
+        logger.info(f"[PREVIEW_STREAM] Assistant reply preview: {assistant_reply[:200]}{'...' if len(assistant_reply) > 200 else ''}")
 
         # Cache full raw outline for later finalize step
         if chat_id:
             OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
             logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
 
+        if not assistant_reply.strip():
+            logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+            # Send error packet to frontend
+            error_packet = {"type": "error", "message": "No content received from AI service"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
+
         modules_preview = _parse_outline_markdown(assistant_reply)
         logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
+        logger.info(f"[PREVIEW_DONE] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+        
         # Send completion packet with the parsed outline.
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
         yield (json.dumps(done_packet) + "\n").encode()
+        logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
 
     return StreamingResponse(streamer(), media_type="application/json")
 
