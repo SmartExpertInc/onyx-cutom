@@ -397,9 +397,8 @@ const AnalyticsPage = () => {
           </div>
         </div>
 
-        {/* Top Endpoints and Users */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Top Endpoints */}
+        {/* Top Endpoints */}
+        <div className="mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Endpoints</h3>
             <div className="space-y-3">
@@ -418,45 +417,15 @@ const AnalyticsPage = () => {
                         {endpoint.endpoint}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4 mt-1 text-xs text-black">
                       <span>{endpoint.request_count} requests</span>
                       <span>{formatDuration(endpoint.avg_response_time)} avg</span>
-                      <span className={endpoint.error_rate > 5 ? 'text-red-600' : 'text-gray-500'}>
+                      <span className={endpoint.error_rate > 5 ? 'text-red-600' : 'text-black'}>
                         {endpoint.error_rate.toFixed(1)}% error
                       </span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Users */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Users</h3>
-            <div className="space-y-3">
-              {(dashboard.top_users || []).slice(0, 10).map((user, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-900 font-mono">
-                        {user.user_id.substring(0, 8)}...
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
-                      <span>{user.request_count} requests</span>
-                      <span>{formatDuration(user.avg_response_time)} avg</span>
-                      <span className={user.error_count > 0 ? 'text-red-600' : 'text-gray-500'}>
-                        {user.error_count} errors
-                      </span>
-                    </div>
-                    {user.last_request && (
-                      <div className="text-xs text-gray-400 mt-1">
-                        Last: {format(new Date(user.last_request), 'MMM dd, HH:mm')}
-                      </div>
-                    )}
-                  </div>
-            </div>
               ))}
             </div>
           </div>
