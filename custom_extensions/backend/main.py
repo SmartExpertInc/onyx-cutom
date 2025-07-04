@@ -4021,6 +4021,12 @@ async def get_analytics_dashboard(
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Get comprehensive analytics dashboard data"""
+    import json
+    
+    print(f"=== DASHBOARD DEBUG: Incoming parameters ===")
+    print(f"date_from: {date_from}")
+    print(f"date_to: {date_to}")
+    print(f"=== END PARAMETERS ===")
 
     try:
         # DEBUG: Print the latest 10 rows from request_analytics
@@ -4048,6 +4054,11 @@ async def get_analytics_dashboard(
         elif date_to:
             date_filter = "WHERE created_at <= $1"
             params = [datetime.strptime(date_to, '%Y-%m-%d').date()]
+        
+        print(f"=== DASHBOARD DEBUG: Date filter and params ===")
+        print(f"date_filter: {date_filter}")
+        print(f"params: {params}")
+        print(f"=== END DATE FILTER ===")
 
         async with pool.acquire() as conn:
             # Overall statistics
@@ -4066,7 +4077,12 @@ async def get_analytics_dashboard(
                 FROM request_analytics
                 {date_filter}
             """
+            print(f"=== DASHBOARD DEBUG: Stats query ===")
+            print(f"Query: {stats_query}")
+            print(f"Params: {params}")
             stats_row = await conn.fetchrow(stats_query, *params)
+            print(f"Stats result: {dict(stats_row) if stats_row else 'None'}")
+            print(f"=== END STATS ===")
             
             # Status code distribution
             status_query = f"""
@@ -4079,7 +4095,13 @@ async def get_analytics_dashboard(
                 GROUP BY status_code
                 ORDER BY count DESC
             """
+            print(f"=== DASHBOARD DEBUG: Status query ===")
+            print(f"Query: {status_query}")
+            print(f"Params: {params}")
             status_rows = await conn.fetch(status_query, *params)
+            print(f"Status rows count: {len(status_rows)}")
+            print(f"Status results: {[dict(row) for row in status_rows]}")
+            print(f"=== END STATUS ===")
             
             # Top endpoints by request count
             endpoints_query = f"""
@@ -4187,7 +4209,7 @@ async def get_analytics_dashboard(
             """
             percentile_row = await conn.fetchrow(percentile_query, *params)
 
-        return {
+        response_data = {
             "overview": {
                 "total_requests": stats_row["total_requests"],
                 "successful_requests": stats_row["successful_requests"],
@@ -4247,6 +4269,14 @@ async def get_analytics_dashboard(
                 "p99": round(percentile_row["p99"], 2) if percentile_row["p99"] else 0
             }
         }
+        
+        print(f"=== DASHBOARD DEBUG: Final response ===")
+        print(f"Response overview: {response_data['overview']}")
+        print(f"Status distribution count: {len(response_data['status_distribution'])}")
+        print(f"Top endpoints count: {len(response_data['top_endpoints'])}")
+        print(f"=== END FINAL RESPONSE ===")
+        
+        return response_data
     except Exception as e:
         logger.error(f"Error fetching analytics dashboard: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch analytics data")
