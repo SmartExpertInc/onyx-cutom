@@ -4022,17 +4022,17 @@ async def get_analytics_dashboard(
 ):
     """Get comprehensive analytics dashboard data"""
     try:
-        # Build date filter
+        # Build date filter with proper date casting
         date_filter = ""
         params = []
         if date_from and date_to:
-            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
+            date_filter = "WHERE created_at >= $1::date AND created_at <= $2::date"
             params = [date_from, date_to]
         elif date_from:
-            date_filter = "WHERE created_at >= $1"
+            date_filter = "WHERE created_at >= $1::date"
             params = [date_from]
         elif date_to:
-            date_filter = "WHERE created_at <= $1"
+            date_filter = "WHERE created_at <= $1::date"
             params = [date_to]
 
         async with pool.acquire() as conn:
@@ -4262,12 +4262,12 @@ async def get_analytics_requests(
         
         if date_from:
             param_count += 1
-            conditions.append(f"created_at >= ${param_count}")
+            conditions.append(f"created_at >= ${param_count}::date")
             params.append(date_from)
         
         if date_to:
             param_count += 1
-            conditions.append(f"created_at <= ${param_count}")
+            conditions.append(f"created_at <= ${param_count}::date")
             params.append(date_to)
         
         if status_code is not None:
@@ -4343,17 +4343,17 @@ async def export_analytics_data(
 ):
     """Export analytics data as CSV or JSON"""
     try:
-        # Build date filter
+        # Build date filter with proper date casting
         date_filter = ""
         params = []
         if date_from and date_to:
-            date_filter = "WHERE created_at >= $1 AND created_at <= $2"
+            date_filter = "WHERE created_at >= $1::date AND created_at <= $2::date"
             params = [date_from, date_to]
         elif date_from:
-            date_filter = "WHERE created_at >= $1"
+            date_filter = "WHERE created_at >= $1::date"
             params = [date_from]
         elif date_to:
-            date_filter = "WHERE created_at <= $1"
+            date_filter = "WHERE created_at <= $1::date"
             params = [date_to]
 
         async with pool.acquire() as conn:
