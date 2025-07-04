@@ -3385,16 +3385,20 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         total_bytes_received += len(raw_line.encode('utf-8'))
                         chunks_received += 1
                         
+                        # Log every chunk in detail for debugging
+                        logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: raw_line length={len(raw_line)}, bytes={len(raw_line.encode('utf-8'))}")
+                        logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: raw_line content: {repr(raw_line)}")
+                        
                         if not raw_line:
-                            logger.debug(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
+                            logger.info(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
                             continue
                             
                         line = raw_line.strip()
-                        logger.debug(f"[PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
+                        logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: stripped line: {repr(line)}")
                         
                         if line.startswith("data:"):
                             line = line.split("data:", 1)[1].strip()
-                            logger.debug(f"[PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
+                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: processed data line: {repr(line)}")
                             
                         if line == "[DONE]":
                             logger.info(f"[PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
@@ -3403,18 +3407,20 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                             
                         try:
                             pkt = json.loads(line)
+                            logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: parsed JSON keys: {list(pkt.keys())}")
                             if "answer_piece" in pkt:
                                 delta_text = pkt["answer_piece"].replace("\\n", "\n")
                                 assistant_reply += delta_text
-                                logger.debug(f"[PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: delta_text content: {repr(delta_text)}")
                                 yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                             else:
-                                logger.debug(f"[PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
+                                logger.info(f"[PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, full packet: {pkt}")
                         except json.JSONDecodeError as e:
-                            logger.error(f"[PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
+                            logger.error(f"[PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {repr(line)}")
                             continue
                         except Exception as e:
-                            logger.error(f"[PREVIEW_ONYX] Unexpected error processing chunk {chunks_received}: {e} | Raw: {line[:200]}")
+                            logger.error(f"[PREVIEW_ONYX] Unexpected error processing chunk {chunks_received}: {e} | Raw: {repr(line)}")
                             continue
 
                         # send keep-alive every 8s
