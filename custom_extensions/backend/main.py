@@ -2537,8 +2537,8 @@ The entire output must be a single, valid JSON object and must include all relev
                         logger.info(f"About to insert AI parser record for {project_name}")
                         try:
                             result = await conn.execute(
-                                "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
-                                '/ai/parse', 'POST', None, 200, int((time.time() - start_time) * 1000), len(ai_response), len(json.dumps(parsed_json_data)), None, True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
+                                "INSERT INTO request_analytics (id, endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+                                str(uuid.uuid4()), '/ai/parse', 'POST', None, 200, int((time.time() - start_time) * 1000), len(ai_response), len(json.dumps(parsed_json_data)), None, True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
                             )
                             logger.info(f"Database insert result: {result}")
                             logger.info(f"Successfully logged AI parser usage for {project_name}")
@@ -2579,8 +2579,8 @@ The entire output must be a single, valid JSON object and must include all relev
                         logger.info(f"About to insert failed AI parser record for {project_name}")
                         try:
                             result = await conn.execute(
-                                "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
-                                '/ai/parse', 'POST', None, 500, int((time.time() - start_time) * 1000), len(ai_response), 0, str(e)[:500], True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
+                                "INSERT INTO request_analytics (id, endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+                                str(uuid.uuid4()), '/ai/parse', 'POST', None, 500, int((time.time() - start_time) * 1000), len(ai_response), 0, str(e)[:500], True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
                             )
                             logger.info(f"Failed attempt database insert result: {result}")
                             logger.info(f"Successfully logged failed AI parser attempt for {project_name}")
@@ -4157,9 +4157,9 @@ async def get_analytics_dashboard(
             
             # DEBUG: Check if the columns exist and have any data
             column_check = await conn.fetch(
-                "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'request_analytics' AND column_name LIKE '%ai_parser%' ORDER BY column_name"
+                "SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = 'request_analytics' ORDER BY ordinal_position"
             )
-            print("=== DEBUG: AI Parser columns check ===")
+            print("=== DEBUG: All request_analytics columns check ===")
             for row in column_check:
                 print(dict(row))
             print("=== END COLUMN CHECK ===")
