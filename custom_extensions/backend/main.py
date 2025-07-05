@@ -2369,6 +2369,14 @@ async def parse_ai_response_with_llm(
     # Start timing for analytics
     start_time = time.time()
     
+    # DEBUG: Log that the function was called
+    logger.info(f"=== AI PARSER FUNCTION CALLED ===")
+    logger.info(f"Project: {project_name}")
+    logger.info(f"Target model: {target_model.__name__}")
+    logger.info(f"AI response length: {len(ai_response)}")
+    logger.info(f"DB_POOL available: {DB_POOL is not None}")
+    logger.info(f"=== END FUNCTION CALL DEBUG ===")
+    
     # Create a list of API keys to try, filtering out any that are not set
     api_keys_to_try = [key for key in [LLM_API_KEY, LLM_API_KEY_FALLBACK] if key]
 
@@ -4132,6 +4140,25 @@ async def get_analytics_dashboard(
                 print(dict(row))
             print(f"Total AI parser records found: {len(ai_parser_rows)}")
             print("=== END AI PARSER DEBUG ===")
+            
+            # DEBUG: Check if the columns exist and have any data
+            column_check = await conn.fetch(
+                "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'request_analytics' AND column_name LIKE '%ai_parser%' ORDER BY column_name"
+            )
+            print("=== DEBUG: AI Parser columns check ===")
+            for row in column_check:
+                print(dict(row))
+            print("=== END COLUMN CHECK ===")
+            
+            # DEBUG: Check for any records with non-null ai_parser fields
+            any_ai_parser_data = await conn.fetch(
+                "SELECT id, endpoint, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name FROM request_analytics WHERE is_ai_parser_request IS NOT NULL OR ai_parser_tokens IS NOT NULL OR ai_parser_model IS NOT NULL OR ai_parser_project_name IS NOT NULL ORDER BY created_at DESC LIMIT 5"
+            )
+            print("=== DEBUG: Any AI parser data ===")
+            for row in any_ai_parser_data:
+                print(dict(row))
+            print(f"Total records with any AI parser data: {len(any_ai_parser_data)}")
+            print("=== END ANY AI PARSER DATA ===")
     except Exception as e:
         print(f"DEBUG ERROR: Could not fetch request_analytics: {e}")
 
