@@ -4309,11 +4309,11 @@ async def get_analytics_dashboard(
                 "total_data_transferred": stats_row["total_data_transferred"],
                 "unique_users": stats_row["unique_users"],
                 "unique_endpoints": stats_row["unique_endpoints"],
-                "ai_parser_requests": stats_row["ai_parser_requests"],
+                "ai_parser_requests": stats_row["ai_parser_requests"] or 0,
                 "avg_ai_parser_tokens": round(stats_row["avg_ai_parser_tokens"], 2) if stats_row["avg_ai_parser_tokens"] else 0,
-                "max_ai_parser_tokens": stats_row["max_ai_parser_tokens"],
-                "min_ai_parser_tokens": stats_row["min_ai_parser_tokens"],
-                "total_ai_parser_tokens": stats_row["total_ai_parser_tokens"]
+                "max_ai_parser_tokens": stats_row["max_ai_parser_tokens"] or 0,
+                "min_ai_parser_tokens": stats_row["min_ai_parser_tokens"] or 0,
+                "total_ai_parser_tokens": stats_row["total_ai_parser_tokens"] or 0
             },
             "status_distribution": [{"status_code": row["status_code"], "count": row["count"], "avg_time": round(row["avg_time"], 2) if row["avg_time"] else 0} for row in status_rows],
             "top_endpoints": [{

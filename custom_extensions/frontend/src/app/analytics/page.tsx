@@ -536,19 +536,19 @@ const AnalyticsPage = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-black">Total Requests</span>
-                <span className="font-semibold text-purple-600">{dashboard.overview.ai_parser_requests.toLocaleString()}</span>
+                <span className="font-semibold text-purple-600">{(dashboard.overview.ai_parser_requests || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Avg Tokens</span>
-                <span className="font-semibold text-gray-900">{dashboard.overview.avg_ai_parser_tokens.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">{(dashboard.overview.avg_ai_parser_tokens || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Total Tokens</span>
-                <span className="font-semibold text-gray-900">{dashboard.overview.total_ai_parser_tokens.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">{(dashboard.overview.total_ai_parser_tokens || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Token Range</span>
-                <span className="font-semibold text-gray-900">{dashboard.overview.min_ai_parser_tokens.toLocaleString()} - {dashboard.overview.max_ai_parser_tokens.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">{(dashboard.overview.min_ai_parser_tokens || 0).toLocaleString()} - {(dashboard.overview.max_ai_parser_tokens || 0).toLocaleString()}</span>
               </div>
             </div>
           </div>
