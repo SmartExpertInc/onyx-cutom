@@ -27,6 +27,7 @@ import time
 import uuid
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
+import tiktoken
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -655,6 +656,17 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
             logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
 
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
@@ -1604,6 +1616,17 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
             logger.info("'request_analytics' table ensured.")
 
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -2481,6 +2504,15 @@ The entire output must be a single, valid JSON object and must include all relev
             
             validated_model = target_model.model_validate(parsed_json_data)
             logger.info(f"LLM parsing for '{project_name}' succeeded on attempt #{attempt_number}.")
+
+            # Log AI parser usage
+            async with asyncpg.create_pool(CUSTOM_PROJECTS_DATABASE_URL) as pool:
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        "INSERT INTO request_analytics (endpoint, method, status_code, response_time, request_size, response_size, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+                        '/api/custom/parse_ai_response', 'POST', 200, 0, len(ai_response), len(json.dumps(parsed_json_data)), True, len(ai_response.split()), LLM_DEFAULT_MODEL, project_name
+                    )
+
             return validated_model
 
         except Exception as e:
@@ -4097,7 +4129,12 @@ async def get_analytics_dashboard(
                     MIN(response_time_ms) as min_response_time,
                     SUM(COALESCE(request_size_bytes, 0) + COALESCE(response_size_bytes, 0)) as total_data_transferred,
                     COUNT(DISTINCT user_id) as unique_users,
-                    COUNT(DISTINCT endpoint) as unique_endpoints
+                    COUNT(DISTINCT endpoint) as unique_endpoints,
+                    COUNT(CASE WHEN is_ai_parser_request THEN 1 END) as ai_parser_requests,
+                    AVG(ai_parser_tokens) as avg_ai_parser_tokens,
+                    MAX(ai_parser_tokens) as max_ai_parser_tokens,
+                    MIN(ai_parser_tokens) as min_ai_parser_tokens,
+                    SUM(ai_parser_tokens) as total_ai_parser_tokens
                 FROM request_analytics
                 {where_clause}
             """
@@ -4245,7 +4282,12 @@ async def get_analytics_dashboard(
                 "min_response_time": stats_row["min_response_time"],
                 "total_data_transferred": stats_row["total_data_transferred"],
                 "unique_users": stats_row["unique_users"],
-                "unique_endpoints": stats_row["unique_endpoints"]
+                "unique_endpoints": stats_row["unique_endpoints"],
+                "ai_parser_requests": stats_row["ai_parser_requests"],
+                "avg_ai_parser_tokens": round(stats_row["avg_ai_parser_tokens"], 2) if stats_row["avg_ai_parser_tokens"] else 0,
+                "max_ai_parser_tokens": stats_row["max_ai_parser_tokens"],
+                "min_ai_parser_tokens": stats_row["min_ai_parser_tokens"],
+                "total_ai_parser_tokens": stats_row["total_ai_parser_tokens"]
             },
             "status_distribution": [{"status_code": row["status_code"], "count": row["count"], "avg_time": round(row["avg_time"], 2) if row["avg_time"] else 0} for row in status_rows],
             "top_endpoints": [{
@@ -5275,8 +5317,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
             
             # Fall back to assistant path
-            use_direct_parser = False
-            use_assistant_then_parser = True
+                use_direct_parser = False
+                use_assistant_then_parser = True
 
     # ---------- 3) ASSISTANT + PARSER PATH: Process changes with assistant, then parse ----------
     if use_assistant_then_parser:

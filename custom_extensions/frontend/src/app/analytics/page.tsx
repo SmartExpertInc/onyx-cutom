@@ -21,17 +21,22 @@ interface RequestAnalytics {
 
 interface AnalyticsDashboard {
   overview: {
-  total_requests: number;
-  successful_requests: number;
-  failed_requests: number;
+    total_requests: number;
+    successful_requests: number;
+    failed_requests: number;
     error_requests: number;
     success_rate: number;
     avg_response_time: number;
     max_response_time: number;
     min_response_time: number;
-  total_data_transferred: number;
-  unique_users: number;
+    total_data_transferred: number;
+    unique_users: number;
     unique_endpoints: number;
+    ai_parser_requests: number;
+    avg_ai_parser_tokens: number;
+    max_ai_parser_tokens: number;
+    min_ai_parser_tokens: number;
+    total_ai_parser_tokens: number;
   };
   status_distribution: Array<{ status_code: number; count: number; avg_time: number }>;
   top_endpoints: Array<{
@@ -432,43 +437,61 @@ const AnalyticsPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center">
+            <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Activity className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-black">Total Requests</p>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-black">Total Requests</p>
                 <p className="text-2xl font-bold text-black">{dashboard.overview.total_requests.toLocaleString()}</p>
-                </div>
               </div>
             </div>
+          </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center">
+            <div className="flex items-center">
               <div className="p-3 bg-green-100 rounded-lg">
                 <TrendingUp className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-black">Success Rate</p>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-black">Success Rate</p>
                 <p className="text-2xl font-bold text-black">{dashboard.overview.success_rate}%</p>
-                </div>
               </div>
             </div>
+          </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center">
+            <div className="flex items-center">
               <div className="p-3 bg-orange-100 rounded-lg">
                 <Clock className="w-6 h-6 text-orange-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-black">Avg Response Time</p>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-black">Avg Response Time</p>
                 <p className="text-2xl font-bold text-black">{formatDuration(dashboard.overview.avg_response_time)}</p>
-                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="flex items-center">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Users className="w-6 h-6 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-black">AI Model Usage</p>
+                <p className="text-2xl font-bold text-black">{dashboard.overview.ai_parser_requests.toLocaleString()}</p>
+                <div className="mt-2 text-xs text-gray-700 space-y-1">
+                  <div>Avg Tokens: <span className="font-semibold">{dashboard.overview.avg_ai_parser_tokens}</span></div>
+                  <div>Max Tokens: <span className="font-semibold">{dashboard.overview.max_ai_parser_tokens}</span></div>
+                  <div>Min Tokens: <span className="font-semibold">{dashboard.overview.min_ai_parser_tokens}</span></div>
+                  <div>Total Tokens: <span className="font-semibold">{dashboard.overview.total_ai_parser_tokens}</span></div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
         {/* Performance Metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -478,11 +501,11 @@ const AnalyticsPage = () => {
               <div className="flex justify-between">
                 <span className="text-black">P50 (Median)</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p50)}</span>
-                </div>
+              </div>
               <div className="flex justify-between">
                 <span className="text-black">P95</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p95)}</span>
-                </div>
+              </div>
               <div className="flex justify-between">
                 <span className="text-black">P99</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.performance_percentiles.p99)}</span>
@@ -506,7 +529,7 @@ const AnalyticsPage = () => {
                 <span className="font-semibold text-red-600">{dashboard.overview.error_requests}</span>
               </div>
             </div>
-            </div>
+          </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Response Time Range</h3>
@@ -514,15 +537,15 @@ const AnalyticsPage = () => {
               <div className="flex justify-between">
                 <span className="text-black">Fastest</span>
                 <span className="font-semibold text-green-600">{formatDuration(dashboard.overview.min_response_time)}</span>
-            </div>
+              </div>
               <div className="flex justify-between">
                 <span className="text-black">Average</span>
                 <span className="font-semibold text-gray-900">{formatDuration(dashboard.overview.avg_response_time)}</span>
-            </div>
+              </div>
               <div className="flex justify-between">
                 <span className="text-black">Slowest</span>
                 <span className="font-semibold text-red-600">{formatDuration(dashboard.overview.max_response_time)}</span>
-            </div>
+              </div>
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ export default function PasteTextPage() {
     if (length > LARGE_TEXT_THRESHOLD) {
       return {
         type: "warning",
-        message: "Text is very large and will be processed as a file to prevent AI memory issues.",
+        message: "Text is very large and will be processed as a file. This may take a while.",
         color: "text-orange-600"
       };
     } else if (length > TEXT_SIZE_THRESHOLD) {
