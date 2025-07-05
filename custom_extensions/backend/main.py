@@ -2534,11 +2534,18 @@ The entire output must be a single, valid JSON object and must include all relev
                     logger.info(f"=== END AI PARSER LOGGING DEBUG ===")
                     
                     async with DB_POOL.acquire() as conn:
-                        await conn.execute(
-                            "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
-                            '/ai/parse', 'POST', None, 200, int((time.time() - start_time) * 1000), len(ai_response), len(json.dumps(parsed_json_data)), None, True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
-                        )
-                        logger.info(f"Successfully logged AI parser usage for {project_name}")
+                        logger.info(f"About to insert AI parser record for {project_name}")
+                        try:
+                            result = await conn.execute(
+                                "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+                                '/ai/parse', 'POST', None, 200, int((time.time() - start_time) * 1000), len(ai_response), len(json.dumps(parsed_json_data)), None, True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
+                            )
+                            logger.info(f"Database insert result: {result}")
+                            logger.info(f"Successfully logged AI parser usage for {project_name}")
+                        except Exception as db_error:
+                            logger.error(f"Database insert failed: {db_error}")
+                            logger.error(f"Insert parameters: endpoint='/ai/parse', method='POST', status_code=200, tokens={total_tokens}, model={LLM_DEFAULT_MODEL}, project={project_name}")
+                            raise
                 except Exception as e:
                     logger.warning(f"Failed to log AI parser usage: {e}")
                     logger.error(f"AI Parser logging error details: {str(e)}")
@@ -2569,11 +2576,18 @@ The entire output must be a single, valid JSON object and must include all relev
                     logger.info(f"=== END AI PARSER FAILED LOGGING DEBUG ===")
                     
                     async with DB_POOL.acquire() as conn:
-                        await conn.execute(
-                            "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
-                            '/ai/parse', 'POST', None, 500, int((time.time() - start_time) * 1000), len(ai_response), 0, str(e)[:500], True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
-                        )
-                        logger.info(f"Successfully logged failed AI parser attempt for {project_name}")
+                        logger.info(f"About to insert failed AI parser record for {project_name}")
+                        try:
+                            result = await conn.execute(
+                                "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+                                '/ai/parse', 'POST', None, 500, int((time.time() - start_time) * 1000), len(ai_response), 0, str(e)[:500], True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
+                            )
+                            logger.info(f"Failed attempt database insert result: {result}")
+                            logger.info(f"Successfully logged failed AI parser attempt for {project_name}")
+                        except Exception as db_error:
+                            logger.error(f"Failed attempt database insert failed: {db_error}")
+                            logger.error(f"Failed attempt insert parameters: endpoint='/ai/parse', method='POST', status_code=500, tokens={total_tokens}, model={LLM_DEFAULT_MODEL}, project={project_name}")
+                            raise
                 except Exception as log_error:
                     logger.warning(f"Failed to log AI parser error: {log_error}")
                     logger.error(f"AI Parser failed logging error details: {str(log_error)}")
