@@ -2517,13 +2517,23 @@ The entire output must be a single, valid JSON object and must include all relev
                     response_tokens = len(encoding.encode(json.dumps(parsed_json_data)))
                     total_tokens = prompt_tokens + response_tokens
                     
+                    logger.info(f"=== AI PARSER LOGGING DEBUG ===")
+                    logger.info(f"Project: {project_name}")
+                    logger.info(f"Prompt tokens: {prompt_tokens}")
+                    logger.info(f"Response tokens: {response_tokens}")
+                    logger.info(f"Total tokens: {total_tokens}")
+                    logger.info(f"Response time: {int((time.time() - start_time) * 1000)}ms")
+                    logger.info(f"=== END AI PARSER LOGGING DEBUG ===")
+                    
                     async with DB_POOL.acquire() as conn:
                         await conn.execute(
                             "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
                             '/ai/parse', 'POST', None, 200, int((time.time() - start_time) * 1000), len(ai_response), len(json.dumps(parsed_json_data)), None, True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
                         )
+                        logger.info(f"Successfully logged AI parser usage for {project_name}")
                 except Exception as e:
                     logger.warning(f"Failed to log AI parser usage: {e}")
+                    logger.error(f"AI Parser logging error details: {str(e)}")
 
             return validated_model
 
@@ -2542,13 +2552,23 @@ The entire output must be a single, valid JSON object and must include all relev
                     prompt_tokens = len(encoding.encode(ai_response))
                     total_tokens = prompt_tokens  # No response tokens for failed attempts
                     
+                    logger.info(f"=== AI PARSER FAILED LOGGING DEBUG ===")
+                    logger.info(f"Project: {project_name}")
+                    logger.info(f"Prompt tokens: {prompt_tokens}")
+                    logger.info(f"Total tokens: {total_tokens}")
+                    logger.info(f"Response time: {int((time.time() - start_time) * 1000)}ms")
+                    logger.info(f"Error: {str(e)[:200]}")
+                    logger.info(f"=== END AI PARSER FAILED LOGGING DEBUG ===")
+                    
                     async with DB_POOL.acquire() as conn:
                         await conn.execute(
                             "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
                             '/ai/parse', 'POST', None, 500, int((time.time() - start_time) * 1000), len(ai_response), 0, str(e)[:500], True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
                         )
+                        logger.info(f"Successfully logged failed AI parser attempt for {project_name}")
                 except Exception as log_error:
                     logger.warning(f"Failed to log AI parser error: {log_error}")
+                    logger.error(f"AI Parser failed logging error details: {str(log_error)}")
             
             continue
 
@@ -4102,6 +4122,16 @@ async def get_analytics_dashboard(
             for row in debug_rows:
                 print(dict(row))
             print("=== END DEBUG ===")
+            
+            # DEBUG: Check specifically for AI parser records
+            ai_parser_rows = await conn.fetch(
+                "SELECT id, endpoint, method, status_code, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at FROM request_analytics WHERE is_ai_parser_request = true ORDER BY created_at DESC LIMIT 10"
+            )
+            print("=== DEBUG: AI Parser records from request_analytics ===")
+            for row in ai_parser_rows:
+                print(dict(row))
+            print(f"Total AI parser records found: {len(ai_parser_rows)}")
+            print("=== END AI PARSER DEBUG ===")
     except Exception as e:
         print(f"DEBUG ERROR: Could not fetch request_analytics: {e}")
 
@@ -4172,6 +4202,17 @@ async def get_analytics_dashboard(
             print(f"Params: {params}")
             stats_row = await conn.fetchrow(stats_query, *params)
             print(f"Stats result: {dict(stats_row) if stats_row else 'None'}")
+            
+            # Debug AI parser specific data
+            if stats_row:
+                print(f"=== AI PARSER DEBUG ===")
+                print(f"ai_parser_requests: {stats_row['ai_parser_requests']}")
+                print(f"avg_ai_parser_tokens: {stats_row['avg_ai_parser_tokens']}")
+                print(f"max_ai_parser_tokens: {stats_row['max_ai_parser_tokens']}")
+                print(f"min_ai_parser_tokens: {stats_row['min_ai_parser_tokens']}")
+                print(f"total_ai_parser_tokens: {stats_row['total_ai_parser_tokens']}")
+                print(f"=== END AI PARSER DEBUG ===")
+            
             print(f"=== END STATS ===")
             
             # Status code distribution
