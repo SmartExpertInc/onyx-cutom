@@ -2506,12 +2506,21 @@ The entire output must be a single, valid JSON object and must include all relev
             logger.info(f"LLM parsing for '{project_name}' succeeded on attempt #{attempt_number}.")
 
             # Log AI parser usage
-            async with asyncpg.create_pool(CUSTOM_PROJECTS_DATABASE_URL) as pool:
-                async with pool.acquire() as conn:
-                    await conn.execute(
-                        "INSERT INTO request_analytics (endpoint, method, status_code, response_time, request_size, response_size, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-                        '/api/custom/parse_ai_response', 'POST', 200, 0, len(ai_response), len(json.dumps(parsed_json_data)), True, len(ai_response.split()), LLM_DEFAULT_MODEL, project_name
-                    )
+            if DB_POOL:
+                try:
+                    # Count tokens using tiktoken
+                    encoding = tiktoken.get_encoding("cl100k_base")  # GPT-4 encoding
+                    prompt_tokens = len(encoding.encode(ai_response))
+                    response_tokens = len(encoding.encode(json.dumps(parsed_json_data)))
+                    total_tokens = prompt_tokens + response_tokens
+                    
+                    async with DB_POOL.acquire() as conn:
+                        await conn.execute(
+                            "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+                            '/ai/parse', 'POST', None, 200, int((time.time() - start_time) * 1000), len(ai_response), len(json.dumps(parsed_json_data)), None, True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to log AI parser usage: {e}")
 
             return validated_model
 
@@ -2521,6 +2530,23 @@ The entire output must be a single, valid JSON object and must include all relev
                 f"LLM parsing attempt #{attempt_number} for '{project_name}' failed with {type(e).__name__}. "
                 f"Details: {str(e)[:250]}. Trying next key if available."
             )
+            
+            # Log failed AI parser attempt
+            if DB_POOL:
+                try:
+                    # Count tokens using tiktoken
+                    encoding = tiktoken.get_encoding("cl100k_base")  # GPT-4 encoding
+                    prompt_tokens = len(encoding.encode(ai_response))
+                    total_tokens = prompt_tokens  # No response tokens for failed attempts
+                    
+                    async with DB_POOL.acquire() as conn:
+                        await conn.execute(
+                            "INSERT INTO request_analytics (endpoint, method, user_id, status_code, response_time_ms, request_size_bytes, response_size_bytes, error_message, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+                            '/ai/parse', 'POST', None, 500, int((time.time() - start_time) * 1000), len(ai_response), 0, str(e)[:500], True, total_tokens, LLM_DEFAULT_MODEL, project_name, datetime.now(timezone.utc)
+                        )
+                except Exception as log_error:
+                    logger.warning(f"Failed to log AI parser error: {log_error}")
+            
             continue
 
     # --- Handle Final Failure ---

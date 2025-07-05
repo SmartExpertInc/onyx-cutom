@@ -437,7 +437,7 @@ const AnalyticsPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -473,28 +473,10 @@ const AnalyticsPage = () => {
               </div>
             </div>
           </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-black">AI Model Usage</p>
-                <p className="text-2xl font-bold text-black">{dashboard.overview.ai_parser_requests.toLocaleString()}</p>
-                <div className="mt-2 text-xs text-gray-700 space-y-1">
-                  <div>Avg Tokens: <span className="font-semibold">{dashboard.overview.avg_ai_parser_tokens}</span></div>
-                  <div>Max Tokens: <span className="font-semibold">{dashboard.overview.max_ai_parser_tokens}</span></div>
-                  <div>Min Tokens: <span className="font-semibold">{dashboard.overview.min_ai_parser_tokens}</span></div>
-                  <div>Total Tokens: <span className="font-semibold">{dashboard.overview.total_ai_parser_tokens}</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Performance Metrics */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Percentiles</h3>
             <div className="space-y-3">
@@ -545,6 +527,28 @@ const AnalyticsPage = () => {
               <div className="flex justify-between">
                 <span className="text-black">Slowest</span>
                 <span className="font-semibold text-red-600">{formatDuration(dashboard.overview.max_response_time)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Model Usage</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-black">Total Requests</span>
+                <span className="font-semibold text-purple-600">{dashboard.overview.ai_parser_requests.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">Avg Tokens</span>
+                <span className="font-semibold text-gray-900">{dashboard.overview.avg_ai_parser_tokens.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">Total Tokens</span>
+                <span className="font-semibold text-gray-900">{dashboard.overview.total_ai_parser_tokens.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">Token Range</span>
+                <span className="font-semibold text-gray-900">{dashboard.overview.min_ai_parser_tokens.toLocaleString()} - {dashboard.overview.max_ai_parser_tokens.toLocaleString()}</span>
               </div>
             </div>
           </div>
