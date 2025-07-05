@@ -2366,6 +2366,9 @@ async def parse_ai_response_with_llm(
     dynamic_instructions: str,
     target_json_example: str
 ) -> BaseModel:
+    # Start timing for analytics
+    start_time = time.time()
+    
     # Create a list of API keys to try, filtering out any that are not set
     api_keys_to_try = [key for key in [LLM_API_KEY, LLM_API_KEY_FALLBACK] if key]
 
