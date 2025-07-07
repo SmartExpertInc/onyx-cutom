@@ -8025,7 +8025,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 "mainTitle": "Example Training Plan",
                 "sections": [
                     {
-                        "id": "① Module 1",
+                        "id": "№1",
                         "title": "Introduction to Topic",
                         "totalHours": 10,
                         "lessons": [
@@ -8034,7 +8034,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                                 "hours": 2,
                                 "source": "Create from scratch",
                                 "completionTime": "5m",
-                                "check": {"type": "test", "text": "Yes"},
+                                "check": {"type": "test", "text": "Test"},
                                 "contentAvailable": {"type": "yes", "text": "100%"}
                             }
                         ],
