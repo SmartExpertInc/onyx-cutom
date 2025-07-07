@@ -28,6 +28,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
+import inspect
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -66,6 +67,12 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
+
+# Track in-flight quiz finalizations to prevent duplicate processing
+ACTIVE_QUIZ_FINALIZE_KEYS: Set[str] = set()
+
+# Track quiz finalization timestamps for cleanup
+QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 
 
 # --- Directory for Design Template Images ---
@@ -4026,6 +4033,7 @@ async def parse_ai_response_with_llm(
     logger.info(f"Target model: {target_model.__name__}")
     logger.info(f"AI response length: {len(ai_response)}")
     logger.info(f"DB_POOL available: {DB_POOL is not None}")
+    logger.info(f"Call stack: {len(inspect.stack())} frames")
     logger.info(f"=== END FUNCTION CALL DEBUG ===")
     
     # Create a list of API keys to try, filtering out any that are not set
@@ -9570,16 +9578,46 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
     try:
         onyx_user_id = await get_current_onyx_user_id(request)
         
-        # Ensure quiz template exists
-        template_id = await _ensure_quiz_template(pool)
+        # Create a unique key for this quiz finalization to prevent duplicates
+        quiz_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
         
-        # Parse the quiz data using LLM
+        # Check if this quiz is already being processed
+        if quiz_key in ACTIVE_QUIZ_FINALIZE_KEYS:
+            logger.warning(f"[QUIZ_FINALIZE_DUPLICATE] Quiz finalization already in progress for key: {quiz_key}")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Quiz finalization already in progress")
+        
+        # Add to active set and track timestamp
+        ACTIVE_QUIZ_FINALIZE_KEYS.add(quiz_key)
+        QUIZ_FINALIZE_TIMESTAMPS[quiz_key] = time.time()
+        
+        # Clean up stale entries (older than 5 minutes)
+        current_time = time.time()
+        stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
+        for stale_key in stale_keys:
+            ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
+            QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
+            logger.info(f"[QUIZ_FINALIZE_CLEANUP] Cleaned up stale quiz key: {stale_key}")
+        
+        try:
+            # Ensure quiz template exists
+            template_id = await _ensure_quiz_template(pool)
+            
+            # Create a consistent project name to prevent re-parsing issues
+            project_name = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
+            
+            logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
+            logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
+            logger.info(f"[QUIZ_FINALIZE_PARAMS] lesson: {payload.lesson}")
+            logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
+            logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
+        
+        # Parse the quiz data using LLM - only call once with consistent project name
         parsed_quiz = await parse_ai_response_with_llm(
             ai_response=payload.aiResponse,
-            project_name=f"Quiz - {payload.lesson or 'Standalone Quiz'}",
+            project_name=project_name,  # Use consistent project name
             target_model=QuizData,
             default_error_model_instance=QuizData(
-                quizTitle="Generated Quiz",
+                quizTitle=project_name,
                 questions=[],
                 detectedLanguage=payload.language
             ),
@@ -9611,15 +9649,19 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
         )
         
+        logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
+        logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
+        logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
+        
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
             parsed_quiz.detectedLanguage = detect_language(payload.aiResponse)
         
         # If parsing failed and we have no questions, create a basic quiz structure
         if not parsed_quiz.questions:
-            logger.warning(f"LLM parsing failed for quiz, creating fallback structure")
+            logger.warning(f"[QUIZ_FINALIZE_FALLBACK] LLM parsing failed for quiz, creating fallback structure")
             # Create a simple quiz with the AI response as content
-            parsed_quiz.quizTitle = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
+            parsed_quiz.quizTitle = project_name
             parsed_quiz.questions = [
                 {
                     "question_type": "open-answer",
@@ -9635,7 +9677,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 if hasattr(question, 'question_type') and question.question_type:
                     valid_questions.append(question)
                 else:
-                    logger.warning(f"Question {i} missing question_type, converting to open-answer")
+                    logger.warning(f"[QUIZ_FINALIZE_VALIDATION] Question {i} missing question_type, converting to open-answer")
                     # Convert to open-answer if question_type is missing
                     if hasattr(question, 'question_text'):
                         valid_questions.append({
@@ -9646,7 +9688,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                         })
             
             if not valid_questions:
-                logger.warning(f"No valid questions found, creating fallback structure")
+                logger.warning(f"[QUIZ_FINALIZE_VALIDATION] No valid questions found, creating fallback structure")
                 parsed_quiz.questions = [
                     {
                         "question_type": "open-answer",
@@ -9658,14 +9700,16 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             else:
                 parsed_quiz.questions = valid_questions
         
-        # Create project name
-        project_name = parsed_quiz.quizTitle or f"Quiz - {payload.lesson or 'Standalone Quiz'}"
+        # Use the parsed quiz title or fallback to the consistent project name
+        final_project_name = parsed_quiz.quizTitle or project_name
+        
+        logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
         # Create the project
         project_data = ProjectCreateRequest(
-            projectName=project_name,
+            projectName=final_project_name,
             design_template_id=template_id,
-            microProductName=project_name,
+            microProductName=final_project_name,
             aiResponse=payload.aiResponse
         )
         
@@ -9683,11 +9727,17 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             created_project.id
         )
         
-        logger.info(f"Quiz finalization successful: project_id={created_project.id}, project_name={project_name}")
-        return {"id": created_project.id, "name": project_name}
+            logger.info(f"[QUIZ_FINALIZE_SUCCESS] Quiz finalization successful: project_id={created_project.id}, project_name={final_project_name}")
+            return {"id": created_project.id, "name": final_project_name}
+            
+        finally:
+            # Always remove from active set and timestamps
+            ACTIVE_QUIZ_FINALIZE_KEYS.discard(quiz_key)
+            QUIZ_FINALIZE_TIMESTAMPS.pop(quiz_key, None)
+            logger.info(f"[QUIZ_FINALIZE_CLEANUP] Removed quiz_key from active set: {quiz_key}")
         
     except Exception as e:
-        logger.error(f"Error in quiz finalization: {e}", exc_info=not IS_PRODUCTION)
+        logger.error(f"[QUIZ_FINALIZE_ERROR] Error in quiz finalization: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 # Default quiz JSON example for LLM parsing
