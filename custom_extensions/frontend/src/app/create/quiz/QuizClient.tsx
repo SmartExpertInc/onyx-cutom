@@ -3,9 +3,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download, Sparkles } from "lucide-react";
+import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle } from "lucide-react";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+
+// Loading animation component
+const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
+  <div className="flex flex-col items-center justify-center p-8">
+    <div className="relative">
+      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+    {message && (
+      <p className="mt-4 text-gray-600 text-center max-w-md">{message}</p>
+    )}
+  </div>
+);
+
+// Progress bar component
+const ProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
+  <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+    <div 
+      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+      style={{ width: `${Math.min(progress, 100)}%` }}
+    ></div>
+  </div>
+);
 
 export default function QuizClient() {
   const router = useRouter();
@@ -100,6 +122,7 @@ export default function QuizClient() {
 
         const decoder = new TextDecoder();
         let buffer = "";
+        let gotFirstChunk = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -107,7 +130,16 @@ export default function QuizClient() {
           if (done) {
             // Process any remaining buffer
             if (buffer.trim()) {
-              setQuizData(prev => prev + buffer);
+              try {
+                const pkt = JSON.parse(buffer.trim());
+                gotFirstChunk = true;
+                if (pkt.type === "delta") {
+                  setQuizData(prev => prev + pkt.text);
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
+                setQuizData(prev => prev + buffer);
+              }
             }
             setIsComplete(true);
             break;
@@ -120,21 +152,23 @@ export default function QuizClient() {
           buffer = lines.pop() || ""; // Keep incomplete line in buffer
           
           for (const line of lines) {
-            if (line.trim() && line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') {
+            if (!line.trim()) continue;
+            
+            try {
+              const pkt = JSON.parse(line);
+              gotFirstChunk = true;
+              
+              if (pkt.type === "delta") {
+                setQuizData(prev => prev + pkt.text);
+              } else if (pkt.type === "done") {
                 setIsComplete(true);
                 return;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
               }
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.content) {
-                  setQuizData(prev => prev + parsed.content);
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
-                setQuizData(prev => prev + data);
-              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              setQuizData(prev => prev + line);
             }
           }
         }
@@ -240,17 +274,21 @@ export default function QuizClient() {
 
         {/* Generation status */}
         {isGenerating && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
-              <Sparkles className="h-5 w-5 animate-pulse" />
-              Generating quiz...
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
+              <div className="relative">
+                <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
+                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+              </div>
+              Generating Quiz...
             </div>
-            <div className="text-sm text-blue-700">
-              <p>Creating quiz questions based on your content. This may take a few moments.</p>
+            <div className="text-sm text-blue-700 mb-4">
+              <p>Creating interactive quiz questions based on your content. This may take a few moments.</p>
             </div>
+            <ProgressBar progress={quizData.length > 0 ? Math.min((quizData.length / 1000) * 100, 90) : 10} />
             <button
               onClick={handleCancel}
-              className="mt-2 px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm"
+              className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
             >
               Cancel Generation
             </button>
@@ -259,8 +297,9 @@ export default function QuizClient() {
 
         {/* Error display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+              <XCircle className="h-5 w-5" />
               Error
             </div>
             <div className="text-sm text-red-700">
@@ -271,31 +310,31 @@ export default function QuizClient() {
 
         {/* Quiz data display */}
         {quizData && (
-          <div className="bg-white border border-gray-300 rounded-lg p-6 mb-4">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Quiz Preview</h2>
               {isComplete && (
                 <div className="flex items-center gap-2 text-green-600">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Complete
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="text-sm font-medium">Generation Complete</span>
                 </div>
               )}
             </div>
             
-            <div className="bg-gray-50 border border-gray-200 rounded-md p-4 max-h-96 overflow-y-auto">
-              <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
+            <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto border border-gray-100">
+              <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono leading-relaxed">
                 {quizData}
               </pre>
             </div>
 
             {/* Themes section (not wired) */}
-            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
+            <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg">
               <h3 className="text-lg font-medium text-gray-800 mb-3">Themes</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {['Default', 'Professional', 'Creative', 'Minimal'].map((theme) => (
                   <button
                     key={theme}
-                    className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm"
+                    className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-300 text-sm font-medium transition-colors"
                   >
                     {theme}
                   </button>
