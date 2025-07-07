@@ -95,15 +95,35 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
     {
       "id": "№1",
       "title": "Introduction to Topic",
-      "totalHours": 5.5,
+      "totalHours": 5,
       "lessons": [
         {
           "title": "Lesson 1.1: Basic Concepts",
           "check": {"type": "test", "text": "Knowledge Test"},
-          "contentAvailable": {"type": "yes", "text": "100%"},
+          "contentAvailable": {"type": "yes", "text": "80%"},
           "source": "Internal Documentation",
-          "hours": 2.0,
-          "completionTime": "6m"
+          "hours": 2
+        },
+        {
+          "title": "Lesson 1.2: Advanced Techniques",
+          "check": {"type": "practice_supervisor", "text": "Practice with Supervisor"},
+          "contentAvailable": {"type": "percentage", "text": "75%"},
+          "source": "Expert Interview",
+          "hours": 3
+        }
+      ]
+    },
+    {
+      "id": "№2",
+      "title": "Deep Dive into X",
+      "totalHours": 5,
+      "lessons": [
+        {
+          "title": "Lesson 2.1: Exploring X",
+          "check": {"type": "none", "text": "N/A"},
+          "contentAvailable": {"type": "no", "text": "Content Missing"},
+          "source": "External Research",
+          "hours": 5
         }
       ]
     }
