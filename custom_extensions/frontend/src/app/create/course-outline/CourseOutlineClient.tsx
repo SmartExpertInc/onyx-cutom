@@ -450,11 +450,27 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
+    console.log("[Auto-Preview] Effect triggered", {
+      isGenerating,
+      isFromText,
+      userText: userText?.length || 0,
+      prompt: prompt?.length || 0,
+      loading,
+      chatId: !!chatId,
+      lastPreviewParams: lastPreviewParamsRef.current
+    });
+
     // Skip while finalizing
-    if (isGenerating) return;
+    if (isGenerating) {
+      console.log("[Auto-Preview] Skipping - isGenerating");
+      return;
+    }
 
     // If creating from text but userText not loaded yet, wait
-    if (isFromText && !userText) return;
+    if (isFromText && !userText) {
+      console.log("[Auto-Preview] Skipping - waiting for userText");
+      return;
+    }
 
     // If params unchanged from last preview, skip fetch
     const same = lastPreviewParamsRef.current &&
@@ -466,7 +482,20 @@ export default function CourseOutlineClient() {
       lastPreviewParamsRef.current.textMode === textMode &&
       lastPreviewParamsRef.current.isFromText === isFromText;
 
-    if (same) return;
+    if (same) {
+      console.log("[Auto-Preview] Skipping - params unchanged");
+      return;
+    }
+
+    console.log("[Auto-Preview] Params changed, comparison:", {
+      prompt: { old: lastPreviewParamsRef.current?.prompt, new: prompt, same: lastPreviewParamsRef.current?.prompt === prompt },
+      modules: { old: lastPreviewParamsRef.current?.modules, new: modules, same: lastPreviewParamsRef.current?.modules === modules },
+      lessonsPerModule: { old: lastPreviewParamsRef.current?.lessonsPerModule, new: lessonsPerModule, same: lastPreviewParamsRef.current?.lessonsPerModule === lessonsPerModule },
+      language: { old: lastPreviewParamsRef.current?.language, new: language, same: lastPreviewParamsRef.current?.language === language },
+      userText: { old: lastPreviewParamsRef.current?.userText, new: userText, same: lastPreviewParamsRef.current?.userText === userText },
+      textMode: { old: lastPreviewParamsRef.current?.textMode, new: textMode, same: lastPreviewParamsRef.current?.textMode === textMode },
+      isFromText: { old: lastPreviewParamsRef.current?.isFromText, new: isFromText, same: lastPreviewParamsRef.current?.isFromText === isFromText }
+    });
 
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
@@ -897,11 +926,15 @@ export default function CourseOutlineClient() {
     setError(null);
 
     // Prevent the auto preview effect from immediately firing a redundant request
+    console.log("[Advanced Mode] Setting lastPreviewParamsRef early to prevent auto-preview");
     lastPreviewParamsRef.current = {
       prompt: combined,
       modules,
       lessonsPerModule,
       language,
+      userText,
+      textMode: textMode || undefined,
+      isFromText
     };
 
     try {
@@ -957,6 +990,7 @@ export default function CourseOutlineClient() {
             setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
             
             // Update lastPreviewParamsRef BEFORE setPrompt to prevent auto-preview from triggering
+            console.log("[Advanced Mode] Setting lastPreviewParamsRef final to prevent auto-preview");
             lastPreviewParamsRef.current = {
               prompt: combined,
               modules,
@@ -967,6 +1001,7 @@ export default function CourseOutlineClient() {
               isFromText
             };
             
+            console.log("[Advanced Mode] Setting prompt to:", combined);
             setPrompt(combined);
             setEditPrompt("");
             setLoadingPreview(false);
