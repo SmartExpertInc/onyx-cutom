@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, CheckSquare, X } from 'lucide-react';
+import { BookText, Film, CheckSquare, X } from 'lucide-react';
 import { locales } from '@/locales';
 import { useRouter } from 'next/navigation';
 
@@ -160,7 +160,7 @@ export const CreateContentTypeModal = ({
                   {type.icon}
                 </div>
                 <div className="w-3/4 text-left">
-                  {localized[type.name as keyof typeof localized]}
+                  {type.name === "lessonPresentation" ? "Lesson" : localized[type.name as keyof typeof localized]}
                 </div>
               </StyledButton>
             ))}

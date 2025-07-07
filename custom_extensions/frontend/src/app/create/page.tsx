@@ -26,6 +26,37 @@ const OptionCard: React.FC<OptionCardProps> = ({
   disabled,
   pillLabel,
 }: OptionCardProps) => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (disabled || !href) return;
+    
+    // Check if we have lesson context in sessionStorage
+    try {
+      const lessonContextData = sessionStorage.getItem('lessonContext');
+      if (lessonContextData) {
+        const lessonContext = JSON.parse(lessonContextData);
+        // Check if data is recent (within 1 hour)
+        if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
+          e.preventDefault();
+          
+          // Add lesson parameters to the href
+          const url = new URL(href, window.location.origin);
+          Object.entries(lessonContext).forEach(([key, value]) => {
+            if (key !== 'timestamp') {
+              url.searchParams.set(key, String(value));
+            }
+          });
+          
+          window.location.href = url.toString();
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error handling lesson context:', error);
+    }
+    
+    // Fallback to normal navigation
+  };
+
   // Card content shared by both link and non-link versions
   const cardContent = (
     <div
@@ -55,15 +86,15 @@ const OptionCard: React.FC<OptionCardProps> = ({
   );
 
   if (disabled || !href) return cardContent;
-  return <Link href={href}>{cardContent}</Link>;
+  return <Link href={href} onClick={handleClick}>{cardContent}</Link>;
 };
 
-// Component to handle URL parameters and redirects
+// Component to handle URL parameters and pass them to all creation paths
 function CreatePageHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Handle URL parameters for pre-selecting product and options
+  // Store lesson parameters in sessionStorage for use across all creation paths
   useEffect(() => {
     const product = searchParams?.get('product');
     const lessonType = searchParams?.get('lessonType');
@@ -72,18 +103,18 @@ function CreatePageHandler() {
     const lessonNumber = searchParams?.get('lessonNumber');
 
     if (product === 'lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
-      // Redirect to generate page with pre-selected lesson options
-      const params = new URLSearchParams({
+      // Store lesson context in sessionStorage for use across all creation paths
+      const lessonContext = {
         product: 'lesson',
         lessonType: lessonType,
         lessonTitle: lessonTitle,
         moduleName: moduleName,
-        lessonNumber: lessonNumber
-      });
-      
-      router.push(`/create/generate?${params.toString()}`);
+        lessonNumber: lessonNumber,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('lessonContext', JSON.stringify(lessonContext));
     }
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   return null;
 }

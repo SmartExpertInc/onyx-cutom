@@ -49,6 +49,24 @@ export default function PasteTextPage() {
     params.set('fromText', 'true');
     params.set('textMode', mode);
     
+    // Check if we have lesson context to pass along
+    try {
+      const lessonContextData = sessionStorage.getItem('lessonContext');
+      if (lessonContextData) {
+        const lessonContext = JSON.parse(lessonContextData);
+        // Check if data is recent (within 1 hour)
+        if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
+          Object.entries(lessonContext).forEach(([key, value]) => {
+            if (key !== 'timestamp') {
+              params.set(key, String(value));
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error handling lesson context:', error);
+    }
+    
     router.push(`/create/generate?${params.toString()}`);
   };
 

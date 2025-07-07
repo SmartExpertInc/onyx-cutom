@@ -256,7 +256,7 @@ function GenerateProductPicker() {
 
   const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation">("Course Outline");
 
-  // Handle URL parameters for pre-selecting product
+  // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
     const product = searchParams?.get('product');
     const lessonType = searchParams?.get('lessonType');
@@ -264,14 +264,36 @@ function GenerateProductPicker() {
     const moduleName = searchParams?.get('moduleName');
     const lessonNumber = searchParams?.get('lessonNumber');
 
-    if (product === 'lesson') {
+    // Check both URL parameters and sessionStorage for lesson context
+    let lessonContext = null;
+    
+    if (product === 'lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
+      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+    } else {
+      // Try to get from sessionStorage
+      try {
+        const lessonContextData = sessionStorage.getItem('lessonContext');
+        if (lessonContextData) {
+          const storedContext = JSON.parse(lessonContextData);
+          // Check if data is recent (within 1 hour)
+          if (storedContext.timestamp && (Date.now() - storedContext.timestamp < 3600000)) {
+            lessonContext = storedContext;
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving lesson context:', error);
+      }
+    }
+
+    if (lessonContext) {
       setActiveProduct("Lesson Presentation");
       
-      // Pre-fill the prompt with lesson context if provided
-      if (lessonTitle && moduleName && lessonNumber) {
-        const lessonContext = `Create a ${lessonType || 'lesson presentation'} for "${lessonTitle}" (Module: ${moduleName}, Lesson: ${lessonNumber})`;
-        setPrompt(lessonContext);
-      }
+      // Since we have lesson context from the modal, automatically set useExistingOutline to true
+      // This bypasses the "Do you want to create a lesson from an existing Course Outline?" question
+      setUseExistingOutline(true);
+      
+      // Store lesson context for pre-selecting dropdowns after outlines are loaded
+      sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
     }
   }, [searchParams]);
 
@@ -296,6 +318,56 @@ function GenerateProductPicker() {
         const data = await res.json();
         const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
         setOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+        
+        // Check if we have lesson context to pre-select outline
+        try {
+          const lessonContextData = sessionStorage.getItem('lessonContextForDropdowns');
+          if (lessonContextData) {
+            const lessonContext = JSON.parse(lessonContextData);
+            // Find the outline that contains the specific module and lesson
+            // We'll need to fetch each outline to check its modules and lessons
+            for (const outline of onlyOutlines) {
+              const outlineRes = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${outline.id}`);
+              if (outlineRes.ok) {
+                const outlineData = await outlineRes.json();
+                const sections = outlineData?.details?.sections || [];
+                const modules = sections.map((sec: any) => ({
+                  name: sec.title || "Unnamed module",
+                  lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+                }));
+                
+                // Check if this outline contains the target module and lesson
+                const targetModuleIndex = modules.findIndex((m: any) => 
+                  m.name.toLowerCase().includes(lessonContext.moduleName.toLowerCase()) ||
+                  lessonContext.moduleName.toLowerCase().includes(m.name.toLowerCase())
+                );
+                
+                if (targetModuleIndex !== -1) {
+                  const targetModule = modules[targetModuleIndex];
+                  const targetLessonIndex = targetModule.lessons.findIndex((l: string) => 
+                    l.toLowerCase().includes(lessonContext.lessonTitle.toLowerCase()) ||
+                    lessonContext.lessonTitle.toLowerCase().includes(l.toLowerCase())
+                  );
+                  
+                  if (targetLessonIndex !== -1) {
+                    // Found the matching outline, module, and lesson
+                    setSelectedOutlineId(outline.id);
+                    setModulesForOutline(modules);
+                    setSelectedModuleIndex(targetModuleIndex);
+                    setLessonsForModule(targetModule.lessons);
+                    setSelectedLesson(targetModule.lessons[targetLessonIndex]);
+                    
+                    // Clear the stored context
+                    sessionStorage.removeItem('lessonContextForDropdowns');
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error pre-selecting outline:', error);
+        }
       } catch (_) {}
     };
     fetchOutlines();
@@ -304,6 +376,10 @@ function GenerateProductPicker() {
   // Fetch lessons when outline changes
   useEffect(() => {
     if (activeProduct !== "Lesson Presentation" || selectedOutlineId == null || useExistingOutline !== true) return;
+    
+    // Skip if we already have modules loaded (from pre-selection)
+    if (modulesForOutline.length > 0) return;
+    
     const fetchLessons = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedOutlineId}`);
@@ -322,7 +398,7 @@ function GenerateProductPicker() {
       } catch (_) {}
     };
     fetchLessons();
-  }, [selectedOutlineId, activeProduct, useExistingOutline]);
+  }, [selectedOutlineId, activeProduct, useExistingOutline, modulesForOutline.length]);
 
   // Helper to map length option to words
   const lengthRangeForOption = (opt: string) => {
