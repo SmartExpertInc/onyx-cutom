@@ -2470,11 +2470,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     headers['X-Dev-Onyx-User-ID'] = devUserId;
                 }
                 
-                const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+                const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${projectId}/folder`, {
                     method: 'PUT',
                     headers,
                     credentials: 'same-origin',
-                    body: JSON.stringify({ folderId })
+                    body: JSON.stringify({ folder_id: folderId })
                 });
                 
                 if (!response.ok) {
