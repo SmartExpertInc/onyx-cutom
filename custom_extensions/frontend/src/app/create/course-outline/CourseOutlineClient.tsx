@@ -411,6 +411,9 @@ export default function CourseOutlineClient() {
           modules: parsedData.modules,
           lessonsPerModule: parsedData.lessonsPerModule,
           language: parsedData.language,
+          userText: userText, // Include current userText state
+          textMode: textMode || undefined, // Include current textMode state
+          isFromText: isFromText // Include current isFromText state
         };
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
