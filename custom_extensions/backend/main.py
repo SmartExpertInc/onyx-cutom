@@ -6361,6 +6361,71 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 
     return StreamingResponse(streamer(), media_type="application/json")
 
+# Add the finalize model for training plan editing
+class TrainingPlanEditFinalize(BaseModel):
+    prompt: str
+    projectId: int
+    chatSessionId: str
+    editedOutline: Dict[str, Any]
+    language: str = "en"
+
+@app.post("/api/custom/training-plan/finalize")
+async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Finalize and apply the edited training plan"""
+    logger.info(f"[finalize_training_plan_edit] projectId={payload.projectId} chatSessionId={payload.chatSessionId}")
+    
+    # Get current user
+    onyx_user_id = await get_current_onyx_user_id(request)
+    
+    # Get the cached preview
+    cached_preview = OUTLINE_PREVIEW_CACHE.get(payload.chatSessionId)
+    if not cached_preview:
+        raise HTTPException(status_code=400, detail="No preview found for this session. Please regenerate the preview.")
+    
+    # Get the existing project data
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT p.*, dt.component_name 
+            FROM projects p 
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+        """, payload.projectId, onyx_user_id)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
+            raise HTTPException(status_code=400, detail="Project is not a training plan")
+    
+    # Parse the edited outline from the cached preview
+    try:
+        training_plan_details = parse_training_plan_from_string(cached_preview, row["project_name"])
+        if not training_plan_details:
+            raise HTTPException(status_code=400, detail="Failed to parse the edited training plan")
+        
+        # Detect language from the content
+        detected_language = detect_language(cached_preview)
+        training_plan_details.detectedLanguage = detected_language
+        
+        # Update the project with the new content
+        await conn.execute("""
+            UPDATE projects 
+            SET microproduct_content = $1, 
+                updated_at = NOW()
+            WHERE id = $2 AND onyx_user_id = $3
+        """, json.dumps(training_plan_details.dict()), payload.projectId, onyx_user_id)
+        
+        logger.info(f"[FINALIZE_SUCCESS] Updated training plan projectId={payload.projectId}")
+        
+        # Clean up the cache
+        OUTLINE_PREVIEW_CACHE.pop(payload.chatSessionId, None)
+        
+        return {"success": True, "message": "Training plan updated successfully"}
+        
+    except Exception as e:
+        logger.error(f"[FINALIZE_ERROR] Error finalizing training plan: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to finalize training plan: {str(e)}")
+
 # --- Folders API Models ---
 class ProjectFolderCreateRequest(BaseModel):
     name: str
