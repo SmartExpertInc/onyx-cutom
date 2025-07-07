@@ -254,24 +254,37 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation">(
-    searchParams?.get('product') === 'Lesson Presentation' ? "Lesson Presentation" : "Course Outline"
-  );
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation">("Course Outline");
+
+  // Handle URL parameters for pre-selecting product
+  useEffect(() => {
+    const product = searchParams?.get('product');
+    const lessonType = searchParams?.get('lessonType');
+    const lessonTitle = searchParams?.get('lessonTitle');
+    const moduleName = searchParams?.get('moduleName');
+    const lessonNumber = searchParams?.get('lessonNumber');
+
+    if (product === 'lesson') {
+      setActiveProduct("Lesson Presentation");
+      
+      // Pre-fill the prompt with lesson context if provided
+      if (lessonTitle && moduleName && lessonNumber) {
+        const lessonContext = `Create a ${lessonType || 'lesson presentation'} for "${lessonTitle}" (Module: ${moduleName}, Lesson: ${lessonNumber})`;
+        setPrompt(lessonContext);
+      }
+    }
+  }, [searchParams]);
 
   // --- Lesson Presentation specific state ---
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
-  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(
-    searchParams?.get('outlineId') ? Number(searchParams.get('outlineId')) : null
-  );
+  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(null);
   const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
   const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
   const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
-  const [selectedLesson, setSelectedLesson] = useState<string>(searchParams?.get('lesson') || "");
+  const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    searchParams?.get('outlineId') ? true : null
-  );
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(null);
 
   // Fetch outlines when switching to Lesson Presentation tab and user chooses to use existing outline
   useEffect(() => {
@@ -302,31 +315,14 @@ function GenerateProductPicker() {
           lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
         }));
         setModulesForOutline(modules);
-        
-        // If we have a lesson from URL params, find the corresponding module
-        const targetLesson = searchParams?.get('lesson');
-        const targetModule = searchParams?.get('module');
-        if (targetLesson && targetModule) {
-          const moduleIndex = modules.findIndex((m: { name: string; lessons: string[] }) => m.name === targetModule);
-          if (moduleIndex !== -1) {
-            setSelectedModuleIndex(moduleIndex);
-            setLessonsForModule(modules[moduleIndex].lessons);
-            // Find the lesson index
-            const lessonIndex = modules[moduleIndex].lessons.findIndex((l: string) => l === targetLesson);
-            if (lessonIndex !== -1) {
-              setSelectedLesson(targetLesson);
-            }
-          }
-        } else {
-          // reset downstream selections
-          setSelectedModuleIndex(null);
-          setLessonsForModule([]);
-          setSelectedLesson("");
-        }
+        // reset downstream selections
+        setSelectedModuleIndex(null);
+        setLessonsForModule([]);
+        setSelectedLesson("");
       } catch (_) {}
     };
     fetchLessons();
-  }, [selectedOutlineId, activeProduct, useExistingOutline, searchParams]);
+  }, [selectedOutlineId, activeProduct, useExistingOutline]);
 
   // Helper to map length option to words
   const lengthRangeForOption = (opt: string) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, CheckSquare, Plus, X } from 'lucide-react';
+import { BookText, Video, Film, CheckSquare, X } from 'lucide-react';
 import { locales } from '@/locales';
 import { useRouter } from 'next/navigation';
 
@@ -21,7 +21,14 @@ const lessonTypes = [
     icon: <BookText className="w-6 h-6" />, 
     disabled: false,
     category: "lesson"
-  }
+  },
+  { 
+    name: "videoLesson", 
+    icon: <Film className="w-6 h-6" />, 
+    disabled: true,
+    tooltipKey: "comingSoon",
+    category: "lesson"
+  },
 ];
 
 const quizTypes = [
@@ -95,17 +102,16 @@ export const CreateContentTypeModal = ({
   const contentLocalized = locales[detectedLanguage as keyof typeof locales].modals.createContent;
 
   const handleLessonCreate = (lessonType: string) => {
-    if (!sourceChatSessionId) {
-      alert(localized.errorNoSessionId);
-      onClose();
-      return;
-    }
-
-    const message = `Please create a ${lessonType} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
+    // Redirect to create page with pre-selected product and context
+    const params = new URLSearchParams({
+      product: 'lesson',
+      lessonType: lessonType,
+      lessonTitle: lessonTitle,
+      moduleName: moduleName,
+      lessonNumber: String(lessonNumber)
+    });
     
-    const chatUrl = `/chat?chatId=${sourceChatSessionId}&user-prompt=${encodeURIComponent(message)}&send-on-load=true`;
-    
-    window.location.href = chatUrl;
+    router.push(`/create?${params.toString()}`);
     onClose();
   };
 
@@ -124,19 +130,7 @@ export const CreateContentTypeModal = ({
     onClose();
   };
 
-  const handleCreatePageRedirect = () => {
-    onClose();
-    // Redirect to create page with URL parameters to pre-select Lesson Presentation
-    // and pre-fill the dropdowns with course, module, and lesson information
-    const params = new URLSearchParams({
-      product: 'Lesson Presentation',
-      outlineId: sourceChatSessionId || '',
-      lesson: lessonTitle,
-      module: moduleName,
-      lessonNumber: lessonNumber.toString()
-    });
-    router.push(`/create/generate?${params.toString()}`);
-  };
+
 
   if (!isOpen) {
     return null;
@@ -160,6 +154,7 @@ export const CreateContentTypeModal = ({
                 key={type.name}
                 onClick={() => handleLessonCreate(localized[type.name as keyof typeof localized])}
                 disabled={type.disabled}
+                title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
               >
                 <div className="w-1/4 flex justify-center items-center">
                   {type.icon}
@@ -170,18 +165,7 @@ export const CreateContentTypeModal = ({
               </StyledButton>
             ))}
             
-            {/* Create New Lesson Option */}
-            <StyledButton
-              onClick={handleCreatePageRedirect}
-              className="border-2 border-dashed border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-700"
-            >
-              <div className="w-1/4 flex justify-center items-center">
-                <Plus className="w-6 h-6" />
-              </div>
-              <div className="w-3/4 text-left">
-                {contentLocalized.createNewLesson}
-              </div>
-            </StyledButton>
+
           </div>
         </div>
 

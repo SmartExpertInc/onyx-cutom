@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -57,15 +58,49 @@ const OptionCard: React.FC<OptionCardProps> = ({
   return <Link href={href}>{cardContent}</Link>;
 };
 
+// Component to handle URL parameters and redirects
+function CreatePageHandler() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Handle URL parameters for pre-selecting product and options
+  useEffect(() => {
+    const product = searchParams?.get('product');
+    const lessonType = searchParams?.get('lessonType');
+    const lessonTitle = searchParams?.get('lessonTitle');
+    const moduleName = searchParams?.get('moduleName');
+    const lessonNumber = searchParams?.get('lessonNumber');
+
+    if (product === 'lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
+      // Redirect to generate page with pre-selected lesson options
+      const params = new URLSearchParams({
+        product: 'lesson',
+        lessonType: lessonType,
+        lessonTitle: lessonTitle,
+        moduleName: moduleName,
+        lessonNumber: lessonNumber
+      });
+      
+      router.push(`/create/generate?${params.toString()}`);
+    }
+  }, [searchParams, router]);
+
+  return null;
+}
+
 export default function DataSourceLanding() {
   return (
-    <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
-      }}
-    >
+    <>
+      <Suspense fallback={null}>
+        <CreatePageHandler />
+      </Suspense>
+      <main
+        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        }}
+      >
       {/* Top-left home button */}
       <Link
         href="/projects"
@@ -110,5 +145,6 @@ export default function DataSourceLanding() {
         {/* Recent prompts section removed as per request */}
       </div>
     </main>
+    </>
   );
 } 
