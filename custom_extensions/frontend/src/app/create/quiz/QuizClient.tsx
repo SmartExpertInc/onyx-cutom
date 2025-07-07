@@ -44,6 +44,7 @@ export default function QuizClient() {
   const outlineId = searchParams?.get("outlineId");
   const lesson = searchParams?.get("lesson");
   const questionTypes = searchParams?.get("questionTypes") || "";
+  const questionCount = Number(searchParams?.get("questionCount") || 10);
   const language = searchParams?.get("lang") || "en";
   const fromFiles = searchParams?.get("fromFiles") === "true";
   const fromText = searchParams?.get("fromText") === "true";
@@ -95,6 +96,7 @@ export default function QuizClient() {
         
         params.set("questionTypes", questionTypes);
         params.set("lang", language);
+        params.set("questionCount", questionCount.toString());
 
         // Add file context if coming from files
         if (fromFiles) {
@@ -127,6 +129,7 @@ export default function QuizClient() {
             fromText: fromText,
             textMode: textMode,
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
+            questionCount: questionCount,
           }),
           signal: abortControllerRef.current.signal,
         });
@@ -217,7 +220,7 @@ export default function QuizClient() {
         abortControllerRef.current.abort();
       }
     };
-  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode]);
+  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -241,6 +244,7 @@ export default function QuizClient() {
           folderIds: memoizedFolderIds.join(','),
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,
+          questionCount: questionCount,
         }),
       });
 

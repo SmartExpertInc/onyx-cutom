@@ -192,17 +192,17 @@
 </head>
 <body>
     <div class="quiz-container">
-        {% set quiz_data = details.details %}
-        {% set locale = details.locale %}
+        {% set quiz_data = details %}
+        {% set locale = locale %}
 
         <div class="quiz-title-section">
-            {% if details.parentProjectName %}
+            {% if parentProjectName %}
                 <h2 class="course-title">
-                    <span class="course-label">{{ locale.courseLabel }}:</span> {{ details.parentProjectName }}
+                    <span class="course-label">{{ locale.courseLabel }}:</span> {{ parentProjectName }}
                 </h2>
                 <h1 class="quiz-title">
-                    {% if details.lessonNumber %}
-                        <span class="lesson-label">{{ locale.lessonLabel }} №{{ details.lessonNumber }}:</span> 
+                    {% if lessonNumber %}
+                        <span class="lesson-label">{{ locale.lessonLabel }} №{{ lessonNumber }}:</span> 
                     {% endif %}
                     {{ quiz_data.quizTitle | default('Quiz') }}
                 </h1>
