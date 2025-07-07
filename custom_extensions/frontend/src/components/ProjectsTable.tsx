@@ -2462,13 +2462,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         const handleMoveProjectToFolder = async (event: Event) => {
             const customEvent = event as CustomEvent;
             const { projectId, folderId } = customEvent.detail;
-            
-            console.log('🔍 [FOLDER_MOVE_DEBUG] Starting folder move operation:', {
-                projectId,
-                folderId,
-                timestamp: new Date().toISOString()
-            });
-            
             try {
                 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
                 const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -2477,51 +2470,25 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     headers['X-Dev-Onyx-User-ID'] = devUserId;
                 }
                 
-                const requestBody = { folder_id: folderId };
-                const requestUrl = `${CUSTOM_BACKEND_URL}/projects/${projectId}/folder`;
-                
-                console.log('🔍 [FOLDER_MOVE_DEBUG] Making request:', {
-                    url: requestUrl,
-                    method: 'PUT',
-                    headers: Object.fromEntries(Object.entries(headers)),
-                    body: requestBody,
-                    projectId: projectId,
-                    folderId: folderId
-                });
-                
-                const response = await fetch(requestUrl, {
+                const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${projectId}/folder`, {
                     method: 'PUT',
                     headers,
                     credentials: 'same-origin',
-                    body: JSON.stringify(requestBody)
-                });
-                
-                console.log('🔍 [FOLDER_MOVE_DEBUG] Response received:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    ok: response.ok,
-                    headers: Object.fromEntries(response.headers.entries())
+                    body: JSON.stringify({ folder_id: folderId })
                 });
                 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('🔍 [FOLDER_MOVE_DEBUG] Error response body:', errorText);
-                    
                     if (response.status === 401 || response.status === 403) {
-                        console.log('🔍 [FOLDER_MOVE_DEBUG] Auth error, redirecting to login');
                         router.push('/auth/login');
                         return;
                     }
-                    throw new Error(`Failed to move project to folder: ${response.status} - ${errorText}`);
+                    throw new Error(`Failed to move project to folder: ${response.status}`);
                 }
-                
-                const responseData = await response.text();
-                console.log('🔍 [FOLDER_MOVE_DEBUG] Success response:', responseData);
                 
                 // Refresh the projects list
                 refreshProjects();
             } catch (error) {
-                console.error('🔍 [FOLDER_MOVE_DEBUG] Error moving project to folder:', error);
+                console.error('Error moving project to folder:', error);
             }
         };
 
