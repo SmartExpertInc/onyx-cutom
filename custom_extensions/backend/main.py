@@ -9326,110 +9326,229 @@ async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
         logger.error(f"Error ensuring quiz template: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure quiz template")
 
-@app.get("/quiz/generate")
-async def quiz_generate(
-    outlineId: Optional[int] = Query(None),
-    lesson: Optional[str] = Query(None),
-    prompt: Optional[str] = Query(None),
-    language: str = Query("en"),
-    questionTypes: str = Query("multiple-choice,multi-select,matching,sorting,open-answer"),
-    fromFiles: Optional[bool] = Query(None),
-    folderIds: Optional[str] = Query(None),
-    fileIds: Optional[str] = Query(None),
-    fromText: Optional[bool] = Query(None),
-    textMode: Optional[str] = Query(None),
-    request: Request = None
-):
+@app.post("/api/custom/quiz/generate")
+async def quiz_generate(payload: QuizWizardPreview, request: Request):
     """Generate quiz content with streaming response"""
-    try:
-        cookies = dict(request.cookies)
-        
-        # Get content builder persona ID
-        persona_id = await get_contentbuilder_persona_id(cookies)
-        
-        # Create chat session
-        chat_session_id = await create_onyx_chat_session(persona_id, cookies)
-        
-        # Build context message
-        context_parts = []
-        
-        # Add file context if coming from files
-        if fromFiles:
-            context_parts.append("You are creating a quiz from uploaded files.")
-            if folderIds:
-                context_parts.append(f"Using folders: {folderIds}")
-            if fileIds:
-                context_parts.append(f"Using files: {fileIds}")
-        
-        # Add text context if coming from text
-        if fromText:
-            context_parts.append("You are creating a quiz from user-provided text.")
-            if textMode:
-                context_parts.append(f"Text mode: {textMode}")
-            # userText would be retrieved from sessionStorage in frontend
-        
-        # Add outline context if using existing outline
-        if outlineId and lesson:
-            context_parts.append(f"Creating quiz for lesson '{lesson}' from existing course outline (ID: {outlineId})")
-        
-        # Add question types
-        question_types_list = [qt.strip() for qt in questionTypes.split(',') if qt.strip()]
-        context_parts.append(f"Question types to include: {', '.join(question_types_list)}")
-        
-        # Add language
-        context_parts.append(f"Language: {language}")
-        
-        # Build the main prompt
-        if outlineId and lesson:
-            main_prompt = f"Create a comprehensive quiz for the lesson '{lesson}'. Include a variety of question types: {', '.join(question_types_list)}. The quiz should test understanding of the lesson content thoroughly."
-        elif prompt:
-            main_prompt = f"Create a comprehensive quiz based on this prompt: {prompt}. Include a variety of question types: {', '.join(question_types_list)}."
-        else:
-            main_prompt = f"Create a comprehensive quiz. Include a variety of question types: {', '.join(question_types_list)}."
-        
-        # Combine context and main prompt
-        full_message = f"{' '.join(context_parts)}\n\n{main_prompt}"
-        
-        # Stream the response
-        async def streamer():
-            try:
-                response = await stream_chat_message(chat_session_id, full_message, cookies)
-                yield f"data: {json.dumps({'content': response})}\n\n"
-                yield "data: [DONE]\n\n"
-            except Exception as e:
-                logger.error(f"Error in quiz generation stream: {e}", exc_info=not IS_PRODUCTION)
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
-        
-        return StreamingResponse(
-            streamer(),
-            media_type="text/plain",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Type": "text/event-stream",
-            }
-        )
-        
-    except Exception as e:
-        logger.error(f"Error in quiz generation: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    logger.info(f"[QUIZ_PREVIEW_START] Quiz preview initiated")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] questionTypes={payload.questionTypes} lang={payload.language}")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[QUIZ_PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
 
-@app.post("/quiz/finalize")
-async def quiz_finalize(
-    quizData: str,
-    prompt: Optional[str] = None,
-    outlineId: Optional[int] = None,
-    lesson: Optional[str] = None,
-    questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer",
-    language: str = "en",
-    fromFiles: Optional[bool] = None,
-    folderIds: Optional[str] = None,
-    fileIds: Optional[str] = None,
-    fromText: Optional[bool] = None,
-    textMode: Optional[str] = None,
-    request: Request = None,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[QUIZ_PREVIEW_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[QUIZ_PREVIEW_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[QUIZ_PREVIEW_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[QUIZ_PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Quiz",
+        "prompt": payload.prompt or "Create a quiz",
+        "language": payload.language,
+        "questionTypes": payload.questionTypes,
+    }
+
+    # Add outline context if provided
+    if payload.outlineId:
+        wiz_payload["outlineId"] = payload.outlineId
+    if payload.lesson:
+        wiz_payload["lesson"] = payload.lesson
+
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    if payload.fromText and payload.userText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        
+        text_length = len(payload.userText)
+        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        if text_length > LARGE_TEXT_THRESHOLD:
+            # Use virtual file system for large texts to prevent AI memory issues
+            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            try:
+                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                wiz_payload["virtualFileId"] = virtual_file_id
+                wiz_payload["textCompressed"] = False
+                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+            except Exception as e:
+                logger.error(f"Failed to create virtual file for large text: {e}")
+                # Fallback to chunking if virtual file creation fails
+                chunks = chunk_text(payload.userText)
+                if len(chunks) == 1:
+                    # Single chunk, use compression
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
+                    wiz_payload["textCompressed"] = True
+                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    # Multiple chunks, use first chunk with compression
+                    first_chunk = chunks[0]
+                    compressed_chunk = compress_text(first_chunk)
+                    wiz_payload["userText"] = compressed_chunk
+                    wiz_payload["textCompressed"] = True
+                    wiz_payload["textChunked"] = True
+                    wiz_payload["totalChunks"] = len(chunks)
+                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
+        elif text_length > TEXT_SIZE_THRESHOLD:
+            # Compress medium text to reduce payload size
+            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
+            compressed_text = compress_text(payload.userText)
+            wiz_payload["userText"] = compressed_text
+            wiz_payload["textCompressed"] = True
+            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+        else:
+            # Use direct text for small content
+            logger.info(f"Using direct text for small content ({text_length} chars)")
+            wiz_payload["userText"] = payload.userText
+            wiz_payload["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Decompress text if it was compressed
+    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        try:
+            decompressed_text = decompress_text(wiz_payload["userText"])
+            wiz_payload["userText"] = decompressed_text
+            wiz_payload["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress text: {e}")
+            # Continue with original text if decompression fails
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"[QUIZ_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
+        logger.info(f"[QUIZ_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        try:
+            async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                # Parse folder and file IDs for Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                if payload.fromFiles and payload.folderIds:
+                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                if payload.fromFiles and payload.fileIds:
+                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"[QUIZ_PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": file_ids_list,
+                    "user_folder_ids": folder_ids_list,
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "never", "real_time": False},
+                    "stream_response": True,
+                }
+                logger.info(f"[QUIZ_PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                logger.info(f"[QUIZ_PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
+                
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[QUIZ_PREVIEW_ONYX] Response status: {resp.status_code}")
+                    logger.info(f"[QUIZ_PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
+                    
+                    if resp.status_code != 200:
+                        logger.error(f"[QUIZ_PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
+                        error_text = await resp.text()
+                        logger.error(f"[QUIZ_PREVIEW_ONYX] Error response: {error_text}")
+                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                    
+                    async for raw_line in resp.aiter_lines():
+                        total_bytes_received += len(raw_line.encode('utf-8'))
+                        chunks_received += 1
+                        
+                        if not raw_line:
+                            logger.debug(f"[QUIZ_PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
+                            continue
+                            
+                        line = raw_line.strip()
+                        logger.debug(f"[QUIZ_PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
+                        
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                            logger.debug(f"[QUIZ_PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
+                            
+                        if line == "[DONE]":
+                            logger.info(f"[QUIZ_PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
+                            done_received = True
+                            break
+                            
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[QUIZ_PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            else:
+                                logger.debug(f"[QUIZ_PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
+                        except json.JSONDecodeError as e:
+                            logger.error(f"[QUIZ_PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
+                            continue
+                    
+                    if not done_received:
+                        logger.warning(f"[QUIZ_PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
+                    
+                    logger.info(f"[QUIZ_PREVIEW_ONYX] Stream completed: {chunks_received} chunks, {total_bytes_received} bytes, {len(assistant_reply)} chars total")
+                    
+        except Exception as e:
+            logger.error(f"[QUIZ_PREVIEW_STREAM_ERROR] Error in streamer: {e}", exc_info=not IS_PRODUCTION)
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+        }
+    )
+
+@app.post("/api/custom/quiz/finalize")
+async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Finalize quiz creation by parsing AI response and saving to database"""
     try:
         onyx_user_id = await get_current_onyx_user_id(request)
@@ -9439,35 +9558,35 @@ async def quiz_finalize(
         
         # Parse the quiz data using LLM
         parsed_quiz = await parse_ai_response_with_llm(
-            ai_response=quizData,
-            project_name=f"Quiz - {lesson or 'Standalone Quiz'}",
+            ai_response=payload.aiResponse,
+            project_name=f"Quiz - {payload.lesson or 'Standalone Quiz'}",
             target_model=QuizData,
             default_error_model_instance=QuizData(
                 quizTitle="Generated Quiz",
                 questions=[],
-                detectedLanguage=language
+                detectedLanguage=payload.language
             ),
             dynamic_instructions=f"""
             Parse the quiz content and structure it as a QuizData object.
-            The quiz should include various question types: {questionTypes}.
-            Language: {language}
+            The quiz should include various question types: {payload.questionTypes}.
+            Language: {payload.language}
             """,
             target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
         )
         
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
-            parsed_quiz.detectedLanguage = detect_language(quizData)
+            parsed_quiz.detectedLanguage = detect_language(payload.aiResponse)
         
         # Create project name
-        project_name = parsed_quiz.quizTitle or f"Quiz - {lesson or 'Standalone Quiz'}"
+        project_name = parsed_quiz.quizTitle or f"Quiz - {payload.lesson or 'Standalone Quiz'}"
         
         # Create the project
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=template_id,
             microProductName=project_name,
-            aiResponse=quizData
+            aiResponse=payload.aiResponse
         )
         
         # Add project to database

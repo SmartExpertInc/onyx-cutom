@@ -68,7 +68,24 @@ export default function QuizClient() {
           // userText stays in sessionStorage - don't pass via URL
         }
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate?${params.toString()}`, {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/quiz/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            outlineId: outlineId,
+            lesson: lesson,
+            prompt: prompt,
+            language: language,
+            questionTypes: questionTypes,
+            fromFiles: fromFiles,
+            folderIds: folderIds,
+            fileIds: fileIds,
+            fromText: fromText,
+            textMode: textMode,
+            userText: fromText ? sessionStorage.getItem('userText') : undefined,
+          }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -149,13 +166,13 @@ export default function QuizClient() {
 
     setIsCreatingFinal(true);
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/quiz/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          quizData: quizData,
+          aiResponse: quizData,
           prompt: prompt,
           outlineId: outlineId,
           lesson: lesson,
