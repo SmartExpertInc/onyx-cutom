@@ -116,6 +116,15 @@ function CreatePageHandler() {
         timestamp: Date.now()
       };
       sessionStorage.setItem('lessonContext', JSON.stringify(lessonContext));
+    } else {
+      // If no lesson parameters are present, clear any existing lesson context
+      // This ensures that if user navigates directly to /create, they don't carry over old context
+      try {
+        sessionStorage.removeItem('lessonContext');
+        sessionStorage.removeItem('lessonContextForDropdowns');
+      } catch (error) {
+        console.error('Error clearing lesson context:', error);
+      }
     }
   }, [searchParams]);
 

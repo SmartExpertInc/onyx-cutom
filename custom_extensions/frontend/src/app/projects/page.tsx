@@ -516,6 +516,17 @@ const ProjectsPageInner: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Clear lesson context when user visits the projects page
+  useEffect(() => {
+    try {
+      // Clear lesson context from sessionStorage
+      sessionStorage.removeItem('lessonContext');
+      sessionStorage.removeItem('lessonContextForDropdowns');
+    } catch (error) {
+      console.error('Error clearing lesson context:', error);
+    }
+  }, []);
+
   // Check authentication on component mount
   useEffect(() => {
     const checkAuth = async () => {
