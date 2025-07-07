@@ -297,6 +297,8 @@ function GenerateProductPicker() {
   const [selectedQuizModuleIndex, setSelectedQuizModuleIndex] = useState<number | null>(null);
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
+  const [quizQuestionCount, setQuizQuestionCount] = useState(10);
+  const [quizLanguage, setQuizLanguage] = useState("en");
   const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(null);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
@@ -513,6 +515,8 @@ function GenerateProductPicker() {
       params.set("lesson", selectedQuizLesson);
     }
     params.set("questionTypes", selectedQuestionTypes.join(','));
+    params.set("questionCount", String(quizQuestionCount));
+    params.set("lang", quizLanguage);
     
     // Handle file-based prompts
     if (isFromFiles) {
@@ -530,8 +534,6 @@ function GenerateProductPicker() {
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
-    
-    params.set("lang", language);
 
     router.push(`/create/quiz?${params.toString()}`);
   };
@@ -938,49 +940,97 @@ function GenerateProductPicker() {
                         )}
                       </div>
                     )}
+
+                    {/* Question count and language dropdowns */}
+                    {selectedQuizLesson && (
+                      <>
+                        <select
+                          value={quizQuestionCount}
+                          onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          {[5, 10, 15, 20, 25, 30].map((count) => (
+                            <option key={count} value={count}>{count} Questions</option>
+                          ))}
+                        </select>
+                        <select
+                          value={quizLanguage}
+                          onChange={(e) => setQuizLanguage(e.target.value)}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
+                      </>
+                    )}
                   </>
                 )}
 
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
-                    >
-                      Question Types ({selectedQuestionTypes.length})
-                      <ChevronDown size={14} />
-                    </button>
+                  <>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+                      >
+                        Question Types ({selectedQuestionTypes.length})
+                        <ChevronDown size={14} />
+                      </button>
 
-                    {showQuestionTypesDropdown && (
-                      <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
-                        {[
-                          { key: "multiple-choice", label: "One correct answer" },
-                          { key: "multi-select", label: "Multiple correct answers" },
-                          { key: "matching", label: "Matching pairs" },
-                          { key: "sorting", label: "Put in order" },
-                          { key: "open-answer", label: "Open answer" }
-                        ].map((type) => (
-                          <label key={type.key} className="flex items-center gap-2 py-1">
-                            <input
-                              type="checkbox"
-                              checked={selectedQuestionTypes.includes(type.key)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedQuestionTypes([...selectedQuestionTypes, type.key]);
-                                } else {
-                                  setSelectedQuestionTypes(selectedQuestionTypes.filter(t => t !== type.key));
-                                }
-                              }}
-                              className="rounded"
-                            />
-                            <span className="text-sm">{type.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                      {showQuestionTypesDropdown && (
+                        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
+                          {[
+                            { key: "multiple-choice", label: "One correct answer" },
+                            { key: "multi-select", label: "Multiple correct answers" },
+                            { key: "matching", label: "Matching pairs" },
+                            { key: "sorting", label: "Put in order" },
+                            { key: "open-answer", label: "Open answer" }
+                          ].map((type) => (
+                            <label key={type.key} className="flex items-center gap-2 py-1">
+                              <input
+                                type="checkbox"
+                                checked={selectedQuestionTypes.includes(type.key)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedQuestionTypes([...selectedQuestionTypes, type.key]);
+                                  } else {
+                                    setSelectedQuestionTypes(selectedQuestionTypes.filter(t => t !== type.key));
+                                  }
+                                }}
+                                className="rounded"
+                              />
+                              <span className="text-sm">{type.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Question count and language dropdowns for standalone quiz */}
+                    <select
+                      value={quizQuestionCount}
+                      onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      {[5, 10, 15, 20, 25, 30].map((count) => (
+                        <option key={count} value={count}>{count} Questions</option>
+                      ))}
+                    </select>
+                    <select
+                      value={quizLanguage}
+                      onChange={(e) => setQuizLanguage(e.target.value)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
+                  </>
                 )}
 
                 {/* Reset button */}

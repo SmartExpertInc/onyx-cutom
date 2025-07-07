@@ -9279,6 +9279,7 @@ class QuizWizardPreview(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"  # comma-separated question types
+    questionCount: int = 10  # Number of questions to generate
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -9294,6 +9295,7 @@ class QuizWizardFinalize(BaseModel):
     aiResponse: str                        # User-edited quiz data
     chatSessionId: Optional[str] = None
     questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"
+    questionCount: int = 10  # Number of questions to generate
     language: str = "en"
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
@@ -9371,6 +9373,7 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         "prompt": payload.prompt or "Create a quiz",
         "language": payload.language,
         "questionTypes": payload.questionTypes,
+        "questionCount": payload.questionCount,
     }
 
     # Add outline context if provided
