@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Sparkles } from "lucide-react";
 
-const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "http://localhost:8000";
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
 export default function QuizClient() {
   const router = useRouter();
@@ -68,7 +68,7 @@ export default function QuizClient() {
           // userText stays in sessionStorage - don't pass via URL
         }
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/quiz/generate`, {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ export default function QuizClient() {
 
     setIsCreatingFinal(true);
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/quiz/finalize`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
