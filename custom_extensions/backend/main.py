@@ -9258,3 +9258,306 @@ async def download_projects_list_pdf(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
 
 
+# Quiz endpoints
+class QuizWizardPreview(BaseModel):
+    outlineId: Optional[int] = None  # Parent Training Plan project id
+    lesson: Optional[str] = None      # Specific lesson to generate quiz for, optional when prompt-based
+    prompt: Optional[str] = None           # Fallback free-form prompt
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+    questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"  # comma-separated question types
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+
+class QuizWizardFinalize(BaseModel):
+    outlineId: Optional[int] = None
+    lesson: str
+    aiResponse: str                        # User-edited quiz data
+    chatSessionId: Optional[str] = None
+    questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"
+    language: str = "en"
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+
+async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
+    """Ensure quiz design template exists, return template ID"""
+    try:
+        # Check if quiz template exists
+        template_query = """
+            SELECT id FROM design_templates 
+            WHERE microproduct_type = 'Quiz' 
+            LIMIT 1
+        """
+        template_result = await pool.fetchval(template_query)
+        
+        if template_result:
+            return template_result
+        
+        # Create quiz template if it doesn't exist
+        insert_query = """
+            INSERT INTO design_templates 
+            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        """
+        template_id = await pool.fetchval(
+            insert_query,
+            "Quiz Template",
+            "Create an interactive quiz with various question types including multiple choice, multi-select, matching, sorting, and open answer questions.",
+            "Quiz",
+            COMPONENT_NAME_QUIZ,
+            "/quiz.png"
+        )
+        return template_id
+        
+    except Exception as e:
+        logger.error(f"Error ensuring quiz template: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure quiz template")
+
+@app.get("/quiz/generate")
+async def quiz_generate(
+    outlineId: Optional[int] = Query(None),
+    lesson: Optional[str] = Query(None),
+    prompt: Optional[str] = Query(None),
+    language: str = Query("en"),
+    questionTypes: str = Query("multiple-choice,multi-select,matching,sorting,open-answer"),
+    fromFiles: Optional[bool] = Query(None),
+    folderIds: Optional[str] = Query(None),
+    fileIds: Optional[str] = Query(None),
+    fromText: Optional[bool] = Query(None),
+    textMode: Optional[str] = Query(None),
+    request: Request = None
+):
+    """Generate quiz content with streaming response"""
+    try:
+        cookies = dict(request.cookies)
+        
+        # Get content builder persona ID
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        
+        # Create chat session
+        chat_session_id = await create_onyx_chat_session(persona_id, cookies)
+        
+        # Build context message
+        context_parts = []
+        
+        # Add file context if coming from files
+        if fromFiles:
+            context_parts.append("You are creating a quiz from uploaded files.")
+            if folderIds:
+                context_parts.append(f"Using folders: {folderIds}")
+            if fileIds:
+                context_parts.append(f"Using files: {fileIds}")
+        
+        # Add text context if coming from text
+        if fromText:
+            context_parts.append("You are creating a quiz from user-provided text.")
+            if textMode:
+                context_parts.append(f"Text mode: {textMode}")
+            # userText would be retrieved from sessionStorage in frontend
+        
+        # Add outline context if using existing outline
+        if outlineId and lesson:
+            context_parts.append(f"Creating quiz for lesson '{lesson}' from existing course outline (ID: {outlineId})")
+        
+        # Add question types
+        question_types_list = [qt.strip() for qt in questionTypes.split(',') if qt.strip()]
+        context_parts.append(f"Question types to include: {', '.join(question_types_list)}")
+        
+        # Add language
+        context_parts.append(f"Language: {language}")
+        
+        # Build the main prompt
+        if outlineId and lesson:
+            main_prompt = f"Create a comprehensive quiz for the lesson '{lesson}'. Include a variety of question types: {', '.join(question_types_list)}. The quiz should test understanding of the lesson content thoroughly."
+        elif prompt:
+            main_prompt = f"Create a comprehensive quiz based on this prompt: {prompt}. Include a variety of question types: {', '.join(question_types_list)}."
+        else:
+            main_prompt = f"Create a comprehensive quiz. Include a variety of question types: {', '.join(question_types_list)}."
+        
+        # Combine context and main prompt
+        full_message = f"{' '.join(context_parts)}\n\n{main_prompt}"
+        
+        # Stream the response
+        async def streamer():
+            try:
+                response = await stream_chat_message(chat_session_id, full_message, cookies)
+                yield f"data: {json.dumps({'content': response})}\n\n"
+                yield "data: [DONE]\n\n"
+            except Exception as e:
+                logger.error(f"Error in quiz generation stream: {e}", exc_info=not IS_PRODUCTION)
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        
+        return StreamingResponse(
+            streamer(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream",
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in quiz generation: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@app.post("/quiz/finalize")
+async def quiz_finalize(
+    quizData: str,
+    prompt: Optional[str] = None,
+    outlineId: Optional[int] = None,
+    lesson: Optional[str] = None,
+    questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer",
+    language: str = "en",
+    fromFiles: Optional[bool] = None,
+    folderIds: Optional[str] = None,
+    fileIds: Optional[str] = None,
+    fromText: Optional[bool] = None,
+    textMode: Optional[str] = None,
+    request: Request = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Finalize quiz creation by parsing AI response and saving to database"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Ensure quiz template exists
+        template_id = await _ensure_quiz_template(pool)
+        
+        # Parse the quiz data using LLM
+        parsed_quiz = await parse_ai_response_with_llm(
+            ai_response=quizData,
+            project_name=f"Quiz - {lesson or 'Standalone Quiz'}",
+            target_model=QuizData,
+            default_error_model_instance=QuizData(
+                quizTitle="Generated Quiz",
+                questions=[],
+                detectedLanguage=language
+            ),
+            dynamic_instructions=f"""
+            Parse the quiz content and structure it as a QuizData object.
+            The quiz should include various question types: {questionTypes}.
+            Language: {language}
+            """,
+            target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+        )
+        
+        # Detect language if not provided
+        if not parsed_quiz.detectedLanguage:
+            parsed_quiz.detectedLanguage = detect_language(quizData)
+        
+        # Create project name
+        project_name = parsed_quiz.quizTitle or f"Quiz - {lesson or 'Standalone Quiz'}"
+        
+        # Create the project
+        project_data = ProjectCreateRequest(
+            projectName=project_name,
+            design_template_id=template_id,
+            microProductName=project_name,
+            aiResponse=quizData
+        )
+        
+        # Add project to database
+        created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        
+        # Update the project with parsed quiz data
+        await pool.execute(
+            """
+            UPDATE projects 
+            SET microproduct_content = $1
+            WHERE id = $2
+            """,
+            json.dumps(parsed_quiz.model_dump()),
+            created_project.id
+        )
+        
+        return {"id": created_project.id, "name": project_name}
+        
+    except Exception as e:
+        logger.error(f"Error in quiz finalization: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+# Default quiz JSON example for LLM parsing
+DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
+{
+  "quizTitle": "Example Quiz",
+  "questions": [
+    {
+      "question_type": "multiple-choice",
+      "question_text": "What is the capital of France?",
+      "options": [
+        {"id": "A", "text": "London"},
+        {"id": "B", "text": "Paris"},
+        {"id": "C", "text": "Berlin"},
+        {"id": "D", "text": "Madrid"}
+      ],
+      "correct_option_id": "B",
+      "explanation": "Paris is the capital and largest city of France."
+    },
+    {
+      "question_type": "multi-select",
+      "question_text": "Which of the following are programming languages?",
+      "options": [
+        {"id": "A", "text": "Python"},
+        {"id": "B", "text": "Java"},
+        {"id": "C", "text": "HTML"},
+        {"id": "D", "text": "CSS"}
+      ],
+      "correct_option_ids": ["A", "B"],
+      "explanation": "Python and Java are programming languages, while HTML and CSS are markup languages."
+    },
+    {
+      "question_type": "matching",
+      "question_text": "Match the countries with their capitals:",
+      "prompts": [
+        {"id": "A", "text": "Germany"},
+        {"id": "B", "text": "Italy"},
+        {"id": "C", "text": "Spain"}
+      ],
+      "options": [
+        {"id": "1", "text": "Madrid"},
+        {"id": "2", "text": "Berlin"},
+        {"id": "3", "text": "Rome"}
+      ],
+      "correct_matches": {"A": "2", "B": "3", "C": "1"},
+      "explanation": "Germany's capital is Berlin, Italy's capital is Rome, and Spain's capital is Madrid."
+    },
+    {
+      "question_type": "sorting",
+      "question_text": "Arrange these steps in the correct order:",
+      "items_to_sort": [
+        {"id": "step1", "text": "Mix ingredients"},
+        {"id": "step2", "text": "Preheat oven"},
+        {"id": "step3", "text": "Bake for 30 minutes"},
+        {"id": "step4", "text": "Let cool"}
+      ],
+      "correct_order": ["step2", "step1", "step3", "step4"],
+      "explanation": "The correct order is: preheat oven, mix ingredients, bake, then let cool."
+    },
+    {
+      "question_type": "open-answer",
+      "question_text": "Explain the concept of object-oriented programming.",
+      "acceptable_answers": [
+        "Object-oriented programming is a programming paradigm based on the concept of objects",
+        "OOP uses classes and objects to organize code",
+        "It includes concepts like inheritance, encapsulation, and polymorphism"
+      ],
+      "explanation": "Object-oriented programming organizes code into objects that contain data and code."
+    }
+  ],
+  "detectedLanguage": "en"
+}
+"""
