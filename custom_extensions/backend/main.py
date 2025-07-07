@@ -9567,8 +9567,23 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 detectedLanguage=payload.language
             ),
             dynamic_instructions=f"""
-            Parse the quiz content and structure it as a QuizData object.
-            The quiz should include various question types: {payload.questionTypes}.
+            Parse the natural language quiz content and convert it into a structured QuizData JSON format.
+            
+            The AI response contains quiz questions in natural language format. You need to:
+            1. Extract the quiz title from the content
+            2. Identify each question and its type from the available types: {payload.questionTypes}
+            3. For each question, extract:
+               - The question text
+               - The question type (multiple-choice, multi-select, matching, sorting, or open-answer)
+               - For multiple-choice: options with IDs (A, B, C, D) and correct_option_id
+               - For multi-select: options with IDs and correct_option_ids array
+               - For matching: prompts, options, and correct_matches mapping
+               - For sorting: items_to_sort and correct_order
+               - For open-answer: acceptable_answers array
+               - Explanation for each question
+            
+            IMPORTANT: Each question MUST have a "question_type" field that matches one of the available types.
+            The content may be in natural language format - you need to structure it properly.
             Language: {payload.language}
             """,
             target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
@@ -9679,4 +9694,13 @@ DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
   ],
   "detectedLanguage": "en"
 }
+
+IMPORTANT NOTES:
+- Every question MUST have a "question_type" field with one of these exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+- For multiple-choice: use "correct_option_id" (singular)
+- For multi-select: use "correct_option_ids" (plural array)
+- For matching: use "prompts" and "options" arrays, with "correct_matches" mapping prompt IDs to option IDs
+- For sorting: use "items_to_sort" array and "correct_order" array of item IDs
+- For open-answer: use "acceptable_answers" array of possible correct answers
+- All option IDs should be strings (e.g., "A", "B", "C", "D" or "1", "2", "3")
 """
