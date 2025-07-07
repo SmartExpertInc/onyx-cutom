@@ -952,6 +952,18 @@ export default function CourseOutlineClient() {
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
             setPreview(finalMods);
             setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
+            
+            // Update lastPreviewParamsRef BEFORE setPrompt to prevent auto-preview from triggering
+            lastPreviewParamsRef.current = {
+              prompt: combined,
+              modules,
+              lessonsPerModule,
+              language,
+              userText,
+              textMode: textMode || undefined,
+              isFromText
+            };
+            
             setPrompt(combined);
             setEditPrompt("");
             setLoadingPreview(false);
