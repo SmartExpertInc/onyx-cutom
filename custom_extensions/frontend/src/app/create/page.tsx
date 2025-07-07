@@ -26,6 +26,8 @@ const OptionCard: React.FC<OptionCardProps> = ({
   disabled,
   pillLabel,
 }: OptionCardProps) => {
+  const router = useRouter();
+  
   const handleClick = (e: React.MouseEvent) => {
     if (disabled || !href) return;
     
@@ -38,15 +40,16 @@ const OptionCard: React.FC<OptionCardProps> = ({
         if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
           e.preventDefault();
           
-          // Add lesson parameters to the href
-          const url = new URL(href, window.location.origin);
+          // Build URL with lesson parameters
+          const params = new URLSearchParams();
           Object.entries(lessonContext).forEach(([key, value]) => {
             if (key !== 'timestamp') {
-              url.searchParams.set(key, String(value));
+              params.set(key, String(value));
             }
           });
           
-          window.location.href = url.toString();
+          const targetUrl = `${href}?${params.toString()}`;
+          router.push(targetUrl);
           return;
         }
       }
