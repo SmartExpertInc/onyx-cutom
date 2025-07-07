@@ -4060,8 +4060,9 @@ Return ONLY the JSON object corresponding to the parsed text. Do not include any
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
     # OpenAI Chat API expects a list of chat messages
+    system_msg = {"role": "system", "content": "You are a JSON parsing expert. You must output ONLY valid JSON in the exact format specified. Do not include any explanations, markdown formatting, or additional text. Your response must be a single, complete JSON object."}
     user_msg = {"role": "user", "content": prompt_message}
-    base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "messages": [user_msg], "temperature": 0.1}
+    base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "messages": [system_msg, user_msg], "temperature": 0.1}
     # Ask the model to output pure JSON
     base_payload_with_rf = {**base_payload, "response_format": {"type": "json_object"}}
     detected_lang_by_rules = detect_language(ai_response)
@@ -9583,33 +9584,29 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 detectedLanguage=payload.language
             ),
             dynamic_instructions=f"""
-            Parse the natural language quiz content and convert it into a structured QuizData JSON format.
-            
-            The AI response contains quiz questions in natural language format. You need to:
+            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+            The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+            REQUIREMENTS:
             1. Extract the quiz title from the content
-            2. Identify each question and its type from the available types: {payload.questionTypes}
-            3. For each question, extract:
-               - The question text
-               - The question type (multiple-choice, multi-select, matching, sorting, or open-answer)
-               - For multiple-choice: options with IDs (A, B, C, D) and correct_option_id
-               - For multi-select: options with IDs and correct_option_ids array
-               - For matching: prompts, options, and correct_matches mapping
-               - For sorting: items_to_sort and correct_order
-               - For open-answer: acceptable_answers array
-               - Explanation for each question
-            
-            CRITICAL REQUIREMENTS:
-            - Every question MUST have a "question_type" field with one of these exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-            - If the content is in natural language and doesn't clearly specify question types, infer the most appropriate type based on the question structure
-            - For multiple-choice questions: use "correct_option_id" (singular string)
-            - For multi-select questions: use "correct_option_ids" (plural array of strings)
-            - For matching questions: use "prompts" and "options" arrays, with "correct_matches" mapping prompt IDs to option IDs
-            - For sorting questions: use "items_to_sort" array and "correct_order" array of item IDs
-            - For open-answer questions: use "acceptable_answers" array of possible correct answers
-            - All option IDs should be strings (e.g., "A", "B", "C", "D" or "1", "2", "3")
-            
-            If the content is unclear or missing required fields, make reasonable assumptions to create a valid quiz structure.
-            Language: {payload.language}
+            2. For each question in the content, create a structured question object with:
+               - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+               - "question_text": The actual question text
+               - For multiple-choice: "options" array with {"id": "A", "text": "option text"}, "correct_option_id": "A"
+               - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+               - For matching: "prompts" array, "options" array, "correct_matches": {"A": "1", "B": "2"}
+               - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+               - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+               - "explanation": Explanation for the answer
+
+            CRITICAL RULES:
+            - Output ONLY the JSON object, no other text
+            - Every question MUST have "question_type" field
+            - Use exact field names as shown in the example
+            - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+            - If content is unclear, infer question types based on structure
+            - Language: {payload.language}
             """,
             target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
         )
@@ -9631,6 +9628,35 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                     "explanation": "This is a fallback quiz structure. The original content is preserved in the AI response."
                 }
             ]
+        else:
+            # Validate that all questions have the required question_type field
+            valid_questions = []
+            for i, question in enumerate(parsed_quiz.questions):
+                if hasattr(question, 'question_type') and question.question_type:
+                    valid_questions.append(question)
+                else:
+                    logger.warning(f"Question {i} missing question_type, converting to open-answer")
+                    # Convert to open-answer if question_type is missing
+                    if hasattr(question, 'question_text'):
+                        valid_questions.append({
+                            "question_type": "open-answer",
+                            "question_text": question.question_text,
+                            "acceptable_answers": ["See original content for answer"],
+                            "explanation": "This question was converted from the original format."
+                        })
+            
+            if not valid_questions:
+                logger.warning(f"No valid questions found, creating fallback structure")
+                parsed_quiz.questions = [
+                    {
+                        "question_type": "open-answer",
+                        "question_text": "Please review the quiz content and answer the questions.",
+                        "acceptable_answers": ["See quiz content for answers"],
+                        "explanation": "This is a fallback quiz structure. The original content is preserved in the AI response."
+                    }
+                ]
+            else:
+                parsed_quiz.questions = valid_questions
         
         # Create project name
         project_name = parsed_quiz.quizTitle or f"Quiz - {payload.lesson or 'Standalone Quiz'}"
@@ -9667,82 +9693,74 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
 # Default quiz JSON example for LLM parsing
 DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
 {
-  "quizTitle": "Example Quiz",
-  "questions": [
-    {
-      "question_type": "multiple-choice",
-      "question_text": "What is the capital of France?",
-      "options": [
-        {"id": "A", "text": "London"},
-        {"id": "B", "text": "Paris"},
-        {"id": "C", "text": "Berlin"},
-        {"id": "D", "text": "Madrid"}
-      ],
-      "correct_option_id": "B",
-      "explanation": "Paris is the capital and largest city of France."
-    },
-    {
-      "question_type": "multi-select",
-      "question_text": "Which of the following are programming languages?",
-      "options": [
-        {"id": "A", "text": "Python"},
-        {"id": "B", "text": "Java"},
-        {"id": "C", "text": "HTML"},
-        {"id": "D", "text": "CSS"}
-      ],
-      "correct_option_ids": ["A", "B"],
-      "explanation": "Python and Java are programming languages, while HTML and CSS are markup languages."
-    },
-    {
-      "question_type": "matching",
-      "question_text": "Match the countries with their capitals:",
-      "prompts": [
-        {"id": "A", "text": "Germany"},
-        {"id": "B", "text": "Italy"},
-        {"id": "C", "text": "Spain"}
-      ],
-      "options": [
-        {"id": "1", "text": "Madrid"},
-        {"id": "2", "text": "Berlin"},
-        {"id": "3", "text": "Rome"}
-      ],
-      "correct_matches": {"A": "2", "B": "3", "C": "1"},
-      "explanation": "Germany's capital is Berlin, Italy's capital is Rome, and Spain's capital is Madrid."
-    },
-    {
-      "question_type": "sorting",
-      "question_text": "Arrange these steps in the correct order:",
-      "items_to_sort": [
-        {"id": "step1", "text": "Mix ingredients"},
-        {"id": "step2", "text": "Preheat oven"},
-        {"id": "step3", "text": "Bake for 30 minutes"},
-        {"id": "step4", "text": "Let cool"}
-      ],
-      "correct_order": ["step2", "step1", "step3", "step4"],
-      "explanation": "The correct order is: preheat oven, mix ingredients, bake, then let cool."
-    },
-    {
-      "question_type": "open-answer",
-      "question_text": "Explain the concept of object-oriented programming.",
-      "acceptable_answers": [
-        "Object-oriented programming is a programming paradigm based on the concept of objects",
-        "OOP uses classes and objects to organize code",
-        "It includes concepts like inheritance, encapsulation, and polymorphism"
-      ],
-      "explanation": "Object-oriented programming organizes code into objects that contain data and code."
-    }
-  ],
-  "detectedLanguage": "en"
+"quizTitle": "Advanced Sales Techniques Quiz",
+"detectedLanguage": "en",
+"questions": [
+{
+"question_type": "multiple-choice",
+"question_text": "Which technique involves assuming the sale is made?",
+"options": [
+{"id": "A", "text": "The 'Question Close'"},
+{"id": "B", "text": "The 'Presumptive Close'"}
+],
+"correct_option_id": "B",
+"explanation": "A presumptive close assumes the sale is made."
+},
+{
+"question_type": "multi-select",
+"question_text": "Which of the following are primary colors? (Select all that apply)",
+"options": [
+{"id": "A", "text": "Red"},
+{"id": "B", "text": "Green"},
+{"id": "C", "text": "Orange"},
+{"id": "D", "text": "Blue"}
+],
+"correct_option_ids": ["A", "D"],
+"explanation": "In the traditional subtractive model, the primary colors are Red, Yellow, and Blue."
+},
+{
+"question_type": "matching",
+"question_text": "Match each sales technique with its description:",
+"prompts": [
+{"id": "A", "text": "The 'Alternative Close'"},
+{"id": "B", "text": "The 'Summary Close'"}
+],
+"options": [
+{"id": "1", "text": "Presenting two options to the customer"},
+{"id": "2", "text": "Recapping key benefits before asking for the sale"}
+],
+"correct_matches": {"A": "1", "B": "2"},
+"explanation": "The Alternative Close gives customers a choice between options, while the Summary Close reinforces value before closing."
+},
+{
+"question_type": "sorting",
+"question_text": "Arrange these steps in the correct order for a successful sales call:",
+"items_to_sort": [
+{"id": "step1", "text": "Identify customer needs"},
+{"id": "step2", "text": "Present solution"},
+{"id": "step3", "text": "Handle objections"},
+{"id": "step4", "text": "Close the sale"}
+],
+"correct_order": ["step1", "step2", "step3", "step4"],
+"explanation": "The sales process follows a logical sequence: first understand needs, then present solutions, address concerns, and finally close."
+},
+{
+"question_type": "open-answer",
+"question_text": "What are the three key elements of an effective elevator pitch?",
+"acceptable_answers": [
+"Problem, Solution, Call to Action",
+"Problem statement, Your solution, What you want them to do next",
+"The issue, How you solve it, What action to take"
+],
+"explanation": "An effective elevator pitch should clearly state the problem, present your solution, and include a clear call to action."
+}
+]
 }
 
 CRITICAL REQUIREMENTS:
-- Every question MUST have a "question_type" field with one of these exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-- For multiple-choice: use "correct_option_id" (singular string)
-- For multi-select: use "correct_option_ids" (plural array of strings)
-- For matching: use "prompts" and "options" arrays, with "correct_matches" mapping prompt IDs to option IDs
-- For sorting: use "items_to_sort" array and "correct_order" array of item IDs
-- For open-answer: use "acceptable_answers" array of possible correct answers
-- All option IDs should be strings (e.g., "A", "B", "C", "D" or "1", "2", "3")
-- If the content is unclear, make reasonable assumptions to create a valid quiz structure
+- Output ONLY the JSON object, no other text or formatting
+- Every question MUST have "question_type" field with exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+- Use exact field names as shown above
+- All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
 - The "question_type" field is MANDATORY for every question
 """
