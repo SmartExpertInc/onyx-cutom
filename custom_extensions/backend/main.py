@@ -5382,16 +5382,29 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     component_name = row_dict.get("component_name")
     details_data = row_dict.get("microproduct_content")
     
-    # Round hours to integers in the content before returning
+    # Parse the details_data if it's a JSON string
+    parsed_details = None
     if details_data:
-        details_data = round_hours_in_content(details_data)
+        if isinstance(details_data, str):
+            try:
+                # Parse JSON string to dict
+                details_dict = json.loads(details_data)
+                # Round hours to integers in the content before returning
+                details_dict = round_hours_in_content(details_dict)
+                parsed_details = details_dict
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.error(f"Failed to parse microproduct_content JSON for project {project_id}: {e}")
+                parsed_details = None
+        else:
+            # Already a dict, just round hours
+            parsed_details = round_hours_in_content(details_data)
     
     web_link_path = None
     pdf_link_path = None
     return MicroProductApiResponse(
         name=project_instance_name, slug=project_slug, project_id=project_id,
         design_template_id=row_dict["design_template_id"], component_name=component_name,
-        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=details_data,
+        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
         sourceChatSessionId=row_dict.get("source_chat_session_id"),
         parentProjectName=row_dict.get('project_name')
         # folder_id is not in MicroProductApiResponse, but can be added if needed
