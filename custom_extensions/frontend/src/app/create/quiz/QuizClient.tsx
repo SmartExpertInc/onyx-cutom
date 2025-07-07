@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle } from "lucide-react";
@@ -52,9 +52,29 @@ export default function QuizClient() {
   const textMode = searchParams?.get("textMode");
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const requestInProgressRef = useRef(false);
+  const requestIdRef = useRef(0);
+
+  // Memoize arrays to prevent unnecessary re-renders
+  const memoizedFolderIds = useMemo(() => folderIds, [folderIds.join(',')]);
+  const memoizedFileIds = useMemo(() => fileIds, [fileIds.join(',')]);
 
   useEffect(() => {
+    // Don't start generation if there's no valid input
+    const hasValidInput = (outlineId && lesson) || prompt.trim() || fromFiles || fromText;
+    if (!hasValidInput) {
+      return;
+    }
+
     const generateQuiz = async () => {
+      // Prevent multiple concurrent requests
+      if (requestInProgressRef.current) {
+        return;
+      }
+
+      const currentRequestId = ++requestIdRef.current;
+      requestInProgressRef.current = true;
+      
       setIsGenerating(true);
       setError(null);
       setQuizData("");
@@ -102,8 +122,8 @@ export default function QuizClient() {
             language: language,
             questionTypes: questionTypes,
             fromFiles: fromFiles,
-            folderIds: folderIds.join(','),
-            fileIds: fileIds.join(','),
+            folderIds: memoizedFolderIds.join(','),
+            fileIds: memoizedFileIds.join(','),
             fromText: fromText,
             textMode: textMode,
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
@@ -180,7 +200,11 @@ export default function QuizClient() {
           setError(error.message || 'An error occurred during generation');
         }
       } finally {
-        setIsGenerating(false);
+        // Only update state if this is still the current request
+        if (currentRequestId === requestIdRef.current) {
+          setIsGenerating(false);
+          requestInProgressRef.current = false;
+        }
         abortControllerRef.current = null;
       }
     };
@@ -193,7 +217,7 @@ export default function QuizClient() {
         abortControllerRef.current.abort();
       }
     };
-  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, folderIds, fileIds, textMode]);
+  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -214,8 +238,8 @@ export default function QuizClient() {
           language: language,
           fromFiles: fromFiles,
           fromText: fromText,
-          folderIds: folderIds.join(','),
-          fileIds: fileIds.join(','),
+          folderIds: memoizedFolderIds.join(','),
+          fileIds: memoizedFileIds.join(','),
           textMode: textMode,
         }),
       });
