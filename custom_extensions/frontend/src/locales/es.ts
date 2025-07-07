@@ -86,6 +86,12 @@ export const es = {
       quiz: "Cuestionario",
       quizTooltip: "Crear un cuestionario para esta lección",
       errorNoSessionId: "Error: El ID de la sesión de chat de origen no está disponible. No se puede crear la prueba."
+    },
+    createContent: {
+      title: "Crear contenido",
+      lessonTypes: "Tipos de lecciones",
+      assessmentTypes: "Tipos de evaluación",
+      createNewLesson: "Crear nueva lección"
     }
   },
   projects: {

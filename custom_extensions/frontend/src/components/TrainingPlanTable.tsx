@@ -5,8 +5,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
-import { CreateLessonTypeModal } from './CreateLessonTypeModal';
-import { CreateTestTypeModal } from './CreateTestTypeModal';
+import { CreateContentTypeModal } from './CreateContentTypeModal';
 import { useSearchParams } from 'next/navigation';
 
 // --- Custom SVG Icons ---
@@ -175,20 +174,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   theme = 'cherry', // Default theme
   columnVisibility,
 }) => {
-  const [lessonModalState, setLessonModalState] = useState<{
-    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
-  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
-
-  const [testModalState, setTestModalState] = useState<{
+  const [contentModalState, setContentModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
 
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
-    if (lesson.check.type === 'test') {
-      setTestModalState({ isOpen: true, lessonTitle: lesson.title, moduleName, lessonNumber });
-    } else {
-      setLessonModalState({ isOpen: true, lessonTitle: lesson.title, moduleName, lessonNumber });
-    }
+    setContentModalState({ isOpen: true, lessonTitle: lesson.title, moduleName, lessonNumber });
   };
 
   // Theme configuration for training plan colors
@@ -350,20 +341,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   return (
     <div className="font-['Inter',_sans-serif] bg-gray-50">
-      <CreateLessonTypeModal
-        isOpen={lessonModalState.isOpen}
-        onClose={() => setLessonModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
-        lessonTitle={lessonModalState.lessonTitle}
-        moduleName={lessonModalState.moduleName}
-        lessonNumber={lessonModalState.lessonNumber}
-        sourceChatSessionId={sourceChatSessionId}
-      />
-      <CreateTestTypeModal
-        isOpen={testModalState.isOpen}
-        onClose={() => setTestModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
-        lessonTitle={testModalState.lessonTitle}
-        moduleName={testModalState.moduleName}
-        lessonNumber={testModalState.lessonNumber}
+      <CreateContentTypeModal
+        isOpen={contentModalState.isOpen}
+        onClose={() => setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
+        lessonTitle={contentModalState.lessonTitle}
+        moduleName={contentModalState.moduleName}
+        lessonNumber={contentModalState.lessonNumber}
         sourceChatSessionId={sourceChatSessionId}
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">

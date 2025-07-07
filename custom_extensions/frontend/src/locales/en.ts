@@ -89,6 +89,12 @@ export const en = {
       quiz: "Quiz",
       quizTooltip: "Create a quiz for this lesson",
       errorNoSessionId: "Error: Source chat session ID is not available. Cannot create test."
+    },
+    createContent: {
+      title: "Create Content",
+      lessonTypes: "Lesson Types",
+      assessmentTypes: "Assessment Types",
+      createNewLesson: "Create New Lesson"
     }
   },
   projects: {

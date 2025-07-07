@@ -82,6 +82,12 @@ export const ru = {
       quiz: "Тест",
       quizTooltip: "Создать тест для этого урока",
       errorNoSessionId: "Ошибка: ID сессии чата недоступен. Невозможно создать тест."
+    },
+    createContent: {
+      title: "Создать контент",
+      lessonTypes: "Типы уроков",
+      assessmentTypes: "Типы оценивания",
+      createNewLesson: "Создать новый урок"
     }
   },
   projects: {

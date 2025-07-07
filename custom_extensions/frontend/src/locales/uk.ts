@@ -82,6 +82,12 @@ export const uk = {
       quiz: "Тест",
       quizTooltip: "Створити тест для цього уроку",
       errorNoSessionId: "Помилка: ID сесії чату недоступний. Неможливо створити тест."
+    },
+    createContent: {
+      title: "Створити контент",
+      lessonTypes: "Типи уроків",
+      assessmentTypes: "Типи оцінювання",
+      createNewLesson: "Створити новий урок"
     }
   },
   projects: {
