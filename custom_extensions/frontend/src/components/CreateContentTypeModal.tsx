@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, CheckSquare, Plus, X } from 'lucide-react';
+import { BookText, CheckSquare, Plus, X } from 'lucide-react';
 import { locales } from '@/locales';
 import { useRouter } from 'next/navigation';
 
@@ -21,20 +21,7 @@ const lessonTypes = [
     icon: <BookText className="w-6 h-6" />, 
     disabled: false,
     category: "lesson"
-  },
-  { 
-    name: "videoLessonScript", 
-    icon: <Video className="w-6 h-6" />, 
-    disabled: false,
-    category: "lesson"
-  },
-  { 
-    name: "videoLesson", 
-    icon: <Film className="w-6 h-6" />, 
-    disabled: true,
-    tooltipKey: "comingSoon",
-    category: "lesson"
-  },
+  }
 ];
 
 const quizTypes = [
@@ -139,7 +126,16 @@ export const CreateContentTypeModal = ({
 
   const handleCreatePageRedirect = () => {
     onClose();
-    router.push('/create');
+    // Redirect to create page with URL parameters to pre-select Lesson Presentation
+    // and pre-fill the dropdowns with course, module, and lesson information
+    const params = new URLSearchParams({
+      product: 'Lesson Presentation',
+      outlineId: sourceChatSessionId || '',
+      lesson: lessonTitle,
+      module: moduleName,
+      lessonNumber: lessonNumber.toString()
+    });
+    router.push(`/create/generate?${params.toString()}`);
   };
 
   if (!isOpen) {
@@ -164,7 +160,6 @@ export const CreateContentTypeModal = ({
                 key={type.name}
                 onClick={() => handleLessonCreate(localized[type.name as keyof typeof localized])}
                 disabled={type.disabled}
-                title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
               >
                 <div className="w-1/4 flex justify-center items-center">
                   {type.icon}
