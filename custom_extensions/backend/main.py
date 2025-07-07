@@ -6778,29 +6778,42 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
 @app.put("/api/custom/projects/{project_id}/folder", response_model=ProjectDB)
 async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     """Update a project's folder assignment and recalculate creation hours based on the new folder's tier"""
-    async with pool.acquire() as conn:
-        # Verify project belongs to user
-        project = await conn.fetchrow(
-            "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
-            project_id, onyx_user_id
-        )
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-        
-        # If folder_id is provided, verify it exists and belongs to user
-        if update_data.folder_id is not None:
-            folder = await conn.fetchrow(
-                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
-                update_data.folder_id, onyx_user_id
+    
+    logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Starting folder update for project {project_id}, user {onyx_user_id}")
+    logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Request data: {update_data.model_dump()}")
+    
+    try:
+        async with pool.acquire() as conn:
+            # Verify project belongs to user
+            logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Verifying project {project_id} belongs to user {onyx_user_id}")
+            project = await conn.fetchrow(
+                "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
             )
-            if not folder:
-                raise HTTPException(status_code=404, detail="Folder not found")
+            if not project:
+                logger.error(f"🔍 [FOLDER_UPDATE_DEBUG] Project {project_id} not found or not owned by user {onyx_user_id}")
+                raise HTTPException(status_code=404, detail="Project not found")
+            logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Project found: {project['project_name']}")
         
-        # Update the project's folder_id
-        updated_project = await conn.fetchrow(
-            "UPDATE projects SET folder_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING *",
-            update_data.folder_id, project_id, onyx_user_id
-        )
+            # If folder_id is provided, verify it exists and belongs to user
+            if update_data.folder_id is not None:
+                logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Verifying folder {update_data.folder_id} belongs to user {onyx_user_id}")
+                folder = await conn.fetchrow(
+                    "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                    update_data.folder_id, onyx_user_id
+                )
+                if not folder:
+                    logger.error(f"🔍 [FOLDER_UPDATE_DEBUG] Folder {update_data.folder_id} not found or not owned by user {onyx_user_id}")
+                    raise HTTPException(status_code=404, detail="Folder not found")
+                logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Folder found: {folder['name']}")
+            
+            # Update the project's folder_id
+            logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Updating project {project_id} folder_id to {update_data.folder_id}")
+            updated_project = await conn.fetchrow(
+                "UPDATE projects SET folder_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING *",
+                update_data.folder_id, project_id, onyx_user_id
+            )
+            logger.info(f"🔍 [FOLDER_UPDATE_DEBUG] Project updated successfully")
         
         # If the project has content and is being moved to a folder, recalculate creation hours
         if update_data.folder_id is not None and project['microproduct_content']:
@@ -6891,6 +6904,13 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             design_template_id=updated_project["design_template_id"], 
             created_at=updated_project["created_at"]
         )
+    except HTTPException:
+        logger.error(f"🔍 [FOLDER_UPDATE_DEBUG] HTTPException raised for project {project_id}")
+        raise
+    except Exception as e:
+        logger.error(f"🔍 [FOLDER_UPDATE_DEBUG] Unexpected error updating project {project_id} folder: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while updating project folder." if IS_PRODUCTION else f"DB error on project folder update: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
 class ProjectOrderUpdateRequest(BaseModel):
     orders: List[Dict[str, int]]  # List of {projectId: int, order: int}
