@@ -9593,9 +9593,9 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             2. For each question in the content, create a structured question object with:
                - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
                - "question_text": The actual question text
-               - For multiple-choice: "options" array with {"id": "A", "text": "option text"}, "correct_option_id": "A"
+               - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
                - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
-               - For matching: "prompts" array, "options" array, "correct_matches": {"A": "1", "B": "2"}
+               - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
                - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
                - For open-answer: "acceptable_answers": ["answer1", "answer2"]
                - "explanation": Explanation for the answer
