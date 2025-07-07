@@ -6188,6 +6188,10 @@ class TrainingPlanEditRequest(BaseModel):
     projectId: int
     chatSessionId: Optional[str] = None
     language: str = "en"
+    # File context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
 
 @app.post("/api/custom/training-plan/edit")
 async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
