@@ -8063,8 +8063,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 async with pool.acquire() as conn:
                     await conn.execute("""
                         UPDATE projects 
-                        SET microproduct_content = $1, 
-                            updated_at = NOW()
+                        SET microproduct_content = $1
                         WHERE id = $2 AND onyx_user_id = $3
                     """, updated_content_dict, payload.projectId, onyx_user_id)
                 
