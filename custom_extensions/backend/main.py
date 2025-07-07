@@ -9598,8 +9598,17 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                - For open-answer: acceptable_answers array
                - Explanation for each question
             
-            IMPORTANT: Each question MUST have a "question_type" field that matches one of the available types.
-            The content may be in natural language format - you need to structure it properly.
+            CRITICAL REQUIREMENTS:
+            - Every question MUST have a "question_type" field with one of these exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+            - If the content is in natural language and doesn't clearly specify question types, infer the most appropriate type based on the question structure
+            - For multiple-choice questions: use "correct_option_id" (singular string)
+            - For multi-select questions: use "correct_option_ids" (plural array of strings)
+            - For matching questions: use "prompts" and "options" arrays, with "correct_matches" mapping prompt IDs to option IDs
+            - For sorting questions: use "items_to_sort" array and "correct_order" array of item IDs
+            - For open-answer questions: use "acceptable_answers" array of possible correct answers
+            - All option IDs should be strings (e.g., "A", "B", "C", "D" or "1", "2", "3")
+            
+            If the content is unclear or missing required fields, make reasonable assumptions to create a valid quiz structure.
             Language: {payload.language}
             """,
             target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
@@ -9608,6 +9617,20 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
             parsed_quiz.detectedLanguage = detect_language(payload.aiResponse)
+        
+        # If parsing failed and we have no questions, create a basic quiz structure
+        if not parsed_quiz.questions:
+            logger.warning(f"LLM parsing failed for quiz, creating fallback structure")
+            # Create a simple quiz with the AI response as content
+            parsed_quiz.quizTitle = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
+            parsed_quiz.questions = [
+                {
+                    "question_type": "open-answer",
+                    "question_text": "Please review the quiz content and answer the questions.",
+                    "acceptable_answers": ["See quiz content for answers"],
+                    "explanation": "This is a fallback quiz structure. The original content is preserved in the AI response."
+                }
+            ]
         
         # Create project name
         project_name = parsed_quiz.quizTitle or f"Quiz - {payload.lesson or 'Standalone Quiz'}"
@@ -9634,6 +9657,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             created_project.id
         )
         
+        logger.info(f"Quiz finalization successful: project_id={created_project.id}, project_name={project_name}")
         return {"id": created_project.id, "name": project_name}
         
     except Exception as e:
@@ -9711,12 +9735,14 @@ DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
   "detectedLanguage": "en"
 }
 
-IMPORTANT NOTES:
+CRITICAL REQUIREMENTS:
 - Every question MUST have a "question_type" field with one of these exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-- For multiple-choice: use "correct_option_id" (singular)
-- For multi-select: use "correct_option_ids" (plural array)
+- For multiple-choice: use "correct_option_id" (singular string)
+- For multi-select: use "correct_option_ids" (plural array of strings)
 - For matching: use "prompts" and "options" arrays, with "correct_matches" mapping prompt IDs to option IDs
 - For sorting: use "items_to_sort" array and "correct_order" array of item IDs
 - For open-answer: use "acceptable_answers" array of possible correct answers
 - All option IDs should be strings (e.g., "A", "B", "C", "D" or "1", "2", "3")
+- If the content is unclear, make reasonable assumptions to create a valid quiz structure
+- The "question_type" field is MANDATORY for every question
 """
