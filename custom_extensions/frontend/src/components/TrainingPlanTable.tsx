@@ -266,8 +266,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         lessonNumber,
         hasLesson,
         hasQuiz,
+        hasVideoLesson,
         lessonId: existingLesson?.id,
-        quizId: existingQuiz?.id
+        quizId: existingQuiz?.id,
+        videoLessonId: existingVideoLesson?.id
       });
     }
     // Scenario 4: Only quiz or only video lesson exists (no lesson) - fallback to open or create modal
