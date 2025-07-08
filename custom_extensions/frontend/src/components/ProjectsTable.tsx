@@ -2029,6 +2029,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 // Second pass: filter projects using both legacy and new logic
                 projectsArr.forEach((proj) => {
                     const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
+                    const isQuiz = (proj.designMicroproductType || "").toLowerCase() === "quiz";
+                    
+                    // Skip quizzes - they should not appear in the main products list
+                    if (isQuiz) {
+                        return;
+                    }
                     
                     if (isOutline) {
                         // Always include outlines
