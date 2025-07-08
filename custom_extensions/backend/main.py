@@ -11060,18 +11060,32 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             except Exception as e:
                 logger.warning(f"Failed to check for existing project: {e}")
         
-        wizard_message = (
-            "WIZARD_REQUEST\n" +
-            json.dumps({
-                "product": "Course Outline",
-                "action": "finalize",
-                "prompt": payload.prompt,
-                "modules": payload.modules,
-                "lessonsPerModule": payload.lessonsPerModule,
-                "language": payload.language,
-                "editedOutline": payload.editedOutline,
-            })
-        )
+        # Build wizard payload for assistant path - same structure as preview
+        wiz_payload = {
+            "product": "Course Outline",
+            "action": "finalize",
+            "prompt": payload.prompt,
+            "modules": payload.modules,
+            "lessonsPerModule": payload.lessonsPerModule,
+            "language": payload.language,
+            "editedOutline": payload.editedOutline,
+        }
+
+        # Add file context if provided
+        if payload.fromFiles:
+            wiz_payload["fromFiles"] = True
+            if payload.folderIds:
+                wiz_payload["folderIds"] = payload.folderIds
+            if payload.fileIds:
+                wiz_payload["fileIds"] = payload.fileIds
+
+        # Add text context if provided
+        if payload.fromText and payload.userText:
+            wiz_payload["fromText"] = True
+            wiz_payload["textMode"] = payload.textMode
+            wiz_payload["userText"] = payload.userText
+
+        wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
 
         async def streamer():
             assistant_reply: str = ""
