@@ -478,6 +478,12 @@ export default function CourseOutlineClient() {
     // This prevents any regeneration when user has modified the preview
     if (hasUserEdits) return;
 
+    // Disable automatic preview regeneration when prompt changes
+    // Only regenerate for module count, lessons per module, or language changes
+    if (lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt) {
+      return; // Skip regeneration when only prompt changes
+    }
+
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
 
@@ -1172,15 +1178,30 @@ export default function CourseOutlineClient() {
           </div>
         </div>
 
-        {/* Prompt textarea */}
-        <textarea
-          ref={promptRef}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe what you'd like to make"
-          rows={1}
-          className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-        />
+        {/* Prompt textarea with regenerate button */}
+        <div className="flex gap-2 items-start">
+          <textarea
+            ref={promptRef}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Describe what you'd like to make"
+            rows={1}
+            className="flex-1 border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
+          />
+          {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
+            <button
+              type="button"
+              onClick={() => {
+                // Force regeneration by clearing lastPreviewParamsRef
+                lastPreviewParamsRef.current = null;
+              }}
+              className="px-4 py-3 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap"
+            >
+              <Sparkles size={16} />
+              <span>Regenerate</span>
+            </button>
+          )}
+        </div>
 
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
