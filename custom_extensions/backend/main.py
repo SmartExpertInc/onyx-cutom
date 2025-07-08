@@ -11294,6 +11294,7 @@ async def download_projects_list_pdf(
 class QuizWizardPreview(BaseModel):
     outlineId: Optional[int] = None  # Parent Training Plan project id
     lesson: Optional[str] = None      # Specific lesson to generate quiz for, optional when prompt-based
+    moduleName: Optional[str] = None  # Module name for proper course context
     prompt: Optional[str] = None           # Fallback free-form prompt
     language: str = "en"
     chatSessionId: Optional[str] = None
@@ -11311,6 +11312,7 @@ class QuizWizardPreview(BaseModel):
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
     lesson: str
+    moduleName: Optional[str] = None  # Module name for proper course context
     aiResponse: str                        # User-edited quiz data
     chatSessionId: Optional[str] = None
     questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"
@@ -11400,6 +11402,8 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         wiz_payload["outlineId"] = payload.outlineId
     if payload.lesson:
         wiz_payload["lesson"] = payload.lesson
+    if payload.moduleName:
+        wiz_payload["moduleName"] = payload.moduleName
 
     # Add file context if provided
     if payload.fromFiles:
@@ -11612,7 +11616,10 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         template_id = await _ensure_quiz_template(pool)
         
         # Create a consistent project name to prevent re-parsing issues
-        project_name = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
+        if payload.moduleName:
+            project_name = f"Quiz - {payload.moduleName}: {payload.lesson or 'Standalone Quiz'}"
+        else:
+            project_name = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")

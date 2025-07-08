@@ -36,6 +36,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
 
   const handleOpenContent = (type: 'lesson' | 'videoLesson' | 'quiz', id?: number) => {
     if (id) {
+      // Use the exact same URL pattern as the original lesson links
       const url = `/projects/view/${id}?parentProjectName=${encodeURIComponent(parentProjectName || "")}&lessonNumber=${lessonNumber}`;
       window.open(url, '_blank');
     }

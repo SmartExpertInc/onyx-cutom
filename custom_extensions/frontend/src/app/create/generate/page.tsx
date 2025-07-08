@@ -616,6 +616,10 @@ function GenerateProductPicker() {
     }
     if (useExistingQuizOutline === true && selectedQuizLesson) {
       params.set("lesson", selectedQuizLesson);
+      // Add module name for proper course context
+      if (selectedQuizModuleIndex !== null && quizModulesForOutline[selectedQuizModuleIndex]) {
+        params.set("moduleName", quizModulesForOutline[selectedQuizModuleIndex].name);
+      }
     }
     params.set("questionTypes", selectedQuestionTypes.join(','));
     params.set("questionCount", String(quizQuestionCount));

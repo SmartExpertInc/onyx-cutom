@@ -43,6 +43,7 @@ export default function QuizClient() {
   const prompt = searchParams?.get("prompt") || "";
   const outlineId = searchParams?.get("outlineId");
   const lesson = searchParams?.get("lesson");
+  const moduleName = searchParams?.get("moduleName"); // Add module name parameter
   const questionTypes = searchParams?.get("questionTypes") || "";
   const questionCount = Number(searchParams?.get("questionCount") || 10);
   const language = searchParams?.get("lang") || "en";
@@ -120,6 +121,7 @@ export default function QuizClient() {
           body: JSON.stringify({
             outlineId: outlineId ? parseInt(outlineId) : null,
             lesson: lesson,
+            moduleName: moduleName, // Add module name to request
             prompt: prompt,
             language: language,
             questionTypes: questionTypes,
@@ -220,7 +222,7 @@ export default function QuizClient() {
         abortControllerRef.current.abort();
       }
     };
-  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount]);
+  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount, moduleName]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -237,6 +239,7 @@ export default function QuizClient() {
           prompt: prompt,
           outlineId: outlineId ? parseInt(outlineId) : null,
           lesson: lesson,
+          moduleName: moduleName,
           questionTypes: questionTypes,
           language: language,
           fromFiles: fromFiles,
