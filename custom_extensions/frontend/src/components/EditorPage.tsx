@@ -274,19 +274,24 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
   const handleDeleteLesson = async () => {
     try {
-      // Call the API to delete the lesson
+      // Call the API to delete the lesson using the projects delete-multiple endpoint
       const commonHeaders: HeadersInit = {};
       const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
       if (devUserId && process.env.NODE_ENV === 'development') {
         commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
       }
 
-      const response = await fetch(`/api/custom/lessons/${projectId}`, {
-        method: 'DELETE',
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/delete-multiple`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...commonHeaders,
         },
+        credentials: 'same-origin',
+        body: JSON.stringify({ 
+          project_ids: [parseInt(projectId || '0')], 
+          scope: 'self' 
+        })
       });
 
       if (response.ok) {
