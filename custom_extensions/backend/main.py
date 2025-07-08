@@ -13540,8 +13540,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         template_id = await _ensure_quiz_template(pool)
         
         # Create a consistent project name to prevent re-parsing issues
-        if payload.moduleName:
-            project_name = f"Quiz - {payload.moduleName}: {payload.lesson or 'Standalone Quiz'}"
+        if payload.courseName:
+            project_name = f"Quiz - {payload.courseName}: {payload.lesson or 'Standalone Quiz'}"
         else:
             project_name = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
         

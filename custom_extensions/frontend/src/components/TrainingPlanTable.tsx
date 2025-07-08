@@ -204,8 +204,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const trimmedTitleToMatch = lessonTitle.trim();
     const trimmedParentProjectName = parentProjectName.trim();
 
-    // Look for quiz with naming pattern "Quiz - {lesson_title}"
-    const quizName = `Quiz - ${trimmedTitleToMatch}`;
+    // Look for quiz with naming pattern "Quiz - {courseName}: {lesson_title}"
+    const quizName = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
     
     return allUserMicroproducts.find(
       (mp) => {
@@ -258,6 +258,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     }
     // Scenario 3: Both lesson and quiz exist (or lesson+quiz+video) - show open modal
     else if (hasLesson && hasQuiz) {
+      console.log(`Found existing lesson:`, existingLesson);
+      console.log(`Found existing quiz:`, existingQuiz);
       setOpenContentModalState({
         isOpen: true,
         lessonTitle,
@@ -292,6 +294,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const existingLesson = findExistingLesson(lessonTitle);
     const existingQuiz = findExistingQuiz(lessonTitle);
     const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    
+    console.log(`handleOpenOrCreateOpen - Found existing lesson:`, existingLesson);
+    console.log(`handleOpenOrCreateOpen - Found existing quiz:`, existingQuiz);
     
     setOpenContentModalState({
       isOpen: true,
