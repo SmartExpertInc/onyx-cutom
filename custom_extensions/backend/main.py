@@ -11714,27 +11714,35 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
-        # Create the project
-        project_data = ProjectCreateRequest(
-            projectName=final_project_name,
-            design_template_id=template_id,
-            microProductName=final_project_name,
-            aiResponse=payload.aiResponse
+        # For quiz components, we need to insert directly to avoid double parsing
+        # since add_project_to_custom_db would call parse_ai_response_with_llm again
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
         )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                  microproduct_content, design_template_id, source_chat_session_id, created_at;
+        """
         
-        # Add project to database
-        created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                insert_query,
+                onyx_user_id,
+                final_project_name,
+                "Quiz",  # product_type
+                "Quiz",  # microproduct_type
+                final_project_name,  # microproduct_name
+                parsed_quiz.model_dump(mode='json', exclude_none=True),  # microproduct_content
+                template_id,  # design_template_id
+                None  # source_chat_session_id
+            )
         
-        # Update the project with parsed quiz data
-        await pool.execute(
-            """
-            UPDATE projects 
-            SET microproduct_content = $1
-            WHERE id = $2
-            """,
-            json.dumps(parsed_quiz.model_dump()),
-            created_project.id
-        )
+        if not row:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create quiz project entry.")
+        
+        created_project = ProjectDB(**dict(row))
         
         logger.info(f"[QUIZ_FINALIZE_SUCCESS] Quiz finalization successful: project_id={created_project.id}, project_name={final_project_name}")
         return {"id": created_project.id, "name": final_project_name}
