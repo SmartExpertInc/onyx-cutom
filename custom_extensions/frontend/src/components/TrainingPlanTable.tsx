@@ -216,6 +216,26 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
+    // Log the actual structure of the first few microproducts to understand field names
+    console.log(`🔍 [QUIZ_DISCOVERY] Sample microproduct structure (first 3 items):`);
+    allUserMicroproducts.slice(0, 3).forEach((mp, index) => {
+      console.log(`  Item ${index + 1}:`, {
+        id: mp.id,
+        projectName: mp.projectName,
+        microProductName: mp.microProductName,
+        // Log all possible field names
+        product_type: (mp as any).product_type,
+        productType: (mp as any).productType,
+        microproduct_type: (mp as any).microproduct_type,
+        microProductType: (mp as any).microProductType,
+        design_microproduct_type: (mp as any).design_microproduct_type,
+        design_product_type: (mp as any).design_product_type,
+        // Log all keys to see what's actually available
+        allKeys: Object.keys(mp),
+        allValues: Object.values(mp)
+      });
+    });
+    
     // Log all product types for debugging
     const productTypes = new Set();
     const microproductTypes = new Set();
