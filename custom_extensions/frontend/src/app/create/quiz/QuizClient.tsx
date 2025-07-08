@@ -56,6 +56,9 @@ export default function QuizClient() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestInProgressRef = useRef(false);
   const requestIdRef = useRef(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+  const maxRetries = 3;
 
   // Memoize arrays to prevent unnecessary re-renders
   const memoizedFolderIds = useMemo(() => folderIds, [folderIds.join(',')]);
@@ -68,23 +71,9 @@ export default function QuizClient() {
       return;
     }
 
-    const generateQuiz = async () => {
-      // Prevent multiple concurrent requests
-      if (requestInProgressRef.current) {
-        return;
-      }
-
-      const currentRequestId = ++requestIdRef.current;
-      requestInProgressRef.current = true;
+    // Helper function to perform the actual quiz generation with retry logic
+    const performQuizGeneration = async (attempt: number = 1): Promise<void> => {
       
-      setIsGenerating(true);
-      setError(null);
-      setQuizData("");
-      setIsComplete(false);
-
-      // Create abort controller for cancellation
-      abortControllerRef.current = new AbortController();
-
       try {
         const params = new URLSearchParams();
         
@@ -133,7 +122,7 @@ export default function QuizClient() {
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
             questionCount: questionCount,
           }),
-          signal: abortControllerRef.current.signal,
+          signal: abortControllerRef.current?.signal,
         });
 
         if (!response.ok) {
@@ -167,7 +156,7 @@ export default function QuizClient() {
               }
             }
             setIsComplete(true);
-            break;
+            return;
           }
 
           buffer += decoder.decode(value, { stream: true });
@@ -200,16 +189,60 @@ export default function QuizClient() {
       } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Generation cancelled');
+          return;
+        }
+        
+        // Check if this is a network error that should be retried
+        const isNetworkError = error.message?.includes('network') || 
+                              error.message?.includes('fetch') ||
+                              error.message?.includes('Failed to fetch') ||
+                              error.message?.includes('NetworkError') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError && attempt < maxRetries) {
+          console.log(`Network error on attempt ${attempt}, retrying...`);
+          setRetryCount(attempt);
+          
+          // Exponential backoff: wait 1s, 2s, 4s
+          const delay = Math.pow(2, attempt - 1) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          // Retry the generation
+          return performQuizGeneration(attempt + 1);
         } else {
+          // Either not a network error or max retries reached
           console.error('Generation error:', error);
           setError(error.message || 'An error occurred during generation');
+          throw error;
         }
+      }
+    };
+
+    const generateQuiz = async () => {
+      // Prevent multiple concurrent requests
+      if (requestInProgressRef.current) {
+        return;
+      }
+
+      requestInProgressRef.current = true;
+      
+      setIsGenerating(true);
+      setError(null);
+      setQuizData("");
+      setIsComplete(false);
+      setRetryCount(0);
+
+      // Create abort controller for cancellation
+      abortControllerRef.current = new AbortController();
+
+      try {
+        await performQuizGeneration();
+      } catch (error: any) {
+        // Error already handled in performQuizGeneration
       } finally {
         // Only update state if this is still the current request
-        if (currentRequestId === requestIdRef.current) {
-          setIsGenerating(false);
-          requestInProgressRef.current = false;
-        }
+        setIsGenerating(false);
+        requestInProgressRef.current = false;
         abortControllerRef.current = null;
       }
     };
@@ -222,7 +255,7 @@ export default function QuizClient() {
         abortControllerRef.current.abort();
       }
     };
-  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount, courseName]);
+  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount, courseName, retryTrigger]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -315,6 +348,11 @@ export default function QuizClient() {
             </div>
             <div className="text-sm text-blue-700 mb-4">
               <p>Creating interactive quiz questions based on your content. This may take a few moments.</p>
+              {retryCount > 0 && (
+                <p className="text-orange-600 font-medium mt-2">
+                  Retry attempt {retryCount} of {maxRetries}...
+                </p>
+              )}
             </div>
             <ProgressBar progress={quizData.length > 0 ? Math.min((quizData.length / 1000) * 100, 90) : 10} />
             <button
@@ -333,9 +371,19 @@ export default function QuizClient() {
               <XCircle className="h-5 w-5" />
               Error
             </div>
-            <div className="text-sm text-red-700">
+            <div className="text-sm text-red-700 mb-4">
               <p>{error}</p>
             </div>
+            <button
+              onClick={() => {
+                setError(null);
+                setRetryCount(0);
+                setRetryTrigger(prev => prev + 1);
+              }}
+              className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+            >
+              Retry Generation
+            </button>
           </div>
         )}
 
