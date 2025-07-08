@@ -227,7 +227,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const alternativeNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
         const alternativePatternMatch = mpProjectName === alternativeNewProjectName;
         
-        return (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch;
+        // Method 4: Simple pattern - project name is just the lesson title
+        const simplePatternMatch = mpProjectName === trimmedTitleToMatch;
+        
+        return (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch || simplePatternMatch;
       }
     );
   };
