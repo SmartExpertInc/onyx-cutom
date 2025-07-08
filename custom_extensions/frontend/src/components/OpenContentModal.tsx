@@ -39,7 +39,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
       // Redirect to the lesson's view page using only the lesson ID
       // Include the /custom-projects-ui prefix for proper routing
       const url = `/custom-projects-ui/projects/view/${id}`;
-      window.open(url, '_blank');
+      window.location.href = url;
     }
     onClose();
   };
