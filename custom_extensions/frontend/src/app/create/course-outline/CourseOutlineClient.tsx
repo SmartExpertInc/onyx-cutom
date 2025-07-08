@@ -237,6 +237,9 @@ export default function CourseOutlineClient() {
   
   // Track whether user has manually edited the preview content
   const [hasUserEdits, setHasUserEdits] = useState(false);
+  
+  // Track whether we're currently processing an advanced edit to prevent preview regeneration
+  const [isAdvancedEditInProgress, setIsAdvancedEditInProgress] = useState(false);
 
   // Currently chosen theme (affects outline colors)
   const [selectedTheme, setSelectedTheme] = useState<string>("cherry");
@@ -453,6 +456,9 @@ export default function CourseOutlineClient() {
     // Skip while finalizing
     if (isGenerating) return;
 
+    // Skip while advanced edit is in progress
+    if (isAdvancedEditInProgress) return;
+
     // If creating from text but userText not loaded yet, wait
     if (isFromText && !userText) return;
 
@@ -615,7 +621,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress]);
 
   const handleModuleChange = (index: number, value: string) => {
     setHasUserEdits(true);
@@ -916,6 +922,7 @@ export default function CourseOutlineClient() {
 
     setLoadingPreview(true);
     setError(null);
+    setIsAdvancedEditInProgress(true); // Prevent preview regeneration during advanced edit
 
     // Prevent the auto preview effect from immediately firing a redundant request
     lastPreviewParamsRef.current = {
@@ -992,6 +999,7 @@ export default function CourseOutlineClient() {
             setPrompt(combined);
             setEditPrompt("");
             setLoadingPreview(false);
+            setIsAdvancedEditInProgress(false); // Allow preview regeneration again
           }
         }
       }
@@ -1000,6 +1008,7 @@ export default function CourseOutlineClient() {
     } finally {
       // Ensure overlay is removed in case of error
       setLoadingPreview(false);
+      setIsAdvancedEditInProgress(false); // Always clear the flag
     }
   };
 
