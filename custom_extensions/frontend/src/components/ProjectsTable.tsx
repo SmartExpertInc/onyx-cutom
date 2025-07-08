@@ -1998,7 +1998,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             // Sort projects by order field
             const sortedProjects = processedProjects.sort((a: Project, b: Project) => (a.order || 0) - (b.order || 0));
 
-            // ---- Filter lessons and quizzes that belong to outlines from the main products page ----
+            // ---- Filter lessons that belong to outlines from the main products page ----
             const deduplicateProjects = (projectsArr: Project[]): Project[] => {
                 const outlineNames = new Set<string>();
                 const filteredProjects: Project[] = [];
@@ -2029,12 +2029,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 // Second pass: filter projects using both legacy and new logic
                 projectsArr.forEach((proj) => {
                     const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    const isQuiz = (proj.designMicroproductType || "").toLowerCase() === "quiz";
+                    const isLesson = (proj.designMicroproductType || "").toLowerCase() === "lesson presentation";
                     
                     if (isOutline) {
                         // Always include outlines
                         filteredProjects.push(proj);
-                    } else {
+                    } else if (isLesson) {
+                        // For lessons, check if they belong to an outline
                         const projectTitle = proj.title.trim();
                         let belongsToOutline = false;
 
@@ -2052,21 +2053,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             }
                         }
 
-                        // Method 3: Quiz logic - check if this quiz follows the "Quiz - Outline Name: Lesson Title" pattern
-                        if (!belongsToOutline && isQuiz && projectTitle.startsWith('Quiz - ')) {
-                            const quizContent = projectTitle.substring(7); // Remove "Quiz - " prefix
-                            if (quizContent.includes(': ')) {
-                                const outlinePart = quizContent.split(': ')[0].trim();
-                                if (outlineNames.has(outlinePart)) {
-                                    belongsToOutline = true;
-                                }
-                            }
-                        }
-
-                        // Only include projects that don't belong to an outline (either legacy or new pattern)
+                        // Only include lessons that don't belong to an outline
                         if (!belongsToOutline) {
                             filteredProjects.push(proj);
                         }
+                    } else {
+                        // Include all other project types (including quizzes)
+                        filteredProjects.push(proj);
                     }
                 });
 
@@ -2186,12 +2179,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 // Second pass: filter projects using both legacy and new logic
                 projectsArr.forEach((proj) => {
                     const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    const isQuiz = (proj.designMicroproductType || "").toLowerCase() === "quiz";
+                    const isLesson = (proj.designMicroproductType || "").toLowerCase() === "lesson presentation";
                     
                     if (isOutline) {
                         // Always include outlines
                         filteredProjects.push(proj);
-                    } else {
+                    } else if (isLesson) {
+                        // For lessons, check if they belong to an outline
                         const projectTitle = proj.title.trim();
                         let belongsToOutline = false;
 
@@ -2209,21 +2203,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             }
                         }
 
-                        // Method 3: Quiz logic - check if this quiz follows the "Quiz - Outline Name: Lesson Title" pattern
-                        if (!belongsToOutline && isQuiz && projectTitle.startsWith('Quiz - ')) {
-                            const quizContent = projectTitle.substring(7); // Remove "Quiz - " prefix
-                            if (quizContent.includes(': ')) {
-                                const outlinePart = quizContent.split(': ')[0].trim();
-                                if (outlineNames.has(outlinePart)) {
-                                    belongsToOutline = true;
-                                }
-                            }
-                        }
-
-                        // Only include projects that don't belong to an outline (either legacy or new pattern)
+                        // Only include lessons that don't belong to an outline
                         if (!belongsToOutline) {
                             filteredProjects.push(proj);
                         }
+                    } else {
+                        // Include all other project types (including quizzes)
+                        filteredProjects.push(proj);
                     }
                 });
 
