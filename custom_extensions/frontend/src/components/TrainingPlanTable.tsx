@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
+import OpenOrCreateModal from './OpenOrCreateModal';
+import OpenContentModal from './OpenContentModal';
 import { useSearchParams } from 'next/navigation';
 
 // --- Custom SVG Icons ---
@@ -178,8 +180,120 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
 
+  const [openOrCreateModalState, setOpenOrCreateModalState] = useState<{
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
+    hasLesson: boolean; hasQuiz: boolean;
+  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
+
+  const [openContentModalState, setOpenContentModalState] = useState<{
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
+    hasLesson: boolean; hasVideoLesson: boolean; hasQuiz: boolean;
+    lessonId?: number; videoLessonId?: number; quizId?: number;
+  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false });
+
+  // Function to find existing lesson for a given lesson title
+  const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
+    return findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts);
+  };
+
+  // Function to find existing quiz for a given lesson title
+  const findExistingQuiz = (lessonTitle: string): ProjectListItem | undefined => {
+    if (!allUserMicroproducts || !parentProjectName || !lessonTitle) {
+      return undefined;
+    }
+
+    const trimmedTitleToMatch = lessonTitle.trim();
+    const trimmedParentProjectName = parentProjectName.trim();
+
+    // Look for quiz with naming pattern "Quiz - {lesson_title}"
+    const quizName = `Quiz - ${trimmedTitleToMatch}`;
+    
+    return allUserMicroproducts.find(
+      (mp) => {
+        const mpProjectName = mp.projectName?.trim();
+        const mpProductType = (mp as any).product_type || (mp as any).productType;
+        
+        // Check if it's a quiz and the name matches
+        return mpProductType === "Quiz" && mpProjectName === quizName;
+      }
+    );
+  };
+
+  // Function to find existing video lesson (placeholder for future implementation)
+  const findExistingVideoLesson = (lessonTitle: string): ProjectListItem | undefined => {
+    // TODO: Implement video lesson detection when video lessons are supported
+    return undefined;
+  };
+
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
-    setContentModalState({ isOpen: true, lessonTitle: lesson.title, moduleName, lessonNumber });
+    const lessonTitle = lesson.title;
+    
+    // Check what content already exists
+    const existingLesson = findExistingLesson(lessonTitle);
+    const existingQuiz = findExistingQuiz(lessonTitle);
+    const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    
+    const hasLesson = !!existingLesson;
+    const hasQuiz = !!existingQuiz;
+    const hasVideoLesson = !!existingVideoLesson;
+    
+    // Scenario 1: No content exists - show create modal
+    if (!hasLesson && !hasQuiz && !hasVideoLesson) {
+      setContentModalState({ 
+        isOpen: true, 
+        lessonTitle, 
+        moduleName, 
+        lessonNumber 
+      });
+    }
+    // Scenario 2: Some content exists - show open/create modal
+    else if (hasLesson || hasQuiz || hasVideoLesson) {
+      setOpenOrCreateModalState({ 
+        isOpen: true, 
+        lessonTitle, 
+        moduleName, 
+        lessonNumber,
+        hasLesson,
+        hasQuiz
+      });
+    }
+  };
+
+  const handleOpenOrCreateOpen = () => {
+    const { lessonTitle, moduleName, lessonNumber, hasLesson, hasQuiz } = openOrCreateModalState;
+    
+    // Check what content exists
+    const existingLesson = findExistingLesson(lessonTitle);
+    const existingQuiz = findExistingQuiz(lessonTitle);
+    const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    
+    setOpenContentModalState({
+      isOpen: true,
+      lessonTitle,
+      moduleName,
+      lessonNumber,
+      hasLesson: !!existingLesson,
+      hasVideoLesson: !!existingVideoLesson,
+      hasQuiz: !!existingQuiz,
+      lessonId: existingLesson?.id,
+      videoLessonId: existingVideoLesson?.id,
+      quizId: existingQuiz?.id
+    });
+    
+    setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
+  };
+
+  const handleOpenOrCreateCreate = () => {
+    const { lessonTitle, moduleName, lessonNumber, hasLesson, hasQuiz } = openOrCreateModalState;
+    
+    setContentModalState({ 
+      isOpen: true, 
+      lessonTitle, 
+      moduleName, 
+      lessonNumber 
+    });
+    
+    setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
   };
 
   // Theme configuration for training plan colors
@@ -348,6 +462,33 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         moduleName={contentModalState.moduleName}
         lessonNumber={contentModalState.lessonNumber}
         sourceChatSessionId={sourceChatSessionId}
+        hasLesson={!!findExistingLesson(contentModalState.lessonTitle)}
+        hasQuiz={!!findExistingQuiz(contentModalState.lessonTitle)}
+      />
+      <OpenOrCreateModal
+        isOpen={openOrCreateModalState.isOpen}
+        onClose={() => setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false })}
+        lessonTitle={openOrCreateModalState.lessonTitle}
+        moduleName={openOrCreateModalState.moduleName}
+        lessonNumber={openOrCreateModalState.lessonNumber}
+        hasLesson={openOrCreateModalState.hasLesson}
+        hasQuiz={openOrCreateModalState.hasQuiz}
+        onOpen={handleOpenOrCreateOpen}
+        onCreate={handleOpenOrCreateCreate}
+      />
+      <OpenContentModal
+        isOpen={openContentModalState.isOpen}
+        onClose={() => setOpenContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false, lessonId: undefined, videoLessonId: undefined, quizId: undefined })}
+        lessonTitle={openContentModalState.lessonTitle}
+        moduleName={openContentModalState.moduleName}
+        lessonNumber={openContentModalState.lessonNumber}
+        hasLesson={openContentModalState.hasLesson}
+        hasVideoLesson={openContentModalState.hasVideoLesson}
+        hasQuiz={openContentModalState.hasQuiz}
+        lessonId={openContentModalState.lessonId}
+        videoLessonId={openContentModalState.videoLessonId}
+        quizId={openContentModalState.quizId}
+        parentProjectName={parentProjectName}
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(isEditing || (mainTitle !== undefined && mainTitle !== null)) && (

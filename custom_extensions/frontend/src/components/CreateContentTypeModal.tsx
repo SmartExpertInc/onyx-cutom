@@ -1,8 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Film, CheckSquare, X } from 'lucide-react';
-import { locales } from '@/locales';
+import { BookText, Video, Film, X, HelpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface CreateContentTypeModalProps {
@@ -11,82 +10,41 @@ interface CreateContentTypeModalProps {
   lessonTitle: string;
   moduleName: string;
   lessonNumber: number;
-  sourceChatSessionId: string | null | undefined;
+  sourceChatSessionId?: string | null;
   detectedLanguage?: 'en' | 'ru' | 'uk';
+  hasLesson?: boolean;
+  hasQuiz?: boolean;
 }
 
 const lessonTypes = [
   { 
     name: "lessonPresentation", 
     icon: <BookText className="w-6 h-6" />, 
-    disabled: false,
-    category: "lesson"
+    label: "Lesson Presentation",
+    disabled: false 
   },
   { 
     name: "videoLesson", 
-    icon: <Film className="w-6 h-6" />, 
-    disabled: true,
-    tooltipKey: "comingSoon",
-    category: "lesson"
+    icon: <Video className="w-6 h-6" />, 
+    label: "Video Lesson",
+    disabled: false 
   },
 ];
 
 const quizTypes = [
   { 
-    name: "Quiz", 
-    icon: <CheckSquare className="w-6 h-6" />, 
-    disabled: false,
-    tooltip: "Create a quiz for this lesson",
-    category: "quiz"
+    name: "multiple-choice", 
+    icon: <HelpCircle className="w-6 h-6" />, 
+    label: "Multiple Choice Quiz",
+    disabled: false 
+  },
+  { 
+    name: "mixed", 
+    icon: <HelpCircle className="w-6 h-6" />, 
+    label: "Mixed Quiz Types",
+    disabled: false 
   },
 ];
-
-// A self-contained, Tailwind-styled Modal to avoid cross-project imports.
-const Modal = ({ title, children, onClose }: { title: string, children: React.ReactNode, onClose: () => void }) => (
-    <div 
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-center items-center p-4"
-        onClick={onClose}
-    >
-      <div 
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto" 
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button 
-            onClick={onClose} 
-            className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors z-10"
-        >
-            <X size={24} />
-        </button>
-
-        <div className="pt-10 pb-4 text-center">
-          <h2 className="text-xl font-bold text-slate-800">{title}</h2>
-        </div>
-        
-        {children}
-      </div>
-    </div>
-);
-
-// A self-contained, Tailwind-styled Button to match the UI.
-const StyledButton = ({ children, onClick, disabled, title, className = '' }: { children: React.ReactNode, onClick: () => void, disabled?: boolean, title?: string, className?: string }) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      title={title}
-      className={`
-        flex items-center w-full px-5 py-3
-        rounded-xl
-        text-md font-semibold text-slate-700 bg-slate-100
-        hover:bg-slate-200 hover:scale-[1.02] active:scale-[0.98]
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-        disabled:bg-slate-50 disabled:text-slate-400 disabled:scale-100 disabled:cursor-not-allowed
-        transition-all duration-200 ease-in-out
-        ${className}
-      `}
-    >
-      {children}
-    </button>
-);
 
 export const CreateContentTypeModal = ({ 
   isOpen, 
@@ -95,11 +53,22 @@ export const CreateContentTypeModal = ({
   moduleName,
   lessonNumber,
   sourceChatSessionId,
-  detectedLanguage = 'en'
+  detectedLanguage = 'en',
+  hasLesson = false,
+  hasQuiz = false
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
-  const localized = locales[detectedLanguage as keyof typeof locales].modals.createLesson;
-  const contentLocalized = locales[detectedLanguage as keyof typeof locales].modals.createContent;
+
+  // Update disabled states based on what already exists
+  const updatedLessonTypes = lessonTypes.map(type => ({
+    ...type,
+    disabled: hasLesson
+  }));
+
+  const updatedQuizTypes = quizTypes.map(type => ({
+    ...type,
+    disabled: hasQuiz
+  }));
 
   const handleLessonCreate = (lessonType: string) => {
     // Redirect to create page with pre-selected product and context
@@ -129,67 +98,119 @@ export const CreateContentTypeModal = ({
     onClose();
   };
 
-
-
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
-    <Modal title={contentLocalized.title} onClose={onClose}>
-      <div className="px-6 pb-6">
-        <div className="text-center mb-4">
-          <p className="text-2xl font-bold text-indigo-600 break-words">
-            {lessonTitle}
-          </p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Create Content for: {lessonTitle}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        {/* Lesson Types Section */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">{contentLocalized.lessonTypes}</h3>
-          <div className="space-y-3">
-            {lessonTypes.map((type) => (
-              <StyledButton
-                key={type.name}
-                onClick={() => handleLessonCreate(localized[type.name as keyof typeof localized])}
-                disabled={type.disabled}
-                title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
-              >
-                <div className="w-1/4 flex justify-center items-center">
-                  {type.icon}
-                </div>
-                <div className="w-3/4 text-left">
-                  {type.name === "lessonPresentation" ? "Lesson" : localized[type.name as keyof typeof localized]}
-                </div>
-              </StyledButton>
-            ))}
-            
+        <p className="text-gray-600 mb-6">
+          Module: {moduleName} • Lesson {lessonNumber}
+        </p>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Lesson Types */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+              <BookText className="w-5 h-5 text-blue-600" />
+              Lesson Types
+              {hasLesson && (
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                  Already created
+                </span>
+              )}
+            </h3>
+            <div className="space-y-3">
+              {updatedLessonTypes.map((type) => (
+                <button
+                  key={type.name}
+                  onClick={() => !type.disabled && handleLessonCreate(type.name)}
+                  disabled={type.disabled}
+                  className={`w-full flex items-center justify-between p-4 border rounded-lg transition-colors text-left ${
+                    type.disabled
+                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      : 'border-gray-200 hover:bg-gray-50 hover:border-blue-300 text-gray-900'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${
+                      type.disabled ? 'bg-gray-100' : 'bg-blue-100'
+                    }`}>
+                      {React.cloneElement(type.icon, { 
+                        className: `w-5 h-5 ${type.disabled ? 'text-gray-400' : 'text-blue-600'}` 
+                      })}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{type.label}</h4>
+                      <p className="text-sm text-gray-600">
+                        {type.name === "lessonPresentation" 
+                          ? "Create a slide-based lesson presentation" 
+                          : "Create a video lesson with narration"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Quiz Types Section */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">{contentLocalized.assessmentTypes}</h3>
-          <div className="space-y-3">
-            {quizTypes.map((type) => (
-              <StyledButton
-                key={type.name}
-                onClick={() => handleQuizCreate(type.name)}
-                disabled={type.disabled}
-                title={type.tooltip}
-              >
-                <div className="w-1/4 flex justify-center items-center">
-                  {type.icon}
-                </div>
-                <div className="w-3/4 text-left">
-                  {type.name}
-                </div>
-              </StyledButton>
-            ))}
+          {/* Quiz Types */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+              <HelpCircle className="w-5 h-5 text-green-600" />
+              Quiz Types
+              {hasQuiz && (
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                  Already created
+                </span>
+              )}
+            </h3>
+            <div className="space-y-3">
+              {updatedQuizTypes.map((type) => (
+                <button
+                  key={type.name}
+                  onClick={() => !type.disabled && handleQuizCreate(type.name)}
+                  disabled={type.disabled}
+                  className={`w-full flex items-center justify-between p-4 border rounded-lg transition-colors text-left ${
+                    type.disabled
+                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      : 'border-gray-200 hover:bg-gray-50 hover:border-green-300 text-gray-900'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${
+                      type.disabled ? 'bg-gray-100' : 'bg-green-100'
+                    }`}>
+                      {React.cloneElement(type.icon, { 
+                        className: `w-5 h-5 ${type.disabled ? 'text-gray-400' : 'text-green-600'}` 
+                      })}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{type.label}</h4>
+                      <p className="text-sm text-gray-600">
+                        {type.name === "multiple-choice" 
+                          ? "Create a multiple choice quiz" 
+                          : "Create a quiz with various question types"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }; 
