@@ -243,20 +243,22 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     allUserMicroproducts.forEach((mp, index) => {
       const mpProductType = (mp as any).product_type || (mp as any).productType;
       const mpMicroproductType = (mp as any).microproduct_type || (mp as any).microProductType;
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
       
       if (mpProductType) productTypes.add(mpProductType);
       if (mpMicroproductType) microproductTypes.add(mpMicroproductType);
+      if (mpDesignMicroproductType) microproductTypes.add(mpDesignMicroproductType);
       
       // Log any item that might be a quiz (checking various possible names)
       const possibleQuizNames = ['quiz', 'Quiz', 'QUIZ', 'test', 'Test', 'TEST'];
-      if (possibleQuizNames.includes(mpProductType) || possibleQuizNames.includes(mpMicroproductType)) {
+      if (possibleQuizNames.includes(mpProductType) || possibleQuizNames.includes(mpMicroproductType) || possibleQuizNames.includes(mpDesignMicroproductType)) {
         console.log(`🔍 [QUIZ_DISCOVERY] Potential quiz found at index ${index}:`, {
           id: mp.id,
           projectName: mp.projectName,
           microProductName: mp.microProductName,
           productType: mpProductType,
           microproductType: mpMicroproductType,
-          designMicroproductType: (mp as any).design_microproduct_type,
+          designMicroproductType: mpDesignMicroproductType,
           designProductType: (mp as any).design_product_type
         });
       }
@@ -267,8 +269,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     
     // Log all quizzes for debugging
     const allQuizzes = allUserMicroproducts.filter(mp => {
-      const mpProductType = (mp as any).product_type || (mp as any).productType;
-      return mpProductType === "Quiz";
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      return mpDesignMicroproductType === "Quiz";
     });
     
     console.log(`🔍 [QUIZ_DISCOVERY] Found ${allQuizzes.length} quizzes in allUserMicroproducts:`);
@@ -277,19 +279,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         id: quiz.id,
         projectName: quiz.projectName,
         microProductName: quiz.microProductName,
-        productType: (quiz as any).product_type || (quiz as any).productType,
-        microproductType: (quiz as any).microproduct_type || (quiz as any).microProductType
+        designMicroproductType: (quiz as any).design_microproduct_type
       });
     });
 
     const found = allUserMicroproducts.find(
       (mp) => {
         const mpProjectName = mp.projectName?.trim();
-        const mpProductType = (mp as any).product_type || (mp as any).productType;
+        const mpDesignMicroproductType = (mp as any).design_microproduct_type;
         const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
         
-        // Only process if it's a quiz
-        if (mpProductType !== "Quiz") {
+        // Only process if it's a quiz using the correct field name
+        if (mpDesignMicroproductType !== "Quiz") {
           return false;
         }
         
