@@ -748,9 +748,14 @@ export default function CourseOutlineClient() {
               if (pkt.type === "done") {
                 finalResult = pkt;
                 break;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.message || "Unknown error occurred");
               }
             } catch (e) {
-              // Skip invalid JSON lines
+              // Skip invalid JSON lines unless it's an error we threw
+              if (e instanceof Error && e.message !== "Unexpected token") {
+                throw e;
+              }
               continue;
             }
           }
@@ -764,9 +769,14 @@ export default function CourseOutlineClient() {
             const pkt = JSON.parse(buffer.trim());
             if (pkt.type === "done") {
               finalResult = pkt;
+            } else if (pkt.type === "error") {
+              throw new Error(pkt.message || "Unknown error occurred");
             }
           } catch (e) {
-            // Ignore parsing errors for final buffer
+            // Ignore parsing errors for final buffer unless it's an error we threw
+            if (e instanceof Error && e.message !== "Unexpected token") {
+              throw e;
+            }
           }
         }
 

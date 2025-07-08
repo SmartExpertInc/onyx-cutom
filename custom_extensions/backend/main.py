@@ -11158,11 +11158,79 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                 logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
 
-            modules_preview = _parse_outline_markdown(assistant_reply)
-            logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
-            # Send completion packet with the parsed outline.
-            done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-            yield (json.dumps(done_packet) + "\n").encode()
+            # Create the project using the assistant response
+            try:
+                template_id = await _ensure_training_plan_template(pool)
+                project_name_detected = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
+                
+                logger.info(f"Assistant + parser path: Creating project with {len(assistant_reply)} characters")
+                
+                project_request = ProjectCreateRequest(
+                    projectName=project_name_detected,
+                    design_template_id=template_id,
+                    microProductName=None,
+                    aiResponse=assistant_reply,
+                    chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+                )
+                onyx_user_id = await get_current_onyx_user_id(request)
+
+                project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+                
+                logger.info(f"Assistant + parser path: Created project {project_db_candidate.id}")
+                
+                # Check if content was parsed successfully
+                content_valid = False
+                if project_db_candidate.microproduct_content:
+                    if hasattr(project_db_candidate.microproduct_content, "sections"):
+                        sections = getattr(project_db_candidate.microproduct_content, "sections", [])
+                        content_valid = len(sections) > 0
+                        logger.info(f"Assistant + parser path: Found {len(sections)} sections in parsed content")
+                    else:
+                        logger.warning(f"Assistant + parser path: Content does not have sections attribute")
+                else:
+                    logger.warning(f"Assistant + parser path: microproduct_content is None")
+
+                # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+                if payload.theme and content_valid:
+                    async with pool.acquire() as conn:
+                        design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
+                        if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                            await conn.execute(
+                                """
+                                UPDATE projects
+                                SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                                WHERE id = $2
+                                """,
+                                payload.theme, project_db_candidate.id
+                            )
+                            row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
+                            if row_patch and row_patch["microproduct_content"] is not None:
+                                project_db_candidate.microproduct_content = row_patch["microproduct_content"]
+
+                if content_valid:
+                    logger.info(f"Assistant + parser path successful for project {project_db_candidate.id}")
+                    # Send completion packet with the project ID
+                    done_packet = {"type": "done", "id": project_db_candidate.id}
+                    yield (json.dumps(done_packet) + "\n").encode()
+                else:
+                    logger.error(f"Assistant + parser path: Project {project_db_candidate.id} created but content validation failed")
+                    # Clean up the failed project
+                    try:
+                        async with pool.acquire() as conn:
+                            await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", project_db_candidate.id, onyx_user_id)
+                        logger.info(f"Successfully cleaned up failed assistant + parser project {project_db_candidate.id}")
+                    except Exception as cleanup_e:
+                        logger.error(f"Failed to cleanup assistant + parser project {project_db_candidate.id}: {cleanup_e}")
+                    
+                    # Send error packet
+                    error_packet = {"type": "error", "message": "Failed to parse the generated outline"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    
+            except Exception as create_e:
+                logger.error(f"Assistant + parser path: Failed to create project: {create_e}")
+                # Send error packet
+                error_packet = {"type": "error", "message": f"Failed to create project: {str(create_e)}"}
+                yield (json.dumps(error_packet) + "\n").encode()
 
         return StreamingResponse(streamer(), media_type="application/json")
 
