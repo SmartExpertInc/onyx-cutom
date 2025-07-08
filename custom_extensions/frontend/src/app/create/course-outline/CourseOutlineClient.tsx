@@ -234,6 +234,9 @@ export default function CourseOutlineClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Track whether user has manually edited the preview content
+  const [hasUserEdits, setHasUserEdits] = useState(false);
 
   // Currently chosen theme (affects outline colors)
   const [selectedTheme, setSelectedTheme] = useState<string>("cherry");
@@ -465,6 +468,10 @@ export default function CourseOutlineClient() {
 
     if (same) return;
 
+    // If user has made edits to the preview content, don't regenerate
+    // unless the input parameters have actually changed
+    if (hasUserEdits && same) return;
+
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
 
@@ -478,6 +485,7 @@ export default function CourseOutlineClient() {
         setError(null);
         setPreview([]);
         setRawOutline("");
+        setHasUserEdits(false); // Reset user edits flag when generating new preview
 
         let gotFirstChunk = false;
 
@@ -538,6 +546,7 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
+                setHasUserEdits(false); // Reset user edits flag when preview is complete
                 lastPreviewParamsRef.current = {
                   prompt,
                   modules,
@@ -565,6 +574,7 @@ export default function CourseOutlineClient() {
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
                 setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accumulatedRaw);
+                setHasUserEdits(false); // Reset user edits flag when preview is complete
                 lastPreviewParamsRef.current = {
                   prompt,
                   modules,
@@ -605,9 +615,10 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits]);
 
   const handleModuleChange = (index: number, value: string) => {
+    setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
       copy[index].title = value;
@@ -616,6 +627,7 @@ export default function CourseOutlineClient() {
   };
 
   const handleLessonChange = (modIdx: number, lessonIdx: number, value: string) => {
+    setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
       copy[modIdx].lessons[lessonIdx] = value;
@@ -624,6 +636,7 @@ export default function CourseOutlineClient() {
   };
 
   const handleLessonsTextareaChange = (modIdx: number, value: string) => {
+    setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
       // Keep raw lines as-is during editing to prevent cursor jumps;
@@ -726,6 +739,7 @@ export default function CourseOutlineClient() {
   };
 
   const handleLessonTitleChange = (modIdx: number, lessonIdx: number, newTitle: string) => {
+    setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
       const lines = copy[modIdx].lessons[lessonIdx].split(/\r?\n/);
@@ -752,6 +766,7 @@ export default function CourseOutlineClient() {
       const before = beforeRaw.trimEnd();
       const after = afterRaw.trimStart();
 
+      setHasUserEdits(true);
       setPreview((prev: ModulePreview[]) => {
         const copy = [...prev];
         const lessonLines = copy[modIdx].lessons[lessonIdx].split(/\r?\n/);
@@ -777,6 +792,7 @@ export default function CourseOutlineClient() {
   };
 
   const handleLessonDetailsChange = (modIdx: number, lessonIdx: number, detailIdx: number, newVal: string) => {
+    setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
       const lines = copy[modIdx].lessons[lessonIdx].split(/\r?\n/);
@@ -863,6 +879,7 @@ export default function CourseOutlineClient() {
 
   // Add a brand-new module to the editable preview list
   const handleAddModule = () => {
+    setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const nextIdx = prev.length + 1;
       const newMod: ModulePreview = {
@@ -952,6 +969,7 @@ export default function CourseOutlineClient() {
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
             setPreview(finalMods);
             setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
+            setHasUserEdits(false); // Reset user edits flag when applying edit is complete
             
             // Update lastPreviewParamsRef BEFORE setPrompt to prevent auto-preview from triggering
             lastPreviewParamsRef.current = {
