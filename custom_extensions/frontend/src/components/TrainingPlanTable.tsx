@@ -216,6 +216,35 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
+    // Log all product types for debugging
+    const productTypes = new Set();
+    const microproductTypes = new Set();
+    
+    allUserMicroproducts.forEach((mp, index) => {
+      const mpProductType = (mp as any).product_type || (mp as any).productType;
+      const mpMicroproductType = (mp as any).microproduct_type || (mp as any).microProductType;
+      
+      if (mpProductType) productTypes.add(mpProductType);
+      if (mpMicroproductType) microproductTypes.add(mpMicroproductType);
+      
+      // Log any item that might be a quiz (checking various possible names)
+      const possibleQuizNames = ['quiz', 'Quiz', 'QUIZ', 'test', 'Test', 'TEST'];
+      if (possibleQuizNames.includes(mpProductType) || possibleQuizNames.includes(mpMicroproductType)) {
+        console.log(`🔍 [QUIZ_DISCOVERY] Potential quiz found at index ${index}:`, {
+          id: mp.id,
+          projectName: mp.projectName,
+          microProductName: mp.microProductName,
+          productType: mpProductType,
+          microproductType: mpMicroproductType,
+          designMicroproductType: (mp as any).design_microproduct_type,
+          designProductType: (mp as any).design_product_type
+        });
+      }
+    });
+    
+    console.log(`🔍 [QUIZ_DISCOVERY] All product types found:`, Array.from(productTypes));
+    console.log(`🔍 [QUIZ_DISCOVERY] All microproduct types found:`, Array.from(microproductTypes));
+    
     // Log all quizzes for debugging
     const allQuizzes = allUserMicroproducts.filter(mp => {
       const mpProductType = (mp as any).product_type || (mp as any).productType;
