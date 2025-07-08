@@ -720,71 +720,73 @@ export default function CourseOutlineClient() {
       if (!res.ok) throw new Error(await res.text());
 
       let data;
-      const contentType = res.headers.get('content-type');
       
-      if (contentType && contentType.includes('application/json') && !contentType.includes('stream')) {
-        // Regular JSON response (direct parser path)
-        data = await res.json();
-      } else {
+      // Check if this is a streaming response by trying to get a reader
+      const reader = res.body?.getReader();
+      if (reader) {
         // Streaming response (assistant + parser path)
         const decoder = new TextDecoder();
-        const reader = res.body?.getReader();
-        if (!reader) throw new Error("No stream body");
-
         let buffer = "";
         let finalResult = null;
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-          
-          for (const ln of lines) {
-            if (!ln.trim()) continue;
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            
+            for (const ln of lines) {
+              if (!ln.trim()) continue;
+              try {
+                const pkt = JSON.parse(ln);
+                if (pkt.type === "done") {
+                  finalResult = pkt;
+                  break;
+                } else if (pkt.type === "error") {
+                  throw new Error(pkt.message || "Unknown error occurred");
+                }
+              } catch (e) {
+                // Skip invalid JSON lines unless it's an error we threw
+                if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
+                  throw e;
+                }
+                continue;
+              }
+            }
+            
+            if (finalResult) break;
+          }
+
+          // Handle any remaining buffer
+          if (buffer.trim() && !finalResult) {
             try {
-              const pkt = JSON.parse(ln);
+              const pkt = JSON.parse(buffer.trim());
               if (pkt.type === "done") {
                 finalResult = pkt;
-                break;
               } else if (pkt.type === "error") {
                 throw new Error(pkt.message || "Unknown error occurred");
               }
             } catch (e) {
-              // Skip invalid JSON lines unless it's an error we threw
-              if (e instanceof Error && e.message !== "Unexpected token") {
+              // Ignore parsing errors for final buffer unless it's an error we threw
+              if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
                 throw e;
               }
-              continue;
             }
           }
-          
-          if (finalResult) break;
-        }
 
-        // Handle any remaining buffer
-        if (buffer.trim() && !finalResult) {
-          try {
-            const pkt = JSON.parse(buffer.trim());
-            if (pkt.type === "done") {
-              finalResult = pkt;
-            } else if (pkt.type === "error") {
-              throw new Error(pkt.message || "Unknown error occurred");
-            }
-          } catch (e) {
-            // Ignore parsing errors for final buffer unless it's an error we threw
-            if (e instanceof Error && e.message !== "Unexpected token") {
-              throw e;
-            }
+          if (!finalResult) {
+            throw new Error("No final result received from streaming response");
           }
-        }
 
-        if (!finalResult) {
-          throw new Error("No final result received from streaming response");
+          data = finalResult;
+        } finally {
+          reader.releaseLock();
         }
-
-        data = finalResult;
+      } else {
+        // Regular JSON response (direct parser path)
+        data = await res.json();
       }
 
       // Validate response has required id field
@@ -955,12 +957,7 @@ export default function CourseOutlineClient() {
     isFromText?: boolean;
   } | null>(null);
 
-  // Handle manual regeneration when user clicks the Regenerate button
-  const handleManualRegenerate = () => {
-    setHasUserEdits(false);
-    // Force regeneration by clearing the lastPreviewParamsRef
-    lastPreviewParamsRef.current = null;
-  };
+
 
   // Add a brand-new module to the editable preview list
   const handleAddModule = () => {
@@ -1577,16 +1574,6 @@ export default function CourseOutlineClient() {
               {lessonsTotal} lessons total
             </span>
             <div className="flex items-center gap-3">
-              {hasUserEdits && (
-                <button
-                  type="button"
-                  onClick={handleManualRegenerate}
-                  className="px-6 py-3 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 active:scale-95 shadow-lg transition-transform flex items-center justify-center gap-2"
-                >
-                  <Sparkles size={16} />
-                  <span className="select-none">Regenerate</span>
-                </button>
-              )}
               <button
                 type="button"
                 onClick={handleGenerateFinal}
