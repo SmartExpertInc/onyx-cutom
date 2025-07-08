@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
@@ -188,7 +187,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const [openContentModalState, setOpenContentModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
     hasLesson: boolean; hasVideoLesson: boolean; hasQuiz: boolean;
-    lessonId?: number; videoLessonId?: number; quizId?: number;
+    lessonId?: number; videoLessonId?: number; quizId?: number; parentProjectName?: string;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false });
 
   // Function to find existing lesson for a given lesson title
@@ -269,7 +268,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasVideoLesson,
         lessonId: existingLesson?.id,
         quizId: existingQuiz?.id,
-        videoLessonId: existingVideoLesson?.id
+        videoLessonId: existingVideoLesson?.id,
+        parentProjectName
       });
     }
     // Scenario 4: Only quiz or only video lesson exists (no lesson) - fallback to open or create modal
@@ -303,7 +303,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       hasQuiz: !!existingQuiz,
       lessonId: existingLesson?.id,
       videoLessonId: existingVideoLesson?.id,
-      quizId: existingQuiz?.id
+      quizId: existingQuiz?.id,
+      parentProjectName
     });
     
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
@@ -514,7 +515,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         lessonId={openContentModalState.lessonId}
         videoLessonId={openContentModalState.videoLessonId}
         quizId={openContentModalState.quizId}
-        parentProjectName={parentProjectName}
+        parentProjectName={openContentModalState.parentProjectName || parentProjectName}
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(isEditing || (mainTitle !== undefined && mainTitle !== null)) && (
