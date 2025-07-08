@@ -719,7 +719,63 @@ export default function CourseOutlineClient() {
       });
       if (!res.ok) throw new Error(await res.text());
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json') && !contentType.includes('stream')) {
+        // Regular JSON response (direct parser path)
+        data = await res.json();
+      } else {
+        // Streaming response (assistant + parser path)
+        const decoder = new TextDecoder();
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No stream body");
+
+        let buffer = "";
+        let finalResult = null;
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          
+          for (const ln of lines) {
+            if (!ln.trim()) continue;
+            try {
+              const pkt = JSON.parse(ln);
+              if (pkt.type === "done") {
+                finalResult = pkt;
+                break;
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+              continue;
+            }
+          }
+          
+          if (finalResult) break;
+        }
+
+        // Handle any remaining buffer
+        if (buffer.trim() && !finalResult) {
+          try {
+            const pkt = JSON.parse(buffer.trim());
+            if (pkt.type === "done") {
+              finalResult = pkt;
+            }
+          } catch (e) {
+            // Ignore parsing errors for final buffer
+          }
+        }
+
+        if (!finalResult) {
+          throw new Error("No final result received from streaming response");
+        }
+
+        data = finalResult;
+      }
 
       // Validate response has required id field
       if (!data || !data.id) {
@@ -1196,7 +1252,7 @@ export default function CourseOutlineClient() {
                 // Force regeneration by clearing lastPreviewParamsRef
                 lastPreviewParamsRef.current = null;
               }}
-              className="px-4 py-3 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap"
+              className="px-4 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap min-h-[56px]"
             >
               <Sparkles size={16} />
               <span>Regenerate</span>
