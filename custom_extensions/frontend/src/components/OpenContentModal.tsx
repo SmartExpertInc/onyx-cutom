@@ -37,11 +37,9 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
   const handleOpenContent = (type: 'lesson' | 'videoLesson' | 'quiz', id?: number) => {
     if (id) {
       // Redirect to the lesson's view page using only the lesson ID
-      const url = `/projects/view/${id}`;
-      console.log(`Opening ${type} with ID ${id} at URL: ${url}`);
+      // Include the /custom-projects-ui prefix for proper routing
+      const url = `/custom-projects-ui/projects/view/${id}`;
       window.open(url, '_blank');
-    } else {
-      console.warn(`No ID provided for ${type}`);
     }
     onClose();
   };

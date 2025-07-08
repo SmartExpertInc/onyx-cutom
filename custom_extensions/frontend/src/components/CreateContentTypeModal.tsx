@@ -14,6 +14,7 @@ interface CreateContentTypeModalProps {
   detectedLanguage?: 'en' | 'ru' | 'uk';
   hasLesson?: boolean;
   hasQuiz?: boolean;
+  parentProjectName?: string; // Add outline name for quiz creation
 }
 
 const lessonTypes = [
@@ -49,7 +50,8 @@ export const CreateContentTypeModal = ({
   sourceChatSessionId,
   detectedLanguage = 'en',
   hasLesson = false,
-  hasQuiz = false
+  hasQuiz = false,
+  parentProjectName
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
 
@@ -87,6 +89,11 @@ export const CreateContentTypeModal = ({
       moduleName: moduleName,
       lessonNumber: String(lessonNumber)
     });
+    
+    // Add course name (outline name) for proper quiz naming
+    if (parentProjectName) {
+      params.set('courseName', parentProjectName);
+    }
     
     router.push(`/create?${params.toString()}`);
     onClose();

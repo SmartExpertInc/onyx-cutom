@@ -258,8 +258,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     }
     // Scenario 3: Both lesson and quiz exist (or lesson+quiz+video) - show open modal
     else if (hasLesson && hasQuiz) {
-      console.log(`Found existing lesson:`, existingLesson);
-      console.log(`Found existing quiz:`, existingQuiz);
       setOpenContentModalState({
         isOpen: true,
         lessonTitle,
@@ -294,9 +292,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const existingLesson = findExistingLesson(lessonTitle);
     const existingQuiz = findExistingQuiz(lessonTitle);
     const existingVideoLesson = findExistingVideoLesson(lessonTitle);
-    
-    console.log(`handleOpenOrCreateOpen - Found existing lesson:`, existingLesson);
-    console.log(`handleOpenOrCreateOpen - Found existing quiz:`, existingQuiz);
     
     setOpenContentModalState({
       isOpen: true,
@@ -496,6 +491,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         sourceChatSessionId={sourceChatSessionId}
         hasLesson={!!findExistingLesson(contentModalState.lessonTitle)}
         hasQuiz={!!findExistingQuiz(contentModalState.lessonTitle)}
+        parentProjectName={parentProjectName}
       />
       <OpenOrCreateModal
         isOpen={openOrCreateModalState.isOpen}
