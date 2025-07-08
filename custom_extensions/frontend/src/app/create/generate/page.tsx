@@ -292,25 +292,44 @@ function GenerateProductPicker() {
     }
   }, [searchParams]);
 
-  // Clear context when switching between products
+  // Clear context when switching between products, but not during initial setup
   useEffect(() => {
-    // Clear lesson context when switching away from Lesson Presentation
-    if (activeProduct !== "Lesson Presentation") {
-      setUseExistingOutline(null);
-      setSelectedOutlineId(null);
-      setSelectedModuleIndex(null);
-      setLessonsForModule([]);
-      setSelectedLesson("");
-    }
-    
-    // Clear quiz context when switching away from Quiz
-    if (activeProduct !== "Quiz") {
-      setUseExistingQuizOutline(null);
-      setSelectedQuizOutlineId(null);
-      setSelectedQuizModuleIndex(null);
-      setQuizLessonsForModule([]);
-      setSelectedQuizLesson("");
-    }
+    // Add a small delay to ensure the first useEffect runs first
+    const timer = setTimeout(() => {
+      // Skip if we're in the middle of setting up context from modal
+      try {
+        const lessonContextData = sessionStorage.getItem('lessonContext');
+        if (lessonContextData) {
+          const storedContext = JSON.parse(lessonContextData);
+          // If we have recent context, don't clear it
+          if (storedContext.timestamp && (Date.now() - storedContext.timestamp < 3600000)) {
+            return;
+          }
+        }
+      } catch (error) {
+        // Continue with clearing if there's an error
+      }
+
+      // Clear lesson context when switching away from Lesson Presentation
+      if (activeProduct !== "Lesson Presentation") {
+        setUseExistingOutline(null);
+        setSelectedOutlineId(null);
+        setSelectedModuleIndex(null);
+        setLessonsForModule([]);
+        setSelectedLesson("");
+      }
+      
+      // Clear quiz context when switching away from Quiz
+      if (activeProduct !== "Quiz") {
+        setUseExistingQuizOutline(null);
+        setSelectedQuizOutlineId(null);
+        setSelectedQuizModuleIndex(null);
+        setQuizLessonsForModule([]);
+        setSelectedQuizLesson("");
+      }
+    }, 100); // 100ms delay
+
+    return () => clearTimeout(timer);
   }, [activeProduct]);
 
   // --- Lesson Presentation specific state ---
