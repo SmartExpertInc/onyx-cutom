@@ -20,7 +20,7 @@ const lessonTypes = [
   { 
     name: "lessonPresentation", 
     icon: <BookText className="w-6 h-6" />, 
-    label: "Lesson Presentation",
+    label: "Lesson",
     disabled: false 
   },
   { 
@@ -35,13 +35,7 @@ const quizTypes = [
   { 
     name: "multiple-choice", 
     icon: <HelpCircle className="w-6 h-6" />, 
-    label: "Multiple Choice Quiz",
-    disabled: false 
-  },
-  { 
-    name: "mixed", 
-    icon: <HelpCircle className="w-6 h-6" />, 
-    label: "Mixed Quiz Types",
+    label: "Quiz",
     disabled: false 
   },
 ];
@@ -101,7 +95,7 @@ export const CreateContentTypeModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Create Content for: {lessonTitle}</h2>
@@ -122,7 +116,7 @@ export const CreateContentTypeModal = ({
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
               <BookText className="w-5 h-5 text-blue-600" />
-              Lesson Types
+              Lesson
               {hasLesson && (
                 <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                   Already created
@@ -153,7 +147,7 @@ export const CreateContentTypeModal = ({
                       <h4 className="font-medium">{type.label}</h4>
                       <p className="text-sm text-gray-600">
                         {type.name === "lessonPresentation" 
-                          ? "Create a slide-based lesson presentation" 
+                          ? "Create a slide-based lesson" 
                           : "Create a video lesson with narration"
                         }
                       </p>
@@ -168,7 +162,7 @@ export const CreateContentTypeModal = ({
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
               <HelpCircle className="w-5 h-5 text-green-600" />
-              Quiz Types
+              Quiz
               {hasQuiz && (
                 <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                   Already created
@@ -199,7 +193,7 @@ export const CreateContentTypeModal = ({
                       <h4 className="font-medium">{type.label}</h4>
                       <p className="text-sm text-gray-600">
                         {type.name === "multiple-choice" 
-                          ? "Create a multiple choice quiz" 
+                          ? "Create an interactive quiz" 
                           : "Create a quiz with various question types"
                         }
                       </p>

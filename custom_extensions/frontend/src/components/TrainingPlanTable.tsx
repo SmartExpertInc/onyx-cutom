@@ -246,8 +246,32 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         lessonNumber 
       });
     }
-    // Scenario 2: Some content exists - show open/create modal
-    else if (hasLesson || hasQuiz || hasVideoLesson) {
+    // Scenario 2: Only lesson exists (no quiz/video lesson) - show open or create modal
+    else if (hasLesson && !hasQuiz && !hasVideoLesson) {
+      setOpenOrCreateModalState({ 
+        isOpen: true, 
+        lessonTitle, 
+        moduleName, 
+        lessonNumber,
+        hasLesson,
+        hasQuiz
+      });
+    }
+    // Scenario 3: Both lesson and quiz exist (or lesson+quiz+video) - show open modal
+    else if (hasLesson && hasQuiz) {
+      setOpenContentModalState({
+        isOpen: true,
+        lessonTitle,
+        moduleName,
+        lessonNumber,
+        hasLesson,
+        hasQuiz,
+        lessonId: existingLesson?.id,
+        quizId: existingQuiz?.id
+      });
+    }
+    // Scenario 4: Only quiz or only video lesson exists (no lesson) - fallback to open or create modal
+    else {
       setOpenOrCreateModalState({ 
         isOpen: true, 
         lessonTitle, 
@@ -608,10 +632,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     <div className={`text-gray-800 pr-2 ${activeColumns.length > 1 ? 'border-r border-gray-400' : ''}`}> 
                       {isEditing && onTextChange ? (
                         <input type="text" value={lesson.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} className={editingInputClass} placeholder="Lesson Title"/>
-                      ) : matchingMicroproduct ? (
-                        <Link href={`/projects/view/${matchingMicroproduct.id}?parentProjectName=${encodeURIComponent(parentProjectName || "")}&lessonNumber=${currentLessonNumber}`} className="text-blue-600 hover:underline">
-                          {lesson.title}
-                        </Link>
                       ) : (
                         <button
                           onClick={() => handleLessonClick(lesson, section.title, currentLessonNumber)}
