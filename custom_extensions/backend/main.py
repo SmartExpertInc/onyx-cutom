@@ -13687,6 +13687,43 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         QUIZ_FINALIZE_TIMESTAMPS.pop(quiz_key, None)
         logger.info(f"[QUIZ_FINALIZE_CLEANUP] Removed quiz_key from active set: {quiz_key}")
 
+@app.delete("/api/custom/lessons/{lesson_id}", status_code=204)
+async def delete_lesson(lesson_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Delete a lesson project permanently"""
+    try:
+        async with pool.acquire() as conn:
+            # First, verify the lesson exists and belongs to the user
+            lesson = await conn.fetchrow(
+                "SELECT id, project_name, microproduct_type FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                lesson_id, onyx_user_id
+            )
+            
+            if not lesson:
+                raise HTTPException(status_code=404, detail="Lesson not found or not owned by user")
+            
+            # Check if this is actually a lesson (not a training plan/course outline)
+            if lesson['microproduct_type'] in ('Training Plan', 'Course Outline'):
+                raise HTTPException(status_code=400, detail="Cannot delete training plans or course outlines. Please delete individual lessons instead.")
+            
+            # Delete the lesson
+            result = await conn.execute(
+                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                lesson_id, onyx_user_id
+            )
+            
+            if result == "DELETE 0":
+                raise HTTPException(status_code=404, detail="Lesson not found")
+            
+            logger.info(f"User {onyx_user_id} deleted lesson {lesson_id} ({lesson['project_name']})")
+            return JSONResponse(status_code=204, content={})
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting lesson {lesson_id} for user {onyx_user_id}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while deleting the lesson." if IS_PRODUCTION else f"Database error during lesson deletion: {str(e)}"
+        raise HTTPException(status_code=500, detail=detail_msg)
+
 # Default quiz JSON example for LLM parsing
 DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
 {

@@ -1169,4 +1169,127 @@
   margin: 8px;
 }
 
+/* Delete Button Styles */
+.delete-button {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background: #c82333;
+}
+
+/* Delete Confirmation Popup Styles */
+.delete-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.delete-confirmation-popup {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: popupSlideIn 0.2s ease-out;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.delete-confirmation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.delete-confirmation-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #3c4043;
+}
+
+.warning-icon {
+  color: #dc3545;
+}
+
+.delete-confirmation-content {
+  margin-bottom: 24px;
+}
+
+.delete-confirmation-content p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #3c4043;
+  line-height: 1.5;
+}
+
+.warning-text {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.delete-confirmation-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-button {
+  padding: 8px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: white;
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.cancel-button:hover {
+  background: #f8f9fa;
+  border-color: #dadce0;
+}
+
+.delete-confirm-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #dc3545;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-confirm-button:hover {
+  background: #c82333;
+}
+
+.delete-confirm-button:active {
+  background: #bd2130;
+}
+
  

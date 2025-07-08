@@ -22,7 +22,9 @@ import {
   BarChart3,
   TrendingUp,
   Edit,
-  ChevronRight
+  ChevronRight,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import './EditorPage.css';
 
@@ -42,6 +44,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[]>([]);
   const [parentProjectName, setParentProjectName] = useState<string | null>(null);
   const [parentProjectId, setParentProjectId] = useState<number | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -266,6 +269,29 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const navigateToOutline = () => {
     if (parentProjectId) {
       router.push(`/projects/view/${parentProjectId}`);
+    }
+  };
+
+  const handleDeleteLesson = async () => {
+    try {
+      // Call the API to delete the lesson
+      const response = await fetch(`/api/lessons/${projectId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Navigate back to projects page after successful deletion
+        window.location.href = '/projects';
+      } else {
+        console.error('Failed to delete lesson');
+        // You might want to show an error message to the user
+      }
+    } catch (error) {
+      console.error('Error deleting lesson:', error);
+      // You might want to show an error message to the user
     }
   };
 
@@ -690,6 +716,15 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             Present
             <span className="dropdown-arrow">▼</span>
           </button>
+          <button 
+            className="nav-button delete-button"
+            onClick={() => setShowDeleteConfirmation(true)}
+          >
+            <span className="button-icon">
+              <Trash2 size={16} />
+            </span>
+            Delete
+          </button>
           <button className="nav-button more-button">
             <MoreHorizontal size={16} />
           </button>
@@ -698,6 +733,36 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      {showDeleteConfirmation && (
+        <div className="delete-confirmation-overlay">
+          <div className="delete-confirmation-popup">
+            <div className="delete-confirmation-header">
+              <AlertTriangle size={24} className="warning-icon" />
+              <h3>Delete Lesson</h3>
+            </div>
+            <div className="delete-confirmation-content">
+              <p>Are you sure you want to delete this lesson?</p>
+              <p className="warning-text">This action cannot be undone.</p>
+            </div>
+            <div className="delete-confirmation-actions">
+              <button 
+                className="cancel-button"
+                onClick={() => setShowDeleteConfirmation(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="delete-confirm-button"
+                onClick={handleDeleteLesson}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="main-content">
