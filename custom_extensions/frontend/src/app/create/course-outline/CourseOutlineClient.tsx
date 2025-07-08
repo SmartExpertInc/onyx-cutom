@@ -991,7 +991,7 @@ export default function CourseOutlineClient() {
             setRawOutline(typeof pkt.raw === "string" ? pkt.raw : accRaw);
             setHasUserEdits(false); // Reset user edits flag when applying edit is complete
             
-            // Update lastPreviewParamsRef BEFORE setPrompt to prevent auto-preview from triggering
+            // Update lastPreviewParamsRef to mark this as the current state
             lastPreviewParamsRef.current = {
               prompt: combined,
               modules,
@@ -1002,10 +1002,11 @@ export default function CourseOutlineClient() {
               isFromText
             };
             
-            setPrompt(combined);
+            // Don't update the prompt state to avoid triggering useEffect
+            // The advanced edit result is now the current state, no need to update textarea
             setEditPrompt("");
             setLoadingPreview(false);
-            setIsAdvancedEditInProgress(false); // Allow preview regeneration again
+            setIsAdvancedEditInProgress(false);
           }
         }
       }
