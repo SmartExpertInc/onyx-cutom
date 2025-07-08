@@ -2029,13 +2029,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 // Second pass: filter projects using both legacy and new logic
                 projectsArr.forEach((proj) => {
                     const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    const isQuiz = (proj.designMicroproductType || "").toLowerCase() === "quiz";
-                    
-                    // Skip quizzes - they should not appear in the main products list
-                    if (isQuiz) {
-                        return;
-                    }
-                    
                     if (isOutline) {
                         // Always include outlines
                         filteredProjects.push(proj);
@@ -2825,6 +2818,19 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         window.open(pdfUrl, '_blank');
     };
 
+    // Add these just before the render block
+    const visibleProjects = viewMode === 'list'
+      ? getProjectsForFolder(folderId).filter(p => (p.designMicroproductType || '').toLowerCase() !== 'quiz')
+      : getProjectsForFolder(folderId);
+
+    const visibleUnassignedProjects = viewMode === 'list'
+      ? getUnassignedProjects().filter(p => (p.designMicroproductType || '').toLowerCase() !== 'quiz')
+      : getUnassignedProjects();
+
+    const filteredFolderProjects = viewMode === 'list'
+      ? Object.fromEntries(Object.entries(folderProjects).map(([fid, projs]) => [fid, projs.filter(p => (p.designMicroproductType || '').toLowerCase() !== 'quiz')]))
+      : folderProjects;
+
     if (loading) {
         return <div className="text-center p-8">Loading projects...</div>;
     }
@@ -3087,7 +3093,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         trashMode={trashMode}
                                         columnVisibility={columnVisibility}
                                         expandedFolders={expandedFolders}
-                                        folderProjects={folderProjects}
+                                        folderProjects={filteredFolderProjects}
                                         lessonDataCache={lessonDataCache}
                                         draggedFolder={draggedFolder}
                                         draggedProject={draggedProject}
@@ -3111,7 +3117,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 ))}
                                 
                                 {/* Show unassigned projects when not viewing a specific folder */}
-                                {!trashMode && folderId === null && getUnassignedProjects().map((p: Project, index: number) => (
+                                {!trashMode && folderId === null && visibleUnassignedProjects.map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
                                         className={`hover:bg-gray-50 transition group ${
@@ -3235,7 +3241,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 ))}
                                 
                                 {/* Show projects for specific folder or all projects in trash mode */}
-                                {(trashMode || folderId !== null) && getProjectsForFolder(folderId).map((p: Project, index: number) => (
+                                {(trashMode || folderId !== null) && visibleProjects.map((p: Project, index: number) => (
                                     <tr 
                                         key={p.id} 
                                         className={`hover:bg-gray-50 transition group ${
