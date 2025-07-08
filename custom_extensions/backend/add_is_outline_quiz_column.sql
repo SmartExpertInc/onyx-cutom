@@ -1,1 +1,0 @@
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_outline_quiz BOOLEAN; 

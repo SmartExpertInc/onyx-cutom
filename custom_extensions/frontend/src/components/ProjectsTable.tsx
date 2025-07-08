@@ -1998,7 +1998,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             // Sort projects by order field
             const sortedProjects = processedProjects.sort((a: Project, b: Project) => (a.order || 0) - (b.order || 0));
 
-            // ---- Filter lessons and quizzes that belong to outlines from the main products page ----
+            // ---- Filter lessons that belong to outlines from the main products page ----
             const deduplicateProjects = (projectsArr: Project[]): Project[] => {
                 const outlineNames = new Set<string>();
                 const filteredProjects: Project[] = [];
@@ -2029,7 +2029,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 // Second pass: filter projects using both legacy and new logic
                 projectsArr.forEach((proj) => {
                     const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    const isQuiz = (proj.designMicroproductType || "").toLowerCase() === "quiz";
                     
                     if (isOutline) {
                         // Always include outlines
@@ -2049,17 +2048,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             const outlinePart = projectTitle.split(': ')[0].trim();
                             if (outlineNames.has(outlinePart)) {
                                 belongsToOutline = true;
-                            }
-                        }
-
-                        // Method 3: Quiz logic - check if this quiz follows the "Quiz - Outline Name: Lesson Title" pattern
-                        if (!belongsToOutline && isQuiz && projectTitle.startsWith('Quiz - ')) {
-                            const quizContent = projectTitle.substring(7); // Remove "Quiz - " prefix
-                            if (quizContent.includes(': ')) {
-                                const outlinePart = quizContent.split(': ')[0].trim();
-                                if (outlineNames.has(outlinePart)) {
-                                    belongsToOutline = true;
-                                }
                             }
                         }
 
@@ -2155,86 +2143,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
             // Sort folder projects by order field
             const sortedProjects = processedProjects.sort((a: Project, b: Project) => (a.order || 0) - (b.order || 0));
 
-            // Apply the same filtering logic to folder projects
-            const deduplicateFolderProjects = (projectsArr: Project[]): Project[] => {
-                const outlineNames = new Set<string>();
-                const filteredProjects: Project[] = [];
-                const grouped: Record<string, { outline: Project | null; others: Project[] }> = {};
-
-                // First pass: collect all outline names and group by title for legacy support
-                projectsArr.forEach((proj) => {
-                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    if (isOutline) {
-                        outlineNames.add(proj.title.trim());
-                    }
-
-                    // Legacy grouping logic - group projects by exact title match
-                    if (!grouped[proj.title]) {
-                        grouped[proj.title] = { outline: null, others: [] };
-                    }
-
-                    if (isOutline) {
-                        // Keep the first outline we encounter for this project title
-                        if (!grouped[proj.title].outline) {
-                            grouped[proj.title].outline = proj;
-                        }
-                    } else {
-                        grouped[proj.title].others.push(proj);
-                    }
-                });
-
-                // Second pass: filter projects using both legacy and new logic
-                projectsArr.forEach((proj) => {
-                    const isOutline = (proj.designMicroproductType || "").toLowerCase() === "training plan";
-                    const isQuiz = (proj.designMicroproductType || "").toLowerCase() === "quiz";
-                    
-                    if (isOutline) {
-                        // Always include outlines
-                        filteredProjects.push(proj);
-                    } else {
-                        const projectTitle = proj.title.trim();
-                        let belongsToOutline = false;
-
-                        // Method 1: Legacy logic - check if there's an outline with the same exact title
-                        const groupForThisTitle = grouped[proj.title];
-                        if (groupForThisTitle && groupForThisTitle.outline) {
-                            belongsToOutline = true;
-                        }
-
-                        // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
-                        if (!belongsToOutline && projectTitle.includes(': ')) {
-                            const outlinePart = projectTitle.split(': ')[0].trim();
-                            if (outlineNames.has(outlinePart)) {
-                                belongsToOutline = true;
-                            }
-                        }
-
-                        // Method 3: Quiz logic - check if this quiz follows the "Quiz - Outline Name: Lesson Title" pattern
-                        if (!belongsToOutline && isQuiz && projectTitle.startsWith('Quiz - ')) {
-                            const quizContent = projectTitle.substring(7); // Remove "Quiz - " prefix
-                            if (quizContent.includes(': ')) {
-                                const outlinePart = quizContent.split(': ')[0].trim();
-                                if (outlineNames.has(outlinePart)) {
-                                    belongsToOutline = true;
-                                }
-                            }
-                        }
-
-                        // Only include projects that don't belong to an outline (either legacy or new pattern)
-                        if (!belongsToOutline) {
-                            filteredProjects.push(proj);
-                        }
-                    }
-                });
-
-                return filteredProjects;
-            };
-
-            const filteredProjects = deduplicateFolderProjects(sortedProjects);
-
             setFolderProjects(prev => ({
                 ...prev,
-                [folderId]: filteredProjects
+                [folderId]: sortedProjects
             }));
         } catch (error) {
             console.error('Error fetching folder projects:', error);
