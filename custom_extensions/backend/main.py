@@ -962,6 +962,7 @@ class ProjectDB(BaseModel):
     microproduct_name: Optional[str] = None
     microproduct_content: Optional[MicroProductContentType] = None
     design_template_id: Optional[int] = None
+    is_outline_quiz: Optional[bool] = None
     created_at: datetime
     model_config = {"from_attributes": True}
 
@@ -6947,6 +6948,22 @@ async def startup_event():
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_outline_quiz BOOLEAN;")
+                logger.info("Added is_outline_quiz column to projects table")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add is_outline_quiz column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_outline_quiz BOOLEAN;")
+                logger.info("Added is_outline_quiz column to trashed_projects table")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
             logger.info("'projects' table ensured and updated.")
