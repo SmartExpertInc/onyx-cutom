@@ -80,17 +80,21 @@ export const CreateTestTypeModal = ({
   sourceChatSessionId 
 }: CreateTestTypeModalProps) => {
   const handleTestCreate = (testType: string) => {
-    if (!sourceChatSessionId) {
-      alert("Error: Source chat session ID is not available. Cannot create test.");
-      onClose();
-      return;
-    }
-
-    const message = `Please create a ${testType} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
+    // For quiz creation, redirect to create page with quiz context
+    const quizContext = {
+      product: 'quiz',
+      lessonType: 'quiz',
+      lessonTitle: lessonTitle,
+      moduleName: moduleName,
+      lessonNumber: lessonNumber,
+      timestamp: Date.now()
+    };
     
-    const chatUrl = `/chat?chatId=${sourceChatSessionId}&user-prompt=${encodeURIComponent(message)}&send-on-load=true`;
+    // Store quiz context in sessionStorage
+    sessionStorage.setItem('lessonContext', JSON.stringify(quizContext));
     
-    window.location.href = chatUrl;
+    // Redirect to create page
+    window.location.href = '/create';
     onClose();
   };
 

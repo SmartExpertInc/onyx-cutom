@@ -246,10 +246,12 @@ function GenerateProductPicker() {
     const moduleName = searchParams?.get('moduleName');
     const lessonNumber = searchParams?.get('lessonNumber');
 
-    // Check both URL parameters and sessionStorage for lesson context
+    // Check both URL parameters and sessionStorage for lesson/quiz context
     let lessonContext = null;
     
     if (product === 'lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
+      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+    } else if (product === 'quiz' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else {
       // Try to get from sessionStorage
@@ -268,16 +270,48 @@ function GenerateProductPicker() {
     }
 
     if (lessonContext) {
-      setActiveProduct("Lesson Presentation");
-      
-      // Since we have lesson context from the modal, automatically set useExistingOutline to true
-      // This bypasses the "Do you want to create a lesson from an existing Course Outline?" question
-      setUseExistingOutline(true);
-      
-      // Store lesson context for pre-selecting dropdowns after outlines are loaded
-      sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
+      if (lessonContext.product === 'quiz') {
+        setActiveProduct("Quiz");
+        
+        // Since we have quiz context from the modal, automatically set useExistingQuizOutline to true
+        // This bypasses the "Do you want to create a quiz from an existing Course Outline?" question
+        setUseExistingQuizOutline(true);
+        
+        // Store quiz context for pre-selecting dropdowns after outlines are loaded
+        sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
+      } else {
+        setActiveProduct("Lesson Presentation");
+        
+        // Since we have lesson context from the modal, automatically set useExistingOutline to true
+        // This bypasses the "Do you want to create a lesson from an existing Course Outline?" question
+        setUseExistingOutline(true);
+        
+        // Store lesson context for pre-selecting dropdowns after outlines are loaded
+        sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
+      }
     }
   }, [searchParams]);
+
+  // Clear context when switching between products
+  useEffect(() => {
+    // Clear lesson context when switching away from Lesson Presentation
+    if (activeProduct !== "Lesson Presentation") {
+      setUseExistingOutline(null);
+      setSelectedOutlineId(null);
+      setSelectedModuleIndex(null);
+      setLessonsForModule([]);
+      setSelectedLesson("");
+    }
+    
+    // Clear quiz context when switching away from Quiz
+    if (activeProduct !== "Quiz") {
+      setUseExistingQuizOutline(null);
+      setSelectedQuizOutlineId(null);
+      setSelectedQuizModuleIndex(null);
+      setQuizLessonsForModule([]);
+      setSelectedQuizLesson("");
+    }
+  }, [activeProduct]);
 
   // --- Lesson Presentation specific state ---
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -411,6 +445,56 @@ function GenerateProductPicker() {
         const data = await res.json();
         const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
         setQuizOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+        
+        // Check if we have quiz context to pre-select outline
+        try {
+          const lessonContextData = sessionStorage.getItem('lessonContextForDropdowns');
+          if (lessonContextData) {
+            const lessonContext = JSON.parse(lessonContextData);
+            // Find the outline that contains the specific module and lesson
+            // We'll need to fetch each outline to check its modules and lessons
+            for (const outline of onlyOutlines) {
+              const outlineRes = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${outline.id}`);
+              if (outlineRes.ok) {
+                const outlineData = await outlineRes.json();
+                const sections = outlineData?.details?.sections || [];
+                const modules = sections.map((sec: any) => ({
+                  name: sec.title || "Unnamed module",
+                  lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+                }));
+                
+                // Check if this outline contains the target module and lesson
+                const targetModuleIndex = modules.findIndex((m: any) => 
+                  m.name.toLowerCase().includes(lessonContext.moduleName.toLowerCase()) ||
+                  lessonContext.moduleName.toLowerCase().includes(m.name.toLowerCase())
+                );
+                
+                if (targetModuleIndex !== -1) {
+                  const targetModule = modules[targetModuleIndex];
+                  const targetLessonIndex = targetModule.lessons.findIndex((l: string) => 
+                    l.toLowerCase().includes(lessonContext.lessonTitle.toLowerCase()) ||
+                    lessonContext.lessonTitle.toLowerCase().includes(l.toLowerCase())
+                  );
+                  
+                  if (targetLessonIndex !== -1) {
+                    // Found the matching outline, module, and lesson
+                    setSelectedQuizOutlineId(outline.id);
+                    setQuizModulesForOutline(modules);
+                    setSelectedQuizModuleIndex(targetModuleIndex);
+                    setQuizLessonsForModule(targetModule.lessons);
+                    setSelectedQuizLesson(targetModule.lessons[targetLessonIndex]);
+                    
+                    // Clear the stored context
+                    sessionStorage.removeItem('lessonContextForDropdowns');
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error pre-selecting quiz outline:', error);
+        }
       } catch (_) {}
     };
     fetchQuizOutlines();

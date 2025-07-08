@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, X } from 'lucide-react';
+import { BookText, Video, Film, X, HelpCircle } from 'lucide-react';
 import { locales } from '@/locales';
 
 interface CreateLessonTypeModalProps {
@@ -19,6 +19,11 @@ const lessonTypes = [
   { 
     name: "lessonPresentation", 
     icon: <BookText className="w-6 h-6" />, 
+    disabled: false 
+  },
+  { 
+    name: "quiz", 
+    icon: <HelpCircle className="w-6 h-6" />, 
     disabled: false 
   },
   { 
@@ -93,6 +98,27 @@ export const CreateLessonTypeModal = ({
   const localized = locales[detectedLanguage as keyof typeof locales].modals.createLesson;
 
   const handleLessonCreate = (lessonType: string) => {
+    if (lessonType === "quiz") {
+      // For quiz creation, redirect to create page with quiz context
+      const quizContext = {
+        product: 'quiz',
+        lessonType: 'quiz',
+        lessonTitle: lessonTitle,
+        moduleName: moduleName,
+        lessonNumber: lessonNumber,
+        timestamp: Date.now()
+      };
+      
+      // Store quiz context in sessionStorage
+      sessionStorage.setItem('lessonContext', JSON.stringify(quizContext));
+      
+      // Redirect to create page
+      window.location.href = '/create';
+      onClose();
+      return;
+    }
+
+    // For other lesson types, use the existing chat flow
     if (!sourceChatSessionId) {
       alert(localized.errorNoSessionId);
       onClose();
@@ -123,7 +149,7 @@ export const CreateLessonTypeModal = ({
           {lessonTypes.map((type) => (
             <StyledButton
               key={type.name}
-              onClick={() => handleLessonCreate(localized[type.name as keyof typeof localized])}
+              onClick={() => handleLessonCreate(type.name)}
               disabled={type.disabled}
               title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
             >
@@ -131,7 +157,7 @@ export const CreateLessonTypeModal = ({
                     {type.icon}
                 </div>
                 <div className="w-3/4 text-left">
-                    {localized[type.name as keyof typeof localized]}
+                    {type.name === "quiz" ? "Quiz" : localized[type.name as keyof typeof localized]}
                 </div>
             </StyledButton>
           ))}
