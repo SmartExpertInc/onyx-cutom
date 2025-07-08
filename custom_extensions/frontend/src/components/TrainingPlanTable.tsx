@@ -204,16 +204,30 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const trimmedTitleToMatch = lessonTitle.trim();
     const trimmedParentProjectName = parentProjectName.trim();
 
-    // Look for quiz with naming pattern "Quiz - {courseName}: {lesson_title}"
-    const quizName = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-    
     return allUserMicroproducts.find(
       (mp) => {
         const mpProjectName = mp.projectName?.trim();
         const mpProductType = (mp as any).product_type || (mp as any).productType;
+        const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
         
-        // Check if it's a quiz and the name matches
-        return mpProductType === "Quiz" && mpProjectName === quizName;
+        // Only process if it's a quiz
+        if (mpProductType !== "Quiz") {
+          return false;
+        }
+        
+        // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+        const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
+        const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+        
+        // Method 2: New naming convention - project name follows "Quiz - Outline Name: Lesson Title" pattern
+        const expectedNewProjectName = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const newPatternMatch = mpProjectName === expectedNewProjectName;
+        
+        // Method 3: Alternative new pattern - project name follows "Outline Name: Lesson Title" pattern (for quizzes)
+        const alternativeNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const alternativePatternMatch = mpProjectName === alternativeNewProjectName;
+        
+        return (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch;
       }
     );
   };
