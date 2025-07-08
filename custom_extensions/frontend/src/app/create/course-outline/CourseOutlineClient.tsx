@@ -468,9 +468,9 @@ export default function CourseOutlineClient() {
 
     if (same) return;
 
-    // If user has made edits to the preview content, don't regenerate
-    // unless the input parameters have actually changed
-    if (hasUserEdits && same) return;
+    // If user has made edits to the preview content, don't regenerate at all
+    // This prevents any regeneration when user has modified the preview
+    if (hasUserEdits) return;
 
     if (prompt.length === 0 || loading) return;
     if (!chatId) return;
@@ -877,6 +877,13 @@ export default function CourseOutlineClient() {
     isFromText?: boolean;
   } | null>(null);
 
+  // Handle manual regeneration when user clicks the Regenerate button
+  const handleManualRegenerate = () => {
+    setHasUserEdits(false);
+    // Force regeneration by clearing the lastPreviewParamsRef
+    lastPreviewParamsRef.current = null;
+  };
+
   // Add a brand-new module to the editable preview list
   const handleAddModule = () => {
     setHasUserEdits(true);
@@ -1167,7 +1174,15 @@ export default function CourseOutlineClient() {
         />
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
+            {hasUserEdits && (
+              <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <span>✓</span>
+                <span>Edits protected</span>
+              </div>
+            )}
+          </div>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
@@ -1464,15 +1479,27 @@ export default function CourseOutlineClient() {
             <span className="text-lg text-gray-700 font-medium select-none">
               {lessonsTotal} lessons total
             </span>
-            <button
-              type="button"
-              onClick={handleGenerateFinal}
-              className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
-              disabled={loading || isGenerating}
-            >
-              <Sparkles size={18} />
-              <span className="select-none font-semibold">Generate</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {hasUserEdits && (
+                <button
+                  type="button"
+                  onClick={handleManualRegenerate}
+                  className="px-6 py-3 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 active:scale-95 shadow-lg transition-transform flex items-center justify-center gap-2"
+                >
+                  <Sparkles size={16} />
+                  <span className="select-none">Regenerate</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleGenerateFinal}
+                className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
+                disabled={loading || isGenerating}
+              >
+                <Sparkles size={18} />
+                <span className="select-none font-semibold">Generate</span>
+              </button>
+            </div>
       </div>
 
           {/* Help button (disabled) */}
