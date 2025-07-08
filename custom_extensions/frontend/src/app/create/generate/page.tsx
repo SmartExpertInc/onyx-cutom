@@ -616,9 +616,12 @@ function GenerateProductPicker() {
     }
     if (useExistingQuizOutline === true && selectedQuizLesson) {
       params.set("lesson", selectedQuizLesson);
-      // Add module name for proper course context
-      if (selectedQuizModuleIndex !== null && quizModulesForOutline[selectedQuizModuleIndex]) {
-        params.set("moduleName", quizModulesForOutline[selectedQuizModuleIndex].name);
+      // Add course name (outline name) for proper course context
+      if (selectedQuizOutlineId && quizOutlines.find(o => o.id === selectedQuizOutlineId)) {
+        const outline = quizOutlines.find(o => o.id === selectedQuizOutlineId);
+        if (outline) {
+          params.set("courseName", outline.name);
+        }
       }
     }
     params.set("questionTypes", selectedQuestionTypes.join(','));
