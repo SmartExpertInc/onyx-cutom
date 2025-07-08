@@ -197,14 +197,43 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Function to find existing quiz for a given lesson title
   const findExistingQuiz = (lessonTitle: string): ProjectListItem | undefined => {
+    console.log(`🔍 [QUIZ_DISCOVERY] Starting quiz discovery for lesson: "${lessonTitle}"`);
+    console.log(`🔍 [QUIZ_DISCOVERY] Parent project name: "${parentProjectName}"`);
+    console.log(`🔍 [QUIZ_DISCOVERY] All user microproducts count: ${allUserMicroproducts?.length || 0}`);
+    
     if (!allUserMicroproducts || !parentProjectName || !lessonTitle) {
+      console.log(`❌ [QUIZ_DISCOVERY] Missing required data:`, {
+        hasAllUserMicroproducts: !!allUserMicroproducts,
+        hasParentProjectName: !!parentProjectName,
+        hasLessonTitle: !!lessonTitle
+      });
       return undefined;
     }
 
     const trimmedTitleToMatch = lessonTitle.trim();
     const trimmedParentProjectName = parentProjectName.trim();
+    
+    console.log(`🔍 [QUIZ_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
+    console.log(`🔍 [QUIZ_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
-    return allUserMicroproducts.find(
+    // Log all quizzes for debugging
+    const allQuizzes = allUserMicroproducts.filter(mp => {
+      const mpProductType = (mp as any).product_type || (mp as any).productType;
+      return mpProductType === "Quiz";
+    });
+    
+    console.log(`🔍 [QUIZ_DISCOVERY] Found ${allQuizzes.length} quizzes in allUserMicroproducts:`);
+    allQuizzes.forEach((quiz, index) => {
+      console.log(`  Quiz ${index + 1}:`, {
+        id: quiz.id,
+        projectName: quiz.projectName,
+        microProductName: quiz.microProductName,
+        productType: (quiz as any).product_type || (quiz as any).productType,
+        microproductType: (quiz as any).microproduct_type || (quiz as any).microProductType
+      });
+    });
+
+    const found = allUserMicroproducts.find(
       (mp) => {
         const mpProjectName = mp.projectName?.trim();
         const mpProductType = (mp as any).product_type || (mp as any).productType;
@@ -215,24 +244,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           return false;
         }
         
+        console.log(`🔍 [QUIZ_DISCOVERY] Checking quiz: "${mpProjectName}"`);
+        
         // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
         const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
         const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+        console.log(`  Method 1 (Legacy): projectName="${mpProjectName}" === "${trimmedParentProjectName}" = ${legacyProjectMatch}`);
+        console.log(`  Method 1 (Legacy): microProductName="${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${legacyNameMatch}`);
         
         // Method 2: New naming convention - project name follows "Quiz - Outline Name: Lesson Title" pattern
         const expectedNewProjectName = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
         const newPatternMatch = mpProjectName === expectedNewProjectName;
+        console.log(`  Method 2 (New): projectName="${mpProjectName}" === "${expectedNewProjectName}" = ${newPatternMatch}`);
         
         // Method 3: Alternative new pattern - project name follows "Outline Name: Lesson Title" pattern (for quizzes)
         const alternativeNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
         const alternativePatternMatch = mpProjectName === alternativeNewProjectName;
+        console.log(`  Method 3 (Alternative): projectName="${mpProjectName}" === "${alternativeNewProjectName}" = ${alternativePatternMatch}`);
         
         // Method 4: Simple pattern - project name is just the lesson title
         const simplePatternMatch = mpProjectName === trimmedTitleToMatch;
+        console.log(`  Method 4 (Simple): projectName="${mpProjectName}" === "${trimmedTitleToMatch}" = ${simplePatternMatch}`);
         
-        return (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch || simplePatternMatch;
+        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch || simplePatternMatch;
+        console.log(`  🎯 [QUIZ_DISCOVERY] Quiz "${mpProjectName}" MATCH: ${isMatch}`);
+        
+        return isMatch;
       }
     );
+    
+    console.log(`🔍 [QUIZ_DISCOVERY] Final result:`, found ? {
+      id: found.id,
+      projectName: found.projectName,
+      microProductName: found.microProductName
+    } : 'No quiz found');
+    
+    return found;
   };
 
   // Function to find existing video lesson (placeholder for future implementation)
@@ -244,14 +291,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
     const lessonTitle = lesson.title;
     
+    console.log(`🖱️ [LESSON_CLICK] Lesson clicked: "${lessonTitle}"`);
+    console.log(`🖱️ [LESSON_CLICK] Module: "${moduleName}", Number: ${lessonNumber}`);
+    console.log(`🖱️ [LESSON_CLICK] Parent project name: "${parentProjectName}"`);
+    
     // Check what content already exists
+    console.log(`🔍 [LESSON_CLICK] Searching for existing content...`);
     const existingLesson = findExistingLesson(lessonTitle);
+    console.log(`🔍 [LESSON_CLICK] Existing lesson found:`, existingLesson ? {
+      id: existingLesson.id,
+      projectName: existingLesson.projectName,
+      microProductName: existingLesson.microProductName
+    } : 'None');
+    
     const existingQuiz = findExistingQuiz(lessonTitle);
+    console.log(`🔍 [LESSON_CLICK] Existing quiz found:`, existingQuiz ? {
+      id: existingQuiz.id,
+      projectName: existingQuiz.projectName,
+      microProductName: existingQuiz.microProductName
+    } : 'None');
+    
     const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    console.log(`🔍 [LESSON_CLICK] Existing video lesson found:`, existingVideoLesson ? {
+      id: existingVideoLesson.id,
+      projectName: existingVideoLesson.projectName,
+      microProductName: existingVideoLesson.microProductName
+    } : 'None');
     
     const hasLesson = !!existingLesson;
     const hasQuiz = !!existingQuiz;
     const hasVideoLesson = !!existingVideoLesson;
+    
+    console.log(`🔍 [LESSON_CLICK] Content summary:`, {
+      hasLesson,
+      hasQuiz,
+      hasVideoLesson
+    });
     
     // Scenario 1: No content exists - show create modal
     if (!hasLesson && !hasQuiz && !hasVideoLesson) {
