@@ -275,10 +275,17 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const handleDeleteLesson = async () => {
     try {
       // Call the API to delete the lesson
-      const response = await fetch(`/api/lessons/${projectId}`, {
+      const commonHeaders: HeadersInit = {};
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const response = await fetch(`/api/custom/lessons/${projectId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          ...commonHeaders,
         },
       });
 
