@@ -116,17 +116,16 @@ export const CreateContentTypeModal = ({
   };
 
   const handleQuizCreate = (quizType: string) => {
-    if (!sourceChatSessionId) {
-      alert("Error: Source chat session ID is not available. Cannot create quiz.");
-      onClose();
-      return;
-    }
-
-    const message = `Please create a ${quizType} for the ${lessonTitle} (module: ${moduleName}, lesson: ${lessonNumber})`;
+    // Redirect to create page with pre-selected product and context
+    const params = new URLSearchParams({
+      product: 'quiz',
+      lessonType: quizType,
+      lessonTitle: lessonTitle,
+      moduleName: moduleName,
+      lessonNumber: String(lessonNumber)
+    });
     
-    const chatUrl = `/chat?chatId=${sourceChatSessionId}&user-prompt=${encodeURIComponent(message)}&send-on-load=true`;
-    
-    window.location.href = chatUrl;
+    router.push(`/create?${params.toString()}`);
     onClose();
   };
 
