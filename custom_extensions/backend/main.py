@@ -11650,6 +11650,18 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             detail="An unexpected error occurred during finalization"
         )
 
+# Text Presentation Finalize Request Model
+class TextPresentationFinalize(BaseModel):
+    aiResponse: str
+    prompt: str
+    language: str = "en"
+    fromFiles: Optional[bool] = False
+    fromText: Optional[bool] = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    textMode: Optional[str] = None
+    userText: Optional[str] = None
+
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Generate text presentation content from prompt"""
@@ -13986,17 +13998,7 @@ CRITICAL REQUIREMENTS:
 - The "question_type" field is MANDATORY for every question
 """
 
-# Text Presentation Finalize Request Model
-class TextPresentationFinalize(BaseModel):
-    aiResponse: str
-    prompt: str
-    language: str = "en"
-    fromFiles: Optional[bool] = False
-    fromText: Optional[bool] = False
-    folderIds: Optional[str] = None
-    fileIds: Optional[str] = None
-    textMode: Optional[str] = None
-    userText: Optional[str] = None
+
 
 async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
     """Ensure text presentation template exists and return its ID"""
