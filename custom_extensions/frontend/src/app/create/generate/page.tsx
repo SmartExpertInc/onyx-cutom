@@ -1402,5 +1402,9 @@ function GenerateProductPicker() {
 }
 
 export default function GeneratePage() {
-  return <GenerateProductPicker />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <GenerateProductPicker />
+    </Suspense>
+  );
 }
