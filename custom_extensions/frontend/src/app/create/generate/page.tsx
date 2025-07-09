@@ -1396,6 +1396,94 @@ function GenerateProductPicker() {
             )}
           </div>
         )}
+
+        {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
+        {((activeProduct === "Course Outline") || 
+          (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
+          (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
+          (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
+          <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {activeProduct === "Course Outline" ? "What would you like to create a course about?" :
+                 activeProduct === "Text Presentation" ? "What would you like to create a text presentation about?" :
+                 activeProduct === "Quiz" ? "What would you like to create a quiz about?" :
+                 "What would you like to create a lesson about?"}
+              </label>
+              <textarea
+                ref={promptRef}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder={
+                  activeProduct === "Course Outline" ? "e.g., JavaScript Fundamentals, Digital Marketing Basics, Python for Beginners..." :
+                  activeProduct === "Text Presentation" ? "e.g., Introduction to Machine Learning, Business Strategy Overview, Climate Change Facts..." :
+                  activeProduct === "Quiz" ? "e.g., Math Quiz for Grade 5, History Trivia, Science Knowledge Test..." :
+                  "e.g., Introduction to React Hooks, Basic Photography Techniques, Cooking Fundamentals..."
+                }
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-black resize-none overflow-hidden min-h-[60px] max-h-[200px]"
+                rows={3}
+              />
+            </div>
+
+            {/* Examples */}
+            <div className="w-full">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600">Examples:</span>
+                <button
+                  onClick={shuffleExamples}
+                  className="flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover"
+                >
+                  <Shuffle size={14} /> Shuffle
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {examples.map((example, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setPrompt(example)}
+                    className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Generate Button */}
+        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "Text Presentation" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
+          (activeProduct === "Text Presentation" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
+          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "Lesson Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
+          (activeProduct === "Lesson Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => {
+                switch (activeProduct) {
+                  case "Course Outline":
+                    handleCourseOutlineStart();
+                    break;
+                  case "Text Presentation":
+                    handleTextPresentationStart();
+                    break;
+                  case "Quiz":
+                    handleQuizStart();
+                    break;
+                  case "Lesson Presentation":
+                    handleSlideDeckStart();
+                    break;
+                }
+              }}
+              className="flex items-center gap-2 px-8 py-3 rounded-full bg-brand-primary text-white font-medium hover:bg-brand-primary-hover transition-colors"
+            >
+              <Sparkles size={20} />
+              Generate {activeProduct}
+            </button>
+          </div>
+        )}
         </div> {/* close inner flex container */}
     </main>
   );
