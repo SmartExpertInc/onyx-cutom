@@ -1402,22 +1402,14 @@ function GenerateProductPicker() {
           (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
+          <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
             {/* Simple prompt input */}
             <div className="w-full">
             <textarea
               ref={promptRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={
-                activeProduct === "Course Outline"
-                  ? "What would you like to create a course about? (e.g., JavaScript Fundamentals, Digital Marketing Basics, Python for Beginners...)"
-                  : activeProduct === "Text Presentation"
-                  ? "What would you like to create a text presentation about? (e.g., Introduction to Machine Learning, Business Strategy Overview, Climate Change Facts...)"
-                  : activeProduct === "Quiz"
-                  ? "What would you like to create a quiz about? (e.g., Math Quiz for Grade 5, History Trivia, Science Knowledge Test...)"
-                  : "What would you like to create a lesson about? (e.g., Introduction to React Hooks, Basic Photography Techniques, Cooking Fundamentals...)"
-              }
+              placeholder="Describe what you'd like to make"
               className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={3}
@@ -1434,18 +1426,19 @@ function GenerateProductPicker() {
                   Example prompts
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {examples.map((example, index) => (
                   <button
                     key={index}
                     onClick={() => setPrompt(example)}
-                    className="flex items-center justify-between w-full px-5 py-4 rounded-2xl bg-blue-100/60 hover:bg-blue-200/70 transition-colors text-base font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    style={{ backdropFilter: "blur(2px)" }}
+                    className="flex items-center justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    style={{ backdropFilter: "blur(2px)", minHeight: 38 }}
                   >
-                    <span>{example}</span>
-                    <span className="ml-2 text-blue-400 text-xl font-bold">+</span>
+                    <span className="truncate">{example}</span>
+                    <span className="ml-2 text-blue-400 text-lg font-bold">+</span>
                   </button>
                 ))}
+              </div>
               </div>
               <div className="flex justify-center mt-6">
                 <button
