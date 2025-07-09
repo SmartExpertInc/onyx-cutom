@@ -13884,9 +13884,9 @@ CRITICAL REQUIREMENTS:
 # Default text presentation JSON example for LLM parsing
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "textTitle": "Example Text Presentation with Nested Lists",
   "contentBlocks": [
-    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "headline", "level": 2, "text": "Main Title of the Presentation" },
     { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
     {
       "type": "bullet_list",
@@ -14239,17 +14239,19 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             The AI response contains text presentation content in natural language format. You need to convert this into a structured TextPresentationDetails JSON format.
 
             REQUIREMENTS:
-            1. Extract the main title from the content as "textTitle"
+            1. Extract the main title from the content as "textTitle" (this is the main document title)
             2. Convert the content into structured "contentBlocks" array with:
-               - "type": MUST be one of: "headline", "paragraph", "bullet_list", "numbered_list"
-               - For headlines: "level" (1 for main title, 2 for subtitles, etc.), "text"
+               - "type": MUST be one of: "headline", "paragraph", "bullet_list", "numbered_list", "alert", "section_break"
+               - For headlines: "level" (2 for main sections, 3 for subsections, etc.), "text"
                - For paragraphs: "text"
                - For lists: "items" array with strings or nested list objects
+               - For alerts: "alertType", "title", "text"
+               - For section breaks: "style"
 
             CRITICAL RULES:
             - Output ONLY the JSON object, no other text
             - Every content block MUST have "type" field
-            - Use exact field names as shown in the example
+            - Use exact field names as shown in the example: "textTitle" (not "lessonTitle")
             - Maintain the logical structure and hierarchy of the content
             - If content is unclear, create a simple paragraph structure
             - Language: {payload.language}
