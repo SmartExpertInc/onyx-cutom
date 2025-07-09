@@ -3,24 +3,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, FileText, Settings, Plus } from "lucide-react";
+import { ArrowLeft, Sparkles, FileText } from "lucide-react";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
-// Loading animation component - matching lesson presentation style
+// Loading animation component
 const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
-  <div className="flex flex-col items-center mt-4" aria-label="Loading">
-    <div className="flex gap-1 mb-2">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
-          style={{ animationDelay: `${i * 0.2}s` }}
-        />
-      ))}
+  <div className="flex flex-col items-center justify-center p-8">
+    <div className="relative">
+      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
     {message && (
-      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message}</p>
+      <p className="mt-4 text-gray-600 text-center max-w-md">{message}</p>
     )}
   </div>
 );
@@ -211,13 +205,24 @@ export default function TextPresentationClient() {
       setGeneratedContent("");
       setIsComplete(false);
       
-      abortControllerRef.current = new AbortController();
+      const currentRequestId = ++requestIdRef.current;
       
       try {
         await performTextPresentationGeneration();
+        
+        if (currentRequestId === requestIdRef.current) {
+          setIsGenerating(false);
+        }
+      } catch (error) {
+        if (currentRequestId === requestIdRef.current) {
+          console.error('Text presentation generation error:', error);
+          setError(error instanceof Error ? error.message : 'Failed to generate text presentation');
+          setIsGenerating(false);
+        }
       } finally {
-        requestInProgressRef.current = false;
-        setIsGenerating(false);
+        if (currentRequestId === requestIdRef.current) {
+          requestInProgressRef.current = false;
+        }
       }
     };
 
@@ -228,12 +233,17 @@ export default function TextPresentationClient() {
         abortControllerRef.current.abort();
       }
     };
-  }, [prompt, outlineId, lesson, lang, fromFiles, fromText, folderIds, fileIds, textMode, courseName, retryTrigger]);
+  }, [outlineId, lesson, prompt, lang, fromFiles, fromText, textMode, folderIds.join(','), fileIds.join(','), retryTrigger]);
 
   const handleCreateFinal = async () => {
-    if (!generatedContent.trim()) return;
+    if (!generatedContent.trim()) {
+      setError("No content to finalize");
+      return;
+    }
 
     setIsCreatingFinal(true);
+    setError(null);
+
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
@@ -242,8 +252,6 @@ export default function TextPresentationClient() {
         },
         body: JSON.stringify({
           aiResponse: generatedContent,
-          prompt: prompt,
-          outlineId: outlineId ? parseInt(outlineId) : null,
           lesson: lesson,
           courseName: courseName,
           language: lang,
@@ -275,22 +283,28 @@ export default function TextPresentationClient() {
   };
 
   return (
-    <>
     <main
-      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
+      className="min-h-screen flex flex-col items-center p-6"
       style={{
-        background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+        background:
+          "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
     >
-      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+      <div className="w-full max-w-3xl flex flex-col gap-4 text-gray-900">
+        {/* Back button */}
         <Link
           href="/create/generate"
-          className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
+          className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
         >
           <ArrowLeft size={14} /> Back
         </Link>
 
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">
+          Text Presentation
+        </h1>
+        <p className="text-center text-gray-600 text-lg -mt-1">
+          Generate a comprehensive text presentation
+        </p>
 
         {/* Context indicator */}
         {(fromFiles || fromText || outlineId) && (
@@ -348,70 +362,74 @@ export default function TextPresentationClient() {
           </div>
         </div>
 
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">Text Presentation Content</h2>
-          {isGenerating && <LoadingAnimation message="Generating text presentation content..." />}
-          {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
-          
-          {/* Main content display - matching lesson presentation style */}
-          {generatedContent && (
-            <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
-              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
-            >
-              <textarea
-                value={generatedContent}
-                onChange={(e) => setGeneratedContent(e.target.value)}
-                placeholder="Text presentation content will appear here..."
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={isGenerating}
-              />
-            </div>
-          )}
-        </section>
-
         {/* Error display */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
             <p className="font-medium">Error:</p>
             <p>{error}</p>
-            <button
-              onClick={() => {
-                setError(null);
-                setRetryCount(0);
-                setRetryTrigger(prev => prev + 1);
-              }}
-              className="mt-2 px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
-            >
-              Retry Generation
-            </button>
           </div>
         )}
 
         {/* Generation status */}
         {isGenerating && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
-              <div className="relative">
-                <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
-                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
-              </div>
-              Generating Text Presentation...
-            </div>
-            <div className="text-sm text-blue-700 mb-4">
-              <p>Creating comprehensive text presentation based on your content. This may take a few moments.</p>
-              {retryCount > 0 && (
-                <p className="text-orange-600 font-medium mt-2">
-                  Retry attempt {retryCount} of {maxRetries}...
-                </p>
+          <div className="bg-white/90 rounded-lg p-6 border border-gray-300">
+            <LoadingAnimation message="Generating your text presentation..." />
+            {retryCount > 0 && (
+              <p className="text-center text-sm text-gray-500 mt-2">
+                Retry attempt {retryCount}/{maxRetries}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Generated content */}
+        {generatedContent && (
+          <div className="bg-white/90 rounded-lg p-6 border border-gray-300">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Generated Content</h2>
+              {isComplete && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCancel}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreateFinal}
+                    disabled={isCreatingFinal}
+                    className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isCreatingFinal ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        Create Text Presentation
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
-            >
-              Cancel Generation
-            </button>
+            
+            <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
+                {generatedContent}
+              </pre>
+            </div>
+            
+            {!isComplete && (
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center gap-2 text-sm text-gray-600">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  Generating...
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -429,53 +447,7 @@ export default function TextPresentationClient() {
             </p>
           </div>
         )}
-
-        {/* Finalize button - matching lesson presentation style */}
-        {isComplete && generatedContent && !finalProjectId && (
-          <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>10 credits</span>
-            </div>
-            <div className="flex items-center gap-[7.5rem]">
-              <span className="text-lg text-gray-700 font-medium select-none">
-                {generatedContent.split(/\s+/).length} words
-              </span>
-              <button
-                onClick={handleCreateFinal}
-                disabled={isCreatingFinal}
-                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isCreatingFinal ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={18} />
-                    <span className="select-none font-semibold">Generate</span>
-                  </>
-                )}
-              </button>
-            </div>
-            <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
-          </div>
-        )}
       </div>
     </main>
-    <style jsx global>{`
-      @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
-    `}</style>
-    {isCreatingFinal && (
-      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing text presentation..." />
-      </div>
-    )}
-    </>
   );
 } 
