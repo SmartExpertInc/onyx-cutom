@@ -1402,7 +1402,7 @@ function GenerateProductPicker() {
           (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
+          <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
             {/* Simple prompt input */}
             <div className="w-full">
             <textarea
@@ -1426,19 +1426,18 @@ function GenerateProductPicker() {
                   Example prompts
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {examples.map((example, index) => (
                   <button
                     key={index}
                     onClick={() => setPrompt(example)}
-                    className="flex items-center justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    style={{ backdropFilter: "blur(2px)", minHeight: 38 }}
+                    className="flex items-center justify-between w-full px-5 py-4 rounded-2xl bg-blue-100/60 hover:bg-blue-200/70 transition-colors text-base font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    style={{ backdropFilter: "blur(2px)" }}
                   >
-                    <span className="truncate">{example}</span>
-                    <span className="ml-2 text-blue-400 text-lg font-bold">+</span>
+                    <span>{example}</span>
+                    <span className="ml-2 text-blue-400 text-xl font-bold">+</span>
                   </button>
                 ))}
-              </div>
               </div>
               <div className="flex justify-center mt-6">
                 <button
