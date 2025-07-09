@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, FileText as TextPresentationIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Inline SVG icon components
@@ -81,15 +81,19 @@ const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
-// Simple placeholder icon for Text Presentation
 const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-    {/* Simple text lines icon */}
-    <rect x="6" y="8" width="28" height="2" rx="1" fill="currentColor" />
-    <rect x="6" y="14" width="24" height="2" rx="1" fill="currentColor" />
-    <rect x="6" y="20" width="26" height="2" rx="1" fill="currentColor" />
-    <rect x="6" y="26" width="20" height="2" rx="1" fill="currentColor" />
-    <rect x="6" y="32" width="22" height="2" rx="1" fill="currentColor" />
+  <svg width={size} height={size} viewBox="0 0 382 379" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0 C1.30517578 1.15242188 1.30517578 1.15242188 2.63671875 2.328125 C3.14509277 2.77091797 3.6534668 3.21371094 4.17724609 3.66992188 C16.56965369 14.51188424 26.65073606 26.51096881 35.63671875 40.328125 C36.00506836 40.88661133 36.37341797 41.44509766 36.75292969 42.02050781 C60.87316897 78.9016716 68.91110426 125.65388683 60.63671875 168.76953125 C54.34211771 198.74041574 40.82616868 226.34080982 20.63671875 249.328125 C19.85683594 250.24722656 19.07695312 251.16632813 18.2734375 252.11328125 C4.50081412 268.00089615 -11.91977713 280.52423902 -30.46386719 290.32128906 C-32.23492633 291.26008699 -33.99118182 292.22666596 -35.74609375 293.1953125 C-74.25171433 313.67702558 -121.46253548 318.7274616 -162.9140625 305.5 C-222.05542181 290.56233467 -260.10109001 257.58718195 -283.38085938 213.50854492 C-304.53169527 172.105472 -308.43718021 122.69813999 -294.46704102 78.3918457 C-293.70699867 76.08686074 -292.92334454 73.79197181 -292.125 71.5 C-291.90118652 70.84418945 -291.67737305 70.18837891 -291.44677734 69.51269531 C-276.62952556 26.90894671 -242.65137862 -8.91241506 -202.6484375 -28.88037109 C-134.70401517 -61.7433313 -56.22824622 -49.98066331 0 0 Z " fill="#E2F3FE" transform="translate(302.36328125,54.671875)"/>
+<path d="M0 0 C1.49532509 -0.00574036 1.49532509 -0.00574036 3.02085876 -0.01159668 C5.1194663 -0.01430815 7.21810808 -0.00700079 9.31665039 0.00976562 C12.52111331 0.03120831 15.72334012 0.00992564 18.92773438 -0.015625 C20.97266117 -0.01298203 23.01758659 -0.00785769 25.0625 0 C26.49240013 -0.01214539 26.49240013 -0.01214539 27.95118713 -0.02453613 C34.93404623 0.07351892 38.2152043 1.49825318 43.33984375 6.28125 C43.71109375 6.69375 44.08234375 7.10625 44.46484375 7.53125 C43.80484375 9.18125 43.14484375 10.83125 42.46484375 12.53125 C42.13484375 12.53125 41.80484375 12.53125 41.46484375 12.53125 C41.46484375 26.39125 41.46484375 40.25125 41.46484375 54.53125 C42.45484375 55.02625 42.45484375 55.02625 43.46484375 55.53125 C43.12950599 58.66106912 42.46417974 59.53186159 40.08984375 61.71875 C36.67398546 64.07731882 34.15675977 64.65655542 30.10449219 64.70825195 C29.22637878 64.72108719 28.34826538 64.73392242 27.44354248 64.74714661 C26.49666565 64.75453354 25.54978882 64.76192047 24.57421875 64.76953125 C23.59624329 64.777603 22.61826782 64.78567474 21.61065674 64.79399109 C19.5394467 64.80782405 17.46821395 64.81854973 15.39697266 64.82641602 C12.2407672 64.84360879 9.08561479 64.88750006 5.9296875 64.93164062 C3.91537227 64.94176971 1.90104815 64.95028514 -0.11328125 64.95703125 C-1.05206116 64.97453934 -1.99084106 64.99204742 -2.95806885 65.01008606 C-9.0043163 64.99022722 -12.69729077 64.27324325 -17.53515625 60.53125 C-21.18359929 55.52383877 -20.97323037 50.48818045 -20.93359375 44.53125 C-20.93646393 43.57734375 -20.93933411 42.6234375 -20.94229126 41.640625 C-20.94432652 39.63020227 -20.93883443 37.6197595 -20.92626953 35.609375 C-20.91020841 32.54121402 -20.92613675 29.47437026 -20.9453125 26.40625 C-20.94332997 24.44791377 -20.9394861 22.48957836 -20.93359375 20.53125 C-20.93966644 19.61859375 -20.94573914 18.7059375 -20.95199585 17.765625 C-20.8959485 12.66203367 -20.64128211 8.79434232 -17.53515625 4.53125 C-11.86802801 0.14992542 -7.00499256 -0.05962611 0 0 Z M-14.16015625 7.94506836 C-16.31810931 12.00387461 -16.10587503 15.8765691 -16.06640625 20.40625 C-16.07023315 21.36772949 -16.07406006 22.32920898 -16.07800293 23.31982422 C-16.08072227 25.3505966 -16.07335954 27.38140399 -16.05664062 29.41210938 C-16.0352315 32.5203257 -16.05644171 35.62623056 -16.08203125 38.734375 C-16.07938798 40.70833843 -16.07426301 42.68230043 -16.06640625 44.65625 C-16.07450317 45.58550293 -16.0826001 46.51475586 -16.09094238 47.47216797 C-16.03693521 51.18882741 -15.92121886 53.80573745 -14.16015625 57.11523438 C-9.92418691 59.40026248 -5.74127092 59.10105571 -1.00390625 59.0625 C0.02416138 59.0663269 1.052229 59.07015381 2.1114502 59.07409668 C4.28345723 59.07681674 6.45549698 59.06944906 8.62744141 59.05273438 C11.95289104 59.03132695 15.2761801 59.05253378 18.6015625 59.078125 C20.71224435 59.07548174 22.82292486 59.07035681 24.93359375 59.0625 C25.92846802 59.07059692 26.92334229 59.07869385 27.94836426 59.08703613 C31.82615195 59.03433553 34.63866788 58.97192324 38.08984375 57.13110352 C40.27423568 53.00084968 40.03515288 49.00566152 39.99609375 44.40234375 C39.99992065 43.41629654 40.00374756 42.43024933 40.00769043 41.4143219 C40.01040978 39.33227516 40.00304699 37.25019428 39.98632812 35.16821289 C39.96489649 31.9766047 39.98614119 28.78724181 40.01171875 25.59570312 C40.00907593 23.57291169 40.00395189 21.55012165 39.99609375 19.52734375 C40.00419067 18.57105576 40.0122876 17.61476776 40.02062988 16.62950134 C40.00802124 15.74170486 39.9954126 14.85390839 39.98242188 13.93920898 C39.9792395 13.15851547 39.97605713 12.37782196 39.97277832 11.57347107 C39.61277085 9.38113559 39.61277085 9.38113559 37.7265625 7.78100586 C35.16845188 6.36747302 33.66485467 6.14647994 30.75976562 6.12719727 C29.83200317 6.11451309 28.90424072 6.10182892 27.94836426 6.08876038 C26.95348999 6.09169601 25.95861572 6.09463165 24.93359375 6.09765625 C23.90552612 6.0924144 22.8774585 6.08717255 21.8182373 6.08177185 C19.64624942 6.07535298 17.47422676 6.07668688 15.30224609 6.08520508 C11.9769108 6.0937191 8.65329076 6.06494401 5.328125 6.03320312 C3.21744843 6.03159114 1.10676882 6.03216859 -1.00390625 6.03515625 C-1.99878052 6.02392227 -2.99365479 6.01268829 -4.01867676 6.00111389 C-7.90802185 6.04044051 -10.70499423 6.08412684 -14.16015625 7.94506836 Z " fill="#283140" transform="translate(162.53515625,157.46875)"/>
+<path d="M0 0 C0 11.55 0 23.1 0 35 C-5.6264098 36.12528196 -5.6264098 36.12528196 -9.609375 34.1640625 C-10.44597656 33.75929687 -11.28257812 33.35453125 -12.14453125 32.9375 C-13.00433594 32.504375 -13.86414063 32.07125 -14.75 31.625 C-15.62527344 31.19960937 -16.50054687 30.77421875 -17.40234375 30.3359375 C-23.79689875 27.20310125 -23.79689875 27.20310125 -25 26 C-25.07325168 23.13732433 -25.09238205 20.299281 -25.0625 17.4375 C-25.05798828 16.63119141 -25.05347656 15.82488281 -25.04882812 14.99414062 C-25.03700518 12.99606244 -25.01906914 10.99802217 -25 9 C-20.72269208 7.08927515 -16.44812088 5.18015754 -12.125 3.375 C-4.45454545 0 -4.45454545 0 0 0 Z " fill="#DDEEF8" transform="translate(233,172)"/>
+<path d="M0 0 C0.96955124 0.00424484 1.93910248 0.00848969 2.93803406 0.01286316 C6.02538175 0.02961475 9.11206937 0.06726086 12.19921875 0.10546875 C14.29621451 0.12052012 16.39322053 0.13420773 18.49023438 0.14648438 C23.62264898 0.17950683 28.75457206 0.23126528 33.88671875 0.29296875 C33.55671875 1.61296875 33.22671875 2.93296875 32.88671875 4.29296875 C31.1538562 4.33055298 31.1538562 4.33055298 29.38598633 4.36889648 C25.09014246 4.4632382 20.79445021 4.56339312 16.4987793 4.6652832 C14.64139356 4.70853096 12.78397067 4.75021303 10.92651367 4.7902832 C8.25297867 4.84823245 5.57962894 4.91185527 2.90625 4.9765625 C2.07897903 4.99327499 1.25170807 5.00998749 0.39936829 5.02720642 C-3.5523202 5.12819835 -7.25446394 5.33592756 -11.11328125 6.29296875 C-12.05665501 9.12309002 -12.23500954 10.83596793 -12.22680664 13.7644043 C-12.22673111 14.66511154 -12.22665558 15.56581879 -12.22657776 16.49382019 C-12.22141647 17.4626564 -12.21625519 18.43140399 -12.2109375 19.4296875 C-12.20881508 20.92155327 -12.20881508 20.92155327 -12.20664978 22.44355774 C-12.20104886 25.62255857 -12.18849621 28.80148918 -12.17578125 31.98046875 C-12.17076637 34.13476461 -12.16620344 36.28906157 -12.16210938 38.44335938 C-12.15107913 43.72658649 -12.13434011 49.0097726 -12.11328125 54.29296875 C-14.58828125 54.78796875 -14.58828125 54.78796875 -17.11328125 55.29296875 C-18.26065373 52.9982238 -18.25145796 51.67426046 -18.27441406 49.12207031 C-18.28882538 47.8299765 -18.28882538 47.8299765 -18.30352783 46.51177979 C-18.30777771 45.57847839 -18.31202759 44.645177 -18.31640625 43.68359375 C-18.32210632 42.72402771 -18.3278064 41.76446167 -18.3336792 40.77581787 C-18.34313727 38.74150701 -18.34966637 36.70718077 -18.35351562 34.67285156 C-18.36319882 31.56938658 -18.39420545 28.46659008 -18.42578125 25.36328125 C-18.43231354 23.38672268 -18.43756312 21.41015938 -18.44140625 19.43359375 C-18.45375305 18.50838928 -18.46609985 17.58318481 -18.4788208 16.62994385 C-18.46109785 11.46852026 -18.17821024 7.66070134 -15.11328125 3.29296875 C-10.69611981 -0.69711472 -5.62212979 -0.092941 0 0 Z " fill="#101928" transform="translate(160.11328125,158.70703125)"/>
+<path d="M0 0 C3.14202896 1.0027752 4.68602105 1.53343409 6.9375 3.9375 C7.29292824 6.86252152 7.40403426 9.40535967 7.328125 12.32421875 C7.32246521 13.14122757 7.31680542 13.95823639 7.31097412 14.80000305 C7.28858697 17.40893203 7.23838846 20.01648636 7.1875 22.625 C7.16743792 24.39386037 7.14918664 26.16274227 7.1328125 27.93164062 C7.0887148 32.26745656 7.01967294 36.60224525 6.9375 40.9375 C5.9475 40.9375 4.9575 40.9375 3.9375 40.9375 C3.9375 40.2775 3.9375 39.6175 3.9375 38.9375 C3.2775 38.9375 2.6175 38.9375 1.9375 38.9375 C1.9375 28.0475 1.9375 17.1575 1.9375 5.9375 C-0.7025 6.5975 -3.3425 7.2575 -6.0625 7.9375 C-8.05851306 8.2939309 -10.057345 8.63672675 -12.0625 8.9375 C-5.2785804 -0.10772613 -5.2785804 -0.10772613 0 0 Z " fill="#111B28" transform="translate(231.0625,166.0625)"/>
+<path d="M0 0 C6.44110602 -0.10162708 12.8820044 -0.17156052 19.32373047 -0.21972656 C21.51391324 -0.23981107 23.70404259 -0.26708417 25.89404297 -0.30175781 C29.04668376 -0.35041409 32.19861404 -0.37300078 35.3515625 -0.390625 C36.32678864 -0.41127014 37.30201477 -0.43191528 38.30679321 -0.45318604 C45.42198244 -0.45552136 48.6581535 0.88094327 53.875 5.75 C54.24625 6.1625 54.6175 6.575 55 7 C54.34 8.65 53.68 10.3 53 12 C52.67 12 52.34 12 52 12 C51.67 25.2 51.34 38.4 51 52 C50.67 52 50.34 52 50 52 C49.98541748 50.70787598 49.97083496 49.41575195 49.95581055 48.08447266 C49.89794978 43.30212367 49.82071683 38.52025161 49.73754883 33.73828125 C49.70424177 31.66641973 49.67622803 29.59446621 49.65356445 27.52246094 C49.62012437 24.54842827 49.56781495 21.57524321 49.51171875 18.6015625 C49.50532883 17.67131256 49.4989389 16.74106262 49.49235535 15.78262329 C49.47256119 14.92188202 49.45276703 14.06114075 49.43237305 13.17431641 C49.41571846 12.03514267 49.41571846 12.03514267 49.39872742 10.87295532 C49.14042752 8.589281 49.14042752 8.589281 46 7 C43.92263083 6.6742279 43.92263083 6.6742279 41.62036133 6.68115234 C40.73967484 6.66128265 39.85898834 6.64141296 38.95161438 6.62094116 C38.00465195 6.60938995 37.05768951 6.59783875 36.08203125 6.5859375 C35.10965012 6.56657135 34.13726898 6.5472052 33.13542175 6.5272522 C30.02787056 6.4674445 26.92028235 6.4210661 23.8125 6.375 C21.706364 6.33682133 19.60024363 6.29776967 17.49414062 6.2578125 C12.32955395 6.16174189 7.16489418 6.07771509 2 6 C2 5.67 2 5.34 2 5 C14.87 5 27.74 5 41 5 C41 4.01 41 3.02 41 2 C20.705 1.505 20.705 1.505 0 1 C0 0.67 0 0.34 0 0 Z " fill="#525D6B" transform="translate(152,158)"/>
+<path d="M0 0 C0.66 0.33 1.32 0.66 2 1 C2 16.51 2 32.02 2 48 C0.68 47.34 -0.64 46.68 -2 46 C-2 31.15 -2 16.3 -2 1 C-1.34 0.67 -0.68 0.34 0 0 Z " fill="#0F1827" transform="translate(205,166)"/>
+<path d="M0 0 C1.41750563 0.11509661 2.83401169 0.24253658 4.25 0.375 C5.03890625 0.44460937 5.8278125 0.51421875 6.640625 0.5859375 C9 1 9 1 11.046875 2.0390625 C13.23540049 3.29430786 13.23540049 3.29430786 17 3 C17.33 2.34 17.66 1.68 18 1 C19.65 1.66 21.3 2.32 23 3 C21.75023244 6.65316671 21.32901247 7.78065836 18 10 C12.43485658 11.08588164 8.77913083 8.4674785 4.171875 5.703125 C1.91555947 3.93378405 1.03309207 2.64012418 0 0 Z " fill="#111B28" transform="translate(215,204)"/>
+<path d="M0 0 C1.0828125 0.37125 1.0828125 0.37125 2.1875 0.75 C2.8475 3.39 3.5075 6.03 4.1875 8.75 C3.5275 8.42 2.8675 8.09 2.1875 7.75 C2.1875 7.09 2.1875 6.43 2.1875 5.75 C0.99125 6.059375 -0.205 6.36875 -1.4375 6.6875 C-4.87652439 7.55031573 -8.30386573 8.22370486 -11.8125 8.75 C-4.921875 -0.4375 -4.921875 -0.4375 0 0 Z " fill="#18222E" transform="translate(230.8125,166.25)"/>
+<path d="M0 0 C2.475 0.99 2.475 0.99 5 2 C4.34 3.65 3.68 5.3 3 7 C1.0625 6.1875 1.0625 6.1875 -1 5 C-1.33 4.01 -1.66 3.02 -2 2 C-1.34 2 -0.68 2 0 2 C0 1.34 0 0.68 0 0 Z M11 2 C9.38007835 2.86375896 7.75388139 3.71575854 6.125 4.5625 C4.76761719 5.27599609 4.76761719 5.27599609 3.3828125 6.00390625 C2.59648437 6.33261719 1.81015625 6.66132813 1 7 C0.34 6.67 -0.32 6.34 -1 6 C-0.67 5.01 -0.34 4.02 0 3 C1.99609375 2.234375 1.99609375 2.234375 4.4375 1.75 C5.24058594 1.57984375 6.04367188 1.4096875 6.87109375 1.234375 C9 1 9 1 11 2 Z " fill="#38434F" transform="translate(213,173)"/>
+<path d="M0 0 C2.475 0.99 2.475 0.99 5 2 C4.34 3.65 3.68 5.3 3 7 C1.0625 6.1875 1.0625 6.1875 -1 5 C-1.33 4.01 -1.66 3.02 -2 2 C-1.34 2 -0.68 2 0 2 C0 1.34 0 0.68 0 0 Z M-2 1 C-0.68 1.66 0.64 2.32 2 3 C1.67 3.99 1.34 4.98 1 6 C-0.32 5.34 -1.64 4.68 -3 4 C-2.67 3.01 -2.34 2.02 -2 1 Z " fill="#25313E" transform="translate(222,205)"/>
   </svg>
 );
 
@@ -660,10 +664,133 @@ function GenerateProductPicker() {
     router.push(`/create/quiz?${params.toString()}`);
   };
 
+  // Text Presentation state (mimicking quiz pattern)
+  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(null);
+  const [textOutlines, setTextOutlines] = useState<{ id: number; name: string }[]>([]);
+  const [textModulesForOutline, setTextModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedTextModuleIndex, setSelectedTextModuleIndex] = useState<number | null>(null);
+  const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
+  const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
+  const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
+  const [textLanguage, setTextLanguage] = useState<string>("en");
+
+  // Fetch text presentation outlines when product is selected
+  useEffect(() => {
+    if (activeProduct !== "Text Presentation" || useExistingTextOutline !== true) return;
+    
+    const fetchTextOutlines = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
+        setTextOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+        
+        // Check if we have text context to pre-select outline
+        try {
+          const lessonContextData = sessionStorage.getItem('lessonContextForDropdowns');
+          if (lessonContextData) {
+            const lessonContext = JSON.parse(lessonContextData);
+            // Find the outline that contains the specific module and lesson
+            // We'll need to fetch each outline to check its modules and lessons
+            for (const outline of onlyOutlines) {
+              const outlineRes = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${outline.id}`);
+              if (outlineRes.ok) {
+                const outlineData = await outlineRes.json();
+                const sections = outlineData?.details?.sections || [];
+                const modules = sections.map((sec: any) => ({
+                  name: sec.title || "Unnamed module",
+                  lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+                }));
+                
+                // Check if this outline contains the target module and lesson
+                const targetModuleIndex = modules.findIndex((m: any) => 
+                  m.name.toLowerCase().includes(lessonContext.moduleName.toLowerCase()) ||
+                  lessonContext.moduleName.toLowerCase().includes(m.name.toLowerCase())
+                );
+                
+                if (targetModuleIndex !== -1) {
+                  const targetModule = modules[targetModuleIndex];
+                  const targetLessonIndex = targetModule.lessons.findIndex((l: string) => 
+                    l.toLowerCase().includes(lessonContext.lessonTitle.toLowerCase()) ||
+                    lessonContext.lessonTitle.toLowerCase().includes(l.toLowerCase())
+                  );
+                  
+                  if (targetLessonIndex !== -1) {
+                    // Found the matching outline, module, and lesson
+                    setSelectedTextOutlineId(outline.id);
+                    setTextModulesForOutline(modules);
+                    setSelectedTextModuleIndex(targetModuleIndex);
+                    setTextLessonsForModule(targetModule.lessons);
+                    setSelectedTextLesson(targetModule.lessons[targetLessonIndex]);
+                    
+                    // Clear the stored context
+                    sessionStorage.removeItem('lessonContextForDropdowns');
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error pre-selecting text outline:', error);
+        }
+      } catch (_) {}
+    };
+    fetchTextOutlines();
+  }, [activeProduct, useExistingTextOutline]);
+
+  // Fetch lessons when text outline changes
+  useEffect(() => {
+    if (activeProduct !== "Text Presentation" || selectedTextOutlineId == null || useExistingTextOutline !== true) return;
+    
+    // Skip if we already have modules loaded (from pre-selection)
+    if (textModulesForOutline.length > 0) return;
+    
+    const fetchTextLessons = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedTextOutlineId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const sections = data?.details?.sections || [];
+        const modules = sections.map((sec: any) => ({
+          name: sec.title || "Unnamed module",
+          lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+        }));
+        setTextModulesForOutline(modules);
+        // reset downstream selections
+        setSelectedTextModuleIndex(null);
+        setTextLessonsForModule([]);
+        setSelectedTextLesson("");
+      } catch (_) {}
+    };
+    fetchTextLessons();
+  }, [selectedTextOutlineId, activeProduct, useExistingTextOutline, textModulesForOutline.length]);
+
   const handleTextPresentationStart = () => {
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    // If using existing outline, check if outline and lesson selected
+    if (useExistingTextOutline === true) {
+      if (!selectedTextOutlineId || !selectedTextLesson) return;
+    } else {
+      // If standalone text presentation, check if prompt entered or coming from files/text
+      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    }
 
     const params = new URLSearchParams();
+    if (useExistingTextOutline === true && selectedTextOutlineId) {
+      params.set("outlineId", String(selectedTextOutlineId));
+    }
+    if (useExistingTextOutline === true && selectedTextLesson) {
+      params.set("lesson", selectedTextLesson);
+      // Add course name (outline name) for proper course context
+      if (selectedTextOutlineId && textOutlines.find(o => o.id === selectedTextOutlineId)) {
+        const outline = textOutlines.find(o => o.id === selectedTextOutlineId);
+        if (outline) {
+          params.set("courseName", outline.name);
+        }
+      }
+    }
+    params.set("lang", textLanguage);
     
     // Handle file-based prompts
     if (isFromFiles) {
@@ -681,8 +808,6 @@ function GenerateProductPicker() {
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
-    
-    params.set("lang", language);
 
     router.push(`/create/text-presentation?${params.toString()}`);
   };
@@ -822,21 +947,6 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {activeProduct === "Text Presentation" && (
-          <div className="flex flex-wrap justify-center gap-2 mb-2">
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
-          </div>
-        )}
-
         {activeProduct === "Lesson Presentation" && (
           <div className="flex flex-col items-center gap-4 mb-4">
             {/* Step 1: Choose source */}
@@ -970,7 +1080,6 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                {/* Reset button */}
                 <button
                   onClick={() => {
                     setUseExistingOutline(null);
@@ -988,6 +1097,7 @@ function GenerateProductPicker() {
           </div>
         )}
 
+        {/* Quiz Configuration */}
         {activeProduct === "Quiz" && (
           <div className="flex flex-col items-center gap-4 mb-4">
             {/* Step 1: Choose source */}
@@ -999,7 +1109,7 @@ function GenerateProductPicker() {
                     onClick={() => setUseExistingQuizOutline(true)}
                     className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
                   >
-                    Yes, quiz for the lesson from the outline
+                    Yes, content for the quiz from the outline
                   </button>
                   <button
                     onClick={() => setUseExistingQuizOutline(false)}
@@ -1013,325 +1123,276 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingQuizOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
-                {/* Show outline flow if user chose existing outline */}
+              <div className="flex flex-col items-center gap-4 w-full max-w-md">
                 {useExistingQuizOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <select
-                      value={selectedQuizOutlineId ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedQuizOutlineId(val ? Number(val) : null);
-                        // clear module & lesson selections when outline changes
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Select Course Outline</label>
+                      <select
+                        value={selectedQuizOutlineId || ""}
+                        onChange={(e) => {
+                          setSelectedQuizOutlineId(Number(e.target.value) || null);
+                          setSelectedQuizModuleIndex(null);
+                          setQuizLessonsForModule([]);
+                          setSelectedQuizLesson("");
+                        }}
+                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                      >
+                        <option value="">Choose an outline...</option>
+                        {quizOutlines.map((outline) => (
+                          <option key={outline.id} value={outline.id}>
+                            {outline.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedQuizOutlineId && quizModulesForOutline.length > 0 && (
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Module</label>
+                        <select
+                          value={selectedQuizModuleIndex !== null ? selectedQuizModuleIndex : ""}
+                          onChange={(e) => {
+                            const moduleIndex = Number(e.target.value);
+                            setSelectedQuizModuleIndex(moduleIndex);
+                            setQuizLessonsForModule(quizModulesForOutline[moduleIndex]?.lessons || []);
+                            setSelectedQuizLesson("");
+                          }}
+                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        >
+                          <option value="">Choose a module...</option>
+                          {quizModulesForOutline.map((module, index) => (
+                            <option key={index} value={index}>
+                              {module.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {selectedQuizModuleIndex !== null && quizLessonsForModule.length > 0 && (
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Lesson</label>
+                        <select
+                          value={selectedQuizLesson}
+                          onChange={(e) => setSelectedQuizLesson(e.target.value)}
+                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        >
+                          <option value="">Choose a lesson...</option>
+                          {quizLessonsForModule.map((lesson, index) => (
+                            <option key={index} value={lesson}>
+                              {lesson}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                      <select
+                        value={quizLanguage}
+                        onChange={(e) => setQuizLanguage(e.target.value)}
+                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                      >
+                        <option value="en">English</option>
+                        <option value="uk">Ukrainian</option>
+                        <option value="es">Spanish</option>
+                        <option value="ru">Russian</option>
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setUseExistingQuizOutline(null);
+                        setSelectedQuizOutlineId(null);
                         setSelectedQuizModuleIndex(null);
                         setQuizLessonsForModule([]);
                         setSelectedQuizLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                     >
-                      <option value="">Select Outline</option>
-                      {quizOutlines.map((o) => (
-                        <option key={o.id} value={o.id}>{o.name}</option>
-                      ))}
-                    </select>
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedQuizOutlineId && (
-                      <select
-                        value={selectedQuizModuleIndex ?? ""}
-                        onChange={(e) => {
-                          const idx = e.target.value ? Number(e.target.value) : null;
-                          setSelectedQuizModuleIndex(idx);
-                          setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
-                          setSelectedQuizLesson("");
-                        }}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="">Select Module</option>
-                        {quizModulesForOutline.map((m, idx) => (
-                          <option key={idx} value={idx}>{m.name}</option>
-                        ))}
-                      </select>
-                    )}
-
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedQuizModuleIndex !== null && (
-                      <select
-                        value={selectedQuizLesson}
-                        onChange={(e) => setSelectedQuizLesson(e.target.value)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="">Select Lesson</option>
-                        {quizLessonsForModule.map((l) => (
-                          <option key={l} value={l}>{l}</option>
-                        ))}
-                      </select>
-                    )}
-
-                    {/* Show question types dropdown when lesson is selected */}
-                    {selectedQuizLesson && (
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
-                        >
-                          Question Types ({selectedQuestionTypes.length})
-                          <ChevronDown size={14} />
-                        </button>
-
-                        {showQuestionTypesDropdown && (
-                          <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
-                            {[
-                              { key: "multiple-choice", label: "One correct answer" },
-                              { key: "multi-select", label: "Multiple correct answers" },
-                              { key: "matching", label: "Matching pairs" },
-                              { key: "sorting", label: "Put in order" },
-                              { key: "open-answer", label: "Open answer" }
-                            ].map((type) => (
-                              <label key={type.key} className="flex items-center gap-2 py-1">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedQuestionTypes.includes(type.key)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedQuestionTypes([...selectedQuestionTypes, type.key]);
-                                    } else {
-                                      setSelectedQuestionTypes(selectedQuestionTypes.filter(t => t !== type.key));
-                                    }
-                                  }}
-                                  className="rounded"
-                                />
-                                <span className="text-sm">{type.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Question count and language dropdowns */}
-                    {selectedQuizLesson && (
-                      <>
-                        <select
-                          value={quizQuestionCount}
-                          onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          {[5, 10, 15, 20, 25, 30].map((count) => (
-                            <option key={count} value={count}>{count} Questions</option>
-                          ))}
-                        </select>
-                        <select
-                          value={quizLanguage}
-                          onChange={(e) => setQuizLanguage(e.target.value)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
-                        </select>
-                      </>
-                    )}
+                      ← Back
+                    </button>
                   </>
                 )}
 
-                {/* Show standalone quiz dropdowns if user chose standalone */}
+                {/* Standalone quiz */}
                 {useExistingQuizOutline === false && (
-                  <>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+                  <div className="flex flex-col items-center gap-4 w-full max-w-md">
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                      <select
+                        value={quizLanguage}
+                        onChange={(e) => setQuizLanguage(e.target.value)}
+                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                       >
-                        Question Types ({selectedQuestionTypes.length})
-                        <ChevronDown size={14} />
-                      </button>
-
-                      {showQuestionTypesDropdown && (
-                        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
-                          {[
-                            { key: "multiple-choice", label: "One correct answer" },
-                            { key: "multi-select", label: "Multiple correct answers" },
-                            { key: "matching", label: "Matching pairs" },
-                            { key: "sorting", label: "Put in order" },
-                            { key: "open-answer", label: "Open answer" }
-                          ].map((type) => (
-                            <label key={type.key} className="flex items-center gap-2 py-1">
-                              <input
-                                type="checkbox"
-                                checked={selectedQuestionTypes.includes(type.key)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedQuestionTypes([...selectedQuestionTypes, type.key]);
-                                  } else {
-                                    setSelectedQuestionTypes(selectedQuestionTypes.filter(t => t !== type.key));
-                                  }
-                                }}
-                                className="rounded"
-                              />
-                              <span className="text-sm">{type.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
+                        <option value="en">English</option>
+                        <option value="uk">Ukrainian</option>
+                        <option value="es">Spanish</option>
+                        <option value="ru">Russian</option>
+                      </select>
                     </div>
 
-                    {/* Question count and language dropdowns for standalone quiz */}
-                    <select
-                      value={quizQuestionCount}
-                      onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    <button
+                      onClick={() => setUseExistingQuizOutline(null)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                     >
-                      {[5, 10, 15, 20, 25, 30].map((count) => (
-                        <option key={count} value={count}>{count} Questions</option>
-                      ))}
-                    </select>
-                    <select
-                      value={quizLanguage}
-                      onChange={(e) => setQuizLanguage(e.target.value)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      <option value="en">English</option>
-                      <option value="uk">Ukrainian</option>
-                      <option value="es">Spanish</option>
-                      <option value="ru">Russian</option>
-                    </select>
-                  </>
+                      ← Back
+                    </button>
+                  </div>
                 )}
-
-                {/* Reset button */}
-                <button
-                  onClick={() => {
-                    setUseExistingQuizOutline(null);
-                    setSelectedQuizOutlineId(null);
-                    setSelectedQuizModuleIndex(null);
-                    setQuizLessonsForModule([]);
-                    setSelectedQuizLesson("");
-                  }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </button>
               </div>
             )}
           </div>
         )}
 
-        {/* Prompt input */}
-        {(activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false) || (activeProduct === "Quiz" && useExistingQuizOutline === false) || activeProduct === "Text Presentation") && (
-          <textarea
-            ref={promptRef}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={isFromFiles ? "Describe what you'd like to create from your files (optional)" : "Describe what you'd like to make"}
-            rows={1}
-            className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-          />
+        {/* Text Presentation Configuration */}
+        {activeProduct === "Text Presentation" && (
+          <div className="flex flex-col items-center gap-4 mb-4">
+            {/* Step 1: Choose source */}
+            {useExistingTextOutline === null && (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-lg font-medium text-gray-700">Do you want to create a text presentation from an existing Course Outline?</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setUseExistingTextOutline(true)}
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
+                  >
+                    Yes, content for the text presentation from the outline
+                  </button>
+                  <button
+                    onClick={() => setUseExistingTextOutline(false)}
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                  >
+                    No, I want standalone text presentation
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2+: Show dropdowns based on choice */}
+            {useExistingTextOutline !== null && (
+              <div className="flex flex-col items-center gap-4 w-full max-w-md">
+                {useExistingTextOutline === true && (
+                  <>
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Select Course Outline</label>
+                      <select
+                        value={selectedTextOutlineId || ""}
+                        onChange={(e) => {
+                          setSelectedTextOutlineId(Number(e.target.value) || null);
+                          setSelectedTextModuleIndex(null);
+                          setTextLessonsForModule([]);
+                          setSelectedTextLesson("");
+                        }}
+                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                      >
+                        <option value="">Choose an outline...</option>
+                        {textOutlines.map((outline) => (
+                          <option key={outline.id} value={outline.id}>
+                            {outline.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedTextOutlineId && textModulesForOutline.length > 0 && (
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Module</label>
+                        <select
+                          value={selectedTextModuleIndex !== null ? selectedTextModuleIndex : ""}
+                          onChange={(e) => {
+                            const moduleIndex = Number(e.target.value);
+                            setSelectedTextModuleIndex(moduleIndex);
+                            setTextLessonsForModule(textModulesForOutline[moduleIndex]?.lessons || []);
+                            setSelectedTextLesson("");
+                          }}
+                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        >
+                          <option value="">Choose a module...</option>
+                          {textModulesForOutline.map((module, index) => (
+                            <option key={index} value={index}>
+                              {module.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {selectedTextModuleIndex !== null && textLessonsForModule.length > 0 && (
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Lesson</label>
+                        <select
+                          value={selectedTextLesson}
+                          onChange={(e) => setSelectedTextLesson(e.target.value)}
+                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        >
+                          <option value="">Choose a lesson...</option>
+                          {textLessonsForModule.map((lesson, index) => (
+                            <option key={index} value={lesson}>
+                              {lesson}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                      <select
+                        value={textLanguage}
+                        onChange={(e) => setTextLanguage(e.target.value)}
+                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                      >
+                        <option value="en">English</option>
+                        <option value="uk">Ukrainian</option>
+                        <option value="es">Spanish</option>
+                        <option value="ru">Russian</option>
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setUseExistingTextOutline(null);
+                        setSelectedTextOutlineId(null);
+                        setSelectedTextModuleIndex(null);
+                        setTextLessonsForModule([]);
+                        setSelectedTextLesson("");
+                      }}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                    >
+                      ← Back
+                    </button>
+                  </>
+                )}
+
+                {/* Standalone text presentation */}
+                {useExistingTextOutline === false && (
+                  <div className="flex flex-col items-center gap-4 w-full max-w-md">
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                      <select
+                        value={textLanguage}
+                        onChange={(e) => setTextLanguage(e.target.value)}
+                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                      >
+                        <option value="en">English</option>
+                        <option value="uk">Ukrainian</option>
+                        <option value="es">Spanish</option>
+                        <option value="ru">Russian</option>
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={() => setUseExistingTextOutline(null)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                    >
+                      ← Back
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
-
-        {/* Example prompts block */}
-        <div
-          className={`transition-all duration-300 origin-top ${
-            !isFromFiles && prompt.trim().length === 0 && (activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false) || (activeProduct === "Quiz" && useExistingQuizOutline === false) || activeProduct === "Text Presentation")
-              ? 'opacity-100 translate-y-0 max-h-[500px]'
-              : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'
-          }`}
-        >
-          <div className="flex items-center gap-4 text-gray-600 font-medium text-base mt-2">
-            <hr className="flex-grow border-gray-300" />
-            <span>Example prompts</span>
-            <hr className="flex-grow border-gray-300" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-            {examples.map((ex) => (
-              <button
-                key={ex}
-                type="button"
-                onClick={() => setPrompt(ex)}
-                className="relative text-left border border-gray-200 rounded-md bg-[#D9ECFF] px-4 py-3 text-sm hover:bg-white w-full cursor-pointer"
-              >
-                {ex}
-                <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
-              </button>
-            ))}
-          </div>
-
-          <div className="flex justify-center mt-3">
-            <button
-              type="button"
-              className="flex items-center gap-1 px-5 py-2 rounded-full bg-white text-brand-primary hover:bg-brand-primary/10 border border-gray-300 text-sm cursor-pointer"
-              onClick={shuffleExamples}
-            >
-              <Shuffle size={16} /> Shuffle
-            </button>
-          </div>
-        </div>
-
-        {/* Generate button block */}
-        <div
-          className={`flex justify-center mt-6 transition-all duration-300 ${
-            (activeProduct === 'Course Outline' && (prompt.trim().length > 0 || isFromFiles || isFromText)) ||
-            (activeProduct === 'Lesson Presentation' && useExistingOutline === false && (prompt.trim().length > 0 || isFromFiles || isFromText)) ||
-            (activeProduct === 'Lesson Presentation' && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-            (activeProduct === 'Quiz' && useExistingQuizOutline === false && (prompt.trim().length > 0 || isFromFiles || isFromText)) ||
-            (activeProduct === 'Quiz' && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
-            (activeProduct === 'Text Presentation' && (prompt.trim().length > 0 || isFromFiles || isFromText))
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-2 pointer-events-none'
-          } z-10`}
-        >
-          <button
-            type="button"
-            onClick={
-              activeProduct === "Course Outline" ? handleCourseOutlineStart : 
-              activeProduct === "Quiz" ? handleQuizStart : 
-              activeProduct === "Text Presentation" ? handleTextPresentationStart :
-              handleSlideDeckStart
-            }
-            className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
-            style={{ backgroundColor: '#0076FF' }}
-          >
-            <Sparkles size={18} />
-            <span>
-              {activeProduct === 'Course Outline' ? 'Generate outline' : 
-               activeProduct === 'Quiz' ? 'Generate quiz' : 
-               activeProduct === 'Text Presentation' ? 'Generate text presentation' :
-               'Generate'}
-            </span>
-          </button>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function LoadingFallback() {
-  return (
-    <main className="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3 mb-8"></div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-28 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-export default function Page() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <GenerateProductPicker />
-    </Suspense>
-  );
-} 
