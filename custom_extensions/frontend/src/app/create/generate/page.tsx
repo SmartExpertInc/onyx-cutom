@@ -820,8 +820,8 @@ function GenerateProductPicker() {
           "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
     >
-      <div className="w-full max-w-3xl flex flex-col gap-4 text-gray-900">
-        {/* back button absolute top-left */}
+      <div className="w-full max-w-4xl flex flex-col gap-4 text-gray-900">
+        {/* Back button */}
         <Link
           href="/create"
           className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
@@ -829,7 +829,9 @@ function GenerateProductPicker() {
           <ArrowLeft size={14} /> Back
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">Generate</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">
+          Generate
+        </h1>
         <p className="text-center text-gray-600 text-lg -mt-1">
           {isFromFiles ? "Create content from your selected files" : 
            isFromText ? "Create content from your text" : 
@@ -838,12 +840,12 @@ function GenerateProductPicker() {
 
         {/* File context indicator */}
         {isFromFiles && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
-              <FileText className="h-5 w-5" />
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
+              <FileText className="h-6 w-6" />
               Creating from files
             </div>
-            <div className="text-sm text-blue-700">
+            <div className="text-sm text-blue-700 mb-4">
               {folderIds.length > 0 && (
                 <p>{folderIds.length} folder{folderIds.length !== 1 ? 's' : ''} selected</p>
               )}
@@ -859,12 +861,12 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
-              <FileText className="h-5 w-5" />
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 text-green-800 font-semibold mb-3">
+              <FileText className="h-6 w-6" />
               Creating from text
             </div>
-            <div className="text-sm text-green-700">
+            <div className="text-sm text-green-700 mb-4">
               <p className="font-medium">
                 Mode: {textMode === 'context' ? 'Using as context' : 'Using as base structure'}
               </p>
@@ -917,7 +919,7 @@ function GenerateProductPicker() {
             <select
               value={modulesCount}
               onChange={(e) => setModulesCount(Number(e.target.value))}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
             >
               {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                 <option key={n} value={n}>{n} Modules</option>
@@ -926,7 +928,7 @@ function GenerateProductPicker() {
             <select
               value={lessonsPerModule}
               onChange={(e) => setLessonsPerModule(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
             >
               {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
                 <option key={rng} value={rng}>{rng} per module</option>
@@ -935,7 +937,7 @@ function GenerateProductPicker() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
             >
               <option value="en">English</option>
               <option value="uk">Ukrainian</option>
@@ -987,7 +989,7 @@ function GenerateProductPicker() {
                         setLessonsForModule([]);
                         setSelectedLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                     >
                       <option value="">Select Outline</option>
                       {outlines.map((o) => (
@@ -1005,7 +1007,7 @@ function GenerateProductPicker() {
                           setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
                           setSelectedLesson("");
                         }}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                       >
                         <option value="">Select Module</option>
                         {modulesForOutline.map((m, idx) => (
@@ -1019,7 +1021,7 @@ function GenerateProductPicker() {
                       <select
                         value={selectedLesson}
                         onChange={(e) => setSelectedLesson(e.target.value)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                       >
                         <option value="">Select Lesson</option>
                         {lessonsForModule.map((l) => (
@@ -1034,7 +1036,7 @@ function GenerateProductPicker() {
                         <select
                           value={language}
                           onChange={(e) => setLanguage(e.target.value)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                         >
                           <option value="en">English</option>
                           <option value="uk">Ukrainian</option>
@@ -1044,7 +1046,7 @@ function GenerateProductPicker() {
                         <select
                           value={slidesCount}
                           onChange={(e) => setSlidesCount(Number(e.target.value))}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                         >
                           {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                             <option key={n} value={n}>{n} slides</option>
@@ -1061,7 +1063,7 @@ function GenerateProductPicker() {
                     <select
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                     >
                       <option value="en">English</option>
                       <option value="uk">Ukrainian</option>
@@ -1071,7 +1073,7 @@ function GenerateProductPicker() {
                     <select
                       value={slidesCount}
                       onChange={(e) => setSlidesCount(Number(e.target.value))}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                     >
                       {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                         <option key={n} value={n}>{n} slides</option>
@@ -1088,7 +1090,7 @@ function GenerateProductPicker() {
                     setLessonsForModule([]);
                     setSelectedLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
                 </button>
@@ -1210,7 +1212,7 @@ function GenerateProductPicker() {
                         setQuizLessonsForModule([]);
                         setSelectedQuizLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-100"
                     >
                       ← Back
                     </button>
@@ -1236,7 +1238,7 @@ function GenerateProductPicker() {
 
                     <button
                       onClick={() => setUseExistingQuizOutline(null)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-100"
                     >
                       ← Back
                     </button>
@@ -1360,7 +1362,7 @@ function GenerateProductPicker() {
                         setTextLessonsForModule([]);
                         setSelectedTextLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-100"
                     >
                       ← Back
                     </button>
@@ -1386,7 +1388,7 @@ function GenerateProductPicker() {
 
                     <button
                       onClick={() => setUseExistingTextOutline(null)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-100"
                     >
                       ← Back
                     </button>
@@ -1402,9 +1404,12 @@ function GenerateProductPicker() {
           (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
-            {/* Simple prompt input */}
-            <div className="w-full">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Prompt Input</h2>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <textarea
                 ref={promptRef}
                 value={prompt}
@@ -1415,15 +1420,15 @@ function GenerateProductPicker() {
                   activeProduct === "Quiz" ? "What would you like to create a quiz about? (e.g., Math Quiz for Grade 5, History Trivia, Science Knowledge Test...)" :
                   "What would you like to create a lesson about? (e.g., Introduction to React Hooks, Basic Photography Techniques, Cooking Fundamentals...)"
                 }
-                className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-base text-black resize-none overflow-hidden min-h-[80px] max-h-[200px] focus:border-brand-primary focus:outline-none transition-colors"
-                rows={3}
+                className="w-full bg-white rounded-lg p-4 text-sm text-gray-700 font-mono leading-relaxed resize-none min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows={5}
               />
             </div>
 
-            {/* Simple examples grid */}
-            <div className="w-full">
+            {/* Examples section */}
+            <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-700">Quick examples:</span>
+                <h3 className="text-lg font-medium text-gray-800">Quick Examples</h3>
                 <button
                   onClick={shuffleExamples}
                   className="flex items-center gap-1 text-sm text-gray-500 hover:text-brand-primary transition-colors"
@@ -1436,7 +1441,7 @@ function GenerateProductPicker() {
                   <button
                     key={index}
                     onClick={() => setPrompt(example)}
-                    className="text-left px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                    className="text-left px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-300 text-sm font-medium transition-colors"
                   >
                     {example}
                   </button>
@@ -1472,9 +1477,10 @@ function GenerateProductPicker() {
                     break;
                 }
               }}
-              className="flex items-center gap-2 px-8 py-3 rounded-full bg-brand-primary text-white font-medium hover:bg-brand-primary-hover transition-colors"
+              className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
+              style={{ backgroundColor: '#0076FF' }}
             >
-              <Sparkles size={20} />
+              <Sparkles size={18} />
               Generate {activeProduct}
             </button>
           </div>
