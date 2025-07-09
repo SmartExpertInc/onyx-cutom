@@ -247,7 +247,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation" | "Quiz" | "Text Presentation">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -291,7 +291,7 @@ function GenerateProductPicker() {
         // Store quiz context for pre-selecting dropdowns after outlines are loaded
         sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
       } else {
-        setActiveProduct("Lesson Presentation");
+        setActiveProduct("Presentation");
         
         // Since we have lesson context from the modal, automatically set useExistingOutline to true
         // This bypasses the "Do you want to create a lesson from an existing Course Outline?" question
@@ -321,8 +321,8 @@ function GenerateProductPicker() {
         // Continue with clearing if there's an error
       }
 
-      // Clear lesson context when switching away from Lesson Presentation
-      if (activeProduct !== "Lesson Presentation") {
+          // Clear lesson context when switching away from Presentation
+    if (activeProduct !== "Presentation") {
         setUseExistingOutline(null);
         setSelectedOutlineId(null);
         setSelectedModuleIndex(null);
@@ -373,9 +373,9 @@ function GenerateProductPicker() {
   ]);
   const [showQuestionTypesDropdown, setShowQuestionTypesDropdown] = useState(false);
 
-  // Fetch outlines when switching to Lesson Presentation tab and user chooses to use existing outline
+  // Fetch outlines when switching to Presentation tab and user chooses to use existing outline
   useEffect(() => {
-    if (activeProduct !== "Lesson Presentation" || useExistingOutline !== true) return;
+    if (activeProduct !== "Presentation" || useExistingOutline !== true) return;
     const fetchOutlines = async () => {
       try {
         const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
@@ -440,7 +440,7 @@ function GenerateProductPicker() {
 
   // Fetch lessons when outline changes
   useEffect(() => {
-    if (activeProduct !== "Lesson Presentation" || selectedOutlineId == null || useExistingOutline !== true) return;
+    if (activeProduct !== "Presentation" || selectedOutlineId == null || useExistingOutline !== true) return;
     
     // Skip if we already have modules loaded (from pre-selection)
     if (modulesForOutline.length > 0) return;
@@ -669,9 +669,9 @@ function GenerateProductPicker() {
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
   const [textLanguage, setTextLanguage] = useState<string>("en");
 
-  // Fetch text presentation outlines when product is selected
+  // Fetch one-pager outlines when product is selected
   useEffect(() => {
-    if (activeProduct !== "Text Presentation" || useExistingTextOutline !== true) return;
+    if (activeProduct !== "One-Pager" || useExistingTextOutline !== true) return;
     
     const fetchTextOutlines = async () => {
       try {
@@ -737,7 +737,7 @@ function GenerateProductPicker() {
 
   // Fetch lessons when text outline changes
   useEffect(() => {
-    if (activeProduct !== "Text Presentation" || selectedTextOutlineId == null || useExistingTextOutline !== true) return;
+    if (activeProduct !== "One-Pager" || selectedTextOutlineId == null || useExistingTextOutline !== true) return;
     
     // Skip if we already have modules loaded (from pre-selection)
     if (textModulesForOutline.length > 0) return;
@@ -893,16 +893,16 @@ function GenerateProductPicker() {
             onClick={() => setActiveProduct("Quiz")}
           />
           <TabButton
-            label="Lesson"
+            label="Presentation"
             Icon={LessonPresentationIcon}
-            active={activeProduct === "Lesson Presentation"}
-            onClick={() => setActiveProduct("Lesson Presentation")}
+            active={activeProduct === "Presentation"}
+            onClick={() => setActiveProduct("Presentation")}
           />
           <TabButton
-            label="Text Presentation"
+            label="One-Pager"
             Icon={TextPresentationIcon}
-            active={activeProduct === "Text Presentation"}
-            onClick={() => setActiveProduct("Text Presentation")}
+            active={activeProduct === "One-Pager"}
+            onClick={() => setActiveProduct("One-Pager")}
           />
         </div>
 
@@ -942,24 +942,24 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {activeProduct === "Lesson Presentation" && (
+        {activeProduct === "Presentation" && (
           <div className="flex flex-col items-center gap-4 mb-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">Do you want to create a lesson from an existing Course Outline?</p>
+                <p className="text-lg font-medium text-gray-700">Do you want to create a presentation from an existing Course Outline?</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setUseExistingOutline(true)}
                     className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
                   >
-                    Yes, content for the lesson from the outline
+                    Yes, content for the presentation from the outline
                   </button>
                   <button
                     onClick={() => setUseExistingOutline(false)}
                     className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
                   >
-                    No, I want standalone lesson
+                    No, I want standalone presentation
                   </button>
                 </div>
               </div>
@@ -1050,7 +1050,7 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                {/* Show standalone lesson dropdowns if user chose standalone */}
+                {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
                     <select
@@ -1242,25 +1242,25 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Text Presentation Configuration */}
-        {activeProduct === "Text Presentation" && (
+        {/* One-Pager Configuration */}
+        {activeProduct === "One-Pager" && (
           <div className="flex flex-col items-center gap-4 mb-4">
             {/* Step 1: Choose source */}
             {useExistingTextOutline === null && (
               <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">Do you want to create a text presentation from an existing Course Outline?</p>
+                <p className="text-lg font-medium text-gray-700">Do you want to create a one-pager from an existing Course Outline?</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setUseExistingTextOutline(true)}
                     className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
                   >
-                    Yes, content for the text presentation from the outline
+                    Yes, content for the one-pager from the outline
                   </button>
                   <button
                     onClick={() => setUseExistingTextOutline(false)}
                     className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
                   >
-                    No, I want standalone text presentation
+                    No, I want standalone one-pager
                   </button>
                 </div>
               </div>
@@ -1340,7 +1340,7 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                {/* Show standalone text presentation dropdowns if user chose standalone */}
+                {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
                   <select
                     value={textLanguage}
@@ -1373,9 +1373,9 @@ function GenerateProductPicker() {
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course Outline") || 
-          (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
+          (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
-          (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
+          (activeProduct === "Presentation" && useExistingOutline === false)) && (
           <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
             {/* Simple prompt input */}
             <div className="w-full">
@@ -1410,7 +1410,7 @@ function GenerateProductPicker() {
                       className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
-                      <span className="text-center leading-tight pr-8">{examples[index]}</span>
+                      <span className="text-center leading-tight pr-6">{examples[index]}</span>
                       <span className="absolute top-2 right-3 text-blue-400 text-lg font-bold">+</span>
                     </button>
                   ) : (
@@ -1433,12 +1433,12 @@ function GenerateProductPicker() {
 
         {/* Generate Button */}
         {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText)) ||
-          (activeProduct === "Text Presentation" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
-          (activeProduct === "Text Presentation" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
+          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
-          (activeProduct === "Lesson Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Lesson Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
+          (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {
@@ -1446,13 +1446,13 @@ function GenerateProductPicker() {
                   case "Course Outline":
                     handleCourseOutlineStart();
                     break;
-                  case "Text Presentation":
+                  case "One-Pager":
                     handleTextPresentationStart();
                     break;
                   case "Quiz":
                     handleQuizStart();
                     break;
-                  case "Lesson Presentation":
+                  case "Presentation":
                     handleSlideDeckStart();
                     break;
                 }
