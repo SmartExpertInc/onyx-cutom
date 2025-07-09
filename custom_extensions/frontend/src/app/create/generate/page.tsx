@@ -103,21 +103,20 @@ interface TabButtonProps {
   Icon?: React.ElementType;
   active?: boolean;
   onClick?: () => void;
-  className?: string;
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick, className }) => (
+const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer w-40 h-28 text-center rounded-2xl text-lg border-none shadow-none ${className} ${
+    className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
       active
-        ? "ring-2 ring-brand-primary bg-white text-brand-primary"
+        ? "bg-white shadow text-brand-primary border border-brand-primary"
         : "bg-white/70 text-gray-700 hover:bg-white"
     }`}
   >
-    {Icon && <Icon size={48} />}
-    <span className="text-base font-medium leading-tight">{label}</span>
+    {Icon && <Icon size={64} />}
+    <span className="text-sm font-medium leading-tight">{label}</span>
   </button>
 );
 
@@ -815,13 +814,13 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center p-0"
+      className="min-h-screen flex flex-col items-center p-6"
       style={{
         background:
-          "linear-gradient(180deg, #F6F8FF 0%, #E6EEFA 35%, #C7E3F9 70%, #F6F8FF 100%)",
+          "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
     >
-      <div className="w-full max-w-2xl flex flex-col gap-6 text-gray-900 pt-10 pb-8">
+      <div className="w-full max-w-3xl flex flex-col gap-4 text-gray-900">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -830,9 +829,11 @@ function GenerateProductPicker() {
           <ArrowLeft size={14} /> Back
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mb-2">Generate</h1>
-        <p className="text-center text-gray-600 text-lg mb-4">
-          What would you like to create today?
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">Generate</h1>
+        <p className="text-center text-gray-600 text-lg -mt-1">
+          {isFromFiles ? "Create content from your selected files" : 
+           isFromText ? "Create content from your text" : 
+           "What would you like to create today?"}
         </p>
 
         {/* File context indicator */}
@@ -881,52 +882,42 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Product Tabs as large, rounded, pastel cards */}
-        <div className="flex justify-center gap-4 mb-6">
+        {/* Tab selector */}
+        <div className="flex justify-center gap-4 mb-4">
           <TabButton
             label="Course Outline"
             Icon={CourseOutlineIcon}
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
-            className="bg-[#FFF7E6] text-[#B88A2C]"
           />
-          <TabButton
-            label="Slide Deck"
-            Icon={LessonPresentationIcon}
-            active={activeProduct === "Lesson Presentation"}
-            onClick={() => setActiveProduct("Lesson Presentation")}
-            className="bg-[#F6E6F7] text-[#A05CB7]"
-          />
-          <TabButton
-            label="Video Lesson Script"
-            Icon={VideoScriptIcon}
-            active={false}
-            onClick={() => {}}
-            className="bg-[#E6F7F6] text-[#2CB8B8] opacity-60 cursor-not-allowed"
-          />
+          <TabButton label="Video Lesson" Icon={VideoScriptIcon} />
           <TabButton 
             label="Quiz" 
             Icon={QuizIcon} 
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
-            className="bg-[#FFF7E6] text-[#B88A2C]"
+          />
+          <TabButton
+            label="Lesson"
+            Icon={LessonPresentationIcon}
+            active={activeProduct === "Lesson Presentation"}
+            onClick={() => setActiveProduct("Lesson Presentation")}
           />
           <TabButton
             label="Text Presentation"
             Icon={TextPresentationIcon}
             active={activeProduct === "Text Presentation"}
             onClick={() => setActiveProduct("Text Presentation")}
-            className="bg-[#E6F7F6] text-[#2CB8B8]"
           />
         </div>
 
-        {/* Dropdowns as rounded pills (shown for Course Outline, but style applies to all) */}
+        {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             <select
               value={modulesCount}
               onChange={(e) => setModulesCount(Number(e.target.value))}
-              className="px-5 py-2 rounded-full border border-gray-200 bg-white text-sm text-black shadow-sm focus:outline-none"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
               {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                 <option key={n} value={n}>{n} Modules</option>
@@ -935,7 +926,7 @@ function GenerateProductPicker() {
             <select
               value={lessonsPerModule}
               onChange={(e) => setLessonsPerModule(e.target.value)}
-              className="px-5 py-2 rounded-full border border-gray-200 bg-white text-sm text-black shadow-sm focus:outline-none"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
               {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
                 <option key={rng} value={rng}>{rng} per module</option>
@@ -944,13 +935,15 @@ function GenerateProductPicker() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="px-5 py-2 rounded-full border border-gray-200 bg-white text-sm text-black shadow-sm focus:outline-none"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
               <option value="en">English</option>
               <option value="uk">Ukrainian</option>
               <option value="es">Spanish</option>
               <option value="ru">Russian</option>
             </select>
+
+
           </div>
         )}
 
@@ -1404,68 +1397,69 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Prompt Input as auto-resizing, rounded textarea for all tabs */}
+        {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course Outline") || 
           (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-2 w-full">
+          <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
+            {/* Simple prompt input */}
+            <div className="w-full">
             <textarea
               ref={promptRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={
                 activeProduct === "Course Outline"
-                  ? "Describe what you'd like to make"
+                  ? "What would you like to create a course about? (e.g., JavaScript Fundamentals, Digital Marketing Basics, Python for Beginners...)"
                   : activeProduct === "Text Presentation"
-                  ? "Describe what you'd like to make"
+                  ? "What would you like to create a text presentation about? (e.g., Introduction to Machine Learning, Business Strategy Overview, Climate Change Facts...)"
                   : activeProduct === "Quiz"
-                  ? "Describe what you'd like to make"
-                  : "Describe what you'd like to make"
+                  ? "What would you like to create a quiz about? (e.g., Math Quiz for Grade 5, History Trivia, Science Knowledge Test...)"
+                  : "What would you like to create a lesson about? (e.g., Introduction to React Hooks, Basic Photography Techniques, Cooking Fundamentals...)"
               }
-              className="w-full px-6 py-4 rounded-full border-2 border-gray-200 bg-white text-base text-black focus:border-brand-primary focus:outline-none transition-colors shadow-sm resize-none"
-              style={{ minHeight: 56, maxHeight: 200, overflow: 'hidden' }}
-              rows={1}
-              onInput={e => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = target.scrollHeight + 'px';
-              }}
+              className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+              style={{ background: "rgba(255,255,255,0.95)" }}
+              rows={3}
             />
-          </div>
-        )}
-
-        {/* Example Prompts as pill-shaped buttons with + icon */}
-        {((activeProduct === "Course Outline") || 
-          (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
-          (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
-          (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="w-full mt-2">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-700">Example prompts:</span>
-              <button
-                onClick={shuffleExamples}
-                className="flex items-center gap-1 text-sm text-gray-500 hover:text-brand-primary transition-colors px-3 py-1 rounded-full border border-gray-200 bg-white shadow-sm"
-              >
-                <Shuffle size={16} /> Shuffle
-              </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {examples.map((example, index) => (
+
+            {/* Simple examples grid */}
+            <div className="w-full">
+              <div className="flex items-center justify-center mb-3 relative">
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
+                  <div className="flex-1 border-t border-blue-100"></div>
+                </div>
+                <span className="relative z-10 bg-transparent px-4 text-lg font-semibold text-blue-900 text-center" style={{ letterSpacing: 0 }}>
+                  Example prompts
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {examples.map((example, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setPrompt(example)}
+                    className="flex items-center justify-between w-full px-5 py-4 rounded-2xl bg-blue-100/60 hover:bg-blue-200/70 transition-colors text-base font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    style={{ backdropFilter: "blur(2px)" }}
+                  >
+                    <span>{example}</span>
+                    <span className="ml-2 text-blue-400 text-xl font-bold">+</span>
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-center mt-6">
                 <button
-                  key={index}
-                  onClick={() => setPrompt(example)}
-                  className="flex items-center gap-2 px-4 py-3 rounded-full border border-gray-200 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+                  onClick={shuffleExamples}
+                  className="flex items-center gap-2 px-6 py-2 rounded-full bg-white shadow text-base font-medium text-blue-900 border border-blue-100 hover:bg-blue-50 transition-colors"
                 >
-                  <Plus size={16} className="text-gray-400" />
-                  {example}
+                  <Shuffle size={18} /> Shuffle
                 </button>
-              ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Generate Button (unchanged, but spacing adjusted) */}
+        {/* Generate Button */}
         {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText)) ||
           (activeProduct === "Text Presentation" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
           (activeProduct === "Text Presentation" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
@@ -1473,7 +1467,7 @@ function GenerateProductPicker() {
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-6">
             <button
               onClick={() => {
                 switch (activeProduct) {
@@ -1491,7 +1485,7 @@ function GenerateProductPicker() {
                     break;
                 }
               }}
-              className="flex items-center gap-2 px-8 py-3 rounded-full bg-brand-primary text-white font-medium hover:bg-brand-primary-hover transition-colors text-lg shadow-md"
+              className="flex items-center gap-2 px-8 py-3 rounded-full bg-brand-primary text-white font-medium hover:bg-brand-primary-hover transition-colors"
             >
               <Sparkles size={20} />
               Generate {activeProduct}
