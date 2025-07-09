@@ -97,7 +97,6 @@ export default function TextPresentationClient() {
             fromText: fromText,
             textMode: textMode,
             userText: userText,
-            aiResponse: "",
           }),
           signal: abortControllerRef.current?.signal,
         });
