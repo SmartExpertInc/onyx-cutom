@@ -240,9 +240,6 @@ export default function CourseOutlineClient() {
   
   // Track whether we're currently processing an advanced edit to prevent preview regeneration
   const [isAdvancedEditInProgress, setIsAdvancedEditInProgress] = useState(false);
-  
-  // Track whether finalization is complete to prevent any further preview regeneration
-  const [isFinalizationComplete, setIsFinalizationComplete] = useState(false);
 
   // Currently chosen theme (affects outline colors)
   const [selectedTheme, setSelectedTheme] = useState<string>("cherry");
@@ -299,10 +296,6 @@ export default function CourseOutlineClient() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const router = useRouter();
-
-  // Global flag to control whether automatic preview regeneration is enabled.
-  // Set to false to disable all automatic preview generation triggered by parameter changes.
-  const AUTO_PREVIEW_ENABLED = false;
 
   // Keep a reference to the current in-flight preview request so we can cancel it
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -460,18 +453,11 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
-    // Global flag to fully disable auto-preview generation
-    if (!AUTO_PREVIEW_ENABLED) {
-      return;
-    }
     // Skip while finalizing
     if (isGenerating) return;
 
     // Skip while advanced edit is in progress
     if (isAdvancedEditInProgress) return;
-
-    // Skip if finalization is complete to prevent regeneration after redirect
-    if (isFinalizationComplete) return;
 
     // If creating from text but userText not loaded yet, wait
     if (isFromText && !userText) return;
@@ -641,7 +627,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress, isFinalizationComplete]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress]);
 
   const handleModuleChange = (index: number, value: string) => {
     setHasUserEdits(true);
@@ -674,10 +660,6 @@ export default function CourseOutlineClient() {
 
   const handleGenerateFinal = async () => {
     if (isGenerating) return; // guard against double-click / duplicate requests
-    
-    // Mark finalization as complete immediately to prevent any further preview regeneration
-    setIsFinalizationComplete(true);
-    
     // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
@@ -828,8 +810,6 @@ export default function CourseOutlineClient() {
       // allow UI interaction again
       setIsGenerating(false);
       setLoading(false);
-      // Reset finalization flag on error so user can try again
-      setIsFinalizationComplete(false);
     }
   };
 
