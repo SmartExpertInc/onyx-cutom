@@ -1396,3 +1396,11 @@ function GenerateProductPicker() {
             )}
           </div>
         )}
+        </div> {/* close inner flex container */}
+    </main>
+  );
+}
+
+export default function GeneratePage() {
+  return <GenerateProductPicker />;
+}
