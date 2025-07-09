@@ -81,6 +81,18 @@ const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
+// Simple placeholder icon for Text Presentation
+const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    {/* Simple text lines icon */}
+    <rect x="6" y="8" width="28" height="2" rx="1" fill="currentColor" />
+    <rect x="6" y="14" width="24" height="2" rx="1" fill="currentColor" />
+    <rect x="6" y="20" width="26" height="2" rx="1" fill="currentColor" />
+    <rect x="6" y="26" width="20" height="2" rx="1" fill="currentColor" />
+    <rect x="6" y="32" width="22" height="2" rx="1" fill="currentColor" />
+  </svg>
+);
+
 // Simple tab button
 interface TabButtonProps {
   label: string;
@@ -236,7 +248,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation" | "Quiz">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Lesson Presentation" | "Quiz" | "Text Presentation">("Course Outline");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -648,6 +660,33 @@ function GenerateProductPicker() {
     router.push(`/create/quiz?${params.toString()}`);
   };
 
+  const handleTextPresentationStart = () => {
+    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+
+    const params = new URLSearchParams();
+    
+    // Handle file-based prompts
+    if (isFromFiles) {
+      params.set("prompt", prompt.trim() || "Create text presentation content from the provided files");
+      params.set("fromFiles", "true");
+      if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+      if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    } else if (isFromText) {
+      params.set("prompt", prompt.trim() || (textMode === 'context' 
+        ? "Create text presentation content using the provided text as context"
+        : "Create text presentation content based on the provided text structure"));
+      params.set("fromText", "true");
+      params.set("textMode", textMode || 'context');
+      // userText stays in sessionStorage - don't pass via URL
+    } else if (prompt.trim()) {
+      params.set("prompt", prompt.trim());
+    }
+    
+    params.set("lang", language);
+
+    router.push(`/create/text-presentation?${params.toString()}`);
+  };
+
   return (
     <main
       className="min-h-screen flex flex-col items-center p-6"
@@ -739,6 +778,12 @@ function GenerateProductPicker() {
             active={activeProduct === "Lesson Presentation"}
             onClick={() => setActiveProduct("Lesson Presentation")}
           />
+          <TabButton
+            label="Text Presentation"
+            Icon={TextPresentationIcon}
+            active={activeProduct === "Text Presentation"}
+            onClick={() => setActiveProduct("Text Presentation")}
+          />
         </div>
 
         {/* Dropdown chips */}
@@ -774,6 +819,21 @@ function GenerateProductPicker() {
             </select>
 
 
+          </div>
+        )}
+
+        {activeProduct === "Text Presentation" && (
+          <div className="flex flex-wrap justify-center gap-2 mb-2">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="en">English</option>
+              <option value="uk">Ukrainian</option>
+              <option value="es">Spanish</option>
+              <option value="ru">Russian</option>
+            </select>
           </div>
         )}
 
@@ -1162,7 +1222,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Prompt input */}
-        {(activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false) || (activeProduct === "Quiz" && useExistingQuizOutline === false)) && (
+        {(activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false) || (activeProduct === "Quiz" && useExistingQuizOutline === false) || activeProduct === "Text Presentation") && (
           <textarea
             ref={promptRef}
             value={prompt}
@@ -1176,7 +1236,7 @@ function GenerateProductPicker() {
         {/* Example prompts block */}
         <div
           className={`transition-all duration-300 origin-top ${
-            !isFromFiles && prompt.trim().length === 0 && (activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false) || (activeProduct === "Quiz" && useExistingQuizOutline === false))
+            !isFromFiles && prompt.trim().length === 0 && (activeProduct === "Course Outline" || (activeProduct === "Lesson Presentation" && useExistingOutline === false) || (activeProduct === "Quiz" && useExistingQuizOutline === false) || activeProduct === "Text Presentation")
               ? 'opacity-100 translate-y-0 max-h-[500px]'
               : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'
           }`}
@@ -1215,11 +1275,12 @@ function GenerateProductPicker() {
         {/* Generate button block */}
         <div
           className={`flex justify-center mt-6 transition-all duration-300 ${
-            (activeProduct === 'Course Outline' && (prompt.trim().length > 0 || isFromFiles)) ||
-            (activeProduct === 'Lesson Presentation' && useExistingOutline === false && (prompt.trim().length > 0 || isFromFiles)) ||
+            (activeProduct === 'Course Outline' && (prompt.trim().length > 0 || isFromFiles || isFromText)) ||
+            (activeProduct === 'Lesson Presentation' && useExistingOutline === false && (prompt.trim().length > 0 || isFromFiles || isFromText)) ||
             (activeProduct === 'Lesson Presentation' && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-            (activeProduct === 'Quiz' && useExistingQuizOutline === false && (prompt.trim().length > 0 || isFromFiles)) ||
-            (activeProduct === 'Quiz' && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson)
+            (activeProduct === 'Quiz' && useExistingQuizOutline === false && (prompt.trim().length > 0 || isFromFiles || isFromText)) ||
+            (activeProduct === 'Quiz' && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
+            (activeProduct === 'Text Presentation' && (prompt.trim().length > 0 || isFromFiles || isFromText))
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-2 pointer-events-none'
           } z-10`}
@@ -1229,6 +1290,7 @@ function GenerateProductPicker() {
             onClick={
               activeProduct === "Course Outline" ? handleCourseOutlineStart : 
               activeProduct === "Quiz" ? handleQuizStart : 
+              activeProduct === "Text Presentation" ? handleTextPresentationStart :
               handleSlideDeckStart
             }
             className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer"
@@ -1238,6 +1300,7 @@ function GenerateProductPicker() {
             <span>
               {activeProduct === 'Course Outline' ? 'Generate outline' : 
                activeProduct === 'Quiz' ? 'Generate quiz' : 
+               activeProduct === 'Text Presentation' ? 'Generate text presentation' :
                'Generate'}
             </span>
           </button>
