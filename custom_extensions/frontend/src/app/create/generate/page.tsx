@@ -1415,7 +1415,7 @@ function GenerateProductPicker() {
                       className="flex flex-col justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
-                      <span className="text-left leading-tight">{examples[index]}</span>
+                      <span className="text-center leading-tight">{examples[index]}</span>
                       <span className="self-end text-blue-400 text-lg font-bold">+</span>
                     </button>
                   ) : (
