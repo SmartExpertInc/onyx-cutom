@@ -1123,95 +1123,72 @@ function GenerateProductPicker() {
                 {useExistingQuizOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <div className="relative">
-                      <select
-                        value={selectedQuizOutlineId ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedQuizOutlineId(val ? Number(val) : null);
-                          // clear module & lesson selections when outline changes
-                          setSelectedQuizModuleIndex(null);
-                          setQuizLessonsForModule([]);
-                          setSelectedQuizLesson("");
-                        }}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="">Select Outline</option>
-                        {quizOutlines.map((o) => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                    <select
+                      value={selectedQuizOutlineId ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedQuizOutlineId(val ? Number(val) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedQuizModuleIndex(null);
+                        setQuizLessonsForModule([]);
+                        setSelectedQuizLesson("");
+                      }}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="">Select Outline</option>
+                      {quizOutlines.map((outline) => (
+                        <option key={outline.id} value={outline.id}>
+                          {outline.name}
+                        </option>
+                      ))}
+                    </select>
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedQuizOutlineId && (
-                      <div className="relative">
-                        <select
-                          value={selectedQuizModuleIndex ?? ""}
-                          onChange={(e) => {
-                            const idx = e.target.value ? Number(e.target.value) : null;
-                            setSelectedQuizModuleIndex(idx);
-                            setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
-                            setSelectedQuizLesson("");
-                          }}
-                          disabled={quizModulesForOutline.length === 0}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">Select Module</option>
-                          {quizModulesForOutline.map((m, idx) => (
-                            <option key={idx} value={idx}>{m.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                      <select
+                        value={selectedQuizModuleIndex ?? ""}
+                        onChange={(e) => {
+                          const idx = e.target.value ? Number(e.target.value) : null;
+                          setSelectedQuizModuleIndex(idx);
+                          setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
+                          setSelectedQuizLesson("");
+                        }}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Module</option>
+                        {quizModulesForOutline.map((m, idx) => (
+                          <option key={idx} value={idx}>{m.name}</option>
+                        ))}
+                      </select>
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedQuizModuleIndex !== null && (
-                      <div className="relative">
-                        <select
-                          value={selectedQuizLesson}
-                          onChange={(e) => setSelectedQuizLesson(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">Select Lesson</option>
-                          {quizLessonsForModule.map((l) => (
-                            <option key={l} value={l}>{l}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                      <select
+                        value={selectedQuizLesson}
+                        onChange={(e) => setSelectedQuizLesson(e.target.value)}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Lesson</option>
+                        {quizLessonsForModule.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedQuizLesson && (
                       <>
-                        <div className="relative">
-                          <select
-                            value={quizLanguage}
-                            onChange={(e) => setQuizLanguage(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            <option value="en">English</option>
-                            <option value="uk">Ukrainian</option>
-                            <option value="es">Spanish</option>
-                            <option value="ru">Russian</option>
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={quizQuestionCount}
-                            onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                              <option key={n} value={n}>{n} questions</option>
-                            ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
+                        <select
+                          value={quizLanguage}
+                          onChange={(e) => setQuizLanguage(e.target.value)}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
                       </>
                     )}
                   </>
@@ -1220,35 +1197,19 @@ function GenerateProductPicker() {
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
                   <>
-                    <div className="relative">
-                      <select
-                        value={quizLanguage}
-                        onChange={(e) => setQuizLanguage(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">English</option>
-                        <option value="uk">Ukrainian</option>
-                        <option value="es">Spanish</option>
-                        <option value="ru">Russian</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                    <div className="relative">
-                      <select
-                        value={quizQuestionCount}
-                        onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                          <option key={n} value={n}>{n} questions</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                    <select
+                      value={quizLanguage}
+                      onChange={(e) => setQuizLanguage(e.target.value)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
                   </>
                 )}
 
-                {/* Reset button */}
                 <button
                   onClick={() => {
                     setUseExistingQuizOutline(null);
@@ -1257,7 +1218,7 @@ function GenerateProductPicker() {
                     setQuizLessonsForModule([]);
                     setSelectedQuizLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
                 >
                   ← Back
                 </button>

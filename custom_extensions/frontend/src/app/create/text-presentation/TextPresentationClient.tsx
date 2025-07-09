@@ -3,25 +3,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, FileText, ChevronDown, Settings, Plus } from "lucide-react";
+import { ArrowLeft, Sparkles, FileText } from "lucide-react";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
-// Simple bouncing dots loading animation (optionally with a status line)
-type LoadingProps = { message?: string };
-const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
-  <div className="flex flex-col items-center mt-4" aria-label="Loading">
-    <div className="flex gap-1 mb-2">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
-          style={{ animationDelay: `${i * 0.2}s` }}
-        />
-      ))}
+// Loading animation component
+const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
+  <div className="flex flex-col items-center justify-center p-8">
+    <div className="relative">
+      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
     {message && (
-      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message}</p>
+      <p className="mt-4 text-gray-600 text-center max-w-md">{message}</p>
     )}
   </div>
 );
@@ -290,22 +283,28 @@ export default function TextPresentationClient() {
   };
 
   return (
-    <>
     <main
-      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
+      className="min-h-screen flex flex-col items-center p-6"
       style={{
-        background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+        background:
+          "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
     >
-      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+      <div className="w-full max-w-3xl flex flex-col gap-4 text-gray-900">
+        {/* Back button */}
         <Link
           href="/create/generate"
-          className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
+          className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
         >
           <ArrowLeft size={14} /> Back
         </Link>
 
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">
+          Text Presentation
+        </h1>
+        <p className="text-center text-gray-600 text-lg -mt-1">
+          Generate a comprehensive text presentation
+        </p>
 
         {/* Context indicator */}
         {(fromFiles || fromText || outlineId) && (
@@ -343,7 +342,8 @@ export default function TextPresentationClient() {
 
         {/* Language selection */}
         <div className="flex justify-center">
-          <div className="relative">
+          <div className="bg-white/90 rounded-lg p-4 border border-gray-300">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
             <select
               value={lang}
               onChange={(e) => {
@@ -352,41 +352,38 @@ export default function TextPresentationClient() {
                 params.set("lang", newLang);
                 router.push(`/create/text-presentation?${params.toString()}`);
               }}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
             >
               <option value="en">English</option>
               <option value="uk">Ukrainian</option>
               <option value="es">Spanish</option>
               <option value="ru">Russian</option>
             </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
           </div>
         </div>
 
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">Text Presentation Content</h2>
-          {isGenerating && <LoadingAnimation message="Generating text presentation content..." />}
-          {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
-          
-          {/* Main content display - Textarea instead of module list */}
-          {generatedContent && (
-            <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
-              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
-            >
-              <textarea
-                value={generatedContent}
-                onChange={(e) => setGeneratedContent(e.target.value)}
-                placeholder="Text presentation content will appear here..."
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={isGenerating}
-              />
-            </div>
-          )}
-        </section>
+        {/* Error display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+            <p className="font-medium">Error:</p>
+            <p>{error}</p>
+          </div>
+        )}
 
-        {/* Generated content display for non-editable view */}
-        {generatedContent && !isGenerating && (
+        {/* Generation status */}
+        {isGenerating && (
+          <div className="bg-white/90 rounded-lg p-6 border border-gray-300">
+            <LoadingAnimation message="Generating your text presentation..." />
+            {retryCount > 0 && (
+              <p className="text-center text-sm text-gray-500 mt-2">
+                Retry attempt {retryCount}/{maxRetries}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Generated content */}
+        {generatedContent && (
           <div className="bg-white/90 rounded-lg p-6 border border-gray-300">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Generated Content</h2>
@@ -401,7 +398,7 @@ export default function TextPresentationClient() {
                   <button
                     onClick={handleCreateFinal}
                     disabled={isCreatingFinal}
-                    className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isCreatingFinal ? (
                       <>
@@ -452,18 +449,5 @@ export default function TextPresentationClient() {
         )}
       </div>
     </main>
-    <style jsx global>{`
-      @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
-    `}</style>
-    {isGenerating && (
-      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing text presentation..." />
-      </div>
-    )}
-    </>
   );
 } 
