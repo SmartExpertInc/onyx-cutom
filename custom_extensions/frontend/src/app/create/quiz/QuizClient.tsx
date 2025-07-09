@@ -344,28 +344,6 @@ export default function QuizClient() {
           </div>
         )}
 
-        {/* Language selection */}
-        <div className="flex justify-center">
-          <div className="bg-white/90 rounded-lg p-4 border border-gray-300">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-            <select
-              value={language}
-              onChange={(e) => {
-                const newLang = e.target.value;
-                const params = new URLSearchParams(searchParams?.toString() || "");
-                params.set("lang", newLang);
-                router.push(`/create/quiz?${params.toString()}`);
-              }}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-            >
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
-          </div>
-        </div>
-
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Quiz Content</h2>
           {isGenerating && <LoadingAnimation message="Generating quiz content..." />}
@@ -377,45 +355,13 @@ export default function QuizClient() {
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Quiz Preview</h2>
-                {isComplete && (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle className="h-5 w-5" />
-                    <span className="text-sm font-medium">Generation Complete</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto border border-gray-100">
-                <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono leading-relaxed">
-                  {quizData}
-                </pre>
-              </div>
-
-              {!isComplete && (
-                <div className="mt-4 text-center">
-                  <div className="inline-flex items-center gap-2 text-sm text-gray-600">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    Generating...
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* No content state */}
-          {!isGenerating && !quizData && !error && (
-            <div className="bg-white/90 rounded-lg p-8 border border-gray-300 text-center">
-              <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">
-                {outlineId && lesson 
-                  ? `Generating quiz for lesson: ${lesson}`
-                  : prompt 
-                  ? `Generating quiz for: ${prompt}`
-                  : "Preparing to generate your quiz..."
-                }
-              </p>
+              <textarea
+                value={quizData}
+                onChange={(e) => setQuizData(e.target.value)}
+                placeholder="Quiz content will appear here..."
+                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                disabled={isGenerating}
+              />
             </div>
           )}
         </section>
@@ -438,31 +384,50 @@ export default function QuizClient() {
           </div>
         )}
 
-        {/* Finalize button */}
-        {isComplete && !finalProductId && (
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={handleCreateFinal}
-              disabled={isCreatingFinal}
-              className="px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: '#0076FF' }}
-            >
-              {isCreatingFinal ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating Quiz...
-                </>
-              ) : (
-                <>
-                  <Download size={18} />
-                  Create Final Quiz
-                </>
+        {/* Generation status */}
+        {isGenerating && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
+              <div className="relative">
+                <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
+                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+              </div>
+              Generating Quiz...
+            </div>
+            <div className="text-sm text-blue-700 mb-4">
+              <p>Creating interactive quiz questions based on your content. This may take a few moments.</p>
+              {retryCount > 0 && (
+                <p className="text-orange-600 font-medium mt-2">
+                  Retry attempt {retryCount} of {maxRetries}...
+                </p>
               )}
+            </div>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
+            >
+              Cancel Generation
             </button>
           </div>
         )}
 
-        {isComplete && quizData && (
+        {/* No content state */}
+        {!isGenerating && !quizData && !error && (
+          <div className="bg-white/90 rounded-lg p-8 border border-gray-300 text-center">
+            <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">
+              {outlineId && lesson 
+                ? `Generating quiz for lesson: ${lesson}`
+                : prompt 
+                ? `Generating quiz for: ${prompt}`
+                : "Preparing to generate your quiz..."
+              }
+            </p>
+          </div>
+        )}
+
+        {/* Finalize button - matching lesson presentation style */}
+        {isComplete && quizData && !finalProductId && (
           <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
             <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -473,13 +438,21 @@ export default function QuizClient() {
                 {quizData.split(/\s+/).length} words
               </span>
               <button
-                type="button"
                 onClick={handleCreateFinal}
-                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={isCreatingFinal}
+                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                <Sparkles size={18} />
-                <span className="select-none font-semibold">Generate</span>
+                {isCreatingFinal ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Creating Quiz...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    <span className="select-none font-semibold">Generate</span>
+                  </>
+                )}
               </button>
             </div>
             <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
