@@ -1338,19 +1338,21 @@ function GenerateProductPicker() {
                       </div>
                     )}
 
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-                      <select
-                        value={textLanguage}
-                        onChange={(e) => setTextLanguage(e.target.value)}
-                        className="w-48 max-w-xs px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                      >
-                        <option value="en">English</option>
-                        <option value="uk">Ukrainian</option>
-                        <option value="es">Spanish</option>
-                        <option value="ru">Russian</option>
-                      </select>
-                    </div>
+                    {selectedTextLesson && (
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                        <select
+                          value={textLanguage}
+                          onChange={(e) => setTextLanguage(e.target.value)}
+                          className="w-48 max-w-xs px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        >
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
+                      </div>
+                    )}
 
                     <button
                       onClick={() => {
@@ -1375,7 +1377,7 @@ function GenerateProductPicker() {
                       <select
                         value={textLanguage}
                         onChange={(e) => setTextLanguage(e.target.value)}
-                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        className="w-48 max-w-xs px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                       >
                         <option value="en">English</option>
                         <option value="uk">Ukrainian</option>
@@ -1434,7 +1436,7 @@ function GenerateProductPicker() {
                       key={index}
                       onClick={() => setPrompt(examples[index])}
                       className="flex items-center justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                      style={{ backdropFilter: "blur(2px)", minHeight: 38 }}
+                      style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
                       <span className="truncate">{examples[index]}</span>
                       <span className="ml-2 text-blue-400 text-lg font-bold">+</span>
