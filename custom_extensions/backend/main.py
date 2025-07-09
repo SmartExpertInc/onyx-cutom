@@ -13467,7 +13467,7 @@ class TextPresentationFinalize(BaseModel):
     userText: Optional[str] = None
 
 @app.post("/api/custom/text-presentation/generate")
-async def text_presentation_generate(payload: TextPresentationFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+async def text_presentation_generate(payload: TextPresentationPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Generate text presentation content from prompt"""
     logger.info(f"[TEXT_PRESENTATION_GENERATE_START] Endpoint called")
     
@@ -13489,7 +13489,6 @@ async def text_presentation_generate(payload: TextPresentationFinalize, request:
         logger.info(f"[TEXT_PRESENTATION_GENERATE_PAYLOAD] FromText: {getattr(payload, 'fromText', 'NOT_FOUND')}")
         logger.info(f"[TEXT_PRESENTATION_GENERATE_PAYLOAD] TextMode: {getattr(payload, 'textMode', 'NOT_FOUND')}")
         logger.info(f"[TEXT_PRESENTATION_GENERATE_PAYLOAD] UserText length: {len(getattr(payload, 'userText', '')) if getattr(payload, 'userText', None) else 0}")
-        logger.info(f"[TEXT_PRESENTATION_GENERATE_PAYLOAD] AiResponse: {getattr(payload, 'aiResponse', 'NOT_FOUND')}")
     except Exception as e:
         logger.error(f"[TEXT_PRESENTATION_GENERATE_PAYLOAD] Failed to log payload details: {e}")
     
