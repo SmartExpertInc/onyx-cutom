@@ -1118,125 +1118,149 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingQuizOutline !== null && (
-              <div className="flex flex-col items-center gap-4 w-full max-w-md">
+              <div className="flex flex-wrap justify-center gap-2">
+                {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Select Course Outline</label>
+                    {/* Outline dropdown */}
+                    <div className="relative">
                       <select
-                        value={selectedQuizOutlineId || ""}
+                        value={selectedQuizOutlineId ?? ""}
                         onChange={(e) => {
-                          setSelectedQuizOutlineId(Number(e.target.value) || null);
+                          const val = e.target.value;
+                          setSelectedQuizOutlineId(val ? Number(val) : null);
+                          // clear module & lesson selections when outline changes
                           setSelectedQuizModuleIndex(null);
                           setQuizLessonsForModule([]);
                           setSelectedQuizLesson("");
                         }}
-                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Choose an outline...</option>
-                        {quizOutlines.map((outline) => (
-                          <option key={outline.id} value={outline.id}>
-                            {outline.name}
-                          </option>
+                        <option value="">Select Outline</option>
+                        {quizOutlines.map((o) => (
+                          <option key={o.id} value={o.id}>{o.name}</option>
                         ))}
                       </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                     </div>
 
-                    {selectedQuizOutlineId && quizModulesForOutline.length > 0 && (
-                      <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Module</label>
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedQuizOutlineId && (
+                      <div className="relative">
                         <select
-                          value={selectedQuizModuleIndex !== null ? selectedQuizModuleIndex : ""}
+                          value={selectedQuizModuleIndex ?? ""}
                           onChange={(e) => {
-                            const moduleIndex = Number(e.target.value);
-                            setSelectedQuizModuleIndex(moduleIndex);
-                            setQuizLessonsForModule(quizModulesForOutline[moduleIndex]?.lessons || []);
+                            const idx = e.target.value ? Number(e.target.value) : null;
+                            setSelectedQuizModuleIndex(idx);
+                            setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
                             setSelectedQuizLesson("");
                           }}
-                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                          disabled={quizModulesForOutline.length === 0}
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="">Choose a module...</option>
-                          {quizModulesForOutline.map((module, index) => (
-                            <option key={index} value={index}>
-                              {module.name}
-                            </option>
+                          <option value="">Select Module</option>
+                          {quizModulesForOutline.map((m, idx) => (
+                            <option key={idx} value={idx}>{m.name}</option>
                           ))}
                         </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
                     )}
 
-                    {selectedQuizModuleIndex !== null && quizLessonsForModule.length > 0 && (
-                      <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Lesson</label>
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedQuizModuleIndex !== null && (
+                      <div className="relative">
                         <select
                           value={selectedQuizLesson}
                           onChange={(e) => setSelectedQuizLesson(e.target.value)}
-                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="">Choose a lesson...</option>
-                          {quizLessonsForModule.map((lesson, index) => (
-                            <option key={index} value={lesson}>
-                              {lesson}
-                            </option>
+                          <option value="">Select Lesson</option>
+                          {quizLessonsForModule.map((l) => (
+                            <option key={l} value={l}>{l}</option>
                           ))}
                         </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
                     )}
 
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-                      <select
-                        value={quizLanguage}
-                        onChange={(e) => setQuizLanguage(e.target.value)}
-                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                      >
-                        <option value="en">English</option>
-                        <option value="uk">Ukrainian</option>
-                        <option value="es">Spanish</option>
-                        <option value="ru">Russian</option>
-                      </select>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        setUseExistingQuizOutline(null);
-                        setSelectedQuizOutlineId(null);
-                        setSelectedQuizModuleIndex(null);
-                        setQuizLessonsForModule([]);
-                        setSelectedQuizLesson("");
-                      }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                    >
-                      ← Back
-                    </button>
+                    {/* Show final dropdowns when lesson is selected */}
+                    {selectedQuizLesson && (
+                      <>
+                        <div className="relative">
+                          <select
+                            value={quizLanguage}
+                            onChange={(e) => setQuizLanguage(e.target.value)}
+                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                          >
+                            <option value="en">English</option>
+                            <option value="uk">Ukrainian</option>
+                            <option value="es">Spanish</option>
+                            <option value="ru">Russian</option>
+                          </select>
+                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                        </div>
+                        <div className="relative">
+                          <select
+                            value={quizQuestionCount}
+                            onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                          >
+                            {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
+                              <option key={n} value={n}>{n} questions</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
 
-                {/* Standalone quiz */}
+                {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
-                  <div className="flex flex-col items-center gap-4 w-full max-w-md">
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                  <>
+                    <div className="relative">
                       <select
                         value={quizLanguage}
                         onChange={(e) => setQuizLanguage(e.target.value)}
-                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
                         <option value="en">English</option>
                         <option value="uk">Ukrainian</option>
                         <option value="es">Spanish</option>
                         <option value="ru">Russian</option>
                       </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                     </div>
-
-                    <button
-                      onClick={() => setUseExistingQuizOutline(null)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
-                    >
-                      ← Back
-                    </button>
-                  </div>
+                    <div className="relative">
+                      <select
+                        value={quizQuestionCount}
+                        onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
+                          <option key={n} value={n}>{n} questions</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                  </>
                 )}
+
+                {/* Reset button */}
+                <button
+                  onClick={() => {
+                    setUseExistingQuizOutline(null);
+                    setSelectedQuizOutlineId(null);
+                    setSelectedQuizModuleIndex(null);
+                    setQuizLessonsForModule([]);
+                    setSelectedQuizLesson("");
+                  }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </button>
               </div>
             )}
           </div>
