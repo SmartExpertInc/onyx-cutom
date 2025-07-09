@@ -13519,25 +13519,105 @@ async def text_presentation_generate(payload: TextPresentationPreview, request: 
             else:
                 content_prompt += f"\n\nUse the following text as the base structure:\n\n{payload.userText}"
         
-        # Generate content using LLM
-        generated_content = await generate_content_with_llm(
-            prompt=content_prompt,
-            language=payload.language,
-            content_type="text_presentation"
-        )
+        # Get user ID and create chat session
+        onyx_user_id = await get_current_onyx_user_id(request)
+        cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
         
-        # Stream the response
+        # Create chat session
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[TEXT_PRESENTATION_GENERATE_CHAT] Created chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_GENERATE_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+        
+        # Prepare wizard payload
+        wiz_payload = {
+            "product": "Text Presentation",
+            "prompt": content_prompt,
+            "language": payload.language,
+        }
+        
+        # Add file context if provided
+        if payload.fromFiles and (payload.folderIds or payload.fileIds):
+            wiz_payload["fromFiles"] = True
+            if payload.folderIds:
+                wiz_payload["folderIds"] = payload.folderIds
+            if payload.fileIds:
+                wiz_payload["fileIds"] = payload.fileIds
+        
+        # Add text context if provided
+        if payload.fromText and payload.userText:
+            wiz_payload["fromText"] = True
+            wiz_payload["textMode"] = payload.textMode
+            wiz_payload["userText"] = payload.userText
+        
+        wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        
+        # Stream the response using Onyx API
         async def generate_stream():
-            yield f"data: {json.dumps({'type': 'content', 'text': generated_content})}\n\n"
-            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+            try:
+                async with httpx.AsyncClient() as client:
+                    # Parse folder and file IDs for Onyx
+                    folder_ids_list = []
+                    file_ids_list = []
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                    
+                    send_payload = {
+                        "chat_session_id": chat_id,
+                        "message": wizard_message,
+                        "parent_message_id": None,
+                        "file_descriptors": [],
+                        "user_file_ids": file_ids_list,
+                        "user_folder_ids": folder_ids_list,
+                        "prompt_id": None,
+                        "search_doc_ids": None,
+                        "retrieval_options": {"run_search": "never", "real_time": False},
+                        "stream_response": True,
+                    }
+                    
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                        if resp.status_code != 200:
+                            error_text = await resp.text()
+                            logger.error(f"[TEXT_PRESENTATION_GENERATE_ONYX] Error: {resp.status_code} - {error_text}")
+                            yield f"data: {json.dumps({'type': 'error', 'text': f'Onyx API error: {error_text}'})}\n\n"
+                            return
+                        
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                                
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                                
+                            if line == "[DONE]":
+                                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+                                return
+                                
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                    yield f"data: {json.dumps({'type': 'content', 'text': delta_text})}\n\n"
+                            except json.JSONDecodeError:
+                                continue
+                                
+            except Exception as e:
+                logger.error(f"[TEXT_PRESENTATION_GENERATE_STREAM_ERROR] Error in streamer: {e}")
+                yield f"data: {json.dumps({'type': 'error', 'text': str(e)})}\n\n"
         
         return StreamingResponse(
             generate_stream(),
-            media_type="text/plain",
+            media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
-                "X-Accel-Buffering": "no"
+                "Content-Type": "text/event-stream",
             }
         )
     
@@ -13594,6 +13674,9 @@ async def generate_content_with_llm(prompt: str, language: str = "en", content_t
     
     except Exception as e:
         logger.error(f"Error generating content with LLM: {e}")
+        logger.error(f"LLM API Key present: {bool(LLM_API_KEY)}")
+        logger.error(f"LLM API URL: {LLM_API_URL}")
+        logger.error(f"LLM Default Model: {LLM_DEFAULT_MODEL}")
         # Return a fallback response
         return f"# {prompt}\n\nContent generation is currently unavailable. Please try again later."
 
