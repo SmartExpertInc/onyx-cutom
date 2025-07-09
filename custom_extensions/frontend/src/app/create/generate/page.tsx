@@ -1343,7 +1343,7 @@ function GenerateProductPicker() {
                       <select
                         value={textLanguage}
                         onChange={(e) => setTextLanguage(e.target.value)}
-                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        className="w-48 max-w-xs px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                       >
                         <option value="en">English</option>
                         <option value="uk">Ukrainian</option>
@@ -1427,18 +1427,22 @@ function GenerateProductPicker() {
                   Example prompts
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 grid-rows-2 gap-2">
-                {examples.map((example, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setPrompt(example)}
-                    className="flex items-center justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    style={{ backdropFilter: "blur(2px)", minHeight: 38 }}
-                  >
-                    <span className="truncate">{example}</span>
-                    <span className="ml-2 text-blue-400 text-lg font-bold">+</span>
-                  </button>
-                ))}
+              <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
+                {Array.from({ length: 6 }).map((_, index) =>
+                  examples[index] ? (
+                    <button
+                      key={index}
+                      onClick={() => setPrompt(examples[index])}
+                      className="flex items-center justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      style={{ backdropFilter: "blur(2px)", minHeight: 38 }}
+                    >
+                      <span className="truncate">{examples[index]}</span>
+                      <span className="ml-2 text-blue-400 text-lg font-bold">+</span>
+                    </button>
+                  ) : (
+                    <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
+                  )
+                )}
               </div>
               <div className="flex justify-center mt-6">
                 <button
