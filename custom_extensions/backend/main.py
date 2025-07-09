@@ -13881,6 +13881,64 @@ CRITICAL REQUIREMENTS:
 - The "question_type" field is MANDATORY for every question
 """
 
+# Default text presentation JSON example for LLM parsing
+DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
 # Text Presentation Pydantic models
 class TextPresentationWizardPreview(BaseModel):
     outlineId: Optional[int] = None
@@ -14165,18 +14223,103 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
         
-        # For text presentations, we store the raw AI response as content
-        # since it's already in the correct format for text presentations
-        text_presentation_content = {
-            "title": project_name,
-            "content": payload.aiResponse,
-            "language": payload.language,
-            "detectedLanguage": payload.language
-        }
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=payload.aiResponse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=f"""
+            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+            The AI response contains text presentation content in natural language format. You need to convert this into a structured TextPresentationDetails JSON format.
+
+            REQUIREMENTS:
+            1. Extract the main title from the content as "textTitle"
+            2. Convert the content into structured "contentBlocks" array with:
+               - "type": MUST be one of: "headline", "paragraph", "bullet_list", "numbered_list"
+               - For headlines: "level" (1 for main title, 2 for subtitles, etc.), "text"
+               - For paragraphs: "text"
+               - For lists: "items" array with strings or nested list objects
+
+            CRITICAL RULES:
+            - Output ONLY the JSON object, no other text
+            - Every content block MUST have "type" field
+            - Use exact field names as shown in the example
+            - Maintain the logical structure and hierarchy of the content
+            - If content is unclear, create a simple paragraph structure
+            - Language: {payload.language}
+            """,
+            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+        )
         
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {project_name}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
         
-        # Insert directly to avoid double parsing
+        # Detect language if not provided
+        if not parsed_text_presentation.detectedLanguage:
+            parsed_text_presentation.detectedLanguage = detect_language(payload.aiResponse)
+        
+        # If parsing failed and we have no content blocks, create a basic structure
+        if not parsed_text_presentation.contentBlocks:
+            logger.warning(f"[TEXT_PRESENTATION_FINALIZE_FALLBACK] LLM parsing failed for text presentation, creating fallback structure")
+            # Create a simple text presentation with the AI response as content
+            parsed_text_presentation.textTitle = project_name
+            parsed_text_presentation.contentBlocks = [
+                {
+                    "type": "paragraph",
+                    "text": payload.aiResponse
+                }
+            ]
+        else:
+            # Validate that all content blocks have the required type field
+            valid_content_blocks = []
+            for i, block in enumerate(parsed_text_presentation.contentBlocks):
+                if hasattr(block, 'type') and block.type:
+                    valid_content_blocks.append(block)
+                else:
+                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] Content block {i} missing type, converting to paragraph")
+                    # Convert to paragraph if type is missing
+                    if hasattr(block, 'text'):
+                        valid_content_blocks.append({
+                            "type": "paragraph",
+                            "text": block.text
+                        })
+                    elif hasattr(block, 'items'):
+                        valid_content_blocks.append({
+                            "type": "bullet_list",
+                            "items": block.items
+                        })
+                    else:
+                        # Fallback to paragraph with string representation
+                        valid_content_blocks.append({
+                            "type": "paragraph",
+                            "text": str(block)
+                        })
+            
+            if not valid_content_blocks:
+                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] No valid content blocks found, creating fallback structure")
+                parsed_text_presentation.contentBlocks = [
+                    {
+                        "type": "paragraph",
+                        "text": payload.aiResponse
+                    }
+                ]
+            else:
+                parsed_text_presentation.contentBlocks = valid_content_blocks
+        
+        # Use the parsed text title or fallback to the consistent project name
+        final_project_name = parsed_text_presentation.textTitle or project_name
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
+        
+        # For text presentation components, we need to insert directly to avoid double parsing
+        # since add_project_to_custom_db would call parse_ai_response_with_llm again
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
@@ -14191,11 +14334,11 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             row = await conn.fetchrow(
                 insert_query,
                 onyx_user_id,
-                project_name,
+                final_project_name,
                 "Text Presentation",  # product_type
                 "Text Presentation",  # microproduct_type
-                project_name,  # microproduct_name
-                text_presentation_content,  # microproduct_content
+                final_project_name,  # microproduct_name
+                parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
                 None  # source_chat_session_id
             )
@@ -14205,8 +14348,8 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         created_project = ProjectDB(**dict(row))
         
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={project_name}")
-        return {"id": created_project.id, "name": project_name}
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}")
+        return {"id": created_project.id, "name": final_project_name}
         
     except Exception as e:
         logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
