@@ -1427,7 +1427,7 @@ function GenerateProductPicker() {
                   Example prompts
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 grid-rows-2 gap-2">
                 {examples.map((example, index) => (
                   <button
                     key={index}
@@ -1479,7 +1479,8 @@ function GenerateProductPicker() {
                     break;
                 }
               }}
-              className="flex items-center gap-2 px-8 py-3 rounded-full bg-brand-primary text-white font-medium hover:bg-brand-primary-hover transition-colors"
+              className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors"
+              style={{ minWidth: 240 }}
             >
               <Sparkles size={20} />
               Generate {activeProduct}
