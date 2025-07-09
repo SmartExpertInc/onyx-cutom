@@ -300,6 +300,10 @@ export default function CourseOutlineClient() {
 
   const router = useRouter();
 
+  // Global flag to control whether automatic preview regeneration is enabled.
+  // Set to false to disable all automatic preview generation triggered by parameter changes.
+  const AUTO_PREVIEW_ENABLED = false;
+
   // Keep a reference to the current in-flight preview request so we can cancel it
   const previewAbortRef = useRef<AbortController | null>(null);
 
@@ -456,6 +460,10 @@ export default function CourseOutlineClient() {
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
   useEffect(() => {
+    // Global flag to fully disable auto-preview generation
+    if (!AUTO_PREVIEW_ENABLED) {
+      return;
+    }
     // Skip while finalizing
     if (isGenerating) return;
 
