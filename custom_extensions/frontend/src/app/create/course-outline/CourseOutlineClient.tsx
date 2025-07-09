@@ -666,6 +666,10 @@ export default function CourseOutlineClient() {
 
   const handleGenerateFinal = async () => {
     if (isGenerating) return; // guard against double-click / duplicate requests
+    
+    // Mark finalization as complete immediately to prevent any further preview regeneration
+    setIsFinalizationComplete(true);
+    
     // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
@@ -807,9 +811,6 @@ export default function CourseOutlineClient() {
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
 
-      // Mark finalization as complete to prevent any further preview regeneration
-      setIsFinalizationComplete(true);
-      
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
       // leave the custom frontend and hit the main app's /projects route.
@@ -819,6 +820,8 @@ export default function CourseOutlineClient() {
       // allow UI interaction again
       setIsGenerating(false);
       setLoading(false);
+      // Reset finalization flag on error so user can try again
+      setIsFinalizationComplete(false);
     }
   };
 
