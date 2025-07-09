@@ -1402,7 +1402,7 @@ function GenerateProductPicker() {
           (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
+          <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
             {/* Simple prompt input */}
             <div className="w-full">
             <textarea
