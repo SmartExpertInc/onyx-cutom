@@ -10825,19 +10825,221 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         persona_id = await get_contentbuilder_persona_id(cookies)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-
+    # Helper: check whether the user made ANY changes (structure or content)
+    def _any_changes_made(orig_modules: List[Dict[str, Any]], edited: Dict[str, Any]) -> bool:
+        try:
+            edited_sections = edited.get("sections") or edited.get("modules") or []
+            
+            # Debug logging to understand the data structures
+            logger.info(f"Comparing changes: orig_modules count={len(orig_modules)}, edited_sections count={len(edited_sections)}")
+            
+            # Check structural changes first (modules/lessons added/removed)
+            if len(orig_modules) != len(edited_sections):
+                logger.info(f"Structural change detected: module count changed from {len(orig_modules)} to {len(edited_sections)}")
+                return True
+            
+            # Check for content changes (titles modified)
+            for i, (o, e) in enumerate(zip(orig_modules, edited_sections)):
+                # Compare module titles
+                orig_title = str(o.get("title", "")).strip()
+                edited_title = str(e.get("title", "")).strip() if isinstance(e, dict) else str(e).strip()
+                
+                logger.debug(f"Module {i}: comparing titles '{orig_title}' vs '{edited_title}'")
+                if orig_title != edited_title:
+                    logger.info(f"Module title change detected at index {i}: '{orig_title}' -> '{edited_title}'")
+                    return True
+                
+                # Compare lesson structure and content
+                orig_lessons = o.get("lessons", [])
+                edited_lessons = e.get("lessons", []) if isinstance(e, dict) else []
+                
+                if len(orig_lessons) != len(edited_lessons):
+                    logger.info(f"Lesson count change detected in module {i}: {len(orig_lessons)} -> {len(edited_lessons)}")
+                    return True
+                
+                # Compare individual lesson titles
+                for j, (ol, el) in enumerate(zip(orig_lessons, edited_lessons)):
+                    # Handle different lesson formats
+                    if isinstance(ol, dict):
+                        orig_lesson = str(ol.get("title", ol.get("name", ""))).strip()
+                    else:
+                        orig_lesson = str(ol).strip()
+                    
+                    if isinstance(el, dict):
+                        edited_lesson = str(el.get("title", el.get("name", ""))).strip()
+                    else:
+                        edited_lesson = str(el).strip()
+                    
+                    logger.debug(f"Module {i}, Lesson {j}: comparing '{orig_lesson}' vs '{edited_lesson}'")
+                    if orig_lesson != edited_lesson:
+                        logger.info(f"Lesson change detected in module {i}, lesson {j}: '{orig_lesson}' -> '{edited_lesson}'")
+                        return True
+            
+            logger.info("No changes detected - outline is identical")
+            return False
+        except Exception as e:
+            # On any parsing issue assume changes were made so we use assistant
+            logger.warning(f"Error during change detection (assuming changes made): {e}")
+            return True
 
     # ---------- 1) Decide strategy ----------
-    # TEMPORARY: Always use assistant + parser path to fix redirect issue
-    use_direct_parser = False
-    use_assistant_then_parser = True
-    logger.info("Using assistant + parser path (direct parser temporarily disabled)")
+    raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
+    
+    # Debug cache lookup
+    logger.info(f"DEBUG: Cache lookup for chat_id='{chat_id}', found cached outline: {bool(raw_outline_cached)}")
+    if raw_outline_cached:
+        logger.info(f"DEBUG: Cached outline preview (first 200 chars): {raw_outline_cached[:200]}...")
+    else:
+        logger.info(f"DEBUG: Available cache keys: {list(OUTLINE_PREVIEW_CACHE.keys())}")
+    
+    if raw_outline_cached:
+        parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        
+        # Debug: Log the data structures being compared
+        logger.info(f"DEBUG: parsed_orig structure: {json.dumps(parsed_orig, indent=2)[:500]}...")
+        logger.info(f"DEBUG: payload.editedOutline structure: {json.dumps(payload.editedOutline, indent=2)[:500]}...")
+        
+        any_changes = _any_changes_made(parsed_orig, payload.editedOutline)
+        
+        if not any_changes:
+            # NO CHANGES: Use direct parser path (fastest)
+            use_direct_parser = False
+            use_assistant_then_parser = True
+            logger.info("No changes detected - using direct parser path")
+        else:
+            # CHANGES DETECTED: Use assistant first, then parser
+            use_direct_parser = False
+            use_assistant_then_parser = True
+            logger.info("Changes detected - using assistant + parser path")
+    else:
+        # No cached data available - use assistant + parser path
+        use_direct_parser = False
+        use_assistant_then_parser = True
+        logger.info("No cached outline - using assistant + parser path")
 
-    # ---------- 2) DIRECT PARSER PATH: TEMPORARILY DISABLED ----------
-    # Direct parser path is temporarily disabled to fix redirect issue
-    # All finalization now goes through assistant + parser path
+    # ---------- 2) DIRECT PARSER PATH: No changes made, use cached data directly ----------
+    if use_direct_parser:
+        direct_path_project_id = None  # Track project ID for cleanup if needed
+        try:
+            # Use cached outline directly since no changes were made
+            template_id = await _ensure_training_plan_template(pool)
+            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            
+            logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
+            
+            project_request = ProjectCreateRequest(
+                projectName=project_name_detected,
+                design_template_id=template_id,
+                microProductName=None,
+                aiResponse=raw_outline_cached,
+                chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+            )
+            onyx_user_id = await get_current_onyx_user_id(request)
 
-    # ---------- 3) ASSISTANT + PARSER PATH: Process with assistant, then parse ----------
+            project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+            direct_path_project_id = project_db_candidate.id  # Store for potential cleanup
+            
+            logger.info(f"Direct parser path: Created project {direct_path_project_id}")
+            logger.info(f"Direct parser path: Project content type: {type(project_db_candidate.microproduct_content)}")
+            
+            # Check if content was parsed successfully
+            content_valid = False
+            if project_db_candidate.microproduct_content:
+                if hasattr(project_db_candidate.microproduct_content, "sections"):
+                    sections = getattr(project_db_candidate.microproduct_content, "sections", [])
+                    content_valid = len(sections) > 0
+                    logger.info(f"Direct parser path: Found {len(sections)} sections in parsed content")
+                else:
+                    logger.warning(f"Direct parser path: Content does not have sections attribute")
+            else:
+                logger.warning(f"Direct parser path: microproduct_content is None")
+
+            # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+            if payload.theme and content_valid:
+                async with pool.acquire() as conn:
+                    design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
+                    if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                        await conn.execute(
+                            """
+                            UPDATE projects
+                            SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                            WHERE id = $2
+                            """,
+                            payload.theme, project_db_candidate.id
+                        )
+                        row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
+                        if row_patch and row_patch["microproduct_content"] is not None:
+                            project_db_candidate.microproduct_content = row_patch["microproduct_content"]
+
+            # Success when we have valid parsed content
+            if content_valid:
+                logger.info(f"Direct parser path successful for project {direct_path_project_id}")
+                return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
+            else:
+                # Direct parser path validation failed - clean up the created project and fall back to assistant
+                logger.warning(f"Direct parser path validation failed for project {direct_path_project_id} - LLM parsing likely failed")
+                logger.warning(f"Content details: {project_db_candidate.microproduct_content}")
+                try:
+                    async with pool.acquire() as conn:
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
+                except Exception as cleanup_e:
+                    logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+                
+                # Fall back to assistant path
+                logger.info("Falling back to assistant + parser path due to direct parser failure")
+                use_direct_parser = False
+                use_assistant_then_parser = True
+                
+        except Exception as direct_e:
+            # Clean up any project created during direct parser path failure
+            if direct_path_project_id:
+                logger.warning(f"Direct parser path failed with project {direct_path_project_id}, attempting cleanup...")
+                try:
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    async with pool.acquire() as conn:
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
+                except Exception as cleanup_e:
+                    logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+            
+            logger.error(f"Direct parser path failed with error: {direct_e}")
+            
+            # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
+            if isinstance(direct_e, HTTPException) and direct_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+                logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
+                max_wait_sec = 900  # 15 minutes
+                poll_every_sec = 1
+                waited = 0
+                while waited < max_wait_sec:
+                    async with pool.acquire() as conn:
+                        if chat_id:
+                            # Prefer locating the project by the wizard chat_session_id (unique identifier per outline wizard run)
+                            row = await conn.fetchrow(
+                                "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                                uuid.UUID(chat_id),
+                            )
+                        else:
+                            # Fallback to the previous behaviour when we have no chat_id information available
+                            row = await conn.fetchrow(
+                                "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
+                                onyx_user_id,
+                                payload.prompt,
+                            )
+                    if row and row["microproduct_content"] is not None:
+                        return JSONResponse(content={"id": row["id"]})
+                    await asyncio.sleep(poll_every_sec)
+                    waited += poll_every_sec
+                logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
+            else:
+                logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
+            
+            # Fall back to assistant path
+                use_direct_parser = False
+                use_assistant_then_parser = True
+
+    # ---------- 3) ASSISTANT + PARSER PATH: Process changes with assistant, then parse ----------
+    if use_assistant_then_parser:
         # Before starting assistant path, check if a project was already created successfully for this session
         if chat_id:
             try:
