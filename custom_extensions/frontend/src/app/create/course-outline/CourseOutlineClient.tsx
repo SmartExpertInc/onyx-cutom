@@ -240,6 +240,9 @@ export default function CourseOutlineClient() {
   
   // Track whether we're currently processing an advanced edit to prevent preview regeneration
   const [isAdvancedEditInProgress, setIsAdvancedEditInProgress] = useState(false);
+  
+  // Track whether finalization is complete to prevent any further preview regeneration
+  const [isFinalizationComplete, setIsFinalizationComplete] = useState(false);
 
   // Currently chosen theme (affects outline colors)
   const [selectedTheme, setSelectedTheme] = useState<string>("cherry");
@@ -459,6 +462,9 @@ export default function CourseOutlineClient() {
     // Skip while advanced edit is in progress
     if (isAdvancedEditInProgress) return;
 
+    // Skip if finalization is complete to prevent regeneration after redirect
+    if (isFinalizationComplete) return;
+
     // If creating from text but userText not loaded yet, wait
     if (isFromText && !userText) return;
 
@@ -627,7 +633,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress, isFinalizationComplete]);
 
   const handleModuleChange = (index: number, value: string) => {
     setHasUserEdits(true);
@@ -801,6 +807,9 @@ export default function CourseOutlineClient() {
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
 
+      // Mark finalization as complete to prevent any further preview regeneration
+      setIsFinalizationComplete(true);
+      
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
       // leave the custom frontend and hit the main app's /projects route.
