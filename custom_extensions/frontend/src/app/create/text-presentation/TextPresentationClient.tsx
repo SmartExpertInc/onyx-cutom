@@ -83,31 +83,17 @@ export default function TextPresentationClient() {
           }
         }
 
-        const requestBody = {
-          prompt: prompt,
-          language: language,
-          fromFiles: fromFiles,
-          folderIds: memoizedFolderIds.join(','),
-          fileIds: memoizedFileIds.join(','),
-          fromText: fromText,
-          textMode: textMode,
-          userText: userText,
-        };
-
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            projectName: prompt || "Text Presentation",
-            componentName: "TextPresentationDisplay",
-            designTemplateId: 1, // Default design template
-            promptText: prompt,
+            prompt: prompt,
             language: language,
-            folderIds: fromFiles ? memoizedFolderIds.join(',') : undefined,
-            fileIds: fromFiles ? memoizedFileIds.join(',') : undefined,
             fromFiles: fromFiles,
+            folderIds: memoizedFolderIds.join(','),
+            fileIds: memoizedFileIds.join(','),
             fromText: fromText,
             textMode: textMode,
             userText: userText,
@@ -119,17 +105,63 @@ export default function TextPresentationClient() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        
-        if (result.id) {
-          setFinalProductId(result.id);
-          setIsComplete(true);
-          // Redirect to the preview page
-          router.push(`/projects/view/${result.id}`);
-        } else {
-          throw new Error("Failed to create text presentation");
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error("No response body");
         }
 
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let gotFirstChunk = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            // Process any remaining buffer
+            if (buffer.trim()) {
+              try {
+                const pkt = JSON.parse(buffer.trim());
+                gotFirstChunk = true;
+                if (pkt.type === "content") {
+                  setTextData(prev => prev + pkt.text);
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
+                setTextData(prev => prev + buffer);
+              }
+            }
+            setIsComplete(true);
+            return;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Split by newlines and process complete chunks
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            try {
+              const pkt = JSON.parse(line.replace(/^data: /, ''));
+              gotFirstChunk = true;
+              
+              if (pkt.type === "content") {
+                setTextData(prev => prev + pkt.text);
+              } else if (pkt.type === "done") {
+                setIsComplete(true);
+                return;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              setTextData(prev => prev + line);
+            }
+          }
+        }
       } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Generation cancelled');
@@ -143,56 +175,123 @@ export default function TextPresentationClient() {
                               error.message?.includes('NetworkError') ||
                               !navigator.onLine;
 
-        if (isNetworkError && attempt <= maxRetries) {
-          console.log(`Network error, retrying attempt ${attempt}/${maxRetries}`);
-          setTimeout(() => {
-            performGeneration(attempt + 1);
-          }, 1000 * attempt); // Exponential backoff
-          return;
+        if (isNetworkError && attempt < maxRetries) {
+          console.log(`Network error on attempt ${attempt}, retrying...`);
+          setRetryCount(attempt);
+          
+          // Exponential backoff: wait 1s, 2s, 4s
+          const delay = Math.pow(2, attempt - 1) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          // Retry the generation
+          return performGeneration(attempt + 1);
+        } else {
+          // Either not a network error or max retries reached
+          console.error('Generation error:', error);
+          setError(error.message || 'An error occurred during generation');
+          throw error;
         }
-
-        setError(error.message || "An error occurred while generating the text presentation");
-        setIsGenerating(false);
       }
     };
 
-    // Check if generation should start
-    if (!isGenerating && !isComplete && !error && !requestInProgressRef.current) {
-      setIsGenerating(true);
-      setError(null);
+    const generateContent = async () => {
+      // Prevent multiple concurrent requests
+      if (requestInProgressRef.current) {
+        return;
+      }
+
       requestInProgressRef.current = true;
       
-      // Create new abort controller for this request
+      setIsGenerating(true);
+      setError(null);
+      setTextData("");
+      setIsComplete(false);
+      setRetryCount(0);
+
+      // Create abort controller for cancellation
       abortControllerRef.current = new AbortController();
-      
-      performGeneration();
-    }
+
+      try {
+        await performGeneration();
+      } catch (error: any) {
+        // Error already handled in performGeneration
+      } finally {
+        // Only update state if this is still the current request
+        setIsGenerating(false);
+        requestInProgressRef.current = false;
+        abortControllerRef.current = null;
+      }
+    };
+
+    generateContent();
 
     // Cleanup function
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
-        abortControllerRef.current = null;
       }
-      requestInProgressRef.current = false;
     };
-  }, [prompt, language, fromFiles, fromText, textMode, memoizedFolderIds, memoizedFileIds, retryTrigger]);
+  }, [prompt, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, retryTrigger]);
+
+  const handleCreateFinal = async () => {
+    if (!textData.trim()) return;
+
+    setIsCreatingFinal(true);
+    try {
+      // Get user text from sessionStorage if coming from text
+      let userText = '';
+      if (fromText) {
+        try {
+          const storedData = sessionStorage.getItem('pastedTextData');
+          if (storedData) {
+            const textData = JSON.parse(storedData);
+            userText = textData.text || '';
+          }
+        } catch (error) {
+          console.error('Error retrieving pasted text data:', error);
+        }
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          aiResponse: textData,
+          prompt: prompt,
+          language: language,
+          fromFiles: fromFiles,
+          fromText: fromText,
+          folderIds: memoizedFolderIds.join(','),
+          fileIds: memoizedFileIds.join(','),
+          textMode: textMode,
+          userText: userText,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setFinalProductId(result.id);
+      
+      // Redirect to the created text presentation
+      router.push(`/projects/view/${result.id}`);
+    } catch (error: any) {
+      console.error('Finalization error:', error);
+      setError(error.message || 'An error occurred during finalization');
+    } finally {
+      setIsCreatingFinal(false);
+    }
+  };
 
   const handleCancel = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     router.push('/create/generate');
-  };
-
-  const handleRetry = () => {
-    setError(null);
-    setIsGenerating(false);
-    setIsComplete(false);
-    setTextData("");
-    requestInProgressRef.current = false;
-    setRetryCount(prev => prev + 1);
-    setRetryTrigger(prev => prev + 1);
   };
 
   // Get user text from sessionStorage for display
@@ -226,14 +325,16 @@ export default function TextPresentationClient() {
         </Link>
 
         <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">
-          Text Presentation
+          Text Presentation Generation
         </h1>
-        
         <p className="text-center text-gray-600 text-lg -mt-1">
-          Creating your text presentation...
+          {prompt 
+            ? `Creating text presentation: ${prompt}`
+            : "Creating text presentation from your content"
+          }
         </p>
 
-        {/* Context indicator */}
+        {/* Context indicators */}
         {fromFiles && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
@@ -270,66 +371,97 @@ export default function TextPresentationClient() {
           </div>
         )}
 
-        {/* Main content area */}
-        <div className="bg-white rounded-lg shadow-lg p-6 min-h-[400px] flex flex-col">
-          {error ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <XCircle className="h-16 w-16 text-red-500 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Generation Failed</h3>
-              <p className="text-gray-600 mb-6 max-w-md">{error}</p>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleRetry}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Sparkles size={16} />
-                  Try Again
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
+        {/* Generation status */}
+        {isGenerating && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
+              <div className="relative">
+                <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
+                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
               </div>
+              Generating Text Presentation...
+            </div>
+            <div className="text-sm text-blue-700 mb-4">
+              <p>Creating structured text content based on your input. This may take a few moments.</p>
               {retryCount > 0 && (
-                <p className="text-sm text-gray-500 mt-3">
-                  Retry attempt: {retryCount}/{maxRetries}
+                <p className="text-orange-600 font-medium mt-2">
+                  Retry attempt {retryCount} of {maxRetries}...
                 </p>
               )}
             </div>
-          ) : isGenerating ? (
-            <div className="flex flex-col items-center justify-center flex-1">
-              <LoadingAnimation message="Generating your text presentation..." />
-              <div className="mt-6 w-full max-w-md">
-                <ProgressBar progress={50} />
-                <p className="text-sm text-gray-500 text-center">This may take a moment...</p>
-              </div>
-              <button
-                onClick={handleCancel}
-                className="mt-6 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                Cancel
-              </button>
+            <ProgressBar progress={textData.length > 0 ? Math.min((textData.length / 1000) * 100, 90) : 10} />
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
+            >
+              Cancel Generation
+            </button>
+          </div>
+        )}
+
+        {/* Error display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+              <XCircle className="h-5 w-5" />
+              Error
             </div>
-          ) : isComplete && finalProductId ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Text Presentation Created!</h3>
-              <p className="text-gray-600 mb-6">Your text presentation has been successfully generated.</p>
-              <button
-                onClick={() => router.push(`/projects/view/${finalProductId}`)}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                View Text Presentation
-              </button>
+            <div className="text-sm text-red-700 mb-4">
+              <p>{error}</p>
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-gray-600">Waiting to start generation...</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setRetryCount(0);
+                setRetryTrigger(prev => prev + 1);
+              }}
+              className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+            >
+              Retry Generation
+            </button>
+          </div>
+        )}
+
+        {/* Text data display */}
+        {textData && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Text Presentation Preview</h2>
+              {isComplete && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="text-sm font-medium">Generation Complete</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+            <div className="prose prose-sm max-w-none bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono">{textData}</pre>
+            </div>
+          </div>
+        )}
+
+        {/* Finalize button */}
+        {isComplete && textData && (
+          <div className="flex justify-center">
+            <button
+              onClick={handleCreateFinal}
+              disabled={isCreatingFinal}
+              className="px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+            >
+              {isCreatingFinal ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={16} />
+                  Create Text Presentation
+                </>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Input summary */}
         <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">

@@ -11650,6 +11650,111 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             detail="An unexpected error occurred during finalization"
         )
 
+@app.post("/api/custom/text-presentation/generate")
+async def text_presentation_generate(payload: TextPresentationFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Generate text presentation content from prompt"""
+    logger.info(f"Generating text presentation: {payload.prompt}")
+    
+    # Validate required fields
+    if not payload.prompt or not payload.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt is required")
+
+    try:
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Prepare the content generation prompt
+        content_prompt = payload.prompt.strip()
+        
+        # Add file context if provided
+        if payload.fromFiles and (payload.folderIds or payload.fileIds):
+            content_prompt += "\n\nUse the provided files as context for creating the text presentation."
+        
+        # Add text context if provided
+        if payload.fromText and payload.userText:
+            if payload.textMode == 'context':
+                content_prompt += f"\n\nUse the following text as context:\n\n{payload.userText}"
+            else:
+                content_prompt += f"\n\nUse the following text as the base structure:\n\n{payload.userText}"
+        
+        # Generate content using LLM
+        generated_content = await generate_content_with_llm(
+            prompt=content_prompt,
+            language=payload.language,
+            content_type="text_presentation"
+        )
+        
+        # Stream the response
+        async def generate_stream():
+            yield f"data: {json.dumps({'type': 'content', 'text': generated_content})}\n\n"
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+        
+        return StreamingResponse(
+            generate_stream(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"
+            }
+        )
+    
+    except Exception as e:
+        logger.error(f"Error generating text presentation: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An error occurred during generation"
+        )
+
+async def generate_content_with_llm(prompt: str, language: str = "en", content_type: str = "text_presentation") -> str:
+    """Generate content using LLM"""
+    try:
+        # Prepare the system message based on content type
+        if content_type == "text_presentation":
+            system_message = f"""You are an expert content creator specializing in text presentations. 
+            Create well-structured, engaging text content based on the user's prompt. 
+            
+            Format the content using markdown with:
+            - Clear headings (##, ###, ####)
+            - Bullet points where appropriate
+            - Numbered lists for processes
+            - Bold text for emphasis
+            - Blockquotes for important notes (> [!info] Note title)
+            
+            Language: {language}
+            
+            Make the content informative, well-organized, and easy to read."""
+        else:
+            system_message = "You are a helpful assistant that creates well-structured content."
+        
+        # Use the LLM to generate content
+        headers = {
+            "Authorization": f"Bearer {LLM_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": LLM_DEFAULT_MODEL,
+            "messages": [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": prompt}
+            ],
+            "max_tokens": 2000,
+            "temperature": 0.7
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(LLM_API_URL, headers=headers, json=data)
+            response.raise_for_status()
+            
+            result = response.json()
+            return result["choices"][0]["message"]["content"]
+    
+    except Exception as e:
+        logger.error(f"Error generating content with LLM: {e}")
+        # Return a fallback response
+        return f"# {prompt}\n\nContent generation is currently unavailable. Please try again later."
+
 # --- New endpoint: list trashed projects for user ---
 
 @app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
@@ -13880,3 +13985,107 @@ CRITICAL REQUIREMENTS:
 - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
 - The "question_type" field is MANDATORY for every question
 """
+
+# Text Presentation Finalize Request Model
+class TextPresentationFinalize(BaseModel):
+    aiResponse: str
+    prompt: str
+    language: str = "en"
+    fromFiles: Optional[bool] = False
+    fromText: Optional[bool] = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    textMode: Optional[str] = None
+    userText: Optional[str] = None
+
+async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
+    """Ensure text presentation template exists and return its ID"""
+    async with pool.acquire() as conn:
+        # Check if template exists
+        template_row = await conn.fetchrow(
+            "SELECT id FROM design_templates WHERE component_name = $1",
+            COMPONENT_NAME_TEXT_PRESENTATION
+        )
+        
+        if template_row:
+            return template_row['id']
+        
+        # Create template if it doesn't exist
+        template_id = await conn.fetchval("""
+            INSERT INTO design_templates (
+                template_name, component_name, template_structuring_prompt, created_at
+            )
+            VALUES ($1, $2, $3, NOW())
+            RETURNING id
+        """, "Text Presentation", COMPONENT_NAME_TEXT_PRESENTATION, DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM)
+        
+        return template_id
+
+@app.post("/api/custom/text-presentation/finalize")
+async def text_presentation_finalize(payload: TextPresentationFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Finalize text presentation creation by parsing AI response and saving to database"""
+    logger.info(f"Finalizing text presentation: {payload.prompt}")
+    
+    # Validate required fields
+    if not payload.prompt or not payload.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt is required")
+    
+    if not payload.aiResponse or not payload.aiResponse.strip():
+        raise HTTPException(status_code=400, detail="AI response content is required")
+
+    try:
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Ensure text presentation template exists
+        template_id = await _ensure_text_presentation_template(pool)
+        
+        # Create project name
+        project_name = payload.prompt.strip()
+        if len(project_name) > 100:
+            project_name = project_name[:97] + "..."
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
+        
+        # Create project data
+        project_data = ProjectCreateRequest(
+            projectName=project_name,
+            design_template_id=template_id,
+            microProductName=None,
+            aiResponse=payload.aiResponse.strip(),
+            chatSessionId=None
+        )
+        
+        # Create project with proper error handling
+        try:
+            created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        except HTTPException as e:
+            # Re-raise HTTP exceptions as-is
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to create text presentation project: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create text presentation project")
+
+        # Validate the created project
+        if not created_project or not created_project.id:
+            logger.error("Text presentation project creation returned invalid result")
+            raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
+
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Successfully finalized text presentation with project ID: {created_project.id}")
+        
+        # Return response in the expected format
+        return {
+            "id": created_project.id,
+            "name": created_project.project_name,
+            "message": "Text presentation finalized successfully"
+        }
+    
+    except HTTPException:
+        # Re-raise HTTP exceptions without modification
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in text presentation finalization: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An unexpected error occurred during finalization"
+        )
