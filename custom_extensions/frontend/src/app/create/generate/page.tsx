@@ -1273,127 +1273,104 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingTextOutline !== null && (
-              <div className="flex flex-col items-center gap-4 w-full max-w-md">
+              <div className="flex flex-wrap justify-center gap-2">
+                {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Select Course Outline</label>
-                      <select
-                        value={selectedTextOutlineId || ""}
-                        onChange={(e) => {
-                          setSelectedTextOutlineId(Number(e.target.value) || null);
-                          setSelectedTextModuleIndex(null);
-                          setTextLessonsForModule([]);
-                          setSelectedTextLesson("");
-                        }}
-                        className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                      >
-                        <option value="">Choose an outline...</option>
-                        {textOutlines.map((outline) => (
-                          <option key={outline.id} value={outline.id}>
-                            {outline.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {selectedTextOutlineId && textModulesForOutline.length > 0 && (
-                      <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Module</label>
-                        <select
-                          value={selectedTextModuleIndex !== null ? selectedTextModuleIndex : ""}
-                          onChange={(e) => {
-                            const moduleIndex = Number(e.target.value);
-                            setSelectedTextModuleIndex(moduleIndex);
-                            setTextLessonsForModule(textModulesForOutline[moduleIndex]?.lessons || []);
-                            setSelectedTextLesson("");
-                          }}
-                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                        >
-                          <option value="">Choose a module...</option>
-                          {textModulesForOutline.map((module, index) => (
-                            <option key={index} value={index}>
-                              {module.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {selectedTextModuleIndex !== null && textLessonsForModule.length > 0 && (
-                      <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Lesson</label>
-                        <select
-                          value={selectedTextLesson}
-                          onChange={(e) => setSelectedTextLesson(e.target.value)}
-                          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                        >
-                          <option value="">Choose a lesson...</option>
-                          {textLessonsForModule.map((lesson, index) => (
-                            <option key={index} value={lesson}>
-                              {lesson}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {selectedTextLesson && (
-                      <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-                        <select
-                          value={textLanguage}
-                          onChange={(e) => setTextLanguage(e.target.value)}
-                          className="w-48 max-w-xs px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                        >
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
-                        </select>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        setUseExistingTextOutline(null);
-                        setSelectedTextOutlineId(null);
+                    {/* Outline dropdown */}
+                    <select
+                      value={selectedTextOutlineId ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedTextOutlineId(val ? Number(val) : null);
+                        // clear module & lesson selections when outline changes
                         setSelectedTextModuleIndex(null);
                         setTextLessonsForModule([]);
                         setSelectedTextLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      ← Back
-                    </button>
-                  </>
-                )}
+                      <option value="">Select Outline</option>
+                      {textOutlines.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
 
-                {/* Standalone text presentation */}
-                {useExistingTextOutline === false && (
-                  <div className="flex flex-col items-center gap-4 w-full max-w-md">
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedTextOutlineId && (
+                      <select
+                        value={selectedTextModuleIndex ?? ""}
+                        onChange={(e) => {
+                          const idx = e.target.value ? Number(e.target.value) : null;
+                          setSelectedTextModuleIndex(idx);
+                          setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
+                          setSelectedTextLesson("");
+                        }}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Module</option>
+                        {textModulesForOutline.map((m, idx) => (
+                          <option key={idx} value={idx}>{m.name}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedTextModuleIndex !== null && (
+                      <select
+                        value={selectedTextLesson}
+                        onChange={(e) => setSelectedTextLesson(e.target.value)}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Lesson</option>
+                        {textLessonsForModule.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Show final dropdowns when lesson is selected */}
+                    {selectedTextLesson && (
                       <select
                         value={textLanguage}
                         onChange={(e) => setTextLanguage(e.target.value)}
-                        className="w-48 max-w-xs px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
                         <option value="en">English</option>
                         <option value="uk">Ukrainian</option>
                         <option value="es">Spanish</option>
                         <option value="ru">Russian</option>
                       </select>
-                    </div>
-
-                    <button
-                      onClick={() => setUseExistingTextOutline(null)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                    >
-                      ← Back
-                    </button>
-                  </div>
+                    )}
+                  </>
                 )}
+
+                {/* Show standalone text presentation dropdowns if user chose standalone */}
+                {useExistingTextOutline === false && (
+                  <select
+                    value={textLanguage}
+                    onChange={(e) => setTextLanguage(e.target.value)}
+                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                  >
+                    <option value="en">English</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="es">Spanish</option>
+                    <option value="ru">Russian</option>
+                  </select>
+                )}
+
+                <button
+                  onClick={() => {
+                    setUseExistingTextOutline(null);
+                    setSelectedTextOutlineId(null);
+                    setSelectedTextModuleIndex(null);
+                    setTextLessonsForModule([]);
+                    setSelectedTextLesson("");
+                  }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </button>
               </div>
             )}
           </div>
@@ -1435,11 +1412,11 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex items-center justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="flex flex-col justify-between w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
-                      <span className="truncate">{examples[index]}</span>
-                      <span className="ml-2 text-blue-400 text-lg font-bold">+</span>
+                      <span className="text-left leading-tight">{examples[index]}</span>
+                      <span className="self-end text-blue-400 text-lg font-bold">+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
