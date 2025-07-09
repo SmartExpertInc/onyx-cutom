@@ -266,7 +266,7 @@ export default function TextPresentationClient() {
       setFinalProjectId(data.id);
       
       // Redirect to the generated project
-      router.push(`/projects/${data.id}`);
+      router.push(`/projects/view/${data.id}`);
     } catch (error) {
       console.error('Finalization failed:', error);
       setError(error instanceof Error ? error.message : 'Failed to finalize text presentation');

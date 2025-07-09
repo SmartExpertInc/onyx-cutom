@@ -1402,46 +1402,41 @@ function GenerateProductPicker() {
           (activeProduct === "Text Presentation" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Lesson Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+          <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
+            {/* Simple prompt input */}
             <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {activeProduct === "Course Outline" ? "What would you like to create a course about?" :
-                 activeProduct === "Text Presentation" ? "What would you like to create a text presentation about?" :
-                 activeProduct === "Quiz" ? "What would you like to create a quiz about?" :
-                 "What would you like to create a lesson about?"}
-              </label>
               <textarea
                 ref={promptRef}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder={
-                  activeProduct === "Course Outline" ? "e.g., JavaScript Fundamentals, Digital Marketing Basics, Python for Beginners..." :
-                  activeProduct === "Text Presentation" ? "e.g., Introduction to Machine Learning, Business Strategy Overview, Climate Change Facts..." :
-                  activeProduct === "Quiz" ? "e.g., Math Quiz for Grade 5, History Trivia, Science Knowledge Test..." :
-                  "e.g., Introduction to React Hooks, Basic Photography Techniques, Cooking Fundamentals..."
+                  activeProduct === "Course Outline" ? "What would you like to create a course about? (e.g., JavaScript Fundamentals, Digital Marketing Basics, Python for Beginners...)" :
+                  activeProduct === "Text Presentation" ? "What would you like to create a text presentation about? (e.g., Introduction to Machine Learning, Business Strategy Overview, Climate Change Facts...)" :
+                  activeProduct === "Quiz" ? "What would you like to create a quiz about? (e.g., Math Quiz for Grade 5, History Trivia, Science Knowledge Test...)" :
+                  "What would you like to create a lesson about? (e.g., Introduction to React Hooks, Basic Photography Techniques, Cooking Fundamentals...)"
                 }
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-black resize-none overflow-hidden min-h-[60px] max-h-[200px]"
+                className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-base text-black resize-none overflow-hidden min-h-[80px] max-h-[200px] focus:border-brand-primary focus:outline-none transition-colors"
                 rows={3}
               />
             </div>
 
-            {/* Examples */}
+            {/* Simple examples grid */}
             <div className="w-full">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600">Examples:</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-gray-700">Quick examples:</span>
                 <button
                   onClick={shuffleExamples}
-                  className="flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover"
+                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-brand-primary transition-colors"
                 >
-                  <Shuffle size={14} /> Shuffle
+                  <Shuffle size={16} /> New examples
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {examples.map((example, index) => (
                   <button
                     key={index}
                     onClick={() => setPrompt(example)}
-                    className="px-3 py-1 rounded-full border border-gray-300 bg-white/90 text-xs text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                    className="text-left px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
                   >
                     {example}
                   </button>

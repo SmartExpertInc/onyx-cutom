@@ -14234,27 +14234,71 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 detectedLanguage=payload.language
             ),
             dynamic_instructions=f"""
-            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+            This product is for general text like introductions, goal descriptions, etc.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            The AI response contains text presentation content in natural language format. You need to convert this into a structured TextPresentationDetails JSON format.
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
 
-            REQUIREMENTS:
-            1. Extract the main title from the content as "textTitle" (this is the main document title)
-            2. Convert the content into structured "contentBlocks" array with:
-               - "type": MUST be one of: "headline", "paragraph", "bullet_list", "numbered_list", "alert", "section_break"
-               - For headlines: "level" (2 for main sections, 3 for subsections, etc.), "text"
-               - For paragraphs: "text"
-               - For lists: "items" array with strings or nested list objects
-               - For alerts: "alertType", "title", "text"
-               - For section breaks: "style"
+            **Global Fields:**
+            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`).
+            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
+            3.  `detectedLanguage` (string): e.g., "en", "ru".
 
-            CRITICAL RULES:
-            - Output ONLY the JSON object, no other text
-            - Every content block MUST have "type" field
-            - Use exact field names as shown in the example: "textTitle" (not "lessonTitle")
-            - Maintain the logical structure and hierarchy of the content
-            - If content is unclear, create a simple paragraph structure
-            - Language: {payload.language}
+            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
+            1.  **`type: "headline"`**
+                * `level` (integer):
+                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+                * `text` (string): Headline text.
+                * `iconName` (string, optional): Based on level and context as described above.
+                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
+
+            2.  **`type: "paragraph"`**
+                * `text` (string): Full paragraph text.
+                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендация', 'Рекомендація' — or their localized equivalents, and isn't a part of the bullet list.
+
+            3.  **`type: "bullet_list"`**
+                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
+
+            4.  **`type: "numbered_list"`**
+                * `items` (array of `ListItem`):
+                    * Can be simple strings for basic numbered points.
+                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                        * The `items` of this *inner* `bullet_list` should then be:
+                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                            2. A `paragraph` block (for the main descriptive text).
+                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
+
+            5.  **`type: "alert"`**
+                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+                *   `title` (string, optional): The title of the alert.
+                *   `text` (string): The body text of the alert.
+                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+            6.  **`type: "section_break"`**
+                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+            **General Parsing Rules & Icon Names:**
+            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+            Return ONLY the JSON object.
             """,
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
