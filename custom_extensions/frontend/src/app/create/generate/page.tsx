@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, FileText as TextPresentationIcon } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Inline SVG icon components
