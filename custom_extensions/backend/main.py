@@ -13880,3 +13880,367 @@ CRITICAL REQUIREMENTS:
 - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
 - The "question_type" field is MANDATORY for every question
 """
+
+# Text Presentation Pydantic models
+class TextPresentationWizardPreview(BaseModel):
+    outlineId: Optional[int] = None
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    prompt: Optional[str] = None
+    language: str = "en"
+    fromFiles: bool = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    fromText: bool = False
+    textMode: Optional[str] = None
+    userText: Optional[str] = None
+    chatSessionId: Optional[str] = None
+
+class TextPresentationWizardFinalize(BaseModel):
+    aiResponse: str
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    language: str = "en"
+
+@app.post("/api/custom/text-presentation/generate")
+async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
+    """Generate text presentation content with streaming response"""
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_START] Text presentation preview initiated")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Text Presentation",
+        "prompt": payload.prompt or "Create a comprehensive text presentation",
+        "language": payload.language,
+    }
+
+    # Add outline context if provided
+    if payload.outlineId:
+        wiz_payload["outlineId"] = payload.outlineId
+    if payload.lesson:
+        wiz_payload["lesson"] = payload.lesson
+    if payload.courseName:
+        wiz_payload["courseName"] = payload.courseName
+
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    if payload.fromText and payload.userText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        
+        text_length = len(payload.userText)
+        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        if text_length > LARGE_TEXT_THRESHOLD:
+            # Use virtual file system for large texts to prevent AI memory issues
+            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            try:
+                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                wiz_payload["virtualFileId"] = virtual_file_id
+                wiz_payload["textCompressed"] = False
+                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+            except Exception as e:
+                logger.error(f"Failed to create virtual file for large text: {e}")
+                # Fallback to chunking if virtual file creation fails
+                chunks = chunk_text(payload.userText)
+                if len(chunks) == 1:
+                    # Single chunk, use compression
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
+                    wiz_payload["textCompressed"] = True
+                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    # Multiple chunks, use first chunk with compression
+                    first_chunk = chunks[0]
+                    compressed_chunk = compress_text(first_chunk)
+                    wiz_payload["userText"] = compressed_chunk
+                    wiz_payload["textCompressed"] = True
+                    wiz_payload["textChunked"] = True
+                    wiz_payload["totalChunks"] = len(chunks)
+                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
+        elif text_length > TEXT_SIZE_THRESHOLD:
+            # Compress medium text to reduce payload size
+            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
+            compressed_text = compress_text(payload.userText)
+            wiz_payload["userText"] = compressed_text
+            wiz_payload["textCompressed"] = True
+            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+        else:
+            # Use direct text for small content
+            logger.info(f"Using direct text for small content ({text_length} chars)")
+            wiz_payload["userText"] = payload.userText
+            wiz_payload["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Decompress text if it was compressed
+    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        try:
+            decompressed_text = decompress_text(wiz_payload["userText"])
+            wiz_payload["userText"] = decompressed_text
+            wiz_payload["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress text: {e}")
+            # Continue with original text if decompression fails
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        try:
+            async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                # Parse folder and file IDs for Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                if payload.fromFiles and payload.folderIds:
+                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                if payload.fromFiles and payload.fileIds:
+                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": file_ids_list,
+                    "user_folder_ids": folder_ids_list,
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "never", "real_time": False},
+                    "stream_response": True,
+                }
+                logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
+                
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Response status: {resp.status_code}")
+                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
+                    
+                    if resp.status_code != 200:
+                        logger.error(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
+                        error_text = await resp.text()
+                        logger.error(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Error response: {error_text}")
+                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                    
+                    async for raw_line in resp.aiter_lines():
+                        total_bytes_received += len(raw_line.encode('utf-8'))
+                        chunks_received += 1
+                        
+                        if not raw_line:
+                            logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
+                            continue
+                            
+                        line = raw_line.strip()
+                        logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
+                        
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                            logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
+                            
+                        if line == "[DONE]":
+                            logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
+                            done_received = True
+                            break
+                            
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            else:
+                                logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
+                        except json.JSONDecodeError as e:
+                            logger.error(f"[TEXT_PRESENTATION_PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
+                            continue
+                    
+                    if not done_received:
+                        logger.warning(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
+                    
+                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Stream completed: {chunks_received} chunks, {total_bytes_received} bytes, {len(assistant_reply)} chars total")
+                    
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_PREVIEW_STREAM_ERROR] Error in streamer: {e}", exc_info=not IS_PRODUCTION)
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+        }
+    )
+
+@app.post("/api/custom/text-presentation/finalize")
+async def text_presentation_finalize(payload: TextPresentationWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Finalize text presentation creation by parsing AI response and saving to database"""
+    onyx_user_id = await get_current_onyx_user_id(request)
+    
+    # Create a unique key for this text presentation finalization to prevent duplicates
+    text_presentation_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
+    
+    # Check if this text presentation is already being processed
+    if text_presentation_key in ACTIVE_QUIZ_FINALIZE_KEYS:  # Reuse the same set for simplicity
+        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_DUPLICATE] Text presentation finalization already in progress for key: {text_presentation_key}")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Text presentation finalization already in progress")
+    
+    # Add to active set and track timestamp
+    ACTIVE_QUIZ_FINALIZE_KEYS.add(text_presentation_key)
+    QUIZ_FINALIZE_TIMESTAMPS[text_presentation_key] = time.time()
+    
+    # Clean up stale entries (older than 5 minutes)
+    current_time = time.time()
+    stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
+    for stale_key in stale_keys:
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
+    
+    try:
+        # Ensure text presentation template exists
+        template_id = await _ensure_text_presentation_template(pool)
+        
+        # Create a consistent project name to prevent re-parsing issues
+        if payload.courseName:
+            project_name = f"Text Presentation - {payload.courseName}: {payload.lesson or 'Standalone Presentation'}"
+        else:
+            project_name = f"Text Presentation - {payload.lesson or 'Standalone Presentation'}"
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
+        
+        # For text presentations, we store the raw AI response as content
+        # since it's already in the correct format for text presentations
+        text_presentation_content = {
+            "title": project_name,
+            "content": payload.aiResponse,
+            "language": payload.language,
+            "detectedLanguage": payload.language
+        }
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {project_name}")
+        
+        # Insert directly to avoid double parsing
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                  microproduct_content, design_template_id, source_chat_session_id, created_at;
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                insert_query,
+                onyx_user_id,
+                project_name,
+                "Text Presentation",  # product_type
+                "Text Presentation",  # microproduct_type
+                project_name,  # microproduct_name
+                text_presentation_content,  # microproduct_content
+                template_id,  # design_template_id
+                None  # source_chat_session_id
+            )
+        
+        if not row:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create text presentation project entry.")
+        
+        created_project = ProjectDB(**dict(row))
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={project_name}")
+        return {"id": created_project.id, "name": project_name}
+        
+    except Exception as e:
+        logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    finally:
+        # Always remove from active set and timestamps
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+
+async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
+    """Ensure text presentation template exists and return its ID"""
+    async with pool.acquire() as conn:
+        # Check if template already exists
+        template = await conn.fetchrow(
+            "SELECT id FROM design_templates WHERE product_type = $1 AND microproduct_type = $2",
+            "Text Presentation", "Text Presentation"
+        )
+        
+        if template:
+            return template['id']
+        
+        # Create template if it doesn't exist
+        template_id = await conn.fetchval(
+            """
+            INSERT INTO design_templates (product_type, microproduct_type, template_name, template_data, created_at)
+            VALUES ($1, $2, $3, $4, NOW())
+            RETURNING id
+            """,
+            "Text Presentation",
+            "Text Presentation", 
+            "Default Text Presentation Template",
+            {"theme": "default", "layout": "standard"}
+        )
+        
+        logger.info(f"Created text presentation template with ID: {template_id}")
+        return template_id
