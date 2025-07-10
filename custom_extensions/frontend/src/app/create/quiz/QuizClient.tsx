@@ -79,8 +79,11 @@ export default function QuizClient() {
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(outlineId ? Number(outlineId) : null);
   const [selectedLesson, setSelectedLesson] = useState<string>(lesson || "");
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
-  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string>(questionTypes);
+  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>(
+    questionTypes ? questionTypes.split(',').filter(Boolean) : ["multiple-choice", "multi-select", "matching", "sorting", "open-answer"]
+  );
   const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(questionCount);
+  const [showQuestionTypesDropdown, setShowQuestionTypesDropdown] = useState(false);
   
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
@@ -91,9 +94,11 @@ export default function QuizClient() {
   const [selectedTheme, setSelectedTheme] = useState<string>("wine");
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
+  const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const previewAbortRef = useRef<AbortController | null>(null);
 
   // ---- Inline Advanced Mode ----
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -231,49 +236,30 @@ export default function QuizClient() {
       return;
     }
 
-    // Helper function to perform the actual quiz generation with retry logic
-    const performQuizGeneration = async (attempt: number = 1): Promise<void> => {
-      
-      try {
-        const params = new URLSearchParams();
-        
-        if (selectedOutlineId && selectedLesson) {
-          params.set("outlineId", selectedOutlineId.toString());
-          params.set("lesson", selectedLesson);
-        } else if (promptQuery) {
-          params.set("prompt", promptQuery);
-        }
-        
-        params.set("questionTypes", selectedQuestionTypes);
-        params.set("lang", selectedLanguage);
-        params.set("questionCount", selectedQuestionCount.toString());
+    const startPreview = (attempt: number = 0) => {
+      // Reset visibility states for a fresh preview run
+      setTextareaVisible(false);
+      setFirstLineRemoved(false);
+      // Reset stream completion flag for new preview
+      setStreamDone(false);
+      const abortController = new AbortController();
+      if (previewAbortRef.current) previewAbortRef.current.abort();
+      previewAbortRef.current = abortController;
 
-        // Add file context if coming from files
-        if (fromFiles) {
-          params.set("fromFiles", "true");
-          if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
-          if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
-        }
-        
-        // Add text context if coming from text
-        if (fromText) {
-          params.set("fromText", "true");
-          params.set("textMode", textMode || 'context');
-          // userText stays in sessionStorage - don't pass via URL
-        }
+      const fetchPreview = async () => {
+        setIsGenerating(true);
+        setError(null);
+        setQuizData(""); // Clear previous content
+        let gotFirstChunk = false;
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        try {
+          const requestBody: any = {
             outlineId: selectedOutlineId,
             lesson: selectedLesson,
-            courseName: courseName, // Add course name to request
+            courseName: courseName,
             prompt: promptQuery,
             language: selectedLanguage,
-            questionTypes: selectedQuestionTypes,
+            questionTypes: selectedQuestionTypes.join(','),
             fromFiles: fromFiles,
             folderIds: memoizedFolderIds.join(','),
             fileIds: memoizedFileIds.join(','),
@@ -281,139 +267,172 @@ export default function QuizClient() {
             textMode: textMode,
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
             questionCount: selectedQuestionCount,
-          }),
-          signal: abortControllerRef.current?.signal,
-        });
+          };
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: abortController.signal,
+          });
 
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error("No response body");
-        }
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
 
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let gotFirstChunk = false;
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error("No response body");
+          }
 
-        while (true) {
-          const { done, value } = await reader.read();
-          
-          if (done) {
-            // Process any remaining buffer
-            if (buffer.trim()) {
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              // Process any remaining buffer
+              if (buffer.trim()) {
+                try {
+                  const pkt = JSON.parse(buffer.trim());
+                  gotFirstChunk = true;
+                  if (pkt.type === "delta") {
+                    setQuizData(prev => prev + pkt.text);
+                  }
+                } catch (e) {
+                  // If not JSON, treat as plain text
+                  setQuizData(prev => prev + buffer);
+                }
+              }
+              setIsComplete(true);
+              setStreamDone(true);
+              setTextareaVisible(true);
+              return;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+            
+            // Split by newlines and process complete chunks
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ""; // Keep incomplete line in buffer
+            
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              
               try {
-                const pkt = JSON.parse(buffer.trim());
+                const pkt = JSON.parse(line);
                 gotFirstChunk = true;
+                
                 if (pkt.type === "delta") {
                   setQuizData(prev => prev + pkt.text);
+                } else if (pkt.type === "done") {
+                  setIsComplete(true);
+                  setStreamDone(true);
+                  setTextareaVisible(true);
+                  return;
+                } else if (pkt.type === "error") {
+                  throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                setQuizData(prev => prev + buffer);
+                setQuizData(prev => prev + line);
               }
             }
-            setIsComplete(true);
-            setStreamDone(true);
-            setTextareaVisible(true);
+
+            // Determine if this buffer now contains some real (non-whitespace) text
+            const hasMeaningfulText = /\S/.test(buffer);
+
+            if (hasMeaningfulText && !textareaVisible) {
+              setTextareaVisible(true);
+              setIsGenerating(false); // Hide spinner & show textarea
+            }
+          }
+        } catch (error: any) {
+          if (error.name === 'AbortError') {
+            console.log('Generation cancelled');
             return;
           }
-
-          buffer += decoder.decode(value, { stream: true });
           
-          // Split by newlines and process complete chunks
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          // Check if this is a network error that should be retried
+          const isNetworkError = error.message?.includes('network') || 
+                                error.message?.includes('fetch') ||
+                                error.message?.includes('Failed to fetch') ||
+                                error.message?.includes('NetworkError') ||
+                                !navigator.onLine;
           
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            
-            try {
-              const pkt = JSON.parse(line);
-              gotFirstChunk = true;
-              
-              if (pkt.type === "delta") {
-                setQuizData(prev => prev + pkt.text);
-              } else if (pkt.type === "done") {
-                setIsComplete(true);
-                setStreamDone(true);
-                setTextareaVisible(true);
-                return;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || "Unknown error");
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
-              setQuizData(prev => prev + line);
+          if (isNetworkError && attempt < maxRetries) {
+            console.log(`Network error on attempt ${attempt}, retrying...`);
+            setRetryCount(attempt);
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            return startPreview(attempt + 1);
+          }
+          
+          throw error;
+        } finally {
+          if (!abortController.signal.aborted) {
+            // If the stream ended but we never displayed content, remove spinner anyway
+            if (isGenerating) setIsGenerating(false);
+            if (!gotFirstChunk && attempt >= 3) {
+              setError("Failed to generate quiz – please try again later.");
             }
           }
         }
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Generation cancelled');
-          return;
-        }
-        
-        // Check if this is a network error that should be retried
-        const isNetworkError = error.message?.includes('network') || 
-                              error.message?.includes('fetch') ||
-                              error.message?.includes('Failed to fetch') ||
-                              error.message?.includes('NetworkError') ||
-                              !navigator.onLine;
-        
-        if (isNetworkError && attempt < maxRetries) {
-          console.log(`Network error on attempt ${attempt}, retrying...`);
-          setRetryCount(attempt);
-          // Wait before retrying
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-          return performQuizGeneration(attempt + 1);
-        }
-        
-        throw error;
-      }
+      };
+
+      fetchPreview();
     };
 
-    const generateQuiz = async () => {
-      if (requestInProgressRef.current) return;
-      
-      requestInProgressRef.current = true;
-      setIsGenerating(true);
-      setError(null);
-      setQuizData("");
-      setIsComplete(false);
-      setStreamDone(false);
-      setTextareaVisible(false);
-      
-      // Create new abort controller for this request
-      abortControllerRef.current = new AbortController();
-      requestIdRef.current += 1;
-      const currentRequestId = requestIdRef.current;
-      
-      try {
-        await performQuizGeneration();
-      } catch (error: any) {
-        if (currentRequestId === requestIdRef.current) {
-          console.error('Quiz generation error:', error);
-          setError(error.message || 'An error occurred during quiz generation');
-        }
-      } finally {
-        if (currentRequestId === requestIdRef.current) {
-          requestInProgressRef.current = false;
-          setIsGenerating(false);
-        }
-      }
-    };
-
-    generateQuiz();
+    startPreview();
 
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+      if (previewAbortRef.current) {
+        previewAbortRef.current.abort();
       }
     };
   }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
+
+  // Auto-scroll textarea as new content streams in
+  useEffect(() => {
+    if (textareaVisible && textareaRef.current) {
+      // Scroll to bottom to keep newest text in view
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+    }
+  }, [quizData, textareaVisible]);
+
+  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  useEffect(() => {
+    if (streamDone && !firstLineRemoved) {
+      const parts = quizData.split('\n');
+      if (parts.length > 1) {
+        let trimmed = parts.slice(1).join('\n');
+        // Remove leading blank lines (one or more) at the very start
+        trimmed = trimmed.replace(/^(\s*\n)+/, '');
+        setQuizData(trimmed);
+      }
+      setFirstLineRemoved(true);
+    }
+  }, [streamDone, firstLineRemoved, quizData]);
+
+  // Click outside handler for question types dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showQuestionTypesDropdown) {
+        const target = event.target as Element;
+        if (!target.closest('.question-types-dropdown')) {
+          setShowQuestionTypesDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showQuestionTypesDropdown]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -460,8 +479,8 @@ export default function QuizClient() {
   };
 
   const handleCancel = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+    if (previewAbortRef.current) {
+      previewAbortRef.current.abort();
     }
   };
 
@@ -650,17 +669,46 @@ export default function QuizClient() {
                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
                       <div className="relative">
-                        <select
-                          value={selectedQuestionTypes}
-                          onChange={(e) => setSelectedQuestionTypes(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        <button
+                          onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                          className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="multiple_choice">Multiple Choice</option>
-                          <option value="true_false">True/False</option>
-                          <option value="short_answer">Short Answer</option>
-                          <option value="mixed">Mixed Types</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                          <span>
+                            {selectedQuestionTypes.length === 0
+                              ? "Select Question Types"
+                              : selectedQuestionTypes.length === 1
+                              ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                              : `${selectedQuestionTypes.length} types selected`}
+                          </span>
+                          <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showQuestionTypesDropdown && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
+                            {[
+                              { value: "multiple-choice", label: "Multiple Choice" },
+                              { value: "multi-select", label: "Multi-Select" },
+                              { value: "matching", label: "Matching" },
+                              { value: "sorting", label: "Sorting" },
+                              { value: "open-answer", label: "Open Answer" }
+                            ].map((type) => (
+                              <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedQuestionTypes.includes(type.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                    } else {
+                                      setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                    }
+                                  }}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm">{type.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="relative">
                         <select
@@ -696,17 +744,46 @@ export default function QuizClient() {
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
                   <div className="relative">
-                    <select
-                      value={selectedQuestionTypes}
-                      onChange={(e) => setSelectedQuestionTypes(e.target.value)}
-                      className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    <button
+                      onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                      className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="multiple_choice">Multiple Choice</option>
-                      <option value="true_false">True/False</option>
-                      <option value="short_answer">Short Answer</option>
-                      <option value="mixed">Mixed Types</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      <span>
+                        {selectedQuestionTypes.length === 0
+                          ? "Select Question Types"
+                          : selectedQuestionTypes.length === 1
+                          ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                          : `${selectedQuestionTypes.length} types selected`}
+                      </span>
+                      <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showQuestionTypesDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
+                        {[
+                          { value: "multiple-choice", label: "Multiple Choice" },
+                          { value: "multi-select", label: "Multi-Select" },
+                          { value: "matching", label: "Matching" },
+                          { value: "sorting", label: "Sorting" },
+                          { value: "open-answer", label: "Open Answer" }
+                        ].map((type) => (
+                          <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedQuestionTypes.includes(type.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                } else {
+                                  setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                }
+                              }}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm">{type.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="relative">
                     <select
