@@ -2091,35 +2091,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                     }
                                 }
                                 
-                                // Pattern 4: Enhanced quiz detection - check if quiz name contains outline name or is related
-                                if (!belongsToOutline && isQuiz) {
-                                    // Check if any outline name is contained within the quiz name
-                                    for (const outlineName of outlineNames) {
-                                        if (projectTitle.toLowerCase().includes(outlineName.toLowerCase()) ||
-                                            outlineName.toLowerCase().includes(projectTitle.toLowerCase())) {
-                                            belongsToOutline = true;
-                                            console.log(`🔍 [FILTER] Quiz "${projectTitle}" filtered out (Pattern 4: Name similarity with outline "${outlineName}")`);
-                                            break;
-                                        }
-                                    }
-                                    
-                                                                    // Pattern 5: Check if quiz name is a subset or superset of outline name
-                                if (!belongsToOutline) {
-                                    for (const outlineName of outlineNames) {
-                                        const quizWords = projectTitle.toLowerCase().split(/\s+/);
-                                        const outlineWords = outlineName.toLowerCase().split(/\s+/);
-                                        
-                                        // Check if there's significant word overlap
-                                        const commonWords = quizWords.filter(word => outlineWords.includes(word));
-                                        const overlapRatio = commonWords.length / Math.max(quizWords.length, outlineWords.length);
-                                        
-                                        if (overlapRatio >= 0.5 && commonWords.length >= 2) {
-                                            belongsToOutline = true;
-                                            console.log(`🔍 [FILTER] Quiz "${projectTitle}" filtered out (Pattern 5: Word overlap ${overlapRatio.toFixed(2)} with outline "${outlineName}")`);
-                                            break;
-                                        }
-                                    }
-                                }
+
                                 
                                 // Pattern 6: Check if quiz and outline share the same chat session (indicating they were created together)
                                 if (!belongsToOutline) {
@@ -2134,7 +2106,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                             console.log(`🔍 [FILTER] Quiz "${projectTitle}" filtered out (Pattern 6: Same chat session as outline "${outlineWithSameChatSession.title}")`);
                                         }
                                     }
-                                }
                                 }
                             }
                         }

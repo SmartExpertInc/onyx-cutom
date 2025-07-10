@@ -13818,6 +13818,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] lesson: {payload.lesson}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] courseName: {payload.courseName}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
         
@@ -13937,7 +13939,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 final_project_name,  # microproduct_name
                 parsed_quiz.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
-                None  # source_chat_session_id
+                payload.chatSessionId  # source_chat_session_id
             )
         
         if not row:
@@ -14149,6 +14151,7 @@ class TextPresentationWizardFinalize(BaseModel):
     lesson: Optional[str] = None
     courseName: Optional[str] = None
     language: str = "en"
+    chatSessionId: Optional[str] = None
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -14552,6 +14555,8 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] courseName: {payload.courseName}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
         
@@ -14718,7 +14723,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 final_project_name,  # microproduct_name
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
-                None  # source_chat_session_id
+                payload.chatSessionId  # source_chat_session_id
             )
         
         if not row:
