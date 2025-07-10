@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
+import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
+import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -35,84 +36,29 @@ const ProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
   </div>
 );
 
-// Theme SVGs placeholder (replace with actual SVGs or import as needed)
-const ThemeSvgs = {
-  wine: () => <div className="w-full h-full bg-[#f5e6e6] rounded" />, // Placeholder
-  default: () => <div className="w-full h-full bg-gray-200 rounded" />,
-};
-const themeOptions = [
-  { id: "wine", label: "Wine" },
-  { id: "cherry", label: "Cherry" },
-  { id: "lunaria", label: "Lunaria" },
-  { id: "vanilla", label: "Vanilla" },
-  { id: "terracotta", label: "Terracotta" },
-  { id: "zephyr", label: "Zephyr" },
-];
-
 export default function QuizClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // State for dropdowns
-  const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
-  const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
-  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
-  const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
-  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(searchParams?.get("outlineId") ? Number(searchParams.get("outlineId")) : null);
-  const [selectedLesson, setSelectedLesson] = useState<string>(searchParams?.get("lesson") || "");
-  const [language, setLanguage] = useState<string>(searchParams?.get("lang") || "en");
-  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    searchParams?.get("outlineId") ? true : (searchParams?.get("prompt") ? false : null)
-  );
-  const [prompt, setPrompt] = useState(searchParams?.get("prompt") || "");
-
-  // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
   const [quizData, setQuizData] = useState<string>("");
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreatingFinal, setIsCreatingFinal] = useState(false);
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
-  const [content, setContent] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [streamDone, setStreamDone] = useState(false);
-  const [textareaVisible, setTextareaVisible] = useState(false);
-  const [firstLineRemoved, setFirstLineRemoved] = useState(false);
 
   // Get parameters from URL
+  const prompt = searchParams?.get("prompt") || "";
+  const outlineId = searchParams?.get("outlineId");
+  const lesson = searchParams?.get("lesson");
+  const courseName = searchParams?.get("courseName"); // Add course name parameter
   const questionTypes = searchParams?.get("questionTypes") || "";
   const questionCount = Number(searchParams?.get("questionCount") || 10);
+  const language = searchParams?.get("lang") || "en";
   const fromFiles = searchParams?.get("fromFiles") === "true";
   const fromText = searchParams?.get("fromText") === "true";
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
-  const courseName = searchParams?.get("courseName");
-
-  // File context for creation from documents
-  const isFromFiles = searchParams?.get("fromFiles") === "true";
-  
-  // Text context for creation from user text
-  const isFromText = searchParams?.get("fromText") === "true";
-  const [userText, setUserText] = useState('');
-  
-  // Retrieve user text from sessionStorage
-  useEffect(() => {
-    if (isFromText) {
-      try {
-        const storedData = sessionStorage.getItem('pastedTextData');
-        if (storedData) {
-          const textData = JSON.parse(storedData);
-          // Check if data is recent (within 1 hour) and matches the current mode
-          if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
-            setUserText(textData.text || '');
-          }
-        }
-      } catch (error) {
-        console.error('Error retrieving pasted text data:', error);
-      }
-    }
-  }, [isFromText, textMode]);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestInProgressRef = useRef(false);
@@ -120,54 +66,68 @@ export default function QuizClient() {
   const [retryCount, setRetryCount] = useState(0);
   const [retryTrigger, setRetryTrigger] = useState(0);
   const maxRetries = 3;
-  const previewAbortRef = useRef<AbortController | null>(null);
+
+  // Memoize arrays to prevent unnecessary re-renders
+  const memoizedFolderIds = useMemo(() => folderIds, [folderIds.join(',')]);
+  const memoizedFileIds = useMemo(() => fileIds, [fileIds.join(',')]);
+
+  // State for dropdowns (matching lesson presentation structure)
+  const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
+  const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
+  const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
+  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(outlineId ? Number(outlineId) : null);
+  const [selectedLesson, setSelectedLesson] = useState<string>(lesson || "");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
+  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string>(questionTypes);
+  const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(questionCount);
+  
+  // State for conditional dropdown logic
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
+    outlineId ? true : (prompt ? false : null)
+  );
+  
+  // UI state
+  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
+  const [streamDone, setStreamDone] = useState(false);
+  const [textareaVisible, setTextareaVisible] = useState(false);
+  
+  // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Advanced mode state
+  // ---- Inline Advanced Mode ----
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
-  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
-  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
-  const [textDensity, setTextDensity] = useState("medium");
-  const [imageSource, setImageSource] = useState("ai");
-  const [aiModel, setAiModel] = useState("flux-fast");
-  // Footer/finalize
-  const [isFinalizing, setIsFinalizing] = useState(false);
 
-  // Example prompts for advanced mode
-  const quizExamples = [
+  const quizExamples: { short: string; detailed: string }[] = [
     {
-      short: "Adapt to U.S. industry specifics",
-      detailed:
-        "Update the quiz structure based on U.S. industry and cultural specifics: adjust questions, replace topics, examples, and wording that don't align with the American context.",
+      short: "Make questions more challenging",
+      detailed: "Increase the difficulty level of the quiz questions by adding more complex scenarios, requiring deeper analysis, and including higher-order thinking skills.",
     },
     {
-      short: "Adopt trends and latest practices",
-      detailed:
-        "Update the quiz structure by adding questions that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+      short: "Add more practical examples",
+      detailed: "Include more real-world examples and case studies in the questions to make them more applicable and engaging for learners.",
     },
     {
-      short: "Incorporate top industry examples",
-      detailed:
-        "Analyze the best quizzes on the market in this topic and restructure our questions accordingly: change or add content which others present more effectively. Focus on question clarity and difficulty progression.",
+      short: "Improve question clarity",
+      detailed: "Rewrite questions to be clearer and more concise, ensuring they are easy to understand and avoid ambiguity.",
     },
     {
-      short: "Simplify and restructure the content",
-      detailed:
-        "Rewrite the quiz structure to make it more logical and user-friendly. Remove redundant questions, merge overlapping content, and rephrase questions for clarity and simplicity.",
+      short: "Add variety to question types",
+      detailed: "Incorporate different types of questions (multiple choice, true/false, short answer) to make the quiz more engaging and comprehensive.",
     },
     {
-      short: "Increase value and depth of content",
-      detailed:
-        "Strengthen the quiz by adding questions that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being tested.",
+      short: "Focus on key learning objectives",
+      detailed: "Restructure the quiz to better align with the main learning objectives and ensure questions test the most important concepts.",
     },
     {
-      short: "Add case studies and applications",
-      detailed:
-        "Revise the quiz structure to include applied questions — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+      short: "Include feedback and explanations",
+      detailed: "Add detailed explanations for correct and incorrect answers to help learners understand the reasoning behind each response.",
     },
   ];
+
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
 
   const toggleExample = (ex: typeof quizExamples[number]) => {
     setSelectedExamples((prev) => {
@@ -187,254 +147,278 @@ export default function QuizClient() {
     });
   };
 
-  // Apply advanced edit
-  const handleApplyEdit = async () => {
-    if (!editPrompt.trim()) return;
-    setLoadingEdit(true);
-    try {
-      const payload: any = {
-        content: quizData,
-        editPrompt,
-      };
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      setQuizData(data.content || "");
-      setEditPrompt("");
-      setSelectedExamples([]);
-    } catch (error: any) {
-      setError(error.message || "Failed to apply edit");
-    } finally {
-      setLoadingEdit(false);
-    }
-  };
+  const themeOptions = [
+    { id: "wine", label: "Wine" },
+    { id: "cherry", label: "Default" },
+    { id: "vanilla", label: "Engenuity" },
+    { id: "terracotta", label: "Deloitte" },
+    { id: "lunaria", label: "Lunaria" },
+    { id: "zephyr", label: "Zephyr" },
+  ];
 
-  // Memoize arrays to prevent unnecessary re-renders
-  const memoizedFolderIds = useMemo(() => folderIds, [folderIds.join(',')]);
-  const memoizedFileIds = useMemo(() => fileIds, [fileIds.join(',')]);
-
-  // Fetch outlines and lessons for dropdowns
+  // Fetch all outlines when switching to existing outline mode
   useEffect(() => {
+    if (useExistingOutline !== true) return;
     const fetchOutlines = async () => {
       try {
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/outlines`);
-        if (response.ok) {
-          const data = await response.json();
-          setOutlines(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch outlines:", error);
-      }
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
+        setOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+      } catch (_) {}
     };
-
-    const fetchLessons = async () => {
-      if (!selectedOutlineId) return;
-      try {
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/outlines/${selectedOutlineId}/modules`);
-        if (response.ok) {
-          const data = await response.json();
-          setModulesForOutline(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch modules:", error);
-      }
-    };
-
     fetchOutlines();
-    if (selectedOutlineId) {
-      fetchLessons();
-    }
-  }, [selectedOutlineId]);
+  }, [useExistingOutline]);
 
-  // Update lessons when module changes
+  // Fetch lessons when a course outline is selected
   useEffect(() => {
-    if (selectedModuleIndex !== null && modulesForOutline[selectedModuleIndex]) {
-      setLessonsForModule(modulesForOutline[selectedModuleIndex].lessons);
-    }
-  }, [selectedModuleIndex, modulesForOutline]);
+    if (useExistingOutline !== true || selectedOutlineId == null) {
+      setModulesForOutline([]);
+      setSelectedModuleIndex(null);
+      setLessonsForModule([]);
+      setSelectedLesson("");
+      return;
+    };
+    const fetchLessons = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedOutlineId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const sections = data?.details?.sections || [];
+        const modules = sections.map((sec: any) => ({
+          name: sec.title || "Unnamed module",
+          lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+        }));
+        setModulesForOutline(modules);
 
-  // Streaming preview effect
+        // If a lesson was pre-selected via query params, attempt to locate its module
+        if (selectedLesson) {
+          const modIdx = modules.findIndex((m: { lessons: string[] }) => m.lessons.includes(selectedLesson));
+          if (modIdx !== -1) {
+            setSelectedModuleIndex(modIdx);
+            setLessonsForModule(modules[modIdx].lessons);
+          } else {
+            // lesson not found in fetched data – clear it
+            setSelectedModuleIndex(null);
+            setLessonsForModule([]);
+            setSelectedLesson("");
+          }
+        } else {
+          // No lesson selected yet – clear downstream selections
+          setSelectedModuleIndex(null);
+          setLessonsForModule([]);
+        }
+      } catch (_) {}
+    };
+    fetchLessons();
+  }, [selectedOutlineId, useExistingOutline, selectedLesson]);
+
+  // Effect to trigger streaming preview generation
   useEffect(() => {
-    // Only trigger if we have a lesson or a prompt
-    const hasValidInput = (selectedOutlineId && selectedLesson) || prompt.trim() || fromFiles || fromText;
+    // Start preview when one of the following is true:
+    //   • a lesson was chosen from the outline (old behaviour)
+    //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
+    const promptQuery = searchParams?.get("prompt")?.trim() || "";
+    if (!selectedLesson && !promptQuery) {
+      // Nothing to preview yet – wait for user input
+      return;
+    }
+
+    // Don't start generation if there's no valid input
+    const hasValidInput = (selectedOutlineId && selectedLesson) || promptQuery || fromFiles || fromText;
     if (!hasValidInput) {
       return;
     }
 
-    const startPreview = (attempt: number = 0) => {
-      if (previewAbortRef.current) {
-        previewAbortRef.current.abort();
-      }
-      previewAbortRef.current = new AbortController();
+    // Helper function to perform the actual quiz generation with retry logic
+    const performQuizGeneration = async (attempt: number = 1): Promise<void> => {
+      
+      try {
+        const params = new URLSearchParams();
+        
+        if (selectedOutlineId && selectedLesson) {
+          params.set("outlineId", selectedOutlineId.toString());
+          params.set("lesson", selectedLesson);
+        } else if (promptQuery) {
+          params.set("prompt", promptQuery);
+        }
+        
+        params.set("questionTypes", selectedQuestionTypes);
+        params.set("lang", selectedLanguage);
+        params.set("questionCount", selectedQuestionCount.toString());
 
-      const fetchPreview = async () => {
-        try {
-          setLoading(true);
-          setError(null);
-          setContent("");
-          setStreamDone(false);
-          setFirstLineRemoved(false);
+        // Add file context if coming from files
+        if (fromFiles) {
+          params.set("fromFiles", "true");
+          if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+          if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+        }
+        
+        // Add text context if coming from text
+        if (fromText) {
+          params.set("fromText", "true");
+          params.set("textMode", textMode || 'context');
+          // userText stays in sessionStorage - don't pass via URL
+        }
 
-          const params = new URLSearchParams();
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            outlineId: selectedOutlineId,
+            lesson: selectedLesson,
+            courseName: courseName, // Add course name to request
+            prompt: promptQuery,
+            language: selectedLanguage,
+            questionTypes: selectedQuestionTypes,
+            fromFiles: fromFiles,
+            folderIds: memoizedFolderIds.join(','),
+            fileIds: memoizedFileIds.join(','),
+            fromText: fromText,
+            textMode: textMode,
+            userText: fromText ? sessionStorage.getItem('userText') : undefined,
+            questionCount: selectedQuestionCount,
+          }),
+          signal: abortControllerRef.current?.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error("No response body");
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let gotFirstChunk = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
           
-          if (selectedOutlineId && selectedLesson) {
-            params.set("outlineId", selectedOutlineId.toString());
-            params.set("lesson", selectedLesson);
-          } else if (prompt) {
-            params.set("prompt", prompt);
-          }
-          
-          params.set("questionTypes", questionTypes);
-          params.set("lang", language);
-          params.set("questionCount", questionCount.toString());
-
-          // Add file context if coming from files
-          if (fromFiles) {
-            params.set("fromFiles", "true");
-            if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
-            if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
-          }
-          
-          // Add text context if coming from text
-          if (fromText) {
-            params.set("fromText", "true");
-            params.set("textMode", textMode || 'context');
-            // userText stays in sessionStorage - don't pass via URL
-          }
-
-          const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              outlineId: selectedOutlineId,
-              lesson: selectedLesson,
-              courseName: courseName,
-              prompt: prompt,
-              language: language,
-              questionTypes: questionTypes,
-              fromFiles: fromFiles,
-              folderIds: memoizedFolderIds.join(','),
-              fileIds: memoizedFileIds.join(','),
-              fromText: fromText,
-              textMode: textMode,
-              userText: fromText ? sessionStorage.getItem('userText') : undefined,
-              questionCount: questionCount,
-            }),
-            signal: previewAbortRef.current?.signal,
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const reader = response.body?.getReader();
-          if (!reader) {
-            throw new Error("No response body");
-          }
-
-          const decoder = new TextDecoder();
-          let buffer = "";
-          let gotFirstChunk = false;
-
-          while (true) {
-            const { done, value } = await reader.read();
-            
-            if (done) {
-              // Process any remaining buffer
-              if (buffer.trim()) {
-                try {
-                  const pkt = JSON.parse(buffer.trim());
-                  gotFirstChunk = true;
-                  if (pkt.type === "delta") {
-                    setContent(prev => prev + pkt.text);
-                  }
-                } catch (e) {
-                  // If not JSON, treat as plain text
-                  setContent(prev => prev + buffer);
-                }
-              }
-              setStreamDone(true);
-              setLoading(false);
-              return;
-            }
-
-            buffer += decoder.decode(value, { stream: true });
-            
-            // Split by newlines and process complete chunks
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ""; // Keep incomplete line in buffer
-            
-            for (const line of lines) {
-              if (!line.trim()) continue;
-              
+          if (done) {
+            // Process any remaining buffer
+            if (buffer.trim()) {
               try {
-                const pkt = JSON.parse(line);
+                const pkt = JSON.parse(buffer.trim());
                 gotFirstChunk = true;
-                
                 if (pkt.type === "delta") {
-                  setContent(prev => prev + pkt.text);
-                } else if (pkt.type === "done") {
-                  setStreamDone(true);
-                  setLoading(false);
-                  return;
-                } else if (pkt.type === "error") {
-                  throw new Error(pkt.text || "Unknown error");
+                  setQuizData(prev => prev + pkt.text);
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                setContent(prev => prev + line);
+                setQuizData(prev => prev + buffer);
               }
             }
-          }
-        } catch (error: any) {
-          if (error.name === 'AbortError') {
-            console.log('Preview cancelled');
+            setIsComplete(true);
+            setStreamDone(true);
+            setTextareaVisible(true);
             return;
           }
+
+          buffer += decoder.decode(value, { stream: true });
           
-          // Check if this is a network error that should be retried
-          const isNetworkError = error.message?.includes('network') || 
-                                error.message?.includes('fetch') ||
-                                error.message?.includes('Failed to fetch') ||
-                                error.message?.includes('NetworkError') ||
-                                !navigator.onLine;
+          // Split by newlines and process complete chunks
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
           
-          if (isNetworkError && attempt < maxRetries) {
-            console.warn(`Preview attempt ${attempt + 1} failed:`, error.message);
-            setRetryCount(attempt + 1);
-            // Retry after a delay
-            setTimeout(() => startPreview(attempt + 1), 2000 * (attempt + 1));
-            return;
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            try {
+              const pkt = JSON.parse(line);
+              gotFirstChunk = true;
+              
+              if (pkt.type === "delta") {
+                setQuizData(prev => prev + pkt.text);
+              } else if (pkt.type === "done") {
+                setIsComplete(true);
+                setStreamDone(true);
+                setTextareaVisible(true);
+                return;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              setQuizData(prev => prev + line);
+            }
           }
-          
-          console.error('Preview error:', error);
-          setError(error.message || 'An error occurred during preview generation');
-          setLoading(false);
         }
-      };
-
-      fetchPreview();
-    };
-
-    startPreview();
-
-    return () => {
-      if (previewAbortRef.current) {
-        previewAbortRef.current.abort();
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Generation cancelled');
+          return;
+        }
+        
+        // Check if this is a network error that should be retried
+        const isNetworkError = error.message?.includes('network') || 
+                              error.message?.includes('fetch') ||
+                              error.message?.includes('Failed to fetch') ||
+                              error.message?.includes('NetworkError') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError && attempt < maxRetries) {
+          console.log(`Network error on attempt ${attempt}, retrying...`);
+          setRetryCount(attempt);
+          // Wait before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          return performQuizGeneration(attempt + 1);
+        }
+        
+        throw error;
       }
     };
-  }, [selectedOutlineId, selectedLesson, prompt, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount, courseName, retryTrigger]);
 
-  const handleFinalize = async () => {
-    if (!content.trim()) return;
+    const generateQuiz = async () => {
+      if (requestInProgressRef.current) return;
+      
+      requestInProgressRef.current = true;
+      setIsGenerating(true);
+      setError(null);
+      setQuizData("");
+      setIsComplete(false);
+      setStreamDone(false);
+      setTextareaVisible(false);
+      
+      // Create new abort controller for this request
+      abortControllerRef.current = new AbortController();
+      requestIdRef.current += 1;
+      const currentRequestId = requestIdRef.current;
+      
+      try {
+        await performQuizGeneration();
+      } catch (error: any) {
+        if (currentRequestId === requestIdRef.current) {
+          console.error('Quiz generation error:', error);
+          setError(error.message || 'An error occurred during quiz generation');
+        }
+      } finally {
+        if (currentRequestId === requestIdRef.current) {
+          requestInProgressRef.current = false;
+          setIsGenerating(false);
+        }
+      }
+    };
 
-    setIsFinalizing(true);
+    generateQuiz();
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
+
+  const handleCreateFinal = async () => {
+    if (!quizData.trim()) return;
+
+    setIsCreatingFinal(true);
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
@@ -442,19 +426,19 @@ export default function QuizClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: content,
+          aiResponse: quizData,
           prompt: prompt,
           outlineId: selectedOutlineId,
           lesson: selectedLesson,
           courseName: courseName,
-          questionTypes: questionTypes,
-          language: language,
+          questionTypes: selectedQuestionTypes,
+          language: selectedLanguage,
           fromFiles: fromFiles,
           fromText: fromText,
           folderIds: memoizedFolderIds.join(','),
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,
-          questionCount: questionCount,
+          questionCount: selectedQuestionCount,
         }),
       });
 
@@ -471,350 +455,523 @@ export default function QuizClient() {
       console.error('Finalization error:', error);
       setError(error.message || 'An error occurred during finalization');
     } finally {
-      setIsFinalizing(false);
+      setIsCreatingFinal(false);
     }
   };
 
   const handleCancel = () => {
-    if (previewAbortRef.current) {
-      previewAbortRef.current.abort();
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
   };
 
-  // Calculate word count
-  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+  const handleApplyQuizEdit = async () => {
+    if (!editPrompt.trim() || loadingEdit) return;
+
+    setLoadingEdit(true);
+    try {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentContent: quizData,
+          editPrompt: editPrompt,
+          outlineId: selectedOutlineId,
+          lesson: selectedLesson,
+          courseName: courseName,
+          questionTypes: selectedQuestionTypes,
+          language: selectedLanguage,
+          fromFiles: fromFiles,
+          fromText: fromText,
+          folderIds: memoizedFolderIds.join(','),
+          fileIds: memoizedFileIds.join(','),
+          textMode: textMode,
+          questionCount: selectedQuestionCount,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      const decoder = new TextDecoder();
+      let newContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        newContent += chunk;
+      }
+
+      setQuizData(newContent);
+      setEditPrompt("");
+      setSelectedExamples([]);
+    } catch (error: any) {
+      console.error('Edit error:', error);
+      setError(error.message || 'An error occurred during editing');
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
 
   return (
+    <>
     <main
-      className="min-h-screen flex flex-col items-center p-6"
+      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
       style={{
-        background:
-          "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+        background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
       }}
     >
-      <div className="w-full max-w-4xl flex flex-col gap-4 text-gray-900">
-        {/* Back button */}
+      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
         <Link
           href="/create/generate"
-          className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+          className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
         >
           <ArrowLeft size={14} /> Back
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">
-          Quiz Generation
-        </h1>
-        <p className="text-center text-gray-600 text-lg -mt-1">
-          {selectedOutlineId && selectedLesson 
-            ? `Creating quiz for lesson: ${selectedLesson}`
-            : prompt 
-            ? `Creating quiz: ${prompt}`
-            : "Creating quiz from your content"
-          }
-        </p>
+        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
 
-        {/* Dropdowns Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Outline Dropdown */}
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Outline
-              </label>
-              <select
-                value={selectedOutlineId || ""}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSelectedOutlineId(value ? Number(value) : null);
+        {/* Step-by-step process */}
+        <div className="flex flex-col items-center gap-4 mb-4">
+          {/* Step 1: Choose source */}
+          {useExistingOutline === null && (
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-lg font-medium text-gray-700">Do you want to create a quiz from an existing Course Outline?</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setUseExistingOutline(true)}
+                  className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
+                >
+                  Yes, quiz for the lesson from the outline
+                </button>
+                <button
+                  onClick={() => setUseExistingOutline(false)}
+                  className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                >
+                  No, I want standalone quiz
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2+: Show dropdowns based on choice */}
+          {useExistingOutline !== null && (
+            <div className="flex flex-wrap justify-center gap-2">
+              {/* Show outline flow if user chose existing outline */}
+              {useExistingOutline === true && (
+                <>
+                  {/* Outline dropdown */}
+                  <div className="relative">
+                    <select
+                      value={selectedOutlineId ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedOutlineId(val ? Number(val) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedModuleIndex(null);
+                        setLessonsForModule([]);
+                        setSelectedLesson("");
+                      }}
+                      className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="">Select Outline</option>
+                      {outlines.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+
+                  {/* Module dropdown – appears once outline is selected */}
+                  {selectedOutlineId && (
+                    <div className="relative">
+                      <select
+                        value={selectedModuleIndex ?? ""}
+                        onChange={(e) => {
+                          const idx = e.target.value ? Number(e.target.value) : null;
+                          setSelectedModuleIndex(idx);
+                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          setSelectedLesson("");
+                        }}
+                        disabled={modulesForOutline.length === 0}
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Module</option>
+                        {modulesForOutline.map((m, idx) => (
+                          <option key={idx} value={idx}>{m.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                  )}
+
+                  {/* Lesson dropdown – appears when module chosen */}
+                  {selectedModuleIndex !== null && (
+                    <div className="relative">
+                      <select
+                        value={selectedLesson}
+                        onChange={(e) => setSelectedLesson(e.target.value)}
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Lesson</option>
+                        {lessonsForModule.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                  )}
+
+                  {/* Show final dropdowns when lesson is selected */}
+                  {selectedLesson && (
+                    <>
+                      <div className="relative">
+                        <select
+                          value={selectedLanguage}
+                          onChange={(e) => setSelectedLanguage(e.target.value)}
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={selectedQuestionTypes}
+                          onChange={(e) => setSelectedQuestionTypes(e.target.value)}
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="multiple_choice">Multiple Choice</option>
+                          <option value="true_false">True/False</option>
+                          <option value="short_answer">Short Answer</option>
+                          <option value="mixed">Mixed Types</option>
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={selectedQuestionCount}
+                          onChange={(e) => setSelectedQuestionCount(Number(e.target.value))}
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
+                            <option key={n} value={n}>{n} questions</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* Show standalone quiz dropdowns if user chose standalone */}
+              {useExistingOutline === false && (
+                <>
+                  <div className="relative">
+                    <select
+                      value={selectedLanguage}
+                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                      className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                  <div className="relative">
+                    <select
+                      value={selectedQuestionTypes}
+                      onChange={(e) => setSelectedQuestionTypes(e.target.value)}
+                      className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="multiple_choice">Multiple Choice</option>
+                      <option value="true_false">True/False</option>
+                      <option value="short_answer">Short Answer</option>
+                      <option value="mixed">Mixed Types</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                  <div className="relative">
+                    <select
+                      value={selectedQuestionCount}
+                      onChange={(e) => setSelectedQuestionCount(Number(e.target.value))}
+                      className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
+                        <option key={n} value={n}>{n} questions</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                </>
+              )}
+
+              {/* Reset button */}
+              <button
+                onClick={() => {
+                  setUseExistingOutline(null);
+                  setSelectedOutlineId(null);
                   setSelectedModuleIndex(null);
+                  setLessonsForModule([]);
                   setSelectedLesson("");
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
               >
-                <option value="">Select an outline</option>
-                {outlines.map((outline) => (
-                  <option key={outline.id} value={outline.id}>
-                    {outline.name}
-                  </option>
-                ))}
-              </select>
+                ← Back
+              </button>
             </div>
-
-            {/* Module Dropdown */}
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Module
-              </label>
-              <select
-                value={selectedModuleIndex !== null ? selectedModuleIndex : ""}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSelectedModuleIndex(value ? Number(value) : null);
-                  setSelectedLesson("");
-                }}
-                disabled={!selectedOutlineId}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
-              >
-                <option value="">Select a module</option>
-                {modulesForOutline.map((module, index) => (
-                  <option key={index} value={index}>
-                    {module.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Lesson Dropdown */}
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Lesson
-              </label>
-              <select
-                value={selectedLesson}
-                onChange={(e) => setSelectedLesson(e.target.value)}
-                disabled={selectedModuleIndex === null}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
-              >
-                <option value="">Select a lesson</option>
-                {lessonsForModule.map((lesson, index) => (
-                  <option key={index} value={lesson}>
-                    {lesson}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Language Dropdown */}
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Language
-              </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="it">Italian</option>
-                <option value="pt">Portuguese</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Prompt Input */}
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Custom Prompt (Optional)
-            </label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Enter a custom prompt for quiz generation..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={3}
-            />
-          </div>
+          )}
         </div>
 
-        {/* Generation status */}
-        {loading && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
-              <div className="relative">
-                <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
-                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+        {/* Prompt input for standalone quizzes */}
+        {useExistingOutline === false && (
+          <textarea
+            value={searchParams?.get("prompt") || ""}
+            onChange={(e) => {
+              const sp = new URLSearchParams(searchParams?.toString() || "");
+              sp.set("prompt", e.target.value);
+              router.replace(`?${sp.toString()}`, { scroll: false });
+            }}
+            placeholder="Describe what you'd like to make"
+            rows={1}
+            className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
+          />
+        )}
+
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-medium text-[#20355D]">Quiz Content</h2>
+          {isGenerating && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+              <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
+                <div className="relative">
+                  <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
+                  <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+                </div>
+                Generating Quiz...
               </div>
-              Generating Quiz...
+              <div className="text-sm text-blue-700 mb-4">
+                <p>Creating interactive quiz questions based on your content. This may take a few moments.</p>
+                {retryCount > 0 && (
+                  <p className="text-orange-600 font-medium mt-2">
+                    Retry attempt {retryCount} of {maxRetries}...
+                  </p>
+                )}
+              </div>
+              <ProgressBar progress={quizData.length > 0 ? Math.min((quizData.length / 1000) * 100, 90) : 10} />
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
+              >
+                Cancel Generation
+              </button>
             </div>
-            <div className="text-sm text-blue-700 mb-4">
-              <p>Creating interactive quiz questions based on your content. This may take a few moments.</p>
-              {retryCount > 0 && (
-                <p className="text-orange-600 font-medium mt-2">
-                  Retry attempt {retryCount} of {maxRetries}...
-                </p>
-              )}
+          )}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+              <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                <XCircle className="h-5 w-5" />
+                Error
+              </div>
+              <div className="text-sm text-red-700 mb-4">
+                <p>{error}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setRetryCount(0);
+                  setRetryTrigger(prev => prev + 1);
+                }}
+                className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+              >
+                Retry Generation
+              </button>
             </div>
-            <ProgressBar progress={content.length > 0 ? Math.min((content.length / 1000) * 100, 90) : 10} />
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
+          )}
+          
+          {/* Main content display - Textarea instead of module list */}
+          {textareaVisible && (
+            <div
+              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
+              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
-              Cancel Generation
-            </button>
-          </div>
-        )}
-
-        {/* Error display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
-              <XCircle className="h-5 w-5" />
-              Error
-            </div>
-            <div className="text-sm text-red-700 mb-4">
-              <p>{error}</p>
-            </div>
-            <button
-              onClick={() => {
-                setError(null);
-                setRetryCount(0);
-                setRetryTrigger(prev => prev + 1);
-              }}
-              className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
-            >
-              Retry Generation
-            </button>
-          </div>
-        )}
-
-        {/* Quiz data display */}
-        {content && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Quiz Preview</h2>
-              {streamDone && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="text-sm font-medium">Generation Complete</span>
+              {loadingEdit && (
+                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                  <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
+              <textarea
+                ref={textareaRef}
+                value={quizData}
+                onChange={(e) => setQuizData(e.target.value)}
+                placeholder="Quiz content will appear here..."
+                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                disabled={loadingEdit}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* Inline Advanced section & button */}
+        {streamDone && quizData && (
+          <>
+            {showAdvanced && (
+              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  placeholder="Describe what you'd like to improve..."
+                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                />
+
+                {/* Example prompts */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                  {quizExamples.map((ex) => (
+                    <button
+                      key={ex.short}
+                      type="button"
+                      onClick={() => toggleExample(ex)}
+                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${
+                        selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                      }`}
+                    >
+                      {ex.short}
+                      <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={loadingEdit || !editPrompt.trim()}
+                    onClick={handleApplyQuizEdit}
+                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="w-full flex justify-center mt-2 mb-6">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+              >
+                Advanced Mode
+                <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+              </button>
+            </div>
+          </>
+        )}
+
+        {streamDone && quizData && (
+          <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <h2 className="text-xl font-semibold text-[#20355D]">Themes</h2>
+                <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+              </div>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
+              >
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                <span>View more</span>
+              </button>
             </div>
             
-            <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto border border-gray-100">
-              <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono leading-relaxed">
-                {content}
-              </pre>
-            </div>
-
-            {/* Advanced Mode Section */}
-            <div className="mt-6">
-              <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                <Settings className="h-4 w-4" />
-                Advanced Mode
-                <ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {showAdvanced && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Example Prompts
-                      </label>
-                      <div className="space-y-2">
-                        {quizExamples.map((ex) => (
-                          <button
-                            key={ex.short}
-                            onClick={() => toggleExample(ex)}
-                            className={`block w-full text-left p-2 rounded text-xs ${
-                              selectedExamples.includes(ex.short)
-                                ? 'bg-blue-100 border-blue-300 text-blue-800'
-                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                            } border`}
-                          >
-                            {ex.short}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Edit Prompt
-                      </label>
-                      <textarea
-                        value={editPrompt}
-                        onChange={(e) => setEditPrompt(e.target.value)}
-                        placeholder="Enter additional instructions..."
-                        className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      />
-                      <button
-                        onClick={handleApplyEdit}
-                        disabled={loadingEdit || !editPrompt.trim()}
-                        className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                      >
-                        {loadingEdit ? 'Applying...' : 'Apply Edit'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Themes section */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-800 mb-3">Themes</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {themeOptions.map((theme) => (
+            <div className="flex flex-col gap-5">
+              {/* Themes grid */}
+              <div className="grid grid-cols-3 gap-5 justify-items-center">
+                {themeOptions.map((t) => (
                   <button
-                    key={theme.id}
-                    onClick={() => setSelectedTheme(theme.id)}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      selectedTheme === theme.id
-                        ? 'border-blue-300 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-300'
-                    }`}
+                    key={t.id}
+                    type="button"
+                    onClick={() => setSelectedTheme(t.id)}
+                    className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
                   >
-                    {theme.label}
+                    <div className="w-[214px] h-[116px] flex items-center justify-center">
+                      {(() => {
+                        const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                        return <Svg />;
+                      })()}
+                    </div>
+                    <div className="flex items-center gap-1 px-2">
+                      <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
+                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Footer */}
-        {content && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-6 text-sm text-gray-600">
-                <span>Credits: 1</span>
-                <span>Words: {wordCount}</span>
-              </div>
-              
-              {streamDone && !finalProductId && (
-                <button
-                  onClick={handleFinalize}
-                  disabled={isFinalizing}
-                  className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#0076FF' }}
-                >
-                  {isFinalizing ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Creating Quiz...
-                    </>
-                  ) : (
-                    <>
-                      <Download size={18} />
-                      Create Final Quiz
-                    </>
-                  )}
-                </button>
-              )}
+        {streamDone && quizData && (
+          <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+              {/* Credits can be a placeholder or dynamic */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>10 credits</span>
             </div>
-          </div>
-        )}
-
-        {/* Finalization Loading Overlay */}
-        {isFinalizing && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-8 shadow-lg max-w-md w-full mx-4">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Creating Final Quiz</h3>
-                <p className="text-gray-600 text-center">Please wait while we finalize your quiz...</p>
-              </div>
+            <div className="flex items-center gap-[7.5rem]">
+              <span className="text-lg text-gray-700 font-medium select-none">
+                {/* This can be word count or removed */}
+                {quizData.split(/\s+/).length} words
+              </span>
+              <button
+                type="button"
+                onClick={handleCreateFinal}
+                disabled={isCreatingFinal}
+                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isCreatingFinal ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Creating Quiz...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    <span className="select-none font-semibold">Generate</span>
+                  </>
+                )}
+              </button>
             </div>
+            <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
           </div>
         )}
       </div>
     </main>
+    <style jsx global>{`
+      @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
+    `}</style>
+    {isCreatingFinal && (
+      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
+        <LoadingAnimation message="Finalizing quiz..." />
+      </div>
+    )}
+    </>
   );
 } 

@@ -41,7 +41,7 @@ const themeOptions = [
 export default function TextPresentationClient() {
   const params = useSearchParams();
   const router = useRouter();
-
+  
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
   const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
@@ -227,61 +227,61 @@ export default function TextPresentationClient() {
           if (selectedOutlineId && selectedLesson) {
             payload.outlineId = selectedOutlineId;
             payload.lesson = selectedLesson;
-          } else if (prompt) {
+        } else if (prompt) {
             payload.prompt = prompt;
-          }
+        }
 
-          // Add file context if coming from files
+        // Add file context if coming from files
           if (isFromFiles) {
             payload.fromFiles = true;
             if (folderIds.length > 0) payload.folderIds = folderIds.join(',');
             if (fileIds.length > 0) payload.fileIds = fileIds.join(',');
-          }
-          
-          // Add text context if coming from text
+        }
+        
+        // Add text context if coming from text
           if (isFromText) {
             payload.fromText = true;
             payload.textMode = textMode;
             payload.userText = userText;
-          }
+        }
 
-          const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
             body: JSON.stringify(payload),
             signal: abortController.signal,
-          });
+        });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-          const reader = response.body?.getReader();
-          if (!reader) {
-            throw new Error("No response body");
-          }
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error("No response body");
+        }
 
-          const decoder = new TextDecoder();
-          let buffer = "";
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-          while (true) {
-            const { done, value } = await reader.read();
-            
-            if (done) {
-              // Process any remaining buffer
-              if (buffer.trim()) {
-                try {
-                  const pkt = JSON.parse(buffer.trim());
-                  gotFirstChunk = true;
-                  if (pkt.type === "delta") {
-                    setGeneratedContent(prev => prev + pkt.text);
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            // Process any remaining buffer
+            if (buffer.trim()) {
+              try {
+                const pkt = JSON.parse(buffer.trim());
+                gotFirstChunk = true;
+                if (pkt.type === "delta") {
+                  setGeneratedContent(prev => prev + pkt.text);
                     setContent(prev => prev + pkt.text);
-                  }
-                } catch (e) {
-                  // If not JSON, treat as plain text
-                  setGeneratedContent(prev => prev + buffer);
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
+                setGeneratedContent(prev => prev + buffer);
                   setContent(prev => prev + buffer);
                 }
               }
@@ -292,32 +292,32 @@ export default function TextPresentationClient() {
             }
 
             gotFirstChunk = true;
-            buffer += decoder.decode(value, { stream: true });
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Split by newlines and process complete chunks
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
             
-            // Split by newlines and process complete chunks
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ""; // Keep incomplete line in buffer
-            
-            for (const line of lines) {
-              if (!line.trim()) continue;
+            try {
+              const pkt = JSON.parse(line);
               
-              try {
-                const pkt = JSON.parse(line);
-                
-                if (pkt.type === "delta") {
-                  setGeneratedContent(prev => prev + pkt.text);
+              if (pkt.type === "delta") {
+                setGeneratedContent(prev => prev + pkt.text);
                   setContent(prev => prev + pkt.text);
-                } else if (pkt.type === "done") {
+              } else if (pkt.type === "done") {
                   setStreamDone(true);
                   setTextareaVisible(true);
                   setLoading(false);
-                  return;
-                } else if (pkt.type === "error") {
-                  throw new Error(pkt.text || "Unknown error");
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
-                setGeneratedContent(prev => prev + line);
+                return;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              setGeneratedContent(prev => prev + line);
                 setContent(prev => prev + line);
               }
             }
@@ -328,9 +328,9 @@ export default function TextPresentationClient() {
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
-            }
           }
-        } catch (error: any) {
+        }
+      } catch (error: any) {
           if (error.name === 'AbortError') return;
 
           // Retry logic
@@ -342,8 +342,8 @@ export default function TextPresentationClient() {
               if (error.message.includes("The user aborted a request")) return;
             }
             setError(error.message || 'Failed to generate preview');
-          }
-        } finally {
+        }
+      } finally {
           if (!abortController.signal.aborted) {
             // If the stream ended but we never displayed content, remove spinner anyway
             if (loading) setLoading(false);
@@ -429,7 +429,7 @@ export default function TextPresentationClient() {
       
       // Small delay to ensure state is properly reset before navigation
       setTimeout(() => {
-        router.push(`/projects/view/${data.id}`);
+      router.push(`/projects/view/${data.id}`);
       }, 100);
     } catch (error) {
       // Clear timeout on error
@@ -595,11 +595,11 @@ export default function TextPresentationClient() {
               {useExistingOutline === false && (
                 <div className="relative">
                   <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                    <option value="en">English</option>
-                    <option value="uk">Ukrainian</option>
-                    <option value="es">Spanish</option>
-                    <option value="ru">Russian</option>
-                  </select>
+              <option value="en">English</option>
+              <option value="uk">Ukrainian</option>
+              <option value="es">Spanish</option>
+              <option value="ru">Russian</option>
+            </select>
                   <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                 </div>
               )}
@@ -611,7 +611,7 @@ export default function TextPresentationClient() {
                 setLessonsForModule([]);
                 setSelectedLesson("");
               }} className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100">← Back</button>
-            </div>
+          </div>
           )}
         </div>
         {/* Prompt input for standalone one-pager */}
@@ -638,8 +638,8 @@ export default function TextPresentationClient() {
                 className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
                 disabled={loadingEdit}
               />
-            </div>
-          )}
+          </div>
+        )}
         </section>
         {/* Advanced Mode */}
         {streamDone && content && (
@@ -748,7 +748,7 @@ export default function TextPresentationClient() {
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
-                </div>
+            </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">AI image model</label>
                   <div className="relative w-full">
@@ -756,10 +756,10 @@ export default function TextPresentationClient() {
                       <option value="flux-fast">Flux Kontext Fast</option><option value="flux-quality">Flux Kontext HQ</option><option value="stable">Stable Diffusion 2.1</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
+            </div>
                 </div>
               </div>
-            </div>
+          </div>
           </section>
         )}
         {/* Footer */}
