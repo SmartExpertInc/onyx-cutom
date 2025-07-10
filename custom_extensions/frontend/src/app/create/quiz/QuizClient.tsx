@@ -26,16 +26,6 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
   </div>
 );
 
-// Progress bar component
-const ProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
-  <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-    <div 
-      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
-      style={{ width: `${Math.min(progress, 100)}%` }}
-    ></div>
-  </div>
-);
-
 export default function QuizClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -851,7 +841,7 @@ export default function QuizClient() {
                   </p>
                 )}
               </div>
-              <ProgressBar progress={quizData.length > 0 ? Math.min((quizData.length / 1000) * 100, 90) : 10} />
+              <LoadingAnimation message="Generating Quiz..." />
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"

@@ -373,6 +373,23 @@ function GenerateProductPicker() {
   ]);
   const [showQuestionTypesDropdown, setShowQuestionTypesDropdown] = useState(false);
 
+  // Click outside handler for question types dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showQuestionTypesDropdown) {
+        const target = event.target as Element;
+        if (!target.closest('.question-types-dropdown')) {
+          setShowQuestionTypesDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showQuestionTypesDropdown]);
+
   // Fetch outlines when switching to Presentation tab and user chooses to use existing outline
   useEffect(() => {
     if (activeProduct !== "Presentation" || useExistingOutline !== true) return;
@@ -1189,6 +1206,64 @@ function GenerateProductPicker() {
                           <option value="es">Spanish</option>
                           <option value="ru">Russian</option>
                         </select>
+                        <div className="relative question-types-dropdown">
+                          <button
+                            type="button"
+                            onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
+                          >
+                            <span>
+                              {selectedQuestionTypes.length === 0
+                                ? "Select Question Types"
+                                : selectedQuestionTypes.length === 1
+                                ? selectedQuestionTypes[0]
+                                : `${selectedQuestionTypes.length} types selected`}
+                            </span>
+                            <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showQuestionTypesDropdown && (
+                            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                              {[
+                                { value: "multiple-choice", label: "Multiple Choice" },
+                                { value: "multi-select", label: "Multi-Select" },
+                                { value: "matching", label: "Matching" },
+                                { value: "sorting", label: "Sorting" },
+                                { value: "open-answer", label: "Open Answer" },
+                                { value: "true-false", label: "True/False" },
+                                { value: "fill-blank", label: "Fill in the Blank" },
+                                { value: "short-answer", label: "Short Answer" }
+                              ].map((type) => (
+                                <label
+                                  key={type.value}
+                                  className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedQuestionTypes.includes(type.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                      } else {
+                                        setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                      }
+                                    }}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  {type.label}
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <select
+                          value={quizQuestionCount}
+                          onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          {[5, 10, 15, 20, 25, 30].map((count) => (
+                            <option key={count} value={count}>{count} questions</option>
+                          ))}
+                        </select>
                       </>
                     )}
                   </>
@@ -1206,6 +1281,64 @@ function GenerateProductPicker() {
                       <option value="uk">Ukrainian</option>
                       <option value="es">Spanish</option>
                       <option value="ru">Russian</option>
+                    </select>
+                    <div className="relative question-types-dropdown">
+                      <button
+                        type="button"
+                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
+                      >
+                        <span>
+                          {selectedQuestionTypes.length === 0
+                            ? "Select Question Types"
+                            : selectedQuestionTypes.length === 1
+                            ? selectedQuestionTypes[0]
+                            : `${selectedQuestionTypes.length} types selected`}
+                        </span>
+                        <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showQuestionTypesDropdown && (
+                        <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                          {[
+                            { value: "multiple-choice", label: "Multiple Choice" },
+                            { value: "multi-select", label: "Multi-Select" },
+                            { value: "matching", label: "Matching" },
+                            { value: "sorting", label: "Sorting" },
+                            { value: "open-answer", label: "Open Answer" },
+                            { value: "true-false", label: "True/False" },
+                            { value: "fill-blank", label: "Fill in the Blank" },
+                            { value: "short-answer", label: "Short Answer" }
+                          ].map((type) => (
+                            <label
+                              key={type.value}
+                              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedQuestionTypes.includes(type.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                  } else {
+                                    setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                  }
+                                }}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              {type.label}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <select
+                      value={quizQuestionCount}
+                      onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      {[5, 10, 15, 20, 25, 30].map((count) => (
+                        <option key={count} value={count}>{count} questions</option>
+                      ))}
                     </select>
                   </>
                 )}
