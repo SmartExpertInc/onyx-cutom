@@ -3,448 +3,615 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, FileText } from "lucide-react";
+import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
-// Loading animation component
 const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
-  <div className="flex flex-col items-center justify-center p-8">
-    <div className="relative">
-      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+  <div className="flex flex-col items-center mt-4" aria-label="Loading">
+    <div className="flex gap-1 mb-2">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
+          style={{ animationDelay: `${i * 0.2}s` }}
+        />
+      ))}
     </div>
     {message && (
-      <p className="mt-4 text-gray-600 text-center max-w-md">{message}</p>
+      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || "Generating..."}</p>
     )}
   </div>
 );
 
+// Theme SVGs placeholder (replace with actual SVGs or import as needed)
+const ThemeSvgs = {
+  wine: () => <div className="w-full h-full bg-[#f5e6e6] rounded" />, // Placeholder
+  default: () => <div className="w-full h-full bg-gray-200 rounded" />,
+};
+const themeOptions = [
+  { id: "wine", label: "Wine" },
+  { id: "cherry", label: "Cherry" },
+  { id: "lunaria", label: "Lunaria" },
+  { id: "vanilla", label: "Vanilla" },
+  { id: "terracotta", label: "Terracotta" },
+  { id: "zephyr", label: "Zephyr" },
+];
+
 export default function TextPresentationClient() {
-  const searchParams = useSearchParams();
+  const params = useSearchParams();
   const router = useRouter();
-  
-  // Get parameters from URL
-  const prompt = searchParams?.get("prompt") || "";
-  const outlineId = searchParams?.get("outlineId");
-  const lesson = searchParams?.get("lesson");
-  const courseName = searchParams?.get("courseName");
-  const lang = searchParams?.get("lang") || "en";
-  const fromFiles = searchParams?.get("fromFiles") === "true";
-  const fromText = searchParams?.get("fromText") === "true";
-  const textMode = searchParams?.get("textMode") as 'context' | 'base' | null;
-  const folderIds = searchParams?.get("folderIds")?.split(',').filter(Boolean) || [];
-  const fileIds = searchParams?.get("fileIds")?.split(',').filter(Boolean) || [];
 
-  // State
-  const [isGenerating, setIsGenerating] = useState(false);
+  // State for dropdowns
+  const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
+  const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
+  const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
+  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params?.get("outlineId") ? Number(params.get("outlineId")) : null);
+  const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
+  const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
+    params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
+  );
+  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
+
+  // State for content, loading, error, isGenerating, streamDone, textareaVisible
+  const [content, setContent] = useState<string>("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [generatedContent, setGeneratedContent] = useState<string>("");
-  const [isComplete, setIsComplete] = useState(false);
-  const [isCreatingFinal, setIsCreatingFinal] = useState(false);
-  const [finalProjectId, setFinalProjectId] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamDone, setStreamDone] = useState(false);
+  const [textareaVisible, setTextareaVisible] = useState(false);
+  const previewAbortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const requestInProgressRef = useRef(false);
-  const requestIdRef = useRef(0);
-  const [retryCount, setRetryCount] = useState(0);
-  const [retryTrigger, setRetryTrigger] = useState(0);
-  const maxRetries = 3;
+  // Advanced mode state
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [editPrompt, setEditPrompt] = useState("");
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
+  const [textDensity, setTextDensity] = useState("medium");
+  const [imageSource, setImageSource] = useState("ai");
+  const [aiModel, setAiModel] = useState("flux-fast");
+  // Footer/finalize
+  const [isFinalizing, setIsFinalizing] = useState(false);
 
-  useEffect(() => {
-    // Don't start generation if there's no valid input
-    const hasValidInput = (outlineId && lesson) || prompt.trim() || fromFiles || fromText;
-    if (!hasValidInput) {
-      return;
-    }
+  // Example prompts for advanced mode
+  const onePagerExamples = [
+    {
+      short: "Adapt to U.S. industry specifics",
+      detailed:
+        "Update the one-pager's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context.",
+    },
+    {
+      short: "Adopt trends and latest practices",
+      detailed:
+        "Update the one-pager's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+    },
+    {
+      short: "Incorporate top industry examples",
+      detailed:
+        "Analyze the best one-pagers on the market in this topic and restructure our content accordingly: change or add content which others present more effectively. Focus on content flow and clarity.",
+    },
+    {
+      short: "Simplify and restructure the content",
+      detailed:
+        "Rewrite the one-pager's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity.",
+    },
+    {
+      short: "Increase value and depth of content",
+      detailed:
+        "Strengthen the one-pager by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+    },
+    {
+      short: "Add case studies and applications",
+      detailed:
+        "Revise the one-pager's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+    },
+  ];
 
-    // Helper function to perform the actual text presentation generation with retry logic
-    const performTextPresentationGeneration = async (attempt: number = 1): Promise<void> => {
-      
-      try {
-        const params = new URLSearchParams();
-        
-        if (outlineId && lesson) {
-          params.set("outlineId", outlineId);
-          params.set("lesson", lesson);
-        } else if (prompt) {
-          params.set("prompt", prompt);
-        }
-        
-        params.set("lang", lang);
-
-        // Add file context if coming from files
-        if (fromFiles) {
-          params.set("fromFiles", "true");
-          if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
-          if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
-        }
-        
-        // Add text context if coming from text
-        if (fromText) {
-          params.set("fromText", "true");
-          params.set("textMode", textMode || 'context');
-          // userText stays in sessionStorage - don't pass via URL
-        }
-
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            outlineId: outlineId ? parseInt(outlineId) : null,
-            lesson: lesson,
-            courseName: courseName,
-            prompt: prompt,
-            language: lang,
-            fromFiles: fromFiles,
-            folderIds: folderIds.join(','),
-            fileIds: fileIds.join(','),
-            fromText: fromText,
-            textMode: textMode,
-            userText: fromText ? sessionStorage.getItem('userText') : undefined,
-          }),
-          signal: abortControllerRef.current?.signal,
+  const toggleExample = (ex: typeof onePagerExamples[number]) => {
+    setSelectedExamples((prev) => {
+      if (prev.includes(ex.short)) {
+        const updated = prev.filter((s) => s !== ex.short);
+        setEditPrompt((p) => {
+          return p
+            .split("\n")
+            .filter((line) => line.trim() !== ex.detailed)
+            .join("\n")
+            .replace(/^\n+|\n+$/g, "");
         });
+        return updated;
+      }
+      setEditPrompt((p) => (p ? p + "\n" + ex.detailed : ex.detailed));
+      return [...prev, ex.short];
+    });
+  };
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  // Apply advanced edit
+  const handleApplyEdit = async () => {
+    if (!editPrompt.trim()) return;
+    setLoadingEdit(true);
+    try {
+      const payload: any = {
+        content,
+        editPrompt,
+      };
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setContent(data.content || "");
+      setEditPrompt("");
+      setSelectedExamples([]);
+    } catch (error: any) {
+      setError(error.message || "Failed to apply edit");
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
+
+  // Finalize/save one-pager
+  const handleFinalize = async () => {
+    if (!content.trim()) return;
+    setIsFinalizing(true);
+    setError(null);
+    try {
+      const payload: any = {
+        aiResponse: content,
+        lesson: selectedLesson,
+        outlineId: selectedOutlineId,
+        language,
+        theme: selectedTheme,
+        textDensity,
+        imageSource,
+        aiModel,
+      };
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      if (data.id) {
+        router.push(`/projects/view/${data.id}`);
+      }
+    } catch (error: any) {
+      setError(error.message || "Failed to finalize one-pager");
+    } finally {
+      setIsFinalizing(false);
+    }
+  };
+
+  // Fetch all outlines when switching to existing outline mode
+  useEffect(() => {
+    if (useExistingOutline !== true) return;
+    const fetchOutlines = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
+        setOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+      } catch (_) {}
+    };
+    fetchOutlines();
+  }, [useExistingOutline]);
+
+  // Fetch lessons when a course outline is selected
+  useEffect(() => {
+    if (useExistingOutline !== true || selectedOutlineId == null) {
+      setModulesForOutline([]);
+      setSelectedModuleIndex(null);
+      setLessonsForModule([]);
+      setSelectedLesson("");
+      return;
+    };
+    const fetchLessons = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedOutlineId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const sections = data?.details?.sections || [];
+        const modules = sections.map((sec: any) => ({
+          name: sec.title || "Unnamed module",
+          lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+        }));
+        setModulesForOutline(modules);
+
+        // If a lesson was pre-selected via query params, attempt to locate its module
+        if (selectedLesson) {
+          const modIdx = modules.findIndex((m: { lessons: string[] }) => m.lessons.includes(selectedLesson));
+          if (modIdx !== -1) {
+            setSelectedModuleIndex(modIdx);
+            setLessonsForModule(modules[modIdx].lessons);
+          } else {
+            // lesson not found in fetched data – clear it
+            setSelectedModuleIndex(null);
+            setLessonsForModule([]);
+            setSelectedLesson("");
+          }
+        } else {
+          // No lesson selected yet – clear downstream selections
+          setSelectedModuleIndex(null);
+          setLessonsForModule([]);
         }
+      } catch (_) {}
+    };
+    fetchLessons();
+  }, [selectedOutlineId, useExistingOutline]);
 
+  // Streaming preview effect
+  useEffect(() => {
+    // Only trigger if we have a lesson or a prompt
+    if (useExistingOutline === null) return;
+    if (useExistingOutline === true && !selectedLesson) return;
+    if (useExistingOutline === false && !prompt.trim()) return;
+
+    setLoading(true);
+    setError(null);
+    setContent("");
+    setStreamDone(false);
+    setTextareaVisible(false);
+
+    if (previewAbortRef.current) previewAbortRef.current.abort();
+    previewAbortRef.current = new AbortController();
+
+    const fetchPreview = async () => {
+      try {
+        const payload: any = {
+          language,
+        };
+        if (useExistingOutline === true && selectedOutlineId && selectedLesson) {
+          payload.outlineId = selectedOutlineId;
+          payload.lesson = selectedLesson;
+        } else if (useExistingOutline === false && prompt.trim()) {
+          payload.prompt = prompt.trim();
+        }
+        const response = await fetch(
+          `${CUSTOM_BACKEND_URL}/text-presentation/preview`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: previewAbortRef.current!.signal,
+          }
+        );
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error("No response body");
-        }
-
+        if (!reader) throw new Error("No response body");
         const decoder = new TextDecoder();
         let buffer = "";
-        let gotFirstChunk = false;
-
         while (true) {
           const { done, value } = await reader.read();
-          
           if (done) {
-            // Process any remaining buffer
-            if (buffer.trim()) {
-              try {
-                const pkt = JSON.parse(buffer.trim());
-                gotFirstChunk = true;
-                if (pkt.type === "delta") {
-                  setGeneratedContent(prev => prev + pkt.text);
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
-                setGeneratedContent(prev => prev + buffer);
-              }
-            }
-            setIsComplete(true);
+            if (buffer.trim()) setContent((prev) => prev + buffer);
+            setStreamDone(true);
+            setTextareaVisible(true);
+            setLoading(false);
             return;
           }
-
           buffer += decoder.decode(value, { stream: true });
-          
           // Split by newlines and process complete chunks
           const lines = buffer.split('\n');
-          buffer = lines.pop() || ""; // Keep incomplete line in buffer
-          
+          buffer = lines.pop() || "";
           for (const line of lines) {
             if (!line.trim()) continue;
-            
             try {
               const pkt = JSON.parse(line);
-              gotFirstChunk = true;
-              
-              if (pkt.type === "delta") {
-                setGeneratedContent(prev => prev + pkt.text);
-              } else if (pkt.type === "done") {
-                setIsComplete(true);
+              if (pkt.type === "delta") setContent((prev) => prev + pkt.text);
+              else if (pkt.type === "done") {
+                setStreamDone(true);
+                setTextareaVisible(true);
+                setLoading(false);
                 return;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || "Unknown error");
-              }
+              } else if (pkt.type === "error") throw new Error(pkt.text || "Unknown error");
             } catch (e) {
-              // If not JSON, treat as plain text
-              setGeneratedContent(prev => prev + line);
+              setContent((prev) => prev + line);
             }
           }
         }
       } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Generation cancelled');
-          return;
-        }
-        
-        // Check if this is a network error that should be retried
-        const isNetworkError = error.message?.includes('network') || 
-                              error.message?.includes('fetch') ||
-                              error.message?.includes('Failed to fetch') ||
-                              error.message?.includes('NetworkError') ||
-                              !navigator.onLine;
-        
-        if (isNetworkError && attempt < maxRetries) {
-          console.log(`Network error, retrying... (${attempt}/${maxRetries})`);
-          setRetryCount(attempt);
-          setTimeout(() => {
-            setRetryTrigger(prev => prev + 1);
-          }, 1500 * attempt);
-          return;
-        }
-        
-        console.error('Text presentation generation failed:', error);
-        setError(error.message || 'Failed to generate text presentation');
-        setIsGenerating(false);
+        if (error.name === 'AbortError') return;
+        setError(error.message || 'Failed to generate preview');
+        setLoading(false);
       }
     };
-
-    const generateTextPresentation = async () => {
-      if (requestInProgressRef.current) return;
-      
-      requestInProgressRef.current = true;
-      setIsGenerating(true);
-      setError(null);
-      setGeneratedContent("");
-      setIsComplete(false);
-      
-      const currentRequestId = ++requestIdRef.current;
-      
-      try {
-        await performTextPresentationGeneration();
-        
-        if (currentRequestId === requestIdRef.current) {
-          setIsGenerating(false);
-        }
-      } catch (error) {
-        if (currentRequestId === requestIdRef.current) {
-          console.error('Text presentation generation error:', error);
-          setError(error instanceof Error ? error.message : 'Failed to generate text presentation');
-          setIsGenerating(false);
-        }
-      } finally {
-        if (currentRequestId === requestIdRef.current) {
-          requestInProgressRef.current = false;
-        }
-      }
-    };
-
-    generateTextPresentation();
-
+    fetchPreview();
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [outlineId, lesson, prompt, lang, fromFiles, fromText, textMode, folderIds.join(','), fileIds.join(','), retryTrigger]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language]);
 
-  const handleCreateFinal = async () => {
-    if (!generatedContent.trim()) {
-      setError("No content to finalize");
-      return;
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-
-    setIsCreatingFinal(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          aiResponse: generatedContent,
-          lesson: lesson,
-          courseName: courseName,
-          language: lang,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setFinalProjectId(data.id);
-      
-      // Redirect to the generated project
-      router.push(`/projects/view/${data.id}`);
-    } catch (error) {
-      console.error('Finalization failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to finalize text presentation');
-    } finally {
-      setIsCreatingFinal(false);
-    }
-  };
-
-  const handleCancel = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    router.push('/create/generate');
-  };
+  }, [content]);
 
   return (
-    <main
-      className="min-h-screen flex flex-col items-center p-6"
-      style={{
-        background:
-          "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
-      }}
-    >
-      <div className="w-full max-w-3xl flex flex-col gap-4 text-gray-900">
-        {/* Back button */}
-        <Link
-          href="/create/generate"
-          className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
-        >
+    <main className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)" }}>
+      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+        <Link href="/create/generate" className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20">
           <ArrowLeft size={14} /> Back
         </Link>
-
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">
-          Text Presentation
-        </h1>
-        <p className="text-center text-gray-600 text-lg -mt-1">
-          Generate a comprehensive text presentation
-        </p>
-
-        {/* Context indicator */}
-        {(fromFiles || fromText || outlineId) && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
-              <FileText className="h-5 w-5" />
-              {outlineId ? "Creating from Course Outline" : fromFiles ? "Creating from Files" : "Creating from Text"}
+        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
+        <div className="flex flex-col items-center gap-4 mb-4">
+          {/* Step 1: Choose source */}
+          {useExistingOutline === null && (
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-lg font-medium text-gray-700">Do you want to create a one-pager from an existing Course Outline?</p>
+              <div className="flex gap-3">
+                <button onClick={() => setUseExistingOutline(true)} className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium">Yes, content for the one-pager from the outline</button>
+                <button onClick={() => setUseExistingOutline(false)} className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium">No, I want standalone one-pager</button>
+              </div>
             </div>
-            <div className="text-sm text-blue-700">
-              {outlineId && courseName && (
-                <p><strong>Course:</strong> {courseName}</p>
-              )}
-              {outlineId && lesson && (
-                <p><strong>Lesson:</strong> {lesson}</p>
-              )}
-              {fromFiles && (
+          )}
+          {/* Step 2+: Show dropdowns based on choice */}
+          {useExistingOutline !== null && (
+            <div className="flex flex-wrap justify-center gap-2">
+              {/* Show outline flow if user chose existing outline */}
+              {useExistingOutline === true && (
                 <>
-                  {folderIds.length > 0 && (
-                    <p>{folderIds.length} folder{folderIds.length !== 1 ? 's' : ''} selected</p>
+                  {/* Outline dropdown */}
+                  <div className="relative">
+                    <select value={selectedOutlineId ?? ""} onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedOutlineId(val ? Number(val) : null);
+                      setSelectedModuleIndex(null);
+                      setLessonsForModule([]);
+                      setSelectedLesson("");
+                    }} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                      <option value="">Select Outline</option>
+                      {outlines.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                  {/* Module dropdown – appears once outline is selected */}
+                  {selectedOutlineId && (
+                    <div className="relative">
+                      <select value={selectedModuleIndex ?? ""} onChange={(e) => {
+                        const idx = e.target.value ? Number(e.target.value) : null;
+                        setSelectedModuleIndex(idx);
+                        setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                        setSelectedLesson("");
+                      }} disabled={modulesForOutline.length === 0} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <option value="">Select Module</option>
+                        {modulesForOutline.map((m, idx) => (
+                          <option key={idx} value={idx}>{m.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
                   )}
-                  {fileIds.length > 0 && (
-                    <p>{fileIds.length} file{fileIds.length !== 1 ? 's' : ''} selected</p>
+                  {/* Lesson dropdown – appears when module chosen */}
+                  {selectedModuleIndex !== null && (
+                    <div className="relative">
+                      <select value={selectedLesson} onChange={(e) => setSelectedLesson(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <option value="">Select Lesson</option>
+                        {lessonsForModule.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                  )}
+                  {/* Show final dropdowns when lesson is selected */}
+                  {selectedLesson && (
+                    <div className="relative">
+                      <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <option value="en">English</option>
+                        <option value="uk">Ukrainian</option>
+                        <option value="es">Spanish</option>
+                        <option value="ru">Russian</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
                   )}
                 </>
               )}
-              {fromText && textMode && (
-                <p><strong>Mode:</strong> {textMode === 'context' ? 'Using as context' : 'Using as base structure'}</p>
-              )}
-              {prompt && (
-                <p><strong>Prompt:</strong> {prompt}</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Language selection */}
-        <div className="flex justify-center">
-          <div className="bg-white/90 rounded-lg p-4 border border-gray-300">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-            <select
-              value={lang}
-              onChange={(e) => {
-                const newLang = e.target.value;
-                const params = new URLSearchParams(searchParams?.toString() || "");
-                params.set("lang", newLang);
-                router.push(`/create/text-presentation?${params.toString()}`);
-              }}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-            >
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Error display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-            <p className="font-medium">Error:</p>
-            <p>{error}</p>
-          </div>
-        )}
-
-        {/* Generation status */}
-        {isGenerating && (
-          <div className="bg-white/90 rounded-lg p-6 border border-gray-300">
-            <LoadingAnimation message="Generating your text presentation..." />
-            {retryCount > 0 && (
-              <p className="text-center text-sm text-gray-500 mt-2">
-                Retry attempt {retryCount}/{maxRetries}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Generated content */}
-        {generatedContent && (
-          <div className="bg-white/90 rounded-lg p-6 border border-gray-300">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Generated Content</h2>
-              {isComplete && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleCancel}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateFinal}
-                    disabled={isCreatingFinal}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isCreatingFinal ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles size={16} />
-                        Create Text Presentation
-                      </>
-                    )}
-                  </button>
+              {/* Show standalone one-pager dropdowns if user chose standalone */}
+              {useExistingOutline === false && (
+                <div className="relative">
+                  <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                    <option value="en">English</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="es">Spanish</option>
+                    <option value="ru">Russian</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                 </div>
               )}
+              {/* Reset button */}
+              <button onClick={() => {
+                setUseExistingOutline(null);
+                setSelectedOutlineId(null);
+                setSelectedModuleIndex(null);
+                setLessonsForModule([]);
+                setSelectedLesson("");
+              }} className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100">← Back</button>
             </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-              <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
-                {generatedContent}
-              </pre>
+          )}
+        </div>
+        {/* Prompt input for standalone one-pager */}
+        {useExistingOutline === false && (
+          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe what you'd like to make" rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
+        )}
+        {/* Content/preview section */}
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-medium text-[#20355D]">One-Pager Content</h2>
+          {loading && <LoadingAnimation message="Generating one-pager content..." />}
+          {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+          {textareaVisible && (
+            <div className="bg-white rounded-xl p-6 flex flex-col gap-6 relative" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              {loadingEdit && (
+                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                  <LoadingAnimation message="Applying edit..." />
+                </div>
+              )}
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="One-pager content will appear here..."
+                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                disabled={loadingEdit}
+              />
             </div>
-            
-            {!isComplete && (
-              <div className="mt-4 text-center">
-                <div className="inline-flex items-center gap-2 text-sm text-gray-600">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  Generating...
+          )}
+        </section>
+        {/* Advanced Mode */}
+        {streamDone && content && (
+          <>
+            {showAdvanced && (
+              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  placeholder="Describe what you'd like to improve..."
+                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                />
+                {/* Example prompts */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                  {onePagerExamples.map((ex) => (
+                    <button
+                      key={ex.short}
+                      type="button"
+                      onClick={() => toggleExample(ex)}
+                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'}`}
+                    >
+                      {ex.short}
+                      <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={loadingEdit || !editPrompt.trim()}
+                    onClick={handleApplyEdit}
+                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+                  </button>
                 </div>
               </div>
             )}
-          </div>
+            <div className="w-full flex justify-center mt-2 mb-6">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+              >
+                Advanced Mode
+                <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+              </button>
+            </div>
+          </>
         )}
-
-        {/* No content state */}
-        {!isGenerating && !generatedContent && !error && (
-          <div className="bg-white/90 rounded-lg p-8 border border-gray-300 text-center">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">
-              {outlineId && lesson 
-                ? `Generating text presentation for lesson: ${lesson}`
-                : prompt 
-                ? `Generating text presentation for: ${prompt}`
-                : "Preparing to generate your text presentation..."
-              }
-            </p>
+        {/* Themes/Designs Section */}
+        {streamDone && content && (
+          <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <h2 className="text-xl font-semibold text-[#20355D]">Themes</h2>
+                <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+              </div>
+              <button type="button" className="flex items-center gap-1 text-sm font-medium text-[#0540AB]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                <span>View more</span>
+              </button>
+            </div>
+            <div className="flex flex-col gap-5">
+              {/* Themes grid */}
+              <div className="grid grid-cols-3 gap-5 justify-items-center">
+                {themeOptions.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setSelectedTheme(t.id)}
+                    className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
+                  >
+                    <div className="w-[214px] h-[116px] flex items-center justify-center">
+                      {(() => {
+                        const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                        return <Svg />;
+                      })()}
+                    </div>
+                    <div className="flex items-center gap-1 px-2">
+                      <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
+                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {/* Content section */}
+              <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
+                <h3 className="text-lg font-semibold text-[#20355D]">Content</h3>
+                <p className="text-sm text-[#858587] font-medium">Adjust text and image styles for your one-pager</p>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-800 select-none">Amount of text per card</label>
+                  <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
+                    {[{ id: "brief", label: "Brief", icon: <AlignLeft size={14} /> }, { id: "medium", label: "Medium", icon: <AlignCenter size={14} /> }, { id: "detailed", label: "Detailed", icon: <AlignRight size={14} /> }].map((opt) => (
+                      <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
+                        {opt.icon} {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-800 select-none">Image source</label>
+                  <div className="relative w-full">
+                    <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                      <option value="ai">AI images</option><option value="stock">Stock images</option><option value="none">No images</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-800 select-none">AI image model</label>
+                  <div className="relative w-full">
+                    <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                      <option value="flux-fast">Flux Kontext Fast</option><option value="flux-quality">Flux Kontext HQ</option><option value="stable">Stable Diffusion 2.1</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+        {/* Footer */}
+        {streamDone && content && (
+          <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span>10 credits</span>
+            </div>
+            <div className="flex items-center gap-[7.5rem]">
+              <span className="text-lg text-gray-700 font-medium select-none">
+                {content.split(/\s+/).length} words
+              </span>
+              <button
+                type="button"
+                onClick={handleFinalize}
+                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || isGenerating || isFinalizing}
+              >
+                <Sparkles size={18} />
+                <span className="select-none font-semibold">Generate</span>
+              </button>
+            </div>
+            <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
           </div>
         )}
       </div>
