@@ -1992,7 +1992,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 isGamma: p.isGamma || false,
                 instanceName: p.microproduct_name,
                 folderId: p.folder_id,
-                order: p.order || 0
+                order: p.order || 0,
+                is_standalone: p.is_standalone,
+                source_chat_session_id: p.source_chat_session_id
             }));
 
             // Sort projects by order field
@@ -2211,7 +2213,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 isGamma: p.isGamma || false,
                 instanceName: p.microproduct_name,
                 folderId: p.folder_id,
-                order: p.order || 0
+                order: p.order || 0,
+                is_standalone: p.is_standalone,
+                source_chat_session_id: p.source_chat_session_id
             }));
 
             // Sort folder projects by order field
