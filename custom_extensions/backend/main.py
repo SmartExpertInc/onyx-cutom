@@ -13592,6 +13592,171 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         }
     )
 
+@app.post("/api/custom/quiz/edit")
+async def quiz_edit(payload: QuizEditRequest, request: Request):
+    """Edit quiz content with streaming response"""
+    logger.info(f"[QUIZ_EDIT_START] Quiz edit initiated")
+    logger.info(f"[QUIZ_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[QUIZ_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[QUIZ_EDIT_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[QUIZ_EDIT_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[QUIZ_EDIT_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[QUIZ_EDIT_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[QUIZ_EDIT_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Quiz Edit",
+        "prompt": payload.editPrompt,
+        "language": payload.language,
+        "originalContent": payload.currentContent,
+        "editMode": True
+    }
+
+    # Add context if provided
+    if payload.outlineId:
+        wiz_payload["outlineId"] = payload.outlineId
+    if payload.lesson:
+        wiz_payload["lesson"] = payload.lesson
+    if payload.courseName:
+        wiz_payload["courseName"] = payload.courseName
+    if payload.questionTypes:
+        wiz_payload["questionTypes"] = payload.questionTypes
+    if payload.questionCount:
+        wiz_payload["questionCount"] = payload.questionCount
+
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided
+    if payload.fromText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        logger.info(f"[QUIZ_EDIT_STREAM] Starting streamer")
+        logger.info(f"[QUIZ_EDIT_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                # Parse folder and file IDs for Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                if payload.fromFiles and payload.folderIds:
+                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                if payload.fromFiles and payload.fileIds:
+                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": file_ids_list,
+                    "user_folder_ids": folder_ids_list,
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "never", "real_time": False},
+                    "stream_response": True,
+                }
+                logger.info(f"[QUIZ_EDIT_ONYX] Sending request to Onyx /chat/send-message")
+                logger.info(f"[QUIZ_EDIT_ONYX] Message length: {len(wizard_message)} chars")
+                
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[QUIZ_EDIT_ONYX] Response status: {resp.status_code}")
+                    logger.info(f"[QUIZ_EDIT_ONYX] Response headers: {dict(resp.headers)}")
+                    
+                    if resp.status_code != 200:
+                        logger.error(f"[QUIZ_EDIT_ONYX] Non-200 status code: {resp.status_code}")
+                        error_text = await resp.text()
+                        logger.error(f"[QUIZ_EDIT_ONYX] Error response: {error_text}")
+                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                    
+                    async for raw_line in resp.aiter_lines():
+                        total_bytes_received += len(raw_line.encode('utf-8'))
+                        chunks_received += 1
+                        
+                        if not raw_line:
+                            logger.debug(f"[QUIZ_EDIT_ONYX] Empty line received (chunk {chunks_received})")
+                            continue
+                            
+                        line = raw_line.strip()
+                        logger.debug(f"[QUIZ_EDIT_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
+                        
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                            logger.debug(f"[QUIZ_EDIT_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
+                            
+                        if line == "[DONE]":
+                            logger.info(f"[QUIZ_EDIT_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
+                            done_received = True
+                            break
+                            
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[QUIZ_EDIT_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            else:
+                                logger.debug(f"[QUIZ_EDIT_ONYX] Non-answer_piece packet: {pkt}")
+                        except json.JSONDecodeError as e:
+                            logger.warning(f"[QUIZ_EDIT_ONYX] JSON decode error on chunk {chunks_received}: {e} | Raw: {line[:100]}")
+                            # Treat as plain text if not JSON
+                            assistant_reply += line
+                            yield (json.dumps({"type": "delta", "text": line}) + "\n").encode()
+                        except Exception as e:
+                            logger.error(f"[QUIZ_EDIT_ONYX] Unexpected error processing chunk {chunks_received}: {e}")
+                            continue
+
+                        # Send keep-alive every 8 seconds
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+
+        except Exception as e:
+            logger.error(f"[QUIZ_EDIT_STREAM] Exception in streaming: {e}")
+            raise
+
+        logger.info(f"[QUIZ_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
 @app.post("/api/custom/quiz/finalize")
 async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Finalize quiz creation by parsing AI response and saving to database"""
@@ -13962,6 +14127,27 @@ class TextPresentationWizardFinalize(BaseModel):
     courseName: Optional[str] = None
     language: str = "en"
 
+class TextPresentationEditRequest(BaseModel):
+    content: str
+    editPrompt: str
+    chatSessionId: Optional[str] = None
+
+class QuizEditRequest(BaseModel):
+    currentContent: str
+    editPrompt: str
+    outlineId: Optional[int] = None
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    questionTypes: Optional[str] = None
+    language: str = "en"
+    fromFiles: bool = False
+    fromText: bool = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    textMode: Optional[str] = None
+    questionCount: int = 10
+    chatSessionId: Optional[str] = None
+
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
     """Generate text presentation content with streaming response"""
@@ -14187,6 +14373,138 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             "Connection": "keep-alive",
             "Content-Type": "text/event-stream",
         }
+    )
+
+@app.post("/api/custom/text-presentation/edit")
+async def text_presentation_edit(payload: TextPresentationEditRequest, request: Request):
+    """Edit text presentation content with streaming response"""
+    logger.info(f"[TEXT_PRESENTATION_EDIT_START] Text presentation edit initiated")
+    logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[TEXT_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_EDIT_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Text Presentation Edit",
+        "prompt": payload.editPrompt,
+        "language": "en",  # Default to English for edits
+        "originalContent": payload.content,
+        "editMode": True
+    }
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] Starting streamer")
+        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                send_payload = {
+                    "chat_session_id": chat_id,
+                    "message": wizard_message,
+                    "parent_message_id": None,
+                    "file_descriptors": [],
+                    "user_file_ids": [],
+                    "user_folder_ids": [],
+                    "prompt_id": None,
+                    "search_doc_ids": None,
+                    "retrieval_options": {"run_search": "never", "real_time": False},
+                    "stream_response": True,
+                }
+                logger.info(f"[TEXT_PRESENTATION_EDIT_ONYX] Sending request to Onyx /chat/send-message")
+                logger.info(f"[TEXT_PRESENTATION_EDIT_ONYX] Message length: {len(wizard_message)} chars")
+                
+                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                    logger.info(f"[TEXT_PRESENTATION_EDIT_ONYX] Response status: {resp.status_code}")
+                    logger.info(f"[TEXT_PRESENTATION_EDIT_ONYX] Response headers: {dict(resp.headers)}")
+                    
+                    if resp.status_code != 200:
+                        logger.error(f"[TEXT_PRESENTATION_EDIT_ONYX] Non-200 status code: {resp.status_code}")
+                        error_text = await resp.text()
+                        logger.error(f"[TEXT_PRESENTATION_EDIT_ONYX] Error response: {error_text}")
+                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                    
+                    async for raw_line in resp.aiter_lines():
+                        total_bytes_received += len(raw_line.encode('utf-8'))
+                        chunks_received += 1
+                        
+                        if not raw_line:
+                            logger.debug(f"[TEXT_PRESENTATION_EDIT_ONYX] Empty line received (chunk {chunks_received})")
+                            continue
+                            
+                        line = raw_line.strip()
+                        logger.debug(f"[TEXT_PRESENTATION_EDIT_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
+                        
+                        if line.startswith("data:"):
+                            line = line.split("data:", 1)[1].strip()
+                            logger.debug(f"[TEXT_PRESENTATION_EDIT_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
+                            
+                        if line == "[DONE]":
+                            logger.info(f"[TEXT_PRESENTATION_EDIT_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
+                            done_received = True
+                            break
+                            
+                        try:
+                            pkt = json.loads(line)
+                            if "answer_piece" in pkt:
+                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                assistant_reply += delta_text
+                                logger.debug(f"[TEXT_PRESENTATION_EDIT_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            else:
+                                logger.debug(f"[TEXT_PRESENTATION_EDIT_ONYX] Non-answer_piece packet: {pkt}")
+                        except json.JSONDecodeError as e:
+                            logger.warning(f"[TEXT_PRESENTATION_EDIT_ONYX] JSON decode error on chunk {chunks_received}: {e} | Raw: {line[:100]}")
+                            # Treat as plain text if not JSON
+                            assistant_reply += line
+                            yield (json.dumps({"type": "delta", "text": line}) + "\n").encode()
+                        except Exception as e:
+                            logger.error(f"[TEXT_PRESENTATION_EDIT_ONYX] Unexpected error processing chunk {chunks_received}: {e}")
+                            continue
+
+                        # Send keep-alive every 8 seconds
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_EDIT_STREAM] Exception in streaming: {e}")
+            raise
+
+        logger.info(f"[TEXT_PRESENTATION_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 @app.post("/api/custom/text-presentation/finalize")

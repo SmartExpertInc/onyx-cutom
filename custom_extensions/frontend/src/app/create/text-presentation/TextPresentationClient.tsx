@@ -189,6 +189,7 @@ export default function TextPresentationClient() {
   const handleApplyEdit = async () => {
     if (!editPrompt.trim()) return;
     setLoadingEdit(true);
+    setError(null);
     try {
       const payload: any = {
         content,
@@ -200,8 +201,64 @@ export default function TextPresentationClient() {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      setContent(data.content || "");
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let accumulatedText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) {
+          // Process any remaining buffer
+          if (buffer.trim()) {
+            try {
+              const pkt = JSON.parse(buffer.trim());
+              if (pkt.type === "delta") {
+                accumulatedText += pkt.text;
+                setContent(accumulatedText);
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              accumulatedText += buffer;
+              setContent(accumulatedText);
+            }
+          }
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Split by newlines and process complete chunks
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          try {
+            const pkt = JSON.parse(line);
+            if (pkt.type === "delta") {
+              accumulatedText += pkt.text;
+              setContent(accumulatedText);
+            } else if (pkt.type === "done") {
+              break;
+            } else if (pkt.type === "error") {
+              throw new Error(pkt.text || "Unknown error");
+            }
+          } catch (e) {
+            // If not JSON, treat as plain text
+            accumulatedText += line;
+            setContent(accumulatedText);
+          }
+        }
+      }
+
       setEditPrompt("");
       setSelectedExamples([]);
     } catch (error: any) {

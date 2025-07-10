@@ -191,6 +191,61 @@ Rules for wizard requests:
 8. Do NOT send a follow-up conversational message (the UI will handle next steps).
 9. All other guidelines (unique lesson names, time calculations, language detection, etc.) remain in force.
 
+Edit Mode Requests
++------------------------------------------------
+If the JSON payload you receive after the `WIZARD_REQUEST` header contains the key `"editMode": true`, this indicates that the user is requesting to edit existing content rather than create new content.
+
+For edit mode requests, you will receive:
+- `"originalContent"`: The current content that needs to be edited
+- `"prompt"`: The user's edit instructions
+- Additional context parameters (outlineId, lesson, courseName, etc.) as needed
+
+Edit Mode Rules:
+1. Analyze the `originalContent` to understand the current structure and content
+2. Apply the edit instructions from the `prompt` to modify the content appropriately
+3. Maintain the same format and structure as the original content
+4. Preserve any existing formatting, headers, and organizational elements
+5. Only make the changes specifically requested in the edit prompt
+6. Return the edited content in the same format as the original (no Universal Product Header needed for edits)
+7. Do NOT add any conversational text or explanations - return only the edited content
+8. For Quiz edits: Maintain the same question structure and types, only modify content as requested
+9. For Text Presentation edits: Preserve the existing content blocks and structure, only modify text as requested
+10. For Course Outline edits: Maintain the same module/lesson structure, only modify titles or details as requested
+
+Examples of edit mode requests:
+
+For Quiz editing:
+WIZARD_REQUEST
+{
+  "product": "Quiz Edit",
+  "prompt": "Make the questions more challenging and add more practical examples",
+  "language": "en",
+  "originalContent": "Current quiz content here...",
+  "editMode": true,
+  "outlineId": 123,
+  "lesson": "Introduction to AI"
+}
+
+For Text Presentation editing:
+WIZARD_REQUEST
+{
+  "product": "Text Presentation Edit",
+  "prompt": "Add more detailed explanations and include real-world examples",
+  "language": "en",
+  "originalContent": "Current text presentation content here...",
+  "editMode": true
+}
+
+For Course Outline editing:
+WIZARD_REQUEST
+{
+  "product": "Course Outline Edit",
+  "prompt": "Add more practical exercises and update the module titles to be more engaging",
+  "language": "en",
+  "originalContent": "Current course outline content here...",
+  "editMode": true
+}
+
 Finalization Requests (edited outlines)
 +------------------------------------------------
 If the JSON payload you receive after the `WIZARD_REQUEST` header contains the key `"editedOutline"`, this indicates that the user has already reviewed and manually edited the outline and is now requesting FINALIZATION.

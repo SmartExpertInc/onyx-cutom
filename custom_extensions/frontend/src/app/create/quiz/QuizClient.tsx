@@ -478,6 +478,7 @@ export default function QuizClient() {
     if (!editPrompt.trim() || loadingEdit) return;
 
     setLoadingEdit(true);
+    setError(null);
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
         method: 'POST',
@@ -511,18 +512,57 @@ export default function QuizClient() {
       }
 
       const decoder = new TextDecoder();
-      let newContent = "";
+      let buffer = "";
+      let accumulatedText = "";
 
       while (true) {
         const { done, value } = await reader.read();
         
-        if (done) break;
+        if (done) {
+          // Process any remaining buffer
+          if (buffer.trim()) {
+            try {
+              const pkt = JSON.parse(buffer.trim());
+              if (pkt.type === "delta") {
+                accumulatedText += pkt.text;
+                setQuizData(accumulatedText);
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              accumulatedText += buffer;
+              setQuizData(accumulatedText);
+            }
+          }
+          break;
+        }
 
-        const chunk = decoder.decode(value, { stream: true });
-        newContent += chunk;
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Split by newlines and process complete chunks
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          try {
+            const pkt = JSON.parse(line);
+            if (pkt.type === "delta") {
+              accumulatedText += pkt.text;
+              setQuizData(accumulatedText);
+            } else if (pkt.type === "done") {
+              break;
+            } else if (pkt.type === "error") {
+              throw new Error(pkt.text || "Unknown error");
+            }
+          } catch (e) {
+            // If not JSON, treat as plain text
+            accumulatedText += line;
+            setQuizData(accumulatedText);
+          }
+        }
       }
 
-      setQuizData(newContent);
       setEditPrompt("");
       setSelectedExamples([]);
     } catch (error: any) {
