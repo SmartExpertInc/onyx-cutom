@@ -13333,6 +13333,22 @@ class QuizWizardFinalize(BaseModel):
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
 
+class QuizEditRequest(BaseModel):
+    currentContent: str
+    editPrompt: str
+    outlineId: Optional[int] = None
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    questionTypes: Optional[str] = None
+    language: str = "en"
+    fromFiles: bool = False
+    fromText: bool = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    textMode: Optional[str] = None
+    questionCount: int = 10
+    chatSessionId: Optional[str] = None
+
 async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
     """Ensure quiz design template exists, return template ID"""
     try:
@@ -14130,22 +14146,6 @@ class TextPresentationWizardFinalize(BaseModel):
 class TextPresentationEditRequest(BaseModel):
     content: str
     editPrompt: str
-    chatSessionId: Optional[str] = None
-
-class QuizEditRequest(BaseModel):
-    currentContent: str
-    editPrompt: str
-    outlineId: Optional[int] = None
-    lesson: Optional[str] = None
-    courseName: Optional[str] = None
-    questionTypes: Optional[str] = None
-    language: str = "en"
-    fromFiles: bool = False
-    fromText: bool = False
-    folderIds: Optional[str] = None
-    fileIds: Optional[str] = None
-    textMode: Optional[str] = None
-    questionCount: int = 10
     chatSessionId: Optional[str] = None
 
 @app.post("/api/custom/text-presentation/generate")
