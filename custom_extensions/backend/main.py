@@ -7480,26 +7480,77 @@ async def delete_lesson(lesson_id: int, onyx_user_id: str = Depends(get_current_
         logger.error(f"Error deleting lesson {lesson_id} for user {onyx_user_id}: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while deleting the lesson." if IS_PRODUCTION else f"Database error during lesson deletion: {str(e)}"
         raise HTTPException(status_code=500, detail=detail_msg)
-"items_to_sort": [
-{"id": "step1", "text": "Identify customer needs"},
-{"id": "step2", "text": "Present solution"},
-{"id": "step3", "text": "Handle objections"},
-{"id": "step4", "text": "Close the sale"}
-],
-"correct_order": ["step1", "step2", "step3", "step4"],
-"explanation": "The sales process follows a logical sequence: first understand needs, then present solutions, address concerns, and finally close."
-},
+
+
+# Default quiz JSON example for LLM parsing
+DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
 {
-"question_type": "open-answer",
-"question_text": "What are the three key elements of an effective elevator pitch?",
-"acceptable_answers": [
-"Problem, Solution, Call to Action",
-"Problem statement, Your solution, What you want them to do next",
-"The issue, How you solve it, What action to take"
-],
-"explanation": "An effective elevator pitch should clearly state the problem, present your solution, and include a clear call to action."
-}
-]
+  "quizTitle": "Example Quiz with All Question Types",
+  "questions": [
+    {
+      "question_type": "multiple-choice",
+      "question_text": "What is the capital of France?",
+      "options": [
+        {"id": "A", "text": "London"},
+        {"id": "B", "text": "Paris"},
+        {"id": "C", "text": "Berlin"},
+        {"id": "D", "text": "Madrid"}
+      ],
+      "correct_option_id": "B",
+      "explanation": "Paris is the capital and largest city of France."
+    },
+    {
+      "question_type": "multi-select",
+      "question_text": "Which of the following are programming languages?",
+      "options": [
+        {"id": "A", "text": "Python"},
+        {"id": "B", "text": "HTML"},
+        {"id": "C", "text": "JavaScript"},
+        {"id": "D", "text": "CSS"}
+      ],
+      "correct_option_ids": ["A", "C"],
+      "explanation": "Python and JavaScript are programming languages, while HTML and CSS are markup/styling languages."
+    },
+    {
+      "question_type": "matching",
+      "question_text": "Match the countries with their capitals:",
+      "prompts": [
+        {"id": "A", "text": "Germany"},
+        {"id": "B", "text": "Italy"},
+        {"id": "C", "text": "Spain"}
+      ],
+      "options": [
+        {"id": "1", "text": "Berlin"},
+        {"id": "2", "text": "Rome"},
+        {"id": "3", "text": "Madrid"}
+      ],
+      "correct_matches": {"A": "1", "B": "2", "C": "3"},
+      "explanation": "Germany-Berlin, Italy-Rome, Spain-Madrid are the correct country-capital pairs."
+    },
+    {
+      "question_type": "sorting",
+      "question_text": "Arrange the following steps in the correct order for a sales process:",
+      "items_to_sort": [
+        {"id": "step1", "text": "Identify customer needs"},
+        {"id": "step2", "text": "Present solution"},
+        {"id": "step3", "text": "Handle objections"},
+        {"id": "step4", "text": "Close the sale"}
+      ],
+      "correct_order": ["step1", "step2", "step3", "step4"],
+      "explanation": "The sales process follows a logical sequence: first understand needs, then present solutions, address concerns, and finally close."
+    },
+    {
+      "question_type": "open-answer",
+      "question_text": "What are the three key elements of an effective elevator pitch?",
+      "acceptable_answers": [
+        "Problem, Solution, Call to Action",
+        "Problem statement, Your solution, What you want them to do next",
+        "The issue, How you solve it, What action to take"
+      ],
+      "explanation": "An effective elevator pitch should clearly state the problem, present your solution, and include a clear call to action."
+    }
+  ],
+  "detectedLanguage": "en"
 }
 
 CRITICAL REQUIREMENTS:
