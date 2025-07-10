@@ -825,30 +825,7 @@ export default function QuizClient() {
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Quiz Content</h2>
           {isGenerating && (
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-              <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
-                <div className="relative">
-                  <Sparkles className="h-6 w-6 animate-pulse text-blue-600" />
-                  <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
-                </div>
-                Generating Quiz...
-              </div>
-              <div className="text-sm text-blue-700 mb-4">
-                <p>Creating interactive quiz questions based on your content. This may take a few moments.</p>
-                {retryCount > 0 && (
-                  <p className="text-orange-600 font-medium mt-2">
-                    Retry attempt {retryCount} of {maxRetries}...
-                  </p>
-                )}
-              </div>
-              <LoadingAnimation message="Generating Quiz..." />
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
-              >
-                Cancel Generation
-              </button>
-            </div>
+            <LoadingAnimation message="Generating Quiz..." />
           )}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">

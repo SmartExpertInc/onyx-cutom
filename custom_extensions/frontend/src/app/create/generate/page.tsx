@@ -1223,16 +1223,13 @@ function GenerateProductPicker() {
                           </button>
                           {showQuestionTypesDropdown && (
                             <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                              {[
-                                { value: "multiple-choice", label: "Multiple Choice" },
-                                { value: "multi-select", label: "Multi-Select" },
-                                { value: "matching", label: "Matching" },
-                                { value: "sorting", label: "Sorting" },
-                                { value: "open-answer", label: "Open Answer" },
-                                { value: "true-false", label: "True/False" },
-                                { value: "fill-blank", label: "Fill in the Blank" },
-                                { value: "short-answer", label: "Short Answer" }
-                              ].map((type) => (
+                                                        {[
+                            { value: "multiple-choice", label: "Multiple Choice" },
+                            { value: "multi-select", label: "Multi-Select" },
+                            { value: "matching", label: "Matching" },
+                            { value: "sorting", label: "Sorting" },
+                            { value: "open-answer", label: "Open Answer" }
+                          ].map((type) => (
                                 <label
                                   key={type.value}
                                   className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
@@ -1304,10 +1301,7 @@ function GenerateProductPicker() {
                             { value: "multi-select", label: "Multi-Select" },
                             { value: "matching", label: "Matching" },
                             { value: "sorting", label: "Sorting" },
-                            { value: "open-answer", label: "Open Answer" },
-                            { value: "true-false", label: "True/False" },
-                            { value: "fill-blank", label: "Fill in the Blank" },
-                            { value: "short-answer", label: "Short Answer" }
+                            { value: "open-answer", label: "Open Answer" }
                           ].map((type) => (
                             <label
                               key={type.value}
