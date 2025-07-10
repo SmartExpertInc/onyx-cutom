@@ -45,8 +45,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
       features: ['Slides', 'Text', 'Simple Tests', 'Non-interactive SCORM'],
-      hoursRange: { min: 50, max: 200 },
-      defaultHours: 120
+      hoursRange: { min: 10, max: 200 },
+      defaultHours: 100
     },
     {
       id: 'interactive',

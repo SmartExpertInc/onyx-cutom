@@ -2824,7 +2824,7 @@ def get_tier_ratio(tier: str) -> int:
         'medium': 200,
         'advanced': 320,
         'professional': 450,
-        'basic': 120,
+        'basic': 100,
         'interactive': 200,
         'immersive': 700
     }
