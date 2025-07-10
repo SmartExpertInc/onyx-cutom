@@ -675,29 +675,72 @@ export default function LessonPresentationClient() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let accumulatedText = "";
 
       // Clear content only when we start receiving new data
       let hasReceivedData = false;
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) { setStreamDone(true); break; }
-        
-        const chunk = decoder.decode(value, { stream: true });
-        if (!hasReceivedData && chunk.trim()) {
-          // First meaningful chunk - now clear old content and start fresh
-          hasReceivedData = true;
-          buffer = chunk;
-          setLoadingEdit(false); // Stop showing "Applying" once stream starts
-        } else {
-          buffer += chunk;
+        if (done) { 
+          // Process any remaining buffer
+          if (buffer.trim()) {
+            try {
+              const pkt = JSON.parse(buffer.trim());
+              if (pkt.type === "delta") {
+                accumulatedText += pkt.text;
+                setContent(accumulatedText);
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              accumulatedText += buffer;
+              setContent(accumulatedText);
+            }
+          }
+          setStreamDone(true); 
+          break; 
         }
         
-        if (/\S/.test(buffer) && !textareaVisible) {
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Split by newlines and process complete chunks
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          try {
+            const pkt = JSON.parse(line);
+            if (!hasReceivedData) {
+              hasReceivedData = true;
+              setLoadingEdit(false); // Stop showing "Applying" once stream starts
+            }
+            
+            if (pkt.type === "delta") {
+              accumulatedText += pkt.text;
+              setContent(accumulatedText);
+            } else if (pkt.type === "done") {
+              setStreamDone(true);
+              break;
+            } else if (pkt.type === "error") {
+              throw new Error(pkt.text || "Unknown error");
+            }
+          } catch (e) {
+            // If not JSON, treat as plain text
+            if (!hasReceivedData) {
+              hasReceivedData = true;
+              setLoadingEdit(false);
+            }
+            accumulatedText += line;
+            setContent(accumulatedText);
+          }
+        }
+        
+        if (/\S/.test(accumulatedText) && !textareaVisible) {
           setTextareaVisible(true);
           setLoading(false);
         }
-        setContent(buffer);
       }
     } catch (e: any) {
       if (e.name !== "AbortError") {
