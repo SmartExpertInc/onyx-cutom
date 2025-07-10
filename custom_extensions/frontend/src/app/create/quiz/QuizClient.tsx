@@ -840,11 +840,11 @@ export default function QuizClient() {
                   setSelectedLesson("");
                 }}
                 className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-              >
+            >
                 ← Back
             </button>
           </div>
-          )}
+        )}
         </div>
 
         {/* Prompt input for standalone quizzes */}
