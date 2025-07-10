@@ -202,57 +202,57 @@ export default function TextPresentationClient() {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error("No response body");
-      }
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error("No response body");
+        }
 
-      const decoder = new TextDecoder();
-      let buffer = "";
+        const decoder = new TextDecoder();
+        let buffer = "";
       let accumulatedText = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) {
-          // Process any remaining buffer
-          if (buffer.trim()) {
-            try {
-              const pkt = JSON.parse(buffer.trim());
-              if (pkt.type === "delta") {
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            // Process any remaining buffer
+            if (buffer.trim()) {
+              try {
+                const pkt = JSON.parse(buffer.trim());
+                if (pkt.type === "delta") {
                 accumulatedText += pkt.text;
                 setContent(accumulatedText);
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
               accumulatedText += buffer;
               setContent(accumulatedText);
             }
           }
           break;
-        }
+          }
 
-        buffer += decoder.decode(value, { stream: true });
-        
-        // Split by newlines and process complete chunks
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || ""; // Keep incomplete line in buffer
-        
-        for (const line of lines) {
-          if (!line.trim()) continue;
+          buffer += decoder.decode(value, { stream: true });
           
-          try {
-            const pkt = JSON.parse(line);
-            if (pkt.type === "delta") {
+          // Split by newlines and process complete chunks
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            try {
+              const pkt = JSON.parse(line);
+              if (pkt.type === "delta") {
               accumulatedText += pkt.text;
               setContent(accumulatedText);
-            } else if (pkt.type === "done") {
+              } else if (pkt.type === "done") {
               break;
-            } else if (pkt.type === "error") {
-              throw new Error(pkt.text || "Unknown error");
-            }
-          } catch (e) {
-            // If not JSON, treat as plain text
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
             accumulatedText += line;
             setContent(accumulatedText);
           }
@@ -287,7 +287,7 @@ export default function TextPresentationClient() {
 
       const fetchPreview = async () => {
         setLoading(true);
-        setError(null);
+      setError(null);
         setContent(""); // Clear previous content
         let gotFirstChunk = false;
 
@@ -406,8 +406,8 @@ export default function TextPresentationClient() {
               if (e.message.includes("The user aborted a request")) return;
             }
             setError(e.message);
-          }
-        } finally {
+        }
+      } finally {
           if (!abortController.signal.aborted) {
             // If the stream ended but we never displayed content, remove spinner anyway
             if (loading) setLoading(false);
@@ -718,11 +718,11 @@ export default function TextPresentationClient() {
                 <>
                   <div className="relative">
                     <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                      <option value="en">English</option>
-                      <option value="uk">Ukrainian</option>
-                      <option value="es">Spanish</option>
-                      <option value="ru">Russian</option>
-                    </select>
+              <option value="en">English</option>
+              <option value="uk">Ukrainian</option>
+              <option value="es">Spanish</option>
+              <option value="ru">Russian</option>
+            </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
                   <div className="relative">
@@ -818,7 +818,7 @@ export default function TextPresentationClient() {
                 {/* Example prompts */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
                   {onePagerExamples.map((ex) => (
-                    <button
+                  <button
                       key={ex.short}
                       type="button"
                       onClick={() => toggleExample(ex)}
@@ -826,7 +826,7 @@ export default function TextPresentationClient() {
                     >
                       {ex.short}
                       <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
-                    </button>
+                  </button>
                   ))}
                 </div>
                 <div className="flex justify-end">
@@ -839,8 +839,8 @@ export default function TextPresentationClient() {
                     {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
                   </button>
                 </div>
-              </div>
-            )}
+                </div>
+              )}
             <div className="w-full flex justify-center mt-2 mb-6">
               <button
                 type="button"
@@ -926,7 +926,7 @@ export default function TextPresentationClient() {
                   </div>
                 </div>
               </div>
-            </div>
+          </div>
           </section>
         )}
         {/* Footer */}

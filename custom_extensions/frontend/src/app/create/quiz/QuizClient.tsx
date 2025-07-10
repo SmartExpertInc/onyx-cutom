@@ -266,67 +266,67 @@ export default function QuizClient() {
             },
             body: JSON.stringify(requestBody),
             signal: abortController.signal,
-          });
+        });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-          const reader = response.body?.getReader();
-          if (!reader) {
-            throw new Error("No response body");
-          }
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error("No response body");
+        }
 
-          const decoder = new TextDecoder();
-          let buffer = "";
+        const decoder = new TextDecoder();
+        let buffer = "";
           let accumulatedText = "";
 
-          while (true) {
-            const { done, value } = await reader.read();
-            
-            if (done) {
-              // Process any remaining buffer
-              if (buffer.trim()) {
-                try {
-                  const pkt = JSON.parse(buffer.trim());
-                  if (pkt.type === "delta") {
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            // Process any remaining buffer
+            if (buffer.trim()) {
+              try {
+                const pkt = JSON.parse(buffer.trim());
+                if (pkt.type === "delta") {
                     accumulatedText += pkt.text;
                     setQuizData(accumulatedText);
-                  }
-                } catch (e) {
-                  // If not JSON, treat as plain text
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
                   accumulatedText += buffer;
                   setQuizData(accumulatedText);
                 }
               }
               setStreamDone(true);
               break;
-            }
+          }
 
-            buffer += decoder.decode(value, { stream: true });
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Split by newlines and process complete chunks
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
             
-            // Split by newlines and process complete chunks
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ""; // Keep incomplete line in buffer
-            
-            for (const line of lines) {
-              if (!line.trim()) continue;
+            try {
+              const pkt = JSON.parse(line);
+              gotFirstChunk = true;
               
-              try {
-                const pkt = JSON.parse(line);
-                gotFirstChunk = true;
-                
-                if (pkt.type === "delta") {
+              if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setQuizData(accumulatedText);
-                } else if (pkt.type === "done") {
+              } else if (pkt.type === "done") {
                   setStreamDone(true);
                   break;
-                } else if (pkt.type === "error") {
-                  throw new Error(pkt.text || "Unknown error");
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
                 accumulatedText += line;
                 setQuizData(accumulatedText);
               }
@@ -338,24 +338,24 @@ export default function QuizClient() {
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
-            }
           }
-        } catch (error: any) {
-          if (error.name === 'AbortError') {
-            console.log('Generation cancelled');
-            return;
-          }
-          
-          // Check if this is a network error that should be retried
-          const isNetworkError = error.message?.includes('network') || 
-                                error.message?.includes('fetch') ||
-                                error.message?.includes('Failed to fetch') ||
-                                error.message?.includes('NetworkError') ||
-                                !navigator.onLine;
-          
-          if (isNetworkError && attempt < maxRetries) {
-            console.log(`Network error on attempt ${attempt}, retrying...`);
-            setRetryCount(attempt);
+        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Generation cancelled');
+          return;
+        }
+        
+        // Check if this is a network error that should be retried
+        const isNetworkError = error.message?.includes('network') || 
+                              error.message?.includes('fetch') ||
+                              error.message?.includes('Failed to fetch') ||
+                              error.message?.includes('NetworkError') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError && attempt < maxRetries) {
+          console.log(`Network error on attempt ${attempt}, retrying...`);
+          setRetryCount(attempt);
             // Wait before retrying
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
             return startPreview(attempt + 1);
@@ -826,12 +826,12 @@ export default function QuizClient() {
                       ))}
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
+            </div>
                 </>
               )}
 
               {/* Reset button */}
-              <button
+            <button
                 onClick={() => {
                   setUseExistingOutline(null);
                   setSelectedOutlineId(null);
@@ -842,8 +842,8 @@ export default function QuizClient() {
                 className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
               >
                 ← Back
-              </button>
-            </div>
+            </button>
+          </div>
           )}
         </div>
 
@@ -867,28 +867,28 @@ export default function QuizClient() {
           {loading && (
             <LoadingAnimation message="Generating Quiz..." />
           )}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
-              <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
-                <XCircle className="h-5 w-5" />
-                Error
-              </div>
-              <div className="text-sm text-red-700 mb-4">
-                <p>{error}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setError(null);
-                  setRetryCount(0);
-                  setRetryTrigger(prev => prev + 1);
-                }}
-                className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
-              >
-                Retry Generation
-              </button>
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+              <XCircle className="h-5 w-5" />
+              Error
             </div>
-          )}
-          
+            <div className="text-sm text-red-700 mb-4">
+              <p>{error}</p>
+            </div>
+            <button
+              onClick={() => {
+                setError(null);
+                setRetryCount(0);
+                setRetryTrigger(prev => prev + 1);
+              }}
+              className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+            >
+              Retry Generation
+            </button>
+          </div>
+        )}
+
           {/* Main content display - Textarea instead of module list */}
           {textareaVisible && (
             <div
@@ -980,7 +980,7 @@ export default function QuizClient() {
                 <span>View more</span>
               </button>
             </div>
-            
+
             <div className="flex flex-col gap-5">
               {/* Themes grid */}
               <div className="grid grid-cols-3 gap-5 justify-items-center">
@@ -1020,25 +1020,25 @@ export default function QuizClient() {
                 {/* This can be word count or removed */}
                 {quizData.split(/\s+/).length} words
               </span>
-              <button
+                <button
                 type="button"
-                onClick={handleCreateFinal}
-                disabled={isCreatingFinal}
+                  onClick={handleCreateFinal}
+                  disabled={isCreatingFinal}
                 className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isCreatingFinal ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating Quiz...
-                  </>
-                ) : (
-                  <>
+                >
+                  {isCreatingFinal ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Creating Quiz...
+                    </>
+                  ) : (
+                    <>
                     <Sparkles size={18} />
                     <span className="select-none font-semibold">Generate</span>
-                  </>
-                )}
-              </button>
-            </div>
+                    </>
+                  )}
+                </button>
+              </div>
             <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
           </div>
         )}
