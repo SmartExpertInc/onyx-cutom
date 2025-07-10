@@ -964,6 +964,136 @@ class ProjectDB(BaseModel):
     design_template_id: Optional[int] = None
     created_at: datetime
     model_config = {"from_attributes": True}
+
+class MicroProductApiResponse(BaseModel):
+    name: str
+    slug: str
+    project_id: int
+    design_template_id: int
+    component_name: str
+    parentProjectName: Optional[str] = None
+    webLinkPath: Optional[str] = None
+    pdfLinkPath: Optional[str] = None
+    details: Optional[MicroProductContentType] = None
+    sourceChatSessionId: Optional[uuid.UUID] = None
+    model_config = {"from_attributes": True}
+
+class ProjectApiResponse(BaseModel):
+    id: int
+    projectName: str
+    projectSlug: str
+    microproduct_name: Optional[str] = None
+    design_template_name: Optional[str] = None
+    design_microproduct_type: Optional[str] = None
+    created_at: datetime
+    design_template_id: Optional[int] = None
+    folder_id: Optional[int] = None
+    order: Optional[int] = None
+    source_chat_session_id: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class ProjectDetailForEditResponse(BaseModel):
+    id: int
+    projectName: str
+    microProductName: Optional[str] = None
+    design_template_id: Optional[int] = None
+    microProductContent: Optional[MicroProductContentType] = None
+    createdAt: Optional[datetime] = None
+    design_template_name: Optional[str] = None
+    design_component_name: Optional[str] = None
+    design_image_path: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class ProjectUpdateRequest(BaseModel):
+    projectName: Optional[str] = None
+    design_template_id: Optional[int] = None
+    microProductName: Optional[str] = None
+    microProductContent: Optional[MicroProductContentType] = None
+    model_config = {"from_attributes": True}
+
+BulletListBlock.model_rebuild()
+NumberedListBlock.model_rebuild()
+PdfLessonDetails.model_rebuild()
+TextPresentationDetails.model_rebuild()
+QuizData.model_rebuild()
+ProjectDB.model_rebuild()
+MicroProductApiResponse.model_rebuild()
+ProjectDetailForEditResponse.model_rebuild()
+ProjectUpdateRequest.model_rebuild()
+TrainingPlanDetails.model_rebuild()
+
+class ErrorDetail(BaseModel):
+    detail: str
+
+class RequestAnalytics(BaseModel):
+    id: str
+    endpoint: str
+    method: str
+    user_id: Optional[str] = None
+    status_code: int
+    response_time_ms: int
+    request_size_bytes: Optional[int] = None
+    response_size_bytes: Optional[int] = None
+    error_message: Optional[str] = None
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+class ProjectsDeleteRequest(BaseModel):
+    project_ids: List[int]
+    scope: Optional[str] = 'self'
+
+class MicroproductPipelineBase(BaseModel):
+    pipeline_name: str
+    pipeline_description: Optional[str] = None
+    is_discovery_prompts: bool = Field(False, alias="is_prompts_data_collection")
+    is_structuring_prompts: bool = Field(False, alias="is_prompts_data_formating")
+    discovery_prompts_list: Optional[List[str]] = Field(default_factory=list)
+    structuring_prompts_list: Optional[List[str]] = Field(default_factory=list)
+    model_config = {"from_attributes": True, "populate_by_name": True}
+
+class MicroproductPipelineCreateRequest(MicroproductPipelineBase):
+    pass
+
+class MicroproductPipelineUpdateRequest(MicroproductPipelineBase):
+    pass
+
+class MicroproductPipelineDBRaw(BaseModel):
+    id: int
+    pipeline_name: str
+    pipeline_description: Optional[str] = None
+    is_prompts_data_collection: bool
+    is_prompts_data_formating: bool
+    prompts_data_collection: Optional[Dict[str, str]] = None
+    prompts_data_formating: Optional[Dict[str, str]] = None
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+class MicroproductPipelineGetResponse(BaseModel):
+    id: int
+    pipeline_name: str
+    pipeline_description: Optional[str] = None
+    is_discovery_prompts: bool
+    is_structuring_prompts: bool
+    discovery_prompts_list: List[str] = Field(default_factory=list)
+    structuring_prompts_list: List[str] = Field(default_factory=list)
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+    @classmethod
+    def from_db_model(cls, db_model: MicroproductPipelineDBRaw) -> "MicroproductPipelineGetResponse":
+        discovery_list = [db_model.prompts_data_collection[key] for key in sorted(db_model.prompts_data_collection.keys(), key=int)] if db_model.prompts_data_collection else []
+        structuring_list = [db_model.prompts_data_formating[key] for key in sorted(db_model.prompts_data_formating.keys(), key=int)] if db_model.prompts_data_formating else []
+        return cls(
+            id=db_model.id,
+            pipeline_name=db_model.pipeline_name,
+            pipeline_description=db_model.pipeline_description,
+            is_discovery_prompts=db_model.is_prompts_data_collection,
+            is_structuring_prompts=db_model.is_prompts_data_formating,
+            discovery_prompts_list=discovery_list,
+            structuring_prompts_list=structuring_list,
+            created_at=db_model.created_at
+        )
+
 # --- Authentication and Utility Functions ---
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
