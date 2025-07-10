@@ -279,22 +279,61 @@ export default function QuizClient() {
 
           const decoder = new TextDecoder();
           let buffer = "";
+          let accumulatedText = "";
 
           while (true) {
             const { done, value } = await reader.read();
+            
             if (done) {
-              // Streaming finished successfully
+              // Process any remaining buffer
+              if (buffer.trim()) {
+                try {
+                  const pkt = JSON.parse(buffer.trim());
+                  if (pkt.type === "delta") {
+                    accumulatedText += pkt.text;
+                    setQuizData(accumulatedText);
+                  }
+                } catch (e) {
+                  // If not JSON, treat as plain text
+                  accumulatedText += buffer;
+                  setQuizData(accumulatedText);
+                }
+              }
               setStreamDone(true);
               break;
             }
-            gotFirstChunk = true;
+
             buffer += decoder.decode(value, { stream: true });
+            
+            // Split by newlines and process complete chunks
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ""; // Keep incomplete line in buffer
+            
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              
+              try {
+                const pkt = JSON.parse(line);
+                gotFirstChunk = true;
+                
+                if (pkt.type === "delta") {
+                  accumulatedText += pkt.text;
+                  setQuizData(accumulatedText);
+                } else if (pkt.type === "done") {
+                  setStreamDone(true);
+                  break;
+                } else if (pkt.type === "error") {
+                  throw new Error(pkt.text || "Unknown error");
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
+                accumulatedText += line;
+                setQuizData(accumulatedText);
+              }
+            }
 
             // Determine if this buffer now contains some real (non-whitespace) text
-            const hasMeaningfulText = /\S/.test(buffer);
-
-            // Update the React state before toggling UI visibility
-            setQuizData(buffer);
+            const hasMeaningfulText = /\S/.test(accumulatedText);
 
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
