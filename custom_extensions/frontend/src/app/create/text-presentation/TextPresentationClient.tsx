@@ -55,13 +55,52 @@ export default function TextPresentationClient() {
   );
   const [prompt, setPrompt] = useState(params?.get("prompt") || "");
 
-  // State for content, loading, error, isGenerating, streamDone, textareaVisible
+  // Original logic state
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<string>("");
+  const [isComplete, setIsComplete] = useState(false);
+  const [isCreatingFinal, setIsCreatingFinal] = useState(false);
+  const [finalProjectId, setFinalProjectId] = useState<number | null>(null);
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
+
+  // File context for creation from documents
+  const isFromFiles = params?.get("fromFiles") === "true";
+  const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
+  const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
+  
+  // Text context for creation from user text
+  const isFromText = params?.get("fromText") === "true";
+  const textMode = params?.get("textMode") as 'context' | 'base' | null;
+  const [userText, setUserText] = useState('');
+  
+  // Retrieve user text from sessionStorage
+  useEffect(() => {
+    if (isFromText) {
+      try {
+        const storedData = sessionStorage.getItem('pastedTextData');
+        if (storedData) {
+          const textData = JSON.parse(storedData);
+          // Check if data is recent (within 1 hour) and matches the current mode
+          if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
+            setUserText(textData.text || '');
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving pasted text data:', error);
+      }
+    }
+  }, [isFromText, textMode]);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const requestInProgressRef = useRef(false);
+  const requestIdRef = useRef(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+  const maxRetries = 3;
   const previewAbortRef = useRef<AbortController | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -155,36 +194,235 @@ export default function TextPresentationClient() {
     }
   };
 
+  // Original generation logic
+  useEffect(() => {
+    // Don't start generation if there's no valid input
+    const hasValidInput = (selectedOutlineId && selectedLesson) || prompt.trim() || isFromFiles || isFromText;
+    if (!hasValidInput) {
+      return;
+    }
+
+    // Helper function to perform the actual text presentation generation with retry logic
+    const performTextPresentationGeneration = async (attempt: number = 1): Promise<void> => {
+      
+      try {
+        const payload: any = {
+          language,
+        };
+        
+        if (selectedOutlineId && selectedLesson) {
+          payload.outlineId = selectedOutlineId;
+          payload.lesson = selectedLesson;
+        } else if (prompt) {
+          payload.prompt = prompt;
+        }
+
+        // Add file context if coming from files
+        if (isFromFiles) {
+          payload.fromFiles = true;
+          if (folderIds.length > 0) payload.folderIds = folderIds.join(',');
+          if (fileIds.length > 0) payload.fileIds = fileIds.join(',');
+        }
+        
+        // Add text context if coming from text
+        if (isFromText) {
+          payload.fromText = true;
+          payload.textMode = textMode;
+          // userText stays in sessionStorage - don't pass via URL
+          payload.userText = userText;
+        }
+
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/text-presentation/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          signal: abortControllerRef.current?.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error("No response body");
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let gotFirstChunk = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            // Process any remaining buffer
+            if (buffer.trim()) {
+              try {
+                const pkt = JSON.parse(buffer.trim());
+                gotFirstChunk = true;
+                if (pkt.type === "delta") {
+                  setGeneratedContent(prev => prev + pkt.text);
+                  setContent(prev => prev + pkt.text);
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text
+                setGeneratedContent(prev => prev + buffer);
+                setContent(prev => prev + buffer);
+              }
+            }
+            setIsComplete(true);
+            setStreamDone(true);
+            setTextareaVisible(true);
+            setLoading(false);
+            return;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Split by newlines and process complete chunks
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            try {
+              const pkt = JSON.parse(line);
+              gotFirstChunk = true;
+              
+              if (pkt.type === "delta") {
+                setGeneratedContent(prev => prev + pkt.text);
+                setContent(prev => prev + pkt.text);
+              } else if (pkt.type === "done") {
+                setIsComplete(true);
+                setStreamDone(true);
+                setTextareaVisible(true);
+                setLoading(false);
+                return;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || "Unknown error");
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
+              setGeneratedContent(prev => prev + line);
+              setContent(prev => prev + line);
+            }
+          }
+        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Generation cancelled');
+          return;
+        }
+        
+        // Check if this is a network error that should be retried
+        const isNetworkError = error.message?.includes('network') || 
+                              error.message?.includes('fetch') ||
+                              error.message?.includes('Failed to fetch') ||
+                              error.message?.includes('NetworkError') ||
+                              !navigator.onLine;
+        
+        if (isNetworkError && attempt < maxRetries) {
+          console.log(`Network error, retrying... (${attempt}/${maxRetries})`);
+          setRetryCount(attempt);
+          setTimeout(() => {
+            setRetryTrigger(prev => prev + 1);
+          }, 1500 * attempt);
+          return;
+        }
+        
+        console.error('Text presentation generation failed:', error);
+        setError(error.message || 'Failed to generate text presentation');
+        setIsGenerating(false);
+        setLoading(false);
+      }
+    };
+
+    const generateTextPresentation = async () => {
+      if (requestInProgressRef.current) return;
+      
+      requestInProgressRef.current = true;
+      setIsGenerating(true);
+      setLoading(true);
+      setError(null);
+      setGeneratedContent("");
+      setContent("");
+      setIsComplete(false);
+      setStreamDone(false);
+      setTextareaVisible(false);
+      
+      const currentRequestId = ++requestIdRef.current;
+      
+      try {
+        await performTextPresentationGeneration();
+        
+        if (currentRequestId === requestIdRef.current) {
+          setIsGenerating(false);
+        }
+      } catch (error) {
+        if (currentRequestId === requestIdRef.current) {
+          console.error('Text presentation generation error:', error);
+          setError(error instanceof Error ? error.message : 'Failed to generate text presentation');
+          setIsGenerating(false);
+          setLoading(false);
+        }
+      } finally {
+        if (currentRequestId === requestIdRef.current) {
+          requestInProgressRef.current = false;
+        }
+      }
+    };
+
+    generateTextPresentation();
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [selectedOutlineId, selectedLesson, prompt, language, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText, retryTrigger]);
+
   // Finalize/save one-pager
   const handleFinalize = async () => {
-    if (!content.trim()) return;
-    setIsFinalizing(true);
+    if (!generatedContent.trim()) {
+      setError("No content to finalize");
+      return;
+    }
+
+    setIsCreatingFinal(true);
     setError(null);
+
     try {
-      const payload: any = {
-        aiResponse: content,
-        lesson: selectedLesson,
-        outlineId: selectedOutlineId,
-        language,
-        theme: selectedTheme,
-        textDensity,
-        imageSource,
-        aiModel,
-      };
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/text-presentation/finalize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          aiResponse: generatedContent,
+          lesson: selectedLesson,
+          courseName: params?.get("courseName"),
+          language: language,
+        }),
       });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      if (data.id) {
-        router.push(`/projects/view/${data.id}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    } catch (error: any) {
-      setError(error.message || "Failed to finalize one-pager");
+
+      const data = await response.json();
+      setFinalProjectId(data.id);
+      
+      // Redirect to the generated project
+      router.push(`/projects/view/${data.id}`);
+    } catch (error) {
+      console.error('Finalization failed:', error);
+      setError(error instanceof Error ? error.message : 'Failed to finalize text presentation');
     } finally {
-      setIsFinalizing(false);
+      setIsCreatingFinal(false);
     }
   };
 
@@ -245,88 +483,6 @@ export default function TextPresentationClient() {
     };
     fetchLessons();
   }, [selectedOutlineId, useExistingOutline]);
-
-  // Streaming preview effect
-  useEffect(() => {
-    // Only trigger if we have a lesson or a prompt
-    if (useExistingOutline === null) return;
-    if (useExistingOutline === true && !selectedLesson) return;
-    if (useExistingOutline === false && !prompt.trim()) return;
-
-    setLoading(true);
-    setError(null);
-    setContent("");
-    setStreamDone(false);
-    setTextareaVisible(false);
-
-    if (previewAbortRef.current) previewAbortRef.current.abort();
-    previewAbortRef.current = new AbortController();
-
-    const fetchPreview = async () => {
-      try {
-        const payload: any = {
-          language,
-        };
-        if (useExistingOutline === true && selectedOutlineId && selectedLesson) {
-          payload.outlineId = selectedOutlineId;
-          payload.lesson = selectedLesson;
-        } else if (useExistingOutline === false && prompt.trim()) {
-          payload.prompt = prompt.trim();
-        }
-        const response = await fetch(
-          `${CUSTOM_BACKEND_URL}/text-presentation/preview`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-            signal: previewAbortRef.current!.signal,
-          }
-        );
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const reader = response.body?.getReader();
-        if (!reader) throw new Error("No response body");
-        const decoder = new TextDecoder();
-        let buffer = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            if (buffer.trim()) setContent((prev) => prev + buffer);
-            setStreamDone(true);
-            setTextareaVisible(true);
-            setLoading(false);
-            return;
-          }
-          buffer += decoder.decode(value, { stream: true });
-          // Split by newlines and process complete chunks
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || "";
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            try {
-              const pkt = JSON.parse(line);
-              if (pkt.type === "delta") setContent((prev) => prev + pkt.text);
-              else if (pkt.type === "done") {
-                setStreamDone(true);
-                setTextareaVisible(true);
-                setLoading(false);
-                return;
-              } else if (pkt.type === "error") throw new Error(pkt.text || "Unknown error");
-            } catch (e) {
-              setContent((prev) => prev + line);
-            }
-          }
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') return;
-        setError(error.message || 'Failed to generate preview');
-        setLoading(false);
-      }
-    };
-    fetchPreview();
-    return () => {
-      if (previewAbortRef.current) previewAbortRef.current.abort();
-    };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -605,7 +761,7 @@ export default function TextPresentationClient() {
                 type="button"
                 onClick={handleFinalize}
                 className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                disabled={loading || isGenerating || isFinalizing}
+                disabled={loading || isGenerating || isCreatingFinal}
               >
                 <Sparkles size={18} />
                 <span className="select-none font-semibold">Generate</span>
