@@ -4850,6 +4850,43 @@ async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
         return row["id"]
 
 
+# Ensure a design template for Text Presentation exists, return its ID
+async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
+    """Ensure text presentation template exists and return its ID"""
+    try:
+        # Check if text presentation template exists
+        template_query = """
+            SELECT id FROM design_templates 
+            WHERE microproduct_type = 'Text Presentation' 
+            LIMIT 1
+        """
+        template_result = await pool.fetchval(template_query)
+        
+        if template_result:
+            return template_result
+        
+        # Create text presentation template if it doesn't exist
+        insert_query = """
+            INSERT INTO design_templates 
+            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        """
+        template_id = await pool.fetchval(
+            insert_query,
+            "Text Presentation Template",
+            "Create a comprehensive text presentation with clear structure, engaging content, and professional formatting.",
+            "Text Presentation",
+            COMPONENT_NAME_TEXT_PRESENTATION,
+            "/text-presentation.png"
+        )
+        return template_id
+        
+    except Exception as e:
+        logger.error(f"Error ensuring text presentation template: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
+
+
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
 
 class LessonWizardPreview(BaseModel):
