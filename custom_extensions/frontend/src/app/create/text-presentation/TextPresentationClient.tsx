@@ -232,7 +232,7 @@ export default function TextPresentationClient() {
           payload.userText = userText;
         }
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/text-presentation/generate`, {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -396,7 +396,7 @@ export default function TextPresentationClient() {
     setError(null);
 
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/text-presentation/finalize`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
