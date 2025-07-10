@@ -1225,7 +1225,7 @@ function GenerateProductPicker() {
                             <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                                                         {[
                             { value: "multiple-choice", label: "Multiple Choice" },
-                            { value: "multi-select", label: "Multi-Select" },
+                            { value: "multi-select", label: "Multiple Select" },
                             { value: "matching", label: "Matching" },
                             { value: "sorting", label: "Sorting" },
                             { value: "open-answer", label: "Open Answer" }
@@ -1298,7 +1298,7 @@ function GenerateProductPicker() {
                         <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                           {[
                             { value: "multiple-choice", label: "Multiple Choice" },
-                            { value: "multi-select", label: "Multi-Select" },
+                            { value: "multi-select", label: "Multiple Select" },
                             { value: "matching", label: "Matching" },
                             { value: "sorting", label: "Sorting" },
                             { value: "open-answer", label: "Open Answer" }
