@@ -675,6 +675,24 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding AI parser columns (may already exist): {e}")
 
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -990,6 +1008,7 @@ class ProjectApiResponse(BaseModel):
     folder_id: Optional[int] = None
     order: Optional[int] = None
     source_chat_session_id: Optional[str] = None
+    is_standalone: Optional[bool] = None  # Track whether this is standalone or part of an outline
     model_config = {"from_attributes": True}
 
 class ProjectDetailForEditResponse(BaseModel):
@@ -2567,14 +2586,18 @@ Return ONLY the JSON object.
 
         logger.info(f"Content prepared for DB storage (first 200 chars of JSON): {str(content_to_store_for_db)[:200]}")
 
+        # Determine if this is a standalone product (default to True for general project creation)
+        # For specific products like quizzes, this will be overridden in their dedicated endpoints
+        is_standalone_product = True
+        
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
     """
 
         async with pool.acquire() as conn:
@@ -2587,7 +2610,8 @@ Return ONLY the JSON object.
                 db_microproduct_name_to_store,
                 content_to_store_for_db,
                 project_data.design_template_id,
-                project_data.chatSessionId
+                project_data.chatSessionId,
+                is_standalone_product
             )
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create project entry.")
@@ -2735,7 +2759,7 @@ async def get_user_projects_list_from_db(
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id
+               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
@@ -2766,7 +2790,8 @@ async def get_user_projects_list_from_db(
             created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
             folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
             microproduct_content=row_dict.get("microproduct_content"),
-            source_chat_session_id=source_chat_session_id
+            source_chat_session_id=source_chat_session_id,
+            is_standalone=row_dict.get("is_standalone")
         ))
     return projects_list
 
@@ -7373,16 +7398,19 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
+        # Determine if this is a standalone quiz or part of an outline
+        is_standalone_quiz = payload.outlineId is None
+        
         # For quiz components, we need to insert directly to avoid double parsing
         # since add_project_to_custom_db would call parse_ai_response_with_llm again
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
         """
         
         async with pool.acquire() as conn:
@@ -7395,7 +7423,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 final_project_name,  # microproduct_name
                 parsed_quiz.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
-                payload.chatSessionId  # source_chat_session_id
+                payload.chatSessionId,  # source_chat_session_id
+                is_standalone_quiz  # is_standalone
             )
         
         if not row:
@@ -7451,52 +7480,6 @@ async def delete_lesson(lesson_id: int, onyx_user_id: str = Depends(get_current_
         logger.error(f"Error deleting lesson {lesson_id} for user {onyx_user_id}: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "An error occurred while deleting the lesson." if IS_PRODUCTION else f"Database error during lesson deletion: {str(e)}"
         raise HTTPException(status_code=500, detail=detail_msg)
-
-# Default quiz JSON example for LLM parsing
-DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
-{
-"quizTitle": "Advanced Sales Techniques Quiz",
-"detectedLanguage": "en",
-"questions": [
-{
-"question_type": "multiple-choice",
-"question_text": "Which technique involves assuming the sale is made?",
-"options": [
-{"id": "A", "text": "The 'Question Close'"},
-{"id": "B", "text": "The 'Presumptive Close'"}
-],
-"correct_option_id": "B",
-"explanation": "A presumptive close assumes the sale is made."
-},
-{
-"question_type": "multi-select",
-"question_text": "Which of the following are primary colors? (Select all that apply)",
-"options": [
-{"id": "A", "text": "Red"},
-{"id": "B", "text": "Green"},
-{"id": "C", "text": "Orange"},
-{"id": "D", "text": "Blue"}
-],
-"correct_option_ids": ["A", "D"],
-"explanation": "In the traditional subtractive model, the primary colors are Red, Yellow, and Blue."
-},
-{
-"question_type": "matching",
-"question_text": "Match each sales technique with its description:",
-"prompts": [
-{"id": "A", "text": "The 'Alternative Close'"},
-{"id": "B", "text": "The 'Summary Close'"}
-],
-"options": [
-{"id": "1", "text": "Presenting two options to the customer"},
-{"id": "2", "text": "Recapping key benefits before asking for the sale"}
-],
-"correct_matches": {"A": "1", "B": "2"},
-"explanation": "The Alternative Close gives customers a choice between options, while the Summary Close reinforces value before closing."
-},
-{
-"question_type": "sorting",
-"question_text": "Arrange these steps in the correct order for a successful sales call:",
 "items_to_sort": [
 {"id": "step1", "text": "Identify customer needs"},
 {"id": "step2", "text": "Present solution"},
@@ -8198,38 +8181,3 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
-
-async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
-    """Ensure text presentation template exists and return its ID"""
-    try:
-        # Check if text presentation template exists
-        template_query = """
-            SELECT id FROM design_templates 
-            WHERE microproduct_type = 'Text Presentation' 
-            LIMIT 1
-        """
-        template_result = await pool.fetchval(template_query)
-        
-        if template_result:
-            return template_result
-        
-        # Create text presentation template if it doesn't exist
-        insert_query = """
-            INSERT INTO design_templates 
-            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING id
-        """
-        template_id = await pool.fetchval(
-            insert_query,
-            "Text Presentation Template",
-            "Create a comprehensive text presentation with clear structure, engaging content, and professional formatting.",
-            "Text Presentation",
-            COMPONENT_NAME_TEXT_PRESENTATION,
-            "/text-presentation.png"
-        )
-        return template_id
-        
-    except Exception as e:
-        logger.error(f"Error ensuring text presentation template: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")

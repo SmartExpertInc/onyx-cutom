@@ -2058,7 +2058,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             const isVideoLesson = contentType === "video lesson";
                             const isPdfLesson = contentType === "pdf lesson";
                             
-                            if (isQuiz || isTextPresentation || isVideoLesson || isPdfLesson) {
+                            // NEW: Check if product has explicit is_standalone field
+                            const hasStandaloneFlag = (proj as any).is_standalone !== undefined && (proj as any).is_standalone !== null;
+                            
+                            // If product has explicit standalone flag, use it to determine visibility
+                            if (hasStandaloneFlag) {
+                                // For products with explicit standalone flag: show only if standalone=true
+                                if ((proj as any).is_standalone === false) {
+                                    belongsToOutline = true;
+                                    console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false)`);
+                                }
+                            } else if (isQuiz) {
+                                // NEW: Only apply legacy filtering to quizzes - show all One-pagers (text presentations, PDF lessons) by default
+                                // This ensures all One-pagers are visible on the main products page
                                 // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title")
                                 if (projectTitle.includes(' - ') && projectTitle.includes(': ')) {
                                     const parts = projectTitle.split(' - ');
