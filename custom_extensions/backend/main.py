@@ -9297,6 +9297,11 @@ async def get_user_projects_list_from_db(
     for row_data in db_rows:
         row_dict = dict(row_data)
         project_slug = create_slug(row_dict.get('project_name'))
+        # Convert UUID to string if it exists
+        source_chat_session_id = row_dict.get("source_chat_session_id")
+        if source_chat_session_id:
+            source_chat_session_id = str(source_chat_session_id)
+        
         projects_list.append(ProjectApiResponse(
             id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
             microproduct_name=row_dict.get("microproduct_name"),
@@ -9305,7 +9310,7 @@ async def get_user_projects_list_from_db(
             created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
             folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
             microproduct_content=row_dict.get("microproduct_content"),
-            source_chat_session_id=row_dict.get("source_chat_session_id")
+            source_chat_session_id=source_chat_session_id
         ))
     return projects_list
 
