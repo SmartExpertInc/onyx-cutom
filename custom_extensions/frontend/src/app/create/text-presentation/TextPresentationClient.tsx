@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
+import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -24,17 +25,12 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
   </div>
 );
 
-// Theme SVGs placeholder (replace with actual SVGs or import as needed)
-const ThemeSvgs = {
-  wine: () => <div className="w-full h-full bg-[#f5e6e6] rounded" />, // Placeholder
-  default: () => <div className="w-full h-full bg-gray-200 rounded" />,
-};
 const themeOptions = [
   { id: "wine", label: "Wine" },
-  { id: "cherry", label: "Cherry" },
+  { id: "cherry", label: "Default" },
+  { id: "vanilla", label: "Engenuity" },
+  { id: "terracotta", label: "Deloitte" },
   { id: "lunaria", label: "Lunaria" },
-  { id: "vanilla", label: "Vanilla" },
-  { id: "terracotta", label: "Terracotta" },
   { id: "zephyr", label: "Zephyr" },
 ];
 
@@ -58,7 +54,6 @@ export default function TextPresentationClient() {
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [generatedContent, setGeneratedContent] = useState<string>("");
   const [isComplete, setIsComplete] = useState(false);
   const [isCreatingFinal, setIsCreatingFinal] = useState(false);
   const [finalProjectId, setFinalProjectId] = useState<number | null>(null);
@@ -216,134 +211,83 @@ export default function TextPresentationClient() {
         setLoading(true);
         setError(null);
         setContent(""); // Clear previous content
-        setGeneratedContent(""); // Clear previous content
         let gotFirstChunk = false;
 
         try {
-          const payload: any = {
+          const requestBody: any = {
+            // Only send outlineId when the user actually selected one
+            outlineId: selectedOutlineId || undefined,
+            // If no lesson was picked, derive a temporary title from the prompt or fallback
+            lesson: selectedLesson || (prompt ? prompt.slice(0, 80) : "Untitled One-Pager"),
             language,
+            // Always forward the prompt (if any) so backend can generate content
+            prompt: prompt || undefined,
           };
-          
-          if (selectedOutlineId && selectedLesson) {
-            payload.outlineId = selectedOutlineId;
-            payload.lesson = selectedLesson;
-        } else if (prompt) {
-            payload.prompt = prompt;
-        }
 
-        // Add file context if coming from files
+          // Add file context if creating from files
           if (isFromFiles) {
-            payload.fromFiles = true;
-            if (folderIds.length > 0) payload.folderIds = folderIds.join(',');
-            if (fileIds.length > 0) payload.fileIds = fileIds.join(',');
-        }
-        
-        // Add text context if coming from text
+            requestBody.fromFiles = true;
+            if (folderIds.length > 0) requestBody.folderIds = folderIds.join(',');
+            if (fileIds.length > 0) requestBody.fileIds = fileIds.join(',');
+          }
+
+          // Add text context if creating from text
           if (isFromText) {
-            payload.fromText = true;
-            payload.textMode = textMode;
-            payload.userText = userText;
-        }
+            requestBody.fromText = true;
+            requestBody.textMode = textMode;
+            requestBody.userText = userText;
+          }
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-            body: JSON.stringify(payload),
+          const res = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestBody),
             signal: abortController.signal,
-        });
+          });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+          if (!res.ok || !res.body) {
+            throw new Error(`Failed to generate one-pager: ${res.status}`);
+          }
 
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error("No response body");
-        }
-
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
           
-          if (done) {
-            // Process any remaining buffer
-            if (buffer.trim()) {
-              try {
-                const pkt = JSON.parse(buffer.trim());
-                gotFirstChunk = true;
-                if (pkt.type === "delta") {
-                  setGeneratedContent(prev => prev + pkt.text);
-                    setContent(prev => prev + pkt.text);
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
-                setGeneratedContent(prev => prev + buffer);
-                  setContent(prev => prev + buffer);
-                }
-              }
+          let buffer = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              // Streaming finished successfully
               setStreamDone(true);
-              setTextareaVisible(true);
-              setLoading(false);
-              return;
+              break;
             }
-
             gotFirstChunk = true;
-          buffer += decoder.decode(value, { stream: true });
-          
-          // Split by newlines and process complete chunks
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ""; // Keep incomplete line in buffer
-          
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            
-            try {
-              const pkt = JSON.parse(line);
-              
-              if (pkt.type === "delta") {
-                setGeneratedContent(prev => prev + pkt.text);
-                  setContent(prev => prev + pkt.text);
-              } else if (pkt.type === "done") {
-                  setStreamDone(true);
-                  setTextareaVisible(true);
-                  setLoading(false);
-                return;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || "Unknown error");
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
-              setGeneratedContent(prev => prev + line);
-                setContent(prev => prev + line);
-              }
-            }
+            buffer += decoder.decode(value, { stream: true });
 
             // Determine if this buffer now contains some real (non-whitespace) text
-            const hasMeaningfulText = /\S/.test(content);
+            const hasMeaningfulText = /\S/.test(buffer);
+
+            // Update the React state before toggling UI visibility
+            setContent(buffer);
 
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
+            }
           }
-        }
-      } catch (error: any) {
-          if (error.name === 'AbortError') return;
+              } catch (e: any) {
+          if (e.name === "AbortError") return;
 
           // Retry logic
           if (attempt < 3) {
             const delay = 1500 * (attempt + 1);
             setTimeout(() => startPreview(attempt + 1), delay);
           } else {
-            if (error?.message) {
-              if (error.message.includes("The user aborted a request")) return;
+            if (e?.message) {
+              if (e.message.includes("The user aborted a request")) return;
             }
-            setError(error.message || 'Failed to generate preview');
-        }
-      } finally {
+            setError(e.message);
+          }
+        } finally {
           if (!abortController.signal.aborted) {
             // If the stream ended but we never displayed content, remove spinner anyway
             if (loading) setLoading(false);
@@ -381,7 +325,6 @@ export default function TextPresentationClient() {
         // Remove leading blank lines (one or more) at the very start
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setContent(trimmed);
-        setGeneratedContent(trimmed);
       }
       setFirstLineRemoved(true);
     }
@@ -389,7 +332,7 @@ export default function TextPresentationClient() {
 
   // Finalize/save one-pager
   const handleFinalize = async () => {
-    if (!generatedContent.trim()) {
+    if (!content.trim()) {
       setError("No content to finalize");
       return;
     }
@@ -410,7 +353,7 @@ export default function TextPresentationClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: generatedContent,
+          aiResponse: content,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
           language: language,
@@ -690,7 +633,6 @@ export default function TextPresentationClient() {
             </div>
           </>
         )}
-        {/* Themes/Designs Section */}
         {streamDone && content && (
           <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
             <div className="flex items-center justify-between">
@@ -698,11 +640,15 @@ export default function TextPresentationClient() {
                 <h2 className="text-xl font-semibold text-[#20355D]">Themes</h2>
                 <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
               </div>
-              <button type="button" className="flex items-center gap-1 text-sm font-medium text-[#0540AB]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
+              >
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
                 <span>View more</span>
               </button>
             </div>
+            
             <div className="flex flex-col gap-5">
               {/* Themes grid */}
               <div className="grid grid-cols-3 gap-5 justify-items-center">
@@ -726,6 +672,7 @@ export default function TextPresentationClient() {
                   </button>
                 ))}
               </div>
+
               {/* Content section */}
               <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
                 <h3 className="text-lg font-semibold text-[#20355D]">Content</h3>
@@ -748,7 +695,7 @@ export default function TextPresentationClient() {
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
-            </div>
+                </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">AI image model</label>
                   <div className="relative w-full">
@@ -756,10 +703,10 @@ export default function TextPresentationClient() {
                       <option value="flux-fast">Flux Kontext Fast</option><option value="flux-quality">Flux Kontext HQ</option><option value="stable">Stable Diffusion 2.1</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-            </div>
+                  </div>
                 </div>
               </div>
-          </div>
+            </div>
           </section>
         )}
         {/* Footer */}
