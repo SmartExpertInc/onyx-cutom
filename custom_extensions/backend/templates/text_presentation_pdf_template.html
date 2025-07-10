@@ -251,8 +251,8 @@
     </svg>
 
     <div class="pdf-container">
-        {% set text_data = details.details %}
-        {% set locale = details.locale %}
+        {% set text_data = details %}
+        {% set locale = locale %}
         
         {% if text_data is mapping and text_data.textTitle %}
             <div class="main-title-section">
