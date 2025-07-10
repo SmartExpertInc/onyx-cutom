@@ -66,6 +66,7 @@ export default function TextPresentationClient() {
   const [loading, setLoading] = useState(false);
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
+  const [firstLineRemoved, setFirstLineRemoved] = useState(false);
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
@@ -194,196 +195,197 @@ export default function TextPresentationClient() {
     }
   };
 
-  // Original generation logic
+  // Streaming preview effect
   useEffect(() => {
-    // Don't start generation if there's no valid input
-    const hasValidInput = (selectedOutlineId && selectedLesson) || prompt.trim() || isFromFiles || isFromText;
-    if (!hasValidInput) {
-      return;
-    }
+    // Only trigger if we have a lesson or a prompt
+    if (useExistingOutline === null) return;
+    if (useExistingOutline === true && !selectedLesson) return;
+    if (useExistingOutline === false && !prompt.trim()) return;
 
-    // Helper function to perform the actual text presentation generation with retry logic
-    const performTextPresentationGeneration = async (attempt: number = 1): Promise<void> => {
-      
-      try {
-        const payload: any = {
-          language,
-        };
-        
-        if (selectedOutlineId && selectedLesson) {
-          payload.outlineId = selectedOutlineId;
-          payload.lesson = selectedLesson;
-        } else if (prompt) {
-          payload.prompt = prompt;
-        }
+    const startPreview = (attempt: number = 0) => {
+      // Reset visibility states for a fresh preview run
+      setTextareaVisible(false);
+      setFirstLineRemoved(false);
+      // Reset stream completion flag for new preview
+      setStreamDone(false);
+      const abortController = new AbortController();
+      if (previewAbortRef.current) previewAbortRef.current.abort();
+      previewAbortRef.current = abortController;
 
-        // Add file context if coming from files
-        if (isFromFiles) {
-          payload.fromFiles = true;
-          if (folderIds.length > 0) payload.folderIds = folderIds.join(',');
-          if (fileIds.length > 0) payload.fileIds = fileIds.join(',');
-        }
-        
-        // Add text context if coming from text
-        if (isFromText) {
-          payload.fromText = true;
-          payload.textMode = textMode;
-          // userText stays in sessionStorage - don't pass via URL
-          payload.userText = userText;
-        }
-
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-          signal: abortControllerRef.current?.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error("No response body");
-        }
-
-        const decoder = new TextDecoder();
-        let buffer = "";
+      const fetchPreview = async () => {
+        setLoading(true);
+        setError(null);
+        setContent(""); // Clear previous content
+        setGeneratedContent(""); // Clear previous content
         let gotFirstChunk = false;
 
-        while (true) {
-          const { done, value } = await reader.read();
+        try {
+          const payload: any = {
+            language,
+          };
           
-          if (done) {
-            // Process any remaining buffer
-            if (buffer.trim()) {
+          if (selectedOutlineId && selectedLesson) {
+            payload.outlineId = selectedOutlineId;
+            payload.lesson = selectedLesson;
+          } else if (prompt) {
+            payload.prompt = prompt;
+          }
+
+          // Add file context if coming from files
+          if (isFromFiles) {
+            payload.fromFiles = true;
+            if (folderIds.length > 0) payload.folderIds = folderIds.join(',');
+            if (fileIds.length > 0) payload.fileIds = fileIds.join(',');
+          }
+          
+          // Add text context if coming from text
+          if (isFromText) {
+            payload.fromText = true;
+            payload.textMode = textMode;
+            payload.userText = userText;
+          }
+
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            signal: abortController.signal,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error("No response body");
+          }
+
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              // Process any remaining buffer
+              if (buffer.trim()) {
+                try {
+                  const pkt = JSON.parse(buffer.trim());
+                  gotFirstChunk = true;
+                  if (pkt.type === "delta") {
+                    setGeneratedContent(prev => prev + pkt.text);
+                    setContent(prev => prev + pkt.text);
+                  }
+                } catch (e) {
+                  // If not JSON, treat as plain text
+                  setGeneratedContent(prev => prev + buffer);
+                  setContent(prev => prev + buffer);
+                }
+              }
+              setStreamDone(true);
+              setTextareaVisible(true);
+              setLoading(false);
+              return;
+            }
+
+            gotFirstChunk = true;
+            buffer += decoder.decode(value, { stream: true });
+            
+            // Split by newlines and process complete chunks
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ""; // Keep incomplete line in buffer
+            
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              
               try {
-                const pkt = JSON.parse(buffer.trim());
-                gotFirstChunk = true;
+                const pkt = JSON.parse(line);
+                
                 if (pkt.type === "delta") {
                   setGeneratedContent(prev => prev + pkt.text);
                   setContent(prev => prev + pkt.text);
+                } else if (pkt.type === "done") {
+                  setStreamDone(true);
+                  setTextareaVisible(true);
+                  setLoading(false);
+                  return;
+                } else if (pkt.type === "error") {
+                  throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                setGeneratedContent(prev => prev + buffer);
-                setContent(prev => prev + buffer);
+                setGeneratedContent(prev => prev + line);
+                setContent(prev => prev + line);
               }
             }
-            setIsComplete(true);
-            setStreamDone(true);
-            setTextareaVisible(true);
-            setLoading(false);
-            return;
-          }
 
-          buffer += decoder.decode(value, { stream: true });
-          
-          // Split by newlines and process complete chunks
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ""; // Keep incomplete line in buffer
-          
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            
-            try {
-              const pkt = JSON.parse(line);
-              gotFirstChunk = true;
-              
-              if (pkt.type === "delta") {
-                setGeneratedContent(prev => prev + pkt.text);
-                setContent(prev => prev + pkt.text);
-              } else if (pkt.type === "done") {
-                setIsComplete(true);
-                setStreamDone(true);
-                setTextareaVisible(true);
-                setLoading(false);
-                return;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || "Unknown error");
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
-              setGeneratedContent(prev => prev + line);
-              setContent(prev => prev + line);
+            // Determine if this buffer now contains some real (non-whitespace) text
+            const hasMeaningfulText = /\S/.test(content);
+
+            if (hasMeaningfulText && !textareaVisible) {
+              setTextareaVisible(true);
+              setLoading(false); // Hide spinner & show textarea
+            }
+          }
+        } catch (error: any) {
+          if (error.name === 'AbortError') return;
+
+          // Retry logic
+          if (attempt < 3) {
+            const delay = 1500 * (attempt + 1);
+            setTimeout(() => startPreview(attempt + 1), delay);
+          } else {
+            if (error?.message) {
+              if (error.message.includes("The user aborted a request")) return;
+            }
+            setError(error.message || 'Failed to generate preview');
+          }
+        } finally {
+          if (!abortController.signal.aborted) {
+            // If the stream ended but we never displayed content, remove spinner anyway
+            if (loading) setLoading(false);
+            if (!gotFirstChunk && attempt >= 3) {
+              setError("Failed to generate one-pager – please try again later.");
             }
           }
         }
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Generation cancelled');
-          return;
-        }
-        
-        // Check if this is a network error that should be retried
-        const isNetworkError = error.message?.includes('network') || 
-                              error.message?.includes('fetch') ||
-                              error.message?.includes('Failed to fetch') ||
-                              error.message?.includes('NetworkError') ||
-                              !navigator.onLine;
-        
-        if (isNetworkError && attempt < maxRetries) {
-          console.log(`Network error, retrying... (${attempt}/${maxRetries})`);
-          setRetryCount(attempt);
-          setTimeout(() => {
-            setRetryTrigger(prev => prev + 1);
-          }, 1500 * attempt);
-          return;
-        }
-        
-        console.error('Text presentation generation failed:', error);
-        setError(error.message || 'Failed to generate text presentation');
-        setIsGenerating(false);
-        setLoading(false);
-      }
+      };
+
+      fetchPreview();
     };
 
-    const generateTextPresentation = async () => {
-      if (requestInProgressRef.current) return;
-      
-      requestInProgressRef.current = true;
-      setIsGenerating(true);
-      setLoading(true);
-      setError(null);
-      setGeneratedContent("");
-      setContent("");
-      setIsComplete(false);
-      setStreamDone(false);
-      setTextareaVisible(false);
-      
-      const currentRequestId = ++requestIdRef.current;
-      
-      try {
-        await performTextPresentationGeneration();
-        
-        if (currentRequestId === requestIdRef.current) {
-          setIsGenerating(false);
-        }
-      } catch (error) {
-        if (currentRequestId === requestIdRef.current) {
-          console.error('Text presentation generation error:', error);
-          setError(error instanceof Error ? error.message : 'Failed to generate text presentation');
-          setIsGenerating(false);
-          setLoading(false);
-        }
-      } finally {
-        if (currentRequestId === requestIdRef.current) {
-          requestInProgressRef.current = false;
-        }
-      }
-    };
-
-    generateTextPresentation();
+    startPreview();
 
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, prompt, language, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText, retryTrigger]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+
+  // Auto-scroll textarea as new content streams in
+  useEffect(() => {
+    if (textareaVisible && textareaRef.current) {
+      // Scroll to bottom to keep newest text in view
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+    }
+  }, [content, textareaVisible]);
+
+  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  useEffect(() => {
+    if (streamDone && !firstLineRemoved) {
+      const parts = content.split('\n');
+      if (parts.length > 1) {
+        let trimmed = parts.slice(1).join('\n');
+        // Remove leading blank lines (one or more) at the very start
+        trimmed = trimmed.replace(/^(\s*\n)+/, '');
+        setContent(trimmed);
+        setGeneratedContent(trimmed);
+      }
+      setFirstLineRemoved(true);
+    }
+  }, [streamDone, firstLineRemoved, content]);
 
   // Finalize/save one-pager
   const handleFinalize = async () => {
@@ -392,8 +394,14 @@ export default function TextPresentationClient() {
       return;
     }
 
-    setIsCreatingFinal(true);
+    setIsGenerating(true);
     setError(null);
+
+    // Add timeout safeguard to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsGenerating(false);
+      setError("Finalization timed out. Please try again.");
+    }, 300000); // 5 minutes timeout
 
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
@@ -409,6 +417,9 @@ export default function TextPresentationClient() {
         }),
       });
 
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -416,13 +427,17 @@ export default function TextPresentationClient() {
       const data = await response.json();
       setFinalProjectId(data.id);
       
-      // Redirect to the generated project
-      router.push(`/projects/view/${data.id}`);
+      // Small delay to ensure state is properly reset before navigation
+      setTimeout(() => {
+        router.push(`/projects/view/${data.id}`);
+      }, 100);
     } catch (error) {
+      // Clear timeout on error
+      clearTimeout(timeoutId);
       console.error('Finalization failed:', error);
       setError(error instanceof Error ? error.message : 'Failed to finalize text presentation');
     } finally {
-      setIsCreatingFinal(false);
+      setIsGenerating(false);
     }
   };
 
@@ -493,6 +508,7 @@ export default function TextPresentationClient() {
   }, [content]);
 
   return (
+    <>
     <main className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)" }}>
       <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
         <Link href="/create/generate" className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20">
@@ -772,5 +788,18 @@ export default function TextPresentationClient() {
         )}
       </div>
     </main>
+    <style jsx global>{`
+      @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
+    `}</style>
+    {isGenerating && (
+      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
+        <LoadingAnimation message="Finalizing one-pager..." />
+      </div>
+    )}
+    </>
   );
 } 
