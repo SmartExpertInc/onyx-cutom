@@ -2050,9 +2050,55 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             }
                         }
 
+                        // Method 3: Content-specific patterns - check if this content belongs to an outline
+                        if (!belongsToOutline) {
+                            const contentType = (proj.designMicroproductType || "").toLowerCase();
+                            const isQuiz = contentType === "quiz";
+                            const isTextPresentation = contentType === "text presentation";
+                            const isVideoLesson = contentType === "video lesson";
+                            const isPdfLesson = contentType === "pdf lesson";
+                            
+                            if (isQuiz || isTextPresentation || isVideoLesson || isPdfLesson) {
+                                // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title")
+                                if (projectTitle.includes(' - ') && projectTitle.includes(': ')) {
+                                    const parts = projectTitle.split(' - ');
+                                    if (parts.length >= 2) {
+                                        const outlinePart = parts[1].split(': ')[0].trim();
+                                        if (outlineNames.has(outlinePart)) {
+                                            belongsToOutline = true;
+                                            console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 1: Content Type - Outline)`);
+                                        }
+                                    }
+                                }
+                                // Pattern 2: "Outline Name: Lesson Title" (for any content type)
+                                else if (projectTitle.includes(': ')) {
+                                    const outlinePart = projectTitle.split(': ')[0].trim();
+                                    if (outlineNames.has(outlinePart)) {
+                                        belongsToOutline = true;
+                                        console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 2: Outline: Lesson)`);
+                                    }
+                                }
+                                // Pattern 3: Legacy pattern - check if project name matches outline name
+                                else {
+                                    // Check if there's an outline with the same project name
+                                    const matchingOutline = projectsArr.find(p => 
+                                        (p.designMicroproductType || "").toLowerCase() === "training plan" && 
+                                        p.title.trim() === proj.title.trim()
+                                    );
+                                    if (matchingOutline) {
+                                        belongsToOutline = true;
+                                        console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 3: Legacy match)`);
+                                    }
+                                }
+                            }
+                        }
+
                         // Only include projects that don't belong to an outline (either legacy or new pattern)
                         if (!belongsToOutline) {
                             filteredProjects.push(proj);
+                            console.log(`✅ [FILTER] "${projectTitle}" (${proj.designMicroproductType}) included - standalone content`);
+                        } else {
+                            console.log(`❌ [FILTER] "${projectTitle}" (${proj.designMicroproductType}) excluded - belongs to outline`);
                         }
                     }
                 });
