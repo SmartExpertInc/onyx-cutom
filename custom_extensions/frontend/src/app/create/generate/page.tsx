@@ -685,6 +685,9 @@ function GenerateProductPicker() {
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
   const [textLanguage, setTextLanguage] = useState<string>("en");
+  const [textLength, setTextLength] = useState<string>("medium");
+  const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
+  const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 
   // Fetch one-pager outlines when product is selected
   useEffect(() => {
@@ -779,6 +782,24 @@ function GenerateProductPicker() {
     fetchTextLessons();
   }, [selectedTextOutlineId, activeProduct, useExistingTextOutline, textModulesForOutline.length]);
 
+  // Click outside handler for text styles dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.text-styles-dropdown')) {
+        setShowTextStylesDropdown(false);
+      }
+    };
+
+    if (showTextStylesDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showTextStylesDropdown]);
+
   const handleTextPresentationStart = () => {
     // If using existing outline, check if outline and lesson selected
     if (useExistingTextOutline === true) {
@@ -803,6 +824,8 @@ function GenerateProductPicker() {
       }
     }
     params.set("lang", textLanguage);
+    params.set("length", textLength);
+    params.set("styles", textStyles.join(','));
     
     // Handle file-based prompts
     if (isFromFiles) {
@@ -1438,32 +1461,136 @@ function GenerateProductPicker() {
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedTextLesson && (
-                      <select
-                        value={textLanguage}
-                        onChange={(e) => setTextLanguage(e.target.value)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">English</option>
-                        <option value="uk">Ukrainian</option>
-                        <option value="es">Spanish</option>
-                        <option value="ru">Russian</option>
-                      </select>
+                      <>
+                        <select
+                          value={textLanguage}
+                          onChange={(e) => setTextLanguage(e.target.value)}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
+                        <select
+                          value={textLength}
+                          onChange={(e) => setTextLength(e.target.value)}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="short">Short</option>
+                          <option value="medium">Medium</option>
+                          <option value="long">Long</option>
+                        </select>
+                        <div className="relative text-styles-dropdown">
+                          <button
+                            type="button"
+                            onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
+                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                          >
+                            <span>{textStyles.length > 0 ? `${textStyles.length} styles selected` : 'Select styles'}</span>
+                            <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showTextStylesDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                              {[
+                                { value: "headlines", label: "Headlines" },
+                                { value: "paragraphs", label: "Paragraphs" },
+                                { value: "bullet_lists", label: "Bullet Lists" },
+                                { value: "numbered_lists", label: "Numbered Lists" },
+                                { value: "alerts", label: "Alerts" },
+                                { value: "recommendations", label: "Recommendations" },
+                                { value: "section_breaks", label: "Section Breaks" },
+                                { value: "icons", label: "Icons" },
+                                { value: "important_sections", label: "Important Sections" }
+                              ].map((option) => (
+                                <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={textStyles.includes(option.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setTextStyles([...textStyles, option.value]);
+                                      } else {
+                                        setTextStyles(textStyles.filter(s => s !== option.value));
+                                      }
+                                    }}
+                                    className="mr-3"
+                                  />
+                                  <span className="text-sm">{option.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </>
                     )}
                   </>
                 )}
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
-                  <select
-                    value={textLanguage}
-                    onChange={(e) => setTextLanguage(e.target.value)}
-                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                  >
-                    <option value="en">English</option>
-                    <option value="uk">Ukrainian</option>
-                    <option value="es">Spanish</option>
-                    <option value="ru">Russian</option>
-                  </select>
+                  <>
+                    <select
+                      value={textLanguage}
+                      onChange={(e) => setTextLanguage(e.target.value)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
+                    <select
+                      value={textLength}
+                      onChange={(e) => setTextLength(e.target.value)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="short">Short</option>
+                      <option value="medium">Medium</option>
+                      <option value="long">Long</option>
+                    </select>
+                    <div className="relative text-styles-dropdown">
+                      <button
+                        type="button"
+                        onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
+                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                      >
+                        <span>{textStyles.length > 0 ? `${textStyles.length} styles selected` : 'Select styles'}</span>
+                        <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showTextStylesDropdown && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                          {[
+                            { value: "headlines", label: "Headlines" },
+                            { value: "paragraphs", label: "Paragraphs" },
+                            { value: "bullet_lists", label: "Bullet Lists" },
+                            { value: "numbered_lists", label: "Numbered Lists" },
+                            { value: "alerts", label: "Alerts" },
+                            { value: "recommendations", label: "Recommendations" },
+                            { value: "section_breaks", label: "Section Breaks" },
+                            { value: "icons", label: "Icons" },
+                            { value: "important_sections", label: "Important Sections" }
+                          ].map((option) => (
+                            <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={textStyles.includes(option.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setTextStyles([...textStyles, option.value]);
+                                  } else {
+                                    setTextStyles(textStyles.filter(s => s !== option.value));
+                                  }
+                                }}
+                                className="mr-3"
+                              />
+                              <span className="text-sm">{option.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 <button

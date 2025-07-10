@@ -13946,6 +13946,8 @@ class TextPresentationWizardPreview(BaseModel):
     courseName: Optional[str] = None
     prompt: Optional[str] = None
     language: str = "en"
+    length: str = "medium"
+    styles: Optional[str] = None
     fromFiles: bool = False
     folderIds: Optional[str] = None
     fileIds: Optional[str] = None
@@ -13991,7 +13993,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         "product": "Text Presentation",
         "prompt": payload.prompt or "Create a comprehensive text presentation",
         "language": payload.language,
+        "length": payload.length,
     }
+
+    # Add styles if provided
+    if payload.styles:
+        wiz_payload["styles"] = payload.styles
 
     # Add outline context if provided
     if payload.outlineId:

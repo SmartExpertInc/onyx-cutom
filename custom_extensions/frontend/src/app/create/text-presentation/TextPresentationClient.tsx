@@ -34,6 +34,24 @@ const themeOptions = [
   { id: "zephyr", label: "Zephyr" },
 ];
 
+const lengthOptions = [
+  { value: "short", label: "Short" },
+  { value: "medium", label: "Medium" },
+  { value: "long", label: "Long" },
+];
+
+const styleOptions = [
+  { value: "headlines", label: "Headlines" },
+  { value: "paragraphs", label: "Paragraphs" },
+  { value: "bullet_lists", label: "Bullet Lists" },
+  { value: "numbered_lists", label: "Numbered Lists" },
+  { value: "alerts", label: "Alerts" },
+  { value: "recommendations", label: "Recommendations" },
+  { value: "section_breaks", label: "Section Breaks" },
+  { value: "icons", label: "Icons" },
+  { value: "important_sections", label: "Important Sections" },
+];
+
 export default function TextPresentationClient() {
   const params = useSearchParams();
   const router = useRouter();
@@ -46,6 +64,9 @@ export default function TextPresentationClient() {
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params?.get("outlineId") ? Number(params.get("outlineId")) : null);
   const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
+  const [length, setLength] = useState<string>(params?.get("length") || "medium");
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(params?.get("styles")?.split(",").filter(Boolean) || []);
+  const [showStylesDropdown, setShowStylesDropdown] = useState(false);
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
     params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
   );
@@ -220,6 +241,8 @@ export default function TextPresentationClient() {
             // If no lesson was picked, derive a temporary title from the prompt or fallback
             lesson: selectedLesson || (prompt ? prompt.slice(0, 80) : "Untitled One-Pager"),
             language,
+            length,
+            styles: selectedStyles.join(','),
             // Always forward the prompt (if any) so backend can generate content
             prompt: prompt || undefined,
           };
@@ -346,7 +369,7 @@ export default function TextPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {
@@ -355,6 +378,24 @@ export default function TextPresentationClient() {
       textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
     }
   }, [content, textareaVisible]);
+
+  // Click outside handler for styles dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.styles-dropdown')) {
+        setShowStylesDropdown(false);
+      }
+    };
+
+    if (showStylesDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showStylesDropdown]);
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
@@ -562,29 +603,111 @@ export default function TextPresentationClient() {
                   )}
                   {/* Show final dropdowns when lesson is selected */}
                   {selectedLesson && (
-                    <div className="relative">
-                      <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <option value="en">English</option>
-                        <option value="uk">Ukrainian</option>
-                        <option value="es">Spanish</option>
-                        <option value="ru">Russian</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                    <>
+                      <div className="relative">
+                        <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <option value="en">English</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="es">Spanish</option>
+                          <option value="ru">Russian</option>
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                      <div className="relative">
+                        <select value={length} onChange={(e) => setLength(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          {lengthOptions.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                      <div className="relative styles-dropdown">
+                        <button
+                          type="button"
+                          onClick={() => setShowStylesDropdown(!showStylesDropdown)}
+                          className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                        >
+                          <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                          <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showStylesDropdown && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                            {styleOptions.map((option) => (
+                              <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedStyles.includes(option.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedStyles([...selectedStyles, option.value]);
+                                    } else {
+                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                    }
+                                  }}
+                                  className="mr-3"
+                                />
+                                <span className="text-sm">{option.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
                 </>
               )}
               {/* Show standalone one-pager dropdowns if user chose standalone */}
               {useExistingOutline === false && (
-                <div className="relative">
-                  <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                </div>
+                <>
+                  <div className="relative">
+                    <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                  <div className="relative">
+                    <select value={length} onChange={(e) => setLength(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                      {lengthOptions.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  </div>
+                  <div className="relative styles-dropdown">
+                    <button
+                      type="button"
+                      onClick={() => setShowStylesDropdown(!showStylesDropdown)}
+                      className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                    >
+                      <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                      <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showStylesDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                        {styleOptions.map((option) => (
+                          <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedStyles.includes(option.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedStyles([...selectedStyles, option.value]);
+                                } else {
+                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                }
+                              }}
+                              className="mr-3"
+                            />
+                            <span className="text-sm">{option.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
               {/* Reset button */}
               <button onClick={() => {

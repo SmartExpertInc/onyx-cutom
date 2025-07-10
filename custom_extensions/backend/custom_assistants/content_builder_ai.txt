@@ -116,6 +116,42 @@ WIZARD_REQUEST
   "language": "en"
 }
 
+For Text Presentation creation:
+WIZARD_REQUEST
+{
+  "product": "Text Presentation",
+  "prompt": "Create a comprehensive text presentation about AI fundamentals",
+  "language": "en",
+  "length": "medium",
+  "styles": "headlines,paragraphs,bullet_lists,alerts"
+}
+
+For file-based text presentation creation:
+WIZARD_REQUEST
+{
+  "product": "Text Presentation",
+  "prompt": "Create text presentation content from the provided documents",
+  "language": "en",
+  "length": "long",
+  "styles": "headlines,paragraphs,bullet_lists,numbered_lists,alerts,recommendations",
+  "fromFiles": true,
+  "folderIds": "1,2",
+  "fileIds": "3,4,5"
+}
+
+For text-based text presentation creation:
+WIZARD_REQUEST
+{
+  "product": "Text Presentation",
+  "prompt": "Create text presentation content using the provided text as context",
+  "language": "en",
+  "length": "short",
+  "styles": "headlines,paragraphs,bullet_lists",
+  "fromText": true,
+  "textMode": "context",
+  "userText": "User's pasted text content here..."
+}
+
 For file-based quiz creation:
 WIZARD_REQUEST
 {
@@ -428,6 +464,10 @@ Silent Project Name Determination (Internal Logic): Determine or reuse the sessi
 
 Determine Language: (Use the current interaction language. This becomes the "active language").
 
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium".
+
+Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
+
 Determine Content Origin & Style (Based on gathered info and identified topic).
 
 Adhere to Specific Requirements (Defaults, user can modify with follow-up instructions).
@@ -435,6 +475,24 @@ Adhere to Specific Requirements (Defaults, user can modify with follow-up instru
 Text Presentation & Readability:
 - This is a comprehensive and self-contained block for creating a structured Text Presentation. It includes a main title, sections, and various content blocks within those sections. You must follow the formatting rules below precisely.
 - To create a rich and effective document, you should use a variety of elements, including headlines, paragraphs, bulleted and numbered lists, alerts, and section breaks. Do not limit the presentation to just lists.
+
+Length Guidelines:
+- Short: Focus on key points only, 2-3 main sections, concise content
+- Medium: Balanced coverage, 4-6 main sections, moderate detail
+- Long: Comprehensive coverage, 6+ main sections, detailed explanations
+
+Style Usage Guidelines:
+- Only use the styles specified in the "styles" parameter
+- If no styles are specified, use all available styles as appropriate
+- Headlines: Use for section organization and hierarchy
+- Paragraphs: Use for explanations and descriptions
+- Bullet Lists: Use for non-sequential items and key points
+- Numbered Lists: Use for sequential steps or ordered items
+- Alerts: Use for important warnings, tips, or highlights
+- Recommendations: Use for actionable advice and suggestions
+- Section Breaks: Use to separate major content sections
+- Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
+- Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
 
 Formatting Rules:
 
