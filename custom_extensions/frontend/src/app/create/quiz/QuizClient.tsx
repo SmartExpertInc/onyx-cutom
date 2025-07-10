@@ -3,18 +3,24 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
 // Loading animation component
 const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
-  <div className="flex flex-col items-center justify-center p-8">
-    <div className="relative">
-      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+  <div className="flex flex-col items-center mt-4" aria-label="Loading">
+    <div className="flex gap-1 mb-2">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
+          style={{ animationDelay: `${i * 0.2}s` }}
+        />
+      ))}
     </div>
     {message && (
-      <p className="mt-4 text-gray-600 text-center max-w-md">{message}</p>
+      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || "Generating..."}</p>
     )}
   </div>
 );
@@ -29,29 +35,84 @@ const ProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
   </div>
 );
 
+// Theme SVGs placeholder (replace with actual SVGs or import as needed)
+const ThemeSvgs = {
+  wine: () => <div className="w-full h-full bg-[#f5e6e6] rounded" />, // Placeholder
+  default: () => <div className="w-full h-full bg-gray-200 rounded" />,
+};
+const themeOptions = [
+  { id: "wine", label: "Wine" },
+  { id: "cherry", label: "Cherry" },
+  { id: "lunaria", label: "Lunaria" },
+  { id: "vanilla", label: "Vanilla" },
+  { id: "terracotta", label: "Terracotta" },
+  { id: "zephyr", label: "Zephyr" },
+];
+
 export default function QuizClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // State for dropdowns
+  const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
+  const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
+  const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
+  const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(searchParams?.get("outlineId") ? Number(searchParams.get("outlineId")) : null);
+  const [selectedLesson, setSelectedLesson] = useState<string>(searchParams?.get("lesson") || "");
+  const [language, setLanguage] = useState<string>(searchParams?.get("lang") || "en");
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
+    searchParams?.get("outlineId") ? true : (searchParams?.get("prompt") ? false : null)
+  );
+  const [prompt, setPrompt] = useState(searchParams?.get("prompt") || "");
+
+  // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
   const [quizData, setQuizData] = useState<string>("");
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreatingFinal, setIsCreatingFinal] = useState(false);
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
+  const [content, setContent] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [streamDone, setStreamDone] = useState(false);
+  const [textareaVisible, setTextareaVisible] = useState(false);
+  const [firstLineRemoved, setFirstLineRemoved] = useState(false);
 
   // Get parameters from URL
-  const prompt = searchParams?.get("prompt") || "";
-  const outlineId = searchParams?.get("outlineId");
-  const lesson = searchParams?.get("lesson");
-  const courseName = searchParams?.get("courseName"); // Add course name parameter
   const questionTypes = searchParams?.get("questionTypes") || "";
   const questionCount = Number(searchParams?.get("questionCount") || 10);
-  const language = searchParams?.get("lang") || "en";
   const fromFiles = searchParams?.get("fromFiles") === "true";
   const fromText = searchParams?.get("fromText") === "true";
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
+  const courseName = searchParams?.get("courseName");
+
+  // File context for creation from documents
+  const isFromFiles = searchParams?.get("fromFiles") === "true";
+  
+  // Text context for creation from user text
+  const isFromText = searchParams?.get("fromText") === "true";
+  const [userText, setUserText] = useState('');
+  
+  // Retrieve user text from sessionStorage
+  useEffect(() => {
+    if (isFromText) {
+      try {
+        const storedData = sessionStorage.getItem('pastedTextData');
+        if (storedData) {
+          const textData = JSON.parse(storedData);
+          // Check if data is recent (within 1 hour) and matches the current mode
+          if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && textData.mode === textMode) {
+            setUserText(textData.text || '');
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving pasted text data:', error);
+      }
+    }
+  }, [isFromText, textMode]);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestInProgressRef = useRef(false);
@@ -59,208 +120,321 @@ export default function QuizClient() {
   const [retryCount, setRetryCount] = useState(0);
   const [retryTrigger, setRetryTrigger] = useState(0);
   const maxRetries = 3;
+  const previewAbortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Advanced mode state
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [editPrompt, setEditPrompt] = useState("");
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
+  const [textDensity, setTextDensity] = useState("medium");
+  const [imageSource, setImageSource] = useState("ai");
+  const [aiModel, setAiModel] = useState("flux-fast");
+  // Footer/finalize
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
+  // Example prompts for advanced mode
+  const quizExamples = [
+    {
+      short: "Adapt to U.S. industry specifics",
+      detailed:
+        "Update the quiz structure based on U.S. industry and cultural specifics: adjust questions, replace topics, examples, and wording that don't align with the American context.",
+    },
+    {
+      short: "Adopt trends and latest practices",
+      detailed:
+        "Update the quiz structure by adding questions that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+    },
+    {
+      short: "Incorporate top industry examples",
+      detailed:
+        "Analyze the best quizzes on the market in this topic and restructure our questions accordingly: change or add content which others present more effectively. Focus on question clarity and difficulty progression.",
+    },
+    {
+      short: "Simplify and restructure the content",
+      detailed:
+        "Rewrite the quiz structure to make it more logical and user-friendly. Remove redundant questions, merge overlapping content, and rephrase questions for clarity and simplicity.",
+    },
+    {
+      short: "Increase value and depth of content",
+      detailed:
+        "Strengthen the quiz by adding questions that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being tested.",
+    },
+    {
+      short: "Add case studies and applications",
+      detailed:
+        "Revise the quiz structure to include applied questions — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+    },
+  ];
+
+  const toggleExample = (ex: typeof quizExamples[number]) => {
+    setSelectedExamples((prev) => {
+      if (prev.includes(ex.short)) {
+        const updated = prev.filter((s) => s !== ex.short);
+        setEditPrompt((p) => {
+          return p
+            .split("\n")
+            .filter((line) => line.trim() !== ex.detailed)
+            .join("\n")
+            .replace(/^\n+|\n+$/g, "");
+        });
+        return updated;
+      }
+      setEditPrompt((p) => (p ? p + "\n" + ex.detailed : ex.detailed));
+      return [...prev, ex.short];
+    });
+  };
+
+  // Apply advanced edit
+  const handleApplyEdit = async () => {
+    if (!editPrompt.trim()) return;
+    setLoadingEdit(true);
+    try {
+      const payload: any = {
+        content: quizData,
+        editPrompt,
+      };
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setQuizData(data.content || "");
+      setEditPrompt("");
+      setSelectedExamples([]);
+    } catch (error: any) {
+      setError(error.message || "Failed to apply edit");
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
 
   // Memoize arrays to prevent unnecessary re-renders
   const memoizedFolderIds = useMemo(() => folderIds, [folderIds.join(',')]);
   const memoizedFileIds = useMemo(() => fileIds, [fileIds.join(',')]);
 
+  // Fetch outlines and lessons for dropdowns
   useEffect(() => {
-    // Don't start generation if there's no valid input
-    const hasValidInput = (outlineId && lesson) || prompt.trim() || fromFiles || fromText;
+    const fetchOutlines = async () => {
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/outlines`);
+        if (response.ok) {
+          const data = await response.json();
+          setOutlines(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch outlines:", error);
+      }
+    };
+
+    const fetchLessons = async () => {
+      if (!selectedOutlineId) return;
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/outlines/${selectedOutlineId}/modules`);
+        if (response.ok) {
+          const data = await response.json();
+          setModulesForOutline(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch modules:", error);
+      }
+    };
+
+    fetchOutlines();
+    if (selectedOutlineId) {
+      fetchLessons();
+    }
+  }, [selectedOutlineId]);
+
+  // Update lessons when module changes
+  useEffect(() => {
+    if (selectedModuleIndex !== null && modulesForOutline[selectedModuleIndex]) {
+      setLessonsForModule(modulesForOutline[selectedModuleIndex].lessons);
+    }
+  }, [selectedModuleIndex, modulesForOutline]);
+
+  // Streaming preview effect
+  useEffect(() => {
+    // Only trigger if we have a lesson or a prompt
+    const hasValidInput = (selectedOutlineId && selectedLesson) || prompt.trim() || fromFiles || fromText;
     if (!hasValidInput) {
       return;
     }
 
-    // Helper function to perform the actual quiz generation with retry logic
-    const performQuizGeneration = async (attempt: number = 1): Promise<void> => {
-      
-      try {
-        const params = new URLSearchParams();
-        
-        if (outlineId && lesson) {
-          params.set("outlineId", outlineId);
-          params.set("lesson", lesson);
-        } else if (prompt) {
-          params.set("prompt", prompt);
-        }
-        
-        params.set("questionTypes", questionTypes);
-        params.set("lang", language);
-        params.set("questionCount", questionCount.toString());
+    const startPreview = (attempt: number = 0) => {
+      if (previewAbortRef.current) {
+        previewAbortRef.current.abort();
+      }
+      previewAbortRef.current = new AbortController();
 
-        // Add file context if coming from files
-        if (fromFiles) {
-          params.set("fromFiles", "true");
-          if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
-          if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
-        }
-        
-        // Add text context if coming from text
-        if (fromText) {
-          params.set("fromText", "true");
-          params.set("textMode", textMode || 'context');
-          // userText stays in sessionStorage - don't pass via URL
-        }
+      const fetchPreview = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          setContent("");
+          setStreamDone(false);
+          setFirstLineRemoved(false);
 
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            outlineId: outlineId ? parseInt(outlineId) : null,
-            lesson: lesson,
-            courseName: courseName, // Add course name to request
-            prompt: prompt,
-            language: language,
-            questionTypes: questionTypes,
-            fromFiles: fromFiles,
-            folderIds: memoizedFolderIds.join(','),
-            fileIds: memoizedFileIds.join(','),
-            fromText: fromText,
-            textMode: textMode,
-            userText: fromText ? sessionStorage.getItem('userText') : undefined,
-            questionCount: questionCount,
-          }),
-          signal: abortControllerRef.current?.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error("No response body");
-        }
-
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let gotFirstChunk = false;
-
-        while (true) {
-          const { done, value } = await reader.read();
+          const params = new URLSearchParams();
           
-          if (done) {
-            // Process any remaining buffer
-            if (buffer.trim()) {
+          if (selectedOutlineId && selectedLesson) {
+            params.set("outlineId", selectedOutlineId.toString());
+            params.set("lesson", selectedLesson);
+          } else if (prompt) {
+            params.set("prompt", prompt);
+          }
+          
+          params.set("questionTypes", questionTypes);
+          params.set("lang", language);
+          params.set("questionCount", questionCount.toString());
+
+          // Add file context if coming from files
+          if (fromFiles) {
+            params.set("fromFiles", "true");
+            if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+            if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+          }
+          
+          // Add text context if coming from text
+          if (fromText) {
+            params.set("fromText", "true");
+            params.set("textMode", textMode || 'context');
+            // userText stays in sessionStorage - don't pass via URL
+          }
+
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              outlineId: selectedOutlineId,
+              lesson: selectedLesson,
+              courseName: courseName,
+              prompt: prompt,
+              language: language,
+              questionTypes: questionTypes,
+              fromFiles: fromFiles,
+              folderIds: memoizedFolderIds.join(','),
+              fileIds: memoizedFileIds.join(','),
+              fromText: fromText,
+              textMode: textMode,
+              userText: fromText ? sessionStorage.getItem('userText') : undefined,
+              questionCount: questionCount,
+            }),
+            signal: previewAbortRef.current?.signal,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error("No response body");
+          }
+
+          const decoder = new TextDecoder();
+          let buffer = "";
+          let gotFirstChunk = false;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              // Process any remaining buffer
+              if (buffer.trim()) {
+                try {
+                  const pkt = JSON.parse(buffer.trim());
+                  gotFirstChunk = true;
+                  if (pkt.type === "delta") {
+                    setContent(prev => prev + pkt.text);
+                  }
+                } catch (e) {
+                  // If not JSON, treat as plain text
+                  setContent(prev => prev + buffer);
+                }
+              }
+              setStreamDone(true);
+              setLoading(false);
+              return;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+            
+            // Split by newlines and process complete chunks
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ""; // Keep incomplete line in buffer
+            
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              
               try {
-                const pkt = JSON.parse(buffer.trim());
+                const pkt = JSON.parse(line);
                 gotFirstChunk = true;
+                
                 if (pkt.type === "delta") {
-                  setQuizData(prev => prev + pkt.text);
+                  setContent(prev => prev + pkt.text);
+                } else if (pkt.type === "done") {
+                  setStreamDone(true);
+                  setLoading(false);
+                  return;
+                } else if (pkt.type === "error") {
+                  throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                setQuizData(prev => prev + buffer);
+                setContent(prev => prev + line);
               }
             }
-            setIsComplete(true);
+          }
+        } catch (error: any) {
+          if (error.name === 'AbortError') {
+            console.log('Preview cancelled');
             return;
           }
-
-          buffer += decoder.decode(value, { stream: true });
           
-          // Split by newlines and process complete chunks
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+          // Check if this is a network error that should be retried
+          const isNetworkError = error.message?.includes('network') || 
+                                error.message?.includes('fetch') ||
+                                error.message?.includes('Failed to fetch') ||
+                                error.message?.includes('NetworkError') ||
+                                !navigator.onLine;
           
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            
-            try {
-              const pkt = JSON.parse(line);
-              gotFirstChunk = true;
-              
-              if (pkt.type === "delta") {
-                setQuizData(prev => prev + pkt.text);
-              } else if (pkt.type === "done") {
-                setIsComplete(true);
-                return;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || "Unknown error");
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
-              setQuizData(prev => prev + line);
-            }
+          if (isNetworkError && attempt < maxRetries) {
+            console.warn(`Preview attempt ${attempt + 1} failed:`, error.message);
+            setRetryCount(attempt + 1);
+            // Retry after a delay
+            setTimeout(() => startPreview(attempt + 1), 2000 * (attempt + 1));
+            return;
           }
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Generation cancelled');
-          return;
-        }
-        
-        // Check if this is a network error that should be retried
-        const isNetworkError = error.message?.includes('network') || 
-                              error.message?.includes('fetch') ||
-                              error.message?.includes('Failed to fetch') ||
-                              error.message?.includes('NetworkError') ||
-                              !navigator.onLine;
-        
-        if (isNetworkError && attempt < maxRetries) {
-          console.log(`Network error on attempt ${attempt}, retrying...`);
-          setRetryCount(attempt);
           
-          // Exponential backoff: wait 1s, 2s, 4s
-          const delay = Math.pow(2, attempt - 1) * 1000;
-          await new Promise(resolve => setTimeout(resolve, delay));
-          
-          // Retry the generation
-          return performQuizGeneration(attempt + 1);
-        } else {
-          // Either not a network error or max retries reached
-          console.error('Generation error:', error);
-          setError(error.message || 'An error occurred during generation');
-          throw error;
+          console.error('Preview error:', error);
+          setError(error.message || 'An error occurred during preview generation');
+          setLoading(false);
         }
-      }
+      };
+
+      fetchPreview();
     };
 
-    const generateQuiz = async () => {
-      // Prevent multiple concurrent requests
-      if (requestInProgressRef.current) {
-        return;
-      }
+    startPreview();
 
-      requestInProgressRef.current = true;
-      
-      setIsGenerating(true);
-      setError(null);
-      setQuizData("");
-      setIsComplete(false);
-      setRetryCount(0);
-
-      // Create abort controller for cancellation
-      abortControllerRef.current = new AbortController();
-
-      try {
-        await performQuizGeneration();
-      } catch (error: any) {
-        // Error already handled in performQuizGeneration
-      } finally {
-        // Only update state if this is still the current request
-        setIsGenerating(false);
-        requestInProgressRef.current = false;
-        abortControllerRef.current = null;
-      }
-    };
-
-    generateQuiz();
-
-    // Cleanup function
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+      if (previewAbortRef.current) {
+        previewAbortRef.current.abort();
       }
     };
-  }, [prompt, outlineId, lesson, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount, courseName, retryTrigger]);
+  }, [selectedOutlineId, selectedLesson, prompt, questionTypes, language, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, questionCount, courseName, retryTrigger]);
 
-  const handleCreateFinal = async () => {
-    if (!quizData.trim()) return;
+  const handleFinalize = async () => {
+    if (!content.trim()) return;
 
-    setIsCreatingFinal(true);
+    setIsFinalizing(true);
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
@@ -268,10 +442,10 @@ export default function QuizClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: quizData,
+          aiResponse: content,
           prompt: prompt,
-          outlineId: outlineId ? parseInt(outlineId) : null,
-          lesson: lesson,
+          outlineId: selectedOutlineId,
+          lesson: selectedLesson,
           courseName: courseName,
           questionTypes: questionTypes,
           language: language,
@@ -297,15 +471,18 @@ export default function QuizClient() {
       console.error('Finalization error:', error);
       setError(error.message || 'An error occurred during finalization');
     } finally {
-      setIsCreatingFinal(false);
+      setIsFinalizing(false);
     }
   };
 
   const handleCancel = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+    if (previewAbortRef.current) {
+      previewAbortRef.current.abort();
     }
   };
+
+  // Calculate word count
+  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
 
   return (
     <main
@@ -328,16 +505,122 @@ export default function QuizClient() {
           Quiz Generation
         </h1>
         <p className="text-center text-gray-600 text-lg -mt-1">
-          {outlineId && lesson 
-            ? `Creating quiz for lesson: ${lesson}`
+          {selectedOutlineId && selectedLesson 
+            ? `Creating quiz for lesson: ${selectedLesson}`
             : prompt 
             ? `Creating quiz: ${prompt}`
             : "Creating quiz from your content"
           }
         </p>
 
+        {/* Dropdowns Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Outline Dropdown */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Outline
+              </label>
+              <select
+                value={selectedOutlineId || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedOutlineId(value ? Number(value) : null);
+                  setSelectedModuleIndex(null);
+                  setSelectedLesson("");
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select an outline</option>
+                {outlines.map((outline) => (
+                  <option key={outline.id} value={outline.id}>
+                    {outline.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Module Dropdown */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Module
+              </label>
+              <select
+                value={selectedModuleIndex !== null ? selectedModuleIndex : ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedModuleIndex(value ? Number(value) : null);
+                  setSelectedLesson("");
+                }}
+                disabled={!selectedOutlineId}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+              >
+                <option value="">Select a module</option>
+                {modulesForOutline.map((module, index) => (
+                  <option key={index} value={index}>
+                    {module.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Lesson Dropdown */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Lesson
+              </label>
+              <select
+                value={selectedLesson}
+                onChange={(e) => setSelectedLesson(e.target.value)}
+                disabled={selectedModuleIndex === null}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+              >
+                <option value="">Select a lesson</option>
+                {lessonsForModule.map((lesson, index) => (
+                  <option key={index} value={lesson}>
+                    {lesson}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Language Dropdown */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Prompt Input */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Custom Prompt (Optional)
+            </label>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter a custom prompt for quiz generation..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              rows={3}
+            />
+          </div>
+        </div>
+
         {/* Generation status */}
-        {isGenerating && (
+        {loading && (
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 text-blue-800 font-semibold mb-3">
               <div className="relative">
@@ -354,7 +637,7 @@ export default function QuizClient() {
                 </p>
               )}
             </div>
-            <ProgressBar progress={quizData.length > 0 ? Math.min((quizData.length / 1000) * 100, 90) : 10} />
+            <ProgressBar progress={content.length > 0 ? Math.min((content.length / 1000) * 100, 90) : 10} />
             <button
               onClick={handleCancel}
               className="px-4 py-2 rounded-full border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 text-sm font-medium transition-colors"
@@ -388,11 +671,11 @@ export default function QuizClient() {
         )}
 
         {/* Quiz data display */}
-        {quizData && (
+        {content && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Quiz Preview</h2>
-              {isComplete && (
+              {streamDone && (
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircle className="h-5 w-5" />
                   <span className="text-sm font-medium">Generation Complete</span>
@@ -402,35 +685,107 @@ export default function QuizClient() {
             
             <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto border border-gray-100">
               <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono leading-relaxed">
-                {quizData}
+                {content}
               </pre>
             </div>
 
-            {/* Themes section (not wired) */}
+            {/* Advanced Mode Section */}
+            <div className="mt-6">
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              >
+                <Settings className="h-4 w-4" />
+                Advanced Mode
+                <ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showAdvanced && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Example Prompts
+                      </label>
+                      <div className="space-y-2">
+                        {quizExamples.map((ex) => (
+                          <button
+                            key={ex.short}
+                            onClick={() => toggleExample(ex)}
+                            className={`block w-full text-left p-2 rounded text-xs ${
+                              selectedExamples.includes(ex.short)
+                                ? 'bg-blue-100 border-blue-300 text-blue-800'
+                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            } border`}
+                          >
+                            {ex.short}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Edit Prompt
+                      </label>
+                      <textarea
+                        value={editPrompt}
+                        onChange={(e) => setEditPrompt(e.target.value)}
+                        placeholder="Enter additional instructions..."
+                        className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      />
+                      <button
+                        onClick={handleApplyEdit}
+                        disabled={loadingEdit || !editPrompt.trim()}
+                        className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      >
+                        {loadingEdit ? 'Applying...' : 'Apply Edit'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Themes section */}
             <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg">
               <h3 className="text-lg font-medium text-gray-800 mb-3">Themes</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {['Default', 'Professional', 'Creative', 'Minimal'].map((theme) => (
+                {themeOptions.map((theme) => (
                   <button
-                    key={theme}
-                    className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-300 text-sm font-medium transition-colors"
+                    key={theme.id}
+                    onClick={() => setSelectedTheme(theme.id)}
+                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      selectedTheme === theme.id
+                        ? 'border-blue-300 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-300'
+                    }`}
                   >
-                    {theme}
+                    {theme.label}
                   </button>
                 ))}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Finalize button */}
-            {isComplete && !finalProductId && (
-              <div className="mt-6 flex justify-center">
+        {/* Footer */}
+        {content && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-6 text-sm text-gray-600">
+                <span>Credits: 1</span>
+                <span>Words: {wordCount}</span>
+              </div>
+              
+              {streamDone && !finalProductId && (
                 <button
-                  onClick={handleCreateFinal}
-                  disabled={isCreatingFinal}
+                  onClick={handleFinalize}
+                  disabled={isFinalizing}
                   className="flex items-center gap-2 px-8 py-3 rounded-full text-white hover:bg-brand-primary-hover active:scale-95 transition-all duration-200 text-lg font-semibold shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: '#0076FF' }}
                 >
-                  {isCreatingFinal ? (
+                  {isFinalizing ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Creating Quiz...
@@ -442,8 +797,21 @@ export default function QuizClient() {
                     </>
                   )}
                 </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Finalization Loading Overlay */}
+        {isFinalizing && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-8 shadow-lg max-w-md w-full mx-4">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Creating Final Quiz</h3>
+                <p className="text-gray-600 text-center">Please wait while we finalize your quiz...</p>
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
