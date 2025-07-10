@@ -29,7 +29,7 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
 export default function QuizClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [quizData, setQuizData] = useState<string>("");
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -237,7 +237,7 @@ export default function QuizClient() {
       previewAbortRef.current = abortController;
 
       const fetchPreview = async () => {
-        setIsGenerating(true);
+        setLoading(true);
         setError(null);
         setQuizData(""); // Clear previous content
         let gotFirstChunk = false;
@@ -282,62 +282,23 @@ export default function QuizClient() {
 
           while (true) {
             const { done, value } = await reader.read();
-            
             if (done) {
-              // Process any remaining buffer
-              if (buffer.trim()) {
-                try {
-                  const pkt = JSON.parse(buffer.trim());
-                  gotFirstChunk = true;
-                  if (pkt.type === "delta") {
-                    setQuizData(prev => prev + pkt.text);
-                  }
-                } catch (e) {
-                  // If not JSON, treat as plain text
-                  setQuizData(prev => prev + buffer);
-                }
-              }
-              setIsComplete(true);
+              // Streaming finished successfully
               setStreamDone(true);
-              setTextareaVisible(true);
-              return;
+              break;
             }
-
+            gotFirstChunk = true;
             buffer += decoder.decode(value, { stream: true });
-            
-            // Split by newlines and process complete chunks
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ""; // Keep incomplete line in buffer
-            
-            for (const line of lines) {
-              if (!line.trim()) continue;
-              
-              try {
-                const pkt = JSON.parse(line);
-                gotFirstChunk = true;
-                
-                if (pkt.type === "delta") {
-                  setQuizData(prev => prev + pkt.text);
-                } else if (pkt.type === "done") {
-                  setIsComplete(true);
-                  setStreamDone(true);
-                  setTextareaVisible(true);
-                  return;
-                } else if (pkt.type === "error") {
-                  throw new Error(pkt.text || "Unknown error");
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
-                setQuizData(prev => prev + line);
-              }
-            }
 
             // Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(buffer);
 
+            // Update the React state before toggling UI visibility
+            setQuizData(buffer);
+
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
-              setIsGenerating(false); // Hide spinner & show textarea
+              setLoading(false); // Hide spinner & show textarea
             }
           }
         } catch (error: any) {
@@ -365,7 +326,7 @@ export default function QuizClient() {
         } finally {
           if (!abortController.signal.aborted) {
             // If the stream ended but we never displayed content, remove spinner anyway
-            if (isGenerating) setIsGenerating(false);
+            if (loading) setLoading(false);
             if (!gotFirstChunk && attempt >= 3) {
               setError("Failed to generate quiz – please try again later.");
             }
@@ -824,7 +785,7 @@ export default function QuizClient() {
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">Quiz Content</h2>
-          {isGenerating && (
+          {loading && (
             <LoadingAnimation message="Generating Quiz..." />
           )}
           {error && (
