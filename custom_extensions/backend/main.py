@@ -7533,6 +7533,7 @@ class ProjectApiResponse(BaseModel):
     design_template_id: Optional[int] = None
     folder_id: Optional[int] = None
     order: Optional[int] = None
+    source_chat_session_id: Optional[str] = None
     model_config = {"from_attributes": True}
 
 class ProjectDetailForEditResponse(BaseModel):
@@ -9278,7 +9279,7 @@ async def get_user_projects_list_from_db(
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id, p."order", p.microproduct_content
+               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
@@ -9303,7 +9304,8 @@ async def get_user_projects_list_from_db(
             design_microproduct_type=row_dict.get("design_microproduct_type"),
             created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
             folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
-            microproduct_content=row_dict.get("microproduct_content")
+            microproduct_content=row_dict.get("microproduct_content"),
+            source_chat_session_id=row_dict.get("source_chat_session_id")
         ))
     return projects_list
 
