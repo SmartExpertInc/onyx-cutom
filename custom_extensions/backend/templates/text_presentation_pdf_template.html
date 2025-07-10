@@ -153,10 +153,10 @@
 
         .alert-block { display: flex; padding: var(--space-md); border-left-width: 4px; border-radius: 3px; margin-bottom: var(--space-md); font-size: var(--font-size-paragraph-small); page-break-inside: avoid; color: var(--color-alert-text) !important; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); }
         .alert-block .icon-container { margin-right: var(--space-sm); flex-shrink: 0; padding-top: 0.1em; }
-        .alert-block .icon-container .icon-svg { width: 2.4em; height: 2.4em; }
+        .alert-block .icon-container .icon-svg { width: 2.4em; height: 2.4em; display: block; }
         .alert-block .text-container { flex-grow: 1; }
-        .alert-block .alert-title { font-weight: var(--font-weight-semibold); margin-bottom: var(--space-xxs); } 
-        .alert-block .alert-text { }
+        .alert-block .alert-title { font-weight: var(--font-weight-semibold); margin-bottom: var(--space-xs); font-size: 11pt; color: var(--color-text-darkest); } 
+        .alert-block .alert-text { font-size: 8pt; color: var(--color-text-muted); }
         .alert-block.alert-info { background-color: #E0F2FE; border-color: #3B82F6; }
         .alert-block.alert-info .icon-container { color: #3B82F6; }
         .alert-block.alert-success { background-color: #D1FAE5; border-color: #10B981; }
@@ -246,6 +246,22 @@
             <symbol id="icon-chart" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z"/></symbol>
             <symbol id="icon-clock" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
             <symbol id="icon-globe" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+            
+            <!-- Alert Icons -->
+            <symbol id="icon-check" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l5 5l10 -10"/>
+            </symbol>
+            <symbol id="icon-alertTriangle" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 9v2m0 4v.01"/>
+                <path d="M5 19h14a2 2 0 0 0 1.84 -2.75L13.74 4a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75z"/>
+            </symbol>
+            <symbol id="icon-xCircle" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
+                <path d="M10 10l4 4m0 -4l-4 4"/>
+            </symbol>
 
         </defs>
     </svg>
