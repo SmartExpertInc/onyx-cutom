@@ -44,7 +44,7 @@ else:
 
 # --- Constants & DB Setup ---
 CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
-ONYX_DATABASE_URL = os.getenv("ONYX_DATABASE_URL", "postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres")
+ONYX_DATABASE_URL = "postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db"
 ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
 ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
 
