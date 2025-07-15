@@ -4398,9 +4398,12 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     logger.info(f"[PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
     logger.info(f"[PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
     logger.info(f"[PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    logger.info(f"[PREVIEW_PARAMS] chatSessionId={payload.chatSessionId}")
+    logger.info(f"[PREVIEW_PARAMS] originalOutline length={len(payload.originalOutline) if payload.originalOutline else 0}")
     
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     logger.info(f"[PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+    logger.info(f"[PREVIEW_AUTH] Cookie value: {cookies[ONYX_SESSION_COOKIE_NAME][:20] if cookies[ONYX_SESSION_COOKIE_NAME] else 'None'}...")
 
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
@@ -4408,85 +4411,99 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     else:
         logger.info(f"[PREVIEW_CHAT] Creating new chat session")
         try:
+            logger.info(f"[PREVIEW_CHAT] Attempting to get contentbuilder persona ID")
             persona_id = await get_contentbuilder_persona_id(cookies)
             logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id}")
+            logger.info(f"[PREVIEW_CHAT] Attempting to create Onyx chat session")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[PREVIEW_CHAT] Created new chat session: {chat_id}")
         except Exception as e:
-            logger.error(f"[PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
+            logger.error(f"[PREVIEW_CHAT_ERROR] Failed to create chat session: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
 
+    logger.info(f"[PREVIEW_PAYLOAD] Building wizard payload")
     wiz_payload = {
         "product": "Course Outline",
         "prompt": payload.prompt,
         "language": payload.language,
     }
+    logger.info(f"[PREVIEW_PAYLOAD] Base payload created with product={wiz_payload['product']}, language={wiz_payload['language']}")
 
     # Add file context if provided
     if payload.fromFiles:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding file context: fromFiles=True")
         wiz_payload["fromFiles"] = True
         if payload.folderIds:
             wiz_payload["folderIds"] = payload.folderIds
+            logger.info(f"[PREVIEW_PAYLOAD] Added folderIds: {payload.folderIds}")
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
+            logger.info(f"[PREVIEW_PAYLOAD] Added fileIds: {payload.fileIds}")
 
     # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
     if payload.fromText and payload.userText:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding text context: fromText=True, textMode={payload.textMode}")
         wiz_payload["fromText"] = True
         wiz_payload["textMode"] = payload.textMode
         
         text_length = len(payload.userText)
-        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        logger.info(f"[PREVIEW_PAYLOAD] Processing text input: mode={payload.textMode}, length={text_length} chars")
         
         if text_length > LARGE_TEXT_THRESHOLD:
             # Use virtual file system for large texts to prevent AI memory issues
-            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            logger.info(f"[PREVIEW_PAYLOAD] Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
             try:
+                logger.info(f"[PREVIEW_PAYLOAD] Attempting to create virtual file for large text")
                 virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
                 wiz_payload["virtualFileId"] = virtual_file_id
                 wiz_payload["textCompressed"] = False
-                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+                logger.info(f"[PREVIEW_PAYLOAD] Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
             except Exception as e:
-                logger.error(f"Failed to create virtual file for large text: {e}")
+                logger.error(f"[PREVIEW_PAYLOAD] Failed to create virtual file for large text: {e}", exc_info=True)
                 # Fallback to chunking if virtual file creation fails
+                logger.info(f"[PREVIEW_PAYLOAD] Falling back to chunking for large text")
                 chunks = chunk_text(payload.userText)
                 if len(chunks) == 1:
                     # Single chunk, use compression
+                    logger.info(f"[PREVIEW_PAYLOAD] Single chunk fallback: using compression")
                     compressed_text = compress_text(payload.userText)
                     wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
                 else:
                     # Multiple chunks, use first chunk with compression
+                    logger.info(f"[PREVIEW_PAYLOAD] Multiple chunks fallback: using first chunk with compression")
                     first_chunk = chunks[0]
                     compressed_chunk = compress_text(first_chunk)
                     wiz_payload["userText"] = compressed_chunk
                     wiz_payload["textCompressed"] = True
                     wiz_payload["textChunked"] = True
                     wiz_payload["totalChunks"] = len(chunks)
-                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
+                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
         elif text_length > TEXT_SIZE_THRESHOLD:
             # Compress medium text to reduce payload size
-            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
+            logger.info(f"[PREVIEW_PAYLOAD] Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
             compressed_text = compress_text(payload.userText)
             wiz_payload["userText"] = compressed_text
             wiz_payload["textCompressed"] = True
-            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+            logger.info(f"[PREVIEW_PAYLOAD] Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
         else:
             # Use direct text for small content
-            logger.info(f"Using direct text for small content ({text_length} chars)")
+            logger.info(f"[PREVIEW_PAYLOAD] Using direct text for small content ({text_length} chars)")
             wiz_payload["userText"] = payload.userText
             wiz_payload["textCompressed"] = False
     elif payload.fromText and not payload.userText:
         # Log this problematic case to help with debugging
-        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
         # Don't process fromText if userText is empty to avoid confusing the AI
     elif payload.fromText:
-        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+        logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
     if payload.originalOutline:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding originalOutline ({len(payload.originalOutline)} chars)")
         wiz_payload["originalOutline"] = payload.originalOutline
     else:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding module configuration: modules={payload.modules}, lessonsPerModule={payload.lessonsPerModule}")
         wiz_payload.update({
             "modules": payload.modules,
             "lessonsPerModule": payload.lessonsPerModule,
@@ -4494,16 +4511,19 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
 
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        logger.info(f"[PREVIEW_PAYLOAD] Decompressing text for assistant")
         try:
             decompressed_text = decompress_text(wiz_payload["userText"])
             wiz_payload["userText"] = decompressed_text
             wiz_payload["textCompressed"] = False  # Mark as decompressed
-            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
+            logger.info(f"[PREVIEW_PAYLOAD] Decompressed text for assistant ({len(decompressed_text)} chars)")
         except Exception as e:
-            logger.error(f"Failed to decompress text: {e}")
+            logger.error(f"[PREVIEW_PAYLOAD] Failed to decompress text: {e}", exc_info=True)
             # Continue with original text if decompression fails
     
+    logger.info(f"[PREVIEW_PAYLOAD] Final payload keys: {list(wiz_payload.keys())}")
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    logger.info(f"[PREVIEW_PAYLOAD] Created wizard message ({len(wizard_message)} chars)")
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -4519,20 +4539,31 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
         try:
+            logger.info(f"[PREVIEW_STREAM] Creating HTTP client with timeout: {timeout_duration}")
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
                 # Parse folder and file IDs for Onyx
+                logger.info(f"[PREVIEW_STREAM] Parsing file and folder IDs")
                 folder_ids_list = []
                 file_ids_list = []
                 if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                    try:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[PREVIEW_STREAM] Parsed folder IDs: {folder_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[PREVIEW_STREAM] Failed to parse folder IDs from '{payload.folderIds}': {e}")
                 if payload.fromFiles and payload.fileIds:
-                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                    try:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[PREVIEW_STREAM] Parsed file IDs: {file_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[PREVIEW_STREAM] Failed to parse file IDs from '{payload.fileIds}': {e}")
                 
                 # Add virtual file ID if created for large text
                 if wiz_payload.get("virtualFileId"):
                     file_ids_list.append(wiz_payload["virtualFileId"])
                     logger.info(f"[PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                 
+                logger.info(f"[PREVIEW_STREAM] Building send payload")
                 send_payload = {
                     "chat_session_id": chat_id,
                     "message": wizard_message,
@@ -4545,22 +4576,39 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     "retrieval_options": {"run_search": "never", "real_time": False},
                     "stream_response": True,
                 }
-                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message")
+                logger.info(f"[PREVIEW_ONYX] Target URL: {ONYX_API_SERVER_URL}/chat/send-message")
+                logger.info(f"[PREVIEW_ONYX] Payload summary: chat_session_id={chat_id}, user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
                 logger.info(f"[PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
+                logger.info(f"[PREVIEW_ONYX] Payload size: {len(json.dumps(send_payload))} chars")
                 
+                logger.info(f"[PREVIEW_ONYX] Initiating streaming request...")
                 async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                    logger.info(f"[PREVIEW_ONYX] Response received - status: {resp.status_code}")
                     logger.info(f"[PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
                     
                     if resp.status_code != 200:
                         logger.error(f"[PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
-                        error_text = await resp.text()
-                        logger.error(f"[PREVIEW_ONYX] Error response: {error_text}")
-                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
+                        try:
+                            error_text = await resp.aread()
+                            error_text = error_text.decode('utf-8') if isinstance(error_text, bytes) else str(error_text)
+                            logger.error(f"[PREVIEW_ONYX] Error response: {error_text}")
+                        except Exception as read_error:
+                            logger.error(f"[PREVIEW_ONYX] Failed to read error response: {read_error}")
+                            error_text = f"HTTP {resp.status_code}"
+                        
+                        # Send error to frontend instead of raising HTTPException
+                        error_packet = {"type": "error", "message": f"Onyx API error ({resp.status_code}): {error_text}"}
+                        yield (json.dumps(error_packet) + "\n").encode()
+                        return
                     
+                    logger.info(f"[PREVIEW_ONYX] Starting to process response stream...")
                     async for raw_line in resp.aiter_lines():
                         total_bytes_received += len(raw_line.encode('utf-8'))
                         chunks_received += 1
+                        
+                        if chunks_received == 1:
+                            logger.info(f"[PREVIEW_ONYX] Received first chunk from stream")
                         
                         if not raw_line:
                             logger.debug(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
@@ -4605,14 +4653,26 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         logger.warning(f"[PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
                         
         except httpx.TimeoutException as e:
-            logger.error(f"[PREVIEW_ONYX] Timeout error: {e}")
-            raise HTTPException(status_code=408, detail=f"Request timeout: {e}")
+            logger.error(f"[PREVIEW_ONYX] Timeout error after {chunks_received} chunks, {total_bytes_received} bytes: {e}")
+            logger.error(f"[PREVIEW_ONYX] Timeout details: timeout_duration={timeout_duration}, assistant_reply_length={len(assistant_reply)}")
+            # Send timeout error to frontend
+            error_packet = {"type": "error", "message": f"Request timeout after {timeout_duration}s"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
         except httpx.RequestError as e:
-            logger.error(f"[PREVIEW_ONYX] Request error: {e}")
-            raise HTTPException(status_code=502, detail=f"Onyx API request failed: {e}")
+            logger.error(f"[PREVIEW_ONYX] Request error after {chunks_received} chunks, {total_bytes_received} bytes: {e}")
+            logger.error(f"[PREVIEW_ONYX] Request error details: type={type(e).__name__}, chat_id={chat_id}")
+            # Send request error to frontend
+            error_packet = {"type": "error", "message": f"Network error: {str(e)}"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
         except Exception as e:
-            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}", exc_info=True)
-            raise
+            logger.error(f"[PREVIEW_ONYX] Unexpected exception after {chunks_received} chunks, {total_bytes_received} bytes: {e}", exc_info=True)
+            logger.error(f"[PREVIEW_ONYX] Exception context: chat_id={chat_id}, assistant_reply_length={len(assistant_reply)}")
+            # Send generic error to frontend
+            error_packet = {"type": "error", "message": f"Unexpected error: {str(e)}"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
 
         logger.info(f"[PREVIEW_STREAM] Stream completed. Total chunks: {chunks_received}, total bytes: {total_bytes_received}")
         logger.info(f"[PREVIEW_STREAM] Final assistant_reply length: {len(assistant_reply)}")
@@ -4625,21 +4685,44 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
 
         if not assistant_reply.strip():
             logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+            logger.error(f"[PREVIEW_STREAM] DEBUG: Received {chunks_received} chunks, {total_bytes_received} bytes total")
+            logger.error(f"[PREVIEW_STREAM] DEBUG: done_received={done_received}")
             # Send error packet to frontend
             error_packet = {"type": "error", "message": "No content received from AI service"}
             yield (json.dumps(error_packet) + "\n").encode()
             return
 
-        modules_preview = _parse_outline_markdown(assistant_reply)
-        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
-        logger.info(f"[PREVIEW_DONE] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+        logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+        try:
+            modules_preview = _parse_outline_markdown(assistant_reply)
+            logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
+            logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+        except Exception as e:
+            logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
+            logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+            # Send error packet to frontend
+            error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
         
         # Send completion packet with the parsed outline.
+        logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-        yield (json.dumps(done_packet) + "\n").encode()
+        completion_data = json.dumps(done_packet) + "\n"
+        logger.info(f"[PREVIEW_DONE] Completion packet size: {len(completion_data)} chars")
+        yield completion_data.encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
 
-    return StreamingResponse(streamer(), media_type="application/json")
+    return StreamingResponse(
+        streamer(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )
 
 async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
     async with pool.acquire() as conn:
