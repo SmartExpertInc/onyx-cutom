@@ -1396,12 +1396,35 @@ async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: as
         
         # Create new user credits entry with default values
         new_credits_row = await conn.fetchrow("""
-            INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-            VALUES ($1, $2, $3)
+            INSERT INTO user_credits (onyx_user_id, name, credits_balance, credits_purchased)
+            VALUES ($1, $2, $3, $3)
             RETURNING *
-        """, onyx_user_id, user_name, 100)  # Default 100 credits for new users
+        """, onyx_user_id, user_name, 100, 100)  # Default 100 credits for new users
         
+        logger.info(f"Auto-migrated new user {onyx_user_id} ({user_name}) with 100 credits")
         return UserCredits(**dict(new_credits_row))
+
+def calculate_product_credits(product_type: str, content_data: dict = None) -> int:
+    """Calculate credit cost for product creation"""
+    if product_type == "course_outline":
+        return 5  # Course outline finalization costs 5 credits
+    elif product_type == "lesson_presentation":
+        # Calculate based on slide count
+        if content_data and isinstance(content_data, dict):
+            slides = content_data.get("slides", [])
+            slide_count = len(slides) if slides else 0
+            
+            if slide_count <= 5:
+                return 3
+            elif slide_count <= 10:
+                return 5
+            else:
+                return 10
+        return 5  # Default if we can't determine slide count
+    elif product_type in ["quiz", "one_pager"]:
+        return 5  # Quiz and one-pager both cost 5 credits
+    else:
+        return 0  # Unknown product type, no cost
 
 async def deduct_credits(onyx_user_id: str, amount: int, pool: asyncpg.Pool, reason: str = "Product creation") -> UserCredits:
     """Deduct credits from user balance with transaction safety"""
@@ -4616,6 +4639,29 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
+    # Get user ID and deduct credits for course outline finalization
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        credits_needed = calculate_product_credits("course_outline")
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "Course outline finalization")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for course outline finalization")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for course outline: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+
     # Ensure we have a chat session id (needed both for cache lookup and possible assistant fallback)
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
@@ -5404,6 +5450,36 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
     
     if not payload.aiResponse or not payload.aiResponse.strip():
         raise HTTPException(status_code=400, detail="AI response content is required")
+
+    # Parse AI response to determine slide count for credit calculation
+    try:
+        slides_data = json.loads(payload.aiResponse)
+        credits_needed = calculate_product_credits("lesson_presentation", slides_data)
+    except:
+        # If parsing fails, use default credit cost
+        credits_needed = calculate_product_credits("lesson_presentation")
+
+    # Get user ID and deduct credits for lesson presentation
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "Lesson presentation finalization")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for lesson presentation")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for lesson presentation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
 
     try:
         # Get the slide deck template with retry mechanism
@@ -7613,6 +7689,28 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
     """Finalize quiz creation by parsing AI response and saving to database"""
     onyx_user_id = await get_current_onyx_user_id(request)
     
+    # Get user ID and deduct credits for quiz creation
+    try:
+        credits_needed = calculate_product_credits("quiz")
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "Quiz creation")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for quiz creation")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for quiz creation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+    
     # Create a unique key for this quiz finalization to prevent duplicates
     quiz_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
     
@@ -8359,6 +8457,28 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
     """Finalize text presentation creation by parsing AI response and saving to database"""
     onyx_user_id = await get_current_onyx_user_id(request)
     
+    # Get user ID and deduct credits for one-pager creation
+    try:
+        credits_needed = calculate_product_credits("one_pager")
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "One-pager creation")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for one-pager creation")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for one-pager creation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+    
     # Create a unique key for this text presentation finalization to prevent duplicates
     text_presentation_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
     
@@ -8586,11 +8706,14 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
 
 @app.get("/api/custom/credits/me", response_model=UserCredits)
 async def get_my_credits(
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Get current user's credit balance"""
+    """Get current user's credit balance (auto-creates if new user)"""
     try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # This will auto-create the user if they don't exist yet
         credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
         return credits
     except Exception as e:
