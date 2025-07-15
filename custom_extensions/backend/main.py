@@ -5988,7 +5988,45 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         updated_content_dict: Optional[Dict[str, Any]] = None
         try:
             # Use the proper LLM parser to convert AI response to TrainingPlanDetails
-            component_specific_instructions = "Parse the training plan content according to the JSON example provided. Extract all sections, lessons, and their details including hours, assessment types, and content availability."
+            # Use the SAME parsing instructions as normal generation to ensure consistent ID handling
+            component_specific_instructions = """
+            You are an expert text-to-JSON parsing assistant for 'Training Plan' content.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON that represents a multi-module training programme. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
+
+            **Global Fields:**
+            1.  `mainTitle` (string): Title of the whole programme. If the input lacks a clear title, use the project name given by the caller.
+            2.  `sections` (array): Ordered list of module objects.
+            3.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk", "es".
+
+            **Section Object (`sections` array items):**
+            * `id` (string): CRITICAL - Extract the exact module ID from the markdown headers. If you see "## №2: Title", extract "№2". If you see "## #2: Title", convert it to "№2". If you see "## Module 3: Title", convert it to "№3". Always preserve the original numbering but use "№X" format.
+            * `title` (string): Module name without the word "Module".
+            * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
+            * `lessons` (array): List of lesson objects belonging to the module.
+            * `autoCalculateHours` (boolean, default true): Leave as `true` unless the source explicitly provides `totalHours`.
+
+            **Lesson Object (`lessons` array items):**
+            * `title` (string): Lesson title WITHOUT leading numeration like "Lesson 1.1".
+            * `hours` (number): Duration in hours. If absent, default to 1.
+            * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
+            * `completionTime` (string): Estimated completion time in minutes, randomly generated between 5-8 minutes. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
+            * `check` (object):
+                - `type` (string): One of "test", "quiz", "practice", "none".
+                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
+            * `contentAvailable` (object):
+                - `type` (string): One of "yes", "no", "percentage".
+                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
+
+            **CRITICAL ID EXTRACTION RULES:**
+            • When you see "## #2: Technical Setup", extract the ID as "№2" (convert # to №)
+            • When you see "## №3: Advanced Topics", extract the ID as "№3" (preserve exactly)
+            • When you see "## Module 5: Data Analysis", extract the ID as "№5" (extract number and convert to № format)
+            • NEVER generate sequential IDs like №1, №2, №3 - ALWAYS extract the actual number from the header
+            
+            Return ONLY the JSON object.
+            """
             
             # Create a default TrainingPlanDetails instance for error handling
             default_training_plan = TrainingPlanDetails(
@@ -6021,6 +6059,9 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 "detectedLanguage": "en",
                 "theme": "cherry"
             })
+            
+            logger.info(f"[SMART_EDIT_PARSER] Parsing AI response with length: {len(assistant_reply)}")
+            logger.info(f"[SMART_EDIT_PARSER] AI response preview: {assistant_reply[:300]}{'...' if len(assistant_reply) > 300 else ''}")
             
             parsed_training_plan = await parse_ai_response_with_llm(
                 ai_response=assistant_reply,
