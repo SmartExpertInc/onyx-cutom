@@ -4853,8 +4853,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         
         if not any_changes:
             # NO CHANGES: Use direct parser path (fastest)
-            use_direct_parser = False
-            use_assistant_then_parser = True
+            use_direct_parser = True
+            use_assistant_then_parser = False
             logger.info("No changes detected - using direct parser path")
         else:
             # CHANGES DETECTED: Use assistant first, then parser
@@ -4924,7 +4924,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Success when we have valid parsed content
             if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
-                return JSONResponse(content=json.loads(project_db_candidate.model_dump_json()))
+                return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
             else:
                 # Direct parser path validation failed - clean up the created project and fall back to assistant
                 logger.warning(f"Direct parser path validation failed for project {direct_path_project_id} - LLM parsing likely failed")
@@ -4977,7 +4977,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                                 payload.prompt,
                             )
                     if row and row["microproduct_content"] is not None:
-                        return JSONResponse(content={"id": row["id"]})
+                        return JSONResponse(content={"type": "done", "id": row["id"]})
                     await asyncio.sleep(poll_every_sec)
                     waited += poll_every_sec
                 logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
@@ -4985,8 +4985,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
             
             # Fall back to assistant path
-                use_direct_parser = False
-                use_assistant_then_parser = True
+            use_direct_parser = False
+            use_assistant_then_parser = True
 
     # ---------- 3) ASSISTANT + PARSER PATH: Process changes with assistant, then parse ----------
     if use_assistant_then_parser:
@@ -5004,7 +5004,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                             content = existing_row["microproduct_content"]
                             if isinstance(content, dict) and content.get("sections"):
                                 logger.info(f"Found existing valid project {existing_row['id']} for chat session, returning it")
-                                return JSONResponse(content={"id": existing_row["id"]})
+                                return JSONResponse(content={"type": "done", "id": existing_row["id"]})
                         except Exception:
                             pass  # Continue with assistant path if content validation fails
             except Exception as e:
