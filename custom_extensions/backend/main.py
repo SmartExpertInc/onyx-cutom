@@ -4853,8 +4853,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         
         if not any_changes:
             # NO CHANGES: Use direct parser path (fastest)
-            use_direct_parser = True
-            use_assistant_then_parser = False
+            use_direct_parser = False
+            use_assistant_then_parser = True
             logger.info("No changes detected - using direct parser path")
         else:
             # CHANGES DETECTED: Use assistant first, then parser
