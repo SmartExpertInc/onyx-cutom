@@ -206,8 +206,9 @@ Edit Mode Rules:
 3. Maintain the same format and structure as the original content
 4. Preserve any existing formatting, headers, and organizational elements
 5. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
+   - **PRESERVE MODULE NUMBERING**: When you see module headers like "## Module 3: Advanced AI Applications", you MUST preserve the exact numbering (3) in your output. Do NOT renumber modules to 1, 2, 3 sequence unless explicitly asked to renumber.
    - If the user asks to change creation hours, ONLY change the creation hours - preserve all module IDs, lesson names, completion times, content coverage percentages, knowledge assessment values, and information sources exactly as they are
-   - If the user asks to change lesson names, ONLY change the lesson names - preserve all other details unchanged
+   - If the user asks to change lesson names, ONLY change the lesson names - preserve all other details unchanged  
    - If the user asks to add more questions to a quiz, ONLY add the questions - preserve all existing questions exactly as they are
    - If the user asks to modify specific text in a presentation, ONLY modify that specific text - preserve all other content, formatting, and structure
 6. Return the edited content in the same format as the original (no Universal Product Header needed for edits)
@@ -255,6 +256,7 @@ WIZARD_REQUEST
 - If user says "make module titles more engaging" → ONLY change the module titles, preserve all lesson details, times, and other data exactly as they are
 - If user says "add 3 more questions to the quiz" → ONLY add 3 new questions, preserve all existing questions unchanged
 - If user says "change the explanation for question 2" → ONLY modify that specific question's explanation, leave all other questions and content unchanged
+- **MODULE NUMBERING EXAMPLE**: If you receive "## Module 3: Advanced AI Applications" and user asks to "make titles more engaging", output "## Module 3: AI-Powered Advanced Applications" (preserve the "3", don't change it to "1")
 
 Finalization Requests (edited outlines)
 +------------------------------------------------

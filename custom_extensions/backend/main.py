@@ -5840,7 +5840,18 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 section_id = section.get("id", "")
                 section_title = section.get("title", "")
                 total_hours = section.get("totalHours", 0.0)
-                current_outline += f"## {section_id} {section_title}\n"
+                # Convert database ID format back to assistant's expected format
+                if section_id.startswith("№"):
+                    # Convert №3 back to Module 3: format
+                    module_number = section_id[1:]  # Remove № symbol
+                    current_outline += f"## Module {module_number}: {section_title}\n"
+                elif section_id.startswith("mod"):
+                    # Convert mod3 back to Module 3: format  
+                    module_number = section_id[3:]  # Remove "mod" prefix
+                    current_outline += f"## Module {module_number}: {section_title}\n"
+                else:
+                    # Fallback - use original format
+                    current_outline += f"## {section_id} {section_title}\n"
                 current_outline += f"**Total Hours:** {total_hours}\n\n"
                 
                 lessons = section.get("lessons", [])
