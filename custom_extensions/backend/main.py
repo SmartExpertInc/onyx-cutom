@@ -44,6 +44,7 @@ else:
 
 # --- Constants & DB Setup ---
 CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
+ONYX_DATABASE_URL = os.getenv("ONYX_DATABASE_URL", "postgresql://postgres:password@relational_db:5432/postgres")
 ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
 ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
 
@@ -463,21 +464,12 @@ async def startup_event():
             logger.info("'user_credits' table ensured.")
 
             # Migration: Populate user_credits table with existing Onyx users
-            migration_result = await connection.fetch("""
-                INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                SELECT 
-                    u.id::text as onyx_user_id,
-                    COALESCE(u.email, 'Unknown User') as name,
-                    100 as credits_balance
-                FROM "user" u
-                WHERE u.id::text NOT IN (SELECT onyx_user_id FROM user_credits)
-                AND u.is_active = true
-                AND u.role != 'ext_perm_user'
-                AND u.role != 'slack_user'
-                AND u.email NOT LIKE '%@danswer-api-key.invalid'
-                RETURNING onyx_user_id
-            """)
-            logger.info(f"Populated user_credits table with {len(migration_result)} existing Onyx users (100 credits each).")
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
 
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS project_folders (
@@ -1478,6 +1470,53 @@ async def modify_user_credits_by_email(user_email: str, amount: int, action: str
                 raise HTTPException(status_code=400, detail="Invalid action. Must be 'add' or 'remove'")
             
             return UserCredits(**dict(credits_row))
+
+async def migrate_onyx_users_to_credits_table() -> int:
+    """Migrate users from Onyx database to credits table"""
+    if not ONYX_DATABASE_URL:
+        raise Exception("ONYX_DATABASE_URL not configured")
+    
+    onyx_pool = None
+    try:
+        # Connect to Onyx database
+        onyx_pool = await asyncpg.create_pool(dsn=ONYX_DATABASE_URL, min_size=1, max_size=5)
+        
+        async with onyx_pool.acquire() as onyx_conn:
+            # Get users from Onyx database
+            onyx_users = await onyx_conn.fetch("""
+                SELECT 
+                    id::text as onyx_user_id,
+                    COALESCE(email, 'Unknown User') as name
+                FROM "user" 
+                WHERE is_active = true
+                AND role != 'ext_perm_user'
+                AND role != 'slack_user'
+                AND email NOT LIKE '%@danswer-api-key.invalid'
+            """)
+        
+        if not onyx_users:
+            logger.info("No Onyx users found to migrate")
+            return 0
+        
+        # Insert into custom database
+        async with DB_POOL.acquire() as custom_conn:
+            migrated_count = 0
+            for user in onyx_users:
+                try:
+                    await custom_conn.execute("""
+                        INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                        VALUES ($1, $2, 100)
+                        ON CONFLICT (onyx_user_id) DO NOTHING
+                    """, user['onyx_user_id'], user['name'])
+                    migrated_count += 1
+                except Exception as e:
+                    logger.warning(f"Failed to migrate user {user['onyx_user_id']}: {e}")
+            
+            return migrated_count
+            
+    finally:
+        if onyx_pool:
+            await onyx_pool.close()
 
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
@@ -8551,28 +8590,14 @@ async def migrate_onyx_users_to_credits(
     await verify_admin_user(request)
     
     try:
-        async with pool.acquire() as conn:
-            # Run the same migration as in startup
-            migration_result = await conn.fetch("""
-                INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                SELECT 
-                    u.id::text as onyx_user_id,
-                    COALESCE(u.email, 'Unknown User') as name,
-                    100 as credits_balance
-                FROM "user" u
-                WHERE u.id::text NOT IN (SELECT onyx_user_id FROM user_credits)
-                AND u.is_active = true
-                AND u.role != 'ext_perm_user'
-                AND u.role != 'slack_user'
-                AND u.email NOT LIKE '%@danswer-api-key.invalid'
-                RETURNING onyx_user_id
-            """)
-            
-            return {
-                "success": True,
-                "message": f"Successfully migrated {len(migration_result)} new users with 100 credits each",
-                "users_migrated": len(migration_result)
-            }
+        # Use the same migration function as startup
+        migrated_count = await migrate_onyx_users_to_credits_table()
+        
+        return {
+            "success": True,
+            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
+            "users_migrated": migrated_count
+        }
     except Exception as e:
         logger.error(f"Error migrating users: {e}")
         raise HTTPException(status_code=500, detail="Failed to migrate users")
