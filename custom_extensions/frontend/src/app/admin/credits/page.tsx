@@ -374,14 +374,20 @@ const AdminCreditsPage: React.FC = () => {
 
         {/* Transaction Modal */}
         {showTransactionModal && (
-          <div className="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-30 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full">
+          <div 
+            className="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-30 flex items-center justify-center p-4 z-50"
+            onClick={closeTransactionModal}
+          >
+            <div 
+              className="bg-white rounded-lg max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-black">
                   {transaction.action === 'add' ? 'Add Credits' : 'Remove Credits'}
                 </h3>
                 {selectedUser && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-black mt-1">
                     Current balance: {selectedUser.credits_balance} credits
                   </p>
                 )}
@@ -389,21 +395,21 @@ const AdminCreditsPage: React.FC = () => {
 
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     User ID
                   </label>
                   <input
                     type="email"
                     value={transaction.user_email}
                     onChange={(e) => setTransaction(prev => ({ ...prev, user_email: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-400"
                     placeholder="user@example.com"
                     disabled={!!selectedUser}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Amount
                   </label>
                   <input
@@ -411,20 +417,20 @@ const AdminCreditsPage: React.FC = () => {
                     min="1"
                     value={transaction.amount}
                     onChange={(e) => setTransaction(prev => ({ ...prev, amount: parseInt(e.target.value) || 0 }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-400"
                     placeholder="Enter amount"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Reason
                   </label>
                   <input
                     type="text"
                     value={transaction.reason}
                     onChange={(e) => setTransaction(prev => ({ ...prev, reason: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-400"
                     placeholder="Reason for this transaction"
                   />
                 </div>
@@ -433,7 +439,7 @@ const AdminCreditsPage: React.FC = () => {
               <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button
                   onClick={closeTransactionModal}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-4 py-2 text-sm font-medium text-black bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   disabled={transactionLoading}
                 >
                   Cancel
