@@ -44,7 +44,7 @@ else:
 
 # --- Constants & DB Setup ---
 CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
-ONYX_DATABASE_URL = "postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db"
+ONYX_DATABASE_URL = os.getenv("ONYX_DATABASE_URL")
 ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
 ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
 
@@ -1476,47 +1476,82 @@ async def migrate_onyx_users_to_credits_table() -> int:
     if not ONYX_DATABASE_URL:
         raise Exception("ONYX_DATABASE_URL not configured")
     
+    logger.info(f"Attempting to connect to Onyx database: {ONYX_DATABASE_URL}")
+    
+    # Try multiple possible database names
+    possible_db_urls = [
+        ONYX_DATABASE_URL,
+        ONYX_DATABASE_URL.replace('/onyx_db', '/postgres'),  # Try postgres DB name
+        ONYX_DATABASE_URL.replace('/postgres', '/onyx_db')   # Try onyx_db name
+    ]
+    
+    # Remove duplicates while preserving order
+    db_urls_to_try = []
+    for url in possible_db_urls:
+        if url not in db_urls_to_try:
+            db_urls_to_try.append(url)
+    
     onyx_pool = None
-    try:
-        # Connect to Onyx database
-        onyx_pool = await asyncpg.create_pool(dsn=ONYX_DATABASE_URL, min_size=1, max_size=5)
+    last_error = None
+    
+    for db_url in db_urls_to_try:
+        try:
+            logger.info(f"Trying to connect to: {db_url}")
+            # Connect to Onyx database
+            onyx_pool = await asyncpg.create_pool(dsn=db_url, min_size=1, max_size=5)
         
-        async with onyx_pool.acquire() as onyx_conn:
-            # Get users from Onyx database
-            onyx_users = await onyx_conn.fetch("""
-                SELECT 
-                    id::text as onyx_user_id,
-                    COALESCE(email, 'Unknown User') as name
-                FROM "user" 
-                WHERE is_active = true
-                AND role != 'ext_perm_user'
-                AND role != 'slack_user'
-                AND email NOT LIKE '%@danswer-api-key.invalid'
-            """)
-        
-        if not onyx_users:
-            logger.info("No Onyx users found to migrate")
-            return 0
-        
-        # Insert into custom database
-        async with DB_POOL.acquire() as custom_conn:
-            migrated_count = 0
-            for user in onyx_users:
-                try:
-                    await custom_conn.execute("""
-                        INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                        VALUES ($1, $2, 100)
-                        ON CONFLICT (onyx_user_id) DO NOTHING
-                    """, user['onyx_user_id'], user['name'])
-                    migrated_count += 1
-                except Exception as e:
-                    logger.warning(f"Failed to migrate user {user['onyx_user_id']}: {e}")
+            async with onyx_pool.acquire() as onyx_conn:
+                # Get users from Onyx database
+                onyx_users = await onyx_conn.fetch("""
+                    SELECT 
+                        id::text as onyx_user_id,
+                        COALESCE(email, 'Unknown User') as name
+                    FROM "user" 
+                    WHERE is_active = true
+                    AND role != 'ext_perm_user'
+                    AND role != 'slack_user'
+                    AND email NOT LIKE '%@danswer-api-key.invalid'
+                """)
             
-            return migrated_count
+            if not onyx_users:
+                logger.info("No Onyx users found to migrate")
+                return 0
             
-    finally:
-        if onyx_pool:
-            await onyx_pool.close()
+            logger.info(f"Found {len(onyx_users)} Onyx users to migrate")
+            
+            # Insert into custom database
+            async with DB_POOL.acquire() as custom_conn:
+                migrated_count = 0
+                for user in onyx_users:
+                    try:
+                        await custom_conn.execute("""
+                            INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                            VALUES ($1, $2, 100)
+                            ON CONFLICT (onyx_user_id) DO NOTHING
+                        """, user['onyx_user_id'], user['name'])
+                        migrated_count += 1
+                    except Exception as e:
+                        logger.warning(f"Failed to migrate user {user['onyx_user_id']}: {e}")
+                
+                return migrated_count
+                
+        except Exception as e:
+            last_error = e
+            logger.warning(f"Failed to connect to {db_url}: {e}")
+            if onyx_pool:
+                await onyx_pool.close()
+                onyx_pool = None
+            continue  # Try next database URL
+        
+        # If we got here, the connection worked, so break out of the loop
+        break
+    
+    # If we tried all URLs and none worked, raise the last error
+    if onyx_pool is None:
+        raise Exception(f"Could not connect to any Onyx database. Last error: {last_error}")
+    
+    # This should never be reached, but just in case
+    return 0
 
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
