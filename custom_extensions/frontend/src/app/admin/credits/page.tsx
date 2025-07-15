@@ -306,8 +306,8 @@ const AdminCreditsPage: React.FC = () => {
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.onyx_user_id}</div>
+                        <div className="text-sm font-medium text-black">{user.name}</div>
+                        <div className="text-sm text-black">{user.onyx_user_id}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -321,10 +321,10 @@ const AdminCreditsPage: React.FC = () => {
                         {user.credits_balance}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                       {user.total_credits_used}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                       {user.credits_purchased}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -332,7 +332,7 @@ const AdminCreditsPage: React.FC = () => {
                         {user.subscription_tier}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                       {user.last_purchase_date 
                         ? new Date(user.last_purchase_date).toLocaleDateString()
                         : 'Never'
@@ -374,7 +374,7 @@ const AdminCreditsPage: React.FC = () => {
 
         {/* Transaction Modal */}
         {showTransactionModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-30 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">
@@ -390,7 +390,7 @@ const AdminCreditsPage: React.FC = () => {
               <div className="px-6 py-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    User Email
+                    User ID
                   </label>
                   <input
                     type="email"

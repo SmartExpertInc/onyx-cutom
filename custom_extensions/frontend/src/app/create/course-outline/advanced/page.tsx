@@ -284,7 +284,7 @@ export default function CourseOutlineAdvancedPage() {
   }, [preview]);
 
   const lessonsTotal = useMemo(() => preview.reduce((sum, m) => sum + m.lessons.length, 0), [preview]);
-  const creditsRequired = lessonsTotal * 2;
+  const creditsRequired = 5; // Fixed cost for course outline finalization
 
   // Helper: lazily create chat session if we don't have one yet (copied from wizard page)
   const ensureChatSession = async () => {

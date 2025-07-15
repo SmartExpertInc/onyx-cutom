@@ -489,19 +489,47 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash }: { isTrash: boolean }) => (
-  <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-    <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
-    <div className="flex items-center gap-4">
-      <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
-        <Sparkles size={16} className="text-yellow-500" />
-        Get unlimited AI
-      </Link>
-      <span className="text-sm font-semibold text-gray-800">80 credits</span>
-      <Bell size={20} className="text-gray-600 cursor-pointer" />
-    </div>
-  </header>
-);
+const Header = ({ isTrash }: { isTrash: boolean }) => {
+  const [userCredits, setUserCredits] = useState<number | null>(null);
+  
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // Fetch user credits on component mount
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, {
+          credentials: 'same-origin',
+        });
+        if (response.ok) {
+          const credits = await response.json();
+          setUserCredits(credits.credits_balance);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user credits:', error);
+        // Keep userCredits as null to show loading state
+      }
+    };
+
+    fetchUserCredits();
+  }, []);
+
+  return (
+    <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
+      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
+      <div className="flex items-center gap-4">
+        <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
+          <Sparkles size={16} className="text-yellow-500" />
+          Get unlimited AI
+        </Link>
+        <span className="text-sm font-semibold text-gray-800">
+          {userCredits !== null ? `${userCredits} credits` : 'Loading...'}
+        </span>
+        <Bell size={20} className="text-gray-600 cursor-pointer" />
+      </div>
+    </header>
+  );
+};
 
 // --- Inner client component that can read search params ---
 const ProjectsPageInner: React.FC = () => {
