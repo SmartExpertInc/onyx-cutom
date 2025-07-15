@@ -4853,8 +4853,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         
         if not any_changes:
             # NO CHANGES: Use direct parser path (fastest)
-            use_direct_parser = False
-            use_assistant_then_parser = True
+            use_direct_parser = True
+            use_assistant_then_parser = False
             logger.info("No changes detected - using direct parser path")
         else:
             # CHANGES DETECTED: Use assistant first, then parser
@@ -5010,16 +5010,37 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             except Exception as e:
                 logger.warning(f"Failed to check for existing project: {e}")
         
-        # Build wizard payload for assistant path - same structure as preview
+        # Build wizard payload for assistant path - different structure for finalization
+        # CRITICAL: Don't send modules/lessonsPerModule during finalization as they conflict
+        # with user edits and cause the AI to ignore the actual edited structure
         wiz_payload = {
             "product": "Course Outline",
             "action": "finalize",
             "prompt": payload.prompt,
-            "modules": payload.modules,
-            "lessonsPerModule": payload.lessonsPerModule,
             "language": payload.language,
             "editedOutline": payload.editedOutline,
         }
+        
+        # Only add structural parameters if no user edits exist (fallback case)
+        edited_sections = payload.editedOutline.get("sections", payload.editedOutline.get("modules", [])) if payload.editedOutline else []
+        user_edit_module_count = len(edited_sections)
+        
+        if not payload.editedOutline or user_edit_module_count == 0:
+            logger.info(f"[FINALIZE_PAYLOAD] No user edits found, adding structural parameters as fallback: modules={payload.modules}, lessonsPerModule={payload.lessonsPerModule}")
+            wiz_payload["modules"] = payload.modules
+            wiz_payload["lessonsPerModule"] = payload.lessonsPerModule
+        else:
+            logger.info(f"[FINALIZE_PAYLOAD] User edits present ({user_edit_module_count} modules) - omitting conflicting structural parameters (original: modules={payload.modules}, lessonsPerModule={payload.lessonsPerModule}) to preserve user structure")
+            # Log the first few modules to understand the structure
+            for i, section in enumerate(edited_sections[:3]):
+                if isinstance(section, dict):
+                    section_title = section.get("title", "Unknown")
+                    section_lessons = len(section.get("lessons", []))
+                    logger.info(f"[FINALIZE_PAYLOAD] User edit module {i+1}: '{section_title}' ({section_lessons} lessons)")
+                else:
+                    logger.info(f"[FINALIZE_PAYLOAD] User edit module {i+1}: {type(section)} - {str(section)[:50]}...")
+            if user_edit_module_count > 3:
+                logger.info(f"[FINALIZE_PAYLOAD] ... and {user_edit_module_count - 3} more modules")
 
         # Add file context if provided
         if payload.fromFiles:
@@ -5036,6 +5057,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             wiz_payload["userText"] = payload.userText
 
         wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
+        logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
 
         async def streamer():
             assistant_reply: str = ""
