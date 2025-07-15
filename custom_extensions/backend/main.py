@@ -2913,6 +2913,29 @@ Return ONLY the JSON object.
         logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
         logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
 
+        # Post-process module IDs for training plans to ensure № character is preserved
+        if hasattr(parsed_content_model_instance, 'sections') and parsed_content_model_instance.sections:
+            for section in parsed_content_model_instance.sections:
+                if hasattr(section, 'id') and section.id:
+                    # Fix module IDs that lost the № character
+                    if section.id.isdigit():
+                        # Plain number like "2" -> "№2"
+                        section.id = f"№{section.id}"
+                        logger.info(f"[PROJECT_CREATE_ID_FIX] Fixed plain number ID '{section.id[1:]}' to '{section.id}'")
+                    elif section.id.startswith("#"):
+                        # Hash format like "#2" -> "№2"
+                        number = section.id[1:]
+                        section.id = f"№{number}"
+                        logger.info(f"[PROJECT_CREATE_ID_FIX] Fixed hash ID '#{number}' to '{section.id}'")
+                    elif not section.id.startswith("№"):
+                        # Other formats without № - try to extract number and format correctly
+                        import re
+                        number_match = re.search(r'\d+', section.id)
+                        if number_match:
+                            number = number_match.group()
+                            section.id = f"№{number}"
+                            logger.info(f"[PROJECT_CREATE_ID_FIX] Fixed ID format to '{section.id}'")
+
         content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
         derived_product_type = selected_design_template.microproduct_type
         derived_microproduct_type = selected_design_template.template_name
@@ -6022,9 +6045,11 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 
             **CRITICAL ID EXTRACTION RULES:**
             • When you see "## #2: Technical Setup", extract the ID as "№2" (convert # to №)
-            • When you see "## №3: Advanced Topics", extract the ID as "№3" (preserve exactly)
+            • When you see "## №3: Advanced Topics", extract the ID as "№3" (preserve exactly)  
             • When you see "## Module 5: Data Analysis", extract the ID as "№5" (extract number and convert to № format)
             • NEVER generate sequential IDs like №1, №2, №3 - ALWAYS extract the actual number from the header
+            • ALWAYS use the № character (U+2116) in module IDs, never just plain numbers like "2" or "3"
+            • If you extract just a number like "2", format it as "№2"
             
             Return ONLY the JSON object.
             """
@@ -6076,6 +6101,29 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             if parsed_training_plan:
                 # Detect language and set it
                 parsed_training_plan.detectedLanguage = detect_language(assistant_reply)
+                
+                # Post-process module IDs to ensure № character is preserved
+                for section in parsed_training_plan.sections:
+                    if section.id:
+                        # Fix module IDs that lost the № character
+                        if section.id.isdigit():
+                            # Plain number like "2" -> "№2"
+                            section.id = f"№{section.id}"
+                            logger.info(f"[SMART_EDIT_ID_FIX] Fixed plain number ID '{section.id[1:]}' to '{section.id}'")
+                        elif section.id.startswith("#"):
+                            # Hash format like "#2" -> "№2"
+                            number = section.id[1:]
+                            section.id = f"№{number}"
+                            logger.info(f"[SMART_EDIT_ID_FIX] Fixed hash ID '#{number}' to '{section.id}'")
+                        elif not section.id.startswith("№"):
+                            # Other formats without № - try to extract number and format correctly
+                            import re
+                            number_match = re.search(r'\d+', section.id)
+                            if number_match:
+                                number = number_match.group()
+                                section.id = f"№{number}"
+                                logger.info(f"[SMART_EDIT_ID_FIX] Fixed ID format to '{section.id}'")
+                
                 updated_content_dict = parsed_training_plan.model_dump(mode='json', exclude_none=True)
                 
                 logger.info(f"[SMART_EDIT_PREVIEW] Generated preview for training plan projectId={payload.projectId}")
