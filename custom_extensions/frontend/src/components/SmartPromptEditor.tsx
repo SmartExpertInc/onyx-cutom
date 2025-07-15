@@ -200,42 +200,56 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
   if (showConfirmation) {
     return (
-      <div className="w-full bg-white border border-gray-300 rounded-xl p-6 mb-4 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Review Changes</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-            Changes Preview
+      <div className="w-full bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-xl p-6 mb-6 shadow-lg">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-lg">✨</span>
+              </div>
+              <h3 className="text-xl font-bold text-amber-900">Changes Preview</h3>
+            </div>
+            <p className="text-amber-800 leading-relaxed">
+              Your course outline has been updated with your requested changes! 
+              <br />
+              <strong>Review the updated content above</strong> and choose what you'd like to do:
+            </p>
           </div>
         </div>
         
-        <p className="text-gray-700 mb-6">
-          Please review the changes below. The updated content is now displayed in the table. 
-          You can accept these changes to save them permanently, or revert to go back to the original content.
-        </p>
-        
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <button
             onClick={handleConfirmChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-lg shadow-md hover:shadow-lg"
           >
             {loadingConfirm ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                <span>Saving changes...</span>
+              </>
             ) : (
-              <CheckCircle size={16} />
+              <>
+                <CheckCircle size={20} />
+                <span>✅ Keep These Changes</span>
+              </>
             )}
-            {loadingConfirm ? "Saving..." : "Accept Changes"}
           </button>
           
           <button
             onClick={handleRevertChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-3 px-6 py-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-lg shadow-md hover:shadow-lg"
           >
-            <RotateCcw size={16} />
-            Revert Changes
+            <RotateCcw size={20} />
+            <span>↩️ Go Back to Original</span>
           </button>
+        </div>
+        
+        <div className="mt-4 p-4 bg-white bg-opacity-70 rounded-lg border border-amber-300">
+          <p className="text-sm text-amber-800 text-center leading-relaxed">
+            💡 <strong>Tip:</strong> If you're not satisfied with these changes, click "Go Back to Original" and try a different prompt to get better results
+          </p>
         </div>
       </div>
     );
@@ -245,34 +259,44 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Show/Hide Advanced button */}
       {!showAdvanced && (
-        <div className="w-full mb-4 flex justify-center">
+        <div className="w-full mb-6 flex justify-center">
           <button
             onClick={() => setShowAdvanced(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium"
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-200 font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
           >
-            ✨ Smart Edit
+            <span className="text-xl">✨</span>
+            <span>Smart Edit This Course</span>
           </button>
         </div>
       )}
 
       {/* Advanced mode panel */}
       {showAdvanced && (
-        <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4 shadow-sm">
+        <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 flex flex-col gap-4 mb-6 shadow-lg">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Smart Edit</h3>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-lg">✨</span>
+              </div>
+              <h3 className="text-xl font-bold text-blue-900">Smart Edit Mode</h3>
+            </div>
             <button
               onClick={() => setShowAdvanced(false)}
-              className="text-gray-500 hover:text-gray-700 text-sm"
+              className="text-blue-400 hover:text-blue-600 text-lg font-bold p-1 rounded hover:bg-blue-100 transition-colors"
             >
-              ✕ Close
+              ✕
             </button>
           </div>
+          
+          <p className="text-blue-800 mb-2">
+            Describe how you'd like to improve your course outline. Be specific about what changes you want to make:
+          </p>
           
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
-            placeholder="Describe what you'd like to improve..."
-            className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Examples:&#10;• Add more practical exercises&#10;• Make the content more beginner-friendly&#10;• Include real-world examples&#10;• Reorganize the modules for better flow"
+            className="w-full border-2 border-blue-300 rounded-lg p-4 resize-none min-h-[100px] text-black focus:ring-4 focus:ring-blue-200 focus:border-blue-500 bg-white shadow-sm font-medium"
             disabled={loadingEdit}
           />
 
@@ -297,16 +321,23 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           </div>
 
           {/* Apply button */}
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-center mt-6">
             <button
               onClick={handleApplyEdit}
               disabled={!editPrompt.trim() || loadingEdit}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              {loadingEdit && (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              {loadingEdit ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <span>🔄 Generating improvements...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xl">🚀</span>
+                  <span>Apply Smart Edit</span>
+                </>
               )}
-              {loadingEdit ? "Applying..." : "Apply Edit"}
             </button>
           </div>
         </div>
