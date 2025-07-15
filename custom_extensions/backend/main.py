@@ -5840,18 +5840,19 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 section_id = section.get("id", "")
                 section_title = section.get("title", "")
                 total_hours = section.get("totalHours", 0.0)
-                # Convert database ID format back to assistant's expected format
-                if section_id.startswith("№"):
-                    # Convert №3 back to Module 3: format
-                    module_number = section_id[1:]  # Remove № symbol
-                    current_outline += f"## Module {module_number}: {section_title}\n"
-                elif section_id.startswith("mod"):
-                    # Convert mod3 back to Module 3: format  
-                    module_number = section_id[3:]  # Remove "mod" prefix
-                    current_outline += f"## Module {module_number}: {section_title}\n"
+                # Preserve the exact database ID format for editing consistency
+                # The assistant must preserve whatever module ID format it receives
+                if section_id and section_title:
+                    # Check if section_id already contains "Module" keyword
+                    if "Module" in section_id or "Модуль" in section_id:
+                        current_outline += f"## {section_id}: {section_title}\n"
+                    else:
+                        # For other formats (№1, mod1, etc.), preserve them exactly as they are
+                        # Don't convert to "Module X" format - just use the stored ID
+                        current_outline += f"## {section_id}: {section_title}\n"
                 else:
-                    # Fallback - use original format
-                    current_outline += f"## {section_id} {section_title}\n"
+                    # Fallback for empty IDs
+                    current_outline += f"## {section_title}\n"
                 current_outline += f"**Total Hours:** {total_hours}\n\n"
                 
                 lessons = section.get("lessons", [])
