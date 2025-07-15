@@ -342,16 +342,22 @@ export default function ProjectInstanceViewPage() {
   // Handler for SmartPromptEditor content updates
   const handleSmartEditContentUpdate = useCallback((updatedContent: any) => {
     setEditableData(updatedContent);
-    // Force a re-fetch to get the latest data from the server
-    if (projectId) {
-      fetchPageData(projectId);
-    }
-  }, [projectId, fetchPageData]);
+    // Note: Don't refetch from server here since with confirmation flow,
+    // changes are only saved after user explicitly confirms them
+  }, []);
 
   // Handler for SmartPromptEditor errors
   const handleSmartEditError = useCallback((error: string) => {
     setSaveError(error);
   }, []);
+
+  // Handler for SmartPromptEditor revert
+  const handleSmartEditRevert = useCallback(() => {
+    // Refetch the original data from the server to restore the original content
+    if (projectId) {
+      fetchPageData(projectId);
+    }
+  }, [projectId, fetchPageData]);
 
   const handleSave = async () => {
     if (!projectId || !editableData) {
@@ -547,6 +553,7 @@ export default function ProjectInstanceViewPage() {
                 projectId={projectInstanceData.project_id}
                 onContentUpdate={handleSmartEditContentUpdate}
                 onError={handleSmartEditError}
+                onRevert={handleSmartEditRevert}
               />
             )}
             <TrainingPlanTableComponent

@@ -1,11 +1,13 @@
+"use client";
+
 import React, { useState } from "react";
-import { Sparkles, Settings, Plus } from "lucide-react";
-import LoadingAnimation from "./LoadingAnimation";
+import { Plus, CheckCircle, RotateCcw } from "lucide-react";
 
 interface SmartPromptEditorProps {
   projectId: number;
   onContentUpdate: (updatedContent: any) => void;
   onError: (error: string) => void;
+  onRevert?: () => void;
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -14,11 +16,18 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
   projectId,
   onContentUpdate,
   onError,
+  onRevert,
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  
+  // New state for confirmation flow
+  const [originalContent, setOriginalContent] = useState<any>(null);
+  const [previewContent, setPreviewContent] = useState<any>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [loadingConfirm, setLoadingConfirm] = useState(false);
 
   const outlineExamples: { short: string; detailed: string }[] = [
     {
@@ -74,6 +83,10 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
     setLoadingEdit(true);
     try {
+      // Store original content before making changes
+      // We'll get this from the parent component's current state
+      // For now, we'll handle this in the streaming response
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/training-plan/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,11 +120,20 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           try {
             const packet = JSON.parse(line);
             if (packet.type === "done" && packet.updatedContent) {
-              // Update content and close advanced mode
-              onContentUpdate(packet.updatedContent);
-              setEditPrompt("");
-              setSelectedExamples([]);
-              setShowAdvanced(false);
+              if (packet.isPreview) {
+                // This is a preview - show confirmation UI and immediately update the display
+                setPreviewContent(packet.updatedContent);
+                setShowConfirmation(true);
+                setShowAdvanced(false);
+                // Immediately show the preview content in the UI
+                onContentUpdate(packet.updatedContent);
+              } else {
+                // This is the old immediate update flow (fallback)
+                onContentUpdate(packet.updatedContent);
+                setEditPrompt("");
+                setSelectedExamples([]);
+                setShowAdvanced(false);
+              }
             } else if (packet.type === "error") {
               onError(packet.message || "Failed to apply edit");
             }
@@ -127,11 +149,125 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     }
   };
 
+  const handleConfirmChanges = async () => {
+    if (!previewContent) return;
+
+    setLoadingConfirm(true);
+    try {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/training-plan/confirm-edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: projectId,
+          updatedContent: previewContent,
+          language: "en",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        // Apply the changes and clean up
+        onContentUpdate(previewContent);
+        setEditPrompt("");
+        setSelectedExamples([]);
+        setShowConfirmation(false);
+        setPreviewContent(null);
+        setOriginalContent(null);
+      } else {
+        onError("Failed to save changes");
+      }
+    } catch (error: any) {
+      onError(error.message || "Failed to save changes");
+    } finally {
+      setLoadingConfirm(false);
+    }
+  };
+
+  const handleRevertChanges = () => {
+    // Revert to original content
+    setShowConfirmation(false);
+    setPreviewContent(null);
+    setOriginalContent(null);
+    setEditPrompt("");
+    setSelectedExamples([]);
+    // The original content is already showing in the UI, so no need to update
+    onRevert?.();
+  };
+
+  if (showConfirmation) {
+    return (
+      <div className="w-full bg-white border border-gray-300 rounded-xl p-6 mb-4 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Review Changes</h3>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+            Changes Preview
+          </div>
+        </div>
+        
+        <p className="text-gray-700 mb-6">
+          Please review the changes below. The updated content is now displayed in the table. 
+          You can accept these changes to save them permanently, or revert to go back to the original content.
+        </p>
+        
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleConfirmChanges}
+            disabled={loadingConfirm}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loadingConfirm ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            ) : (
+              <CheckCircle size={16} />
+            )}
+            {loadingConfirm ? "Saving..." : "Accept Changes"}
+          </button>
+          
+          <button
+            onClick={handleRevertChanges}
+            disabled={loadingConfirm}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RotateCcw size={16} />
+            Revert Changes
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
+      {/* Show/Hide Advanced button */}
+      {!showAdvanced && (
+        <div className="w-full mb-4 flex justify-center">
+          <button
+            onClick={() => setShowAdvanced(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium"
+          >
+            ✨ Smart Edit
+          </button>
+        </div>
+      )}
+
       {/* Advanced mode panel */}
       {showAdvanced && (
         <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Smart Edit</h3>
+            <button
+              onClick={() => setShowAdvanced(false)}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              ✕ Close
+            </button>
+          </div>
+          
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
@@ -161,55 +297,20 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           </div>
 
           {/* Apply button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-4">
             <button
-              type="button"
-              disabled={loadingEdit || !editPrompt.trim()}
               onClick={handleApplyEdit}
-              className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors text-white"
+              disabled={!editPrompt.trim() || loadingEdit}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {loadingEdit ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="flex space-x-1">
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="w-2 h-2 bg-white rounded-full animate-bounce"
-                        style={{
-                          animationDelay: `${i * 0.15}s`,
-                          animationDuration: "0.6s",
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs text-white font-medium">Loading...</span>
-                </div>
-              ) : (
-                <>
-                  <Sparkles size={14} className="text-white" />
-                  <span className="text-sm font-medium text-white">Edit with AI</span>
-                </>
+              {loadingEdit && (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
               )}
+              {loadingEdit ? "Applying..." : "Apply Edit"}
             </button>
           </div>
         </div>
       )}
-
-      {/* Toggle button */}
-      <div className="w-full flex justify-center mb-4">
-        <button
-          type="button"
-          onClick={() => setShowAdvanced((prev) => !prev)}
-          disabled={loadingEdit}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:opacity-80 transition-opacity select-none disabled:opacity-50"
-        >
-          Smart Edit Mode
-          <Settings 
-            size={14} 
-            className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} 
-          />
-        </button>
-      </div>
     </>
   );
 };

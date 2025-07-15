@@ -5984,7 +5984,8 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         # Use the restored version for all subsequent processing
         assistant_reply = assistant_reply_restored
         
-        # NEW: Parse AI response into structured TrainingPlanDetails and update the database immediately
+        # NEW: Parse AI response into structured TrainingPlanDetails but DON'T save to database yet
+        # This is for preview - user will confirm before saving
         updated_content_dict: Optional[Dict[str, Any]] = None
         try:
             # Use the proper LLM parser to convert AI response to TrainingPlanDetails
@@ -6077,24 +6078,17 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 parsed_training_plan.detectedLanguage = detect_language(assistant_reply)
                 updated_content_dict = parsed_training_plan.model_dump(mode='json', exclude_none=True)
                 
-                # Update the database immediately
-                async with pool.acquire() as conn:
-                    await conn.execute("""
-                        UPDATE projects 
-                        SET microproduct_content = $1
-                        WHERE id = $2 AND onyx_user_id = $3
-                    """, updated_content_dict, payload.projectId, onyx_user_id)
-                
-                logger.info(f"[SMART_EDIT_SUCCESS] Updated training plan projectId={payload.projectId}")
+                logger.info(f"[SMART_EDIT_PREVIEW] Generated preview for training plan projectId={payload.projectId}")
             
         except Exception as e:
-            logger.error(f"[SMART_EDIT_ERROR] Error parsing/updating training plan: {e}")
+            logger.error(f"[SMART_EDIT_ERROR] Error parsing training plan: {e}")
             # Fall back to the preview-only mode if parsing fails
             updated_content_dict = None
 
-        # Send completion packet with updatedContent for frontend
+        # Send completion packet with updatedContent for frontend preview
+        # Note: This is now a PREVIEW - user must confirm to save to database
         if updated_content_dict:
-            done_packet = {"type": "done", "updatedContent": updated_content_dict}
+            done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
         else:
             # Fallback to old format if parsing failed
             done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
@@ -6102,6 +6096,51 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="application/json")
+
+class SmartEditConfirmRequest(BaseModel):
+    projectId: int
+    updatedContent: dict
+    language: str = "en"
+
+@app.post("/api/custom/training-plan/confirm-edit")
+async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Confirm and save smart-edit changes to the database"""
+    logger.info(f"[confirm_training_plan_edit] projectId={payload.projectId}")
+    
+    # Get current user
+    onyx_user_id = await get_current_onyx_user_id(request)
+    
+    # Verify the project exists and belongs to the user
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT p.*, dt.component_name 
+            FROM projects p 
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+        """, payload.projectId, onyx_user_id)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
+            raise HTTPException(status_code=400, detail="Project is not a training plan")
+
+    try:
+        # Save the confirmed changes to the database
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                UPDATE projects 
+                SET microproduct_content = $1, updated_at = NOW()
+                WHERE id = $2 AND onyx_user_id = $3
+            """, payload.updatedContent, payload.projectId, onyx_user_id)
+        
+        logger.info(f"[SMART_EDIT_CONFIRMED] Successfully saved changes for training plan projectId={payload.projectId}")
+        
+        return {"success": True, "message": "Changes confirmed and saved successfully"}
+        
+    except Exception as e:
+        logger.error(f"[SMART_EDIT_CONFIRM_ERROR] Error saving confirmed changes: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save changes")
 
 # Add the finalize model for training plan editing
 class TrainingPlanEditFinalize(BaseModel):
