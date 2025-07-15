@@ -5840,16 +5840,19 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 section_id = section.get("id", "")
                 section_title = section.get("title", "")
                 total_hours = section.get("totalHours", 0.0)
-                # Preserve the exact database ID format for editing consistency
-                # The assistant must preserve whatever module ID format it receives
+                # Convert special characters to safe ASCII for AI processing
+                # We'll convert back after AI response to preserve user-visible format
                 if section_id and section_title:
+                    # Replace № with # for AI processing (encoding-safe)
+                    safe_section_id = section_id.replace("№", "#")
+                    if section_id != safe_section_id:
+                        logger.info(f"[SMART_EDIT_ENCODING] Converted '{section_id}' to '{safe_section_id}' for AI processing")
                     # Check if section_id already contains "Module" keyword
-                    if "Module" in section_id or "Модуль" in section_id:
-                        current_outline += f"## {section_id}: {section_title}\n"
+                    if "Module" in safe_section_id or "Модуль" in safe_section_id:
+                        current_outline += f"## {safe_section_id}: {section_title}\n"
                     else:
-                        # For other formats (№1, mod1, etc.), preserve them exactly as they are
-                        # Don't convert to "Module X" format - just use the stored ID
-                        current_outline += f"## {section_id}: {section_title}\n"
+                        # For other formats (#1, mod1, etc.), preserve them exactly as they are
+                        current_outline += f"## {safe_section_id}: {section_title}\n"
                 else:
                     # Fallback for empty IDs
                     current_outline += f"## {section_title}\n"
@@ -5968,6 +5971,19 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         modules_preview = _parse_outline_markdown(assistant_reply)
         logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
 
+        # Convert back from safe ASCII characters to original special characters
+        # Replace # back to № to restore original format for user display
+        assistant_reply_restored = assistant_reply.replace("## #", "## №")
+        if assistant_reply_restored != assistant_reply:
+            logger.info(f"[SMART_EDIT_ENCODING] Restored special characters in AI response")
+        
+        # Update the cached version and the one used for parsing
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply_restored
+        
+        # Use the restored version for all subsequent processing
+        assistant_reply = assistant_reply_restored
+        
         # NEW: Parse AI response into structured TrainingPlanDetails and update the database immediately
         updated_content_dict: Optional[Dict[str, Any]] = None
         try:

@@ -12064,6 +12064,19 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         modules_preview = _parse_outline_markdown(assistant_reply)
         logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
 
+        # Convert back from safe ASCII characters to original special characters
+        # Replace # back to № to restore original format for user display
+        assistant_reply_restored = assistant_reply.replace("## #", "## №")
+        if assistant_reply_restored != assistant_reply:
+            logger.info(f"[SMART_EDIT_ENCODING] Restored special characters in AI response")
+        
+        # Update the cached version and the one used for parsing
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply_restored
+        
+        # Use the restored version for all subsequent processing
+        assistant_reply = assistant_reply_restored
+        
         # NEW: Parse AI response into structured TrainingPlanDetails and update the database immediately
         updated_content_dict: Optional[Dict[str, Any]] = None
         try:
