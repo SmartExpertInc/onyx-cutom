@@ -375,7 +375,7 @@ const AdminCreditsPage: React.FC = () => {
         {/* Transaction Modal */}
         {showTransactionModal && (
           <div 
-            className="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-30 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 backdrop-blur-md bg-white bg-opacity-10 flex items-center justify-center p-4 z-50"
             onClick={closeTransactionModal}
           >
             <div 
