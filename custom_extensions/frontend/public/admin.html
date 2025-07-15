@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Credits Management</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        p {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .note {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Admin Panel</h1>
+        <p>Access the credits management system to add or remove credits for users.</p>
+        
+        <a href="/admin/credits" class="btn">
+            Open Credits Management
+        </a>
+        
+        <div class="note">
+            <strong>Note:</strong> This page requires admin privileges in Onyx. 
+            Make sure you're logged into Onyx with an account that has admin role.
+            <br><br>
+            <strong>How to get admin access:</strong>
+            <ol style="text-align: left; margin-top: 10px;">
+                <li>Log into the main Onyx application</li>
+                <li>Your account must have admin role assigned</li>
+                <li>Then return to this page to manage credits</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect after 3 seconds if user clicks nowhere
+        setTimeout(() => {
+            if (confirm('Would you like to go to the credits management page?')) {
+                window.location.href = '/admin/credits';
+            }
+        }, 3000);
+    </script>
+</body>
+</html> 

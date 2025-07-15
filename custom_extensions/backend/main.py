@@ -444,6 +444,24 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
             logger.info("'trashed_projects' table ensured (soft-delete).")
 
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS project_folders (
                     id SERIAL PRIMARY KEY,
@@ -726,6 +744,32 @@ class StatusInfo(BaseModel):
     type: str = "unknown"
     text: str = ""
     model_config = {"from_attributes": True}
+
+# Credits Models
+class UserCredits(BaseModel):
+    id: int
+    onyx_user_id: str
+    name: str
+    credits_balance: int
+    total_credits_used: int
+    credits_purchased: int
+    last_purchase_date: Optional[datetime]
+    subscription_tier: str
+    created_at: datetime
+    updated_at: datetime
+    model_config = {"from_attributes": True}
+
+class CreditTransactionRequest(BaseModel):
+    user_email: str
+    amount: int
+    action: Literal["add", "remove"]
+    reason: Optional[str] = "Admin adjustment"
+
+class CreditTransactionResponse(BaseModel):
+    success: bool
+    message: str
+    new_balance: int
+    user_credits: UserCredits
 
 class LessonDetail(BaseModel):
     title: str
@@ -1148,6 +1192,92 @@ async def get_current_onyx_user_id(request: Request) -> str:
         detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
+async def get_current_onyx_user_with_email(request: Request) -> tuple[str, str]:
+    """Get both user ID and email from Onyx"""
+    session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+    if not session_cookie_value:
+        dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+        if dev_user_id: 
+            return dev_user_id, "dev@example.com"  # Dev fallback
+        detail_msg = "Authentication required." if IS_PRODUCTION else f"Onyx session cookie '{ONYX_SESSION_COOKIE_NAME}' missing."
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail_msg)
+
+    onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+            response.raise_for_status()
+            user_data = response.json()
+            onyx_user_id = user_data.get("userId") or user_data.get("id")
+            user_email = user_data.get("email", "")
+            if not onyx_user_id:
+                logger.error("Could not extract user ID from Onyx user data.")
+                detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            return str(onyx_user_id), user_email
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
+        raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
+    except httpx.RequestError as e:
+        logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}': {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
+    except Exception as e:
+        logger.error(f"Unexpected error in get_current_onyx_user_with_email: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+async def verify_admin_user(request: Request) -> tuple[str, str]:
+    """Verify that the current user is an admin using Onyx's built-in role system"""
+    session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+    if not session_cookie_value:
+        dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+        if dev_user_id and not IS_PRODUCTION: 
+            return dev_user_id, "dev@example.com"  # Dev fallback
+        detail_msg = "Authentication required." if IS_PRODUCTION else f"Onyx session cookie '{ONYX_SESSION_COOKIE_NAME}' missing."
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail_msg)
+
+    onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+            response.raise_for_status()
+            user_data = response.json()
+            
+            onyx_user_id = user_data.get("userId") or user_data.get("id")
+            user_email = user_data.get("email", "")
+            user_role = user_data.get("role", "")
+            
+            if not onyx_user_id:
+                logger.error("Could not extract user ID from Onyx user data.")
+                detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            
+            # Check if user has admin role in Onyx
+            if user_role != "admin":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN, 
+                    detail="Access denied. Admin privileges required."
+                )
+            
+            return str(onyx_user_id), user_email
+            
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
+        raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
+    except httpx.RequestError as e:
+        logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}': {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
+    except Exception as e:
+        logger.error(f"Unexpected error in verify_admin_user: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
 def create_slug(text: Optional[str]) -> str:
     if not text: return "default-slug"
     text_processed = str(text).lower()
@@ -1242,6 +1372,95 @@ async def get_folder_custom_rate(folder_id: int, pool: asyncpg.Pool) -> int:
         
         # Default to 200 custom rate
         return 200
+
+async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: asyncpg.Pool) -> UserCredits:
+    """Get user credits or create if doesn't exist"""
+    async with pool.acquire() as conn:
+        # Try to get existing credits
+        credits_row = await conn.fetchrow(
+            "SELECT * FROM user_credits WHERE onyx_user_id = $1",
+            onyx_user_id
+        )
+        
+        if credits_row:
+            return UserCredits(**dict(credits_row))
+        
+        # Create new user credits entry with default values
+        new_credits_row = await conn.fetchrow("""
+            INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+            VALUES ($1, $2, $3)
+            RETURNING *
+        """, onyx_user_id, user_name, 100)  # Default 100 credits for new users
+        
+        return UserCredits(**dict(new_credits_row))
+
+async def deduct_credits(onyx_user_id: str, amount: int, pool: asyncpg.Pool, reason: str = "Product creation") -> UserCredits:
+    """Deduct credits from user balance with transaction safety"""
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            # Check current balance
+            current_balance = await conn.fetchval(
+                "SELECT credits_balance FROM user_credits WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if current_balance is None:
+                raise HTTPException(status_code=404, detail="User credits not found")
+            
+            if current_balance < amount:
+                raise HTTPException(
+                    status_code=402, 
+                    detail=f"Insufficient credits. Current balance: {current_balance}, Required: {amount}"
+                )
+            
+            # Deduct credits and update usage
+            updated_row = await conn.fetchrow("""
+                UPDATE user_credits 
+                SET credits_balance = credits_balance - $1,
+                    total_credits_used = total_credits_used + $1,
+                    updated_at = NOW()
+                WHERE onyx_user_id = $2
+                RETURNING *
+            """, amount, onyx_user_id)
+            
+            return UserCredits(**dict(updated_row))
+
+async def modify_user_credits_by_email(user_email: str, amount: int, action: str, pool: asyncpg.Pool, reason: str = "Admin adjustment") -> UserCredits:
+    """Modify user credits by email (for admin use)"""
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            if action == "add":
+                # Add credits (can be new user or existing)
+                # Use email as onyx_user_id for simplicity in admin interface
+                credits_row = await conn.fetchrow("""
+                    INSERT INTO user_credits (onyx_user_id, name, credits_balance, credits_purchased)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (onyx_user_id) 
+                    DO UPDATE SET 
+                        credits_balance = user_credits.credits_balance + $3,
+                        credits_purchased = user_credits.credits_purchased + $3,
+                        last_purchase_date = NOW(),
+                        updated_at = NOW()
+                    RETURNING *
+                """, user_email, user_email.split('@')[0], amount, amount)
+                
+            elif action == "remove":
+                # Remove credits (must exist)
+                credits_row = await conn.fetchrow("""
+                    UPDATE user_credits 
+                    SET credits_balance = GREATEST(0, credits_balance - $1),
+                        updated_at = NOW()
+                    WHERE onyx_user_id = $2
+                    RETURNING *
+                """, amount, user_email)
+                
+                if not credits_row:
+                    raise HTTPException(status_code=404, detail="User not found")
+            
+            else:
+                raise HTTPException(status_code=400, detail="Invalid action. Must be 'add' or 'remove'")
+            
+            return UserCredits(**dict(credits_row))
 
 VIDEO_SCRIPT_LANG_STRINGS = {
     'ru': {
@@ -8269,3 +8488,106 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+
+# ============================
+# CREDITS MANAGEMENT ENDPOINTS
+# ============================
+
+@app.get("/api/custom/credits/me", response_model=UserCredits)
+async def get_my_credits(
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get current user's credit balance"""
+    try:
+        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        return credits
+    except Exception as e:
+        logger.error(f"Error getting user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve credits")
+
+@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
+async def list_all_user_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to list all user credits"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT * FROM user_credits 
+                ORDER BY updated_at DESC
+            """)
+            return [UserCredits(**dict(row)) for row in rows]
+    except Exception as e:
+        logger.error(f"Error listing user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+@app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
+async def modify_user_credits(
+    transaction: CreditTransactionRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to add or remove credits for a user by email"""
+    await verify_admin_user(request)
+    
+    try:
+        if transaction.amount <= 0:
+            raise HTTPException(status_code=400, detail="Amount must be positive")
+        
+        updated_credits = await modify_user_credits_by_email(
+            transaction.user_email,
+            transaction.amount,
+            transaction.action,
+            pool,
+            transaction.reason
+        )
+        
+        action_msg = "added to" if transaction.action == "add" else "removed from"
+        message = f"Successfully {action_msg} {transaction.user_email}: {transaction.amount} credits"
+        
+        return CreditTransactionResponse(
+            success=True,
+            message=message,
+            new_balance=updated_credits.credits_balance,
+            user_credits=updated_credits
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error modifying user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to modify credits")
+
+@app.get("/api/custom/admin/credits/user/{user_email}", response_model=UserCredits)
+async def get_user_credits_by_email(
+    user_email: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to get specific user's credits by email"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT * FROM user_credits WHERE onyx_user_id = $1",
+                user_email
+            )
+            
+            if not row:
+                # Create entry for user if doesn't exist
+                row = await conn.fetchrow("""
+                    INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                    VALUES ($1, $2, $3)
+                    RETURNING *
+                """, user_email, user_email.split('@')[0], 0)
+            
+            return UserCredits(**dict(row))
+            
+    except Exception as e:
+        logger.error(f"Error getting user credits by email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
