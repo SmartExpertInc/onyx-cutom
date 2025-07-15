@@ -37,6 +37,7 @@ const AdminCreditsPage: React.FC = () => {
     reason: 'Admin adjustment'
   });
   const [transactionLoading, setTransactionLoading] = useState(false);
+  const [migrating, setMigrating] = useState(false);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -132,6 +133,33 @@ const AdminCreditsPage: React.FC = () => {
     }
   };
 
+  const handleMigrateUsers = async () => {
+    try {
+      setMigrating(true);
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/credits/migrate-users`, {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Migration failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Refresh users list to show migrated users
+      await fetchUsers();
+      
+      alert(result.message || 'User migration completed successfully');
+    } catch (err) {
+      console.error('Migration error:', err);
+      alert(err instanceof Error ? err.message : 'Migration failed');
+    } finally {
+      setMigrating(false);
+    }
+  };
+
   const addNewUser = () => {
     setSelectedUser(null);
     setTransaction({
@@ -161,13 +189,28 @@ const AdminCreditsPage: React.FC = () => {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <strong className="font-bold">Error: </strong>
             <span className="block sm:inline">{error}</span>
+            {error.includes('No users found') && (
+              <div className="mt-3 text-sm">
+                <p><strong>Note:</strong> The migration should have automatically populated all Onyx users with 100 credits each.</p>
+                <p>If users are still not showing, the backend may need to be restarted to run the migration.</p>
+              </div>
+            )}
           </div>
-          <button
-            onClick={fetchUsers}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Try Again
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={fetchUsers}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={handleMigrateUsers}
+              disabled={migrating}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {migrating ? 'Migrating...' : 'Migrate Users Now'}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -208,6 +251,14 @@ const AdminCreditsPage: React.FC = () => {
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
+                </button>
+                <button
+                  onClick={handleMigrateUsers}
+                  disabled={migrating}
+                  className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  {migrating ? 'Migrating...' : 'Migrate Users'}
                 </button>
               </div>
               <button
