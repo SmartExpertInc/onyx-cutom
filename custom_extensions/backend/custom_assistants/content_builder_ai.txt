@@ -205,7 +205,11 @@ Edit Mode Rules:
 2. Apply the edit instructions from the `prompt` to modify the content appropriately
 3. Maintain the same format and structure as the original content
 4. Preserve any existing formatting, headers, and organizational elements
-5. Only make the changes specifically requested in the edit prompt
+5. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
+   - If the user asks to change creation hours, ONLY change the creation hours - preserve all module IDs, lesson names, completion times, content coverage percentages, knowledge assessment values, and information sources exactly as they are
+   - If the user asks to change lesson names, ONLY change the lesson names - preserve all other details unchanged
+   - If the user asks to add more questions to a quiz, ONLY add the questions - preserve all existing questions exactly as they are
+   - If the user asks to modify specific text in a presentation, ONLY modify that specific text - preserve all other content, formatting, and structure
 6. Return the edited content in the same format as the original (no Universal Product Header needed for edits)
 7. Do NOT add any conversational text or explanations - return only the edited content
 8. For Quiz edits: Maintain the same question structure and types, only modify content as requested
@@ -245,6 +249,12 @@ WIZARD_REQUEST
   "originalContent": "Current course outline content here...",
   "editMode": true
 }
+
+**IMPORTANT EDIT EXAMPLES:**
+- If user says "change creation hours to 25h for lesson 2" → ONLY change that specific lesson's creation hours, leave everything else unchanged
+- If user says "make module titles more engaging" → ONLY change the module titles, preserve all lesson details, times, and other data exactly as they are
+- If user says "add 3 more questions to the quiz" → ONLY add 3 new questions, preserve all existing questions unchanged
+- If user says "change the explanation for question 2" → ONLY modify that specific question's explanation, leave all other questions and content unchanged
 
 Finalization Requests (edited outlines)
 +------------------------------------------------
