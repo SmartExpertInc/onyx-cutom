@@ -1,0 +1,93 @@
+{
+  "name": "Onyx Development Environment",
+  "dockerComposeFile": [
+    "../docker-compose.codespaces.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/workspaces/onyx-cutom",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.isort",
+        "ms-vscode.vscode-json",
+        "ms-vscode.vscode-yaml",
+        "ms-vscode.vscode-docker",
+        "ms-vscode.vscode-kubernetes-tools",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "ms-vscode.vscode-prettier",
+        "ms-vscode.vscode-json",
+        "ms-vscode.vscode-yaml",
+        "ms-vscode.vscode-docker",
+        "ms-vscode.vscode-kubernetes-tools",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "ms-vscode.vscode-prettier"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.formatting.provider": "black",
+        "python.sortImports.args": ["--profile", "black"],
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    8080,  // API Server
+    8088,  // Nginx (main web interface)
+    5432,  // PostgreSQL
+    5433,  // Custom Projects DB
+    6379,  // Redis
+    19071, // Vespa Admin
+    8081,  // Vespa Application
+    9000   // Model Server
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "API Server",
+      "onAutoForward": "notify"
+    },
+    "8088": {
+      "label": "Web Interface (Nginx)",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL Database",
+      "onAutoForward": "silent"
+    },
+    "5433": {
+      "label": "Custom Projects Database",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis Cache",
+      "onAutoForward": "silent"
+    },
+    "19071": {
+      "label": "Vespa Admin",
+      "onAutoForward": "silent"
+    },
+    "8081": {
+      "label": "Vespa Application",
+      "onAutoForward": "silent"
+    },
+    "9000": {
+      "label": "Model Server",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "bash .github/devcontainer/setup-codespaces.sh",
+  "remoteUser": "vscode"
+} 
