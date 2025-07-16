@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
-import TierScopeModal from '../../components/TierScopeModal';
 
 interface FolderSettingsModalProps {
   open: boolean;
@@ -35,8 +34,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
   const [saving, setSaving] = useState(false);
-  const [showScopeModal, setShowScopeModal] = useState(false);
-  const [pendingTierChange, setPendingTierChange] = useState<{tier: string, rate: number} | null>(null);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -111,35 +108,15 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   };
 
   const handleSave = async () => {
-    // Check if tier or rate changed significantly
-    const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
-    const tierChanged = selectedTier !== currentTier;
-    const rateChanged = selectedTierData && Math.abs(customRate - selectedTierData.defaultHours) > 10;
-    
-    if (tierChanged || rateChanged) {
-      // Store the pending change and show scope modal
-      setPendingTierChange({ tier: selectedTier, rate: customRate });
-      setShowScopeModal(true);
-      return;
-    }
-    
-    // No significant change, apply directly
-    await applytierChange('current');
-  };
-
-  const applytierChange = async (scope: 'current' | 'all_courses' | 'courses_in_folder') => {
     setSaving(true);
     try {
-      const changeData = pendingTierChange || { tier: selectedTier, rate: customRate };
-      
       const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ 
-          quality_tier: changeData.tier,
-          custom_rate: changeData.rate,
-          scope: scope // Add scope parameter
+          quality_tier: selectedTier,
+          custom_rate: customRate 
         })
       });
       
@@ -148,10 +125,10 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       }
       
       if (onTierChange) {
-        onTierChange(changeData.tier);
+        onTierChange(selectedTier);
       }
       
-      // Refresh the page to update folder colors and tier displays
+      // Refresh the page to update folder colors
       window.location.reload();
       
       onClose();
@@ -160,31 +137,13 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       alert('Failed to save folder tier setting');
     } finally {
       setSaving(false);
-      setPendingTierChange(null);
     }
   };
 
   const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
 
-  // Get count of affected courses (for now, estimate based on folder - this should be fetched from API)
-  const affectedCoursesCount = 5; // TODO: Fetch real count from API
-
   return (
-    <>
-      <TierScopeModal
-        open={showScopeModal}
-        onClose={() => {
-          setShowScopeModal(false);
-          setPendingTierChange(null);
-        }}
-        onConfirm={applytierChange}
-        changeType="folder"
-        folderName={folderName}
-        newTier={pendingTierChange?.tier || selectedTier}
-        affectedCoursesCount={affectedCoursesCount}
-      />
-      
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] p-6 relative mx-4 flex flex-col">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
@@ -377,7 +336,6 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
         }
       `}</style>
     </div>
-    </>
   );
 };
 
