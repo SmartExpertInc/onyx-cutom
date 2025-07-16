@@ -7743,7 +7743,13 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate hours using lesson-level tier settings if available, otherwise use folder rate
+                                    # Clear any existing lesson-level tier settings to ensure folder-level tier takes precedence
+                                    if 'custom_rate' in lesson:
+                                        del lesson['custom_rate']
+                                    if 'quality_tier' in lesson:
+                                        del lesson['quality_tier']
+                                    
+                                    # Calculate hours using the new folder rate (no lesson-level overrides)
                                     lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
@@ -8043,7 +8049,13 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate hours using lesson-level tier settings if available, otherwise use project rate
+                                    # Clear any existing lesson-level tier settings to ensure project-level tier takes precedence
+                                    if 'custom_rate' in lesson:
+                                        del lesson['custom_rate']
+                                    if 'quality_tier' in lesson:
+                                        del lesson['quality_tier']
+                                    
+                                    # Calculate hours using the new project rate (no lesson-level overrides)
                                     lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
