@@ -422,7 +422,11 @@ For *every* lesson you output you **MUST** follow these steps **independently**:
 
 NEVER default to "20 h" unless the completion time is *exactly* 6 m.  Different completion times **must** give different creation times.  This will be automatically validated.
 
-C. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
+C. Content Coverage (%): 
+- **If no source files/documents are provided**: 0% for all lessons
+- **If source materials are provided**: Base percentage on how much content is derived from those materials
+- **Test Lessons**: Always 0%
+- **CRITICAL RULE**: If Information Source is "Create from scratch" (or equivalent), Content Coverage MUST be 0%
 
 D. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
@@ -436,7 +440,13 @@ For regular lessons: Use heuristics combined with strategic test placement. If t
 
 NOTE: The above rules for "Practice with an expert" and "No" are preserved for future use but are currently disabled. All lessons should use "Test" as the Knowledge Assessment value.
 
-E. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
+E. Information Source:
+- **If no source files/documents/text provided**: "Create from scratch" (or language equivalent)
+- **If 0% content coverage**: "Create from scratch" (or language equivalent)
+- **If 1-40% content coverage**: "Suggest User Interview" or "General Knowledge Synthesis" 
+- **If >40% content coverage**: Document names or specific source references
+- **Test Lessons**: Always "Create from scratch" (or language equivalent)
+- **CRITICAL RULE**: When using general knowledge without specific source materials, always use "Create from scratch"
 
 Calculate Module Totals: (Total Time, Number of Lessons per module).
 
@@ -737,11 +747,11 @@ For English:
 
 - **Time**: [Estimated Time for this lesson - calculated based on Est. Completion Time using 1:200 ratio: convert completion time from minutes to hours, then multiply by 200, then round up to nearest whole hour. CALCULATE for each lesson individually based on its specific completion time]
 
-- **Content Coverage**: [Content Coverage % for this lesson]%
+- **Content Coverage**: [Content Coverage % for this lesson - 0% if no source materials provided or if Information Source is "Create from scratch"]%
 
 - **Knowledge Assessment**: [Determined Value: "Test" - NOTE: "Practice with an expert" and "No" options are currently disabled, all lessons use "Test"]
 
-- **Information Source**: [Determained Information Source for this lesson]
+- **Information Source**: [Information Source for this lesson - "Create from scratch" if no source materials provided or using general knowledge]
 
 For Russian:
 
@@ -749,11 +759,11 @@ For Russian:
 
 - **Время**: [Расчетное время для этого урока - рассчитывается на основе Оц. времени завершения с использованием соотношения 1:200: конвертируем время завершения из минут в часы, затем умножаем на 200, затем округляем вверх до ближайшего целого часа. РАССЧИТЫВАЙТЕ для каждого урока индивидуально на основе его конкретного времени завершения]
 
-- **Покрытие контента**: [Процент покрытия контента для этого урока]%
+- **Покрытие контента**: [Процент покрытия контента для этого урока - 0% если нет исходных материалов или если Источник "Создать с нуля"]%
 
 - **Проверка знаний**: [Определенное значение: "Тест" - ПРИМЕЧАНИЕ: "Практика с куратором" и "Нет" опции в настоящее время отключены, все уроки используют "Тест"]
 
-- **Источник**: [Определенный источник информации для этого урока]
+- **Источник**: [Источник информации для этого урока - "Создать с нуля" если нет исходных материалов или используются общие знания]
 
 For Ukrainian:
 
@@ -761,11 +771,11 @@ For Ukrainian:
 
 - **Час**: [Розрахований час для цього уроку - розраховується на основі Оц. часу завершення з використанням співвідношення 1:200: конвертуємо час завершення з хвилин у години, потім множимо на 200, потім округлюємо вгору до найближчої цілої години. РОЗРАХОВУЙТЕ для кожного уроку індивідуально на основі його конкретного часу завершення]
 
-- **Покриття контенту**: [Відсоток покриття контенту для цього уроку]%
+- **Покриття контенту**: [Відсоток покриття контенту для цього уроку - 0% якщо немає вихідних матеріалів або якщо Джерело "Створити з нуля"]%
 
 - **Перевірка знань**: [Визначене значення: "Тест" - ПРИМІТКА: "Практика з куратором" та "Ні" опції зараз відключені, всі уроки використовують "Тест"]
 
-- **Джерело**: [Визначене джерело інформації для цього уроку]
+- **Джерело**: [Джерело інформації для цього уроку - "Створити з нуля" якщо немає вихідних матеріалів або використовуються загальні знання]
 
 Blank Lines Between Lessons: Ensure EXACTLY one blank line after all details of one lesson before starting the next lesson title (or before a new module separator --- if it's the last lesson of a module).
 
