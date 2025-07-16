@@ -35,6 +35,7 @@ import {
   Settings
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
+import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
 
 // Client Name Modal Component
 const ClientNameModal: React.FC<{
@@ -902,6 +903,7 @@ const ProjectCard: React.FC<{
     const [isRenaming, setIsRenaming] = useState(false);
     const [newName, setNewName] = useState(project.designMicroproductType ? project.title : (project.instanceName || project.title));
     const [menuPosition, setMenuPosition] = useState<'above' | 'below'>('below');
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -1216,6 +1218,20 @@ const ProjectCard: React.FC<{
                                         <LinkIcon size={16} className="text-gray-500"/>
                                         <span>Copy link</span>
                                     </button>
+                                    {isOutline && (
+                                        <button 
+                                            onClick={(e) => { 
+                                                e.stopPropagation(); 
+                                                e.preventDefault(); 
+                                                setMenuOpen(false); 
+                                                setShowSettingsModal(true);
+                                            }}
+                                            className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                        >
+                                            <Settings size={16} className="text-gray-500"/>
+                                            <span>Settings</span>
+                                        </button>
+                                    )}
                                     {folderId && (
                                         <button 
                                             onClick={(e) => { 
@@ -1398,6 +1414,19 @@ const ProjectCard: React.FC<{
                     </div>
                 </div>
             )}
+            
+            {/* Project Settings Modal */}
+            {showSettingsModal && (
+                <ProjectSettingsModal
+                    open={showSettingsModal}
+                    onClose={() => setShowSettingsModal(false)}
+                    projectName={project.title}
+                    projectId={project.id}
+                    onTierChange={(tier) => {
+                        console.log('Project tier changed to:', tier);
+                    }}
+                />
+            )}
         </div>
     );
 };
@@ -1418,6 +1447,7 @@ const ProjectRowMenu: React.FC<{
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = React.useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = React.useState(false);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
+    const [showSettingsModal, setShowSettingsModal] = React.useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
@@ -1579,6 +1609,20 @@ const ProjectRowMenu: React.FC<{
                                     <LinkIcon size={16} className="text-gray-500"/>
                                     <span>Copy link</span>
                                 </button>
+                                {isOutline && (
+                                    <button 
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            e.preventDefault(); 
+                                            setMenuOpen(false); 
+                                            setShowSettingsModal(true);
+                                        }}
+                                        className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                    >
+                                        <Settings size={16} className="text-gray-500"/>
+                                        <span>Settings</span>
+                                    </button>
+                                )}
                                 {folderId && (
                                     <button 
                                         onClick={(e) => { 
@@ -1724,6 +1768,19 @@ const ProjectRowMenu: React.FC<{
                         </div>
                     </div>
                 </div>
+            )}
+            
+            {/* Project Settings Modal */}
+            {showSettingsModal && (
+                <ProjectSettingsModal
+                    open={showSettingsModal}
+                    onClose={() => setShowSettingsModal(false)}
+                    projectName={project.title}
+                    projectId={project.id}
+                    onTierChange={(tier) => {
+                        console.log('Project tier changed to:', tier);
+                    }}
+                />
             )}
         </div>
     );
