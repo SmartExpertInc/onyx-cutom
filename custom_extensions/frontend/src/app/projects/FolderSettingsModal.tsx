@@ -112,20 +112,29 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
 
   const handleSave = async () => {
     // First check if there are course outlines that would be affected
+    console.log('Checking for course outlines in folder:', folderId);
     try {
       const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/course-outlines`, {
         credentials: 'same-origin',
       });
       
+      console.log('Course outlines API response status:', response.status);
+      
       if (response.ok) {
         const courseOutlines = await response.json();
+        console.log('Found course outlines:', courseOutlines.length, courseOutlines);
         
         if (courseOutlines.length > 0) {
           // There are course outlines, show selection modal
+          console.log('Showing course outline selection modal');
           setPendingTierChange({ tier: selectedTier, rate: customRate });
           setShowCourseOutlineModal(true);
           return;
+        } else {
+          console.log('No course outlines found, proceeding with normal save');
         }
+      } else {
+        console.error('Course outlines API error response:', response.statusText);
       }
     } catch (error) {
       console.error('Error checking course outlines:', error);
