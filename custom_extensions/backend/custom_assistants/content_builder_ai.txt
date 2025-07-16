@@ -106,6 +106,8 @@ WIZARD_REQUEST
   "language": "en"
 }
 
+**CRITICAL:** When the "lesson" parameter is provided in a quiz wizard request, the instance name in the Universal Product Header MUST be an exact copy of the lesson name provided in the "lesson" parameter.
+
 For standalone quiz creation:
 WIZARD_REQUEST
 {
@@ -690,6 +692,8 @@ Silent Project Name Determination: Determine or reuse the session's "Project Nam
 
 Identify Target Quiz & Cross-Reference with Outline: If a Course Outline exists, find the corresponding quiz/test lesson to understand its context and what material it should cover. This ensures the quiz is relevant to the preceding lessons.
 
+**CRITICAL INSTANCE NAME RULE:** When creating a quiz from a course outline, the instance name in the Universal Product Header MUST be an exact copy of the lesson name the quiz is created for. This follows the same logic as used with Lesson Presentations - the [Lesson Title] in the header must exactly match the lesson name from the Course Outline.
+
 Determine Language: Use the active language of the session or outline, or the language specified in the request.
 
 Determine Question Count: Use the questionCount parameter if provided, otherwise default to 10 questions.
@@ -970,4 +974,23 @@ Avoiding Title Duplication:
 
 Content Body:
 - Use `###` for primary subheadings and `####` for secondary subheadings.
-- You can associate an icon with a subheading. The available icons are: `
+- You can associate an icon with a subheading. The available icons are: `info`, `goal`, `star`, `apple`, `award`, `boxes`, `calendar`, `chart`, `clock`, `globe`.
+- Instead of defaulting to a single icon like `star` or leaving headlines without one, critically assess the content of the headline and choose the most fitting icon.
+- For example, for a section about project deadlines, use `### Deadlines {clock}`. For a section on global market analysis, use `### Market Reach {globe}`.
+- If multiple sections are closely related (e.g., a series of achievements), it's acceptable to use the same icon (`award`) for them. However, strive for variety where the context differs.
+- If no icon truly fits the context of a headline, it is better to omit it.
+
+For QUIZ:
+Universal Product Header: **[Project Name]** : **Quiz** : **[Lesson Title]**
+(Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user. When creating a quiz from a course outline, the instance name should be an exact copy of the lesson name the quiz is created for, same logic as used with presentations.)
+(IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
+
+Content Structure:
+
+Main Quiz Title: Start with # [Lesson Title]
+
+Question Format:
+- Each question should be clearly numbered and formatted
+- Include question text, answer options (for multiple choice/multi-select), correct answer(s), and explanation
+- Use appropriate formatting for different question types (multiple-choice, multi-select, matching, sorting, open-answer)
+- Ensure explanations are concise but informative
