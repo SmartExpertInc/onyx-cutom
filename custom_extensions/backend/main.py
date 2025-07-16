@@ -4323,6 +4323,7 @@ async def download_project_instance_pdf(
     informationSource: Optional[str] = Query(None),
     time: Optional[str] = Query(None),
     estCompletionTime: Optional[str] = Query(None),
+    qualityTier: Optional[str] = Query(None),
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -4537,6 +4538,7 @@ async def download_project_instance_pdf(
                 'informationSource': informationSource == '1' if informationSource else True,
                 'time': time == '1' if time else True,
                 'estCompletionTime': estCompletionTime == '1' if estCompletionTime else True,
+                'qualityTier': qualityTier == '1' if qualityTier else False,  # Hidden by default
             }
             context_for_jinja['columnVisibility'] = column_visibility
 

@@ -32,6 +32,7 @@ export interface DisplayOptions {
   informationSource: boolean;
   estCreationTime: boolean;
   estCompletionTime: boolean;
+  qualityTier: boolean;
 }
 
 export interface TrainingPlanData { // This can be the generic structure for microProductContent

@@ -20,6 +20,7 @@ export const uk = {
     contentAvailability: "Наявність контенту",
     source: "Джерело інформації",
     time: "Час",
+    qualityTier: "Рівень якості",
     timeUnitSingular: "год",
     timeUnitDecimalPlural: "год",
     timeUnitGeneralPlural: "год",

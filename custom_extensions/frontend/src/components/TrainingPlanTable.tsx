@@ -89,13 +89,14 @@ interface TrainingPlanTableProps {
     informationSource: boolean;
     estCreationTime: boolean;
     estCompletionTime: boolean;
+    qualityTier: boolean;
   };
 }
 
 const localizationConfig = {
-  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения" },
-  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time" },
-  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення" },
+  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения", qualityTier: "Уровень качества" },
+  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time", qualityTier: "Quality Tier" },
+  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення", qualityTier: "Рівень якості" },
 };
 const timeUnits = {
   ru: { timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", minuteUnit: "м" },
@@ -610,6 +611,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       informationSource: true,
       estCreationTime: true,
       estCompletionTime: true,
+      qualityTier: false, // Hidden by default
     };
 
     const fromQuery = (key: keyof typeof def): boolean | undefined => {
@@ -627,6 +629,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         informationSource: columnVisibility.informationSource,
         estCreationTime: columnVisibility.estCreationTime !== false,
         estCompletionTime: columnVisibility.estCompletionTime !== false,
+        qualityTier: columnVisibility.qualityTier !== undefined ? columnVisibility.qualityTier : false,
       };
     }
 
@@ -636,6 +639,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       informationSource: fromQuery('informationSource') ?? storedOpts?.informationSource ?? def.informationSource,
       estCreationTime: true,
       estCompletionTime: true,
+      qualityTier: fromQuery('qualityTier') ?? storedOpts?.qualityTier ?? def.qualityTier,
     };
   }, [searchParams, storedOpts, columnVisibility]);
 
@@ -644,6 +648,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     { key: 'knowledgeCheck', width: 2 },
     { key: 'contentAvailability', width: 1 },
     { key: 'informationSource', width: 2 },
+    { key: 'qualityTier', width: 1 },
     { key: 'estCreationTime', width: 1 },
     { key: 'estCompletionTime', width: 1 },
   ];
@@ -744,6 +749,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 return <div key={col.key} className={common}>{localized.contentAvailability}</div>;
               case 'informationSource':
                 return <div key={col.key} className={common}>{localized.source}</div>;
+              case 'qualityTier':
+                return <div key={col.key} className={common}>{localized.qualityTier}</div>;
               case 'estCreationTime':
                 return <div key={col.key} className={common}>{localized.estCreationTime}</div>;
               case 'estCompletionTime':
@@ -873,6 +880,25 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                 <input type="text" value={lesson.source} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'source'], e)} className={editingInputSmallClass} placeholder="Source"/>
                               ) : (
                                 <span title={lesson.source || ''}>{truncateText(lesson.source, MAX_SOURCE_LENGTH)}</span>
+                              )}
+                            </div>
+                          );
+                        case 'qualityTier':
+                          return (
+                            <div key={col.key} className={`text-gray-600 ${commonCls}`}>
+                              {isEditing && onTextChange ? (
+                                                                 <select 
+                                   value={lesson.quality_tier || 'interactive'} 
+                                   onChange={(e) => onTextChange && onTextChange(['sections', sectionIdx, 'lessons', lessonIndex, 'quality_tier'], e.target.value)} 
+                                   className={`${editingInputSmallClass} text-xs`}
+                                 >
+                                  <option value="basic">Basic</option>
+                                  <option value="interactive">Interactive</option>
+                                  <option value="advanced">Advanced</option>
+                                  <option value="immersive">Immersive</option>
+                                </select>
+                              ) : (
+                                <span className="text-xs capitalize">{lesson.quality_tier || 'Interactive'}</span>
                               )}
                             </div>
                           );

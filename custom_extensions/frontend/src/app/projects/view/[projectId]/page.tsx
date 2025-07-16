@@ -104,6 +104,7 @@ export default function ProjectInstanceViewPage() {
     informationSource: true,
     estCreationTime: true,
     estCompletionTime: true,
+    qualityTier: false, // Hidden by default
   });
   const columnDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -486,6 +487,7 @@ export default function ProjectInstanceViewPage() {
         queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
         queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
         queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
+        queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
     }
     
     if (queryParams.toString()) {
@@ -749,6 +751,15 @@ export default function ProjectInstanceViewPage() {
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
                         <span className="text-sm text-gray-700">Est. Completion Time</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.qualityTier}
+                          onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Quality Tier</span>
                       </label>
                     </div>
                   </div>

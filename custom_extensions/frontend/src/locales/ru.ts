@@ -20,6 +20,7 @@ export const ru = {
     contentAvailability: "Наличие контента",
     source: "Источник информации",
     time: "Час",
+    qualityTier: "Уровень качества",
     timeUnitSingular: "ч",
     timeUnitDecimalPlural: "ч",
     timeUnitGeneralPlural: "ч",

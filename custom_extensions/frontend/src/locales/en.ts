@@ -20,6 +20,7 @@ export const en = {
     contentAvailability: "Content Availability",
     source: "Information Source",
     time: "Time",
+    qualityTier: "Quality Tier",
     timeUnitSingular: "h",
     timeUnitDecimalPlural: "h",
     timeUnitGeneralPlural: "h"
