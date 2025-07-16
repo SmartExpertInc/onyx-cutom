@@ -170,26 +170,32 @@ const EditProjectPageComponent = () => {
       // Clean module-level tier data
       if (cleaned.sections) {
         cleaned.sections.forEach((section: any) => {
-          if (section.custom_rate === '' || section.custom_rate === null) {
+          // Remove empty/invalid custom_rate values
+          if (section.custom_rate === '' || section.custom_rate === null || section.custom_rate === undefined) {
             delete section.custom_rate;
           }
-          if (section.quality_tier === '' || section.quality_tier === null) {
+          // Remove empty/invalid quality_tier values
+          if (section.quality_tier === '' || section.quality_tier === null || section.quality_tier === undefined) {
             delete section.quality_tier;
           }
           
           // Clean lesson-level tier data
           if (section.lessons) {
             section.lessons.forEach((lesson: any) => {
-              if (lesson.custom_rate === '' || lesson.custom_rate === null) {
+              // Remove empty/invalid custom_rate values
+              if (lesson.custom_rate === '' || lesson.custom_rate === null || lesson.custom_rate === undefined) {
                 delete lesson.custom_rate;
               }
-              if (lesson.quality_tier === '' || lesson.quality_tier === null) {
+              // Remove empty/invalid quality_tier values
+              if (lesson.quality_tier === '' || lesson.quality_tier === null || lesson.quality_tier === undefined) {
                 delete lesson.quality_tier;
               }
             });
           }
         });
       }
+      
+      // Note: Data cleaning removes empty/null tier values to prevent validation errors
       
       return cleaned;
     };
