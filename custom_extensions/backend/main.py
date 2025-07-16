@@ -1935,6 +1935,8 @@ class SectionDetail(BaseModel):
     totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
     lessons: List[LessonDetail] = Field(default_factory=list)
     autoCalculateHours: bool = True
+    custom_rate: Optional[int] = None  # Module-level custom rate override
+    quality_tier: Optional[str] = None  # Module-level quality tier override
     model_config = {"from_attributes": True}
 
 class TrainingPlanDetails(BaseModel):

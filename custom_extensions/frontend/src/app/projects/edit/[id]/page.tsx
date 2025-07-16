@@ -161,11 +161,44 @@ const EditProjectPageComponent = () => {
 
     const finalMicroProductName = microProductName.trim() || currentDesignInfo?.name || projectName;
 
+    // Clean up tier data before sending to backend
+    const cleanTierData = (data: any) => {
+      if (!data) return data;
+      
+      const cleaned = JSON.parse(JSON.stringify(data)); // Deep clone
+      
+      // Clean module-level tier data
+      if (cleaned.sections) {
+        cleaned.sections.forEach((section: any) => {
+          if (section.custom_rate === '' || section.custom_rate === null) {
+            delete section.custom_rate;
+          }
+          if (section.quality_tier === '' || section.quality_tier === null) {
+            delete section.quality_tier;
+          }
+          
+          // Clean lesson-level tier data
+          if (section.lessons) {
+            section.lessons.forEach((lesson: any) => {
+              if (lesson.custom_rate === '' || lesson.custom_rate === null) {
+                delete lesson.custom_rate;
+              }
+              if (lesson.quality_tier === '' || lesson.quality_tier === null) {
+                delete lesson.quality_tier;
+              }
+            });
+          }
+        });
+      }
+      
+      return cleaned;
+    };
+
     const payload = {
       projectName,
       design_template_id: parseInt(selectedDesignTemplateId, 10),
       microProductName: finalMicroProductName,
-      microProductContent: trainingPlanData, 
+      microProductContent: cleanTierData(trainingPlanData), 
     };
 
     try {

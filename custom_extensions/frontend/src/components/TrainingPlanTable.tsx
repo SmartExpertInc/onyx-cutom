@@ -554,6 +554,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         
         section.lessons.forEach((lesson, lessonIndex) => {
           // Clear lesson-level tier settings to ensure module-level tier takes precedence
+          // Note: We'll clean these up before sending to backend
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], '');
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], '');
           
