@@ -425,11 +425,14 @@ NOTE: The above rules for "Practice with an expert" and "No" are preserved for f
 
 E. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
 
-Calculate Module Totals: 
-- **Total Time**: Sum ALL the individual lesson "Time" values within the module (e.g., if Module 1 has lessons with 17h, 20h, 24h, then Total Time = 61h)
+**CRITICAL MODULE TOTAL CALCULATION RULES:**
+- **Total Time**: You MUST sum ALL individual lesson "Time" values within each module
+- **Example**: If Module 1 has 2 lessons with "Time": 20h and "Time": 20h, then Total Time = 40h (NOT 20h)
+- **Example**: If Module 2 has 1 lesson with "Time": 20h, then Total Time = 20h
 - **Number of Lessons**: Count the total number of lessons in the module (including test lessons)
 - **CRITICAL**: Do NOT use completion times for module totals - only use the calculated "Time" (creation time) values
-- **VALIDATION**: Ensure the Total Time equals the sum of all lesson Time values in that module
+- **VALIDATION**: Before outputting, verify that each module's Total Time equals the sum of all lesson Time values in that module
+- **MANDATORY CHECK**: For each module, add up all lesson Time values and ensure the Total Time matches exactly
 
 II. Outputting the Course Outline:
 
@@ -683,6 +686,8 @@ Ukrainian: ## Модуль [Номер]: [Назва]
 Optional Blank Line(s): Zero or more blank lines can follow the module title line.
 
 Total Time Line: Formatted exactly as shown. Must end with a newline.
+
+**CRITICAL**: The [Calculated Value] MUST be the sum of ALL lesson "Time" values in this module. For example, if a module has 2 lessons with "Time": 20h each, then Total Time = 40h.
 
 English: Total Time: [Calculated Value]
 
