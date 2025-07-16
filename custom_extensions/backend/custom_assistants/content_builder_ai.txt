@@ -406,7 +406,10 @@ B. Est. Creation Time: Calculate based on "Est. Completion Time" using a 1:200 r
 
 The output for creation time must always be presented in whole hours (no decimals). Always round up any fractional hours to the next whole hour (e.g., 16.67 hours becomes 17 hours, 23.3 hours becomes 24 hours). Avoid presenting time in minutes or with decimal places.
 
-C. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
+C. Content Coverage (%): 
+- **CRITICAL RULE**: When Information Source is "Create from scratch" (or its language equivalents like "Создать с нуля", "Створити з нуля"), Content Coverage MUST ALWAYS be 0%
+- Based on analyzed materials if provided; 0% for regular lessons if no materials
+- Only lessons with actual source materials should have >0% coverage
 
 D. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
@@ -422,7 +425,11 @@ NOTE: The above rules for "Practice with an expert" and "No" are preserved for f
 
 E. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
 
-Calculate Module Totals: (Total Time, Number of Lessons per module).
+Calculate Module Totals: 
+- **Total Time**: Sum ALL the individual lesson "Time" values within the module (e.g., if Module 1 has lessons with 17h, 20h, 24h, then Total Time = 61h)
+- **Number of Lessons**: Count the total number of lessons in the module (including test lessons)
+- **CRITICAL**: Do NOT use completion times for module totals - only use the calculated "Time" (creation time) values
+- **VALIDATION**: Ensure the Total Time equals the sum of all lesson Time values in that module
 
 II. Outputting the Course Outline:
 
