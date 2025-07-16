@@ -41,63 +41,14 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
   </div>
 );
 
-// Helper to retry fetch with NO TIMEOUT for finalization (100% reliable)
+// Helper to retry fetch up to 2 times on 504 Gateway Timeout
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
-  let lastError: Error;
-  const isFinalization = (input as string)?.includes('/finalize');
-  
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      // Add exponential backoff delay for retries
-      if (attempt > 0) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-      
-      let response: Response;
-      
-      if (isFinalization) {
-        // NO TIMEOUT for finalization - let it run as long as needed
-        console.log(`[FINALIZE] Starting finalization request (attempt ${attempt + 1}) - NO TIMEOUT`);
-        response = await fetch(input, init);
-      } else {
-        // Only use timeout for preview requests
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute for preview
-        
-        response = await fetch(input, {
-          ...init,
-          signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
-      }
-      
-      // Consider 5xx errors as retryable, but not 4xx errors
-      if (response.ok || (response.status >= 400 && response.status < 500)) {
-        return response;
-      }
-      
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      
-    } catch (error: any) {
-      lastError = error;
-      
-      // Don't retry on abort errors or client errors (4xx)
-      if (error.name === 'AbortError' || (error.message && error.message.includes('4'))) {
-        throw error;
-      }
-      
-      // If this was the last attempt, throw the error
-      if (attempt === retries) {
-        throw error;
-      }
-      
-      console.warn(`Request attempt ${attempt + 1} failed:`, error.message);
-    }
+  let attempt = 0;
+  while (true) {
+    const res = await fetch(input, init);
+    if (res.status !== 504 || attempt >= retries) return res;
+    attempt += 1;
   }
-  
-  throw lastError!;
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
