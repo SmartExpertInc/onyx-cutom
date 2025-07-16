@@ -38,9 +38,10 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
   </div>
 );
 
-// Helper to retry fetch up to 2 times on 504 Gateway Timeout with timeout protection
+// Helper to retry fetch with NO TIMEOUT for finalization (100% reliable)
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
   let lastError: Error;
+  const isFinalization = (input as string)?.includes('/finalize');
   
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -50,18 +51,24 @@ async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2
         await new Promise(resolve => setTimeout(resolve, delay));
       }
       
-      // Set a reasonable timeout for the request - longer for finalization
-      const controller = new AbortController();
-      const isFinalization = (input as string)?.includes('/finalize');
-      const timeoutDuration = isFinalization ? 300000 : 60000; // 5 minutes for finalization, 1 minute for preview
-      const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+      let response: Response;
       
-      const response = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
+      if (isFinalization) {
+        // NO TIMEOUT for finalization - let it run as long as needed
+        console.log(`[FINALIZE] Starting finalization request (attempt ${attempt + 1}) - NO TIMEOUT`);
+        response = await fetch(input, init);
+      } else {
+        // Only use timeout for preview requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute for preview
+        
+        response = await fetch(input, {
+          ...init,
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+      }
       
       // Consider 5xx errors as retryable, but not 4xx errors
       if (response.ok || (response.status >= 400 && response.status < 500)) {
@@ -276,6 +283,7 @@ export default function CourseOutlineClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [finalizationProgress, setFinalizationProgress] = useState<string>("");
   
   // Track whether user has manually edited the preview content
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -341,6 +349,18 @@ export default function CourseOutlineClient() {
 
   // Keep a reference to the current in-flight preview request so we can cancel it
   const previewAbortRef = useRef<AbortController | null>(null);
+  
+  // Cleanup on unmount to prevent stuck states
+  useEffect(() => {
+    return () => {
+      if (previewAbortRef.current) {
+        previewAbortRef.current.abort();
+      }
+      // Reset generating state when component unmounts
+      setIsGenerating(false);
+      setLoading(false);
+    };
+  }, []);
 
   // Ref for auto-resizing the prompt textarea
   const promptRef = useRef<HTMLTextAreaElement>(null);
@@ -708,21 +728,14 @@ export default function CourseOutlineClient() {
     }
 
     setIsGenerating(true);
+    setFinalizationProgress("Starting finalization...");
     // Ensure the preview spinner / fake-thoughts are not shown while we're in finalize mode
     setLoading(false);
     setError(null);
 
-    // Add timeout safeguard to prevent infinite loading for large course outlines
-    const timeoutId = setTimeout(() => {
-      setIsGenerating(false);
-      setError("Finalization timed out. Large course outlines may take up to 5 minutes to process. Please try again or consider reducing the number of modules/lessons.");
-    }, 360000); // 6 minutes timeout
-
-    // Add progress indicator for large course outlines
-    const isLargeOutline = (Number(modules) * Number(lessonsPerModule)) >= 80;
-    if (isLargeOutline) {
-      console.log(`Large course outline detected (${modules}×${lessonsPerModule}=${Number(modules) * Number(lessonsPerModule)} lessons). This may take 2-3 minutes to process.`);
-    }
+    // NO TIMEOUT for finalization - let it run as long as needed for large course outlines
+    const totalLessons = modules * (lessonsPerModule.includes('-') ? parseInt(lessonsPerModule.split('-')[1]) : parseInt(lessonsPerModule));
+    console.log(`[FINALIZE] Starting finalization for ${modules} modules × ${lessonsPerModule} lessons = ~${totalLessons} total lessons`);
     try {
       const outlineForBackend = {
         mainTitle: prompt,
@@ -766,14 +779,14 @@ export default function CourseOutlineClient() {
         finalizeBody.userText = userText;
       }
 
+      setFinalizationProgress("Sending request to server...");
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalizeBody),
       });
 
-      // Clear timeout since request completed successfully
-      clearTimeout(timeoutId);
+      setFinalizationProgress("Processing response...");
       if (!res.ok) throw new Error(await res.text());
 
       let data;
@@ -782,6 +795,7 @@ export default function CourseOutlineClient() {
       const reader = res.body?.getReader();
       if (reader) {
         // Streaming response (assistant + parser path)
+        setFinalizationProgress("Receiving streaming data...");
         const decoder = new TextDecoder();
         let buffer = "";
         let finalResult = null;
@@ -800,9 +814,12 @@ export default function CourseOutlineClient() {
                 const pkt = JSON.parse(ln);
                 if (pkt.type === "done") {
                   finalResult = pkt;
+                  setFinalizationProgress("Finalization complete!");
                   break;
                 } else if (pkt.type === "error") {
                   throw new Error(pkt.message || "Unknown error occurred");
+                } else if (pkt.type === "delta") {
+                  setFinalizationProgress("Processing content...");
                 }
               } catch (e) {
                 // Skip invalid JSON lines unless it's an error we threw
@@ -863,8 +880,6 @@ export default function CourseOutlineClient() {
       // leave the custom frontend and hit the main app's /projects route.
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
-      // Clear timeout on error
-      clearTimeout(timeoutId);
       setError(e.message);
       // allow UI interaction again
       setIsGenerating(false);
@@ -1675,7 +1690,20 @@ export default function CourseOutlineClient() {
     `}</style>
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing product..." />
+        <div className="bg-white rounded-xl p-8 shadow-xl max-w-md w-full mx-4">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <h3 className="text-lg font-semibold text-gray-900">Finalizing Course Outline</h3>
+            <p className="text-sm text-gray-600 text-center">{finalizationProgress}</p>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+            </div>
+            <p className="text-xs text-gray-500 text-center">
+              Large course outlines may take several minutes to process.<br/>
+              Please don't close this window.
+            </p>
+          </div>
+        </div>
       </div>
     )}
     </>

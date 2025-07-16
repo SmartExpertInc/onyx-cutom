@@ -41,9 +41,10 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
   </div>
 );
 
-// Helper to retry fetch up to 2 times on 504 Gateway Timeout with timeout protection
+// Helper to retry fetch with NO TIMEOUT for finalization (100% reliable)
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
   let lastError: Error;
+  const isFinalization = (input as string)?.includes('/finalize');
   
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -53,18 +54,24 @@ async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2
         await new Promise(resolve => setTimeout(resolve, delay));
       }
       
-      // Set a reasonable timeout for the request - longer for finalization
-      const controller = new AbortController();
-      const isFinalization = (input as string)?.includes('/finalize');
-      const timeoutDuration = isFinalization ? 300000 : 60000; // 5 minutes for finalization, 1 minute for preview
-      const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+      let response: Response;
       
-      const response = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
+      if (isFinalization) {
+        // NO TIMEOUT for finalization - let it run as long as needed
+        console.log(`[FINALIZE] Starting finalization request (attempt ${attempt + 1}) - NO TIMEOUT`);
+        response = await fetch(input, init);
+      } else {
+        // Only use timeout for preview requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute for preview
+        
+        response = await fetch(input, {
+          ...init,
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+      }
       
       // Consider 5xx errors as retryable, but not 4xx errors
       if (response.ok || (response.status >= 400 && response.status < 500)) {
