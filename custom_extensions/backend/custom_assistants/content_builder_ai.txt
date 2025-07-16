@@ -392,7 +392,7 @@ Crucial Naming Rule: When generating lesson titles, you MUST ensure that every l
 
 Calculate and Populate Details for Each Lesson:
 
-A. Est. Completion Time: Randomly generate a value between 5-8 minutes for each lesson. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson. Each lesson MUST have a different completion time to ensure variety.
+A. Est. Completion Time: Randomly generate a value between 5-8 minutes for each lesson. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
 
 B. Est. Creation Time: Calculate based on "Est. Completion Time" using a 1:200 ratio (unless the user specifies otherwise):
 - Convert completion time from minutes to hours: [completion time in minutes] ÷ 60 = [completion time in hours]
@@ -406,13 +406,7 @@ B. Est. Creation Time: Calculate based on "Est. Completion Time" using a 1:200 r
 
 The output for creation time must always be presented in whole hours (no decimals). Always round up any fractional hours to the next whole hour (e.g., 16.67 hours becomes 17 hours, 23.3 hours becomes 24 hours). Avoid presenting time in minutes or with decimal places.
 
-CRITICAL: Each lesson MUST have a unique creation time based on its individual completion time. Do NOT use the same creation time for multiple lessons.
-
-C. Content Coverage (%): 
-- For lessons with Information Source "Create from scratch": ALWAYS use 0%
-- For lessons with Information Source "Suggest User Interview" or "General Knowledge Synthesis": Use 0-40% based on available materials
-- For lessons with Information Source as document names: Use >40% based on document coverage
-- For Test Lessons: ALWAYS use 0%
+C. Content Coverage (%): (Based on analyzed materials if provided; 0% for regular lessons if no materials; Test Lessons: 0%)
 
 D. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
@@ -428,15 +422,7 @@ NOTE: The above rules for "Practice with an expert" and "No" are preserved for f
 
 E. Information Source: (0% Cov: "Create from scratch"; >0-40% Cov: "Suggest User Interview" or "General Knowledge Synthesis"; >40% Cov: Document names; Test Lessons: "Create from scratch" – or language equivalents)
 
-Calculate Module Totals: 
-- Total Time: Sum up the creation times (not completion times) of ALL lessons in the module. This is the total time needed to create all lessons in the module.
-- Number of Lessons: Count the total number of lessons in the module.
-
-CRITICAL MODULE TOTAL CALCULATION RULE: The "Total Time" for a module must be the SUM of all individual lesson creation times within that module. For example:
-- Module with 2 lessons: Lesson 1 (17h) + Lesson 2 (24h) = Total Time: 41h
-- Module with 3 lessons: Lesson 1 (20h) + Lesson 2 (27h) + Lesson 3 (17h) = Total Time: 64h
-
-Do NOT use the same time for all lessons or incorrectly calculate the module total.
+Calculate Module Totals: (Total Time, Number of Lessons per module).
 
 II. Outputting the Course Outline:
 
