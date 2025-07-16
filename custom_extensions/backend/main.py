@@ -8223,7 +8223,7 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                             
                             total_lessons += section_lessons
                             
-                            # Sum up completion time and calculate tier-adjusted hours for this section
+                            # Sum up completion time and use existing lesson hours for this section
                             for lesson in lessons:
                                 if isinstance(lesson, dict):
                                     # Parse completion time (e.g., "5m", "6m", "7m", "8m")
@@ -8234,13 +8234,34 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                             completion_time_minutes = int(completion_time_str.replace('m', ''))
                                             section_completion_time += completion_time_minutes
                                             total_completion_time += completion_time_minutes
-                                            
-                                            # Calculate custom rate-adjusted creation hours
+                                        except (ValueError, AttributeError):
+                                            # If parsing fails, skip this lesson's completion time
+                                            pass
+                                    
+                                    # Use existing lesson hours if available, otherwise calculate with folder rate
+                                    if lesson.get('hours'):
+                                        try:
+                                            lesson_creation_hours = float(lesson['hours'])
+                                            section_hours += lesson_creation_hours
+                                            total_hours += lesson_creation_hours
+                                        except (ValueError, TypeError):
+                                            # If hours parsing fails, fallback to calculation
+                                            if completion_time_str:
+                                                try:
+                                                    completion_time_minutes = int(completion_time_str.replace('m', ''))
+                                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
+                                                    section_hours += lesson_creation_hours
+                                                    total_hours += lesson_creation_hours
+                                                except (ValueError, AttributeError):
+                                                    pass
+                                    elif completion_time_str:
+                                        # No existing hours, calculate with folder rate
+                                        try:
+                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
                                             lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
                                             section_hours += lesson_creation_hours
                                             total_hours += lesson_creation_hours
                                         except (ValueError, AttributeError):
-                                            # If parsing fails, skip this lesson's completion time
                                             pass
                             
                             # Add section data with tier-adjusted totals
