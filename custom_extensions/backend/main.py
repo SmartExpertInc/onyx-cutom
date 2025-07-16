@@ -116,16 +116,26 @@ async def stream_openai_response(prompt: str, model: str = None):
         
         logger.info(f"[OPENAI_STREAM] Stream created successfully")
         
+        # DEBUG: Collect full response for logging
+        full_response = ""
+        chunk_count = 0
+        
         async for chunk in stream:
+            chunk_count += 1
+            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
+            
             if chunk.choices and len(chunk.choices) > 0:
                 choice = chunk.choices[0]
                 if choice.delta and choice.delta.content:
                     content = choice.delta.content
+                    full_response += content  # DEBUG: Accumulate full response
                     yield {"type": "delta", "text": content}
                     
                 # Check for finish reason
                 if choice.finish_reason:
                     logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
+                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
                     break
                     
     except Exception as e:
@@ -5748,7 +5758,8 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
-            logger.info(f"[PREVIEW_STREAM] Using OpenAI direct streaming (no file context)")
+            logger.info(f"[PREVIEW_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
             try:
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
@@ -5779,6 +5790,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 return
         
         # EXISTING: Use Onyx when file context is present
+        else:
+            logger.info(f"[PREVIEW_STREAM] ❌ USING ONYX API (file context detected)")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+        
         logger.info(f"[PREVIEW_STREAM] Using Onyx streaming (file context present)")
         try:
             logger.info(f"[PREVIEW_STREAM] Creating HTTP client with timeout: {timeout_duration}")
@@ -6741,7 +6756,8 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
-            logger.info(f"[LESSON_STREAM] Using OpenAI direct streaming (no file context)")
+            logger.info(f"[LESSON_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
             try:
                 chunks_received = 0
                 async for chunk_data in stream_openai_response(wizard_message):
@@ -6779,6 +6795,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 return
         
         # EXISTING: Use Onyx when file context is present
+        else:
+            logger.info(f"[LESSON_STREAM] ❌ USING ONYX API (file context detected)")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+        
         logger.info(f"[LESSON_STREAM] Using Onyx streaming (file context present)")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
@@ -9114,7 +9134,8 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
-            logger.info(f"[QUIZ_STREAM] Using OpenAI direct streaming (no file context)")
+            logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
             try:
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
@@ -9145,6 +9166,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 return
         
         # EXISTING: Use Onyx when file context is present
+        else:
+            logger.info(f"[QUIZ_STREAM] ❌ USING ONYX API (file context detected)")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+        
         logger.info(f"[QUIZ_STREAM] Using Onyx streaming (file context present)")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
@@ -9949,7 +9974,8 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Using OpenAI direct streaming (no file context)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
             try:
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
@@ -9980,6 +10006,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 return
         
         # EXISTING: Use Onyx when file context is present
+        else:
+            logger.info(f"[TEXT_PRESENTATION_STREAM] ❌ USING ONYX API (file context detected)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+        
         logger.info(f"[TEXT_PRESENTATION_STREAM] Using Onyx streaming (file context present)")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
