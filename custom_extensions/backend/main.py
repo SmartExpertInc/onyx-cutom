@@ -7550,18 +7550,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                         WHEN p.microproduct_content IS NOT NULL 
                         AND p.microproduct_content->>'sections' IS NOT NULL 
                         THEN (
-                            SELECT COALESCE(SUM(
-                                CASE 
-                                    WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
-                                    THEN (
-                                        -- Calculate tier-adjusted creation hours using the same method as Python calculate_creation_hours
-                                        -- Python: round((completion_time_minutes / 60.0) * ratio)
-                                        -- SQL equivalent: ROUND((completion_time_minutes / 60.0) * ratio)
-                                        ROUND((REPLACE(lesson->>'completionTime', 'm', '')::int / 60.0) * COALESCE(pf.custom_rate, 200))
-                                    )
-                                    ELSE 0 
-                                END
-                            ), 0)
+                            SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
                             FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
                             CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
                         )
@@ -7737,24 +7726,31 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                         except (ValueError, AttributeError):
                                             pass
                     
-                    # Update the hours in each lesson and recalculate section totals
+                    # Update tier names and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
                             section_total_hours = 0
                             for lesson in section['lessons']:
-                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                if isinstance(lesson, dict):
                                     # Clear any existing lesson-level tier settings to ensure folder-level tier takes precedence
                                     if 'custom_rate' in lesson:
                                         del lesson['custom_rate']
                                     if 'quality_tier' in lesson:
                                         del lesson['quality_tier']
                                     
-                                    # Calculate hours using the new folder rate (no lesson-level overrides)
-                                    lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
-                                    lesson['hours'] = lesson_creation_hours
-                                    section_total_hours += lesson_creation_hours
+                                    # Update the tier name to match the new folder tier
+                                    lesson['quality_tier'] = req.quality_tier
+                                    
+                                    # If lesson has completion time, recalculate hours with new folder rate
+                                    if lesson.get('completionTime'):
+                                        lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
+                                        lesson['hours'] = lesson_creation_hours
+                                        section_total_hours += lesson_creation_hours
+                                    # If lesson already has hours but no completion time, preserve existing hours
+                                    elif lesson.get('hours'):
+                                        section_total_hours += float(lesson['hours'])
                             
-                            # Update the section's totalHours with tier-adjusted sum
+                            # Update the section's totalHours with sum of existing lesson hours
                             if 'totalHours' in section:
                                 section['totalHours'] = round(section_total_hours)
                     
@@ -8043,24 +8039,31 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                 if isinstance(content, dict) and 'sections' in content:
                     sections = content['sections']
                     
-                    # Update the hours in each lesson and recalculate section totals
+                    # Update tier names and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
                             section_total_hours = 0
                             for lesson in section['lessons']:
-                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                if isinstance(lesson, dict):
                                     # Clear any existing lesson-level tier settings to ensure project-level tier takes precedence
                                     if 'custom_rate' in lesson:
                                         del lesson['custom_rate']
                                     if 'quality_tier' in lesson:
                                         del lesson['quality_tier']
                                     
-                                    # Calculate hours using the new project rate (no lesson-level overrides)
-                                    lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
-                                    lesson['hours'] = lesson_creation_hours
-                                    section_total_hours += lesson_creation_hours
+                                    # Update the tier name to match the new project tier  
+                                    lesson['quality_tier'] = req.quality_tier
+                                    
+                                    # If lesson has completion time, recalculate hours with new project rate
+                                    if lesson.get('completionTime'):
+                                        lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
+                                        lesson['hours'] = lesson_creation_hours
+                                        section_total_hours += lesson_creation_hours
+                                    # If lesson already has hours but no completion time, preserve existing hours
+                                    elif lesson.get('hours'):
+                                        section_total_hours += float(lesson['hours'])
                             
-                            # Update the section's totalHours with tier-adjusted sum
+                            # Update the section's totalHours with sum of existing lesson hours
                             if 'totalHours' in section:
                                 section['totalHours'] = round(section_total_hours)
                     
