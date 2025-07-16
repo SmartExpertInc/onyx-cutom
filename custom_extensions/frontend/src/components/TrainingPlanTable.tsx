@@ -858,13 +858,16 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                       {isEditing && onTextChange ? (
                         <div className="flex items-center gap-2">
                           <input type="text" value={lesson.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} className={`${editingInputClass} flex-1`} placeholder="Lesson Title"/>
-                          <button
-                            onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
-                            className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                            title="Lesson Settings"
-                          >
-                            <Settings className="w-4 h-4" />
-                          </button>
+                          {/* Show gear button here only if quality tier column is hidden */}
+                          {!visibleColumns.qualityTier && (
+                            <button
+                              onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
+                              className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                              title="Lesson Settings"
+                            >
+                              <Settings className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       ) : (
                         <button
@@ -907,16 +910,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           return (
                             <div key={col.key} className={`text-gray-600 ${commonCls}`}>
                               {isEditing && onTextChange ? (
-                                                                 <select 
-                                   value={lesson.quality_tier || 'interactive'} 
-                                   onChange={(e) => onTextChange && onTextChange(['sections', sectionIdx, 'lessons', lessonIndex, 'quality_tier'], e.target.value)} 
-                                   className={`${editingInputSmallClass} text-xs`}
-                                 >
-                                  <option value="basic">Basic</option>
-                                  <option value="interactive">Interactive</option>
-                                  <option value="advanced">Advanced</option>
-                                  <option value="immersive">Immersive</option>
-                                </select>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs capitalize flex-1">
+                                    {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                                  </span>
+                                  {/* Show gear button in tier column when it's visible in edit mode */}
+                                  <button
+                                    onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
+                                    className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                    title="Lesson Settings"
+                                  >
+                                    <Settings className="w-4 h-4" />
+                                  </button>
+                                </div>
                               ) : (
                                 <span className="text-xs capitalize">{currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}</span>
                               )}
