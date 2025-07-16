@@ -273,24 +273,10 @@ export default function LessonSettingsModal({
           </div>
 
           {/* Creation Time Preview */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center gap-3 mb-3">
-              <Clock className="text-blue-600" size={20} />
-              <h3 className="font-semibold text-blue-900">Creation Time Preview</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Completion Time:</span>
-                <span className="ml-2 font-medium text-gray-900">{completionTime}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Creation Hours:</span>
-                <span className="ml-2 font-medium text-blue-600">{creationHours}h</span>
-              </div>
-            </div>
-            <div className="mt-2 text-xs text-blue-700">
-              <Calculator className="inline mr-1" size={12} />
-              Calculation: {completionTimeMinutes} minutes × {customRate} = {creationHours} hours
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+            <div className="text-sm text-blue-700">
+              <Calculator className="inline mr-1" size={14} />
+              {completionTime} × {customRate} = {creationHours}h
             </div>
           </div>
         </div>
