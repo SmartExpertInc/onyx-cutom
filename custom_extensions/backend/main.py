@@ -6348,68 +6348,41 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         async def streamer():
             assistant_reply: str = ""
             last_send = asyncio.get_event_loop().time()
+            chunks_received = 0
 
             # Use longer timeout for large text processing to prevent AI memory issues
             timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
-            logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+            logger.info(f"[FINALIZE_OPENAI_STREAM] Starting OpenAI finalization streamer with timeout: {timeout_duration} seconds")
+            logger.info(f"[FINALIZE_OPENAI_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+            
             try:
-                async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                    # Parse folder and file IDs for Onyx
-                    folder_ids_list = []
-                    file_ids_list = []
-                    if payload.fromFiles and payload.folderIds:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                    if payload.fromFiles and payload.fileIds:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                # Use OpenAI streaming for finalization instead of Onyx
+                logger.info(f"[FINALIZE_OPENAI_STREAM] ✅ USING OPENAI DIRECT STREAMING for finalization")
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[FINALIZE_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[FINALIZE_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
                     
-                    # Add virtual file ID if created for large text
-                    if wiz_payload.get("virtualFileId"):
-                        file_ids_list.append(wiz_payload["virtualFileId"])
-                        logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                    
-                    send_payload = {
-                        "chat_session_id": chat_id,
-                        "message": wizard_message,
-                        "parent_message_id": None,
-                        "file_descriptors": [],
-                        "user_file_ids": file_ids_list,
-                        "user_folder_ids": folder_ids_list,
-                        "prompt_id": None,
-                        "search_doc_ids": None,
-                        "retrieval_options": {"run_search": "never", "real_time": False},
-                        "stream_response": True,
-                    }
-                    logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                        logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
-                        async for raw_line in resp.aiter_lines():
-                            if not raw_line:
-                                continue
-                            line = raw_line.strip()
-                            if line.startswith("data:"):
-                                line = line.split("data:", 1)[1].strip()
-                            if line == "[DONE]":
-                                logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
-                                break
-                            try:
-                                pkt = json.loads(line)
-                                if "answer_piece" in pkt:
-                                    delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                    assistant_reply += delta_text
-                                    logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
-                                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                            except Exception as e:
-                                logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
-                                continue
-
-                            # send keep-alive every 8s
-                            now = asyncio.get_event_loop().time()
-                            if now - last_send > 8:
-                                yield b" "
-                                last_send = now
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[FINALIZE_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[FINALIZE_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
             except Exception as e:
-                logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
-                raise
+                logger.error(f"[FINALIZE_OPENAI_STREAM_ERROR] Error in OpenAI finalization streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
             # Cache full raw outline for later finalize step
             if chat_id:
