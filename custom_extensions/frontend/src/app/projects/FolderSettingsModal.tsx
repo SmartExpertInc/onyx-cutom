@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
-import CourseOutlineSelectionModal from './CourseOutlineSelectionModal';
+import TierScopeModal from '../../components/TierScopeModal';
 
 interface FolderSettingsModalProps {
   open: boolean;
@@ -35,7 +35,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
   const [saving, setSaving] = useState(false);
-  const [showCourseOutlineModal, setShowCourseOutlineModal] = useState(false);
+  const [showScopeModal, setShowScopeModal] = useState(false);
   const [pendingTierChange, setPendingTierChange] = useState<{tier: string, rate: number} | null>(null);
 
   const qualityTiers: QualityTier[] = [
@@ -111,49 +111,35 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   };
 
   const handleSave = async () => {
-    // First check if there are course outlines that would be affected
-    console.log('Checking for course outlines in folder:', folderId);
-    try {
-      const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/course-outlines`, {
-        credentials: 'same-origin',
-      });
-      
-      console.log('Course outlines API response status:', response.status);
-      
-      if (response.ok) {
-        const courseOutlines = await response.json();
-        console.log('Found course outlines:', courseOutlines.length, courseOutlines);
-        
-        if (courseOutlines.length > 0) {
-          // There are course outlines, show selection modal
-          console.log('Showing course outline selection modal');
-          setPendingTierChange({ tier: selectedTier, rate: customRate });
-          setShowCourseOutlineModal(true);
-          return;
-        } else {
-          console.log('No course outlines found, proceeding with normal save');
-        }
-      } else {
-        console.error('Course outlines API error response:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error checking course outlines:', error);
+    // Check if tier or rate changed significantly
+    const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
+    const tierChanged = selectedTier !== currentTier;
+    const rateChanged = selectedTierData && Math.abs(customRate - selectedTierData.defaultHours) > 10;
+    
+    if (tierChanged || rateChanged) {
+      // Store the pending change and show scope modal
+      setPendingTierChange({ tier: selectedTier, rate: customRate });
+      setShowScopeModal(true);
+      return;
     }
     
-    // No course outlines or error checking, proceed with normal save
-    await saveWithoutSelection();
+    // No significant change, apply directly
+    await applytierChange('current');
   };
 
-  const saveWithoutSelection = async () => {
+  const applytierChange = async (scope: 'current' | 'all_courses' | 'courses_in_folder') => {
     setSaving(true);
     try {
+      const changeData = pendingTierChange || { tier: selectedTier, rate: customRate };
+      
       const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ 
-          quality_tier: selectedTier,
-          custom_rate: customRate 
+          quality_tier: changeData.tier,
+          custom_rate: changeData.rate,
+          scope: scope // Add scope parameter
         })
       });
       
@@ -162,10 +148,10 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       }
       
       if (onTierChange) {
-        onTierChange(selectedTier);
+        onTierChange(changeData.tier);
       }
       
-      // Refresh the page to update folder colors
+      // Refresh the page to update folder colors and tier displays
       window.location.reload();
       
       onClose();
@@ -174,76 +160,28 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       alert('Failed to save folder tier setting');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleCourseOutlineSelectionConfirm = async (selectedOutlineIds: number[]) => {
-    if (!pendingTierChange) return;
-    
-    setSaving(true);
-    setShowCourseOutlineModal(false);
-    
-    try {
-      const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier/apply`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ 
-          quality_tier: pendingTierChange.tier,
-          custom_rate: pendingTierChange.rate,
-          selected_project_ids: selectedOutlineIds
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to apply tier changes');
-      }
-      
-      if (onTierChange) {
-        onTierChange(pendingTierChange.tier);
-      }
-      
-      // Trigger a custom event to refresh course outline data
-      window.dispatchEvent(new CustomEvent('tier-change', { 
-        detail: { 
-          folderId: folderId, 
-          selectedProjectIds: selectedOutlineIds, 
-          newTier: pendingTierChange.tier, 
-          newCustomRate: pendingTierChange.rate 
-        } 
-      }));
-      
-      // Refresh the page to update folder colors
-      window.location.reload();
-      
-      onClose();
-    } catch (error) {
-      console.error('Error applying tier changes:', error);
-      alert('Failed to apply tier changes');
-    } finally {
-      setSaving(false);
       setPendingTierChange(null);
     }
   };
 
-  const handleCourseOutlineSelectionCancel = () => {
-    setShowCourseOutlineModal(false);
-    setPendingTierChange(null);
-    setSaving(false);
-  };
-
   const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
+
+  // Get count of affected courses (for now, estimate based on folder - this should be fetched from API)
+  const affectedCoursesCount = 5; // TODO: Fetch real count from API
 
   return (
     <>
-      <CourseOutlineSelectionModal
-        open={showCourseOutlineModal}
-        onClose={handleCourseOutlineSelectionCancel}
-        onConfirm={handleCourseOutlineSelectionConfirm}
+      <TierScopeModal
+        open={showScopeModal}
+        onClose={() => {
+          setShowScopeModal(false);
+          setPendingTierChange(null);
+        }}
+        onConfirm={applytierChange}
+        changeType="folder"
         folderName={folderName}
-        folderId={folderId}
         newTier={pendingTierChange?.tier || selectedTier}
-        newCustomRate={pendingTierChange?.rate || customRate}
+        affectedCoursesCount={affectedCoursesCount}
       />
       
       <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
@@ -438,7 +376,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
           overflow: hidden;
         }
       `}</style>
-      </div>
+    </div>
     </>
   );
 };

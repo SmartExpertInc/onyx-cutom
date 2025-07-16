@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import TierScopeModal from '../../components/TierScopeModal';
 
 interface ProjectSettingsModalProps {
   open: boolean;
@@ -36,6 +37,8 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [customRate, setCustomRate] = useState<number>(currentCustomRate);
   const [saving, setSaving] = useState(false);
+  const [showScopeModal, setShowScopeModal] = useState(false);
+  const [pendingTierChange, setPendingTierChange] = useState<{tier: string, rate: number} | null>(null);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -110,15 +113,35 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   };
 
   const handleSave = async () => {
+    // Check if tier or rate changed significantly
+    const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
+    const tierChanged = selectedTier !== currentTier;
+    const rateChanged = Math.abs(customRate - currentCustomRate) > 10;
+    
+    if (tierChanged || rateChanged) {
+      // Store the pending change and show scope modal
+      setPendingTierChange({ tier: selectedTier, rate: customRate });
+      setShowScopeModal(true);
+      return;
+    }
+    
+    // No significant change, apply directly
+    await applyTierChange('current');
+  };
+
+  const applyTierChange = async (scope: 'current' | 'all_courses' | 'courses_in_folder') => {
     setSaving(true);
     try {
+      const changeData = pendingTierChange || { tier: selectedTier, rate: customRate };
+      
       const response = await fetch(`/api/custom-projects-backend/projects/${projectId}/tier`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ 
-          quality_tier: selectedTier,
-          custom_rate: customRate 
+          quality_tier: changeData.tier,
+          custom_rate: changeData.rate,
+          scope: scope === 'courses_in_folder' ? 'current_course' : scope // Map scope for project context
         })
       });
       
@@ -127,10 +150,10 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       }
       
       if (onTierChange) {
-        onTierChange(selectedTier);
+        onTierChange(changeData.tier);
       }
       
-      // Refresh the page to update project calculations
+      // Refresh the page to update project calculations and tier displays
       window.location.reload();
       
       onClose();
@@ -139,13 +162,28 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       alert('Failed to save project tier setting');
     } finally {
       setSaving(false);
+      setPendingTierChange(null);
     }
   };
 
   const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
+    <>
+      <TierScopeModal
+        open={showScopeModal}
+        onClose={() => {
+          setShowScopeModal(false);
+          setPendingTierChange(null);
+        }}
+        onConfirm={applyTierChange}
+        changeType="project"
+        projectName={projectName}
+        newTier={pendingTierChange?.tier || selectedTier}
+        affectedCoursesCount={1}
+      />
+      
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] p-6 relative mx-4 flex flex-col">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
@@ -338,6 +376,7 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
         }
       `}</style>
     </div>
+    </>
   );
 };
 

@@ -2126,6 +2126,7 @@ class ProjectUpdateRequest(BaseModel):
 class ProjectTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    scope: Optional[str] = 'current'  # 'current', 'current_course', 'all_courses'
 
 BulletListBlock.model_rebuild()
 NumberedListBlock.model_rebuild()
@@ -7516,6 +7517,7 @@ class ProjectFolderMoveRequest(BaseModel):
 class ProjectFolderTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    scope: Optional[str] = 'current'  # 'current', 'courses_in_folder', 'all_courses'
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
@@ -7680,96 +7682,9 @@ async def move_folder(folder_id: int, req: ProjectFolderMoveRequest, onyx_user_i
         
         return ProjectFolderResponse(**dict(updated_folder))
 
-@app.get("/api/custom/projects/folders/{folder_id}/course-outlines")
-async def get_folder_course_outlines(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Get all course outlines in a folder with current and estimated new hours"""
-    async with pool.acquire() as conn:
-        # Verify the folder exists and belongs to user
-        folder = await conn.fetchrow(
-            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
-            folder_id, onyx_user_id
-        )
-        if not folder:
-            raise HTTPException(status_code=404, detail="Folder not found")
-        
-        # Get all course outlines in this folder (including subfolders recursively)
-        course_outlines = await conn.fetch("""
-            WITH RECURSIVE folder_tree AS (
-                -- Base case: the target folder
-                SELECT id, parent_id FROM project_folders WHERE id = $1
-                UNION ALL
-                -- Recursive case: child folders
-                SELECT pf.id, pf.parent_id 
-                FROM project_folders pf
-                INNER JOIN folder_tree ft ON pf.parent_id = ft.id
-            )
-            SELECT DISTINCT 
-                p.id, 
-                p.project_name,
-                p.microproduct_content,
-                p.folder_id,
-                COALESCE(pf.custom_rate, 200) as folder_custom_rate
-            FROM projects p
-            INNER JOIN folder_tree ft ON p.folder_id = ft.id
-            LEFT JOIN project_folders pf ON p.folder_id = pf.id
-            WHERE p.microproduct_content IS NOT NULL 
-            AND p.microproduct_content->>'sections' IS NOT NULL
-            AND LOWER(COALESCE(p.design_microproduct_type, '')) = 'training plan'
-        """, folder_id)
-        
-        result = []
-        for outline in course_outlines:
-            try:
-                content = outline['microproduct_content']
-                if isinstance(content, dict) and 'sections' in content:
-                    sections = content['sections']
-                    lesson_count = 0
-                    current_hours = 0
-                    
-                    # Calculate current totals
-                    for section in sections:
-                        if isinstance(section, dict) and 'lessons' in section:
-                            lesson_count += len(section['lessons'])
-                            for lesson in section['lessons']:
-                                if isinstance(lesson, dict):
-                                    current_hours += lesson.get('hours', 0)
-                    
-                    # Calculate estimated new hours with folder's custom rate
-                    estimated_new_hours = 0
-                    folder_custom_rate = outline['folder_custom_rate']
-                    
-                    for section in sections:
-                        if isinstance(section, dict) and 'lessons' in section:
-                            for lesson in section['lessons']:
-                                if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate new hours using folder rate
-                                    lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
-                                    lesson_new_hours = calculate_lesson_creation_hours(lesson, folder_custom_rate)
-                                    estimated_new_hours += lesson_new_hours
-                    
-                    result.append({
-                        'id': outline['id'],
-                        'name': content.get('mainTitle', ''),
-                        'project_name': outline['project_name'],
-                        'lessonCount': lesson_count,
-                        'currentHours': round(current_hours),
-                        'estimatedNewHours': round(estimated_new_hours)
-                    })
-                    
-            except Exception as e:
-                logger.error(f"Error processing course outline {outline['id']}: {e}")
-                continue
-        
-        return result
-
-class ProjectFolderTierApplyRequest(BaseModel):
-    quality_tier: str
-    custom_rate: int
-    selected_project_ids: List[int]
-
-@app.patch("/api/custom/projects/folders/{folder_id}/tier/apply")
-async def apply_folder_tier_to_projects(folder_id: int, req: ProjectFolderTierApplyRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Apply folder tier settings to specific course outline projects"""
+@app.patch("/api/custom/projects/folders/{folder_id}/tier", response_model=ProjectFolderResponse)
+async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update the quality tier of a folder and recalculate creation hours based on scope"""
     async with pool.acquire() as conn:
         # Verify the folder exists and belongs to user
         folder = await conn.fetchrow(
@@ -7785,11 +7700,23 @@ async def apply_folder_tier_to_projects(folder_id: int, req: ProjectFolderTierAp
             req.quality_tier, req.custom_rate, folder_id, onyx_user_id
         )
         
-        # Update only the selected projects
-        for project_id in req.selected_project_ids:
-            try:
-                # Verify project belongs to user and is in the folder tree
-                project = await conn.fetchrow("""
+        # Only update projects if scope includes course outlines
+        if req.scope in ['courses_in_folder', 'all_courses']:
+            
+            if req.scope == 'all_courses':
+                # Get all training plan projects for this user
+                projects_to_update = await conn.fetch("""
+                    SELECT DISTINCT p.id, p.microproduct_content, p.folder_id
+                    FROM projects p
+                    INNER JOIN design_templates dt ON p.design_template_id = dt.id
+                    WHERE p.onyx_user_id = $1 
+                    AND dt.component_name = 'training-plan'
+                    AND p.microproduct_content IS NOT NULL 
+                    AND p.microproduct_content->>'sections' IS NOT NULL
+                """, onyx_user_id)
+            else:
+                # Get all projects in this folder (including subfolders recursively)
+                projects_to_update = await conn.fetch("""
                     WITH RECURSIVE folder_tree AS (
                         -- Base case: the target folder
                         SELECT id, parent_id FROM project_folders WHERE id = $1
@@ -7799,129 +7726,54 @@ async def apply_folder_tier_to_projects(folder_id: int, req: ProjectFolderTierAp
                         FROM project_folders pf
                         INNER JOIN folder_tree ft ON pf.parent_id = ft.id
                     )
-                    SELECT p.id, p.microproduct_content, p.folder_id
+                    SELECT DISTINCT p.id, p.microproduct_content, p.folder_id
                     FROM projects p
                     INNER JOIN folder_tree ft ON p.folder_id = ft.id
-                    WHERE p.id = $2 AND p.onyx_user_id = $3
+                    INNER JOIN design_templates dt ON p.design_template_id = dt.id
+                    WHERE dt.component_name = 'training-plan'
                     AND p.microproduct_content IS NOT NULL 
                     AND p.microproduct_content->>'sections' IS NOT NULL
-                """, folder_id, project_id, onyx_user_id)
-                
-                if not project:
-                    continue  # Skip projects that don't exist or don't belong to user
-                
-                content = project['microproduct_content']
-                if isinstance(content, dict) and 'sections' in content:
-                    sections = content['sections']
-                    
-                    # Update the hours in each lesson and recalculate section totals
-                    for section in sections:
-                        if isinstance(section, dict) and 'lessons' in section:
-                            section_total_hours = 0
-                            for lesson in section['lessons']:
-                                if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate hours using lesson-level tier settings if available, otherwise use folder rate
-                                    lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
-                                    lesson['hours'] = lesson_creation_hours
-                                    section_total_hours += lesson_creation_hours
-                            
-                            # Update the section's totalHours with tier-adjusted sum
-                            if 'totalHours' in section:
-                                section['totalHours'] = round(section_total_hours)
-                    
-                    # Update the project in the database
-                    await conn.execute(
-                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
-                        content, project_id
-                    )
-                    
-            except Exception as e:
-                logger.error(f"Error updating project {project_id} creation hours: {e}")
-                continue
-        
-        return ProjectFolderResponse(**dict(updated_folder))
-
-@app.patch("/api/custom/projects/folders/{folder_id}/tier", response_model=ProjectFolderResponse)
-async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update the quality tier of a folder and recalculate creation hours for all projects in the folder"""
-    async with pool.acquire() as conn:
-        # Verify the folder exists and belongs to user
-        folder = await conn.fetchrow(
-            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
-            folder_id, onyx_user_id
-        )
-        if not folder:
-            raise HTTPException(status_code=404, detail="Folder not found")
-        
-        # Update the folder's quality_tier and custom_rate
-        updated_folder = await conn.fetchrow(
-            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate",
-            req.quality_tier, req.custom_rate, folder_id, onyx_user_id
-        )
-        
-        # Get all projects in this folder (including subfolders recursively)
-        projects_to_update = await conn.fetch("""
-            WITH RECURSIVE folder_tree AS (
-                -- Base case: the target folder
-                SELECT id, parent_id FROM project_folders WHERE id = $1
-                UNION ALL
-                -- Recursive case: child folders
-                SELECT pf.id, pf.parent_id 
-                FROM project_folders pf
-                INNER JOIN folder_tree ft ON pf.parent_id = ft.id
-            )
-            SELECT DISTINCT p.id, p.microproduct_content, p.folder_id
-            FROM projects p
-            INNER JOIN folder_tree ft ON p.folder_id = ft.id
-            WHERE p.microproduct_content IS NOT NULL 
-            AND p.microproduct_content->>'sections' IS NOT NULL
-        """, folder_id)
-        
-        # Update creation hours for each project based on the new tier and custom rate
-        for project in projects_to_update:
-            try:
-                content = project['microproduct_content']
-                if isinstance(content, dict) and 'sections' in content:
-                    sections = content['sections']
-                    total_completion_time = 0
-                    
-                    # Calculate total completion time
-                    for section in sections:
-                        if isinstance(section, dict) and 'lessons' in section:
-                            for lesson in section['lessons']:
-                                if isinstance(lesson, dict):
-                                    completion_time_str = lesson.get('completionTime', '')
-                                    if completion_time_str:
-                                        try:
-                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
-                                            total_completion_time += completion_time_minutes
-                                        except (ValueError, AttributeError):
-                                            pass
-                    
-                    # Update the hours in each lesson and recalculate section totals
-                    for section in sections:
-                        if isinstance(section, dict) and 'lessons' in section:
-                            section_total_hours = 0
-                            for lesson in section['lessons']:
-                                if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate hours using lesson-level tier settings if available, otherwise use folder rate
-                                    lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
-                                    lesson['hours'] = lesson_creation_hours
-                                    section_total_hours += lesson_creation_hours
-                            
-                            # Update the section's totalHours with tier-adjusted sum
-                            if 'totalHours' in section:
-                                section['totalHours'] = round(section_total_hours)
-                    
-                    # Update the project in the database
-                    await conn.execute(
-                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
-                        content, project['id']
-                    )
-                    
-            except Exception as e:
-                logger.error(f"Error updating project {project['id']} creation hours: {e}")
-                continue
+                """, folder_id)
+            
+            # Update creation hours and override lesson tiers for each project
+            for project in projects_to_update:
+                try:
+                    content = dict(project['microproduct_content'])
+                    if isinstance(content, dict) and 'sections' in content:
+                        sections = content['sections']
+                        
+                        # Update the hours in each lesson and override tier settings
+                        for section in sections:
+                            if isinstance(section, dict) and 'lessons' in section:
+                                section_total_hours = 0
+                                for lesson in section['lessons']:
+                                    if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                        # Override lesson tier settings with folder tier
+                                        lesson['quality_tier'] = req.quality_tier
+                                        lesson['custom_rate'] = req.custom_rate
+                                        
+                                        # Calculate new hours with overridden tier
+                                        lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
+                                        lesson_creation_hours = calculate_creation_hours(lesson_completion_time, req.custom_rate)
+                                        lesson['hours'] = lesson_creation_hours
+                                        section_total_hours += lesson_creation_hours
+                                
+                                # Update the section's totalHours with tier-adjusted sum
+                                if 'totalHours' in section:
+                                    section['totalHours'] = round(section_total_hours)
+                        
+                        # Round all hours to integers
+                        content = round_hours_in_content(content)
+                        
+                        # Update the project in the database
+                        await conn.execute(
+                            "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                            content, project['id']
+                        )
+                        
+                except Exception as e:
+                    logger.error(f"Error updating project {project['id']} creation hours: {e}")
+                    continue
         
         return ProjectFolderResponse(**dict(updated_folder))
 
@@ -8175,7 +8027,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
 
 @app.patch("/api/custom/projects/{project_id}/tier", response_model=ProjectDB)
 async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update the quality tier and custom rate of a project and recalculate creation hours"""
+    """Update the quality tier and custom rate of a project based on scope"""
     async with pool.acquire() as conn:
         # Verify the project exists and belongs to user
         project = await conn.fetchrow(
@@ -8191,39 +8043,102 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
             req.quality_tier, req.custom_rate, project_id, onyx_user_id
         )
         
-        # If the project has content, recalculate creation hours
-        if project['microproduct_content']:
+        # Handle scope-based updates
+        if req.scope == 'all_courses':
+            # Update all training plan projects for this user
+            projects_to_update = await conn.fetch("""
+                SELECT DISTINCT p.id, p.microproduct_content
+                FROM projects p
+                INNER JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.onyx_user_id = $1 
+                AND dt.component_name = 'training-plan'
+                AND p.microproduct_content IS NOT NULL 
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, onyx_user_id)
+            
+            for proj in projects_to_update:
+                try:
+                    content = dict(proj['microproduct_content'])
+                    if isinstance(content, dict) and 'sections' in content:
+                        # Override all lesson tiers and recalculate
+                        for section in content['sections']:
+                            if isinstance(section, dict) and 'lessons' in section:
+                                section_total_hours = 0
+                                for lesson in section['lessons']:
+                                    if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                        # Override lesson tier settings
+                                        lesson['quality_tier'] = req.quality_tier
+                                        lesson['custom_rate'] = req.custom_rate
+                                        
+                                        lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
+                                        lesson_creation_hours = calculate_creation_hours(lesson_completion_time, req.custom_rate)
+                                        lesson['hours'] = lesson_creation_hours
+                                        section_total_hours += lesson_creation_hours
+                                
+                                if 'totalHours' in section:
+                                    section['totalHours'] = round(section_total_hours)
+                        
+                        content = round_hours_in_content(content)
+                        await conn.execute("UPDATE projects SET microproduct_content = $1 WHERE id = $2", content, proj['id'])
+                        
+                except Exception as e:
+                    logger.error(f"Error updating project {proj['id']} creation hours: {e}")
+                    
+        elif req.scope == 'current_course' and project['microproduct_content']:
+            # Update only this project but override all lesson tiers
             try:
                 content = dict(project['microproduct_content'])
                 if isinstance(content, dict) and 'sections' in content:
-                    sections = content['sections']
-                    
-                    # Update the hours in each lesson and recalculate section totals
-                    for section in sections:
+                    # Override all lesson tiers and recalculate
+                    for section in content['sections']:
                         if isinstance(section, dict) and 'lessons' in section:
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate hours using lesson-level tier settings if available, otherwise use project rate
+                                    # Override lesson tier settings
+                                    lesson['quality_tier'] = req.quality_tier
+                                    lesson['custom_rate'] = req.custom_rate
+                                    
+                                    lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
+                                    lesson_creation_hours = calculate_creation_hours(lesson_completion_time, req.custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
+                            
+                            if 'totalHours' in section:
+                                section['totalHours'] = round(section_total_hours)
+                    
+                    content = round_hours_in_content(content)
+                    await conn.execute("UPDATE projects SET microproduct_content = $1 WHERE id = $2", content, project_id)
+                    
+                    # Re-fetch the updated project
+                    updated_project = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project_id} creation hours: {e}")
+                
+        elif req.scope == 'current' and project['microproduct_content']:
+            # Only update hours based on new rate, don't override lesson tiers
+            try:
+                content = dict(project['microproduct_content'])
+                if isinstance(content, dict) and 'sections' in content:
+                    for section in content['sections']:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            section_total_hours = 0
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                    # Use lesson-level tier if available, otherwise project rate
                                     lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
-                            # Update the section's totalHours with tier-adjusted sum
                             if 'totalHours' in section:
                                 section['totalHours'] = round(section_total_hours)
                     
-                    # Update the project in the database
-                    await conn.execute(
-                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
-                        content, project['id']
-                    )
+                    content = round_hours_in_content(content)
+                    await conn.execute("UPDATE projects SET microproduct_content = $1 WHERE id = $2", content, project_id)
                     
                     # Re-fetch the updated project
-                    updated_project = await conn.fetchrow(
-                        "SELECT * FROM projects WHERE id = $1",
-                        project_id
-                    )
+                    updated_project = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
                     
             except Exception as e:
                 logger.error(f"Error updating project {project_id} creation hours: {e}")
