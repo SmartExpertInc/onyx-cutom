@@ -5781,7 +5781,35 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                
+                # Cache full raw outline for later finalize step (same as Onyx path)
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                if not assistant_reply.strip():
+                    logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+                    error_packet = {"type": "error", "message": "No content received from AI service"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+
+                logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                try:
+                    modules_preview = _parse_outline_markdown(assistant_reply)
+                    logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
+                    logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+                except Exception as e:
+                    logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
+                    logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                    error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+                
+                # Send completion packet with the parsed outline (same format as Onyx path)
+                logger.info(f"[PREVIEW_DONE] Creating completion packet")
+                done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+                yield (json.dumps(done_packet) + "\n").encode()
+                logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
                 return
                 
             except Exception as e:
