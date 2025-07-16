@@ -29,6 +29,9 @@ from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
 import inspect
+# NEW: OpenAI imports for direct usage
+import openai
+from openai import AsyncOpenAI
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -64,6 +67,94 @@ LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
 # Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+# NEW: OpenAI client for direct streaming
+OPENAI_CLIENT = None
+
+def get_openai_client():
+    """Get or create the OpenAI client instance."""
+    global OPENAI_CLIENT
+    if OPENAI_CLIENT is None:
+        api_key = LLM_API_KEY or LLM_API_KEY_FALLBACK
+        if not api_key:
+            raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
+        OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
+    return OPENAI_CLIENT
+
+async def stream_openai_response(prompt: str, model: str = None):
+    """
+    Stream response directly from OpenAI API.
+    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
+        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
+        
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Create the streaming chat completion
+        stream = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            stream=True,
+            max_tokens=4000,
+            temperature=0.7
+        )
+        
+        logger.info(f"[OPENAI_STREAM] Stream created successfully")
+        
+        async for chunk in stream:
+            if chunk.choices and len(chunk.choices) > 0:
+                choice = chunk.choices[0]
+                if choice.delta and choice.delta.content:
+                    content = choice.delta.content
+                    yield {"type": "delta", "text": content}
+                    
+                # Check for finish reason
+                if choice.finish_reason:
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    break
+                    
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
+        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+
+def should_use_openai_direct(payload) -> bool:
+    """
+    Determine if we should use OpenAI directly instead of Onyx.
+    Returns True when no file context is present.
+    """
+    # Check if files are explicitly provided
+    has_files = (
+        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
+        (hasattr(payload, 'folderIds') and payload.folderIds) or
+        (hasattr(payload, 'fileIds') and payload.fileIds)
+    )
+    
+    # Check if text context is provided (this still uses file system in some cases)
+    has_text_context = (
+        hasattr(payload, 'fromText') and payload.fromText and 
+        hasattr(payload, 'userText') and payload.userText
+    )
+    
+    # Use OpenAI directly only when there's no file context and no text context
+    use_openai = not has_files and not has_text_context
+    
+    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
+    return use_openai
 
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
@@ -5655,6 +5746,40 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
+        # NEW: Check if we should use OpenAI directly instead of Onyx
+        if should_use_openai_direct(payload):
+            logger.info(f"[PREVIEW_STREAM] Using OpenAI direct streaming (no file context)")
+            try:
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # EXISTING: Use Onyx when file context is present
+        logger.info(f"[PREVIEW_STREAM] Using Onyx streaming (file context present)")
         try:
             logger.info(f"[PREVIEW_STREAM] Creating HTTP client with timeout: {timeout_duration}")
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
@@ -6613,6 +6738,48 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         # Use longer timeout for large text processing to prevent AI memory issues
         timeout_duration = 300.0 if wizard_dict.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+        
+        # NEW: Check if we should use OpenAI directly instead of Onyx
+        if should_use_openai_direct(payload):
+            logger.info(f"[LESSON_STREAM] Using OpenAI direct streaming (no file context)")
+            try:
+                chunks_received = 0
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[LESSON_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[LESSON_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # EXISTING: Use Onyx when file context is present
+        logger.info(f"[LESSON_STREAM] Using Onyx streaming (file context present)")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
                 # Parse folder and file IDs for Onyx
@@ -8945,6 +9112,40 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         logger.info(f"[QUIZ_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[QUIZ_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
+        # NEW: Check if we should use OpenAI directly instead of Onyx
+        if should_use_openai_direct(payload):
+            logger.info(f"[QUIZ_STREAM] Using OpenAI direct streaming (no file context)")
+            try:
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[QUIZ_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[QUIZ_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # EXISTING: Use Onyx when file context is present
+        logger.info(f"[QUIZ_STREAM] Using Onyx streaming (file context present)")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
                 # Parse folder and file IDs for Onyx
@@ -9746,6 +9947,40 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
+        # NEW: Check if we should use OpenAI directly instead of Onyx
+        if should_use_openai_direct(payload):
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Using OpenAI direct streaming (no file context)")
+            try:
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # EXISTING: Use Onyx when file context is present
+        logger.info(f"[TEXT_PRESENTATION_STREAM] Using Onyx streaming (file context present)")
         try:
             async with httpx.AsyncClient(timeout=timeout_duration) as client:
                 # Parse folder and file IDs for Onyx
