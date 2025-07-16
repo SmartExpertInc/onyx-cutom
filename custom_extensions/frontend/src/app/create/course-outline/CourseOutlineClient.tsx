@@ -38,14 +38,56 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
   </div>
 );
 
-// Helper to retry fetch up to 2 times on 504 Gateway Timeout
+// Helper to retry fetch up to 2 times on 504 Gateway Timeout with timeout protection
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
-  let attempt = 0;
-  while (true) {
-    const res = await fetch(input, init);
-    if (res.status !== 504 || attempt >= retries) return res;
-    attempt += 1;
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      // Add exponential backoff delay for retries
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
+      // Set a reasonable timeout for the request - longer for finalization
+      const controller = new AbortController();
+      const isFinalization = (input as string)?.includes('/finalize');
+      const timeoutDuration = isFinalization ? 300000 : 60000; // 5 minutes for finalization, 1 minute for preview
+      const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+      
+      const response = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Consider 5xx errors as retryable, but not 4xx errors
+      if (response.ok || (response.status >= 400 && response.status < 500)) {
+        return response;
+      }
+      
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      
+    } catch (error: any) {
+      lastError = error;
+      
+      // Don't retry on abort errors or client errors (4xx)
+      if (error.name === 'AbortError' || (error.message && error.message.includes('4'))) {
+        throw error;
+      }
+      
+      // If this was the last attempt, throw the error
+      if (attempt === retries) {
+        throw error;
+      }
+      
+      console.warn(`Request attempt ${attempt + 1} failed:`, error.message);
+    }
   }
+  
+  throw lastError!;
 }
 
 // Compact radial progress ring (16×16) used for char-count indicator
@@ -669,6 +711,12 @@ export default function CourseOutlineClient() {
     // Ensure the preview spinner / fake-thoughts are not shown while we're in finalize mode
     setLoading(false);
     setError(null);
+
+    // Add timeout safeguard to prevent infinite loading for large course outlines
+    const timeoutId = setTimeout(() => {
+      setIsGenerating(false);
+      setError("Finalization timed out. Large course outlines may take up to 5 minutes to process. Please try again or consider reducing the number of modules/lessons.");
+    }, 360000); // 6 minutes timeout
     try {
       const outlineForBackend = {
         mainTitle: prompt,
@@ -717,6 +765,9 @@ export default function CourseOutlineClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalizeBody),
       });
+
+      // Clear timeout since request completed successfully
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error(await res.text());
 
       let data;
@@ -806,6 +857,8 @@ export default function CourseOutlineClient() {
       // leave the custom frontend and hit the main app's /projects route.
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
+      // Clear timeout on error
+      clearTimeout(timeoutId);
       setError(e.message);
       // allow UI interaction again
       setIsGenerating(false);

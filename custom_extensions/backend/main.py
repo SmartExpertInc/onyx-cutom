@@ -6387,8 +6387,10 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             last_send = asyncio.get_event_loop().time()
             chunks_received = 0
 
-            # Use longer timeout for large text processing to prevent AI memory issues
-            timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+            # Use longer timeout for large text processing and complex course outlines
+            # Large course outlines (10+ modules) need extended timeout for processing
+            is_large_outline = (wiz_payload.get("modules", 0) * wiz_payload.get("lessonsPerModule", 0)) >= 80
+            timeout_duration = 300.0 if (wiz_payload.get("virtualFileId") or is_large_outline) else 180.0  # 5 minutes for large content, 3 minutes for regular
             logger.info(f"[FINALIZE_OPENAI_STREAM] Starting OpenAI finalization streamer with timeout: {timeout_duration} seconds")
             logger.info(f"[FINALIZE_OPENAI_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
             
