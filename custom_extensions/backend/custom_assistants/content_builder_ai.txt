@@ -404,13 +404,18 @@ B. Est. Creation Time: Calculate based on "Est. Completion Time" using a 1:200 r
   - 7m completion → (7 ÷ 60) × 200 = 0.117 × 200 = 23.3h → 24h
   - 8m completion → (8 ÷ 60) × 200 = 0.133 × 200 = 26.7h → 27h
 
-+CRITICAL CONSISTENCY RULE:
-+For every individual lesson you generate, you MUST:
-+1. First choose a random **Est. Completion Time** value in the 5-8 minute range **independently for each lesson** (it is NOT permissible to use the same completion time for every lesson).
-+2. Immediately apply the 1 : 200 formula to that specific completion-time value to compute **Est. Creation Time** for that lesson.
-+3. Output the resulting whole-hour value (after rounding up) for that lesson. **Do NOT reuse a hard-coded number like "20h".**
++CRITICAL CONSISTENCY RULE – **Est. Creation Time MUST vary correctly**
 +
-+If two lessons have different completion times, their creation times MUST also be different. If two lessons happen to share the same completion time, their creation times will, naturally, also match. This rule is strictly enforced and will be used to validate your output.
++For *every* lesson you output you **MUST** follow these steps **independently**:
++
++1. Randomly pick an **Est. Completion Time** between 5-8 minutes.
++2. Apply the 1 : 200 formula to *that exact value*:
++   • convert minutes → hours  (e.g. 5 min ÷ 60 = 0.083 h)  
++   • multiply by 200  (0.083 h × 200 = 16.67 h)  
++   • round **up** to the nearest whole hour → **17 h**.
++3. Write this rounded whole-hour value in the **Час** / **Время** / **Time** field.
++
++NEVER default to "20 h" unless the completion time is *exactly* 6 m.  Different completion times **must** give different creation times.  This will be automatically validated.
 
 The output for creation time must always be presented in whole hours (no decimals). Always round up any fractional hours to the next whole hour (e.g., 16.67 hours becomes 17 hours, 23.3 hours becomes 24 hours). Avoid presenting time in minutes or with decimal places.
 
