@@ -5759,7 +5759,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
             logger.info(f"[PREVIEW_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
-            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
@@ -5792,7 +5792,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         # EXISTING: Use Onyx when file context is present
         else:
             logger.info(f"[PREVIEW_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
         
         logger.info(f"[PREVIEW_STREAM] Using Onyx streaming (file context present)")
         try:
@@ -6757,7 +6757,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
             logger.info(f"[LESSON_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
-            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 chunks_received = 0
                 async for chunk_data in stream_openai_response(wizard_message):
@@ -6797,7 +6797,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         # EXISTING: Use Onyx when file context is present
         else:
             logger.info(f"[LESSON_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
         
         logger.info(f"[LESSON_STREAM] Using Onyx streaming (file context present)")
         try:
@@ -9135,7 +9135,7 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
             logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
-            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
@@ -9168,7 +9168,7 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         # EXISTING: Use Onyx when file context is present
         else:
             logger.info(f"[QUIZ_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
         
         logger.info(f"[QUIZ_STREAM] Using Onyx streaming (file context present)")
         try:
@@ -9975,7 +9975,7 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
             logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
@@ -10008,7 +10008,7 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         # EXISTING: Use Onyx when file context is present
         else:
             logger.info(f"[TEXT_PRESENTATION_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={payload.get('fromFiles')}, fileIds={payload.get('fileIds')}, folderIds={payload.get('folderIds')}")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
         
         logger.info(f"[TEXT_PRESENTATION_STREAM] Using Onyx streaming (file context present)")
         try:
