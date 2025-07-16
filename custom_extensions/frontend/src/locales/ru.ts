@@ -33,6 +33,12 @@ export const ru = {
     allProjects: "Все проекты",
     loadingProject: "Загрузка проекта..."
   },
+  qualityTiers: {
+    basic: "Базовый",
+    interactive: "Интерактивный",
+    advanced: "Продвинутый",
+    immersive: "Иммерсивный"
+  },
   videoLesson: {
     slide: "Слайд",
     displayedTextLabel: "Отображаемый текст",

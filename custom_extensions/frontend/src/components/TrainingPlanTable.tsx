@@ -97,14 +97,23 @@ const localizationConfig = {
   ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения", qualityTier: "Уровень качества" },
   en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time", qualityTier: "Quality Tier" },
   uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення", qualityTier: "Рівень якості" },
+  es: { moduleAndLessons: "Módulo y Lecciones", knowledgeCheck: "Verificación de conocimientos", contentAvailability: "Disponibilidad de contenido", source: "Fuente de información", time: "Tiempo Est. Creación", estCreationTime: "Tiempo Est. Creación", estCompletionTime: "Tiempo Est. Finalización", qualityTier: "Nivel de Calidad" },
+};
+
+const tierLabels = {
+  ru: { basic: "Базовый", interactive: "Интерактивный", advanced: "Продвинутый", immersive: "Иммерсивный" },
+  en: { basic: "Basic", interactive: "Interactive", advanced: "Advanced", immersive: "Immersive" },
+  uk: { basic: "Базовий", interactive: "Інтерактивний", advanced: "Поглиблений", immersive: "Іммерсивний" },
+  es: { basic: "Básico", interactive: "Interactivo", advanced: "Avanzado", immersive: "Inmersivo" },
 };
 const timeUnits = {
   ru: { timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", minuteUnit: "м" },
   en: { timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", minuteUnit: "m" },
   uk: { timeUnitSingular: "год", timeUnitDecimalPlural: "год", timeUnitGeneralPlural: "год", minuteUnit: "хв" },
+  es: { timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", minuteUnit: "m" },
 };
 
-const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk', localized: typeof localizationConfig['ru'] | typeof localizationConfig['en'] | typeof localizationConfig['uk'], isEditingContext?: boolean) => {
+const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk' | 'es', localized: typeof localizationConfig['ru'] | typeof localizationConfig['en'] | typeof localizationConfig['uk'] | typeof localizationConfig['es'], isEditingContext?: boolean) => {
     const numHours = Number(hours);
     if (isNaN(numHours)) return isEditingContext ? "" : "-";
     if (numHours <= 0 && !isEditingContext) return '-';
@@ -114,10 +123,11 @@ const formatHoursDisplay = (hours: number | string, language: 'ru' | 'en' | 'uk'
     const numStr = numHours % 1 === 0 ? numHours.toFixed(0) : numHours.toFixed(1);
     if (language === 'en') { return `${numStr}${timeUnits.en.timeUnitSingular}`; }
     if (language === 'ru') { return `${numStr}${timeUnits.ru.timeUnitSingular}`; }
+    if (language === 'es') { return `${numStr}${timeUnits.es.timeUnitSingular}`; }
     return `${numStr} ${timeUnits.uk.timeUnitSingular}`;
 };
 
-const formatCompletionTimeDisplay = (completionTime: string, language: 'ru' | 'en' | 'uk'): string => {
+const formatCompletionTimeDisplay = (completionTime: string, language: 'ru' | 'en' | 'uk' | 'es'): string => {
     if (!completionTime) return '-';
     
     // Extract minutes from completion time string (e.g., "5m", "6m", "7m", "8m")
@@ -127,6 +137,8 @@ const formatCompletionTimeDisplay = (completionTime: string, language: 'ru' | 'e
         return `${minutes}${timeUnits.en.minuteUnit}`;
     } else if (language === 'ru') {
         return `${minutes}${timeUnits.ru.minuteUnit}`;
+    } else if (language === 'es') {
+        return `${minutes}${timeUnits.es.minuteUnit}`;
     } else {
         return `${minutes}${timeUnits.uk.minuteUnit}`;
     }
@@ -559,8 +571,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const iconBaseColor = currentTheme.iconColor;
   const sections = dataToDisplay?.sections;
   const mainTitle = dataToDisplay?.mainTitle;
-  const lang = dataToDisplay?.detectedLanguage === 'ru' ? 'ru' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : 'en';
+  const lang = dataToDisplay?.detectedLanguage === 'ru' ? 'ru' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : dataToDisplay?.detectedLanguage === 'es' ? 'es' : 'en';
   const localized = localizationConfig[lang];
+  const currentTierLabels = tierLabels[lang];
 
   const handleGenericInputChange = (path: (string|number)[], event: React.ChangeEvent<HTMLInputElement>) => {
     if (onTextChange) onTextChange(path, event.target.value);
@@ -898,7 +911,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                   <option value="immersive">Immersive</option>
                                 </select>
                               ) : (
-                                <span className="text-xs capitalize">{lesson.quality_tier || 'Interactive'}</span>
+                                <span className="text-xs capitalize">{currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}</span>
                               )}
                             </div>
                           );

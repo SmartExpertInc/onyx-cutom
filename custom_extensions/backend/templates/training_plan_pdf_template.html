@@ -147,14 +147,16 @@
             'knowledgeCheck': "Проверка знаний",
             'contentAvailability': "Наличие контента",
             'source': "Источник информации",
-            'time': "Время создания",
-            'completionTime': "Время выполнения"
+            'qualityTier': "Уровень качества",
+            'time': "Оц. время создания",
+            'completionTime': "Оц. время завершения"
         },
         'en': {
             'moduleAndLessons': "Module / Lesson",
             'knowledgeCheck': "Assessment Type",
             'contentAvailability': "Content Volume",
             'source': "Source",
+            'qualityTier': "Quality Tier",
             'time': "Est. Creation Time",
             'completionTime': "Est. Completion Time"
         },
@@ -163,8 +165,18 @@
             'knowledgeCheck': "Перевірка знань",
             'contentAvailability': "Наявність контенту",
             'source': "Джерело інформації",
-            'time': "Час створення",
-            'completionTime': "Час виконання"
+            'qualityTier': "Рівень якості",
+            'time': "Оц. час створення",
+            'completionTime': "Оц. час завершення"
+        },
+        'es': {
+            'moduleAndLessons': "Módulo y Lecciones",
+            'knowledgeCheck': "Verificación de conocimientos",
+            'contentAvailability': "Disponibilidad de contenido",
+            'source': "Fuente de información",
+            'qualityTier': "Nivel de Calidad",
+            'time': "Tiempo Est. Creación",
+            'completionTime': "Tiempo Est. Finalización"
         }
     } %}
     {% set headers = column_headers[lang] or column_headers['ru'] %}
@@ -180,15 +192,17 @@
     {% set kc_show  = column_visibility.get('knowledgeCheck', True) %}
     {% set ca_show  = column_visibility.get('contentAvailability', True) %}
     {% set src_show = column_visibility.get('informationSource', True) %}
+    {% set qt_show  = column_visibility.get('qualityTier', False) %}
     {% set time_show= column_visibility.get('time', True) %}
     {% set ct_show  = column_visibility.get('estCompletionTime', True) %}
 
     {% set span_kc   = 5 if kc_show  else 0 %}
     {% set span_ca   = 2 if ca_show  else 0 %}
     {% set span_src  = 4 if src_show else 0 %}
+    {% set span_qt   = 2 if qt_show  else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show  else 0 %}
-    {% set modules_span = 20 - (span_kc + span_ca + span_src + span_time + span_ct) %}
+    {% set modules_span = 20 - (span_kc + span_ca + span_src + span_qt + span_time + span_ct) %}
     {% set module_header_span = 20 - span_time - span_ct %}
 
     {% macro span_style(n) %}grid-column: span {{ n }} / span {{ n }};{% endmacro %}
@@ -204,6 +218,7 @@
                 {% if kc_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_kc) }}">{{ headers.knowledgeCheck }}</div>{% endif %}
                 {% if ca_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_ca) }}">{{ headers.contentAvailability }}</div>{% endif %}
                 {% if src_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_src) }}">{{ headers.source }}</div>{% endif %}
+                {% if qt_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_qt) }}">{{ headers.qualityTier }}</div>{% endif %}
                 {% if time_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
                 {% if ct_show %}<div class="text-left px-2 py-3" style="{{ span_style(span_ct) }}">{{ headers.completionTime }}</div>{% endif %}
             </div>
@@ -279,6 +294,17 @@
                             {% else %}
                                 {{ source_text }}
                             {% endif %}
+                        </div>{% endif %}
+                        {% if qt_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_qt) }}">
+                            {% set tier_labels = {
+                                'ru': {'basic': 'Базовый', 'interactive': 'Интерактивный', 'advanced': 'Продвинутый', 'immersive': 'Иммерсивный'},
+                                'en': {'basic': 'Basic', 'interactive': 'Interactive', 'advanced': 'Advanced', 'immersive': 'Immersive'},
+                                'uk': {'basic': 'Базовий', 'interactive': 'Інтерактивний', 'advanced': 'Поглиблений', 'immersive': 'Іммерсивний'},
+                                'es': {'basic': 'Básico', 'interactive': 'Interactivo', 'advanced': 'Avanzado', 'immersive': 'Inmersivo'}
+                            } %}
+                            {% set current_tier_labels = tier_labels.get(lang, tier_labels['en']) %}
+                            {% set lesson_tier = lesson.quality_tier or 'interactive' %}
+                            <span class="text-xxs capitalize">{{ current_tier_labels.get(lesson_tier, lesson_tier.title()) }}</span>
                         </div>{% endif %}
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                             <div class="w-3 flex justify-center">

@@ -33,6 +33,12 @@ export const uk = {
     allProjects: "Усі проекти",
     loadingProject: "Завантаження проекту..."
   },
+  qualityTiers: {
+    basic: "Базовий",
+    interactive: "Інтерактивний", 
+    advanced: "Поглиблений",
+    immersive: "Іммерсивний"
+  },
   videoLesson: {
     slide: "Слайд",
     displayedTextLabel: "Текст, що відображається",

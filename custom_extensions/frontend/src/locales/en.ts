@@ -25,6 +25,12 @@ export const en = {
     timeUnitDecimalPlural: "h",
     timeUnitGeneralPlural: "h"
   },
+  qualityTiers: {
+    basic: "Basic",
+    interactive: "Interactive",
+    advanced: "Advanced",
+    immersive: "Immersive"
+  },
   videoLesson: {
     slide: "Slide",
     displayedTextLabel: "Displayed text",
