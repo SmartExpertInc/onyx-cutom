@@ -217,7 +217,22 @@ const EditProjectPageComponent = () => {
       if (!response.ok) {
         const errorDataText = await response.text();
         let errorDetail = `HTTP error! status: ${response.status}`;
-        try { const errorJson = JSON.parse(errorDataText); errorDetail = errorJson.detail || errorDetail; } 
+        try { 
+          const errorJson = JSON.parse(errorDataText); 
+          if (errorJson.detail) {
+            // Handle Pydantic validation errors (array of objects) vs regular string errors
+            if (Array.isArray(errorJson.detail)) {
+              // Format validation errors nicely
+              const validationErrors = errorJson.detail.map((err: any) => {
+                const location = err.loc ? err.loc.join('.') : 'unknown';
+                return `${location}: ${err.msg || 'Validation error'}`;
+              }).join('; ');
+              errorDetail = `Validation errors: ${validationErrors}`;
+            } else {
+              errorDetail = errorJson.detail;
+            }
+          }
+        } 
         catch(e) { errorDetail = `${errorDetail} - ${errorDataText.substring(0,100)}`;}
         throw new Error(errorDetail);
       }
