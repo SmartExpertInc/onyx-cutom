@@ -251,6 +251,26 @@ export default function ProjectInstanceViewPage() {
     }
   }, [projectId, params, fetchPageData, pageState, projectInstanceData]);
 
+  // Listen for tier changes that might affect this course outline
+  useEffect(() => {
+    const handleTierChange = (event: CustomEvent) => {
+      const { selectedProjectIds } = event.detail;
+      const currentProjectId = parseInt(projectId || '0');
+      
+      // If this project was affected by the tier change, refresh the data
+      if (selectedProjectIds.includes(currentProjectId) && projectId) {
+        console.log('Tier change detected for this project, refreshing data...');
+        fetchPageData(projectId);
+      }
+    };
+
+    window.addEventListener('tier-change', handleTierChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('tier-change', handleTierChange as EventListener);
+    };
+  }, [projectId, fetchPageData]);
+
   useEffect(() => {
     if (displayOptsSynced) return;
     if (!projectId || !editableData || !projectInstanceData) return;

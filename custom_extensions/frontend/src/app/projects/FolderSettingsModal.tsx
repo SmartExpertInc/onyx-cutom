@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import CourseOutlineSelectionModal from './CourseOutlineSelectionModal';
 
 interface FolderSettingsModalProps {
   open: boolean;
@@ -34,6 +35,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
   const [saving, setSaving] = useState(false);
+  const [showCourseOutlineModal, setShowCourseOutlineModal] = useState(false);
+  const [pendingTierChange, setPendingTierChange] = useState<{tier: string, rate: number} | null>(null);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -108,6 +111,31 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   };
 
   const handleSave = async () => {
+    // First check if there are course outlines that would be affected
+    try {
+      const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/course-outlines`, {
+        credentials: 'same-origin',
+      });
+      
+      if (response.ok) {
+        const courseOutlines = await response.json();
+        
+        if (courseOutlines.length > 0) {
+          // There are course outlines, show selection modal
+          setPendingTierChange({ tier: selectedTier, rate: customRate });
+          setShowCourseOutlineModal(true);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking course outlines:', error);
+    }
+    
+    // No course outlines or error checking, proceed with normal save
+    await saveWithoutSelection();
+  };
+
+  const saveWithoutSelection = async () => {
     setSaving(true);
     try {
       const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier`, {
@@ -140,10 +168,76 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     }
   };
 
+  const handleCourseOutlineSelectionConfirm = async (selectedOutlineIds: number[]) => {
+    if (!pendingTierChange) return;
+    
+    setSaving(true);
+    setShowCourseOutlineModal(false);
+    
+    try {
+      const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier/apply`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ 
+          quality_tier: pendingTierChange.tier,
+          custom_rate: pendingTierChange.rate,
+          selected_project_ids: selectedOutlineIds
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to apply tier changes');
+      }
+      
+      if (onTierChange) {
+        onTierChange(pendingTierChange.tier);
+      }
+      
+      // Trigger a custom event to refresh course outline data
+      window.dispatchEvent(new CustomEvent('tier-change', { 
+        detail: { 
+          folderId: folderId, 
+          selectedProjectIds: selectedOutlineIds, 
+          newTier: pendingTierChange.tier, 
+          newCustomRate: pendingTierChange.rate 
+        } 
+      }));
+      
+      // Refresh the page to update folder colors
+      window.location.reload();
+      
+      onClose();
+    } catch (error) {
+      console.error('Error applying tier changes:', error);
+      alert('Failed to apply tier changes');
+    } finally {
+      setSaving(false);
+      setPendingTierChange(null);
+    }
+  };
+
+  const handleCourseOutlineSelectionCancel = () => {
+    setShowCourseOutlineModal(false);
+    setPendingTierChange(null);
+    setSaving(false);
+  };
+
   const selectedTierData = qualityTiers.find(tier => tier.id === selectedTier);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
+    <>
+      <CourseOutlineSelectionModal
+        open={showCourseOutlineModal}
+        onClose={handleCourseOutlineSelectionCancel}
+        onConfirm={handleCourseOutlineSelectionConfirm}
+        folderName={folderName}
+        folderId={folderId}
+        newTier={pendingTierChange?.tier || selectedTier}
+        newCustomRate={pendingTierChange?.rate || customRate}
+      />
+      
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] p-6 relative mx-4 flex flex-col">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
@@ -335,7 +429,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
           overflow: hidden;
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 };
 

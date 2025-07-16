@@ -7680,6 +7680,167 @@ async def move_folder(folder_id: int, req: ProjectFolderMoveRequest, onyx_user_i
         
         return ProjectFolderResponse(**dict(updated_folder))
 
+@app.get("/api/custom/projects/folders/{folder_id}/course-outlines")
+async def get_folder_course_outlines(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get all course outlines in a folder with current and estimated new hours"""
+    async with pool.acquire() as conn:
+        # Verify the folder exists and belongs to user
+        folder = await conn.fetchrow(
+            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+            folder_id, onyx_user_id
+        )
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # Get all course outlines in this folder (including subfolders recursively)
+        course_outlines = await conn.fetch("""
+            WITH RECURSIVE folder_tree AS (
+                -- Base case: the target folder
+                SELECT id, parent_id FROM project_folders WHERE id = $1
+                UNION ALL
+                -- Recursive case: child folders
+                SELECT pf.id, pf.parent_id 
+                FROM project_folders pf
+                INNER JOIN folder_tree ft ON pf.parent_id = ft.id
+            )
+            SELECT DISTINCT 
+                p.id, 
+                p.project_name,
+                p.microproduct_content,
+                p.folder_id,
+                COALESCE(pf.custom_rate, 200) as folder_custom_rate
+            FROM projects p
+            INNER JOIN folder_tree ft ON p.folder_id = ft.id
+            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+            WHERE p.microproduct_content IS NOT NULL 
+            AND p.microproduct_content->>'sections' IS NOT NULL
+            AND LOWER(COALESCE(p.design_microproduct_type, '')) = 'training plan'
+        """, folder_id)
+        
+        result = []
+        for outline in course_outlines:
+            try:
+                content = outline['microproduct_content']
+                if isinstance(content, dict) and 'sections' in content:
+                    sections = content['sections']
+                    lesson_count = 0
+                    current_hours = 0
+                    
+                    # Calculate current totals
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            lesson_count += len(section['lessons'])
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict):
+                                    current_hours += lesson.get('hours', 0)
+                    
+                    # Calculate estimated new hours with folder's custom rate
+                    estimated_new_hours = 0
+                    folder_custom_rate = outline['folder_custom_rate']
+                    
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                    # Calculate new hours using folder rate
+                                    lesson_completion_time = int(lesson['completionTime'].replace('m', ''))
+                                    lesson_new_hours = calculate_lesson_creation_hours(lesson, folder_custom_rate)
+                                    estimated_new_hours += lesson_new_hours
+                    
+                    result.append({
+                        'id': outline['id'],
+                        'name': content.get('mainTitle', ''),
+                        'project_name': outline['project_name'],
+                        'lessonCount': lesson_count,
+                        'currentHours': round(current_hours),
+                        'estimatedNewHours': round(estimated_new_hours)
+                    })
+                    
+            except Exception as e:
+                logger.error(f"Error processing course outline {outline['id']}: {e}")
+                continue
+        
+        return result
+
+class ProjectFolderTierApplyRequest(BaseModel):
+    quality_tier: str
+    custom_rate: int
+    selected_project_ids: List[int]
+
+@app.patch("/api/custom/projects/folders/{folder_id}/tier/apply")
+async def apply_folder_tier_to_projects(folder_id: int, req: ProjectFolderTierApplyRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Apply folder tier settings to specific course outline projects"""
+    async with pool.acquire() as conn:
+        # Verify the folder exists and belongs to user
+        folder = await conn.fetchrow(
+            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+            folder_id, onyx_user_id
+        )
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # Update the folder's quality_tier and custom_rate
+        updated_folder = await conn.fetchrow(
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate",
+            req.quality_tier, req.custom_rate, folder_id, onyx_user_id
+        )
+        
+        # Update only the selected projects
+        for project_id in req.selected_project_ids:
+            try:
+                # Verify project belongs to user and is in the folder tree
+                project = await conn.fetchrow("""
+                    WITH RECURSIVE folder_tree AS (
+                        -- Base case: the target folder
+                        SELECT id, parent_id FROM project_folders WHERE id = $1
+                        UNION ALL
+                        -- Recursive case: child folders
+                        SELECT pf.id, pf.parent_id 
+                        FROM project_folders pf
+                        INNER JOIN folder_tree ft ON pf.parent_id = ft.id
+                    )
+                    SELECT p.id, p.microproduct_content, p.folder_id
+                    FROM projects p
+                    INNER JOIN folder_tree ft ON p.folder_id = ft.id
+                    WHERE p.id = $2 AND p.onyx_user_id = $3
+                    AND p.microproduct_content IS NOT NULL 
+                    AND p.microproduct_content->>'sections' IS NOT NULL
+                """, folder_id, project_id, onyx_user_id)
+                
+                if not project:
+                    continue  # Skip projects that don't exist or don't belong to user
+                
+                content = project['microproduct_content']
+                if isinstance(content, dict) and 'sections' in content:
+                    sections = content['sections']
+                    
+                    # Update the hours in each lesson and recalculate section totals
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            section_total_hours = 0
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict) and lesson.get('completionTime'):
+                                    # Calculate hours using lesson-level tier settings if available, otherwise use folder rate
+                                    lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
+                            
+                            # Update the section's totalHours with tier-adjusted sum
+                            if 'totalHours' in section:
+                                section['totalHours'] = round(section_total_hours)
+                    
+                    # Update the project in the database
+                    await conn.execute(
+                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                        content, project_id
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project_id} creation hours: {e}")
+                continue
+        
+        return ProjectFolderResponse(**dict(updated_folder))
+
 @app.patch("/api/custom/projects/folders/{folder_id}/tier", response_model=ProjectFolderResponse)
 async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     """Update the quality tier of a folder and recalculate creation hours for all projects in the folder"""
