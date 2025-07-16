@@ -7,7 +7,9 @@ import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
 import OpenOrCreateModal from './OpenOrCreateModal';
 import OpenContentModal from './OpenContentModal';
+import LessonSettingsModal from '../app/projects/LessonSettingsModal';
 import { useSearchParams } from 'next/navigation';
+import { Settings } from 'lucide-react';
 
 // --- Custom SVG Icons ---
 const NewPieChartIcon = ({ color = '#FF1414', className = '' }) => (
@@ -189,6 +191,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     hasLesson: boolean; hasVideoLesson: boolean; hasQuiz: boolean;
     lessonId?: number; videoLessonId?: number; quizId?: number; parentProjectName?: string;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false });
+
+  const [lessonSettingsModalState, setLessonSettingsModalState] = useState<{
+    isOpen: boolean; lessonTitle: string; sectionIndex: number; lessonIndex: number;
+    currentCustomRate?: number; currentQualityTier?: string; completionTime: string;
+  }>({ isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' });
 
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
@@ -465,6 +472,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
   };
 
+  // Handle opening lesson settings modal
+  const handleLessonSettingsOpen = (lesson: LessonType, sectionIndex: number, lessonIndex: number) => {
+    setLessonSettingsModalState({
+      isOpen: true,
+      lessonTitle: lesson.title,
+      sectionIndex,
+      lessonIndex,
+      currentCustomRate: lesson.custom_rate,
+      currentQualityTier: lesson.quality_tier,
+      completionTime: lesson.completionTime || '5m'
+    });
+  };
+
+  // Handle saving lesson settings
+  const handleLessonSettingsSave = (customRate: number, qualityTier: string) => {
+    const { sectionIndex, lessonIndex } = lessonSettingsModalState;
+    
+    if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
+      // Update lesson's custom rate and quality tier
+      onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], customRate);
+      onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
+      
+      // Recalculate hours based on new rate
+      const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex];
+      if (lesson && lesson.completionTime) {
+        const completionTimeMinutes = parseInt(lesson.completionTime.replace('m', '')) || 0;
+        const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
+      }
+    }
+    
+    setLessonSettingsModalState({ 
+      isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' 
+    });
+  };
+
   // Theme configuration for training plan colors
   const themeConfig = {
     cherry: {
@@ -660,6 +703,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         quizId={openContentModalState.quizId}
         parentProjectName={openContentModalState.parentProjectName || parentProjectName}
       />
+      <LessonSettingsModal
+        isOpen={lessonSettingsModalState.isOpen}
+        onClose={() => setLessonSettingsModalState({ isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' })}
+        lessonTitle={lessonSettingsModalState.lessonTitle}
+        currentCustomRate={lessonSettingsModalState.currentCustomRate}
+        currentQualityTier={lessonSettingsModalState.currentQualityTier}
+        completionTime={lessonSettingsModalState.completionTime}
+        onSave={handleLessonSettingsSave}
+      />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(isEditing || (mainTitle !== undefined && mainTitle !== null)) && (
           <div className={`p-4 ${isEditing ? 'text-black' : currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
@@ -777,7 +829,16 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     {/* Module + Lesson title column */}
                     <div className={`text-gray-800 pr-2 ${activeColumns.length > 1 ? 'border-r border-gray-400' : ''}`}> 
                       {isEditing && onTextChange ? (
-                        <input type="text" value={lesson.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} className={editingInputClass} placeholder="Lesson Title"/>
+                        <div className="flex items-center gap-2">
+                          <input type="text" value={lesson.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} className={`${editingInputClass} flex-1`} placeholder="Lesson Title"/>
+                          <button
+                            onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
+                            className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                            title="Lesson Settings"
+                          >
+                            <Settings className="w-4 h-4" />
+                          </button>
+                        </div>
                       ) : (
                         <button
                           onClick={() => handleLessonClick(lesson, section.title, currentLessonNumber)}

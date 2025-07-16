@@ -149,3 +149,200 @@ The implementation can be tested by:
 2. **Accuracy**: More precise creation hour estimates per project type
 3. **Client Customization**: Tailor estimates for specific client requirements
 4. **Granular Control**: Override folder defaults when needed while maintaining hierarchy 
+
+# Individual Lesson-Level Tier Settings Implementation
+
+This document describes the implementation of individual lesson-level completion/creation ratio settings in course outline edit mode, extending the existing project-level settings to provide granular control over each lesson's tier settings.
+
+## Overview
+
+The lesson-level tier settings feature allows users to configure completion/creation ratios for individual lessons within a Training Plan, providing more precise control over creation hour calculations than folder or project-level settings alone.
+
+## Frontend Implementation
+
+### 1. Updated Types (`custom_extensions/frontend/src/types/trainingPlan.ts`)
+
+```typescript
+export interface Lesson {
+  id?: string;
+  title: string;
+  check: StatusInfo;
+  contentAvailable: StatusInfo;
+  source: string;
+  hours: number;
+  completionTime: string;
+  custom_rate?: number; // Individual lesson-level custom rate override
+  quality_tier?: string; // Individual lesson-level quality tier override
+}
+```
+
+### 2. Lesson Settings Modal (`custom_extensions/frontend/src/app/projects/LessonSettingsModal.tsx`)
+
+New modal component (344 lines) that provides:
+
+- **Quality Tier Selection**: Basic (100h), Interactive (200h), Advanced (300h), Immersive (700h)
+- **Custom Rate Sliders**: Tier-specific ranges for fine-tuning
+- **Real-time Preview**: Shows calculated creation hours based on completion time and rate
+- **Validation**: Ensures proper tier constraints and rate limits
+
+### 3. Integration in TrainingPlanTable (`custom_extensions/frontend/src/components/TrainingPlanTable.tsx`)
+
+#### Added Features:
+- **Settings Button**: Gear icon next to each lesson title in edit mode
+- **Modal State Management**: Tracks which lesson is being edited
+- **Handler Functions**: 
+  - `handleLessonSettingsOpen()`: Opens modal with current lesson settings
+  - `handleLessonSettingsSave()`: Updates lesson data and recalculates hours
+- **UI Integration**: Settings button appears only in edit mode alongside lesson title input
+
+#### User Experience:
+- Settings button visible only when editing Training Plans
+- Immediate recalculation of hours when settings are saved
+- Visual feedback through hour updates in the interface
+- Non-intrusive placement that doesn't disrupt existing workflow
+
+## Backend Implementation
+
+### 1. Updated Data Models (`custom_extensions/backend/main.py`)
+
+```python
+class LessonDetail(BaseModel):
+    title: str
+    check: StatusInfo = Field(default_factory=StatusInfo)
+    contentAvailable: StatusInfo = Field(default_factory=StatusInfo)
+    source: str = ""
+    hours: int = 0
+    completionTime: str = ""
+    custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
+    quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    model_config = {"from_attributes": True}
+```
+
+### 2. Calculation Helper Functions
+
+#### `get_lesson_effective_custom_rate(lesson: dict, project_custom_rate: int) -> int`
+- Returns lesson's custom rate if set, otherwise falls back to project rate
+
+#### `get_lesson_effective_quality_tier(lesson: dict, project_quality_tier: str) -> str`
+- Returns lesson's quality tier if set, otherwise falls back to project tier
+
+#### `calculate_lesson_creation_hours(lesson: dict, project_custom_rate: int) -> int`
+- Calculates creation hours using lesson-specific rate if available
+- Falls back to project rate for lessons without individual settings
+- Handles completion time parsing and error cases
+
+### 3. Updated Calculation Logic
+
+All tier update functions now use lesson-level calculations:
+
+- **Project Tier Updates**: Use `calculate_lesson_creation_hours()` instead of uniform rate
+- **Folder Tier Updates**: Respect lesson-level overrides when recalculating
+- **Project Folder Moves**: Apply lesson-specific rates during folder transitions
+
+## Tier Inheritance Hierarchy
+
+The system follows a three-level inheritance hierarchy for tier settings:
+
+1. **Lesson Level** (highest priority)
+   - Individual lesson `custom_rate` and `quality_tier` fields
+   - Only set when user explicitly configures lesson settings
+
+2. **Project Level** (medium priority)
+   - Project-wide `custom_rate` and `quality_tier` fields
+   - Fallback for lessons without individual settings
+
+3. **Folder Level** (lowest priority)
+   - Folder-wide settings with parent folder inheritance
+   - Default when neither lesson nor project settings exist
+
+## Quality Tier Configuration
+
+| Tier | Base Rate | Range | Description |
+|------|-----------|-------|-------------|
+| Basic | 100 | 10-200 | Simple content creation |
+| Interactive | 200 | 100-250 | Engaging interactive content |
+| Advanced | 300 | 200-400 | Complex detailed content |
+| Immersive | 700 | 400-1000 | Highly immersive experience |
+
+## Database Schema
+
+No additional database changes required - the lesson-level settings are stored within the existing `microproduct_content` JSONB field structure in the `projects` table.
+
+## Usage Flow
+
+1. **Access**: User enters edit mode for a Training Plan project
+2. **Configure**: Clicks gear icon next to any lesson title
+3. **Set Tier**: Selects quality tier and adjusts custom rate in modal
+4. **Preview**: Real-time calculation shows creation hours
+5. **Save**: Settings applied immediately with hour recalculation
+6. **Persist**: Changes saved to project content and visible immediately
+
+## API Integration
+
+The lesson-level settings work seamlessly with existing project/folder tier API endpoints:
+
+- Settings stored in project content JSON structure
+- No new API endpoints required
+- Calculation updates automatic through existing save mechanisms
+- Backward compatibility maintained for lessons without individual settings
+
+## Benefits
+
+### 1. **Granular Control**
+- Individual lesson complexity can be reflected in creation time estimates
+- Different types of content within the same course can have appropriate rates
+
+### 2. **Flexible Inheritance** 
+- Lessons inherit from project settings by default
+- Projects inherit from folder settings when no project settings exist
+- Override capability at each level as needed
+
+### 3. **User Experience**
+- In-context editing directly in the course outline
+- Real-time feedback and calculation updates
+- Non-disruptive interface integration
+
+### 4. **Client Customization**
+- Different clients can have different expectations for lesson complexity
+- Fine-tuning possible without affecting other lessons in the same project
+
+### 5. **Accurate Estimation**
+- More precise creation hour estimates for mixed-complexity content
+- Better project planning and resource allocation
+
+## Testing Recommendations
+
+1. **Basic Functionality**
+   - Create lesson with custom tier settings
+   - Verify hour calculations update correctly
+   - Test inheritance from project/folder settings
+
+2. **UI Integration**
+   - Settings button appears/disappears correctly in edit mode
+   - Modal opens with correct current values
+   - Changes reflect immediately in the interface
+
+3. **Calculation Accuracy**
+   - Verify lesson-level rates override project rates
+   - Test fallback to project/folder rates when lesson rate not set
+   - Confirm section totals update correctly
+
+4. **Data Persistence**
+   - Settings survive page refresh
+   - Project save/load preserves lesson-level settings
+   - Export/import maintains tier configuration
+
+5. **Edge Cases**
+   - Lessons with no completion time
+   - Invalid tier configurations
+   - Missing project/folder fallback settings
+
+## Implementation Notes
+
+- **No Migrations Required**: Uses existing database schema
+- **Backward Compatible**: Existing projects work unchanged
+- **Performance**: Calculation functions optimized for minimal overhead
+- **Maintainable**: Follows existing patterns for settings and modals
+- **Extensible**: Structure allows for future enhancements to lesson-level configuration
+
+The lesson-level tier settings feature provides the granular control needed for accurate project estimation while maintaining the simplicity and usability of the existing course outline interface. 

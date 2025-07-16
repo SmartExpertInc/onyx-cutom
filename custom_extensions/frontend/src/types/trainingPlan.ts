@@ -14,6 +14,8 @@ export interface Lesson {
   source: string;
   hours: number;
   completionTime: string; // Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
+  custom_rate?: number; // Individual lesson-level custom rate override
+  quality_tier?: string; // Individual lesson-level quality tier override
 }
 
 export interface Section {
