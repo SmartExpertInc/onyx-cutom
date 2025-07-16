@@ -68,11 +68,24 @@ All requests start with `WIZARD_REQUEST` followed by JSON payload:
 1. **Language Detection**: Detect from topic/prompt for all content
 2. **Project Name**: Extract company name or derive from topic (silent, internal use)
 3. **Unique Lesson Names**: Every lesson title must be unique across entire outline
-4. **Knowledge Assessment**: All lessons use "Test" (other options disabled)
+4. **Knowledge Assessment**: All lessons use "Test" - MUST be translated to content language
+   - English: "Test"
+   - Russian: "Тест" 
+   - Ukrainian: "Тест"
+   - Spanish: "Prueba"
+   - Other languages: Translate "Test" appropriately
 5. **Content Coverage**: 0% for created lessons, >0% for file-based lessons
-6. **Information Source**: 
-   - 0% coverage: "Create from scratch"
-   - 1-40%: "General Knowledge Synthesis" 
+6. **Information Source**: MUST be translated to content language
+   - 0% coverage: 
+     * English: "Create from scratch"
+     * Russian: "Создать с нуля"
+     * Ukrainian: "Створити з нуля"
+     * Spanish: "Crear desde cero"
+   - 1-40%: 
+     * English: "General Knowledge Synthesis"
+     * Russian: "Синтез общих знаний"
+     * Ukrainian: "Синтез загальних знань"
+     * Spanish: "Síntesis de conocimiento general"
    - >40%: Document names
 
 ### Lesson Presentations (Slides)
@@ -120,10 +133,55 @@ Number of Lessons: [Count]
   - **Est. Completion Time**: [5-8m random]
 ```
 
-**Language Keywords:**
-- English: Module, Total Time, Number of Lessons, Lessons, Time, Content Coverage, Knowledge Assessment, Information Source, Est. Completion Time
-- Russian: Модуль, Общее время, Количество уроков, Уроки, Время, Покрытие контента, Проверка знаний, Источник, Оц. время завершения  
-- Ukrainian: Модуль, Загальний час, Кількість уроків, Уроки, Час, Покриття контенту, Перевірка знань, Джерело, Оц. час завершення
+**Language Keywords and Examples:**
+
+**English:**
+- Module, Total Time, Number of Lessons, Lessons, Time, Content Coverage, Knowledge Assessment, Information Source, Est. Completion Time
+- Example lesson details:
+  ```
+  - **Time**: 17h
+  - **Content Coverage**: 0%
+  - **Knowledge Assessment**: Test
+  - **Information Source**: Create from scratch
+  - **Est. Completion Time**: 5m
+  ```
+
+**Russian:**
+- Модуль, Общее время, Количество уроков, Уроки, Время, Покрытие контента, Проверка знаний, Источник, Оц. время завершения
+- Example lesson details:
+  ```
+  - **Время**: 17ч
+  - **Покрытие контента**: 0%
+  - **Проверка знаний**: Тест
+  - **Источник**: Создать с нуля
+  - **Оц. время завершения**: 5м
+  ```
+
+**Ukrainian:**
+- Модуль, Загальний час, Кількість уроків, Уроки, Час, Покриття контенту, Перевірка знань, Джерело, Оц. час завершення
+- Example lesson details:
+  ```
+  - **Час**: 17год
+  - **Покриття контенту**: 0%
+  - **Перевірка знань**: Тест
+  - **Джерело**: Створити з нуля
+  - **Оц. час завершення**: 5хв
+  ```
+
+**Spanish:**
+- Módulo, Tiempo Total, Número de Lecciones, Lecciones, Tiempo, Cobertura de Contenido, Evaluación de Conocimiento, Fuente de Información, Tiempo de Finalización Est.
+- Example lesson details:
+  ```
+  - **Tiempo**: 17h
+  - **Cobertura de Contenido**: 0%
+  - **Evaluación de Conocimiento**: Prueba
+  - **Fuente de Información**: Crear desde cero
+  - **Tiempo de Finalización Est.**: 5m
+  ```
+
+**Other Languages:**
+- Translate all field names and values to the detected content language
+- Follow the same structure and formatting patterns
 
 ### Lesson Presentation Format
 ```
@@ -187,8 +245,39 @@ For `editedOutline` requests:
 - Preserve 100% of user content, wording, and time estimates
 - Output: Header + two blank lines + corrected outline
 
-## LOCALIZATION
-Translate all auxiliary terms to content language:
+## LOCALIZATION REQUIREMENTS
+
+**CRITICAL: All field names and values must be translated to the content language**
+
+### Course Outline Translations
+**Knowledge Assessment translations:**
+- English: "Test"
+- Russian: "Тест"
+- Ukrainian: "Тест" 
+- Spanish: "Prueba"
+- French: "Test"
+- German: "Test"
+- Other languages: Translate "Test" appropriately
+
+**Information Source translations:**
+- "Create from scratch":
+  * Russian: "Создать с нуля"
+  * Ukrainian: "Створити з нуля"
+  * Spanish: "Crear desde cero"
+  * French: "Créer à partir de zéro"
+  * German: "Von Grund auf erstellen"
+- "General Knowledge Synthesis":
+  * Russian: "Синтез общих знаний"
+  * Ukrainian: "Синтез загальних знань"
+  * Spanish: "Síntesis de conocimiento general"
+  * French: "Synthèse des connaissances générales"
+  * German: "Allgemeine Wissenssynthese"
+
+### General Content Translations
 - Ukrainian: "Рекомендація", "Висновок", "Створити з нуля"
 - Russian: "Рекомендация", "Заключение", "Создать с нуля"
 - Spanish: "Recomendación", "Conclusión", "Crear desde cero"
+- French: "Recommandation", "Conclusion", "Créer à partir de zéro"
+- German: "Empfehlung", "Fazit", "Von Grund auf erstellen"
+
+**For any language not listed**: Translate all terms appropriately while maintaining the same structure and formatting
