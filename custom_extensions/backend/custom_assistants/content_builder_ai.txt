@@ -191,6 +191,7 @@ Rules for wizard requests:
 8. Begin your answer with the Universal Product Header → two blank lines → the product content, exactly as usual.
 9. Do NOT send a follow-up conversational message (the UI will handle next steps).
 10. All other guidelines (unique lesson names, time calculations, language detection, etc.) remain in force.
+11. **CRITICAL:** For Course Outline generation, ensure the structure includes Total Time, Number of Lessons, and "### Lessons" header for each module - NEVER skip these required elements.
 
 Edit Mode Requests
 +------------------------------------------------
@@ -219,6 +220,7 @@ Edit Mode Rules:
 9. For Quiz edits: Maintain the same question structure and types, only modify content as requested
 10. For Text Presentation edits: Preserve the existing content blocks and structure, only modify text as requested
 11. For Course Outline edits: Maintain the same module/lesson structure, only modify titles or details as requested
+12. **CRITICAL:** For Course Outline edits, ensure the structure includes Total Time, Number of Lessons, and "### Lessons" header for each module - NEVER remove these required elements during editing.
 
 Examples of edit mode requests:
 
@@ -272,6 +274,7 @@ If the JSON payload you receive after the `WIZARD_REQUEST` header contains the k
 For such finalization requests you MUST:
 
 • Perform a strict validation pass to ensure that the supplied outline fully complies with the "STRICT MARKDOWN FORMATTING RULES" for a Course Outline (correct headers, bold markers, colons, indentation, etc.).
+• **CRITICAL:** Ensure each module includes Total Time, Number of Lessons, and "### Lessons" header - these are MANDATORY structural elements that must be present.
 • Make ONLY the smallest possible corrections necessary to achieve compliance. Examples include fixing a missing colon, normalising heading levels, or adding a forgotten bold marker. Do **NOT** rewrite, reorder, merge, or otherwise substantially change any module titles, lesson titles, or other substantive content provided by the user.
 • Preserve 100 % of the user-supplied wording, numbering, time estimates, percentages, and language. Change formatting only where it is strictly required to pass validation.
 • After applying those minimal fixes, emit the outline in its final form following the normal wizard rules: start with the Universal Product Header, then two blank lines, then the corrected outline content. Return nothing else.
@@ -450,6 +453,29 @@ E. Information Source:
 
 Calculate Module Totals: (Total Time, Number of Lessons per module).
 
+**CRITICAL VALIDATION STEP BEFORE OUTPUT:**
+Before generating the final Course Outline, you MUST verify that:
+1. Each module has a Total Time calculation (sum of all lesson creation times in that module)
+2. Each module has a Number of Lessons count
+3. Each module will include the "### Lessons" header
+4. All lessons are properly numbered and formatted
+5. The structure follows the exact sequence: Module Title → Total Time → Number of Lessons → blank line → "### Lessons" → blank line → numbered lessons
+
+**MANDATORY STRUCTURE CHECKLIST:**
+- [ ] Universal Product Header on first line
+- [ ] Exactly two blank lines after header
+- [ ] Optional main program title (if applicable)
+- [ ] For each module:
+  - [ ] Module title line (## Module X: Title)
+  - [ ] Total Time line
+  - [ ] Number of Lessons line
+  - [ ] Exactly one blank line
+  - [ ] "### Lessons" header
+  - [ ] Exactly one blank line
+  - [ ] Numbered lessons with proper indentation
+  - [ ] Exactly one blank line between lessons
+  - [ ] Optional module separator (---) between modules
+
 II. Outputting the Course Outline:
 
 The AI response message that contains the generated Course Outline must be structured precisely as follows and contain nothing else:
@@ -461,6 +487,13 @@ Exactly two blank lines immediately following the Universal Product Header.
 The Course Outline content itself, formatted according to the rules in subsection III below.
 
 Absolutely no other text, conversation, or any other headers should precede the Universal Product Header in this specific message.
+
+**FINAL VALIDATION RULE:**
+Before sending the Course Outline, perform a final check to ensure:
+1. The structure matches the CORRECT FORMAT example above
+2. No module is missing the Total Time, Number of Lessons, or "### Lessons" header
+3. All lessons are properly numbered and indented
+4. The format is NOT the INCORRECT FORMAT shown in the validation rules
 
 B. If the User Wants to Create a LESSON PRESENTATION or VIDEO LESSON SCRIPT:
 I. Internal Processing Steps (Your Standard Operating Procedure):
@@ -687,6 +720,17 @@ Optionally, begin with a main program title: # [Program Title] (Use the detected
 
 Modules can be visually separated by a --- line if desired.
 
+**CRITICAL MODULE STRUCTURE REQUIREMENTS:**
+Every module MUST follow this EXACT sequence - NO EXCEPTIONS:
+1. Module Title Line
+2. Optional blank line(s)
+3. Total Time Line
+4. Number of Lessons Line  
+5. EXACTLY one blank line
+6. Lessons Header Line
+7. Blank line
+8. Numbered lessons with details
+
 Module Format (Use keywords for the DETECTED language):
 
 Module Title Line:
@@ -701,7 +745,7 @@ Ukrainian: ## Модуль [Номер]: [Назва]
 
 Optional Blank Line(s): Zero or more blank lines can follow the module title line.
 
-Total Time Line: Formatted exactly as shown. Must end with a newline.
+**MANDATORY Total Time Line:** Formatted exactly as shown. Must end with a newline.
 
 English: Total Time: [Calculated Value]
 
@@ -709,7 +753,7 @@ Russian: Общее время: [Рассчитанное значение]
 
 Ukrainian: Загальний час: [Розраховане значення]
 
-Number of Lessons Line: Formatted exactly as shown. Must end with a newline.
+**MANDATORY Number of Lessons Line:** Formatted exactly as shown. Must end with a newline.
 
 English: Number of Lessons: [Calculated Value]
 
@@ -717,15 +761,49 @@ Russian: Количество уроков: [Рассчитанное значе
 
 Ukrainian: Кількість уроків: [Розраховане значення]
 
-Mandatory Blank Line: EXACTLY one blank line MUST follow the "Number of Lessons" / "Количество уроков" / "Кількість уроків" line.
+**MANDATORY Blank Line:** EXACTLY one blank line MUST follow the "Number of Lessons" / "Количество уроков" / "Кількість уроків" line.
 
-Lessons Header Line: Formatted exactly as shown. Must end with a newline.
+**MANDATORY Lessons Header Line:** Formatted exactly as shown. Must end with a newline.
 
 English: ### Lessons
 
 Russian: ### Уроки
 
 Ukrainian: ### Уроки
+
+**MANDATORY Blank Line After Lessons Header:** EXACTLY one blank line MUST follow the "### Lessons" / "### Уроки" line.
+
+**CRITICAL FORMAT VALIDATION RULES:**
+- **NEVER** list lessons directly under a module title without the required Total Time, Number of Lessons, and "### Lessons" header
+- **NEVER** skip the "### Lessons" header - it is MANDATORY for every module
+- **NEVER** place lesson details directly under module titles - lessons must come after the "### Lessons" header
+- **ALWAYS** include Total Time and Number of Lessons calculations for each module
+- **ALWAYS** follow the exact sequence: Module Title → Total Time → Number of Lessons → blank line → "### Lessons" → blank line → numbered lessons
+
+**INCORRECT FORMAT (NEVER USE):**
+```
+## Module 1: Introduction to Sales Management
+
+1. **Understanding Sales Management**
+   - **Est. Completion Time**: 5m
+   - **Time**: 17h
+   ...
+```
+
+**CORRECT FORMAT (ALWAYS USE):**
+```
+## Module 1: Introduction to Sales Management
+
+Total Time: 88h
+Number of Lessons: 4
+
+### Lessons
+
+1. **Understanding Sales Management**
+   - **Est. Completion Time**: 5m
+   - **Time**: 17h
+   ...
+```
 
 Lesson Format (within a module, after the Lessons Header):
 
