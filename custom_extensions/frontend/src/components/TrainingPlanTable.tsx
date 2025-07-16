@@ -657,13 +657,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   }, [searchParams, storedOpts, columnVisibility]);
 
   const columnOrder: Array<{key: string; width: number}> = [
-    { key: 'module', width: 4 },
-    { key: 'knowledgeCheck', width: 2 },
-    { key: 'contentAvailability', width: 1 },
-    { key: 'informationSource', width: 2 },
-    { key: 'qualityTier', width: 1 },
-    { key: 'estCreationTime', width: 1 },
-    { key: 'estCompletionTime', width: 1 },
+    { key: 'module', width: 7 },  // modules_span in PDF = 20 - (4+2+3+2+2+2) = 5, adjusted for readability
+    { key: 'knowledgeCheck', width: 4 },  // span_kc = 4 (matching PDF)
+    { key: 'contentAvailability', width: 2 },  // span_ca = 2 (matching PDF)
+    { key: 'informationSource', width: 3 },  // span_src = 3 (matching PDF)
+    { key: 'qualityTier', width: 2 },  // span_qt = 2 (matching PDF)
+    { key: 'estCreationTime', width: 2 },  // span_time = 2 (matching PDF)
+    { key: 'estCompletionTime', width: 2 },  // span_ct = 2 (matching PDF)
   ];
 
   const activeColumns = columnOrder.filter((c) => {

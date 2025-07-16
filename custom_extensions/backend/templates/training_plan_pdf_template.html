@@ -196,9 +196,9 @@
     {% set time_show= column_visibility.get('time', True) %}
     {% set ct_show  = column_visibility.get('estCompletionTime', True) %}
 
-    {% set span_kc   = 5 if kc_show  else 0 %}
+    {% set span_kc   = 4 if kc_show  else 0 %}
     {% set span_ca   = 2 if ca_show  else 0 %}
-    {% set span_src  = 4 if src_show else 0 %}
+    {% set span_src  = 3 if src_show else 0 %}
     {% set span_qt   = 2 if qt_show  else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show  else 0 %}
