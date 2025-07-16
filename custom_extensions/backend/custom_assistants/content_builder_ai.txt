@@ -398,37 +398,11 @@ B. Est. Creation Time: Calculate based on "Est. Completion Time" using a 1:200 r
 - Convert completion time from minutes to hours: [completion time in minutes] ÷ 60 = [completion time in hours]
 - Calculate creation time: [completion time in hours] × 200 = [creation time in hours]
 - ALWAYS round up the creation time to the nearest whole hour (e.g., 16.67h becomes 17h, 23.3h becomes 24h)
-- Examples (showing ALL possible completion times):
-  - 5m completion → (5 ÷ 60) × 200 = 0.083 × 200 = 16.67h → **17h**
-  - 6m completion → (6 ÷ 60) × 200 = 0.1 × 200 = 20h → **20h**
-  - 7m completion → (7 ÷ 60) × 200 = 0.117 × 200 = 23.3h → **24h**
-  - 8m completion → (8 ÷ 60) × 200 = 0.133 × 200 = 26.7h → **27h**
-
-**REMEMBER**: Each lesson gets a DIFFERENT completion time (5m, 6m, 7m, or 8m), so creation times will vary: 17h, 20h, 24h, or 27h respectively. DO NOT use 20h for every lesson!
-
-+CRITICAL CONSISTENCY RULE – **Est. Creation Time MUST vary correctly**
-+
-+For *every* lesson you output you **MUST** follow these steps **independently**:
-+
-+1. Randomly pick an **Est. Completion Time** between 5-8 minutes.
-+2. Apply the 1 : 200 formula to *that exact value*:
-+   • convert minutes → hours  (e.g. 5 min ÷ 60 = 0.083 h)  
-+   • multiply by 200  (0.083 h × 200 = 16.67 h)  
-+   • round **up** to the nearest whole hour → **17 h**.
-+3. Write this rounded whole-hour value in the **Час** / **Время** / **Time** field.
-+
-+NEVER default to "20 h" unless the completion time is *exactly* 6 m.  Different completion times **must** give different creation times.  This will be automatically validated.
-
-**CORRECT EXAMPLE** (showing proper variation):
-Lesson 1: 5m completion → 17h creation
-Lesson 2: 7m completion → 24h creation  
-Lesson 3: 8m completion → 27h creation
-Lesson 4: 6m completion → 20h creation
-
-**WRONG EXAMPLE** (what NOT to do):
-Lesson 1: 5m completion → 20h creation ❌
-Lesson 2: 7m completion → 20h creation ❌
-Lesson 3: 8m completion → 20h creation ❌
+- Examples:
+  - 5m completion → (5 ÷ 60) × 200 = 0.083 × 200 = 16.67h → 17h
+  - 6m completion → (6 ÷ 60) × 200 = 0.1 × 200 = 20h → 20h
+  - 7m completion → (7 ÷ 60) × 200 = 0.117 × 200 = 23.3h → 24h
+  - 8m completion → (8 ÷ 60) × 200 = 0.133 × 200 = 26.7h → 27h
 
 The output for creation time must always be presented in whole hours (no decimals). Always round up any fractional hours to the next whole hour (e.g., 16.67 hours becomes 17 hours, 23.3 hours becomes 24 hours). Avoid presenting time in minutes or with decimal places.
 
@@ -755,7 +729,7 @@ For English:
 
 For Russian:
 
-- **Время**: [Расчетное время для этого урока - рассчитывается на основе Оц. времени завершения с использованием соотношения 1:200: конвертируем время завершения из минут в часы, затем умножаем на 200, затем округляем вверх до ближайшего целого часа. ВАЖНО: каждый урок имеет разное время завершения (5м, 6м, 7м, 8м), поэтому время создания ДОЛЖНО варьироваться: 17ч, 20ч, 24ч, 27ч соответственно. НЕ используйте 20ч для всех уроков!]
+- **Время**: [Расчетное время для этого урока - рассчитывается на основе Оц. времени завершения с использованием соотношения 1:200: конвертируем время завершения из минут в часы, затем умножаем на 200, затем округляем вверх до ближайшего целого часа. Примеры: 5м → 17ч, 6м → 20ч, 7м → 24ч, 8м → 27ч]
 
 - **Покрытие контента**: [Процент покрытия контента для этого урока]%
 
@@ -767,7 +741,7 @@ For Russian:
 
 For Ukrainian:
 
-- **Час**: [Розрахований час для цього уроку - розраховується на основі Оц. часу завершення з використанням співвідношення 1:200: конвертуємо час завершення з хвилин у години, потім множимо на 200, потім округлюємо вгору до найближчої цілої години. ВАЖЛИВО: кожен урок має різний час завершення (5хв, 6хв, 7хв, 8хв), тому час створення ПОВИНЕН варіюватися: 17год, 20год, 24год, 27год відповідно. НЕ використовуйте 20год для всіх уроків!]
+- **Час**: [Розрахований час для цього уроку - розраховується на основі Оц. часу завершення з використанням співвідношення 1:200: конвертуємо час завершення з хвилин у години, потім множимо на 200, потім округлюємо вгору до найближчої цілої години. Приклади: 5хв → 17год, 6хв → 20год, 7хв → 24год, 8хв → 27год]
 
 - **Покриття контенту**: [Відсоток покриття контенту для цього уроку]%
 
