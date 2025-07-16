@@ -110,8 +110,8 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=4000,
-            temperature=0.7
+            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            temperature=0.2
         )
         
         logger.info(f"[OPENAI_STREAM] Stream created successfully")
