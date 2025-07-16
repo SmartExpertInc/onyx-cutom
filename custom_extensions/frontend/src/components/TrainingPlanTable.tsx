@@ -8,6 +8,7 @@ import { CreateContentTypeModal } from './CreateContentTypeModal';
 import OpenOrCreateModal from './OpenOrCreateModal';
 import OpenContentModal from './OpenContentModal';
 import LessonSettingsModal from '../app/projects/LessonSettingsModal';
+import ModuleSettingsModal from '../app/projects/ModuleSettingsModal';
 import { useSearchParams } from 'next/navigation';
 import { Settings } from 'lucide-react';
 
@@ -209,6 +210,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     isOpen: boolean; lessonTitle: string; sectionIndex: number; lessonIndex: number;
     currentCustomRate?: number; currentQualityTier?: string; completionTime: string;
   }>({ isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' });
+
+  const [moduleSettingsModalState, setModuleSettingsModalState] = useState<{
+    isOpen: boolean; moduleTitle: string; sectionIndex: number;
+    currentCustomRate?: number; currentQualityTier?: string;
+  }>({ isOpen: false, moduleTitle: '', sectionIndex: -1 });
 
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
@@ -521,6 +527,54 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     });
   };
 
+  // Handle opening module settings modal
+  const handleModuleSettingsOpen = (section: SectionType, sectionIndex: number) => {
+    setModuleSettingsModalState({
+      isOpen: true,
+      moduleTitle: section.title,
+      sectionIndex,
+      currentCustomRate: section.custom_rate,
+      currentQualityTier: section.quality_tier
+    });
+  };
+
+  // Handle saving module settings
+  const handleModuleSettingsSave = async (customRate: number, qualityTier: string) => {
+    const { sectionIndex } = moduleSettingsModalState;
+    
+    if (onTextChange && sectionIndex >= 0) {
+      // Update module's custom rate and quality tier
+      onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
+      onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
+      
+      // Recalculate hours for all lessons in this module
+      const section = dataToDisplay?.sections[sectionIndex];
+      if (section && section.lessons) {
+        let totalSectionHours = 0;
+        
+        section.lessons.forEach((lesson, lessonIndex) => {
+          // Clear lesson-level tier settings to ensure module-level tier takes precedence
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], '');
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], '');
+          
+          if (lesson.completionTime) {
+            const completionTimeMinutes = parseInt(lesson.completionTime.replace('m', '')) || 0;
+            const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+            onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
+            totalSectionHours += newHours;
+          }
+        });
+        
+        // Update section total hours
+        onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
+      }
+    }
+    
+    setModuleSettingsModalState({ 
+      isOpen: false, moduleTitle: '', sectionIndex: -1 
+    });
+  };
+
   // Theme configuration for training plan colors
   const themeConfig = {
     cherry: {
@@ -737,6 +791,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         completionTime={lessonSettingsModalState.completionTime}
         onSave={handleLessonSettingsSave}
       />
+      <ModuleSettingsModal
+        isOpen={moduleSettingsModalState.isOpen}
+        onClose={() => setModuleSettingsModalState({ isOpen: false, moduleTitle: '', sectionIndex: -1 })}
+        moduleTitle={moduleSettingsModalState.moduleTitle}
+        currentCustomRate={moduleSettingsModalState.currentCustomRate}
+        currentQualityTier={moduleSettingsModalState.currentQualityTier}
+        onSave={handleModuleSettingsSave}
+      />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(isEditing || (mainTitle !== undefined && mainTitle !== null)) && (
           <div className={`p-4 ${isEditing ? 'text-black' : currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
@@ -791,10 +853,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 {/* Module column */}
                 <div className="flex items-center space-x-2 pr-2">
                   {isEditing && onTextChange ? (
-                    <>
-                      <input type="text" value={section.id} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} className={`${editingInputSmallClass} w-24 mr-2`} placeholder="ID"/>
+                    <div className="flex items-center gap-2 w-full">
+                      <input type="text" value={section.id} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} className={`${editingInputSmallClass} w-24`} placeholder="ID"/>
                       <input type="text" value={section.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'title'], e)} className={`${editingInputTitleClass} flex-grow`} placeholder="Section Title"/>
-                    </>
+                      <button
+                        onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
+                        className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Module Settings"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </div>
                   ) : (
                     <>
                       <span className="inline-flex items-center justify-center text-white rounded-sm w-auto px-1.5 h-5 text-xs font-bold" style={{ backgroundColor: iconBaseColor }}>{section.id}</span>

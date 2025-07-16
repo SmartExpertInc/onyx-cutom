@@ -927,6 +927,8 @@ class SectionDetail(BaseModel):
     totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
     lessons: List[LessonDetail] = Field(default_factory=list)
     autoCalculateHours: bool = True
+    custom_rate: Optional[int] = None  # Module-level custom rate override
+    quality_tier: Optional[str] = None  # Module-level quality tier override
     model_config = {"from_attributes": True}
 
 class TrainingPlanDetails(BaseModel):
@@ -2594,6 +2596,39 @@ def calculate_lesson_creation_hours(lesson: dict, project_custom_rate: int) -> i
     try:
         completion_time_minutes = int(completion_time_str.replace('m', ''))
         effective_custom_rate = get_lesson_effective_custom_rate(lesson, project_custom_rate)
+        return calculate_creation_hours(completion_time_minutes, effective_custom_rate)
+    except (ValueError, AttributeError):
+        return 0
+
+def get_module_effective_custom_rate(section: dict, project_custom_rate: int) -> int:
+    """Get the effective custom rate for a module, falling back to project rate if not set"""
+    if section.get('custom_rate'):
+        return section['custom_rate']
+    return project_custom_rate
+
+def get_module_effective_quality_tier(section: dict, project_quality_tier: str) -> str:
+    """Get the effective quality tier for a module, falling back to project tier if not set"""
+    if section.get('quality_tier'):
+        return section['quality_tier']
+    return project_quality_tier
+
+def calculate_lesson_creation_hours_with_module_fallback(lesson: dict, section: dict, project_custom_rate: int) -> int:
+    """Calculate creation hours for a lesson with module-level fallback"""
+    completion_time_str = lesson.get('completionTime', '')
+    if not completion_time_str:
+        return 0
+    
+    try:
+        completion_time_minutes = int(completion_time_str.replace('m', ''))
+        
+        # Check lesson-level tier first, then module-level, then project-level
+        if lesson.get('custom_rate'):
+            effective_custom_rate = lesson['custom_rate']
+        elif section.get('custom_rate'):
+            effective_custom_rate = section['custom_rate']
+        else:
+            effective_custom_rate = project_custom_rate
+            
         return calculate_creation_hours(completion_time_minutes, effective_custom_rate)
     except (ValueError, AttributeError):
         return 0
@@ -7917,6 +7952,12 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                     # Update tier names and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
+                            # Clear any existing module-level tier settings to ensure folder-level tier takes precedence
+                            if 'custom_rate' in section:
+                                del section['custom_rate']
+                            if 'quality_tier' in section:
+                                del section['quality_tier']
+                                
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict):
@@ -7931,7 +7972,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     
                                     # If lesson has completion time, recalculate hours with new folder rate
                                     if lesson.get('completionTime'):
-                                        lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
+                                        lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(lesson, section, req.custom_rate)
                                         lesson['hours'] = lesson_creation_hours
                                         section_total_hours += lesson_creation_hours
                                     # If lesson already has hours but no completion time, preserve existing hours
@@ -8230,6 +8271,12 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                     # Update tier names and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
+                            # Clear any existing module-level tier settings to ensure project-level tier takes precedence
+                            if 'custom_rate' in section:
+                                del section['custom_rate']
+                            if 'quality_tier' in section:
+                                del section['quality_tier']
+                                
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict):
@@ -8244,7 +8291,7 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                     
                                     # If lesson has completion time, recalculate hours with new project rate
                                     if lesson.get('completionTime'):
-                                        lesson_creation_hours = calculate_lesson_creation_hours(lesson, req.custom_rate)
+                                        lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(lesson, section, req.custom_rate)
                                         lesson['hours'] = lesson_creation_hours
                                         section_total_hours += lesson_creation_hours
                                     # If lesson already has hours but no completion time, preserve existing hours

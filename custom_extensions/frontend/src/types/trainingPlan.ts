@@ -24,6 +24,8 @@ export interface Section {
   totalHours: number;
   lessons: Lesson[];
   autoCalculateHours?: boolean; // Keep for TrainingPlanTable editor
+  custom_rate?: number; // Module-level custom rate override
+  quality_tier?: string; // Module-level quality tier override
 }
 
 export interface DisplayOptions {
