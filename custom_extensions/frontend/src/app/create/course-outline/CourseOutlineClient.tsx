@@ -717,6 +717,12 @@ export default function CourseOutlineClient() {
       setIsGenerating(false);
       setError("Finalization timed out. Large course outlines may take up to 5 minutes to process. Please try again or consider reducing the number of modules/lessons.");
     }, 360000); // 6 minutes timeout
+
+    // Add progress indicator for large course outlines
+    const isLargeOutline = (Number(modules) * Number(lessonsPerModule)) >= 80;
+    if (isLargeOutline) {
+      console.log(`Large course outline detected (${modules}×${lessonsPerModule}=${Number(modules) * Number(lessonsPerModule)} lessons). This may take 2-3 minutes to process.`);
+    }
     try {
       const outlineForBackend = {
         mainTitle: prompt,

@@ -3020,6 +3020,10 @@ async def parse_ai_response_with_llm(
     dynamic_instructions: str,
     target_json_example: str
 ) -> BaseModel:
+    # OPTIMIZATION: Fast parsing for large course outlines
+    if target_model.__name__ == "TrainingPlanDetails" and len(ai_response) > 20000:
+        logger.info(f"Large course outline detected ({len(ai_response)} chars), using fast parsing")
+        return await parse_large_course_outline_fast(ai_response, project_name, default_error_model_instance)
     # Start timing for analytics
     start_time = time.time()
     
@@ -3039,7 +3043,21 @@ async def parse_ai_response_with_llm(
         logger.error(f"LLM_API_KEY not configured for {project_name}. Cannot parse AI response with LLM.")
         return default_error_model_instance
 
-    prompt_message = f"""
+    # OPTIMIZATION: Shorter prompt for large course outlines
+    if len(ai_response) > 20000:
+        prompt_message = f"""
+Parse this course outline into JSON. Follow the exact format shown.
+
+Format:
+{target_json_example}
+
+Content:
+{ai_response}
+
+Return ONLY valid JSON.
+        """
+    else:
+        prompt_message = f"""
 You are a highly accurate text-to-JSON parsing assistant. Your task is to convert the *entirety* of the following unstructured text into a single, structured JSON object.
 Ensure *all* relevant information from the "Raw text to parse" is included in your JSON output.
 Pay close attention to data types: strings should be quoted, numerical values should be numbers, and lists should be arrays. Null values are not permitted for string fields; use an empty string "" instead if text is absent but the field is required according to the example structure.
@@ -3062,7 +3080,7 @@ Raw text to parse:
 
 Return ONLY the JSON object corresponding to the parsed text. Do not include any other explanatory text or markdown formatting (like ```json ... ```) around the JSON.
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
-    """
+        """
     # OpenAI Chat API expects a list of chat messages
     system_msg = {"role": "system", "content": "You are a JSON parsing expert. You must output ONLY valid JSON in the exact format specified. Do not include any explanations, markdown formatting, or additional text. Your response must be a single, complete JSON object."}
     user_msg = {"role": "user", "content": prompt_message}
@@ -3081,8 +3099,9 @@ The entire output must be a single, valid JSON object and must include all relev
             # Try with response_format first, then without if Cohere rejects it
             for pf_idx, payload_variant in enumerate([base_payload_with_rf, base_payload]):
                 try:
-                    # Remove per-request timeout so long parses are not cut off (backend will rely on upstream timeouts)
-                    async with httpx.AsyncClient(timeout=None) as client:
+                    # Add timeout for large course outlines to prevent hanging
+                    timeout_duration = 120.0 if len(ai_response) > 20000 else 60.0  # 2 minutes for large, 1 minute for regular
+                    async with httpx.AsyncClient(timeout=timeout_duration) as client:
                         response = await client.post(LLM_API_URL, headers=headers, json=payload_variant)
                         response.raise_for_status()
                     break  # success
@@ -3256,6 +3275,167 @@ The entire output must be a single, valid JSON object and must include all relev
     if hasattr(default_error_model_instance, 'detectedLanguage'):
         default_error_model_instance.detectedLanguage = detected_lang_by_rules
     return default_error_model_instance
+
+
+async def parse_large_course_outline_fast(
+    ai_response: str,
+    project_name: str,
+    default_error_model_instance: BaseModel
+) -> BaseModel:
+    """
+    Fast parsing for large course outlines that avoids sending massive text to LLM.
+    Uses regex-based parsing for better performance on large outlines.
+    """
+    logger.info(f"Starting fast parsing for large course outline: {project_name}")
+    start_time = time.time()
+    
+    try:
+        # Extract title from the first line or use project name
+        lines = ai_response.split('\n')
+        main_title = project_name
+        
+        # Look for title in first few lines
+        for line in lines[:5]:
+            line = line.strip()
+            if line and not line.startswith('#') and not line.startswith('Module') and not line.startswith('Lesson'):
+                main_title = line
+                break
+        
+        # Parse sections using regex patterns
+        sections = []
+        
+        # Pattern to match module headers (e.g., "Module 1: Introduction" or "1. Introduction")
+        module_pattern = r'^(?:Module\s+)?(\d+)[:\.]\s*(.+?)$'
+        
+        # Pattern to match lesson items (e.g., "- Lesson 1: Title" or "1.1 Title")
+        lesson_pattern = r'^[-•*]\s*(?:Lesson\s+)?(\d+(?:\.\d+)?)?[:\.]?\s*(.+?)$'
+        
+        current_section = None
+        current_lessons = []
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check if this is a module header
+            module_match = re.match(module_pattern, line, re.IGNORECASE)
+            if module_match:
+                # Save previous section if exists
+                if current_section and current_lessons:
+                    sections.append({
+                        "id": f"№{len(sections) + 1}",
+                        "title": current_section,
+                        "totalHours": 0,
+                        "lessons": current_lessons
+                    })
+                
+                # Start new section
+                current_section = module_match.group(2).strip()
+                current_lessons = []
+                continue
+            
+            # Check if this is a lesson
+            lesson_match = re.match(lesson_pattern, line, re.IGNORECASE)
+            if lesson_match and current_section:
+                lesson_title = lesson_match.group(2).strip()
+                if lesson_title and len(lesson_title) > 2:  # Avoid very short titles
+                    current_lessons.append({
+                        "title": lesson_title,
+                        "check": {"type": "no", "text": ""},
+                        "contentAvailable": {"type": "no", "text": ""},
+                        "source": "",
+                        "hours": 0
+                    })
+        
+        # Add the last section
+        if current_section and current_lessons:
+            sections.append({
+                "id": f"№{len(sections) + 1}",
+                "title": current_section,
+                "totalHours": 0,
+                "lessons": current_lessons
+            })
+        
+        # If no sections found with regex, try alternative parsing
+        if not sections:
+            logger.warning(f"Fast parsing failed to find sections, falling back to basic parsing")
+            sections = parse_course_outline_basic(ai_response)
+        
+        # Create the result
+        result = TrainingPlanDetails(
+            mainTitle=main_title,
+            sections=sections,
+            detectedLanguage=detect_language(ai_response)
+        )
+        
+        logger.info(f"Fast parsing completed in {int((time.time() - start_time) * 1000)}ms")
+        logger.info(f"Found {len(sections)} sections with {sum(len(s.get('lessons', [])) for s in sections)} total lessons")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Fast parsing failed for {project_name}: {e}")
+        # Return default instance with detected language
+        if hasattr(default_error_model_instance, 'detectedLanguage'):
+            default_error_model_instance.detectedLanguage = detect_language(ai_response)
+        return default_error_model_instance
+
+
+def parse_course_outline_basic(ai_response: str) -> List[Dict]:
+    """
+    Basic fallback parsing for course outlines when regex parsing fails.
+    """
+    sections = []
+    lines = ai_response.split('\n')
+    
+    current_section = None
+    current_lessons = []
+    section_count = 0
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Look for section indicators
+        if any(keyword in line.lower() for keyword in ['module', 'section', 'part', 'unit']) and len(line) < 100:
+            if current_section and current_lessons:
+                section_count += 1
+                sections.append({
+                    "id": f"№{section_count}",
+                    "title": current_section,
+                    "totalHours": 0,
+                    "lessons": current_lessons
+                })
+            
+            current_section = line
+            current_lessons = []
+            continue
+        
+        # Look for lesson indicators
+        if line.startswith(('-', '•', '*', '1.', '2.', '3.', '4.', '5.')) and current_section:
+            lesson_title = line.lstrip('-•*1234567890. ').strip()
+            if lesson_title and len(lesson_title) > 3:
+                current_lessons.append({
+                    "title": lesson_title,
+                    "check": {"type": "no", "text": ""},
+                    "contentAvailable": {"type": "no", "text": ""},
+                    "source": "",
+                    "hours": 0
+                })
+    
+    # Add final section
+    if current_section and current_lessons:
+        section_count += 1
+        sections.append({
+            "id": f"№{section_count}",
+            "title": current_section,
+            "totalHours": 0,
+            "lessons": current_lessons
+        })
+    
+    return sections
 
 def _clean_loose_json(text: str) -> str:
     """Attempt to fix common minor JSON issues produced by LLMs: trailing commas, smart quotes, etc."""
@@ -6444,6 +6624,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 )
                 onyx_user_id = await get_current_onyx_user_id(request)
 
+                logger.info(f"Assistant + parser path: Starting database creation and parsing...")
                 project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
                 
                 logger.info(f"Assistant + parser path: Created project {project_db_candidate.id}")
