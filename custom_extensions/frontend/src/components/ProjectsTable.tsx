@@ -36,10 +36,33 @@ import {
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
-import debounce from 'lodash.debounce';
 
 // Add at the top of the file, after imports
 const duplicatingProjects = new Set<number>();
+
+// Add a simple debounce implementation
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number, options?: { leading?: boolean; trailing?: boolean }): T {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    let lastArgs: any[];
+    let leadingCalled = false;
+    const leading = options?.leading ?? false;
+    const trailing = options?.trailing ?? true;
+    const debounced = function(this: any, ...args: any[]) {
+        lastArgs = args;
+        if (timeout) clearTimeout(timeout);
+        if (leading && !leadingCalled) {
+            func.apply(this, args);
+            leadingCalled = true;
+        }
+        timeout = setTimeout(() => {
+            if (trailing && (!leading || leadingCalled)) {
+                func.apply(this, lastArgs);
+            }
+            leadingCalled = false;
+        }, wait);
+    } as T;
+    return debounced;
+}
 
 // Client Name Modal Component
 const ClientNameModal: React.FC<{
@@ -1085,45 +1108,47 @@ const ProjectCard: React.FC<{
 
     // 2. Add duplicate handler
     const duplicateInProgressRef = React.useRef(false);
-    const handleDuplicate = useCallback(debounce(async () => {
-        if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
-        setIsDuplicating(true);
-        duplicateInProgressRef.current = true;
-        duplicatingProjects.add(project.id);
-        setDuplicateError(null);
-        try {
-            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            const devUserId = "dummy-onyx-user-id-for-testing";
-            if (devUserId && process.env.NODE_ENV === 'development') {
-                headers['X-Dev-Onyx-User-ID'] = devUserId;
-            }
-            const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
-                method: 'POST',
-                headers,
-                credentials: 'same-origin',
-            });
-            if (!resp.ok) {
-                if (resp.status === 401 || resp.status === 403) {
-                    redirectToMainAuth('/auth/login');
-                    return;
+    const handleDuplicate = useCallback(
+        debounce(async () => {
+            if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
+            setIsDuplicating(true);
+            duplicateInProgressRef.current = true;
+            duplicatingProjects.add(project.id);
+            setDuplicateError(null);
+            try {
+                const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                const devUserId = "dummy-onyx-user-id-for-testing";
+                if (devUserId && process.env.NODE_ENV === 'development') {
+                    headers['X-Dev-Onyx-User-ID'] = devUserId;
                 }
-                const errTxt = await resp.text();
-                throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
+                const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'same-origin',
+                });
+                if (!resp.ok) {
+                    if (resp.status === 401 || resp.status === 403) {
+                        redirectToMainAuth('/auth/login');
+                        return;
+                    }
+                    const errTxt = await resp.text();
+                    throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
+                }
+                // Instead of reload, call refreshProjects
+                if (typeof refreshProjects === 'function') {
+                    await refreshProjects();
+                }
+            } catch (error) {
+                setDuplicateError((error as Error).message);
+                alert((error as Error).message);
+            } finally {
+                setIsDuplicating(false);
+                duplicateInProgressRef.current = false;
+                duplicatingProjects.delete(project.id);
             }
-            // Instead of reload, call refreshProjects
-            if (typeof refreshProjects === 'function') {
-                await refreshProjects();
-            }
-        } catch (error) {
-            setDuplicateError((error as Error).message);
-            alert((error as Error).message);
-        } finally {
-            setIsDuplicating(false);
-            duplicateInProgressRef.current = false;
-            duplicatingProjects.delete(project.id);
-        }
-    }, [isOutline, isDuplicating, refreshProjects]);
+        }, 500, { leading: true, trailing: false })
+    , [isOutline, isDuplicating, refreshProjects]);
     
     return (
         <div 
@@ -1523,45 +1548,47 @@ const ProjectRowMenu: React.FC<{
     const [isDuplicating, setIsDuplicating] = React.useState(false);
     const [duplicateError, setDuplicateError] = React.useState<string | null>(null);
     const duplicateInProgressRef = React.useRef(false);
-    const handleDuplicate = useCallback(debounce(async () => {
-        if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
-        setIsDuplicating(true);
-        duplicateInProgressRef.current = true;
-        duplicatingProjects.add(project.id);
-        setDuplicateError(null);
-        try {
-            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            const devUserId = "dummy-onyx-user-id-for-testing";
-            if (devUserId && process.env.NODE_ENV === 'development') {
-                headers['X-Dev-Onyx-User-ID'] = devUserId;
-            }
-            const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
-                method: 'POST',
-                headers,
-                credentials: 'same-origin',
-            });
-            if (!resp.ok) {
-                if (resp.status === 401 || resp.status === 403) {
-                    redirectToMainAuth('/auth/login');
-                    return;
+    const handleDuplicate = useCallback(
+        debounce(async () => {
+            if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
+            setIsDuplicating(true);
+            duplicateInProgressRef.current = true;
+            duplicatingProjects.add(project.id);
+            setDuplicateError(null);
+            try {
+                const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                const devUserId = "dummy-onyx-user-id-for-testing";
+                if (devUserId && process.env.NODE_ENV === 'development') {
+                    headers['X-Dev-Onyx-User-ID'] = devUserId;
                 }
-                const errTxt = await resp.text();
-                throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
+                const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'same-origin',
+                });
+                if (!resp.ok) {
+                    if (resp.status === 401 || resp.status === 403) {
+                        redirectToMainAuth('/auth/login');
+                        return;
+                    }
+                    const errTxt = await resp.text();
+                    throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
+                }
+                // Instead of reload, call refreshProjects
+                if (typeof refreshProjects === 'function') {
+                    await refreshProjects();
+                }
+            } catch (error) {
+                setDuplicateError((error as Error).message);
+                alert((error as Error).message);
+            } finally {
+                setIsDuplicating(false);
+                duplicateInProgressRef.current = false;
+                duplicatingProjects.delete(project.id);
             }
-            // Instead of reload, call refreshProjects
-            if (typeof refreshProjects === 'function') {
-                await refreshProjects();
-            }
-        } catch (error) {
-            setDuplicateError((error as Error).message);
-            alert((error as Error).message);
-        } finally {
-            setIsDuplicating(false);
-            duplicateInProgressRef.current = false;
-            duplicatingProjects.delete(project.id);
-        }
-    }, [isOutline, isDuplicating, refreshProjects]);
+        }, 500, { leading: true, trailing: false })
+    , [isOutline, isDuplicating, refreshProjects]);
     
     const handleRemoveFromFolder = async () => {
         try {
