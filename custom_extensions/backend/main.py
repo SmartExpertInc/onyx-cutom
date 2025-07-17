@@ -10314,10 +10314,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
@@ -11120,10 +11120,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
