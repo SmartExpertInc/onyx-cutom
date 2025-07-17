@@ -1975,7 +1975,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'title' | 'created' | 'lastViewed'>('lastViewed');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+        if (typeof window !== 'undefined') {
+            return (localStorage.getItem('projectsViewMode') as 'grid' | 'list') || 'grid';
+        }
+        return 'grid';
+    });
     const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
     const [showBulkActions, setShowBulkActions] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
