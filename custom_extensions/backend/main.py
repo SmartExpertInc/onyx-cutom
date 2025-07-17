@@ -3061,6 +3061,3069 @@ Raw text to parse:
 ---
 
 Return ONLY the JSON object corresponding to the parsed text. Do not include any other explanatory text or markdown formatting (like ```json ... ```) around the JSON.
+# custom_extensions/backend/main.py
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from pydantic import BaseModel, Field, RootModel
+import re
+import os
+import asyncpg
+from datetime import datetime, timezone
+import httpx
+from httpx import HTTPStatusError
+import json
+import uuid
+import shutil
+import logging
+from locales.__init__ import LANG_CONFIG
+import asyncio
+import typing
+import tempfile
+import io
+import gzip
+import base64
+import time
+import uuid
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+import tiktoken
+import inspect
+# NEW: OpenAI imports for direct usage
+import openai
+from openai import AsyncOpenAI
+
+# --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
+# SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
+IS_PRODUCTION = False  # Or True for production
+
+# --- Logger ---
+logger = logging.getLogger(__name__)
+if IS_PRODUCTION:
+    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
+else:
+    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+
+
+# --- Constants & DB Setup ---
+CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
+ONYX_DATABASE_URL = os.getenv("ONYX_DATABASE_URL")
+ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
+ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
+
+# Component name constants
+COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
+COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
+COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
+COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
+COMPONENT_NAME_QUIZ = "QuizDisplay"
+COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+
+# --- LLM Configuration for JSON Parsing ---
+# === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
+LLM_API_KEY = os.getenv("OPENAI_API_KEY")
+LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+# Endpoint for Chat Completions
+LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+# Default model to use – gpt-4o-mini provides strong JSON adherence
+LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+# NEW: OpenAI client for direct streaming
+OPENAI_CLIENT = None
+
+def get_openai_client():
+    """Get or create the OpenAI client instance."""
+    global OPENAI_CLIENT
+    if OPENAI_CLIENT is None:
+        api_key = LLM_API_KEY or LLM_API_KEY_FALLBACK
+        if not api_key:
+            raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
+        OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
+    return OPENAI_CLIENT
+
+async def stream_openai_response(prompt: str, model: str = None):
+    """
+    Stream response directly from OpenAI API.
+    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
+        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
+        
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Create the streaming chat completion
+        stream = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            stream=True,
+            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            temperature=0.2
+        )
+        
+        logger.info(f"[OPENAI_STREAM] Stream created successfully")
+        
+        # DEBUG: Collect full response for logging
+        full_response = ""
+        chunk_count = 0
+        
+        async for chunk in stream:
+            chunk_count += 1
+            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
+            
+            if chunk.choices and len(chunk.choices) > 0:
+                choice = chunk.choices[0]
+                if choice.delta and choice.delta.content:
+                    content = choice.delta.content
+                    full_response += content  # DEBUG: Accumulate full response
+                    yield {"type": "delta", "text": content}
+                    
+                # Check for finish reason
+                if choice.finish_reason:
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
+                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
+                    break
+                    
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
+        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+
+def should_use_openai_direct(payload) -> bool:
+    """
+    Determine if we should use OpenAI directly instead of Onyx.
+    Returns True when no file context is present.
+    """
+    # Check if files are explicitly provided
+    has_files = (
+        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
+        (hasattr(payload, 'folderIds') and payload.folderIds) or
+        (hasattr(payload, 'fileIds') and payload.fileIds)
+    )
+    
+    # Check if text context is provided (this still uses file system in some cases)
+    has_text_context = (
+        hasattr(payload, 'fromText') and payload.fromText and 
+        hasattr(payload, 'userText') and payload.userText
+    )
+    
+    # Use OpenAI directly only when there's no file context and no text context
+    use_openai = not has_files and not has_text_context
+    
+    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
+    return use_openai
+
+DB_POOL = None
+# Track in-flight project creations to avoid duplicate processing (keyed by user+project)
+ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
+
+# Track in-flight quiz finalizations to prevent duplicate processing
+ACTIVE_QUIZ_FINALIZE_KEYS: Set[str] = set()
+
+# Track quiz finalization timestamps for cleanup
+QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
+
+
+# --- Directory for Design Template Images ---
+STATIC_DESIGN_IMAGES_DIR = "static_design_images"
+os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
+
+def inspect_list_items_recursively(data_structure: Any, path: str = ""):
+    if isinstance(data_structure, dict):
+        for key, value in data_structure.items():
+            new_path = f"{path}.{key}" if path else key
+            if key == "items": # Focus on 'items' keys
+                logger.info(f"PDF Deep Inspect: Path: {new_path}, Type: {type(value)}, Is List: {isinstance(value, list)}, Value (first 100): {str(value)[:100]}")
+                if not isinstance(value, list) and value is not None:
+                    logger.error(f"PDF DEEP ERROR: Non-list 'items' at {new_path}. Type: {type(value)}, Value: {str(value)[:200]}")
+            if isinstance(value, (dict, list)):
+                inspect_list_items_recursively(value, new_path)
+    elif isinstance(data_structure, list):
+        for i, item in enumerate(data_structure):
+            new_path = f"{path}[{i}]"
+            if isinstance(item, (dict, list)):
+                inspect_list_items_recursively(item, new_path)
+
+DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
+{
+  "mainTitle": "Example Training Program",
+  "sections": [
+    {
+      "id": "№1",
+      "title": "Introduction to Topic",
+      "totalHours": 5.5,
+      "lessons": [
+        {
+          "title": "Lesson 1.1: Basic Concepts",
+          "check": {"type": "test", "text": "Knowledge Test"},
+          "contentAvailable": {"type": "yes", "text": "100%"},
+          "source": "Internal Documentation",
+          "hours": 2.0,
+          "completionTime": "6m"
+        }
+      ]
+    }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Slide Deck Lesson",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "deckgoTemplate": "deckgo-slide-title",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
+        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Key point 1",
+            "Key point 2", 
+            "Key point 3"
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND",
+          "description": "Educational theme background"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "deckgoTemplate": "deckgo-slide-content",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        {
+          "type": "numbered_list",
+          "items": [
+            "First important concept",
+            "Second important concept"
+          ]
+        },
+        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "MEDIUM",
+          "position": "RIGHT",
+          "description": "Concept visualization or diagram"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_3_data",
+      "slideNumber": 3,
+      "slideTitle": "Understanding Schedules",
+      "deckgoTemplate": "deckgo-slide-chart",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Timetable Chart" },
+        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Check the departure and arrival columns carefully.",
+            "The station code is listed beside each time."
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND", 
+          "description": "A train timetable board"
+        }
+      ]
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+}
+"""
+
+async def get_db_pool():
+    if DB_POOL is None:
+        detail_msg = "Database service not available." # Generic enough for production
+        raise HTTPException(status_code=503, detail=detail_msg)
+    return DB_POOL
+
+app = FastAPI(title="Custom Extension Backend")
+
+app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+
+@app.middleware("http")
+async def track_request_analytics(request: Request, call_next):
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Get user ID if available
+    user_id = None
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Get request size
+    request_size = None
+    try:
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            body = await request.body()
+            request_size = len(body)
+    except:
+        pass
+    
+    try:
+        response = await call_next(request)
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Get response size
+        response_size = None
+        try:
+            if hasattr(response, 'body'):
+                response_size = len(response.body)
+        except:
+            pass
+        
+        # Store analytics in database
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     response.status_code, response_time_ms, request_size,
+                     response_size, None, datetime.now(timezone.utc))
+        except Exception as e:
+            logger.error(f"Failed to store request analytics: {e}")
+        
+        return response
+        
+    except Exception as e:
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Store error analytics
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     500, response_time_ms, request_size, None,
+                     str(e), datetime.now(timezone.utc))
+        except Exception as db_error:
+            logger.error(f"Failed to store error analytics: {db_error}")
+        
+        raise
+
+try:
+    from app.services.pdf_generator import generate_pdf_from_html_template
+    from app.core.config import settings
+except ImportError:
+    logger.warning("Could not import pdf_generator or settings from 'app' module. Using dummy implementations for PDF generation.")
+    class DummySettings:
+        CUSTOM_FRONTEND_URL = os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+    settings = DummySettings()
+    async def generate_pdf_from_html_template(template_name: str, context_data: Dict[str, Any], output_filename: str) -> str:
+        logger.info(f"PDF Generation Skipped (Dummy Service): Would generate for template {template_name} to {output_filename}")
+        dummy_path = os.path.join("/app/tmp_pdf", output_filename)
+        os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
+        with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
+        return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
+
+effective_origins = list(set(filter(None, [
+    "http://localhost:3001",
+    "http://143.198.59.56:3001",
+    "http://143.198.59.56:8088",
+    os.environ.get("WEB_DOMAIN", "http://localhost:3000"),
+    settings.CUSTOM_FRONTEND_URL if 'settings' in globals() and hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+])))
+if not effective_origins: effective_origins = ["http://localhost:3001"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=effective_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Pydantic Models ---
+class StatusInfo(BaseModel):
+    type: str = "unknown"
+    text: str = ""
+    model_config = {"from_attributes": True}
+
+# Credits Models
+class UserCredits(BaseModel):
+    id: int
+    onyx_user_id: str
+    name: str
+    credits_balance: int
+    total_credits_used: int
+    credits_purchased: int
+    last_purchase_date: Optional[datetime]
+    subscription_tier: str
+    created_at: datetime
+    updated_at: datetime
+    model_config = {"from_attributes": True}
+
+class CreditTransactionRequest(BaseModel):
+    user_email: str
+    amount: int
+    action: Literal["add", "remove"]
+    reason: Optional[str] = "Admin adjustment"
+
+class CreditTransactionResponse(BaseModel):
+    success: bool
+    message: str
+    new_balance: int
+    user_credits: UserCredits
+
+class LessonDetail(BaseModel):
+    title: str
+    check: StatusInfo = Field(default_factory=StatusInfo)
+    contentAvailable: StatusInfo = Field(default_factory=StatusInfo)
+    source: str = ""
+    hours: int = 0
+    completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
+    custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
+    quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    model_config = {"from_attributes": True}
+
+class SectionDetail(BaseModel):
+    id: str
+    title: str
+    totalHours: int = 0
+    totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
+    lessons: List[LessonDetail] = Field(default_factory=list)
+    autoCalculateHours: bool = True
+    custom_rate: Optional[int] = None  # Module-level custom rate override
+    quality_tier: Optional[str] = None  # Module-level quality tier override
+    model_config = {"from_attributes": True}
+
+class TrainingPlanDetails(BaseModel):
+    mainTitle: Optional[str] = None
+    sections: List[SectionDetail] = Field(default_factory=list)
+    detectedLanguage: Optional[str] = None
+    # Store user preferences on which optional columns to show in UI (frontend reads this)
+    displayOptions: Optional[Dict[str, bool]] = None  # e.g., {"knowledgeCheck": true, "contentAvailability": false}
+    # Store theme selection for styling
+    theme: Optional[str] = "cherry"  # Default theme
+    model_config = {"from_attributes": True}
+
+AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
+ListItem = Union[str, AnyContentBlock, List[AnyContentBlock]]
+
+class BaseContentBlock(BaseModel):
+    type: str
+    model_config = {"from_attributes": True}
+
+class HeadlineBlock(BaseContentBlock):
+    type: str = "headline"
+    level: int = Field(ge=1, le=4)
+    text: str
+    iconName: Optional[str] = None
+    backgroundColor: Optional[str] = None
+    textColor: Optional[str] = None
+    isImportant: Optional[bool] = Field(default=False, description="Set to true if this headline (typically Level 4) and its immediately following single block (list or paragraph) form an important section to be visually boxed.")
+
+class ParagraphBlock(BaseContentBlock):
+    type: str = "paragraph"
+    text: str
+    isRecommendation: Optional[bool] = Field(default=False, description="Set to true if this paragraph is a 'recommendation' within a numbered list item, to be styled distinctly.")
+
+class BulletListBlock(BaseContentBlock):
+    type: Literal['bullet_list'] = 'bullet_list'
+    items: List[ListItem] = []
+    iconName: Optional[str] = None
+
+class NumberedListBlock(BaseContentBlock):
+    type: Literal['numbered_list'] = 'numbered_list'
+    items: List[ListItem] = []
+
+class AlertBlock(BaseContentBlock):
+    type: str = "alert"
+    title: Optional[str] = None
+    text: str
+    alertType: str = "info"
+    iconName: Optional[str] = None
+    backgroundColor: Optional[str] = None
+    borderColor: Optional[str] = None
+    textColor: Optional[str] = None
+    iconColor: Optional[str] = None
+
+class SectionBreakBlock(BaseContentBlock):
+    type: str = "section_break"
+    style: Optional[str] = "solid"
+
+AnyContentBlockValue = Union[
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+]
+
+class PdfLessonDetails(BaseModel):
+    lessonTitle: str
+    # Optional: sequential number of the lesson inside the parent Training Plan
+    lessonNumber: Optional[int] = None
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class VideoLessonSlideData(BaseModel):
+    slideId: str
+    slideNumber: int
+    slideTitle: str
+    displayedText: Optional[str] = None
+    imagePath: Optional[str] = None
+    videoPath: Optional[str] = None
+    voiceoverText: Optional[str] = None
+    displayedPictureDescription: Optional[str] = None
+    displayedVideoDescription: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class VideoLessonData(BaseModel):
+    mainPresentationTitle: str
+    slides: List[VideoLessonSlideData] = Field(default_factory=list)
+    currentSlideId: Optional[str] = None # To store the active slide from frontend
+    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+# --- NEW: Slide-based Lesson Presentation Models ---
+class ImagePlaceholder(BaseModel):
+    size: str          # "LARGE", "MEDIUM", "SMALL", "BANNER", "BACKGROUND"
+    position: str      # "LEFT", "RIGHT", "TOP_BANNER", "BACKGROUND", etc.
+    description: str   # Description of the image content
+    model_config = {"from_attributes": True}
+
+class DeckSlide(BaseModel):
+    slideId: str               # "slide_1_intro"
+    slideNumber: int           # 1, 2, 3, ...
+    slideTitle: str            # "Introduction to Key Concepts"
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    deckgoTemplate: Optional[str] = None  # "deckgo-slide-chart", "deckgo-slide-split", etc.
+    imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
+    model_config = {"from_attributes": True}
+
+class SlideDeckDetails(BaseModel):
+    lessonTitle: str
+    slides: List[DeckSlide] = Field(default_factory=list)
+    currentSlideId: Optional[str] = None  # To store the active slide from frontend
+    lessonNumber: Optional[int] = None    # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+# --- Start: Add New Quiz Models ---
+
+class QuizQuestionOption(BaseModel):
+    id: str  # e.g., "A", "B", "C"
+    text: str
+    model_config = {"from_attributes": True}
+
+class MatchingPrompt(BaseModel):
+    id: str # e.g., "A", "B", "C"
+    text: str
+    model_config = {"from_attributes": True}
+
+class MatchingOption(BaseModel):
+    id: str # e.g., "1", "2", "3"
+    text: str
+    model_config = {"from_attributes": True}
+
+class SortableItem(BaseModel):
+    id: str # e.g., "step1", "step2"
+    text: str
+    model_config = {"from_attributes": True}
+
+class BaseQuestion(BaseModel):
+    question_text: str
+    explanation: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class MultipleChoiceQuestion(BaseQuestion):
+    question_type: Literal["multiple-choice"]
+    options: List[QuizQuestionOption]
+    correct_option_id: str
+    model_config = {"from_attributes": True}
+
+class MultiSelectQuestion(BaseQuestion):
+    question_type: Literal["multi-select"]
+    options: List[QuizQuestionOption]
+    correct_option_ids: List[str]
+    model_config = {"from_attributes": True}
+
+class MatchingQuestion(BaseQuestion):
+    question_type: Literal["matching"]
+    prompts: List[MatchingPrompt]
+    options: List[MatchingOption]
+    correct_matches: Dict[str, str]  # Maps prompt.id to option.id, e.g. {"A": "3", "B": "1"}
+    model_config = {"from_attributes": True}
+
+class SortingQuestion(BaseQuestion):
+    question_type: Literal["sorting"]
+    items_to_sort: List[SortableItem]
+    correct_order: List[str]  # List of SortableItem.id in the correct sequence
+    model_config = {"from_attributes": True}
+
+class OpenAnswerQuestion(BaseQuestion):
+    question_type: Literal["open-answer"]
+    acceptable_answers: List[str]
+    model_config = {"from_attributes": True}
+
+AnyQuizQuestion = Union[
+    MultipleChoiceQuestion,
+    MultiSelectQuestion,
+    MatchingQuestion,
+    SortingQuestion,
+    OpenAnswerQuestion
+]
+
+# custom_extensions/backend/main.py
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from pydantic import BaseModel, Field, RootModel
+import re
+import os
+import asyncpg
+from datetime import datetime, timezone
+import httpx
+from httpx import HTTPStatusError
+import json
+import uuid
+import shutil
+import logging
+from locales.__init__ import LANG_CONFIG
+import asyncio
+import typing
+import tempfile
+import io
+import gzip
+import base64
+import time
+import uuid
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+import tiktoken
+import inspect
+
+# --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
+# SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
+IS_PRODUCTION = False  # Or True for production
+
+# --- Logger ---
+logger = logging.getLogger(__name__)
+if IS_PRODUCTION:
+    logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
+else:
+    logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+
+
+# --- Constants & DB Setup ---
+CUSTOM_PROJECTS_DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
+ONYX_DATABASE_URL = os.getenv("ONYX_DATABASE_URL")
+ONYX_API_SERVER_URL = "http://api_server:8080" # Adjust if needed
+ONYX_SESSION_COOKIE_NAME = os.getenv("ONYX_SESSION_COOKIE_NAME", "fastapiusersauth")
+
+# Component name constants
+COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
+COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
+COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
+COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
+COMPONENT_NAME_QUIZ = "QuizDisplay"
+COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+
+# --- LLM Configuration for JSON Parsing ---
+# === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
+LLM_API_KEY = os.getenv("OPENAI_API_KEY")
+LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+# Endpoint for Chat Completions
+LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+# Default model to use – gpt-4o-mini provides strong JSON adherence
+LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+DB_POOL = None
+# Track in-flight project creations to avoid duplicate processing (keyed by user+project)
+ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
+
+# Track in-flight quiz finalizations to prevent duplicate processing
+ACTIVE_QUIZ_FINALIZE_KEYS: Set[str] = set()
+
+# Track quiz finalization timestamps for cleanup
+QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
+
+
+# --- Directory for Design Template Images ---
+STATIC_DESIGN_IMAGES_DIR = "static_design_images"
+os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
+
+def inspect_list_items_recursively(data_structure: Any, path: str = ""):
+    if isinstance(data_structure, dict):
+        for key, value in data_structure.items():
+            new_path = f"{path}.{key}" if path else key
+            if key == "items": # Focus on 'items' keys
+                logger.info(f"PDF Deep Inspect: Path: {new_path}, Type: {type(value)}, Is List: {isinstance(value, list)}, Value (first 100): {str(value)[:100]}")
+                if not isinstance(value, list) and value is not None:
+                    logger.error(f"PDF DEEP ERROR: Non-list 'items' at {new_path}. Type: {type(value)}, Value: {str(value)[:200]}")
+            if isinstance(value, (dict, list)):
+                inspect_list_items_recursively(value, new_path)
+    elif isinstance(data_structure, list):
+        for i, item in enumerate(data_structure):
+            new_path = f"{path}[{i}]"
+            if isinstance(item, (dict, list)):
+                inspect_list_items_recursively(item, new_path)
+
+DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
+{
+  "mainTitle": "Example Training Program",
+  "sections": [
+    {
+      "id": "№1",
+      "title": "Introduction to Topic",
+      "totalHours": 5.5,
+      "lessons": [
+        {
+          "title": "Lesson 1.1: Basic Concepts",
+          "check": {"type": "test", "text": "Knowledge Test"},
+          "contentAvailable": {"type": "yes", "text": "100%"},
+          "source": "Internal Documentation",
+          "hours": 2.0,
+          "completionTime": "6m"
+        }
+      ]
+    }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Slide Deck Lesson",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "deckgoTemplate": "deckgo-slide-title",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
+        { "type": "paragraph", "text": "This slide introduces the main topic." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Key point 1",
+            "Key point 2", 
+            "Key point 3"
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND",
+          "description": "Educational theme background"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "deckgoTemplate": "deckgo-slide-content",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Core Ideas" },
+        {
+          "type": "numbered_list",
+          "items": [
+            "First important concept",
+            "Second important concept"
+          ]
+        },
+        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "MEDIUM",
+          "position": "RIGHT",
+          "description": "Concept visualization or diagram"
+        }
+      ]
+    },
+    {
+      "slideId": "slide_3_data",
+      "slideNumber": 3,
+      "slideTitle": "Understanding Schedules",
+      "deckgoTemplate": "deckgo-slide-chart",
+      "contentBlocks": [
+        { "type": "headline", "level": 2, "text": "Timetable Chart" },
+        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
+        {
+          "type": "bullet_list",
+          "items": [
+            "Check the departure and arrival columns carefully.",
+            "The station code is listed beside each time."
+          ]
+        }
+      ],
+      "imagePlaceholders": [
+        {
+          "size": "BACKGROUND",
+          "position": "BACKGROUND", 
+          "description": "A train timetable board"
+        }
+      ]
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+}
+"""
+
+async def get_db_pool():
+    if DB_POOL is None:
+        detail_msg = "Database service not available." # Generic enough for production
+        raise HTTPException(status_code=503, detail=detail_msg)
+    return DB_POOL
+
+app = FastAPI(title="Custom Extension Backend")
+
+app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+
+@app.middleware("http")
+async def track_request_analytics(request: Request, call_next):
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Get user ID if available
+    user_id = None
+    try:
+        if hasattr(request.state, 'user_id'):
+            user_id = request.state.user_id
+    except:
+        pass
+    
+    # Get request size
+    request_size = None
+    try:
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            body = await request.body()
+            request_size = len(body)
+    except:
+        pass
+    
+    try:
+        response = await call_next(request)
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Get response size
+        response_size = None
+        try:
+            if hasattr(response, 'body'):
+                response_size = len(response.body)
+        except:
+            pass
+        
+        # Store analytics in database
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     response.status_code, response_time_ms, request_size,
+                     response_size, None, datetime.now(timezone.utc))
+        except Exception as e:
+            logger.error(f"Failed to store request analytics: {e}")
+        
+        return response
+        
+    except Exception as e:
+        end_time = time.time()
+        response_time_ms = int((end_time - start_time) * 1000)
+        
+        # Store error analytics
+        try:
+            async with DB_POOL.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO request_analytics (
+                        id, endpoint, method, user_id, status_code, 
+                        response_time_ms, request_size_bytes, response_size_bytes,
+                        error_message, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """, request_id, request.url.path, request.method, user_id,
+                     500, response_time_ms, request_size, None,
+                     str(e), datetime.now(timezone.utc))
+        except Exception as db_error:
+            logger.error(f"Failed to store error analytics: {db_error}")
+        
+        raise
+
+try:
+    from app.services.pdf_generator import generate_pdf_from_html_template
+    from app.core.config import settings
+except ImportError:
+    logger.warning("Could not import pdf_generator or settings from 'app' module. Using dummy implementations for PDF generation.")
+    class DummySettings:
+        CUSTOM_FRONTEND_URL = os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+    settings = DummySettings()
+    async def generate_pdf_from_html_template(template_name: str, context_data: Dict[str, Any], output_filename: str) -> str:
+        logger.info(f"PDF Generation Skipped (Dummy Service): Would generate for template {template_name} to {output_filename}")
+        dummy_path = os.path.join("/app/tmp_pdf", output_filename)
+        os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
+        with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
+        return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
+
+effective_origins = list(set(filter(None, [
+    "http://localhost:3001",
+    "http://143.198.59.56:3001",
+    "http://143.198.59.56:8088",
+    os.environ.get("WEB_DOMAIN", "http://localhost:3000"),
+    settings.CUSTOM_FRONTEND_URL if 'settings' in globals() and hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
+])))
+if not effective_origins: effective_origins = ["http://localhost:3001"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=effective_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Pydantic Models ---
+class StatusInfo(BaseModel):
+    type: str = "unknown"
+    text: str = ""
+    model_config = {"from_attributes": True}
+
+# Credits Models
+class UserCredits(BaseModel):
+    id: int
+    onyx_user_id: str
+    name: str
+    credits_balance: int
+    total_credits_used: int
+    credits_purchased: int
+    last_purchase_date: Optional[datetime]
+    subscription_tier: str
+    created_at: datetime
+    updated_at: datetime
+    model_config = {"from_attributes": True}
+
+class CreditTransactionRequest(BaseModel):
+    user_email: str
+    amount: int
+    action: Literal["add", "remove"]
+    reason: Optional[str] = "Admin adjustment"
+
+class CreditTransactionResponse(BaseModel):
+    success: bool
+    message: str
+    new_balance: int
+    user_credits: UserCredits
+
+class LessonDetail(BaseModel):
+    title: str
+    check: StatusInfo = Field(default_factory=StatusInfo)
+    contentAvailable: StatusInfo = Field(default_factory=StatusInfo)
+    source: str = ""
+    hours: int = 0
+    completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
+    custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
+    quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    model_config = {"from_attributes": True}
+
+class SectionDetail(BaseModel):
+    id: str
+    title: str
+    totalHours: int = 0
+    totalCompletionTime: Optional[int] = None  # Total completion time in minutes for the section
+    lessons: List[LessonDetail] = Field(default_factory=list)
+    autoCalculateHours: bool = True
+    custom_rate: Optional[int] = None  # Module-level custom rate override
+    quality_tier: Optional[str] = None  # Module-level quality tier override
+    model_config = {"from_attributes": True}
+
+class TrainingPlanDetails(BaseModel):
+    mainTitle: Optional[str] = None
+    sections: List[SectionDetail] = Field(default_factory=list)
+    detectedLanguage: Optional[str] = None
+    # Store user preferences on which optional columns to show in UI (frontend reads this)
+    displayOptions: Optional[Dict[str, bool]] = None  # e.g., {"knowledgeCheck": true, "contentAvailability": false}
+    # Store theme selection for styling
+    theme: Optional[str] = "cherry"  # Default theme
+    model_config = {"from_attributes": True}
+
+AnyContentBlock = Union["HeadlineBlock", "ParagraphBlock", "BulletListBlock", "NumberedListBlock", "AlertBlock", "SectionBreakBlock"]
+ListItem = Union[str, AnyContentBlock, List[AnyContentBlock]]
+
+class BaseContentBlock(BaseModel):
+    type: str
+    model_config = {"from_attributes": True}
+
+class HeadlineBlock(BaseContentBlock):
+    type: str = "headline"
+    level: int = Field(ge=1, le=4)
+    text: str
+    iconName: Optional[str] = None
+    backgroundColor: Optional[str] = None
+    textColor: Optional[str] = None
+    isImportant: Optional[bool] = Field(default=False, description="Set to true if this headline (typically Level 4) and its immediately following single block (list or paragraph) form an important section to be visually boxed.")
+
+class ParagraphBlock(BaseContentBlock):
+    type: str = "paragraph"
+    text: str
+    isRecommendation: Optional[bool] = Field(default=False, description="Set to true if this paragraph is a 'recommendation' within a numbered list item, to be styled distinctly.")
+
+class BulletListBlock(BaseContentBlock):
+    type: Literal['bullet_list'] = 'bullet_list'
+    items: List[ListItem] = []
+    iconName: Optional[str] = None
+
+class NumberedListBlock(BaseContentBlock):
+    type: Literal['numbered_list'] = 'numbered_list'
+    items: List[ListItem] = []
+
+class AlertBlock(BaseContentBlock):
+    type: str = "alert"
+    title: Optional[str] = None
+    text: str
+    alertType: str = "info"
+    iconName: Optional[str] = None
+    backgroundColor: Optional[str] = None
+    borderColor: Optional[str] = None
+    textColor: Optional[str] = None
+    iconColor: Optional[str] = None
+
+class SectionBreakBlock(BaseContentBlock):
+    type: str = "section_break"
+    style: Optional[str] = "solid"
+
+AnyContentBlockValue = Union[
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+]
+
+class PdfLessonDetails(BaseModel):
+    lessonTitle: str
+    # Optional: sequential number of the lesson inside the parent Training Plan
+    lessonNumber: Optional[int] = None
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class VideoLessonSlideData(BaseModel):
+    slideId: str
+    slideNumber: int
+    slideTitle: str
+    displayedText: Optional[str] = None
+    imagePath: Optional[str] = None
+    videoPath: Optional[str] = None
+    voiceoverText: Optional[str] = None
+    displayedPictureDescription: Optional[str] = None
+    displayedVideoDescription: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class VideoLessonData(BaseModel):
+    mainPresentationTitle: str
+    slides: List[VideoLessonSlideData] = Field(default_factory=list)
+    currentSlideId: Optional[str] = None # To store the active slide from frontend
+    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+# --- NEW: Slide-based Lesson Presentation Models ---
+class ImagePlaceholder(BaseModel):
+    size: str          # "LARGE", "MEDIUM", "SMALL", "BANNER", "BACKGROUND"
+    position: str      # "LEFT", "RIGHT", "TOP_BANNER", "BACKGROUND", etc.
+    description: str   # Description of the image content
+    model_config = {"from_attributes": True}
+
+class DeckSlide(BaseModel):
+    slideId: str               # "slide_1_intro"
+    slideNumber: int           # 1, 2, 3, ...
+    slideTitle: str            # "Introduction to Key Concepts"
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    deckgoTemplate: Optional[str] = None  # "deckgo-slide-chart", "deckgo-slide-split", etc.
+    imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
+    model_config = {"from_attributes": True}
+
+class SlideDeckDetails(BaseModel):
+    lessonTitle: str
+    slides: List[DeckSlide] = Field(default_factory=list)
+    currentSlideId: Optional[str] = None  # To store the active slide from frontend
+    lessonNumber: Optional[int] = None    # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+# --- Start: Add New Quiz Models ---
+
+class QuizQuestionOption(BaseModel):
+    id: str  # e.g., "A", "B", "C"
+    text: str
+    model_config = {"from_attributes": True}
+
+class MatchingPrompt(BaseModel):
+    id: str # e.g., "A", "B", "C"
+    text: str
+    model_config = {"from_attributes": True}
+
+class MatchingOption(BaseModel):
+    id: str # e.g., "1", "2", "3"
+    text: str
+    model_config = {"from_attributes": True}
+
+class SortableItem(BaseModel):
+    id: str # e.g., "step1", "step2"
+    text: str
+    model_config = {"from_attributes": True}
+
+class BaseQuestion(BaseModel):
+    question_text: str
+    explanation: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class MultipleChoiceQuestion(BaseQuestion):
+    question_type: Literal["multiple-choice"]
+    options: List[QuizQuestionOption]
+    correct_option_id: str
+    model_config = {"from_attributes": True}
+
+class MultiSelectQuestion(BaseQuestion):
+    question_type: Literal["multi-select"]
+    options: List[QuizQuestionOption]
+    correct_option_ids: List[str]
+    model_config = {"from_attributes": True}
+
+class MatchingQuestion(BaseQuestion):
+    question_type: Literal["matching"]
+    prompts: List[MatchingPrompt]
+    options: List[MatchingOption]
+    correct_matches: Dict[str, str]  # Maps prompt.id to option.id, e.g. {"A": "3", "B": "1"}
+    model_config = {"from_attributes": True}
+
+class SortingQuestion(BaseQuestion):
+    question_type: Literal["sorting"]
+    items_to_sort: List[SortableItem]
+    correct_order: List[str]  # List of SortableItem.id in the correct sequence
+    model_config = {"from_attributes": True}
+
+class OpenAnswerQuestion(BaseQuestion):
+    question_type: Literal["open-answer"]
+    acceptable_answers: List[str]
+    model_config = {"from_attributes": True}
+
+AnyQuizQuestion = Union[
+    MultipleChoiceQuestion,
+    MultiSelectQuestion,
+    MatchingQuestion,
+    SortingQuestion,
+    OpenAnswerQuestion
+]
+
+class QuizData(BaseModel):
+    quizTitle: str
+    questions: List[AnyQuizQuestion] = Field(default_factory=list)
+    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True, "use_enum_values": True}
+
+# --- End: Add New Quiz Models ---
+
+# +++ NEW MODEL FOR TEXT PRESENTATION +++
+class TextPresentationDetails(BaseModel):
+    textTitle: str
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+# +++ END NEW MODEL +++
+
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+
+class DesignTemplateBase(BaseModel):
+    template_name: str
+    template_structuring_prompt: str
+    microproduct_type: str
+    component_name: str
+    model_config = {"from_attributes": True}
+
+class DesignTemplateCreate(DesignTemplateBase):
+    design_image_path: Optional[str] = None
+
+class DesignTemplateUpdate(BaseModel):
+    template_name: Optional[str] = None
+    template_structuring_prompt: Optional[str] = None
+    microproduct_type: Optional[str] = None
+    component_name: Optional[str] = None
+    design_image_path: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class DesignTemplateResponse(DesignTemplateBase):
+    id: int
+    design_image_path: Optional[str] = None
+    date_created: datetime
+
+class ProjectCreateRequest(BaseModel):
+    projectName: str
+    design_template_id: int
+    microProductName: Optional[str] = None
+    aiResponse: str
+    chatSessionId: Optional[uuid.UUID] = None
+    model_config = {"from_attributes": True}
+
+class ProjectDB(BaseModel):
+    id: int
+    onyx_user_id: str
+    project_name: str
+    product_type: Optional[str] = None
+    microproduct_type: Optional[str] = None
+    microproduct_name: Optional[str] = None
+    microproduct_content: Optional[MicroProductContentType] = None
+    design_template_id: Optional[int] = None
+    created_at: datetime
+    custom_rate: Optional[int] = None
+    quality_tier: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class MicroProductApiResponse(BaseModel):
+    name: str
+    slug: str
+    project_id: int
+    design_template_id: int
+    component_name: str
+    parentProjectName: Optional[str] = None
+    webLinkPath: Optional[str] = None
+    pdfLinkPath: Optional[str] = None
+    details: Optional[MicroProductContentType] = None
+    sourceChatSessionId: Optional[uuid.UUID] = None
+    model_config = {"from_attributes": True}
+
+class ProjectApiResponse(BaseModel):
+    id: int
+    projectName: str
+    projectSlug: str
+    microproduct_name: Optional[str] = None
+    design_template_name: Optional[str] = None
+    design_microproduct_type: Optional[str] = None
+    created_at: datetime
+    design_template_id: Optional[int] = None
+    folder_id: Optional[int] = None
+    order: Optional[int] = None
+    source_chat_session_id: Optional[str] = None
+    is_standalone: Optional[bool] = None  # Track whether this is standalone or part of an outline
+    model_config = {"from_attributes": True}
+
+class ProjectDetailForEditResponse(BaseModel):
+    id: int
+    projectName: str
+    microProductName: Optional[str] = None
+    design_template_id: Optional[int] = None
+    microProductContent: Optional[MicroProductContentType] = None
+    createdAt: Optional[datetime] = None
+    design_template_name: Optional[str] = None
+    design_component_name: Optional[str] = None
+    design_image_path: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class ProjectUpdateRequest(BaseModel):
+    projectName: Optional[str] = None
+    design_template_id: Optional[int] = None
+    microProductName: Optional[str] = None
+    microProductContent: Optional[MicroProductContentType] = None
+    custom_rate: Optional[int] = None
+    quality_tier: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+class ProjectTierRequest(BaseModel):
+    quality_tier: str
+    custom_rate: int
+
+BulletListBlock.model_rebuild()
+NumberedListBlock.model_rebuild()
+PdfLessonDetails.model_rebuild()
+TextPresentationDetails.model_rebuild()
+QuizData.model_rebuild()
+ProjectDB.model_rebuild()
+MicroProductApiResponse.model_rebuild()
+ProjectDetailForEditResponse.model_rebuild()
+ProjectUpdateRequest.model_rebuild()
+TrainingPlanDetails.model_rebuild()
+
+class ErrorDetail(BaseModel):
+    detail: str
+
+class RequestAnalytics(BaseModel):
+    id: str
+    endpoint: str
+    method: str
+    user_id: Optional[str] = None
+    status_code: int
+    response_time_ms: int
+    request_size_bytes: Optional[int] = None
+    response_size_bytes: Optional[int] = None
+    error_message: Optional[str] = None
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+class ProjectsDeleteRequest(BaseModel):
+    project_ids: List[int]
+    scope: Optional[str] = 'self'
+
+class MicroproductPipelineBase(BaseModel):
+    pipeline_name: str
+    pipeline_description: Optional[str] = None
+    is_discovery_prompts: bool = Field(False, alias="is_prompts_data_collection")
+    is_structuring_prompts: bool = Field(False, alias="is_prompts_data_formating")
+    discovery_prompts_list: Optional[List[str]] = Field(default_factory=list)
+    structuring_prompts_list: Optional[List[str]] = Field(default_factory=list)
+    model_config = {"from_attributes": True, "populate_by_name": True}
+
+class MicroproductPipelineCreateRequest(MicroproductPipelineBase):
+    pass
+
+class MicroproductPipelineUpdateRequest(MicroproductPipelineBase):
+    pass
+
+class MicroproductPipelineDBRaw(BaseModel):
+    id: int
+    pipeline_name: str
+    pipeline_description: Optional[str] = None
+    is_prompts_data_collection: bool
+    is_prompts_data_formating: bool
+    prompts_data_collection: Optional[Dict[str, str]] = None
+    prompts_data_formating: Optional[Dict[str, str]] = None
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+class MicroproductPipelineGetResponse(BaseModel):
+    id: int
+    pipeline_name: str
+    pipeline_description: Optional[str] = None
+    is_discovery_prompts: bool
+    is_structuring_prompts: bool
+    discovery_prompts_list: List[str] = Field(default_factory=list)
+    structuring_prompts_list: List[str] = Field(default_factory=list)
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+    @classmethod
+    def from_db_model(cls, db_model: MicroproductPipelineDBRaw) -> "MicroproductPipelineGetResponse":
+        discovery_list = [db_model.prompts_data_collection[key] for key in sorted(db_model.prompts_data_collection.keys(), key=int)] if db_model.prompts_data_collection else []
+        structuring_list = [db_model.prompts_data_formating[key] for key in sorted(db_model.prompts_data_formating.keys(), key=int)] if db_model.prompts_data_formating else []
+        return cls(
+            id=db_model.id,
+            pipeline_name=db_model.pipeline_name,
+            pipeline_description=db_model.pipeline_description,
+            is_discovery_prompts=db_model.is_prompts_data_collection,
+            is_structuring_prompts=db_model.is_prompts_data_formating,
+            discovery_prompts_list=discovery_list,
+            structuring_prompts_list=structuring_list,
+            created_at=db_model.created_at
+        )
+
+# --- Authentication and Utility Functions ---
+async def get_current_onyx_user_id(request: Request) -> str:
+    session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+    if not session_cookie_value:
+        dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+        if dev_user_id: return dev_user_id
+        detail_msg = "Authentication required." if IS_PRODUCTION else f"Onyx session cookie '{ONYX_SESSION_COOKIE_NAME}' missing."
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail_msg)
+
+    onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+            response.raise_for_status()
+            user_data = response.json()
+            onyx_user_id = user_data.get("userId") or user_data.get("id")
+            if not onyx_user_id:
+                logger.error("Could not extract user ID from Onyx user data.")
+                detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            return str(onyx_user_id)
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
+        raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
+    except httpx.RequestError as e:
+        logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}': {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
+    except Exception as e:
+        logger.error(f"Unexpected error in get_current_onyx_user_id: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+async def get_current_onyx_user_with_email(request: Request) -> tuple[str, str]:
+    """Get both user ID and email from Onyx"""
+    session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+    if not session_cookie_value:
+        dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+        if dev_user_id: 
+            return dev_user_id, "dev@example.com"  # Dev fallback
+        detail_msg = "Authentication required." if IS_PRODUCTION else f"Onyx session cookie '{ONYX_SESSION_COOKIE_NAME}' missing."
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail_msg)
+
+    onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+            response.raise_for_status()
+            user_data = response.json()
+            onyx_user_id = user_data.get("userId") or user_data.get("id")
+            user_email = user_data.get("email", "")
+            if not onyx_user_id:
+                logger.error("Could not extract user ID from Onyx user data.")
+                detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            return str(onyx_user_id), user_email
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
+        raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
+    except httpx.RequestError as e:
+        logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}': {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
+    except Exception as e:
+        logger.error(f"Unexpected error in get_current_onyx_user_with_email: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+async def verify_admin_user(request: Request) -> tuple[str, str]:
+    """Verify that the current user is an admin using Onyx's built-in role system"""
+    session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+    if not session_cookie_value:
+        dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+        if dev_user_id and not IS_PRODUCTION: 
+            return dev_user_id, "dev@example.com"  # Dev fallback
+        detail_msg = "Authentication required." if IS_PRODUCTION else f"Onyx session cookie '{ONYX_SESSION_COOKIE_NAME}' missing."
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail_msg)
+
+    onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+            response.raise_for_status()
+            user_data = response.json()
+            
+            onyx_user_id = user_data.get("userId") or user_data.get("id")
+            user_email = user_data.get("email", "")
+            user_role = user_data.get("role", "")
+            
+            if not onyx_user_id:
+                logger.error("Could not extract user ID from Onyx user data.")
+                detail_msg = "User ID extraction failed." if IS_PRODUCTION else "Could not extract user ID from Onyx."
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            
+            # Check if user has admin role in Onyx
+            if user_role != "admin":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN, 
+                    detail="Access denied. Admin privileges required."
+                )
+            
+            return str(onyx_user_id), user_email
+            
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Onyx API '{onyx_user_info_url}' call failed. Status: {e.response.status_code}, Response: {e.response.text[:500]}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Onyx user validation failed." if IS_PRODUCTION else f"Onyx user validation failed ({e.response.status_code})."
+        raise HTTPException(status_code=e.response.status_code, detail=detail_msg)
+    except httpx.RequestError as e:
+        logger.error(f"Error requesting user info from Onyx '{onyx_user_info_url}': {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not connect to Onyx auth service." if IS_PRODUCTION else f"Could not connect to Onyx auth service: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail_msg)
+    except Exception as e:
+        logger.error(f"Unexpected error in verify_admin_user: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Internal user validation error." if IS_PRODUCTION else f"Internal user validation error: {str(e)[:100]}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+def create_slug(text: Optional[str]) -> str:
+    if not text: return "default-slug"
+    text_processed = str(text).lower()
+    text_processed = re.sub(r'\s+', '-', text_processed)
+    text_processed = re.sub(r'[^\wа-яёa-z0-9\-]+', '', text_processed, flags=re.UNICODE | re.IGNORECASE)
+    return text_processed or "generated-slug"
+
+def get_tier_ratio(tier: str) -> int:
+    """Get the creation hours ratio for a given tier (legacy support)"""
+    ratios = {
+        'starter': 120,
+        'medium': 200,
+        'advanced': 320,
+        'professional': 450,
+        'basic': 100,
+        'interactive': 200,
+        'immersive': 700
+    }
+    return ratios.get(tier, 200)  # Default to medium (200) if tier not found
+
+def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> int:
+    """Calculate creation hours based on completion time and custom rate, rounded to nearest integer"""
+    if completion_time_minutes <= 0:
+        return 0
+    
+    # Convert completion time from minutes to hours, then multiply by custom rate
+    completion_hours = completion_time_minutes / 60.0
+    creation_hours = completion_hours * custom_rate
+    return round(creation_hours)
+
+def round_hours_in_content(content: Any) -> Any:
+    """Recursively round all hours fields to integers in content structure"""
+    if isinstance(content, dict):
+        result = {}
+        for key, value in content.items():
+            if key == 'hours' and isinstance(value, (int, float)):
+                result[key] = round(value)
+            elif key == 'totalHours' and isinstance(value, (int, float)):
+                result[key] = round(value)
+            elif isinstance(value, (dict, list)):
+                result[key] = round_hours_in_content(value)
+            else:
+                result[key] = value
+        return result
+    elif isinstance(content, list):
+        return [round_hours_in_content(item) for item in content]
+    else:
+        return content
+
+async def get_folder_tier(folder_id: int, pool: asyncpg.Pool) -> str:
+    """Get the tier of a folder, inheriting from parent if not set"""
+    async with pool.acquire() as conn:
+        # Get the folder and its tier
+        folder = await conn.fetchrow(
+            "SELECT quality_tier, parent_id FROM project_folders WHERE id = $1",
+            folder_id
+        )
+        
+        if not folder:
+            return 'interactive'  # Default tier
+        
+        # If folder has its own tier, use it
+        if folder['quality_tier']:
+            return folder['quality_tier']
+        
+        # Otherwise, inherit from parent folder
+        if folder['parent_id']:
+            return await get_folder_tier(folder['parent_id'], pool)
+        
+        # Default to interactive tier
+        return 'interactive'
+
+async def get_folder_custom_rate(folder_id: int, pool: asyncpg.Pool) -> int:
+    """Get the custom rate of a folder, inheriting from parent if not set"""
+    async with pool.acquire() as conn:
+        # Get the folder and its custom rate
+        folder = await conn.fetchrow(
+            "SELECT custom_rate, parent_id FROM project_folders WHERE id = $1",
+            folder_id
+        )
+        
+        if not folder:
+            return 200  # Default custom rate
+        
+        # If folder has its own custom rate, use it
+        if folder['custom_rate']:
+            return folder['custom_rate']
+        
+        # Otherwise, inherit from parent folder
+        if folder['parent_id']:
+            return await get_folder_custom_rate(folder['parent_id'], pool)
+        
+        # Default to 200 custom rate
+        return 200
+
+async def get_project_custom_rate(project_id: int, pool: asyncpg.Pool) -> int:
+    """Get the effective custom rate for a project, falling back to folder rate if not set"""
+    async with pool.acquire() as conn:
+        # Get the project's custom rate and folder_id
+        project = await conn.fetchrow(
+            "SELECT custom_rate, folder_id FROM projects WHERE id = $1",
+            project_id
+        )
+        
+        if not project:
+            return 200  # Default custom rate
+        
+        # If project has its own custom rate, use it
+        if project['custom_rate']:
+            return project['custom_rate']
+        
+        # Otherwise, get the folder's custom rate
+        if project['folder_id']:
+            return await get_folder_custom_rate(project['folder_id'], pool)
+        
+        # Default to 200 custom rate
+        return 200
+
+async def get_project_quality_tier(project_id: int, pool: asyncpg.Pool) -> str:
+    """Get the effective quality tier for a project, falling back to folder tier if not set"""
+    async with pool.acquire() as conn:
+        # Get the project's quality tier and folder_id
+        project = await conn.fetchrow(
+            "SELECT quality_tier, folder_id FROM projects WHERE id = $1",
+            project_id
+        )
+        
+        if not project:
+            return 'interactive'  # Default tier
+        
+        # If project has its own quality tier, use it
+        if project['quality_tier']:
+            return project['quality_tier']
+        
+        # Otherwise, get the folder's quality tier
+        if project['folder_id']:
+            return await get_folder_tier(project['folder_id'], pool)
+        
+        # Default to interactive tier
+        return 'interactive'
+
+def get_lesson_effective_custom_rate(lesson: dict, project_custom_rate: int) -> int:
+    """Get the effective custom rate for a lesson, falling back to project rate if not set"""
+    if lesson.get('custom_rate'):
+        return lesson['custom_rate']
+    return project_custom_rate
+
+def get_lesson_effective_quality_tier(lesson: dict, project_quality_tier: str) -> str:
+    """Get the effective quality tier for a lesson, falling back to project tier if not set"""
+    if lesson.get('quality_tier'):
+        return lesson['quality_tier']
+    return project_quality_tier
+
+def calculate_lesson_creation_hours(lesson: dict, project_custom_rate: int) -> int:
+    """Calculate creation hours for a specific lesson using its tier settings"""
+    completion_time_str = lesson.get('completionTime', '')
+    if not completion_time_str:
+        return 0
+    
+    try:
+        completion_time_minutes = int(completion_time_str.replace('m', ''))
+        effective_custom_rate = get_lesson_effective_custom_rate(lesson, project_custom_rate)
+        return calculate_creation_hours(completion_time_minutes, effective_custom_rate)
+    except (ValueError, AttributeError):
+        return 0
+
+def get_module_effective_custom_rate(section: dict, project_custom_rate: int) -> int:
+    """Get the effective custom rate for a module, falling back to project rate if not set"""
+    if section.get('custom_rate'):
+        return section['custom_rate']
+    return project_custom_rate
+
+def get_module_effective_quality_tier(section: dict, project_quality_tier: str) -> str:
+    """Get the effective quality tier for a module, falling back to project tier if not set"""
+    if section.get('quality_tier'):
+        return section['quality_tier']
+    return project_quality_tier
+
+def calculate_lesson_creation_hours_with_module_fallback(lesson: dict, section: dict, project_custom_rate: int) -> int:
+    """Calculate creation hours for a lesson with module-level fallback"""
+    completion_time_str = lesson.get('completionTime', '')
+    if not completion_time_str:
+        return 0
+    
+    try:
+        completion_time_minutes = int(completion_time_str.replace('m', ''))
+        
+        # Check lesson-level tier first, then module-level, then project-level
+        if lesson.get('custom_rate'):
+            effective_custom_rate = lesson['custom_rate']
+        elif section.get('custom_rate'):
+            effective_custom_rate = section['custom_rate']
+        else:
+            effective_custom_rate = project_custom_rate
+            
+        return calculate_creation_hours(completion_time_minutes, effective_custom_rate)
+    except (ValueError, AttributeError):
+        return 0
+
+async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: asyncpg.Pool) -> UserCredits:
+    """Get user credits or create if doesn't exist"""
+    async with pool.acquire() as conn:
+        # Try to get existing credits
+        credits_row = await conn.fetchrow(
+            "SELECT * FROM user_credits WHERE onyx_user_id = $1",
+            onyx_user_id
+        )
+        
+        if credits_row:
+            return UserCredits(**dict(credits_row))
+        
+        # Create new user credits entry with default values
+        new_credits_row = await conn.fetchrow("""
+            INSERT INTO user_credits (onyx_user_id, name, credits_balance, credits_purchased)
+            VALUES ($1, $2, $3, $3)
+            RETURNING *
+        """, onyx_user_id, user_name, 100, 100)  # Default 100 credits for new users
+        
+        logger.info(f"Auto-migrated new user {onyx_user_id} ({user_name}) with 100 credits")
+        return UserCredits(**dict(new_credits_row))
+
+def calculate_product_credits(product_type: str, content_data: dict = None) -> int:
+    """Calculate credit cost for product creation"""
+    if product_type == "course_outline":
+        return 5  # Course outline finalization costs 5 credits
+    elif product_type == "lesson_presentation":
+        # Calculate based on slide count
+        if content_data and isinstance(content_data, dict):
+            slides = content_data.get("slides", [])
+            slide_count = len(slides) if slides else 0
+            
+            if slide_count <= 5:
+                return 3
+            elif slide_count <= 10:
+                return 5
+            else:
+                return 10
+        return 5  # Default if we can't determine slide count
+    elif product_type in ["quiz", "one_pager"]:
+        return 5  # Quiz and one-pager both cost 5 credits
+    else:
+        return 0  # Unknown product type, no cost
+
+async def deduct_credits(onyx_user_id: str, amount: int, pool: asyncpg.Pool, reason: str = "Product creation") -> UserCredits:
+    """Deduct credits from user balance with transaction safety"""
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            # Check current balance
+            current_balance = await conn.fetchval(
+                "SELECT credits_balance FROM user_credits WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if current_balance is None:
+                raise HTTPException(status_code=404, detail="User credits not found")
+            
+            if current_balance < amount:
+                raise HTTPException(
+                    status_code=402, 
+                    detail=f"Insufficient credits. Current balance: {current_balance}, Required: {amount}"
+                )
+            
+            # Deduct credits and update usage
+            updated_row = await conn.fetchrow("""
+                UPDATE user_credits 
+                SET credits_balance = credits_balance - $1,
+                    total_credits_used = total_credits_used + $1,
+                    updated_at = NOW()
+                WHERE onyx_user_id = $2
+                RETURNING *
+            """, amount, onyx_user_id)
+            
+            return UserCredits(**dict(updated_row))
+
+async def modify_user_credits_by_email(user_email: str, amount: int, action: str, pool: asyncpg.Pool, reason: str = "Admin adjustment") -> UserCredits:
+    """Modify user credits by email (for admin use)"""
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            if action == "add":
+                # Add credits (can be new user or existing)
+                # Use email as onyx_user_id for simplicity in admin interface
+                credits_row = await conn.fetchrow("""
+                    INSERT INTO user_credits (onyx_user_id, name, credits_balance, credits_purchased)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (onyx_user_id) 
+                    DO UPDATE SET 
+                        credits_balance = user_credits.credits_balance + $3,
+                        credits_purchased = user_credits.credits_purchased + $3,
+                        last_purchase_date = NOW(),
+                        updated_at = NOW()
+                    RETURNING *
+                """, user_email, user_email.split('@')[0], amount, amount)
+                
+            elif action == "remove":
+                # Remove credits (must exist)
+                credits_row = await conn.fetchrow("""
+                    UPDATE user_credits 
+                    SET credits_balance = GREATEST(0, credits_balance - $1),
+                        updated_at = NOW()
+                    WHERE onyx_user_id = $2
+                    RETURNING *
+                """, amount, user_email)
+                
+                if not credits_row:
+                    raise HTTPException(status_code=404, detail="User not found")
+            
+            else:
+                raise HTTPException(status_code=400, detail="Invalid action. Must be 'add' or 'remove'")
+            
+            return UserCredits(**dict(credits_row))
+
+async def migrate_onyx_users_to_credits_table() -> int:
+    """Migrate users from Onyx database to credits table"""
+    if not ONYX_DATABASE_URL:
+        raise Exception("ONYX_DATABASE_URL not configured")
+    
+    logger.info(f"Attempting to connect to Onyx database: {ONYX_DATABASE_URL}")
+    
+    # Try multiple possible database names
+    possible_db_urls = [
+        ONYX_DATABASE_URL,
+        ONYX_DATABASE_URL.replace('/onyx_db', '/postgres'),  # Try postgres DB name
+        ONYX_DATABASE_URL.replace('/postgres', '/onyx_db')   # Try onyx_db name
+    ]
+    
+    # Remove duplicates while preserving order
+    db_urls_to_try = []
+    for url in possible_db_urls:
+        if url not in db_urls_to_try:
+            db_urls_to_try.append(url)
+    
+    onyx_pool = None
+    last_error = None
+    
+    for db_url in db_urls_to_try:
+        try:
+            logger.info(f"Trying to connect to: {db_url}")
+            # Connect to Onyx database
+            onyx_pool = await asyncpg.create_pool(dsn=db_url, min_size=1, max_size=5)
+        
+            async with onyx_pool.acquire() as onyx_conn:
+                # Get users from Onyx database
+                onyx_users = await onyx_conn.fetch("""
+                    SELECT 
+                        id::text as onyx_user_id,
+                        COALESCE(email, 'Unknown User') as name
+                    FROM "user" 
+                    WHERE is_active = true
+                    AND role != 'ext_perm_user'
+                    AND role != 'slack_user'
+                    AND email NOT LIKE '%@danswer-api-key.invalid'
+                """)
+            
+            if not onyx_users:
+                logger.info("No Onyx users found to migrate")
+                return 0
+            
+            logger.info(f"Found {len(onyx_users)} Onyx users to migrate")
+            
+            # Insert into custom database
+            async with DB_POOL.acquire() as custom_conn:
+                migrated_count = 0
+                for user in onyx_users:
+                    try:
+                        await custom_conn.execute("""
+                            INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                            VALUES ($1, $2, 100)
+                            ON CONFLICT (onyx_user_id) DO NOTHING
+                        """, user['onyx_user_id'], user['name'])
+                        migrated_count += 1
+                    except Exception as e:
+                        logger.warning(f"Failed to migrate user {user['onyx_user_id']}: {e}")
+                
+                return migrated_count
+                
+        except Exception as e:
+            last_error = e
+            logger.warning(f"Failed to connect to {db_url}: {e}")
+            if onyx_pool:
+                await onyx_pool.close()
+                onyx_pool = None
+            continue  # Try next database URL
+        
+        # If we got here, the connection worked, so break out of the loop
+        break
+    
+    # If we tried all URLs and none worked, raise the last error
+    if onyx_pool is None:
+        raise Exception(f"Could not connect to any Onyx database. Last error: {last_error}")
+    
+    # This should never be reached, but just in case
+    return 0
+
+VIDEO_SCRIPT_LANG_STRINGS = {
+    'ru': {
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Видео урок',
+        'SLIDE_NUMBER_PREFIX': 'СЛАЙД №',
+        'DISPLAYED_TEXT_LABEL': 'Отображаемый текст:',
+        'DISPLAYED_IMAGE_LABEL': 'Отображаемая картинка:',
+        'DISPLAYED_VIDEO_LABEL': 'Отображаемое видео:',
+        'VOICEOVER_TEXT_LABEL': 'Текст озвучки:',
+        'NO_SLIDES_TEXT': 'Нет слайдов для отображения.',
+        'EMPTY_CONTENT_PLACEHOLDER': '...',
+        'courseLabel': 'КУРС',
+        'lessonLabel': 'УРОК',
+        'quiz': {
+            'quizTitle': 'Название теста',
+            'question': 'Вопрос',
+            'correctAnswer': 'Правильный ответ',
+            'correctAnswers': 'Правильные ответы',
+            'acceptableAnswers': 'Допустимые ответы',
+            'prompts': 'Элементы',
+            'options': 'Варианты',
+            'correctMatches': 'Правильные соответствия',
+            'itemsToSort': 'Элементы для сортировки',
+            'explanation': 'Объяснение',
+            'multipleChoice': 'Один правильный ответ',
+            'multiSelect': 'Несколько правильных ответов',
+            'matching': 'Соответствие',
+            'sorting': 'Сортировка',
+            'openAnswer': 'Свободный ответ',
+            'answerKey': 'Ключ ответов',
+            'correctOrder': 'Правильный порядок',
+            'emptyContent': '...',
+        }
+    },
+    'en': {
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Video Lesson Script',
+        'SLIDE_NUMBER_PREFIX': 'SLIDE №',
+        'DISPLAYED_TEXT_LABEL': 'Displayed Text:',
+        'DISPLAYED_IMAGE_LABEL': 'Displayed Image:',
+        'DISPLAYED_VIDEO_LABEL': 'Displayed Video:',
+        'VOICEOVER_TEXT_LABEL': 'Voiceover Text:',
+        'NO_SLIDES_TEXT': 'No slides to display.',
+        'EMPTY_CONTENT_PLACEHOLDER': '...',
+        'courseLabel': 'COURSE',
+        'lessonLabel': 'LESSON',
+        'quiz': {
+            'quizTitle': 'Quiz Title',
+            'question': 'Question',
+            'correctAnswer': 'Correct Answer',
+            'correctAnswers': 'Correct Answers',
+            'acceptableAnswers': 'Acceptable Answers',
+            'prompts': 'Items',
+            'options': 'Options',
+            'correctMatches': 'Correct Matches',
+            'itemsToSort': 'Items to Sort',
+            'explanation': 'Explanation',
+            'multipleChoice': 'Multiple Choice',
+            'multiSelect': 'Multi-Select',
+            'matching': 'Matching',
+            'sorting': 'Sorting',
+            'openAnswer': 'Open Answer',
+            'answerKey': 'Answer Key',
+            'correctOrder': 'Correct Order',
+            'emptyContent': '...',
+        }
+    },
+    'uk': {
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Відео урок',
+        'SLIDE_NUMBER_PREFIX': 'СЛАЙД №',
+        'DISPLAYED_TEXT_LABEL': 'Текст, що відображається:',
+        'DISPLAYED_IMAGE_LABEL': 'Зображення, що відображається:',
+        'DISPLAYED_VIDEO_LABEL': 'Відео, що відображається:',
+        'VOICEOVER_TEXT_LABEL': 'Текст озвучення:',
+        'NO_SLIDES_TEXT': 'Немає слайдів для відображення.',
+        'EMPTY_CONTENT_PLACEHOLDER': '...',
+        'courseLabel': 'КУРС',
+        'lessonLabel': 'УРОК',
+        'quiz': {
+            'quizTitle': 'Назва тесту',
+            'question': 'Питання',
+            'correctAnswer': 'Правильна відповідь',
+            'correctAnswers': 'Правильні відповіді',
+            'acceptableAnswers': 'Допустимі відповіді',
+            'prompts': 'Елементи',
+            'options': 'Варіанти',
+            'correctMatches': 'Правильні відповідності',
+            'itemsToSort': 'Елементи для сортування',
+            'explanation': 'Пояснення',
+            'multipleChoice': 'Одна правильна відповідь',
+            'multiSelect': 'Декілька правильних відповідей',
+            'matching': 'Відповідність',
+            'sorting': 'Сортування',
+            'openAnswer': 'Вільна відповідь',
+            'answerKey': 'Ключ відповідей',
+            'correctOrder': 'Правильний порядок',
+            'emptyContent': '...',
+        }
+    },
+    'es': {
+        'VIDEO_LESSON_SCRIPT_DEFAULT_TITLE': 'Guión de la lección en video',
+        'SLIDE_NUMBER_PREFIX': 'DIAPOSITIVA №',
+        'DISPLAYED_TEXT_LABEL': 'Texto mostrado:',
+        'DISPLAYED_IMAGE_LABEL': 'Imagen mostrada:',
+        'DISPLAYED_VIDEO_LABEL': 'Video mostrado:',
+        'VOICEOVER_TEXT_LABEL': 'Texto de voz en off:',
+        'NO_SLIDES_TEXT': 'No hay diapositivas para mostrar.',
+        'EMPTY_CONTENT_PLACEHOLDER': '...',
+        'courseLabel': 'CURSO',
+        'lessonLabel': 'LECCIÓN',
+        'quiz': {
+            'quizTitle': 'Título del cuestionario',
+            'question': 'Pregunta',
+            'correctAnswer': 'Respuesta correcta',
+            'correctAnswers': 'Respuestas correctas',
+            'acceptableAnswers': 'Respuestas aceptables',
+            'prompts': 'Elementos',
+            'options': 'Opciones',
+            'correctMatches': 'Correspondencias correctas',
+            'itemsToSort': 'Elementos para ordenar',
+            'explanation': 'Explicación',
+            'multipleChoice': 'Opción múltiple',
+            'multiSelect': 'Selección múltiple',
+            'matching': 'Correspondencia',
+            'sorting': 'Ordenamiento',
+            'openAnswer': 'Respuesta abierta',
+            'answerKey': 'Clave de respuestas',
+            'correctOrder': 'Orden correcto',
+            'emptyContent': '...',
+        }
+    }
+}
+
+def detect_language(text: str, configs: Dict[str, Dict[str, str]] = LANG_CONFIG) -> str:
+    en_score = 0; ru_score = 0; uk_score = 0
+    en_config = configs.get('en', {})
+    ru_config = configs.get('ru', {})
+    uk_config = configs.get('uk', {})
+
+    if en_config.get('MODULE_KEYWORD') and en_config.get('LESSONS_HEADER_KEYWORD') and en_config.get('TOTAL_TIME_KEYWORD'):
+        if en_config['MODULE_KEYWORD'] in text and \
+           en_config['LESSONS_HEADER_KEYWORD'] in text and \
+           en_config['TOTAL_TIME_KEYWORD'] in text:
+            en_score += 3
+    if ru_config.get('MODULE_KEYWORD') and ru_config.get('LESSONS_HEADER_KEYWORD') and ru_config.get('TOTAL_TIME_KEYWORD'):
+        if ru_config['MODULE_KEYWORD'] in text and \
+           ru_config['LESSONS_HEADER_KEYWORD'] in text and \
+           ru_config['TOTAL_TIME_KEYWORD'] in text:
+            ru_score += 3
+    if uk_config.get('MODULE_KEYWORD') and uk_config.get('LESSONS_HEADER_KEYWORD') and uk_config.get('TOTAL_TIME_KEYWORD'):
+        if uk_config['MODULE_KEYWORD'] in text and \
+           uk_config['LESSONS_HEADER_KEYWORD'] in text and \
+           uk_config['TOTAL_TIME_KEYWORD'] in text:
+            uk_score += 3
+    if en_score == 0 and ru_score == 0 and uk_score == 0:
+        if en_config.get('MODULE_KEYWORD') and en_config['MODULE_KEYWORD'] in text: en_score +=1
+        if ru_config.get('MODULE_KEYWORD') and ru_config['MODULE_KEYWORD'] in text: ru_score +=1
+        if uk_config.get('MODULE_KEYWORD') and uk_config['MODULE_KEYWORD'] in text: uk_score +=1
+        if en_config.get('TIME_KEYWORD') and en_config['TIME_KEYWORD'] in text: en_score +=1
+        if ru_config.get('TIME_KEYWORD') and ru_config['TIME_KEYWORD'] in text: ru_score +=1
+        if uk_config.get('TIME_KEYWORD') and uk_config['TIME_KEYWORD'] in text: uk_score +=1
+        if en_score == 0 and ru_score == 0 and uk_score == 0:
+            en_chars = sum(1 for char_ in text if 'a' <= char_.lower() <= 'z')
+            cyrillic_chars = sum(1 for char_ in text if 'а' <= char_.lower() <= 'я' or char_.lower() in ['і', 'ї', 'є', 'ґ'])
+            if en_chars > cyrillic_chars and en_chars > 10 :
+                 en_score += 0.1
+            elif cyrillic_chars > en_chars and cyrillic_chars > 10:
+                if uk_score == 0: uk_score += 0.05
+                if ru_score == 0: ru_score += 0.05
+                ukrainian_specific_chars = sum(1 for char_ in text if char_.lower() in ['і', 'ї', 'є', 'ґ'])
+                if ukrainian_specific_chars > 0:
+                    uk_score += 0.05 * ukrainian_specific_chars
+    if en_score > ru_score and en_score > uk_score: return 'en'
+    if ru_score > en_score and ru_score > uk_score: return 'ru'
+    if uk_score > en_score and uk_score > ru_score: return 'uk'
+    if uk_score > 0 and uk_score >= ru_score and uk_score >= en_score: return 'uk'
+    if ru_score > 0 and ru_score >= en_score : return 'ru'
+    if en_score > 0 : return 'en'
+    logger.warning("detect_language could not reliably determine language. Defaulting to 'en'.")
+    return 'en'
+
+def parse_training_plan_from_string(original_content_str: str, main_table_title: str) -> Optional[TrainingPlanDetails]:
+    logger.warning("Old 'parse_training_plan_from_string' called. Ensure this is intended for legacy data.")
+    return TrainingPlanDetails(mainTitle=f"Content for {main_table_title} (Old Parser)", sections=[], detectedLanguage='ru')
+
+async def parse_ai_response_with_llm(
+    ai_response: str,
+    project_name: str,
+    target_model: Type[BaseModel],
+    default_error_model_instance: BaseModel,
+    dynamic_instructions: str,
+    target_json_example: str
+) -> BaseModel:
+    # Start timing for analytics
+    start_time = time.time()
+    
+    # DEBUG: Log that the function was called
+    logger.info(f"=== AI PARSER FUNCTION CALLED ===")
+    logger.info(f"Project: {project_name}")
+    logger.info(f"Target model: {target_model.__name__}")
+    logger.info(f"AI response length: {len(ai_response)}")
+    logger.info(f"DB_POOL available: {DB_POOL is not None}")
+    logger.info(f"Call stack: {len(inspect.stack())} frames")
+    logger.info(f"=== END FUNCTION CALL DEBUG ===")
+    
+    # Create a list of API keys to try, filtering out any that are not set
+    api_keys_to_try = [key for key in [LLM_API_KEY, LLM_API_KEY_FALLBACK] if key]
+
+    if not api_keys_to_try:
+        logger.error(f"LLM_API_KEY not configured for {project_name}. Cannot parse AI response with LLM.")
+        return default_error_model_instance
+
+    prompt_message = f"""
+You are a highly accurate text-to-JSON parsing assistant. Your task is to convert the *entirety* of the following unstructured text into a single, structured JSON object.
+Ensure *all* relevant information from the "Raw text to parse" is included in your JSON output.
+Pay close attention to data types: strings should be quoted, numerical values should be numbers, and lists should be arrays. Null values are not permitted for string fields; use an empty string "" instead if text is absent but the field is required according to the example structure.
+Maintain the original language of the input text for all textual content in the JSON.
+
+Specific Instructions for this Content Type ({target_model.__name__}):
+---
+{dynamic_instructions}
+---
+
+The desired JSON output format is exemplified below. This example is CRUCIAL and your output MUST strictly follow this JSON format and structure.
+---
+{target_json_example}
+---
+
+Raw text to parse:
+---
+{ai_response}
+---
+
+Return ONLY the JSON object corresponding to the parsed text. Do not include any other explanatory text or markdown formatting (like ```json ... ```) around the JSON.
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
     # OpenAI Chat API expects a list of chat messages
