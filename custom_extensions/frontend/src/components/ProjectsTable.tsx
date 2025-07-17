@@ -1227,7 +1227,8 @@ const ProjectCard: React.FC<{
                                         <Star size={16} className="text-gray-500"/>
                                         <span>Add to favorites</span>
                                     </button>
-                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <button onClick={handleDuplicateProject}
+                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <Copy size={16} className="text-gray-500"/>
                                         <span>Duplicate</span>
                                     </button>
@@ -1636,9 +1637,12 @@ const ProjectRowMenu: React.FC<{
                                     <Star size={16} className="text-gray-500"/>
                                     <span>Add to favorites</span>
                                 </button>
-                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <button
+                                    onClick={handleDuplicateProject}
+                                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                >
                                     <Copy size={16} className="text-gray-500"/>
-                                    <span>Duplicate</span>
+                                <span>Duplicate</span>
                                 </button>
                                 <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <LinkIcon size={16} className="text-gray-500"/>
