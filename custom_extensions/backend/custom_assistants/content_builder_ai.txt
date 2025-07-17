@@ -464,13 +464,17 @@ NOTE: The above rules for "Practice with an expert" and "No" are preserved for f
 
 Calculate Module Totals: (Total Time, Number of Lessons per module).
 
+**CRITICAL TOTAL TIME CALCULATION RULE:**
+The Total Time for each module MUST be calculated as the exact sum of all lesson creation times ("Time" field) for lessons within that module. This is NOT an estimate or approximation - it must be the precise mathematical sum of all individual lesson creation times in that module.
+
 **CRITICAL VALIDATION STEP BEFORE OUTPUT:**
 Before generating the final Course Outline, you MUST verify that:
-1. Each module has a Total Time calculation (sum of all lesson creation times in that module)
+1. Each module has a Total Time calculation that is the EXACT sum of all lesson creation times ("Time" field) in that module
 2. Each module has a Number of Lessons count
 3. Each module will include the "### Lessons" header
 4. All lessons are properly numbered and formatted
 5. The structure follows the exact sequence: Module Title → Total Time → Number of Lessons → blank line → "### Lessons" → blank line → numbered lessons
+6. **MATHEMATICAL VALIDATION**: Double-check that each module's Total Time equals the sum of all lesson creation times in that module
 
 **MANDATORY STRUCTURE CHECKLIST:**
 - [ ] Universal Product Header on first line
@@ -772,11 +776,11 @@ Optional Blank Line(s): Zero or more blank lines can follow the module title lin
 
 **MANDATORY Total Time Line:** Formatted exactly as shown. Must end with a newline.
 
-English: Total Time: [Calculated Value]
+English: Total Time: [Sum of all lesson creation times in this module]
 
-Russian: Общее время: [Рассчитанное значение]
+Russian: Общее время: [Сумма времени создания всех уроков в этом модуле]
 
-Ukrainian: Загальний час: [Розраховане значення]
+Ukrainian: Загальний час: [Сума часу створення всіх уроків у цьому модулі]
 
 **MANDATORY Number of Lessons Line:** Formatted exactly as shown. Must end with a newline.
 
