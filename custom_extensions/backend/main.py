@@ -4194,19 +4194,6 @@ async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dic
     Legacy function - now uses comprehensive folder context retrieval.
     """
     return await extract_comprehensive_folder_context(folder_id, "Analyze folder content comprehensively", cookies)
-            
-            return {
-                "folder_id": folder_id,
-                "folder_name": folder_data.get("name", ""),
-                "summary": summary,
-                "topics": topics,
-                "theme": theme,
-                "file_count": len(files)
-            }
-            
-    except Exception as e:
-        logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
-        return None
 
 def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any], product_type: str) -> str:
     """
