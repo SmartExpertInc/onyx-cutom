@@ -1108,43 +1108,7 @@ const ProjectCard: React.FC<{
         return new Date(dateString).toLocaleDateString('en-US', options);
     }
   
-    // 1. Add a helper function for duplicating a project (outline and its linked products)
-    const handleDuplicateProject = async (project: Project) => {
-        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        const devUserId = "dummy-onyx-user-id-for-testing";
-        if (devUserId && process.env.NODE_ENV === 'development') {
-            headers['X-Dev-Onyx-User-ID'] = devUserId;
-        }
-        try {
-            // Show a loading indicator (optional: you can use a state for this)
-            // Call the backend duplicate endpoint
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
-                method: 'POST',
-                headers,
-                credentials: 'same-origin',
-            });
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    redirectToMainAuth('/auth/login');
-                    return;
-                }
-                const errorText = await response.text();
-                throw new Error(`Failed to duplicate project: ${response.status} ${errorText}`);
-            }
-            const data = await response.json();
-            // Option 1: Refresh the project list
-            if (typeof window !== 'undefined') {
-                window.dispatchEvent(new Event('refreshProjects'));
-            }
-            // Option 2: Redirect to the new outline (if returned)
-            if (data && data.new_outline_id) {
-                window.location.href = `/projects/view/${data.new_outline_id}`;
-            }
-        } catch (error) {
-            alert((error as Error).message);
-        }
-    };
+    
     
     return (
         <div 
