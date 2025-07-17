@@ -5579,11 +5579,13 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
         # Lesson detection – only consider top-level list items (indent == 0)
         if current:
-            # Capture Total Time lines before lessons
+            # Note: Total Time lines are now auto-calculated from lesson creation times
+            # We still capture them for backward compatibility but will recalculate
             m_time = re.match(r"(?:Total Time|Общее время|Загальний час)\s*:\s*([0-9]+(?:\.[0-9]+)?)", line, re.IGNORECASE)
             if m_time:
                 try:
-                    current["totalHours"] = float(m_time.group(1))
+                    # Store the original value for backward compatibility, but we'll recalculate
+                    current["originalTotalHours"] = float(m_time.group(1))
                 except ValueError:
                     pass  # leave default 0.0 if parsing fails
 
@@ -5639,8 +5641,33 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
         logger.info(f"[PARSE_OUTLINE] Fallback created 1 module with {fallback_lessons} lessons")
 
     logger.info(f"[PARSE_OUTLINE] Final result: {len(modules)} modules")
+    
+    # Auto-calculate total creation time for each module by summing lesson creation times
     for i, module in enumerate(modules):
         logger.info(f"[PARSE_OUTLINE] Module {i+1}: '{module.get('title', 'No title')}' with {len(module.get('lessons', []))} lessons")
+        
+        # Calculate total creation time from lesson creation times
+        total_creation_hours = 0.0
+        lessons = module.get('lessons', [])
+        
+        for lesson in lessons:
+            if isinstance(lesson, str):
+                # Parse lesson details from markdown format
+                lesson_lines = lesson.split('\n')
+                for line in lesson_lines:
+                    # Look for Time field in markdown format: "- **Time**: 17h" or "- **Время**: 17h" or "- **Час**: 17h"
+                    time_match = re.search(r'^\s*-\s*\*\*(?:Time|Время|Час)\*\*:\s*([0-9]+(?:\.[0-9]+)?)h?\s*$', line.strip())
+                    if time_match:
+                        try:
+                            hours = float(time_match.group(1))
+                            total_creation_hours += hours
+                            logger.debug(f"[PARSE_OUTLINE] Found lesson time: {hours}h")
+                        except (ValueError, TypeError):
+                            logger.warning(f"[PARSE_OUTLINE] Could not parse lesson time from line: {line}")
+        
+        # Set the auto-calculated total hours
+        module['totalHours'] = total_creation_hours
+        logger.info(f"[PARSE_OUTLINE] Module {i+1} auto-calculated totalHours: {total_creation_hours}")
 
     return modules
 

@@ -467,14 +467,17 @@ Calculate Module Totals: (Total Time, Number of Lessons per module).
 **CRITICAL TOTAL TIME CALCULATION RULE:**
 The Total Time for each module MUST be calculated as the exact sum of all lesson creation times ("Time" field) for lessons within that module. This is NOT an estimate or approximation - it must be the precise mathematical sum of all individual lesson creation times in that module.
 
+**AUTO-CALCULATION IMPLEMENTATION:**
+The system now automatically calculates the Total Time by summing all lesson creation times within each module. The Total Time field in the markdown is still required for formatting purposes, but the actual value will be auto-calculated and may differ from what you specify. Always ensure your lesson creation times are accurate, as they will be used to determine the final Total Time.
+
 **CRITICAL VALIDATION STEP BEFORE OUTPUT:**
 Before generating the final Course Outline, you MUST verify that:
-1. Each module has a Total Time calculation that is the EXACT sum of all lesson creation times ("Time" field) in that module
+1. Each module has a Total Time field (this will be auto-calculated by the system from lesson creation times)
 2. Each module has a Number of Lessons count
 3. Each module will include the "### Lessons" header
 4. All lessons are properly numbered and formatted
 5. The structure follows the exact sequence: Module Title → Total Time → Number of Lessons → blank line → "### Lessons" → blank line → numbered lessons
-6. **MATHEMATICAL VALIDATION**: Double-check that each module's Total Time equals the sum of all lesson creation times in that module
+6. **MATHEMATICAL VALIDATION**: Double-check that each lesson's creation time is correctly calculated and that the Total Time field is present (the system will auto-calculate the actual sum)
 
 **MANDATORY STRUCTURE CHECKLIST:**
 - [ ] Universal Product Header on first line
