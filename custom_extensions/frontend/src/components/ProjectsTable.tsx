@@ -37,33 +37,6 @@ import {
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
 
-// Add at the top of the file, after imports
-const duplicatingProjects = new Set<number>();
-
-// Add a simple debounce implementation
-function debounce<T extends (...args: any[]) => void>(func: T, wait: number, options?: { leading?: boolean; trailing?: boolean }): T {
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-    let lastArgs: any[];
-    let leadingCalled = false;
-    const leading = options?.leading ?? false;
-    const trailing = options?.trailing ?? true;
-    const debounced = function(this: any, ...args: any[]) {
-        lastArgs = args;
-        if (timeout) clearTimeout(timeout);
-        if (leading && !leadingCalled) {
-            func.apply(this, args);
-            leadingCalled = true;
-        }
-        timeout = setTimeout(() => {
-            if (trailing && (!leading || leadingCalled)) {
-                func.apply(this, lastArgs);
-            }
-            leadingCalled = false;
-        }, wait);
-    } as T;
-    return debounced;
-}
-
 // Client Name Modal Component
 const ClientNameModal: React.FC<{
   isOpen: boolean;
@@ -581,7 +554,6 @@ const FolderRow: React.FC<{
     handleDeletePermanently: (projectId: number) => void;
     handleDeleteFolder: (folderId: number) => void;
     allFolders: Folder[];
-    refreshProjects: () => Promise<void>;
 }> = ({ 
     folder, 
     level, 
@@ -608,8 +580,7 @@ const FolderRow: React.FC<{
     handleRestoreProject,
     handleDeletePermanently,
     handleDeleteFolder,
-    allFolders,
-    refreshProjects
+    allFolders
 }) => {
 
     const hasChildren = folder.children && folder.children.length > 0;
@@ -865,7 +836,6 @@ const FolderRow: React.FC<{
                                 onRestore={handleRestoreProject}
                                 onDeletePermanently={handleDeletePermanently}
                                 folderId={folder.id}
-                                refreshProjects={refreshProjects}
                             />
                         </td>
                     </tr>
@@ -911,7 +881,6 @@ const FolderRow: React.FC<{
                     handleDeletePermanently={handleDeletePermanently}
                     handleDeleteFolder={handleDeleteFolder}
                     allFolders={allFolders}
-                    refreshProjects={refreshProjects}
                 />
             ))}
         </>
@@ -925,8 +894,7 @@ const ProjectCard: React.FC<{
     onDeletePermanently: (id: number) => void;
     isTrashMode: boolean;
     folderId?: number | null;
-    refreshProjects: () => Promise<void>;
-}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId, refreshProjects }) => {
+}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -985,9 +953,7 @@ const ProjectCard: React.FC<{
             }
             
             // Refresh the page to update the view
-            if (typeof refreshProjects === 'function') {
-                await refreshProjects();
-            }
+            window.location.reload();
         } catch (error) {
             console.error('Error removing from folder:', error);
             alert('Failed to remove project from folder');
@@ -1101,58 +1067,27 @@ const ProjectCard: React.FC<{
         }
     }
 
+    const handleDuplicateProject = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        try {
+          const resp = await fetch(`/api/custom-projects-backend/projects/duplicate/${project.id}`, { method: "POST" });
+          if (resp.ok) {
+            window.location.reload();
+          } else {
+            const err = await resp.text();
+            alert("Failed to duplicate project: " + err);
+          }
+        } catch (error) {
+          alert("Failed to duplicate project: " + (error as Error).message);
+        }
+      };
+
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('en-US', options);
     }
-    
-    // 1. Add state for duplicating
-    const [isDuplicating, setIsDuplicating] = useState(false);
-    const [duplicateError, setDuplicateError] = useState<string | null>(null);
-
-    // 2. Add duplicate handler
-    const duplicateInProgressRef = React.useRef(false);
-    const handleDuplicate = useCallback(
-        debounce(async () => {
-            if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
-            setIsDuplicating(true);
-            duplicateInProgressRef.current = true;
-            duplicatingProjects.add(project.id);
-            setDuplicateError(null);
-            try {
-                const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-                const headers: HeadersInit = { 'Content-Type': 'application/json' };
-                const devUserId = "dummy-onyx-user-id-for-testing";
-                if (devUserId && process.env.NODE_ENV === 'development') {
-                    headers['X-Dev-Onyx-User-ID'] = devUserId;
-                }
-                const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
-                    method: 'POST',
-                    headers,
-                    credentials: 'same-origin',
-                });
-                if (!resp.ok) {
-                    if (resp.status === 401 || resp.status === 403) {
-                        redirectToMainAuth('/auth/login');
-                        return;
-                    }
-                    const errTxt = await resp.text();
-                    throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
-                }
-                // Instead of reload, call refreshProjects
-                if (typeof refreshProjects === 'function') {
-                    await refreshProjects();
-                }
-            } catch (error) {
-                setDuplicateError((error as Error).message);
-                alert((error as Error).message);
-            } finally {
-                setIsDuplicating(false);
-                duplicateInProgressRef.current = false;
-                duplicatingProjects.delete(project.id);
-            }
-        }, 500, { leading: true, trailing: false })
-    , [isOutline, isDuplicating, refreshProjects]);
     
     return (
         <div 
@@ -1292,18 +1227,9 @@ const ProjectCard: React.FC<{
                                         <Star size={16} className="text-gray-500"/>
                                         <span>Add to favorites</span>
                                     </button>
-                                    <button
-                                        disabled={!isOutline || isDuplicating || duplicateInProgressRef.current}
-                                        onClick={async (e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setMenuOpen(false);
-                                            await handleDuplicate();
-                                        }}
-                                        className={`flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm ${isOutline ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-400 cursor-not-allowed'} rounded-md`}
-                                    >
+                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <Copy size={16} className="text-gray-500"/>
-                                        <span>{isDuplicating ? 'Duplicating...' : 'Duplicate'}</span>
+                                        <span>Duplicate</span>
                                     </button>
                                     <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <LinkIcon size={16} className="text-gray-500"/>
@@ -1488,9 +1414,7 @@ const ProjectCard: React.FC<{
                                         await Promise.all(tasks);
 
                                         setRenameModalOpen(false);
-                                        if (typeof refreshProjects === 'function') {
-                                            await refreshProjects();
-                                        }
+                                        window.location.reload();
                                     } catch (error) {
                                         console.error(error);
                                         alert((error as Error).message);
@@ -1520,9 +1444,6 @@ const ProjectCard: React.FC<{
                     }}
                 />
             )}
-            {duplicateError && (
-                <div className="text-red-500 text-xs mt-2">{duplicateError}</div>
-            )}
         </div>
     );
 };
@@ -1535,8 +1456,7 @@ const ProjectRowMenu: React.FC<{
     onRestore: (id: number) => void;
     onDeletePermanently: (id: number) => void;
     folderId?: number | null;
-    refreshProjects: () => Promise<void>;
-}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId, refreshProjects }) => {
+}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId }) => {
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [renameModalOpen, setRenameModalOpen] = React.useState(false);
     const [isRenaming, setIsRenaming] = React.useState(false);
@@ -1548,51 +1468,6 @@ const ProjectRowMenu: React.FC<{
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
-    // Add duplicate state and handler here
-    const [isDuplicating, setIsDuplicating] = React.useState(false);
-    const [duplicateError, setDuplicateError] = React.useState<string | null>(null);
-    const duplicateInProgressRef = React.useRef(false);
-    const handleDuplicate = useCallback(
-        debounce(async () => {
-            if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
-            setIsDuplicating(true);
-            duplicateInProgressRef.current = true;
-            duplicatingProjects.add(project.id);
-            setDuplicateError(null);
-            try {
-                const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-                const headers: HeadersInit = { 'Content-Type': 'application/json' };
-                const devUserId = "dummy-onyx-user-id-for-testing";
-                if (devUserId && process.env.NODE_ENV === 'development') {
-                    headers['X-Dev-Onyx-User-ID'] = devUserId;
-                }
-                const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
-                    method: 'POST',
-                    headers,
-                    credentials: 'same-origin',
-                });
-                if (!resp.ok) {
-                    if (resp.status === 401 || resp.status === 403) {
-                        redirectToMainAuth('/auth/login');
-                        return;
-                    }
-                    const errTxt = await resp.text();
-                    throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
-                }
-                // Instead of reload, call refreshProjects
-                if (typeof refreshProjects === 'function') {
-                    await refreshProjects();
-                }
-            } catch (error) {
-                setDuplicateError((error as Error).message);
-                alert((error as Error).message);
-            } finally {
-                setIsDuplicating(false);
-                duplicateInProgressRef.current = false;
-                duplicatingProjects.delete(project.id);
-            }
-        }, 500, { leading: true, trailing: false })
-    , [isOutline, isDuplicating, refreshProjects]);
     
     const handleRemoveFromFolder = async () => {
         try {
@@ -1619,9 +1494,7 @@ const ProjectRowMenu: React.FC<{
             }
             
             // Refresh the page to update the view
-            if (typeof refreshProjects === 'function') {
-                await refreshProjects();
-            }
+            window.location.reload();
         } catch (error) {
             console.error('Error removing from folder:', error);
             alert('Failed to remove project from folder');
@@ -1676,6 +1549,24 @@ const ProjectRowMenu: React.FC<{
             onDelete(project.id, 'self');
         }
     };
+
+    const handleDuplicateProject = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        try {
+          const resp = await fetch(`/api/custom-projects-backend/projects/duplicate/${project.id}`, { method: "POST" });
+          if (resp.ok) {
+            window.location.reload();
+          } else {
+            const err = await resp.text();
+            alert("Failed to duplicate project: " + err);
+          }
+        } catch (error) {
+          alert("Failed to duplicate project: " + (error as Error).message);
+        }
+      };
+
     return (
         <div ref={menuRef} className="inline-block">
             <button 
@@ -1745,18 +1636,9 @@ const ProjectRowMenu: React.FC<{
                                     <Star size={16} className="text-gray-500"/>
                                     <span>Add to favorites</span>
                                 </button>
-                                <button
-                                    disabled={!isOutline || isDuplicating || duplicateInProgressRef.current}
-                                    onClick={async (e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setMenuOpen(false);
-                                        await handleDuplicate();
-                                    }}
-                                    className={`flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm ${isOutline ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-400 cursor-not-allowed'} rounded-md`}
-                                >
+                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <Copy size={16} className="text-gray-500"/>
-                                    <span>{isDuplicating ? 'Duplicating...' : 'Duplicate'}</span>
+                                    <span>Duplicate</span>
                                 </button>
                                 <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <LinkIcon size={16} className="text-gray-500"/>
@@ -1905,9 +1787,7 @@ const ProjectRowMenu: React.FC<{
                                         }
                                         await Promise.all(tasks);
                                         setRenameModalOpen(false);
-                                        if (typeof refreshProjects === 'function') {
-                                            await refreshProjects();
-                                        }
+                                        window.location.reload();
                                     } catch (error) {
                                         console.error(error);
                                         alert((error as Error).message);
@@ -2636,9 +2516,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            if (typeof refreshProjects === 'function') {
-                refreshProjects();
-            }
+            window.location.reload();
         }
     };
 
@@ -2675,9 +2553,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            if (typeof refreshProjects === 'function') {
-                refreshProjects();
-            }
+            window.location.reload();
         }
     };
 
@@ -2705,9 +2581,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             }
             
             // Refresh the projects list
-            if (typeof refreshProjects === 'function') {
-                refreshProjects();
-            }
+            refreshProjects();
         } catch (error) {
             console.error('Error deleting project permanently:', error);
         }
@@ -2741,15 +2615,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             }
             
             // Refresh the projects list
-            if (typeof refreshProjects === 'function') {
-                refreshProjects();
-            }
+            refreshProjects();
             
             // Reload the page to ensure all changes are visually applied
             setTimeout(() => {
-                if (typeof refreshProjects === 'function') {
-                    refreshProjects();
-                }
+                window.location.reload();
             }, 500); // Small delay to show success state
         } catch (error) {
             console.error('Error deleting folder:', error);
@@ -2786,9 +2656,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 }
                 
                 // Refresh the projects list
-                if (typeof refreshProjects === 'function') {
-                    refreshProjects();
-                }
+                refreshProjects();
             } catch (error) {
                 console.error('Error moving project to folder:', error);
             }
@@ -3290,7 +3158,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 onDeletePermanently={handleDeletePermanently}
                                 isTrashMode={trashMode}
                                 folderId={folderId}
-                                refreshProjects={refreshProjects}
                             />
                         ))}
                     </div>
@@ -3417,7 +3284,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         handleDeletePermanently={handleDeletePermanently}
                                         handleDeleteFolder={handleDeleteFolder}
                                         allFolders={folders}
-                                        refreshProjects={refreshProjects}
                                     />
                                 ))}
                                 
@@ -3540,7 +3406,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                 onRestore={handleRestoreProject}
                                                 onDeletePermanently={handleDeletePermanently}
                                                 folderId={folderId}
-                                                refreshProjects={refreshProjects}
                                             />
                                         </td>
                                     </tr>
@@ -3665,7 +3530,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                 onRestore={handleRestoreProject}
                                                 onDeletePermanently={handleDeletePermanently}
                                                 folderId={folderId}
-                                                refreshProjects={refreshProjects}
                                             />
                                         </td>
                                     </tr>
