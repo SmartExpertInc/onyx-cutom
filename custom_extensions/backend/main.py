@@ -3714,11 +3714,22 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             try:
                 file_context = await extract_single_file_context(file_id, cookies)
                 if file_context and file_context.get("content"):
-                    extracted_context["file_summaries"].append(file_context["summary"])
-                    extracted_context["file_contents"].append(file_context["content"])
-                    extracted_context["key_topics"].extend(file_context.get("topics", []))
-                    successful_extractions += 1
-                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
+                    # Check if this was a successful extraction (not a generic response or error)
+                    content = file_context.get("content", "")
+                    if any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access"]):
+                        logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues, will retry once")
+                        # Retry once after a short delay
+                        await asyncio.sleep(2)
+                        file_context = await extract_single_file_context(file_id, cookies)
+                    
+                    if file_context and file_context.get("content"):
+                        extracted_context["file_summaries"].append(file_context["summary"])
+                        extracted_context["file_contents"].append(file_context["content"])
+                        extracted_context["key_topics"].extend(file_context.get("topics", []))
+                        successful_extractions += 1
+                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
+                    else:
+                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} after retry")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id}")
             except Exception as e:
@@ -3773,16 +3784,42 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
     Extract context from a single file using Onyx's chat API.
     """
     try:
+        # First check if the file exists and is indexed
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            try:
+                response = await client.get(f"{ONYX_API_SERVER_URL}/user/file/{file_id}", cookies=cookies)
+                response.raise_for_status()
+                file_data = response.json()
+                file_status = file_data.get("status", "UNKNOWN")
+                file_name = file_data.get("name", "Unknown")
+                
+                logger.info(f"[FILE_CONTEXT] File {file_id} ({file_name}) status: {file_status}")
+                
+                if file_status != "INDEXED":
+                    logger.warning(f"[FILE_CONTEXT] File {file_id} is not indexed (status: {file_status}), skipping context extraction")
+                    return {
+                        "file_id": file_id,
+                        "summary": f"File '{file_name}' is not yet indexed (status: {file_status})",
+                        "topics": ["file processing", "indexing"],
+                        "key_info": "File needs to be indexed before analysis",
+                        "content": f"File {file_id} ({file_name}) status: {file_status}"
+                    }
+            except Exception as e:
+                logger.warning(f"[FILE_CONTEXT] Could not check file {file_id} status: {e}")
+                # Continue anyway, the file might still be accessible
+        
         # Create a temporary chat session to extract file content
         persona_id = await get_contentbuilder_persona_id(cookies)
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
         # Use Onyx to analyze the file content
-        analysis_prompt = """
-        Please analyze this file and provide:
+        analysis_prompt = f"""
+        I have provided you with file ID {file_id}. Please analyze this specific file and provide:
         1. A concise summary of the main content (max 200 words)
         2. Key topics and concepts covered
         3. The most important information that would be relevant for content creation
+        
+        IMPORTANT: You must analyze the file I have provided. Do not ask for the file content - it should already be available to you.
         
         Format your response as:
         SUMMARY: [summary here]
@@ -3861,8 +3898,28 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
                 elif line.startswith("KEY_INFO:"):
                     key_info = line.replace("KEY_INFO:", "").strip()
             
-            # If no structured response, try to extract a summary from the raw text
-            if not summary and analysis_text.strip():
+            # Check if AI gave a generic response instead of analyzing the file
+            generic_phrases = [
+                "could you please share the file",
+                "please share the file",
+                "paste its content",
+                "upload the file",
+                "provide the file",
+                "share the document",
+                "i don't see any file",
+                "no file was provided",
+                "file content is not available"
+            ]
+            
+            analysis_lower = analysis_text.lower()
+            is_generic_response = any(phrase in analysis_lower for phrase in generic_phrases)
+            
+            if is_generic_response:
+                logger.warning(f"[FILE_CONTEXT] AI gave generic response for file {file_id}, indicating file access issue")
+                summary = f"File access issue detected - AI could not access file content (ID: {file_id})"
+                topics = ["file access", "processing error"]
+                key_info = "File may need to be re-uploaded or re-indexed"
+            elif not summary and analysis_text.strip():
                 # Take first 200 characters as summary if no structured response
                 summary = analysis_text.strip()[:200]
                 if len(analysis_text) > 200:
