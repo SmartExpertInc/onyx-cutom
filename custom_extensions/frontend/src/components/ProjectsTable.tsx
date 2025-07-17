@@ -581,6 +581,7 @@ const FolderRow: React.FC<{
     handleDeletePermanently: (projectId: number) => void;
     handleDeleteFolder: (folderId: number) => void;
     allFolders: Folder[];
+    refreshProjects: () => Promise<void>;
 }> = ({ 
     folder, 
     level, 
@@ -607,7 +608,8 @@ const FolderRow: React.FC<{
     handleRestoreProject,
     handleDeletePermanently,
     handleDeleteFolder,
-    allFolders
+    allFolders,
+    refreshProjects
 }) => {
 
     const hasChildren = folder.children && folder.children.length > 0;
@@ -909,6 +911,7 @@ const FolderRow: React.FC<{
                     handleDeletePermanently={handleDeletePermanently}
                     handleDeleteFolder={handleDeleteFolder}
                     allFolders={allFolders}
+                    refreshProjects={refreshProjects}
                 />
             ))}
         </>
@@ -3414,6 +3417,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         handleDeletePermanently={handleDeletePermanently}
                                         handleDeleteFolder={handleDeleteFolder}
                                         allFolders={folders}
+                                        refreshProjects={refreshProjects}
                                     />
                                 ))}
                                 
