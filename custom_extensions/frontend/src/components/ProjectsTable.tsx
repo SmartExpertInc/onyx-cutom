@@ -1071,6 +1071,7 @@ const ProjectCard: React.FC<{
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
+        console.log("Duplicating project", project.id);
         try {
           const resp = await fetch(`/api/custom-projects-backend/projects/duplicate/${project.id}`, { method: "POST" });
           if (resp.ok) {
