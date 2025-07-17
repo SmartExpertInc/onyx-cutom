@@ -10662,7 +10662,7 @@ async def get_user_credits_by_email(
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
 
 
-@app.post("/api/custom-projects-backend/projects/duplicate/{project_id}")
+@app.post("/api/custom/projects/duplicate/{project_id}")
 async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
     """
     Duplicate a project. If it's a Training Plan, also duplicate all connected products (lessons, quizzes, etc.).
