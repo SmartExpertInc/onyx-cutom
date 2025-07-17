@@ -71,15 +71,6 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
-# --- Context Extraction Configuration ---
-MAX_CONTEXT_TOKENS = 8000  # Maximum tokens for context extraction
-MAX_SEARCH_RESULTS = 100   # Maximum search results to retrieve
-MAX_CONTENT_LENGTH = 15000 # Maximum characters per content piece
-FILE_CONTEXT_CACHE_TTL = 300  # 5 minutes cache TTL
-
-# Cache for file context extraction
-FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
-
 def get_openai_client():
     """Get or create the OpenAI client instance."""
     global OPENAI_CLIENT
@@ -3687,14 +3678,44 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
 FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
 FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
 
-async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+# Configuration for comprehensive data extraction
+COMPREHENSIVE_EXTRACTION_CONFIG = {
+    "max_tokens_per_file": 8000,  # Maximum tokens to extract per file
+    "max_total_tokens": 32000,    # Maximum total tokens across all files
+    "min_relevance_score": 0.3,   # Minimum relevance score for chunks
+    "max_chunks_per_file": 50,    # Maximum chunks to retrieve per file
+    "use_full_doc_for_small_files": True,  # Use full document for files under 10 chunks
+    "extraction_strategies": {
+        "outline_request": {
+            "search_queries": ["outline", "table of contents", "structure", "sections", "chapters"],
+            "chunks_above": 2,
+            "chunks_below": 2,
+            "full_doc": True  # Always get full document for outline requests
+        },
+        "onboarding_request": {
+            "search_queries": ["onboarding", "training", "introduction", "getting started", "setup", "installation"],
+            "chunks_above": 1,
+            "chunks_below": 1,
+            "full_doc": False
+        },
+        "general_request": {
+            "search_queries": ["main content", "key information", "important", "essential"],
+            "chunks_above": 1,
+            "chunks_below": 1,
+            "full_doc": False
+        }
+    }
+}
+
+async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str], user_request: str = "") -> Dict[str, Any]:
     """
-    Extract comprehensive context from files and folders using Onyx's search API.
-    Returns structured context that can be used with OpenAI, with proper token limits.
+    Extract comprehensive context from files and folders using Onyx's search capabilities.
+    Returns structured context that can be used with OpenAI, with much more detailed data.
     """
     try:
-        # Create cache key
-        cache_key = f"{hash(tuple(sorted(file_ids)))}_{hash(tuple(sorted(folder_ids)))}"
+        # Create cache key including user request for better caching
+        request_hash = hash(user_request.lower()) if user_request else 0
+        cache_key = f"{hash(tuple(sorted(file_ids)))}_{hash(tuple(sorted(folder_ids)))}_{request_hash}"
         
         # Check cache first
         if cache_key in FILE_CONTEXT_CACHE:
@@ -3706,42 +3727,48 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         logger.info(f"[FILE_CONTEXT] Extracting comprehensive context from {len(file_ids)} files and {len(folder_ids)} folders")
         
         extracted_context = {
-            "file_summaries": [],
             "file_contents": [],
+            "file_summaries": [],
             "folder_contexts": [],
             "key_topics": [],
+            "comprehensive_data": [],
             "metadata": {
                 "total_files": len(file_ids),
                 "total_folders": len(folder_ids),
                 "extraction_time": time.time(),
-                "total_tokens": 0,
-                "search_results_used": 0
+                "strategy_used": "comprehensive_search",
+                "total_tokens_estimated": 0
             }
         }
         
-        # Extract file contexts using search API
+        # Determine extraction strategy based on user request
+        strategy = determine_extraction_strategy(user_request)
+        logger.info(f"[FILE_CONTEXT] Using extraction strategy: {strategy}")
+        
+        # Extract comprehensive file contexts
         successful_extractions = 0
         total_tokens = 0
         
         for file_id in file_ids:
             try:
-                file_context = await extract_single_file_context_via_search(file_id, cookies, total_tokens)
+                file_context = await extract_comprehensive_file_context(file_id, cookies, strategy, user_request)
                 if file_context and file_context.get("content"):
-                    # Count tokens for this content
-                    content_tokens = len(tiktoken.get_encoding("cl100k_base").encode(file_context["content"]))
+                    # Estimate tokens (rough approximation: 1 token ≈ 4 characters)
+                    estimated_tokens = len(file_context["content"]) // 4
                     
-                    # Check if adding this would exceed our token limit
-                    if total_tokens + content_tokens > MAX_CONTEXT_TOKENS:
-                        logger.info(f"[FILE_CONTEXT] Token limit reached ({total_tokens}/{MAX_CONTEXT_TOKENS}), stopping extraction")
+                    # Check if we're within limits
+                    if total_tokens + estimated_tokens > COMPREHENSIVE_EXTRACTION_CONFIG["max_total_tokens"]:
+                        logger.info(f"[FILE_CONTEXT] Token limit reached, stopping extraction at {total_tokens} tokens")
                         break
                     
                     extracted_context["file_contents"].append(file_context["content"])
-                    extracted_context["file_summaries"].append(file_context["summary"])
+                    extracted_context["file_summaries"].append(file_context.get("summary", ""))
+                    extracted_context["comprehensive_data"].append(file_context)
                     extracted_context["key_topics"].extend(file_context.get("topics", []))
-                    total_tokens += content_tokens
+                    total_tokens += estimated_tokens
                     successful_extractions += 1
-                    extracted_context["metadata"]["search_results_used"] += file_context.get("search_results", 0)
-                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} ({content_tokens} tokens)")
+                    
+                    logger.info(f"[FILE_CONTEXT] Successfully extracted {estimated_tokens} tokens from file {file_id}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id}")
             except Exception as e:
@@ -3750,30 +3777,25 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         # Extract folder contexts
         for folder_id in folder_ids:
             try:
-                folder_context = await extract_folder_context_via_search(folder_id, cookies, total_tokens)
+                folder_context = await extract_comprehensive_folder_context(folder_id, cookies, strategy, user_request)
                 if folder_context and folder_context.get("content"):
-                    # Count tokens for this content
-                    content_tokens = len(tiktoken.get_encoding("cl100k_base").encode(folder_context["content"]))
+                    estimated_tokens = len(folder_context["content"]) // 4
                     
-                    # Check if adding this would exceed our token limit
-                    if total_tokens + content_tokens > MAX_CONTEXT_TOKENS:
-                        logger.info(f"[FILE_CONTEXT] Token limit reached ({total_tokens}/{MAX_CONTEXT_TOKENS}), stopping extraction")
+                    if total_tokens + estimated_tokens > COMPREHENSIVE_EXTRACTION_CONFIG["max_total_tokens"]:
+                        logger.info(f"[FILE_CONTEXT] Token limit reached, stopping folder extraction")
                         break
                     
                     extracted_context["folder_contexts"].append(folder_context)
+                    extracted_context["comprehensive_data"].append(folder_context)
                     extracted_context["key_topics"].extend(folder_context.get("topics", []))
-                    total_tokens += content_tokens
+                    total_tokens += estimated_tokens
                     successful_extractions += 1
-                    extracted_context["metadata"]["search_results_used"] += folder_context.get("search_results", 0)
-                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id} ({content_tokens} tokens)")
+                    
+                    logger.info(f"[FILE_CONTEXT] Successfully extracted {estimated_tokens} tokens from folder {folder_id}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
             except Exception as e:
                 logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
-        
-        # Update metadata
-        extracted_context["metadata"]["total_tokens"] = total_tokens
-        extracted_context["metadata"]["successful_extractions"] = successful_extractions
         
         # If no context was extracted successfully, provide a fallback
         if successful_extractions == 0:
@@ -3781,6 +3803,9 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             extracted_context["file_summaries"] = [f"File(s) provided for content creation (IDs: {file_ids + folder_ids})"]
             extracted_context["key_topics"] = ["content creation", "educational materials"]
             extracted_context["metadata"]["fallback_used"] = True
+        else:
+            extracted_context["metadata"]["total_tokens_estimated"] = total_tokens
+            extracted_context["metadata"]["successful_extractions"] = successful_extractions
         
         # Remove duplicate topics
         extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
@@ -3791,171 +3816,211 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "timestamp": time.time()
         }
         
-        logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_contents'])} file contents, {len(extracted_context['key_topics'])} key topics, {total_tokens} total tokens")
+        logger.info(f"[FILE_CONTEXT] Successfully extracted comprehensive context: {len(extracted_context['file_contents'])} files, {total_tokens} estimated tokens, {len(extracted_context['key_topics'])} key topics")
         
         return extracted_context
         
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] Error extracting file context: {e}", exc_info=True)
         return {
-            "file_summaries": [],
             "file_contents": [],
+            "file_summaries": [],
             "folder_contexts": [],
             "key_topics": [],
+            "comprehensive_data": [],
             "metadata": {"error": str(e)}
         }
 
-async def extract_single_file_context_via_search(file_id: int, cookies: Dict[str, str], current_tokens: int) -> Dict[str, Any]:
+def determine_extraction_strategy(user_request: str) -> str:
     """
-    Extract comprehensive context from a single file using Onyx's search API.
+    Determine the best extraction strategy based on the user's request.
+    """
+    request_lower = user_request.lower()
+    
+    if any(keyword in request_lower for keyword in ["outline", "structure", "table of contents", "sections"]):
+        return "outline_request"
+    elif any(keyword in request_lower for keyword in ["onboarding", "training", "introduction", "getting started"]):
+        return "onboarding_request"
+    else:
+        return "general_request"
+
+async def extract_comprehensive_file_context(file_id: int, cookies: Dict[str, str], strategy: str, user_request: str) -> Dict[str, Any]:
+    """
+    Extract comprehensive context from a single file using Onyx's search capabilities.
     """
     try:
-        # Get file information first
-        file_info = await get_file_info(file_id, cookies)
-        if not file_info:
+        strategy_config = COMPREHENSIVE_EXTRACTION_CONFIG["extraction_strategies"][strategy]
+        
+        # First, get file metadata to understand its size
+        file_metadata = await get_file_metadata(file_id, cookies)
+        if not file_metadata:
             return None
         
-        file_name = file_info.get("name", f"File {file_id}")
-        file_type = file_info.get("type", "unknown")
+        # Determine if we should use full document retrieval
+        use_full_doc = strategy_config.get("full_doc", False)
+        if not use_full_doc and COMPREHENSIVE_EXTRACTION_CONFIG["use_full_doc_for_small_files"]:
+            chunk_count = file_metadata.get("chunk_count", 0)
+            if chunk_count <= 10:  # Small files get full document treatment
+                use_full_doc = True
+                logger.info(f"[FILE_CONTEXT] Using full document retrieval for small file {file_id} ({chunk_count} chunks)")
         
-        # Create search queries to extract comprehensive content
-        search_queries = [
-            f"content from {file_name}",
-            f"main topics in {file_name}",
-            f"key information in {file_name}",
-            f"important details from {file_name}",
-            f"summary of {file_name}"
-        ]
-        
-        all_content = []
-        search_results_count = 0
-        
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            for query in search_queries:
-                try:
-                    # Use the document search API for reliable results
-                    search_payload = {
-                        "message": query,
-                        "search_type": "hybrid",  # Use hybrid search for better results
-                        "retrieval_options": {
-                            "run_search": "always",
-                            "real_time": False,
-                            "limit": min(MAX_SEARCH_RESULTS // len(search_queries), 20),  # Distribute limit across queries
-                            "offset": 0,
-                            "dedupe_docs": False,  # Get all relevant content
-                            "filters": {
-                                "user_file_ids": [file_id]
-                            }
-                        },
-                        "chunks_above": 2,  # Get more context around matches
-                        "chunks_below": 2,
-                        "full_doc": True,  # Get entire documents when possible
-                        "evaluation_type": "skip"  # Skip LLM evaluation for speed
-                    }
-                    
-                    response = await client.post(
-                        f"{ONYX_API_SERVER_URL}/query/document-search",
-                        json=search_payload,
-                        cookies=cookies
-                    )
-                    response.raise_for_status()
-                    result = response.json()
-                    
-                    # Extract content from search results
-                    documents = result.get("top_documents", [])
-                    search_results_count += len(documents)
-                    
-                    for doc in documents:
-                        content = doc.get("content", "")
-                        if content and len(content) > 50:  # Only include substantial content
-                            # Truncate very long content
-                            if len(content) > MAX_CONTENT_LENGTH:
-                                content = content[:MAX_CONTENT_LENGTH] + "..."
-                            all_content.append(content)
-                    
-                    logger.debug(f"[FILE_CONTEXT] Query '{query}' returned {len(documents)} documents for file {file_id}")
-                    
-                except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Search query '{query}' failed for file {file_id}: {e}")
-                    continue
-        
-        if not all_content:
-            logger.warning(f"[FILE_CONTEXT] No content found for file {file_id}")
-            return None
-        
-        # Combine all content
-        combined_content = "\n\n".join(all_content)
-        
-        # Create a summary using the file name and type
-        summary = f"Content from {file_name} ({file_type}): {len(all_content)} content sections extracted"
-        
-        # Extract key topics from the content
-        topics = extract_topics_from_content(combined_content, file_name)
-        
-        return {
-            "file_id": file_id,
-            "file_name": file_name,
-            "file_type": file_type,
-            "summary": summary,
-            "content": combined_content,
-            "topics": topics,
-            "search_results": search_results_count
-        }
-        
+        if use_full_doc:
+            return await extract_full_document_content(file_id, cookies, file_metadata)
+        else:
+            return await extract_relevant_chunks(file_id, cookies, strategy_config, user_request, file_metadata)
+            
     except Exception as e:
-        logger.error(f"[FILE_CONTEXT] Error extracting single file context for file {file_id}: {e}")
+        logger.error(f"[FILE_CONTEXT] Error extracting comprehensive file context for file {file_id}: {e}")
         return None
 
-async def extract_folder_context_via_search(folder_id: int, cookies: Dict[str, str], current_tokens: int) -> Dict[str, Any]:
+async def get_file_metadata(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
-    Extract comprehensive context from a folder using Onyx's search API.
+    Get file metadata including chunk count and document info.
     """
     try:
-        # Get folder information first
-        folder_info = await get_folder_info(folder_id, cookies)
-        if not folder_info:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Get file info
+            response = await client.get(
+                f"{ONYX_API_SERVER_URL}/user/file/{file_id}",
+                cookies=cookies
+            )
+            response.raise_for_status()
+            file_data = response.json()
+            
+            # Get document size info if available
+            try:
+                doc_response = await client.get(
+                    f"{ONYX_API_SERVER_URL}/document/document-size-info",
+                    params={"document_id": file_data.get("document_id", "")},
+                    cookies=cookies
+                )
+                if doc_response.status_code == 200:
+                    doc_info = doc_response.json()
+                    return {
+                        "file_name": file_data.get("name", ""),
+                        "document_id": file_data.get("document_id", ""),
+                        "chunk_count": doc_info.get("num_chunks", 0),
+                        "estimated_tokens": doc_info.get("num_tokens", 0),
+                        "status": file_data.get("status", "")
+                    }
+            except Exception as e:
+                logger.warning(f"[FILE_CONTEXT] Could not get document size info: {e}")
+            
+            return {
+                "file_name": file_data.get("name", ""),
+                "document_id": file_data.get("document_id", ""),
+                "chunk_count": 0,
+                "estimated_tokens": 0,
+                "status": file_data.get("status", "")
+            }
+            
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error getting file metadata for file {file_id}: {e}")
+        return None
+
+async def extract_full_document_content(file_id: int, cookies: Dict[str, str], file_metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract the full document content using Onyx's document retrieval.
+    """
+    try:
+        document_id = file_metadata.get("document_id")
+        if not document_id:
             return None
         
-        folder_name = folder_info.get("name", f"Folder {folder_id}")
-        
-        # Get files in the folder
-        folder_files = await get_folder_files(folder_id, cookies)
-        if not folder_files:
-            logger.warning(f"[FILE_CONTEXT] No files found in folder {folder_id}")
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # Use document search with full document retrieval
+            search_payload = {
+                "message": "Retrieve all content from this document",
+                "search_type": "semantic",
+                "retrieval_options": {
+                    "run_search": "always",
+                    "real_time": False,
+                    "limit": COMPREHENSIVE_EXTRACTION_CONFIG["max_chunks_per_file"],
+                    "full_doc": True,
+                    "chunks_above": 0,
+                    "chunks_below": 0
+                },
+                "evaluation_type": "skip"
+            }
+            
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/query/document-search",
+                json=search_payload,
+                cookies=cookies
+            )
+            response.raise_for_status()
+            
+            search_results = response.json()
+            documents = search_results.get("top_documents", [])
+            
+            # Filter documents for our specific file
+            file_documents = [doc for doc in documents if doc.get("document_id") == document_id]
+            
+            if not file_documents:
+                logger.warning(f"[FILE_CONTEXT] No documents found for file {file_id}")
+                return None
+            
+            # Combine all content
+            all_content = []
+            for doc in file_documents:
+                content = doc.get("content", "")
+                if content:
+                    all_content.append(content)
+            
+            combined_content = "\n\n".join(all_content)
+            
+            # Create a summary using the first few chunks
+            summary_chunks = all_content[:3] if len(all_content) > 3 else all_content
+            summary_content = "\n\n".join(summary_chunks)
+            
+            # Extract topics from the content
+            topics = extract_topics_from_content(combined_content)
+            
+            return {
+                "file_id": file_id,
+                "file_name": file_metadata.get("file_name", ""),
+                "content": combined_content,
+                "summary": summary_content[:500] + "..." if len(summary_content) > 500 else summary_content,
+                "topics": topics,
+                "extraction_method": "full_document",
+                "chunk_count": len(file_documents),
+                "estimated_tokens": len(combined_content) // 4
+            }
+            
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error extracting full document content for file {file_id}: {e}")
+        return None
+
+async def extract_relevant_chunks(file_id: int, cookies: Dict[str, str], strategy_config: Dict[str, Any], user_request: str, file_metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract relevant chunks using Onyx's search capabilities with multiple queries.
+    """
+    try:
+        document_id = file_metadata.get("document_id")
+        if not document_id:
             return None
         
-        # Create search queries for the folder
-        search_queries = [
-            f"content from {folder_name}",
-            f"main topics in {folder_name}",
-            f"key information in {folder_name}",
-            f"important details from {folder_name}",
-            f"summary of {folder_name}"
-        ]
+        all_chunks = []
+        search_queries = strategy_config.get("search_queries", [])
         
-        all_content = []
-        search_results_count = 0
+        # Add user request as a search query if it's specific
+        if user_request and len(user_request.split()) > 2:
+            search_queries.insert(0, user_request)
         
         async with httpx.AsyncClient(timeout=60.0) as client:
             for query in search_queries:
                 try:
-                    # Use the document search API for reliable results
                     search_payload = {
                         "message": query,
-                        "search_type": "hybrid",
+                        "search_type": "semantic",
                         "retrieval_options": {
                             "run_search": "always",
                             "real_time": False,
-                            "limit": min(MAX_SEARCH_RESULTS // len(search_queries), 20),
-                            "offset": 0,
-                            "dedupe_docs": False,
-                            "filters": {
-                                "user_folder_ids": [folder_id]
-                            }
+                            "limit": COMPREHENSIVE_EXTRACTION_CONFIG["max_chunks_per_file"] // len(search_queries),
+                            "full_doc": False,
+                            "chunks_above": strategy_config.get("chunks_above", 1),
+                            "chunks_below": strategy_config.get("chunks_below", 1)
                         },
-                        "chunks_above": 2,
-                        "chunks_below": 2,
-                        "full_doc": True,
                         "evaluation_type": "skip"
                     }
                     
@@ -3965,116 +4030,375 @@ async def extract_folder_context_via_search(folder_id: int, cookies: Dict[str, s
                         cookies=cookies
                     )
                     response.raise_for_status()
-                    result = response.json()
                     
-                    # Extract content from search results
-                    documents = result.get("top_documents", [])
-                    search_results_count += len(documents)
+                    search_results = response.json()
+                    documents = search_results.get("top_documents", [])
                     
-                    for doc in documents:
-                        content = doc.get("content", "")
-                        if content and len(content) > 50:
-                            if len(content) > MAX_CONTENT_LENGTH:
-                                content = content[:MAX_CONTENT_LENGTH] + "..."
-                            all_content.append(content)
+                    # Filter for our specific file and add to collection
+                    file_documents = [doc for doc in documents if doc.get("document_id") == document_id]
+                    all_chunks.extend(file_documents)
                     
-                    logger.debug(f"[FILE_CONTEXT] Query '{query}' returned {len(documents)} documents for folder {folder_id}")
+                    logger.info(f"[FILE_CONTEXT] Found {len(file_documents)} chunks for query '{query}' in file {file_id}")
                     
                 except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Search query '{query}' failed for folder {folder_id}: {e}")
+                    logger.warning(f"[FILE_CONTEXT] Failed to search with query '{query}' for file {file_id}: {e}")
                     continue
         
-        if not all_content:
-            logger.warning(f"[FILE_CONTEXT] No content found for folder {folder_id}")
-            return None
+        # Remove duplicates and sort by relevance score
+        unique_chunks = {}
+        for chunk in all_chunks:
+            chunk_key = f"{chunk.get('document_id')}_{chunk.get('chunk_ind')}"
+            if chunk_key not in unique_chunks:
+                unique_chunks[chunk_key] = chunk
+            else:
+                # Keep the one with higher score
+                if chunk.get('score', 0) > unique_chunks[chunk_key].get('score', 0):
+                    unique_chunks[chunk_key] = chunk
         
-        # Combine all content
+        # Sort by score and limit
+        sorted_chunks = sorted(unique_chunks.values(), key=lambda x: x.get('score', 0), reverse=True)
+        limited_chunks = sorted_chunks[:COMPREHENSIVE_EXTRACTION_CONFIG["max_chunks_per_file"]]
+        
+        # Combine content
+        all_content = []
+        for chunk in limited_chunks:
+            content = chunk.get("content", "")
+            if content:
+                all_content.append(content)
+        
         combined_content = "\n\n".join(all_content)
         
-        # Create a summary
-        summary = f"Content from {folder_name}: {len(all_content)} content sections from {len(folder_files)} files"
+        # Create summary
+        summary_chunks = all_content[:2] if len(all_content) > 2 else all_content
+        summary_content = "\n\n".join(summary_chunks)
         
-        # Extract key topics
-        topics = extract_topics_from_content(combined_content, folder_name)
+        # Extract topics
+        topics = extract_topics_from_content(combined_content)
         
         return {
-            "folder_id": folder_id,
-            "folder_name": folder_name,
-            "summary": summary,
+            "file_id": file_id,
+            "file_name": file_metadata.get("file_name", ""),
             "content": combined_content,
+            "summary": summary_content[:500] + "..." if len(summary_content) > 500 else summary_content,
             "topics": topics,
-            "search_results": search_results_count,
-            "file_count": len(folder_files)
+            "extraction_method": "relevant_chunks",
+            "chunk_count": len(limited_chunks),
+            "estimated_tokens": len(combined_content) // 4,
+            "search_queries_used": search_queries
         }
         
     except Exception as e:
-        logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
+        logger.error(f"[FILE_CONTEXT] Error extracting relevant chunks for file {file_id}: {e}")
         return None
 
-async def get_file_info(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """Get basic file information."""
+def extract_topics_from_content(content: str) -> List[str]:
+    """
+    Extract key topics from content using simple heuristics.
+    """
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file/{file_id}",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            return response.json()
+        # Simple topic extraction based on common patterns
+        topics = []
+        
+        # Look for headers (lines starting with # or **)
+        lines = content.split('\n')
+        for line in lines:
+            line = line.strip()
+            if line.startswith('#') or (line.startswith('**') and line.endswith('**')):
+                # Clean up the header
+                clean_header = line.replace('#', '').replace('*', '').strip()
+                if len(clean_header) > 3 and len(clean_header) < 100:
+                    topics.append(clean_header)
+        
+        # Look for capitalized phrases that might be topics
+        words = content.split()
+        for i, word in enumerate(words):
+            if (word.isupper() and len(word) > 2 and 
+                i < len(words) - 1 and 
+                words[i + 1][0].isupper()):
+                topic = f"{word} {words[i + 1]}"
+                if topic not in topics:
+                    topics.append(topic)
+        
+        # Limit topics and remove duplicates
+        topics = list(set(topics))[:10]
+        
+        return topics
+        
     except Exception as e:
-        logger.warning(f"[FILE_CONTEXT] Failed to get file info for {file_id}: {e}")
-        return None
+        logger.warning(f"[FILE_CONTEXT] Error extracting topics: {e}")
+        return []
 
-async def get_folder_info(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """Get basic folder information."""
+async def extract_comprehensive_folder_context(folder_id: int, cookies: Dict[str, str], strategy: str, user_request: str) -> Dict[str, Any]:
+    """
+    Extract comprehensive context from a folder by analyzing its files.
+    """
     try:
+        # Get folder files
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}",
                 cookies=cookies
             )
             response.raise_for_status()
-            return response.json()
+            
+            folder_data = response.json()
+            files = folder_data.get("files", [])
+            
+            if not files:
+                return {"folder_id": folder_id, "content": "Empty folder", "topics": []}
+            
+            # Extract context from each file in the folder
+            folder_contents = []
+            folder_topics = []
+            
+            for file_info in files:
+                if file_info.get("status") == "INDEXED":
+                    file_context = await extract_comprehensive_file_context(
+                        file_info["id"], cookies, strategy, user_request
+                    )
+                    if file_context and file_context.get("content"):
+                        folder_contents.append(f"File: {file_context.get('file_name', 'Unknown')}\n{file_context['content']}")
+                        folder_topics.extend(file_context.get("topics", []))
+            
+            if not folder_contents:
+                return {"folder_id": folder_id, "content": "No indexed files in folder", "topics": []}
+            
+            combined_content = "\n\n---\n\n".join(folder_contents)
+            
+            # Create summary
+            summary_content = f"Folder '{folder_data.get('name', 'Unknown')}' contains {len(files)} files with relevant content for the request."
+            
+            # Remove duplicate topics
+            unique_topics = list(set(folder_topics))
+            
+            return {
+                "folder_id": folder_id,
+                "folder_name": folder_data.get("name", ""),
+                "content": combined_content,
+                "summary": summary_content,
+                "topics": unique_topics,
+                "extraction_method": "folder_aggregation",
+                "file_count": len(files),
+                "indexed_file_count": len([f for f in files if f.get("status") == "INDEXED"]),
+                "estimated_tokens": len(combined_content) // 4
+            }
+            
     except Exception as e:
-        logger.warning(f"[FILE_CONTEXT] Failed to get folder info for {folder_id}: {e}")
+        logger.error(f"[FILE_CONTEXT] Error extracting comprehensive folder context for folder {folder_id}: {e}")
         return None
 
-async def get_folder_files(folder_id: int, cookies: Dict[str, str]) -> List[Dict[str, Any]]:
-    """Get files in a folder."""
+async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from a single file using Onyx's chat API.
+    """
     try:
+        # Create a temporary chat session to extract file content
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
+        
+        # Use Onyx to analyze the file content
+        analysis_prompt = """
+        Please analyze this file and provide:
+        1. A concise summary of the main content (max 200 words)
+        2. Key topics and concepts covered
+        3. The most important information that would be relevant for content creation
+        
+        Format your response as:
+        SUMMARY: [summary here]
+        TOPICS: [comma-separated topics]
+        KEY_INFO: [most important information]
+        """
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:  # Reduced timeout for context extraction
+            payload = {
+                "chat_session_id": temp_chat_id,
+                "message": analysis_prompt,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": [file_id],
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "never", "real_time": False},
+                "stream_response": True,
+            }
+            
+            # Try the simple API first, fallback to regular streaming endpoint
+            try:
+                response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                    json=payload,
+                    cookies=cookies
+                )
+                response.raise_for_status()
+                result = response.json()
+                analysis_text = result.get("answer", "")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for file {file_id}")
+                    # Fallback to streaming endpoint
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+                        resp.raise_for_status()
+                        analysis_text = ""
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    raise
+            
+            # Parse the analysis
+            summary = ""
+            topics = []
+            key_info = ""
+            
+            lines = analysis_text.split('\n')
+            for line in lines:
+                if line.startswith("SUMMARY:"):
+                    summary = line.replace("SUMMARY:", "").strip()
+                elif line.startswith("TOPICS:"):
+                    topics_text = line.replace("TOPICS:", "").strip()
+                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                elif line.startswith("KEY_INFO:"):
+                    key_info = line.replace("KEY_INFO:", "").strip()
+            
+            return {
+                "file_id": file_id,
+                "summary": summary,
+                "topics": topics,
+                "key_info": key_info,
+                "content": analysis_text
+            }
+            
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error extracting single file context for file {file_id}: {e}")
+        return None
+
+async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from a folder by analyzing its files.
+    """
+    try:
+        # Get folder files
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}/files",
+                f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}",
                 cookies=cookies
             )
             response.raise_for_status()
-            return response.json()
+            
+            folder_data = response.json()
+            files = folder_data.get("files", [])
+            
+            if not files:
+                return {"folder_id": folder_id, "summary": "Empty folder", "topics": []}
+            
+            # Create a temporary chat session to analyze folder content
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
+            
+            # Analyze folder content
+            analysis_prompt = f"""
+            This folder contains {len(files)} files. Please analyze the overall theme and provide:
+            1. A summary of what this folder is about (max 150 words)
+            2. Key topics that are covered across all files
+            3. The main purpose or theme of this collection
+            
+            Format your response as:
+            SUMMARY: [summary here]
+            TOPICS: [comma-separated topics]
+            THEME: [main theme or purpose]
+            """
+            
+            file_ids = [f["id"] for f in files if f.get("status") == "INDEXED"]
+            
+            if not file_ids:
+                return {"folder_id": folder_id, "summary": "No indexed files in folder", "topics": []}
+            
+            payload = {
+                "chat_session_id": temp_chat_id,
+                "message": analysis_prompt,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": file_ids,
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "never", "real_time": False},
+                "stream_response": True,
+            }
+            
+            # Try the simple API first, fallback to regular streaming endpoint
+            try:
+                response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                    json=payload,
+                    cookies=cookies
+                )
+                response.raise_for_status()
+                result = response.json()
+                analysis_text = result.get("answer", "")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for folder {folder_id}")
+                    # Fallback to streaming endpoint
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+                        resp.raise_for_status()
+                        analysis_text = ""
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    raise
+            
+            # Parse the analysis
+            summary = ""
+            topics = []
+            theme = ""
+            
+            lines = analysis_text.split('\n')
+            for line in lines:
+                if line.startswith("SUMMARY:"):
+                    summary = line.replace("SUMMARY:", "").strip()
+                elif line.startswith("TOPICS:"):
+                    topics_text = line.replace("TOPICS:", "").strip()
+                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                elif line.startswith("THEME:"):
+                    theme = line.replace("THEME:", "").strip()
+            
+            return {
+                "folder_id": folder_id,
+                "folder_name": folder_data.get("name", ""),
+                "summary": summary,
+                "topics": topics,
+                "theme": theme,
+                "file_count": len(files)
+            }
+            
     except Exception as e:
-        logger.warning(f"[FILE_CONTEXT] Failed to get folder files for {folder_id}: {e}")
-        return []
-
-def extract_topics_from_content(content: str, source_name: str) -> List[str]:
-    """Extract key topics from content using simple heuristics."""
-    topics = []
-    
-    # Common educational topics
-    educational_keywords = [
-        "learning", "education", "training", "course", "lesson", "module", "curriculum",
-        "instruction", "teaching", "student", "learner", "knowledge", "skill", "competency",
-        "objective", "outcome", "assessment", "evaluation", "practice", "exercise", "activity"
-    ]
-    
-    # Check for educational keywords
-    content_lower = content.lower()
-    for keyword in educational_keywords:
-        if keyword in content_lower:
-            topics.append(keyword)
-    
-    # Add source-specific topic
-    topics.append(f"content from {source_name}")
-    
-    # Limit to top topics
-    return list(set(topics))[:10]
+        logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
+        return None
 
 def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any], product_type: str) -> str:
     """
@@ -6427,10 +6751,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -6445,7 +6769,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
 
-                # Cache full raw outline for later finalize step
+        # Cache full raw outline for later finalize step
         if chat_id:
             OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
             logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
@@ -6468,17 +6792,17 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             yield (json.dumps(error_packet) + "\n").encode()
             return
         
-        # Send completion packet with the parsed outline
+                # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-        yield (json.dumps(done_packet) + "\n").encode()
+                yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-        return
+                return
                 
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-        yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-        return
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
 
     return StreamingResponse(
@@ -7317,10 +7641,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -9862,10 +10186,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -10640,10 +10964,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
