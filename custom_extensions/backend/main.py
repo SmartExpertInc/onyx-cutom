@@ -219,6 +219,7 @@ async def process_files_with_openai_direct(
 async def get_files_metadata(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Get metadata for all files and folders to be processed.
+    Optimized to make a single API call to get the file system.
     """
     try:
         metadata = {
@@ -228,28 +229,77 @@ async def get_files_metadata(file_ids: List[int], folder_ids: List[int], cookies
             "file_count": 0
         }
         
-        # Get individual file metadata
-        for file_id in file_ids:
-            try:
-                file_meta = await get_file_metadata(file_id, cookies)
-                if file_meta:
-                    metadata["files"].append(file_meta)
-                    metadata["total_size"] += file_meta.get("size", 0)
-                    metadata["file_count"] += 1
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] Failed to get metadata for file {file_id}: {e}")
+        # Get the file system once
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{ONYX_API_SERVER_URL}/user/file-system",
+                cookies=cookies
+            )
+            response.raise_for_status()
+            file_system = response.json()
         
-        # Get folder metadata and their files
+        # Process requested files
+        for file_id in file_ids:
+            file_found = False
+            for folder in file_system:
+                for file in folder.get("files", []):
+                    if file.get("id") == file_id:
+                        token_count = file.get("token_count", 0)
+                        estimated_size = token_count * 4  # Rough estimate: 4 bytes per token
+                        
+                        file_meta = {
+                            "id": file.get("id"),
+                            "name": file.get("name"),
+                            "file_id": file.get("file_id"),
+                            "document_id": file.get("document_id"),
+                            "content_type": file.get("chat_file_type"),
+                            "size": estimated_size,
+                            "token_count": token_count,
+                            "indexed": file.get("indexed", False),
+                            "status": file.get("status", "UNKNOWN")
+                        }
+                        
+                        metadata["files"].append(file_meta)
+                        metadata["total_size"] += estimated_size
+                        metadata["file_count"] += 1
+                        file_found = True
+                        break
+                if file_found:
+                    break
+            
+            if not file_found:
+                logger.warning(f"[OPENAI_DIRECT] File {file_id} not found in file system")
+        
+        # Process requested folders
         for folder_id in folder_ids:
-            try:
-                folder_meta = await get_folder_metadata(folder_id, cookies)
-                if folder_meta:
+            folder_found = False
+            for folder in file_system:
+                if folder.get("id") == folder_id:
+                    total_size = 0
+                    file_count = len(folder.get("files", []))
+                    
+                    for file in folder.get("files", []):
+                        token_count = file.get("token_count", 0)
+                        estimated_size = token_count * 4
+                        total_size += estimated_size
+                    
+                    folder_meta = {
+                        "id": folder.get("id"),
+                        "name": folder.get("name"),
+                        "description": folder.get("description"),
+                        "files": folder.get("files", []),
+                        "total_size": total_size,
+                        "file_count": file_count
+                    }
+                    
                     metadata["folders"].append(folder_meta)
-                    metadata["file_count"] += len(folder_meta.get("files", []))
-                    for file_info in folder_meta.get("files", []):
-                        metadata["total_size"] += file_info.get("size", 0)
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] Failed to get metadata for folder {folder_id}: {e}")
+                    metadata["file_count"] += file_count
+                    metadata["total_size"] += total_size
+                    folder_found = True
+                    break
+            
+            if not folder_found:
+                logger.warning(f"[OPENAI_DIRECT] Folder {folder_id} not found in file system")
         
         logger.info(f"[OPENAI_DIRECT] Retrieved metadata for {metadata['file_count']} files, total size: {metadata['total_size']} bytes")
         return metadata
@@ -260,16 +310,42 @@ async def get_files_metadata(file_ids: List[int], folder_ids: List[int], cookies
 
 async def get_folder_metadata(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
-    Get metadata for a folder and its contents.
+    Get metadata for a folder and its contents using the file system endpoint.
     """
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
+            # Get the file system to find the folder
             response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}",
+                f"{ONYX_API_SERVER_URL}/user/file-system",
                 cookies=cookies
             )
             response.raise_for_status()
-            return response.json()
+            file_system = response.json()
+            
+            # Search for the folder
+            for folder in file_system:
+                if folder.get("id") == folder_id:
+                    # Calculate total size and file count
+                    total_size = 0
+                    file_count = len(folder.get("files", []))
+                    
+                    for file in folder.get("files", []):
+                        token_count = file.get("token_count", 0)
+                        estimated_size = token_count * 4  # Rough estimate: 4 bytes per token
+                        total_size += estimated_size
+                    
+                    return {
+                        "id": folder.get("id"),
+                        "name": folder.get("name"),
+                        "description": folder.get("description"),
+                        "files": folder.get("files", []),
+                        "total_size": total_size,
+                        "file_count": file_count
+                    }
+            
+            logger.warning(f"[FOLDER_METADATA] Folder {folder_id} not found in file system")
+            return None
+            
     except Exception as e:
         logger.error(f"[OPENAI_DIRECT] Error getting folder metadata for folder {folder_id}: {e}")
         return None
@@ -4737,16 +4813,42 @@ async def search_file_content(file_id: int, query: str, cookies: Dict[str, str])
 
 async def get_file_metadata(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
-    Get basic metadata about a file.
+    Get basic metadata about a file using the file system endpoint.
     """
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
+            # Get the file system to find the file
             response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file/{file_id}",
+                f"{ONYX_API_SERVER_URL}/user/file-system",
                 cookies=cookies
             )
             response.raise_for_status()
-            return response.json()
+            file_system = response.json()
+            
+            # Search for the file in all folders
+            for folder in file_system:
+                for file in folder.get("files", []):
+                    if file.get("id") == file_id:
+                        # Return file metadata with estimated size based on token count
+                        # Since Onyx doesn't store file size, we estimate based on token count
+                        token_count = file.get("token_count", 0)
+                        estimated_size = token_count * 4  # Rough estimate: 4 bytes per token
+                        
+                        return {
+                            "id": file.get("id"),
+                            "name": file.get("name"),
+                            "file_id": file.get("file_id"),
+                            "document_id": file.get("document_id"),
+                            "content_type": file.get("chat_file_type"),
+                            "size": estimated_size,
+                            "token_count": token_count,
+                            "indexed": file.get("indexed", False),
+                            "status": file.get("status", "UNKNOWN")
+                        }
+            
+            logger.warning(f"[FILE_METADATA] File {file_id} not found in file system")
+            return None
+            
     except Exception as e:
         logger.error(f"[FILE_METADATA] Error getting metadata for file {file_id}: {e}")
         return None
