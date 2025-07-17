@@ -9734,6 +9734,33 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
         
+        # NEW: Hardcoded title extraction from first line of AI response
+        extracted_title = None
+        try:
+            # Get the first line of the AI response
+            first_line = payload.aiResponse.strip().split('\n')[0]
+            logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] First line: {first_line}")
+            
+            # Look for the pattern "**Course Name** : **Quiz** : **Quiz Title**"
+            import re
+            # Pattern to match the last **Title** part
+            title_pattern = r'\*\*([^*]+)\*\*\s*$'
+            match = re.search(title_pattern, first_line)
+            
+            if match:
+                extracted_title = match.group(1).strip()
+                logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Extracted title: '{extracted_title}'")
+            else:
+                logger.warning(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] No title pattern found in first line")
+                
+        except Exception as e:
+            logger.error(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Error extracting title: {e}")
+        
+        # Use extracted title if available, otherwise use parsed title or fallback
+        if extracted_title:
+            parsed_quiz.quizTitle = extracted_title
+            logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Using hardcoded title: '{extracted_title}'")
+        
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
             parsed_quiz.detectedLanguage = detect_language(payload.aiResponse)
