@@ -113,9 +113,15 @@ async def retrieve_comprehensive_content_from_files(
     
     results = []
     
-    # Create a search query that will match all content in the specified files/folders
-    # We use a broad query to get comprehensive content
-    search_query = "retrieve all content from documents"
+    # Create a more specific search query that targets the content we need
+    # Use file IDs in the query to help target specific documents
+    file_ids_str = ", ".join([str(fid) for fid in file_ids]) if file_ids else ""
+    folder_ids_str = ", ".join([str(fid) for fid in folder_ids]) if folder_ids else ""
+    
+    if file_ids_str or folder_ids_str:
+        search_query = f"content from files {file_ids_str} folders {folder_ids_str}"
+    else:
+        search_query = "retrieve all document content"
     
     async with httpx.AsyncClient(timeout=300.0) as client:
         # Use Onyx's document search API with comprehensive retrieval settings
@@ -150,6 +156,10 @@ async def retrieve_comprehensive_content_from_files(
             
             logger.info(f"[COMPREHENSIVE_RETRIEVAL] Retrieved {len(top_documents)} documents")
             
+            # Log first few documents for debugging
+            for i, doc in enumerate(top_documents[:3]):
+                logger.info(f"[COMPREHENSIVE_RETRIEVAL] Document {i+1}: id={doc.get('document_id', 'N/A')}, title={doc.get('semantic_identifier', 'N/A')}")
+            
             # Process each document to extract comprehensive content
             for doc in top_documents:
                 try:
@@ -182,6 +192,9 @@ async def retrieve_comprehensive_content_from_files(
                     logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error processing document: {e}")
                     continue
             
+            # Log filtering results
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Filtered {len(results)} documents from {len(top_documents)} total")
+            
             # If we didn't get enough content, try with different search strategies
             if len(results) == 0:
                 logger.warning("[COMPREHENSIVE_RETRIEVAL] No documents found, trying alternative search strategies")
@@ -207,21 +220,48 @@ def _is_document_from_target_sources(
     folder_ids: List[int]
 ) -> bool:
     """Check if a document is from our target file or folder sources"""
+    logger.debug(f"[DOCUMENT_FILTER] Checking document_id: {document_id}")
+    logger.debug(f"[DOCUMENT_FILTER] Metadata: {metadata}")
+    logger.debug(f"[DOCUMENT_FILTER] Target file_ids: {file_ids}, folder_ids: {folder_ids}")
+    
+    # If no specific files/folders are targeted, accept all documents
+    if not file_ids and not folder_ids:
+        logger.debug("[DOCUMENT_FILTER] No specific targets, accepting all documents")
+        return True
+    
     # Check if document_id contains any of our file IDs
     for file_id in file_ids:
         if str(file_id) in document_id:
+            logger.debug(f"[DOCUMENT_FILTER] Matched file_id {file_id} in document_id")
             return True
     
     # Check metadata for folder information
     if metadata:
         folder_info = metadata.get("folder_id") or metadata.get("user_folder_id")
-        if folder_info and int(folder_info) in folder_ids:
+        if folder_info:
+            try:
+                folder_id_int = int(folder_info)
+                if folder_id_int in folder_ids:
+                    logger.debug(f"[DOCUMENT_FILTER] Matched folder_id {folder_id_int} in metadata")
+                    return True
+            except (ValueError, TypeError):
+                pass
+    
+    # For user files, check various document_id patterns
+    user_file_patterns = [
+        "USER_FILE_CONNECTOR__",
+        "user_file_",
+        "file_",
+        "document_"
+    ]
+    
+    for pattern in user_file_patterns:
+        if document_id.startswith(pattern):
+            logger.debug(f"[DOCUMENT_FILTER] Matched user file pattern: {pattern}")
             return True
     
-    # For user files, check the document_id pattern
-    if document_id.startswith("USER_FILE_CONNECTOR__"):
-        return True
-    
+    # If we have specific targets but this document doesn't match, reject it
+    logger.debug(f"[DOCUMENT_FILTER] Document {document_id} does not match any target criteria")
     return False
 
 async def _try_alternative_search_strategies(
@@ -234,21 +274,22 @@ async def _try_alternative_search_strategies(
     """Try alternative search strategies if the main approach fails"""
     results = []
     
-    # Strategy 1: Try keyword search
+    # Strategy 1: Try keyword search with more specific terms
     try:
         keyword_payload = {
-            "message": "content document text information",
+            "message": "document content text information data",
             "search_type": "keyword",
             "retrieval_options": {
                 "run_search": "always",
                 "real_time": False,
-                "limit": 50,
+                "limit": 100,  # Increased limit
                 "offset": 0,
-                "dedupe_docs": False
+                "dedupe_docs": False,
+                "enable_auto_detect_filters": False
             },
             "evaluation_type": "skip",
-            "chunks_above": 3,
-            "chunks_below": 3,
+            "chunks_above": 5,
+            "chunks_below": 5,
             "full_doc": True
         }
         
@@ -268,6 +309,45 @@ async def _try_alternative_search_strategies(
                     ))
     except Exception as e:
         logger.error(f"[COMPREHENSIVE_RETRIEVAL] Alternative strategy 1 failed: {e}")
+    
+    # Strategy 2: Try to get all documents without specific filtering
+    if not results:
+        try:
+            logger.info("[COMPREHENSIVE_RETRIEVAL] Trying strategy 2: get all documents")
+            all_docs_payload = {
+                "message": "all documents content",
+                "search_type": "semantic",
+                "retrieval_options": {
+                    "run_search": "always",
+                    "real_time": False,
+                    "limit": 200,  # Get even more results
+                    "offset": 0,
+                    "dedupe_docs": False,
+                    "enable_auto_detect_filters": False
+                },
+                "evaluation_type": "skip",
+                "chunks_above": 3,
+                "chunks_below": 3,
+                "full_doc": True
+            }
+            
+            resp = await client.post(f"{ONYX_API_SERVER_URL}/query/document-search", json=all_docs_payload, cookies=cookies)
+            if resp.status_code == 200:
+                data = resp.json()
+                logger.info(f"[COMPREHENSIVE_RETRIEVAL] Strategy 2 retrieved {len(data.get('top_documents', []))} documents")
+                for doc in data.get("top_documents", []):
+                    # Accept all documents in this fallback strategy
+                    results.append(ComprehensiveContentResult(
+                        content=doc.get("content", ""),
+                        document_id=doc.get("document_id", ""),
+                        semantic_identifier=doc.get("semantic_identifier", "Unknown"),
+                        source_type=doc.get("source_type", "unknown"),
+                        metadata=doc.get("metadata", {}),
+                        token_count=int(len(doc.get("content", "").split()) * 1.3),
+                        chunks_retrieved=1
+                    ))
+        except Exception as e:
+            logger.error(f"[COMPREHENSIVE_RETRIEVAL] Alternative strategy 2 failed: {e}")
     
     return results
 
@@ -330,7 +410,7 @@ async def _fallback_content_retrieval(
     
     # Create a simple chat session for fallback
     try:
-        chat_id = await create_onyx_chat_session(get_contentbuilder_persona_id(), cookies)
+        chat_id = await create_onyx_chat_session(await get_contentbuilder_persona_id(cookies), cookies)
         
         # Use a simple query to get content
         fallback_message = "Please provide all the content from the uploaded files and folders in a comprehensive manner."
@@ -447,7 +527,7 @@ async def _fallback_to_chat_generation(
     logger.info("[COMPREHENSIVE_GENERATION] Falling back to chat-based generation")
     
     try:
-        chat_id = await create_onyx_chat_session(get_contentbuilder_persona_id(), cookies)
+        chat_id = await create_onyx_chat_session(await get_contentbuilder_persona_id(cookies), cookies)
         return await stream_chat_message(chat_id, wizard_message, cookies)
     except Exception as e:
         logger.error(f"[COMPREHENSIVE_GENERATION] Chat fallback also failed: {e}")
