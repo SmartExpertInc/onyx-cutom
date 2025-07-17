@@ -166,6 +166,30 @@ def should_use_openai_direct(payload) -> bool:
     logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
     return use_openai
 
+def should_use_hybrid_approach(payload) -> bool:
+    """
+    Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
+    Returns True when file context is present.
+    """
+    # Check if files are explicitly provided
+    has_files = (
+        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
+        (hasattr(payload, 'folderIds') and payload.folderIds) or
+        (hasattr(payload, 'fileIds') and payload.fileIds)
+    )
+    
+    # Check if text context is provided (this also uses hybrid approach)
+    has_text_context = (
+        hasattr(payload, 'fromText') and payload.fromText and 
+        hasattr(payload, 'userText') and payload.userText
+    )
+    
+    # Use hybrid approach when there's file context or text context
+    use_hybrid = has_files or has_text_context
+    
+    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_hybrid={use_hybrid}")
+    return use_hybrid
+
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
@@ -3648,6 +3672,309 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
 
+# --- Enhanced Hybrid Approach Functions ---
+
+# Cache for file contexts to avoid repeated extraction
+FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
+FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
+
+async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract relevant context from files and folders using Onyx's capabilities.
+    Returns structured context that can be used with OpenAI.
+    """
+    try:
+        # Create cache key
+        cache_key = f"{hash(tuple(sorted(file_ids)))}_{hash(tuple(sorted(folder_ids)))}"
+        
+        # Check cache first
+        if cache_key in FILE_CONTEXT_CACHE:
+            cached_data = FILE_CONTEXT_CACHE[cache_key]
+            if time.time() - cached_data["timestamp"] < FILE_CONTEXT_CACHE_TTL:
+                logger.info(f"[FILE_CONTEXT] Using cached context for key: {cache_key[:16]}...")
+                return cached_data["context"]
+        
+        logger.info(f"[FILE_CONTEXT] Extracting context from {len(file_ids)} files and {len(folder_ids)} folders")
+        
+        extracted_context = {
+            "file_summaries": [],
+            "file_contents": [],
+            "folder_contexts": [],
+            "key_topics": [],
+            "metadata": {
+                "total_files": len(file_ids),
+                "total_folders": len(folder_ids),
+                "extraction_time": time.time()
+            }
+        }
+        
+        # Extract file contexts
+        for file_id in file_ids:
+            try:
+                file_context = await extract_single_file_context(file_id, cookies)
+                if file_context:
+                    extracted_context["file_summaries"].append(file_context["summary"])
+                    extracted_context["file_contents"].append(file_context["content"])
+                    extracted_context["key_topics"].extend(file_context.get("topics", []))
+            except Exception as e:
+                logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id}: {e}")
+        
+        # Extract folder contexts
+        for folder_id in folder_ids:
+            try:
+                folder_context = await extract_folder_context(folder_id, cookies)
+                if folder_context:
+                    extracted_context["folder_contexts"].append(folder_context)
+                    extracted_context["key_topics"].extend(folder_context.get("topics", []))
+            except Exception as e:
+                logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
+        
+        # Remove duplicate topics
+        extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
+        
+        # Cache the result
+        FILE_CONTEXT_CACHE[cache_key] = {
+            "context": extracted_context,
+            "timestamp": time.time()
+        }
+        
+        logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_summaries'])} file summaries, {len(extracted_context['key_topics'])} key topics")
+        
+        return extracted_context
+        
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error extracting file context: {e}", exc_info=True)
+        return {
+            "file_summaries": [],
+            "file_contents": [],
+            "folder_contexts": [],
+            "key_topics": [],
+            "metadata": {"error": str(e)}
+        }
+
+async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from a single file using Onyx's chat API.
+    """
+    try:
+        # Create a temporary chat session to extract file content
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
+        
+        # Use Onyx to analyze the file content
+        analysis_prompt = """
+        Please analyze this file and provide:
+        1. A concise summary of the main content (max 200 words)
+        2. Key topics and concepts covered
+        3. The most important information that would be relevant for content creation
+        
+        Format your response as:
+        SUMMARY: [summary here]
+        TOPICS: [comma-separated topics]
+        KEY_INFO: [most important information]
+        """
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            payload = {
+                "chat_session_id": temp_chat_id,
+                "message": analysis_prompt,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": [file_id],
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "never", "real_time": False},
+                "stream_response": False,
+            }
+            
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                json=payload,
+                cookies=cookies
+            )
+            response.raise_for_status()
+            
+            result = response.json()
+            analysis_text = result.get("answer", "")
+            
+            # Parse the analysis
+            summary = ""
+            topics = []
+            key_info = ""
+            
+            lines = analysis_text.split('\n')
+            for line in lines:
+                if line.startswith("SUMMARY:"):
+                    summary = line.replace("SUMMARY:", "").strip()
+                elif line.startswith("TOPICS:"):
+                    topics_text = line.replace("TOPICS:", "").strip()
+                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                elif line.startswith("KEY_INFO:"):
+                    key_info = line.replace("KEY_INFO:", "").strip()
+            
+            return {
+                "file_id": file_id,
+                "summary": summary,
+                "topics": topics,
+                "key_info": key_info,
+                "content": analysis_text
+            }
+            
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error extracting single file context for file {file_id}: {e}")
+        return None
+
+async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from a folder by analyzing its files.
+    """
+    try:
+        # Get folder files
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}",
+                cookies=cookies
+            )
+            response.raise_for_status()
+            
+            folder_data = response.json()
+            files = folder_data.get("files", [])
+            
+            if not files:
+                return {"folder_id": folder_id, "summary": "Empty folder", "topics": []}
+            
+            # Create a temporary chat session to analyze folder content
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
+            
+            # Analyze folder content
+            analysis_prompt = f"""
+            This folder contains {len(files)} files. Please analyze the overall theme and provide:
+            1. A summary of what this folder is about (max 150 words)
+            2. Key topics that are covered across all files
+            3. The main purpose or theme of this collection
+            
+            Format your response as:
+            SUMMARY: [summary here]
+            TOPICS: [comma-separated topics]
+            THEME: [main theme or purpose]
+            """
+            
+            file_ids = [f["id"] for f in files if f.get("status") == "INDEXED"]
+            
+            if not file_ids:
+                return {"folder_id": folder_id, "summary": "No indexed files in folder", "topics": []}
+            
+            payload = {
+                "chat_session_id": temp_chat_id,
+                "message": analysis_prompt,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": file_ids,
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "never", "real_time": False},
+                "stream_response": False,
+            }
+            
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                json=payload,
+                cookies=cookies
+            )
+            response.raise_for_status()
+            
+            result = response.json()
+            analysis_text = result.get("answer", "")
+            
+            # Parse the analysis
+            summary = ""
+            topics = []
+            theme = ""
+            
+            lines = analysis_text.split('\n')
+            for line in lines:
+                if line.startswith("SUMMARY:"):
+                    summary = line.replace("SUMMARY:", "").strip()
+                elif line.startswith("TOPICS:"):
+                    topics_text = line.replace("TOPICS:", "").strip()
+                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                elif line.startswith("THEME:"):
+                    theme = line.replace("THEME:", "").strip()
+            
+            return {
+                "folder_id": folder_id,
+                "folder_name": folder_data.get("name", ""),
+                "summary": summary,
+                "topics": topics,
+                "theme": theme,
+                "file_count": len(files)
+            }
+            
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
+        return None
+
+def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any], product_type: str) -> str:
+    """
+    Build an enhanced prompt that includes the extracted file context for OpenAI.
+    """
+    enhanced_prompt = f"""
+{original_prompt}
+
+--- CONTEXT FROM UPLOADED FILES ---
+
+"""
+    
+    # Add file summaries
+    if file_context.get("file_summaries"):
+        enhanced_prompt += "FILE SUMMARIES:\n"
+        for i, summary in enumerate(file_context["file_summaries"], 1):
+            enhanced_prompt += f"{i}. {summary}\n"
+        enhanced_prompt += "\n"
+    
+    # Add folder contexts
+    if file_context.get("folder_contexts"):
+        enhanced_prompt += "FOLDER CONTEXTS:\n"
+        for folder_ctx in file_context["folder_contexts"]:
+            enhanced_prompt += f"• {folder_ctx.get('folder_name', 'Unknown')}: {folder_ctx.get('summary', '')}\n"
+        enhanced_prompt += "\n"
+    
+    # Add key topics
+    if file_context.get("key_topics"):
+        enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
+    
+    # Add specific instructions for the product type
+    enhanced_prompt += f"""
+IMPORTANT: Use the context from the uploaded files to create a {product_type} that is relevant and accurate to the source materials. 
+Ensure that the content aligns with the topics and information provided in the file summaries and folder contexts.
+"""
+    
+    return enhanced_prompt
+
+async def stream_hybrid_response(prompt: str, file_context: Dict[str, Any], product_type: str, model: str = None):
+    """
+    Stream response using OpenAI with enhanced context from Onyx file extraction.
+    """
+    try:
+        # Build enhanced prompt with file context
+        enhanced_prompt = build_enhanced_prompt_with_context(prompt, file_context, product_type)
+        
+        logger.info(f"[HYBRID_STREAM] Starting hybrid streaming with enhanced context")
+        logger.info(f"[HYBRID_STREAM] Original prompt length: {len(prompt)} chars")
+        logger.info(f"[HYBRID_STREAM] Enhanced prompt length: {len(enhanced_prompt)} chars")
+        logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
+        
+        # Use OpenAI with enhanced prompt
+        async for chunk_data in stream_openai_response(enhanced_prompt, model):
+            yield chunk_data
+            
+    except Exception as e:
+        logger.error(f"[HYBRID_STREAM] Error in hybrid streaming: {e}", exc_info=True)
+        yield {"type": "error", "text": f"Hybrid streaming error: {str(e)}"}
+
 @app.get("/api/custom/microproduct_types", response_model=List[str])
 async def get_allowed_microproduct_types_list_for_design_templates():
     return ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS
@@ -5832,8 +6159,99 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
-        # NEW: Check if we should use OpenAI directly instead of Onyx
-        if should_use_openai_direct(payload):
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Step 1: Extract file context from Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                
+                if payload.fromFiles and payload.folderIds:
+                    try:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                
+                if payload.fromFiles and payload.fileIds:
+                    try:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                # Extract context from Onyx
+                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Course Outline"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # Cache full raw outline for later finalize step
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                if not assistant_reply.strip():
+                    logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+                    error_packet = {"type": "error", "message": "No content received from AI service"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+
+                logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                try:
+                    modules_preview = _parse_outline_markdown(assistant_reply)
+                    logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
+                    logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+                except Exception as e:
+                    logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
+                    logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                    error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+                
+                # Send completion packet with the parsed outline
+                logger.info(f"[PREVIEW_DONE] Creating completion packet")
+                done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+                yield (json.dumps(done_packet) + "\n").encode()
+                logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
             logger.info(f"[PREVIEW_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
@@ -5858,7 +6276,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
                 
-                # Cache full raw outline for later finalize step (same as Onyx path)
+                # Cache full raw outline for later finalize step
                 if chat_id:
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
@@ -5881,7 +6299,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     yield (json.dumps(error_packet) + "\n").encode()
                     return
                 
-                # Send completion packet with the parsed outline (same format as Onyx path)
+                # Send completion packet with the parsed outline
                 logger.info(f"[PREVIEW_DONE] Creating completion packet")
                 done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
                 yield (json.dumps(done_packet) + "\n").encode()
@@ -5892,187 +6310,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-        
-        # EXISTING: Use Onyx when file context is present
-        else:
-            logger.info(f"[PREVIEW_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-        
-        logger.info(f"[PREVIEW_STREAM] Using Onyx streaming (file context present)")
-        try:
-            logger.info(f"[PREVIEW_STREAM] Creating HTTP client with timeout: {timeout_duration}")
-            async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                # Parse folder and file IDs for Onyx
-                logger.info(f"[PREVIEW_STREAM] Parsing file and folder IDs")
-                folder_ids_list = []
-                file_ids_list = []
-                if payload.fromFiles and payload.folderIds:
-                    try:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[PREVIEW_STREAM] Parsed folder IDs: {folder_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[PREVIEW_STREAM] Failed to parse folder IDs from '{payload.folderIds}': {e}")
-                if payload.fromFiles and payload.fileIds:
-                    try:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[PREVIEW_STREAM] Parsed file IDs: {file_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[PREVIEW_STREAM] Failed to parse file IDs from '{payload.fileIds}': {e}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                logger.info(f"[PREVIEW_STREAM] Building send payload")
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": file_ids_list,
-                    "user_folder_ids": folder_ids_list,
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "never", "real_time": False},
-                    "stream_response": True,
-                }
-                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message")
-                logger.info(f"[PREVIEW_ONYX] Target URL: {ONYX_API_SERVER_URL}/chat/send-message")
-                logger.info(f"[PREVIEW_ONYX] Payload summary: chat_session_id={chat_id}, user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                logger.info(f"[PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
-                logger.info(f"[PREVIEW_ONYX] Payload size: {len(json.dumps(send_payload))} chars")
-                
-                logger.info(f"[PREVIEW_ONYX] Initiating streaming request...")
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[PREVIEW_ONYX] Response received - status: {resp.status_code}")
-                    logger.info(f"[PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
-                    
-                    if resp.status_code != 200:
-                        logger.error(f"[PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
-                        try:
-                            error_text = await resp.aread()
-                            error_text = error_text.decode('utf-8') if isinstance(error_text, bytes) else str(error_text)
-                            logger.error(f"[PREVIEW_ONYX] Error response: {error_text}")
-                        except Exception as read_error:
-                            logger.error(f"[PREVIEW_ONYX] Failed to read error response: {read_error}")
-                            error_text = f"HTTP {resp.status_code}"
-                        
-                        # Send error to frontend instead of raising HTTPException
-                        error_packet = {"type": "error", "message": f"Onyx API error ({resp.status_code}): {error_text}"}
-                        yield (json.dumps(error_packet) + "\n").encode()
-                        return
-                    
-                    logger.info(f"[PREVIEW_ONYX] Starting to process response stream...")
-                    async for raw_line in resp.aiter_lines():
-                        total_bytes_received += len(raw_line.encode('utf-8'))
-                        chunks_received += 1
-                        
-                        if chunks_received == 1:
-                            logger.info(f"[PREVIEW_ONYX] Received first chunk from stream")
-                        
-                        if not raw_line:
-                            logger.debug(f"[PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
-                            continue
-                            
-                        line = raw_line.strip()
-                        logger.debug(f"[PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
-                        
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                            logger.debug(f"[PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
-                            
-                        if line == "[DONE]":
-                            logger.info(f"[PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
-                            done_received = True
-                            break
-                            
-                        try:
-                            pkt = json.loads(line)
-                            if "answer_piece" in pkt:
-                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                assistant_reply += delta_text
-                                logger.debug(f"[PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                            else:
-                                logger.debug(f"[PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
-                        except json.JSONDecodeError as e:
-                            logger.error(f"[PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
-                            continue
-                        except Exception as e:
-                            logger.error(f"[PREVIEW_ONYX] Unexpected error processing chunk {chunks_received}: {e} | Raw: {line[:200]}")
-                            continue
 
-                        # send keep-alive every 8s
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "
-                            last_send = now
-                            logger.debug(f"[PREVIEW_ONYX] Sent keep-alive after {now - last_send}s")
-                    
-                    if not done_received:
-                        logger.warning(f"[PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
-                        
-        except httpx.TimeoutException as e:
-            logger.error(f"[PREVIEW_ONYX] Timeout error after {chunks_received} chunks, {total_bytes_received} bytes: {e}")
-            logger.error(f"[PREVIEW_ONYX] Timeout details: timeout_duration={timeout_duration}, assistant_reply_length={len(assistant_reply)}")
-            # Send timeout error to frontend
-            error_packet = {"type": "error", "message": f"Request timeout after {timeout_duration}s"}
-            yield (json.dumps(error_packet) + "\n").encode()
-            return
-        except httpx.RequestError as e:
-            logger.error(f"[PREVIEW_ONYX] Request error after {chunks_received} chunks, {total_bytes_received} bytes: {e}")
-            logger.error(f"[PREVIEW_ONYX] Request error details: type={type(e).__name__}, chat_id={chat_id}")
-            # Send request error to frontend
-            error_packet = {"type": "error", "message": f"Network error: {str(e)}"}
-            yield (json.dumps(error_packet) + "\n").encode()
-            return
-        except Exception as e:
-            logger.error(f"[PREVIEW_ONYX] Unexpected exception after {chunks_received} chunks, {total_bytes_received} bytes: {e}", exc_info=True)
-            logger.error(f"[PREVIEW_ONYX] Exception context: chat_id={chat_id}, assistant_reply_length={len(assistant_reply)}")
-            # Send generic error to frontend
-            error_packet = {"type": "error", "message": f"Unexpected error: {str(e)}"}
-            yield (json.dumps(error_packet) + "\n").encode()
-            return
-
-        logger.info(f"[PREVIEW_STREAM] Stream completed. Total chunks: {chunks_received}, total bytes: {total_bytes_received}")
-        logger.info(f"[PREVIEW_STREAM] Final assistant_reply length: {len(assistant_reply)}")
-        logger.info(f"[PREVIEW_STREAM] Assistant reply preview: {assistant_reply[:200]}{'...' if len(assistant_reply) > 200 else ''}")
-
-        # Cache full raw outline for later finalize step
-        if chat_id:
-            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
-            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
-
-        if not assistant_reply.strip():
-            logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
-            logger.error(f"[PREVIEW_STREAM] DEBUG: Received {chunks_received} chunks, {total_bytes_received} bytes total")
-            logger.error(f"[PREVIEW_STREAM] DEBUG: done_received={done_received}")
-            # Send error packet to frontend
-            error_packet = {"type": "error", "message": "No content received from AI service"}
-            yield (json.dumps(error_packet) + "\n").encode()
-            return
-
-        logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
-        try:
-            modules_preview = _parse_outline_markdown(assistant_reply)
-            logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
-            logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
-        except Exception as e:
-            logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
-            logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-            # Send error packet to frontend
-            error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
-            yield (json.dumps(error_packet) + "\n").encode()
-            return
-        
-        # Send completion packet with the parsed outline.
-        logger.info(f"[PREVIEW_DONE] Creating completion packet")
-        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-        completion_data = json.dumps(done_packet) + "\n"
-        logger.info(f"[PREVIEW_DONE] Completion packet size: {len(completion_data)} chars")
-        yield completion_data.encode()
-        logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
 
     return StreamingResponse(
         streamer(),
@@ -6831,8 +7069,78 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         timeout_duration = 300.0 if wizard_dict.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
         
-        # NEW: Check if we should use OpenAI directly instead of Onyx
-        if should_use_openai_direct(payload):
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Step 1: Extract file context from Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                
+                if payload.fromFiles and payload.folderIds:
+                    try:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                
+                if payload.fromFiles and payload.fileIds:
+                    try:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                
+                # Add virtual file ID if created for large text
+                if wizard_dict.get("virtualFileId"):
+                    file_ids_list.append(wizard_dict["virtualFileId"])
+                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
+                
+                # Extract context from Onyx
+                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                chunks_received = 0
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Lesson Presentation"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
             logger.info(f"[LESSON_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
@@ -6870,70 +7178,6 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-        
-        # EXISTING: Use Onyx when file context is present
-        else:
-            logger.info(f"[LESSON_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-        
-        logger.info(f"[LESSON_STREAM] Using Onyx streaming (file context present)")
-        try:
-            async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                # Parse folder and file IDs for Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                
-                # Add virtual file ID if created for large text
-                if wizard_dict.get("virtualFileId"):
-                    file_ids_list.append(wizard_dict["virtualFileId"])
-                    logger.info(f"Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
-                
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": file_ids_list,
-                    "user_folder_ids": folder_ids_list,
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "never", "real_time": False},
-                    "stream_response": True,
-                }
-                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
-                    async for raw_line in resp.aiter_lines():
-                        if not raw_line:
-                            continue
-                        line = raw_line.strip()
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                        if line == "[DONE]":
-                            logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
-                            break
-                        try:
-                            pkt = json.loads(line)
-                            if "answer_piece" in pkt:
-                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                assistant_reply += delta_text
-                                logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                        except Exception as e:
-                            logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
-                            continue
-
-                        # send keep-alive every 8s
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "
-                            last_send = now
-        except Exception as e:
-            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
             raise
 
         # Cache full raw outline for later finalize step
@@ -9378,8 +9622,71 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         logger.info(f"[QUIZ_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[QUIZ_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
-        # NEW: Check if we should use OpenAI directly instead of Onyx
-        if should_use_openai_direct(payload):
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Step 1: Extract file context from Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                
+                if payload.fromFiles and payload.folderIds:
+                    try:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                
+                if payload.fromFiles and payload.fileIds:
+                    try:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                # Extract context from Onyx
+                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
             logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
@@ -9410,95 +9717,6 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-        
-        # EXISTING: Use Onyx when file context is present
-        else:
-            logger.info(f"[QUIZ_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-        
-        logger.info(f"[QUIZ_STREAM] Using Onyx streaming (file context present)")
-        try:
-            async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                # Parse folder and file IDs for Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[QUIZ_PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": file_ids_list,
-                    "user_folder_ids": folder_ids_list,
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "never", "real_time": False},
-                    "stream_response": True,
-                }
-                logger.info(f"[QUIZ_PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                logger.info(f"[QUIZ_PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
-                
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[QUIZ_PREVIEW_ONYX] Response status: {resp.status_code}")
-                    logger.info(f"[QUIZ_PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
-                    
-                    if resp.status_code != 200:
-                        logger.error(f"[QUIZ_PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
-                        error_text = await resp.text()
-                        logger.error(f"[QUIZ_PREVIEW_ONYX] Error response: {error_text}")
-                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
-                    
-                    async for raw_line in resp.aiter_lines():
-                        total_bytes_received += len(raw_line.encode('utf-8'))
-                        chunks_received += 1
-                        
-                        if not raw_line:
-                            logger.debug(f"[QUIZ_PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
-                            continue
-                            
-                        line = raw_line.strip()
-                        logger.debug(f"[QUIZ_PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
-                        
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                            logger.debug(f"[QUIZ_PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
-                            
-                        if line == "[DONE]":
-                            logger.info(f"[QUIZ_PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
-                            done_received = True
-                            break
-                            
-                        try:
-                            pkt = json.loads(line)
-                            if "answer_piece" in pkt:
-                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                assistant_reply += delta_text
-                                logger.debug(f"[QUIZ_PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                            else:
-                                logger.debug(f"[QUIZ_PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
-                        except json.JSONDecodeError as e:
-                            logger.error(f"[QUIZ_PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
-                            continue
-                    
-                    if not done_received:
-                        logger.warning(f"[QUIZ_PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
-                    
-                    logger.info(f"[QUIZ_PREVIEW_ONYX] Stream completed: {chunks_received} chunks, {total_bytes_received} bytes, {len(assistant_reply)} chars total")
-                    
-        except Exception as e:
-            logger.error(f"[QUIZ_PREVIEW_STREAM_ERROR] Error in streamer: {e}", exc_info=not IS_PRODUCTION)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
 
     return StreamingResponse(
         streamer(),
@@ -10182,8 +10400,71 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
-        # NEW: Check if we should use OpenAI directly instead of Onyx
-        if should_use_openai_direct(payload):
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Step 1: Extract file context from Onyx
+                folder_ids_list = []
+                file_ids_list = []
+                
+                if payload.fromFiles and payload.folderIds:
+                    try:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                
+                if payload.fromFiles and payload.fileIds:
+                    try:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    except Exception as e:
+                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                
+                # Add virtual file ID if created for large text
+                if wiz_payload.get("virtualFileId"):
+                    file_ids_list.append(wiz_payload["virtualFileId"])
+                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                
+                # Extract context from Onyx
+                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
             logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
@@ -10214,95 +10495,6 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-        
-        # EXISTING: Use Onyx when file context is present
-        else:
-            logger.info(f"[TEXT_PRESENTATION_STREAM] ❌ USING ONYX API (file context detected)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-        
-        logger.info(f"[TEXT_PRESENTATION_STREAM] Using Onyx streaming (file context present)")
-        try:
-            async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                # Parse folder and file IDs for Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": file_ids_list,
-                    "user_folder_ids": folder_ids_list,
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "never", "real_time": False},
-                    "stream_response": True,
-                }
-                logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Message length: {len(wizard_message)} chars")
-                
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Response status: {resp.status_code}")
-                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Response headers: {dict(resp.headers)}")
-                    
-                    if resp.status_code != 200:
-                        logger.error(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Non-200 status code: {resp.status_code}")
-                        error_text = await resp.text()
-                        logger.error(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Error response: {error_text}")
-                        raise HTTPException(status_code=resp.status_code, detail=f"Onyx API error: {error_text}")
-                    
-                    async for raw_line in resp.aiter_lines():
-                        total_bytes_received += len(raw_line.encode('utf-8'))
-                        chunks_received += 1
-                        
-                        if not raw_line:
-                            logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Empty line received (chunk {chunks_received})")
-                            continue
-                            
-                        line = raw_line.strip()
-                        logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Raw line {chunks_received}: {line[:100]}{'...' if len(line) > 100 else ''}")
-                        
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                            logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Processed data line: {line[:100]}{'...' if len(line) > 100 else ''}")
-                            
-                        if line == "[DONE]":
-                            logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Received [DONE] signal after {chunks_received} chunks, {total_bytes_received} bytes")
-                            done_received = True
-                            break
-                            
-                        try:
-                            pkt = json.loads(line)
-                            if "answer_piece" in pkt:
-                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                assistant_reply += delta_text
-                                logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                            else:
-                                logger.debug(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Chunk {chunks_received}: no answer_piece, keys: {list(pkt.keys())}")
-                        except json.JSONDecodeError as e:
-                            logger.error(f"[TEXT_PRESENTATION_PREVIEW_ONYX] JSON decode error in chunk {chunks_received}: {e} | Raw: {line[:200]}")
-                            continue
-                    
-                    if not done_received:
-                        logger.warning(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Stream ended without [DONE] signal after {chunks_received} chunks")
-                    
-                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_ONYX] Stream completed: {chunks_received} chunks, {total_bytes_received} bytes, {len(assistant_reply)} chars total")
-                    
-        except Exception as e:
-            logger.error(f"[TEXT_PRESENTATION_PREVIEW_STREAM_ERROR] Error in streamer: {e}", exc_info=not IS_PRODUCTION)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
 
     return StreamingResponse(
         streamer(),
