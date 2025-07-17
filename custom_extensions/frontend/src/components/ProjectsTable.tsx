@@ -1502,6 +1502,41 @@ const ProjectRowMenu: React.FC<{
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
+    // Add duplicate state and handler here
+    const [isDuplicating, setIsDuplicating] = React.useState(false);
+    const [duplicateError, setDuplicateError] = React.useState<string | null>(null);
+    const handleDuplicate = async () => {
+        if (!isOutline) return;
+        setIsDuplicating(true);
+        setDuplicateError(null);
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+            const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/duplicate/${project.id}`, {
+                method: 'POST',
+                headers,
+                credentials: 'same-origin',
+            });
+            if (!resp.ok) {
+                if (resp.status === 401 || resp.status === 403) {
+                    redirectToMainAuth('/auth/login');
+                    return;
+                }
+                const errTxt = await resp.text();
+                throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
+            }
+            window.location.reload();
+        } catch (error) {
+            setDuplicateError((error as Error).message);
+            alert((error as Error).message);
+        } finally {
+            setIsDuplicating(false);
+        }
+    };
     
     const handleRemoveFromFolder = async () => {
         try {
