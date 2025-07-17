@@ -470,6 +470,8 @@ The Total Time for each module MUST be calculated as the exact sum of all lesson
 **AUTO-CALCULATION IMPLEMENTATION:**
 The system now automatically calculates the Total Time by summing all lesson creation times within each module. The Total Time field in the markdown is still required for formatting purposes, but the actual value will be auto-calculated and may differ from what you specify. Always ensure your lesson creation times are accurate, as they will be used to determine the final Total Time.
 
+**IMPORTANT:** When generating the Total Time value in the markdown, you should still calculate it as the sum of lesson creation times for consistency, but be aware that the system will recalculate this value automatically. The Total Time you specify in the markdown serves as a preview/estimate, but the final value used by the system will be the auto-calculated sum.
+
 **CRITICAL VALIDATION STEP BEFORE OUTPUT:**
 Before generating the final Course Outline, you MUST verify that:
 1. Each module has a Total Time field (this will be auto-calculated by the system from lesson creation times)

@@ -7701,15 +7701,112 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
         if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
             raise HTTPException(status_code=400, detail="Project is not a training plan")
     
-    # Parse the edited outline from the cached preview
+    # Parse the edited outline from the cached preview using LLM-based parsing
     try:
-        training_plan_details = parse_training_plan_from_string(cached_preview, row["project_name"])
+        # Create a default TrainingPlanDetails instance for error handling
+        default_training_plan = TrainingPlanDetails(
+            mainTitle=row["project_name"],
+            sections=[],
+            detectedLanguage=detect_language(cached_preview)
+        )
+        
+        # Component-specific instructions for TrainingPlanDetails parsing
+        component_specific_instructions = """
+            Parse the training plan outline into a structured JSON format. Extract all modules and their lessons with complete details.
+
+            **Main Object:**
+            * `mainTitle` (string): The main title of the training plan.
+            * `sections` (array): List of module objects.
+            3.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk", "es".
+
+            **Section Object (`sections` array items):**
+            * `id` (string): CRITICAL - Extract the exact module ID from the markdown headers. If you see "## №2: Title", extract "№2". If you see "## #2: Title", convert it to "№2". If you see "## Module 3: Title", convert it to "№3". Always preserve the original numbering but use "№X" format.
+            * `title` (string): Module name without the word "Module".
+            * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
+            * `lessons` (array): List of lesson objects belonging to the module.
+            * `autoCalculateHours` (boolean, default true): Leave as `true` unless the source explicitly provides `totalHours`.
+
+            **Lesson Object (`lessons` array items):**
+            * `title` (string): Lesson title WITHOUT leading numeration like "Lesson 1.1".
+            * `hours` (number): Duration in hours. If absent, default to 1.
+            * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
+            * `completionTime` (string): Estimated completion time in minutes, randomly generated between 5-8 minutes. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
+            * `check` (object):
+                - `type` (string): One of "test", "quiz", "practice", "none".
+                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
+            * `contentAvailable` (object):
+                - `type` (string): One of "yes", "no", "percentage".
+                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
+
+            **CRITICAL ID EXTRACTION RULES:**
+            • When you see "## #2: Technical Setup", extract the ID as "№2" (convert # to №)
+            • When you see "## №3: Advanced Topics", extract the ID as "№3" (preserve exactly)  
+            • When you see "## Module 5: Data Analysis", extract the ID as "№5" (extract number and convert to № format)
+            • NEVER generate sequential IDs like №1, №2, №3 - ALWAYS extract the actual number from the header
+            • ALWAYS use the № character (U+2116) in module IDs, never just plain numbers like "2" or "3"
+            • If you extract just a number like "2", format it as "№2"
+            
+            Return ONLY the JSON object.
+            """
+        
+        # Example JSON structure for the LLM parser
+        llm_json_example = json.dumps({
+            "mainTitle": "Example Training Plan",
+            "sections": [
+                {
+                    "id": "№1",
+                    "title": "Introduction to Topic",
+                    "totalHours": 10,
+                    "lessons": [
+                        {
+                            "title": "Lesson 1: Basics",
+                            "hours": 2,
+                            "source": "Create from scratch",
+                            "completionTime": "5m",
+                            "check": {"type": "test", "text": "Test"},
+                            "contentAvailable": {"type": "yes", "text": "100%"}
+                        }
+                    ],
+                    "autoCalculateHours": True
+                }
+            ],
+            "detectedLanguage": "en",
+            "theme": "cherry"
+        })
+        
+        training_plan_details = await parse_ai_response_with_llm(
+            ai_response=cached_preview,
+            project_name=row["project_name"],
+            target_model=TrainingPlanDetails,
+            default_error_model_instance=default_training_plan,
+            dynamic_instructions=component_specific_instructions,
+            target_json_example=llm_json_example
+        )
+        
         if not training_plan_details:
             raise HTTPException(status_code=400, detail="Failed to parse the edited training plan")
         
-        # Detect language from the content
-        detected_language = detect_language(cached_preview)
-        training_plan_details.detectedLanguage = detected_language
+        # Post-process module IDs to ensure № character is preserved
+        for section in training_plan_details.sections:
+            if section.id:
+                # Fix module IDs that lost the № character
+                if section.id.isdigit():
+                    # Plain number like "2" -> "№2"
+                    section.id = f"№{section.id}"
+                    logger.info(f"[FINALIZE_ID_FIX] Fixed plain number ID '{section.id[1:]}' to '{section.id}'")
+                elif section.id.startswith("#"):
+                    # Hash format like "#2" -> "№2"
+                    number = section.id[1:]
+                    section.id = f"№{number}"
+                    logger.info(f"[FINALIZE_ID_FIX] Fixed hash ID '#{number}' to '{section.id}'")
+                elif not section.id.startswith("№"):
+                    # Other formats without № - try to extract number and format correctly
+                    import re
+                    number_match = re.search(r'\d+', section.id)
+                    if number_match:
+                        number = number_match.group()
+                        section.id = f"№{number}"
+                        logger.info(f"[FINALIZE_ID_FIX] Fixed ID format to '{section.id}'")
         
         # Update the project with the new content
         await conn.execute("""
