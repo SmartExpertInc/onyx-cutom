@@ -71,11 +71,6 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
-# --- Comprehensive Context Retrieval Constants ---
-MAX_TOKENS_DEFAULT = 8000
-MAX_TOKENS_LARGE_DOC = 12000
-MAX_TOKENS_COMPREHENSIVE = 16000
-
 def get_openai_client():
     """Get or create the OpenAI client instance."""
     global OPENAI_CLIENT
@@ -86,323 +81,416 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-# --- Comprehensive Context Retrieval Functions ---
+# NEW: Comprehensive Content Retrieval System
+from dataclasses import dataclass
+from typing import List, Dict, Any, Optional, Tuple
 
-def analyze_request_type(user_request: str) -> str:
-    """
-    Analyze user request to determine optimal retrieval strategy.
-    """
-    request_lower = user_request.lower()
-    
-    # Comprehensive requests - need full document content
-    if any(word in request_lower for word in ["outline", "structure", "complete", "full", "entire", "all", "comprehensive"]):
-        return "comprehensive"
-    
-    # Targeted requests - need specific sections or requirements
-    elif any(word in request_lower for word in ["position", "requirements", "specific", "section", "chapter", "part"]):
-        return "targeted"
-    
-    # Summary requests - need overview and key points
-    elif any(word in request_lower for word in ["summary", "overview", "key points", "main points", "highlights"]):
-        return "summary"
-    
-    # Default to token-limited for unknown request types
-    else:
-        return "token_limited"
+@dataclass
+class ComprehensiveContentResult:
+    """Result from comprehensive content retrieval"""
+    content: str
+    document_id: str
+    semantic_identifier: str
+    source_type: str
+    metadata: Dict[str, Any]
+    token_count: int
+    chunks_retrieved: int
 
-async def get_document_info(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+async def retrieve_comprehensive_content_from_files(
+    file_ids: List[int],
+    folder_ids: List[int],
+    cookies: Dict[str, str],
+    max_tokens: int = 50000,  # Configurable token limit
+    chunks_above: int = 5,
+    chunks_below: int = 5,
+    full_doc: bool = True
+) -> List[ComprehensiveContentResult]:
     """
-    Get document information including size and token count.
+    Retrieve comprehensive content from files using Onyx's search API with full document retrieval.
+    This replaces the chat message approach for large files.
     """
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/document/document-size-info?document_id={file_id}",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            return response.json()
-    except Exception as e:
-        logger.error(f"[DOC_INFO] Error getting document info for file {file_id}: {e}")
-        return {"num_chunks": 0, "num_tokens": 0}
-
-async def perform_document_search(search_request: Dict[str, Any], cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Perform document search using Onyx's search API.
-    """
-    try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(
-                f"{ONYX_API_SERVER_URL}/query/document-search",
-                json=search_request,
-                cookies=cookies
-            )
-            response.raise_for_status()
-            return response.json()
-    except Exception as e:
-        logger.error(f"[DOC_SEARCH] Error performing document search: {e}")
-        raise
-
-async def get_comprehensive_file_content(file_id: int, user_query: str, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Get comprehensive content from a file using Onyx's document search API with full_doc=True.
-    """
-    try:
-        search_request = {
-            "message": user_query,
-            "search_type": "SEMANTIC",
+    logger.info(f"[COMPREHENSIVE_RETRIEVAL] Starting retrieval for {len(file_ids)} files, {len(folder_ids)} folders")
+    
+    results = []
+    
+    # Create a search query that will match all content in the specified files/folders
+    # We use a broad query to get comprehensive content
+    search_query = "retrieve all content from documents"
+    
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        # Use Onyx's document search API with comprehensive retrieval settings
+        search_payload = {
+            "message": search_query,
+            "search_type": "semantic",  # Use semantic search for better content matching
             "retrieval_options": {
                 "run_search": "always",
                 "real_time": False,
-                "limit": 50,
+                "limit": 100,  # Get more results for comprehensive coverage
                 "offset": 0,
-                "dedupe_docs": False,
+                "dedupe_docs": False,  # Keep all content
+                "enable_auto_detect_filters": False
             },
-            "full_doc": True,  # CRITICAL: This retrieves the ENTIRE document
-            "chunks_above": 0,
-            "chunks_below": 0,
-            "evaluation_type": "SKIP",
+            "evaluation_type": "skip",  # Skip LLM evaluation for faster retrieval
+            "chunks_above": chunks_above,
+            "chunks_below": chunks_below,
+            "full_doc": full_doc,  # Get full documents when possible
+            "rerank_settings": None
         }
         
-        result = await perform_document_search(search_request, cookies)
-        
-        # Extract comprehensive content
-        documents = result.get("top_documents", [])
-        comprehensive_content = []
-        
-        for doc in documents:
-            comprehensive_content.append({
-                "document_id": doc["document_id"],
-                "content": doc["content"],  # Full document content
-                "semantic_identifier": doc["semantic_identifier"],
-                "score": doc["score"],
-                "source_type": doc["source_type"],
-                "metadata": doc.get("metadata", {})
-            })
-        
-        return {
-            "comprehensive_content": comprehensive_content,
-            "total_documents": len(documents),
-            "user_query": user_query,
-            "retrieval_type": "comprehensive"
-        }
-        
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_CONTENT] Error getting comprehensive content for file {file_id}: {e}")
-        raise
-
-async def get_context_aware_content(file_ids: List[int], user_request: str, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Get content based on user's specific request (outline, position requirements, etc.).
-    """
-    try:
-        # Determine search strategy based on user request
-        request_type = analyze_request_type(user_request)
-        
-        if request_type == "comprehensive":
-            # For comprehensive requests, get full documents
-            search_config = {
-                "full_doc": True,
-                "limit": 100,
-                "search_type": "KEYWORD",
-            }
-        elif request_type == "targeted":
-            # For targeted requests, focus on relevant sections
-            search_config = {
-                "full_doc": True,
-                "limit": 50,
-                "search_type": "SEMANTIC",
-                "chunks_above": 2,
-                "chunks_below": 2,
-            }
-        elif request_type == "summary":
-            # For summary requests, get key sections
-            search_config = {
-                "full_doc": False,
-                "limit": 30,
-                "search_type": "SEMANTIC",
-                "chunks_above": 1,
-                "chunks_below": 1,
-            }
-        else:
-            # Default comprehensive retrieval
-            search_config = {
-                "full_doc": True,
-                "limit": 75,
-                "search_type": "SEMANTIC",
-            }
-        
-        search_request = {
-            "message": user_request,
-            "search_type": search_config["search_type"],
-            "retrieval_options": {
-                "run_search": "always",
-                "real_time": False,
-                "limit": search_config["limit"],
-                "offset": 0,
-                "dedupe_docs": False,
-            },
-            "full_doc": search_config["full_doc"],
-            "chunks_above": search_config.get("chunks_above", 0),
-            "chunks_below": search_config.get("chunks_below", 0),
-            "evaluation_type": "SKIP",
-        }
-        
-        # Add file filters if specific files are requested
-        if file_ids:
-            search_request["retrieval_options"]["filters"] = {
-                "user_file_ids": file_ids
-            }
-        
-        result = await perform_document_search(search_request, cookies)
-        
-        documents = result.get("top_documents", [])
-        comprehensive_content = []
-        
-        for doc in documents:
-            comprehensive_content.append({
-                "document_id": doc["document_id"],
-                "content": doc["content"],
-                "semantic_identifier": doc["semantic_identifier"],
-                "score": doc["score"],
-                "source_type": doc["source_type"],
-                "metadata": doc.get("metadata", {})
-            })
-        
-        return {
-            "comprehensive_content": comprehensive_content,
-            "total_documents": len(documents),
-            "user_query": user_request,
-            "retrieval_type": request_type
-        }
-        
-    except Exception as e:
-        logger.error(f"[CONTEXT_AWARE_CONTENT] Error getting context-aware content: {e}")
-        raise
-
-async def get_token_optimized_content(file_id: int, user_query: str, cookies: Dict[str, str], max_tokens: int = MAX_TOKENS_DEFAULT) -> Dict[str, Any]:
-    """
-    Get comprehensive content while respecting token limits.
-    """
-    try:
-        # First, get document info to understand size
-        doc_info = await get_document_info(file_id, cookies)
-        total_tokens = doc_info.get("num_tokens", 0)
-        
-        if total_tokens <= max_tokens:
-            # Document fits within limit, get full content
-            return await get_comprehensive_file_content(file_id, user_query, cookies)
-        else:
-            # Document is too large, use intelligent chunking
-            return await get_intelligent_chunked_content(file_id, user_query, max_tokens, cookies)
+        try:
+            # Use the document search endpoint for comprehensive retrieval
+            search_url = f"{ONYX_API_SERVER_URL}/query/document-search"
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] POST {search_url} with comprehensive settings")
             
-    except Exception as e:
-        logger.error(f"[TOKEN_OPTIMIZED_CONTENT] Error getting token-optimized content for file {file_id}: {e}")
-        raise
-
-async def get_intelligent_chunked_content(file_id: int, user_query: str, max_tokens: int, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Intelligently chunk large documents based on user request.
-    """
-    try:
-        # Use multiple targeted searches to get the most relevant content
-        search_queries = [
-            user_query,  # Original query
-            f"most important sections about {user_query}",
-            f"key information related to {user_query}",
-            f"main points and requirements for {user_query}"
-        ]
-        
-        all_content = []
-        used_tokens = 0
-        seen_documents = set()
-        
-        for query in search_queries:
-            if used_tokens >= max_tokens:
-                break
-                
-            search_request = {
-                "message": query,
-                "search_type": "SEMANTIC",
-                "retrieval_options": {
-                    "run_search": "always",
-                    "real_time": False,
-                    "limit": 20,  # Smaller batches
-                    "offset": 0,
-                    "dedupe_docs": True,  # Avoid duplicates
-                },
-                "full_doc": False,  # Use targeted retrieval
-                "chunks_above": 1,
-                "chunks_below": 1,
-                "evaluation_type": "SKIP",
-            }
+            resp = await client.post(search_url, json=search_payload, cookies=cookies)
+            resp.raise_for_status()
             
-            result = await perform_document_search(search_request, cookies)
+            search_data = resp.json()
+            top_documents = search_data.get("top_documents", [])
             
-            for doc in result.get("top_documents", []):
-                # Avoid duplicate documents
-                if doc["document_id"] in seen_documents:
-                    continue
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Retrieved {len(top_documents)} documents")
+            
+            # Process each document to extract comprehensive content
+            for doc in top_documents:
+                try:
+                    # Extract document information
+                    document_id = doc.get("document_id", "")
+                    semantic_identifier = doc.get("semantic_identifier", "Unknown")
+                    content = doc.get("content", "")
+                    source_type = doc.get("source_type", "unknown")
+                    metadata = doc.get("metadata", {})
                     
-                seen_documents.add(doc["document_id"])
+                    # Calculate token count (approximate)
+                    token_count = len(content.split()) * 1.3  # Rough token estimation
+                    
+                    # Check if this document is from our target files/folders
+                    # We'll filter based on document_id patterns or metadata
+                    if _is_document_from_target_sources(document_id, metadata, file_ids, folder_ids):
+                        result = ComprehensiveContentResult(
+                            content=content,
+                            document_id=document_id,
+                            semantic_identifier=semantic_identifier,
+                            source_type=source_type,
+                            metadata=metadata,
+                            token_count=int(token_count),
+                            chunks_retrieved=1
+                        )
+                        results.append(result)
+                        logger.debug(f"[COMPREHENSIVE_RETRIEVAL] Added document: {semantic_identifier} ({len(content)} chars)")
                 
-                # Rough token estimation (words * 1.3)
-                content_tokens = len(doc["content"].split()) * 1.3
-                
-                if used_tokens + content_tokens <= max_tokens:
-                    all_content.append({
-                        "document_id": doc["document_id"],
-                        "content": doc["content"],
-                        "semantic_identifier": doc["semantic_identifier"],
-                        "score": doc["score"],
-                        "source_type": doc["source_type"],
-                        "metadata": doc.get("metadata", {})
-                    })
-                    used_tokens += content_tokens
-                else:
-                    break
-        
-        return {
-            "comprehensive_content": all_content,
-            "total_tokens_used": used_tokens,
-            "max_tokens_allowed": max_tokens,
-            "coverage_percentage": (used_tokens / max_tokens) * 100,
-            "user_query": user_query,
-            "retrieval_type": "token_optimized"
+                except Exception as e:
+                    logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error processing document: {e}")
+                    continue
+            
+            # If we didn't get enough content, try with different search strategies
+            if len(results) == 0:
+                logger.warning("[COMPREHENSIVE_RETRIEVAL] No documents found, trying alternative search strategies")
+                results = await _try_alternative_search_strategies(
+                    file_ids, folder_ids, cookies, client, max_tokens
+                )
+            
+            # Combine and truncate content if needed
+            combined_results = _combine_and_truncate_results(results, max_tokens)
+            
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Final result: {len(combined_results)} documents, total tokens: {sum(r.token_count for r in combined_results)}")
+            return combined_results
+            
+        except Exception as e:
+            logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
+            # Fallback to traditional method
+            return await _fallback_content_retrieval(file_ids, folder_ids, cookies)
+
+def _is_document_from_target_sources(
+    document_id: str, 
+    metadata: Dict[str, Any], 
+    file_ids: List[int], 
+    folder_ids: List[int]
+) -> bool:
+    """Check if a document is from our target file or folder sources"""
+    # Check if document_id contains any of our file IDs
+    for file_id in file_ids:
+        if str(file_id) in document_id:
+            return True
+    
+    # Check metadata for folder information
+    if metadata:
+        folder_info = metadata.get("folder_id") or metadata.get("user_folder_id")
+        if folder_info and int(folder_info) in folder_ids:
+            return True
+    
+    # For user files, check the document_id pattern
+    if document_id.startswith("USER_FILE_CONNECTOR__"):
+        return True
+    
+    return False
+
+async def _try_alternative_search_strategies(
+    file_ids: List[int],
+    folder_ids: List[int], 
+    cookies: Dict[str, str],
+    client: httpx.AsyncClient,
+    max_tokens: int
+) -> List[ComprehensiveContentResult]:
+    """Try alternative search strategies if the main approach fails"""
+    results = []
+    
+    # Strategy 1: Try keyword search
+    try:
+        keyword_payload = {
+            "message": "content document text information",
+            "search_type": "keyword",
+            "retrieval_options": {
+                "run_search": "always",
+                "real_time": False,
+                "limit": 50,
+                "offset": 0,
+                "dedupe_docs": False
+            },
+            "evaluation_type": "skip",
+            "chunks_above": 3,
+            "chunks_below": 3,
+            "full_doc": True
         }
         
+        resp = await client.post(f"{ONYX_API_SERVER_URL}/query/document-search", json=keyword_payload, cookies=cookies)
+        if resp.status_code == 200:
+            data = resp.json()
+            for doc in data.get("top_documents", []):
+                if _is_document_from_target_sources(doc.get("document_id", ""), doc.get("metadata", {}), file_ids, folder_ids):
+                    results.append(ComprehensiveContentResult(
+                        content=doc.get("content", ""),
+                        document_id=doc.get("document_id", ""),
+                        semantic_identifier=doc.get("semantic_identifier", "Unknown"),
+                        source_type=doc.get("source_type", "unknown"),
+                        metadata=doc.get("metadata", {}),
+                        token_count=int(len(doc.get("content", "").split()) * 1.3),
+                        chunks_retrieved=1
+                    ))
     except Exception as e:
-        logger.error(f"[INTELLIGENT_CHUNKED_CONTENT] Error getting intelligent chunked content for file {file_id}: {e}")
-        raise
+        logger.error(f"[COMPREHENSIVE_RETRIEVAL] Alternative strategy 1 failed: {e}")
+    
+    return results
 
-def process_comprehensive_content(result: Dict[str, Any], user_request: str) -> Dict[str, Any]:
+def _combine_and_truncate_results(
+    results: List[ComprehensiveContentResult], 
+    max_tokens: int
+) -> List[ComprehensiveContentResult]:
+    """Combine results and truncate if they exceed token limits"""
+    if not results:
+        return results
+    
+    # Sort by content length (prioritize longer content)
+    sorted_results = sorted(results, key=lambda x: len(x.content), reverse=True)
+    
+    total_tokens = 0
+    final_results = []
+    
+    for result in sorted_results:
+        if total_tokens + result.token_count <= max_tokens:
+            final_results.append(result)
+            total_tokens += result.token_count
+        else:
+            # Truncate this result if it would exceed the limit
+            remaining_tokens = max_tokens - total_tokens
+            if remaining_tokens > 1000:  # Only add if we have significant space left
+                truncated_content = _truncate_content_to_tokens(result.content, remaining_tokens)
+                truncated_result = ComprehensiveContentResult(
+                    content=truncated_content,
+                    document_id=result.document_id,
+                    semantic_identifier=result.semantic_identifier,
+                    source_type=result.source_type,
+                    metadata=result.metadata,
+                    token_count=remaining_tokens,
+                    chunks_retrieved=result.chunks_retrieved
+                )
+                final_results.append(truncated_result)
+            break
+    
+    return final_results
+
+def _truncate_content_to_tokens(content: str, target_tokens: int) -> str:
+    """Truncate content to approximately target token count"""
+    # Rough estimation: 1 token ≈ 0.75 words
+    target_words = int(target_tokens * 0.75)
+    words = content.split()
+    
+    if len(words) <= target_words:
+        return content
+    
+    truncated_words = words[:target_words]
+    return " ".join(truncated_words) + "..."
+
+async def _fallback_content_retrieval(
+    file_ids: List[int], 
+    folder_ids: List[int], 
+    cookies: Dict[str, str]
+) -> List[ComprehensiveContentResult]:
+    """Fallback to traditional chat-based content retrieval"""
+    logger.warning("[COMPREHENSIVE_RETRIEVAL] Using fallback chat-based retrieval")
+    
+    # Create a simple chat session for fallback
+    try:
+        chat_id = await create_onyx_chat_session(get_contentbuilder_persona_id(), cookies)
+        
+        # Use a simple query to get content
+        fallback_message = "Please provide all the content from the uploaded files and folders in a comprehensive manner."
+        
+        # Use the existing stream_chat_message function as fallback
+        content = await stream_chat_message(chat_id, fallback_message, cookies)
+        
+        return [ComprehensiveContentResult(
+            content=content,
+            document_id="fallback",
+            semantic_identifier="Fallback Content",
+            source_type="fallback",
+            metadata={},
+            token_count=len(content.split()) * 1.3,
+            chunks_retrieved=1
+        )]
+    except Exception as e:
+        logger.error(f"[COMPREHENSIVE_RETRIEVAL] Fallback also failed: {e}")
+        return []
+
+def should_use_comprehensive_retrieval(payload: Any) -> bool:
+    """Determine if we should use comprehensive retrieval instead of chat messages"""
+    # Check if we have files or folders
+    has_files = hasattr(payload, 'fromFiles') and payload.fromFiles
+    has_file_ids = hasattr(payload, 'fileIds') and payload.fileIds
+    has_folder_ids = hasattr(payload, 'folderIds') and payload.folderIds
+    
+    # Use comprehensive retrieval for file-based content
+    if has_files and (has_file_ids or has_folder_ids):
+        return True
+    
+    # Use comprehensive retrieval for large text content
+    if hasattr(payload, 'text') and payload.text and len(payload.text) > 10000:
+        return True
+    
+    return False
+
+async def generate_content_with_comprehensive_retrieval(
+    payload: Any,
+    wizard_message: str,
+    cookies: Dict[str, str],
+    max_tokens: int = 50000
+) -> str:
     """
-    Process comprehensive content into a structured format.
+    Generate content using comprehensive retrieval + OpenAI generation.
+    This replaces the chat message approach for better handling of large files.
+    """
+    logger.info("[COMPREHENSIVE_GENERATION] Starting comprehensive content generation")
+    
+    # Extract file and folder IDs
+    file_ids = []
+    folder_ids = []
+    
+    if hasattr(payload, 'fromFiles') and payload.fromFiles:
+        if hasattr(payload, 'fileIds') and payload.fileIds:
+            try:
+                file_ids = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+            except Exception as e:
+                logger.error(f"[COMPREHENSIVE_GENERATION] Failed to parse file IDs: {e}")
+        
+        if hasattr(payload, 'folderIds') and payload.folderIds:
+            try:
+                folder_ids = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+            except Exception as e:
+                logger.error(f"[COMPREHENSIVE_GENERATION] Failed to parse folder IDs: {e}")
+    
+    # Step 1: Retrieve comprehensive content from Onyx
+    logger.info(f"[COMPREHENSIVE_GENERATION] Retrieving content from {len(file_ids)} files, {len(folder_ids)} folders")
+    content_results = await retrieve_comprehensive_content_from_files(
+        file_ids, folder_ids, cookies, max_tokens
+    )
+    
+    if not content_results:
+        logger.warning("[COMPREHENSIVE_GENERATION] No content retrieved, falling back to chat approach")
+        return await _fallback_to_chat_generation(payload, wizard_message, cookies)
+    
+    # Step 2: Combine all retrieved content
+    combined_content = "\n\n".join([
+        f"=== {result.semantic_identifier} ===\n{result.content}"
+        for result in content_results
+    ])
+    
+    total_tokens = sum(result.token_count for result in content_results)
+    logger.info(f"[COMPREHENSIVE_GENERATION] Combined content: {len(combined_content)} chars, ~{total_tokens} tokens")
+    
+    # Step 3: Generate response using OpenAI
+    logger.info("[COMPREHENSIVE_GENERATION] Generating response with OpenAI")
+    
+    # Create a comprehensive prompt that includes all the retrieved content
+    comprehensive_prompt = f"""
+{wizard_message}
+
+CONTEXT FROM UPLOADED FILES AND FOLDERS:
+{combined_content}
+
+Please provide a comprehensive response based on the above context. Ensure you cover all relevant information from the provided content.
+"""
+    
+    try:
+        # Use OpenAI for generation
+        response = await generate_with_openai(comprehensive_prompt)
+        logger.info(f"[COMPREHENSIVE_GENERATION] Generated response: {len(response)} chars")
+        return response
+    except Exception as e:
+        logger.error(f"[COMPREHENSIVE_GENERATION] OpenAI generation failed: {e}")
+        return await _fallback_to_chat_generation(payload, wizard_message, cookies)
+
+async def _fallback_to_chat_generation(
+    payload: Any, 
+    wizard_message: str, 
+    cookies: Dict[str, str]
+) -> str:
+    """Fallback to the original chat-based generation method"""
+    logger.info("[COMPREHENSIVE_GENERATION] Falling back to chat-based generation")
+    
+    try:
+        chat_id = await create_onyx_chat_session(get_contentbuilder_persona_id(), cookies)
+        return await stream_chat_message(chat_id, wizard_message, cookies)
+    except Exception as e:
+        logger.error(f"[COMPREHENSIVE_GENERATION] Chat fallback also failed: {e}")
+        return "Error: Unable to generate content. Please try again."
+
+async def generate_with_openai(prompt: str, model: str = None) -> str:
+    """
+    Generate content using OpenAI API (non-streaming version for comprehensive retrieval).
     """
     try:
-        content_list = result.get("comprehensive_content", [])
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
         
-        # Combine all content
-        combined_content = "\n\n".join([doc["content"] for doc in content_list])
+        logger.info(f"[OPENAI_GENERATE] Starting OpenAI generation with model {model}")
+        logger.info(f"[OPENAI_GENERATE] Prompt length: {len(prompt)} chars")
         
-        # Extract key information
-        total_documents = len(content_list)
-        total_content_length = len(combined_content)
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_GENERATE] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
         
-        # Create structured summary
-        summary = {
-            "total_documents": total_documents,
-            "total_content_length": total_content_length,
-            "retrieval_type": result.get("retrieval_type", "unknown"),
-            "user_request": user_request,
-            "documents": content_list
-        }
+        # Create the chat completion
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=10000,  # Increased for comprehensive responses
+            temperature=0.2
+        )
         
-        return summary
+        content = response.choices[0].message.content
+        logger.info(f"[OPENAI_GENERATE] Generated response: {len(content)} chars")
+        return content
         
     except Exception as e:
-        logger.error(f"[PROCESS_COMPREHENSIVE_CONTENT] Error processing comprehensive content: {e}")
-        return {"error": str(e)}
+        logger.error(f"[OPENAI_GENERATE] Error in OpenAI generation: {e}", exc_info=True)
+        raise e
 
 async def stream_openai_response(prompt: str, model: str = None):
     """
@@ -4091,62 +4179,108 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "metadata": {"error": str(e)}
         }
 
-async def extract_comprehensive_file_context(file_id: int, cookies: Dict[str, str], user_request: str = "Provide comprehensive content analysis") -> Dict[str, Any]:
-    """
-    Enhanced file context extraction using Onyx's search capabilities.
-    """
-    try:
-        logger.info(f"[COMPREHENSIVE_CONTEXT] Starting comprehensive context extraction for file {file_id}")
-        
-        # Determine the type of request to optimize retrieval
-        request_type = analyze_request_type(user_request)
-        logger.info(f"[COMPREHENSIVE_CONTEXT] Request type: {request_type}")
-        
-        if request_type == "comprehensive":
-            # For comprehensive requests (outlines, full content)
-            result = await get_comprehensive_file_content(file_id, user_request, cookies)
-        elif request_type == "targeted":
-            # For targeted requests (specific sections, requirements)
-            result = await get_context_aware_content([file_id], user_request, cookies)
-        elif request_type == "summary":
-            # For summary requests
-            result = await get_context_aware_content([file_id], user_request, cookies)
-        else:
-            # For token-limited requests
-            result = await get_token_optimized_content(file_id, user_request, cookies)
-        
-        # Process the comprehensive content
-        processed_content = process_comprehensive_content(result, user_request)
-        
-        logger.info(f"[COMPREHENSIVE_CONTEXT] Successfully extracted context for file {file_id}, got {len(result.get('comprehensive_content', []))} documents")
-        
-        return {
-            "file_id": file_id,
-            "comprehensive_content": processed_content,
-            "content_type": request_type,
-            "total_sections": len(result.get("comprehensive_content", [])),
-            "user_request": user_request,
-            "retrieval_type": result.get("retrieval_type", "unknown")
-        }
-        
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_CONTEXT] Error extracting comprehensive context for file {file_id}: {e}")
-        return None
-
-# Legacy function for backward compatibility
 async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
-    Legacy function - now uses comprehensive context retrieval.
-    """
-    return await extract_comprehensive_file_context(file_id, "Provide comprehensive content analysis", cookies)
-
-async def extract_comprehensive_folder_context(folder_id: int, cookies: Dict[str, str], user_request: str = "Analyze folder content comprehensively") -> Dict[str, Any]:
-    """
-    Enhanced folder context extraction using comprehensive search.
+    Extract context from a single file using Onyx's chat API.
     """
     try:
-        logger.info(f"[COMPREHENSIVE_FOLDER] Starting comprehensive folder context extraction for folder {folder_id}")
+        # Create a temporary chat session to extract file content
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
+        # Use Onyx to analyze the file content
+        analysis_prompt = """
+        Please analyze this file and provide:
+        1. A concise summary of the main content (max 200 words)
+        2. Key topics and concepts covered
+        3. The most important information that would be relevant for content creation
+        
+        Format your response as:
+        SUMMARY: [summary here]
+        TOPICS: [comma-separated topics]
+        KEY_INFO: [most important information]
+        """
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:  # Reduced timeout for context extraction
+            payload = {
+                "chat_session_id": temp_chat_id,
+                "message": analysis_prompt,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": [file_id],
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "never", "real_time": False},
+                "stream_response": True,
+            }
+            
+            # Try the simple API first, fallback to regular streaming endpoint
+            try:
+                response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                    json=payload,
+                    cookies=cookies
+                )
+                response.raise_for_status()
+                result = response.json()
+                analysis_text = result.get("answer", "")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for file {file_id}")
+                    # Fallback to streaming endpoint
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+                        resp.raise_for_status()
+                        analysis_text = ""
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    raise
+            
+            # Parse the analysis
+            summary = ""
+            topics = []
+            key_info = ""
+            
+            lines = analysis_text.split('\n')
+            for line in lines:
+                if line.startswith("SUMMARY:"):
+                    summary = line.replace("SUMMARY:", "").strip()
+                elif line.startswith("TOPICS:"):
+                    topics_text = line.replace("TOPICS:", "").strip()
+                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                elif line.startswith("KEY_INFO:"):
+                    key_info = line.replace("KEY_INFO:", "").strip()
+            
+            return {
+                "file_id": file_id,
+                "summary": summary,
+                "topics": topics,
+                "key_info": key_info,
+                "content": analysis_text
+            }
+            
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] Error extracting single file context for file {file_id}: {e}")
+        return None
+
+async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from a folder by analyzing its files.
+    """
+    try:
         # Get folder files
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
@@ -4159,41 +4293,104 @@ async def extract_comprehensive_folder_context(folder_id: int, cookies: Dict[str
             files = folder_data.get("files", [])
             
             if not files:
-                return {"folder_id": folder_id, "summary": "Empty folder", "topics": [], "comprehensive_content": []}
+                return {"folder_id": folder_id, "summary": "Empty folder", "topics": []}
             
-            # Get indexed file IDs
+            # Create a temporary chat session to analyze folder content
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
+            
+            # Analyze folder content
+            analysis_prompt = f"""
+            This folder contains {len(files)} files. Please analyze the overall theme and provide:
+            1. A summary of what this folder is about (max 150 words)
+            2. Key topics that are covered across all files
+            3. The main purpose or theme of this collection
+            
+            Format your response as:
+            SUMMARY: [summary here]
+            TOPICS: [comma-separated topics]
+            THEME: [main theme or purpose]
+            """
+            
             file_ids = [f["id"] for f in files if f.get("status") == "INDEXED"]
             
             if not file_ids:
-                return {"folder_id": folder_id, "summary": "No indexed files in folder", "topics": [], "comprehensive_content": []}
+                return {"folder_id": folder_id, "summary": "No indexed files in folder", "topics": []}
             
-            # Use comprehensive search for folder content
-            result = await get_context_aware_content(file_ids, user_request, cookies)
+            payload = {
+                "chat_session_id": temp_chat_id,
+                "message": analysis_prompt,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": file_ids,
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": {"run_search": "never", "real_time": False},
+                "stream_response": True,
+            }
             
-            # Process the comprehensive content
-            processed_content = process_comprehensive_content(result, user_request)
+            # Try the simple API first, fallback to regular streaming endpoint
+            try:
+                response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                    json=payload,
+                    cookies=cookies
+                )
+                response.raise_for_status()
+                result = response.json()
+                analysis_text = result.get("answer", "")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for folder {folder_id}")
+                    # Fallback to streaming endpoint
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+                        resp.raise_for_status()
+                        analysis_text = ""
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    raise
             
-            logger.info(f"[COMPREHENSIVE_FOLDER] Successfully extracted context for folder {folder_id}, got {len(result.get('comprehensive_content', []))} documents")
+            # Parse the analysis
+            summary = ""
+            topics = []
+            theme = ""
+            
+            lines = analysis_text.split('\n')
+            for line in lines:
+                if line.startswith("SUMMARY:"):
+                    summary = line.replace("SUMMARY:", "").strip()
+                elif line.startswith("TOPICS:"):
+                    topics_text = line.replace("TOPICS:", "").strip()
+                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+                elif line.startswith("THEME:"):
+                    theme = line.replace("THEME:", "").strip()
             
             return {
                 "folder_id": folder_id,
-                "comprehensive_content": processed_content,
-                "total_files": len(files),
-                "indexed_files": len(file_ids),
-                "user_request": user_request,
-                "retrieval_type": result.get("retrieval_type", "unknown")
+                "folder_name": folder_data.get("name", ""),
+                "summary": summary,
+                "topics": topics,
+                "theme": theme,
+                "file_count": len(files)
             }
             
     except Exception as e:
-        logger.error(f"[COMPREHENSIVE_FOLDER] Error extracting comprehensive folder context for folder {folder_id}: {e}")
+        logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
         return None
-
-# Legacy function for backward compatibility
-async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Legacy function - now uses comprehensive folder context retrieval.
-    """
-    return await extract_comprehensive_folder_context(folder_id, "Analyze folder content comprehensively", cookies)
 
 def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any], product_type: str) -> str:
     """
@@ -6447,6 +6644,62 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
+        # NEW: Check if we should use comprehensive retrieval approach
+        if should_use_comprehensive_retrieval(payload):
+            logger.info(f"[PREVIEW_STREAM] 🔄 USING COMPREHENSIVE RETRIEVAL (Search API + OpenAI generation)")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Use the new comprehensive retrieval system
+                comprehensive_response = await generate_content_with_comprehensive_retrieval(
+                    payload, wizard_message, cookies, max_tokens=50000
+                )
+                
+                # Stream the comprehensive response
+                for char in comprehensive_response:
+                    assistant_reply += char
+                    current_time = asyncio.get_event_loop().time()
+                    if current_time - last_send >= 0.1:  # Send every 100ms
+                        yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                        last_send = current_time
+                
+                # Send final response
+                yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                
+                # Cache full raw outline for later finalize step
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                if not assistant_reply.strip():
+                    logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+                    error_packet = {"type": "error", "message": "No content received from AI service"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+
+                logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                try:
+                    modules_preview = _parse_outline_markdown(assistant_reply)
+                    logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
+                    logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+                except Exception as e:
+                    logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
+                    logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                    error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+                
+                # Send completion packet with the parsed outline
+                logger.info(f"[PREVIEW_DONE] Creating completion packet")
+                done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+                yield (json.dumps(done_packet) + "\n").encode()
+                logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
+                return
+                
+            except Exception as e:
+                logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
+                logger.info("[COMPREHENSIVE_RETRIEVAL] Falling back to hybrid approach")
+        
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
@@ -6546,20 +6799,20 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
                         return
                     
                     # Send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
                         logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
@@ -6587,12 +6840,18 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             yield (json.dumps(error_packet) + "\n").encode()
             return
         
-        # Send completion packet with the parsed outline
+                # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-        yield (json.dumps(done_packet) + "\n").encode()
+                yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-        return
+                return
+                
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+
 
     return StreamingResponse(
         streamer(),
@@ -7351,6 +7610,40 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         timeout_duration = 300.0 if wizard_dict.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
         
+        # NEW: Check if we should use comprehensive retrieval approach
+        if should_use_comprehensive_retrieval(payload):
+            logger.info(f"[LESSON_STREAM] 🔄 USING COMPREHENSIVE RETRIEVAL (Search API + OpenAI generation)")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Use the new comprehensive retrieval system
+                comprehensive_response = await generate_content_with_comprehensive_retrieval(
+                    payload, wizard_message, cookies, max_tokens=50000
+                )
+                
+                # Stream the comprehensive response
+                for char in comprehensive_response:
+                    assistant_reply += char
+                    current_time = asyncio.get_event_loop().time()
+                    if current_time - last_send >= 0.1:  # Send every 100ms
+                        yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                        last_send = current_time
+                
+                # Send final response
+                yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
+                logger.info("[COMPREHENSIVE_RETRIEVAL] Falling back to hybrid approach")
+        
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
@@ -7430,20 +7723,20 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
                         return
                     
                     # Send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
                         logger.debug(f"[LESSON_OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[LESSON_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
@@ -7456,10 +7749,11 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
-            except Exception as e:
+        except Exception as e:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
+            raise
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -9903,6 +10197,34 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         logger.info(f"[QUIZ_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[QUIZ_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
+        # NEW: Check if we should use comprehensive retrieval approach
+        if should_use_comprehensive_retrieval(payload):
+            logger.info(f"[QUIZ_STREAM] 🔄 USING COMPREHENSIVE RETRIEVAL (Search API + OpenAI generation)")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Use the new comprehensive retrieval system
+                comprehensive_response = await generate_content_with_comprehensive_retrieval(
+                    payload, wizard_message, cookies, max_tokens=50000
+                )
+                
+                # Stream the comprehensive response
+                for char in comprehensive_response:
+                    assistant_reply += char
+                    current_time = asyncio.get_event_loop().time()
+                    if current_time - last_send >= 0.1:  # Send every 100ms
+                        yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                        last_send = current_time
+                
+                # Send final response
+                yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
+                logger.info("[COMPREHENSIVE_RETRIEVAL] Falling back to hybrid approach")
+        
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
@@ -9974,10 +10296,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -9993,11 +10315,11 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 logger.info(f"[QUIZ_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
-                
-            except Exception as e:
+                    
+        except Exception as e:
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
 
     return StreamingResponse(
         streamer(),
@@ -10681,6 +11003,34 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
         
+        # NEW: Check if we should use comprehensive retrieval approach
+        if should_use_comprehensive_retrieval(payload):
+            logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING COMPREHENSIVE RETRIEVAL (Search API + OpenAI generation)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                # Use the new comprehensive retrieval system
+                comprehensive_response = await generate_content_with_comprehensive_retrieval(
+                    payload, wizard_message, cookies, max_tokens=50000
+                )
+                
+                # Stream the comprehensive response
+                for char in comprehensive_response:
+                    assistant_reply += char
+                    current_time = asyncio.get_event_loop().time()
+                    if current_time - last_send >= 0.1:  # Send every 100ms
+                        yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                        last_send = current_time
+                
+                # Send final response
+                yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
+                logger.info("[COMPREHENSIVE_RETRIEVAL] Falling back to hybrid approach")
+        
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
@@ -10752,10 +11102,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -10771,11 +11121,11 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
-                
-            except Exception as e:
+                    
+        except Exception as e:
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
 
     return StreamingResponse(
         streamer(),
