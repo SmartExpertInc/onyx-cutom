@@ -6816,6 +6816,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return                
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -6843,14 +6847,9 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-                yield (json.dumps(done_packet) + "\n").encode()
+        yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-                return
-                
-            except Exception as e:
-                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
+        return
 
 
     return StreamingResponse(
@@ -7749,11 +7748,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
-        except Exception as e:
-                logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
-            raise
+            except Exception as e:
+                    logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                    yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                    return
 
         # Cache full raw outline for later finalize step
         if chat_id:
