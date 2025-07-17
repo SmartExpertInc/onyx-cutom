@@ -71,20 +71,6 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
-# Direct OpenAI file processing configuration
-OPENAI_FILE_PROCESSING_CONFIG = {
-    "max_file_size": 100 * 1024 * 1024,  # 100MB max file size
-    "supported_formats": [".pdf", ".docx", ".txt", ".md", ".csv", ".json", ".xml", ".html"],
-    "chunk_size": 50 * 1024 * 1024,  # 50MB chunks for large files
-    "max_concurrent_uploads": 5,
-    "assistant_timeout": 300,  # 5 minutes
-    "retry_attempts": 3,
-    "cache_ttl": 3600,  # 1 hour cache
-}
-
-# Cache for OpenAI file processing results
-OPENAI_FILE_CACHE: Dict[str, Dict[str, Any]] = {}
-
 def get_openai_client():
     """Get or create the OpenAI client instance."""
     global OPENAI_CLIENT
@@ -147,931 +133,14 @@ async def stream_openai_response(prompt: str, model: str = None):
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                            logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-        logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-        logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-        
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
+                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
+                    break
+                    
     except Exception as e:
         logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
         yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
-# --- Direct OpenAI File Processing Functions ---
-
-async def process_files_with_openai_direct(
-    file_ids: List[int], 
-    folder_ids: List[int], 
-    cookies: Dict[str, str],
-    extraction_purpose: str = "educational_content_creation",
-    max_tokens: int = 8000
-) -> Dict[str, Any]:
-    """
-    Process files directly with OpenAI using advanced context extraction.
-    This is the main entry point for direct OpenAI file processing.
-    """
-    try:
-        logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI file processing for {len(file_ids)} files and {len(folder_ids)} folders")
-        
-        # Step 1: Get file metadata and validate
-        file_metadata = await get_files_metadata(file_ids, folder_ids, cookies)
-        if not file_metadata["files"] and not file_metadata["folders"]:
-            raise ValueError("No valid files or folders found")
-        
-        # Step 2: Create cache key
-        cache_key = create_file_cache_key(file_ids, folder_ids, extraction_purpose)
-        
-        # Step 3: Check cache
-        if cache_key in OPENAI_FILE_CACHE:
-            cached_result = OPENAI_FILE_CACHE[cache_key]
-            if time.time() - cached_result["timestamp"] < OPENAI_FILE_PROCESSING_CONFIG["cache_ttl"]:
-                logger.info(f"[OPENAI_DIRECT] Using cached result for key: {cache_key[:16]}...")
-                return cached_result["result"]
-        
-        # Step 4: Download and prepare files
-        prepared_files = await prepare_files_for_openai(file_metadata, cookies)
-        
-        # Step 5: Process with OpenAI
-        extraction_result = await extract_content_with_openai_assistant(
-            prepared_files, 
-            extraction_purpose, 
-            max_tokens
-        )
-        
-        # Step 6: Post-process and structure results
-        structured_result = await structure_extraction_results(
-            extraction_result, 
-            file_metadata, 
-            extraction_purpose
-        )
-        
-        # Step 7: Cache the result
-        OPENAI_FILE_CACHE[cache_key] = {
-            "result": structured_result,
-            "timestamp": time.time()
-        }
-        
-        logger.info(f"[OPENAI_DIRECT] Successfully processed files with OpenAI")
-        return structured_result
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error in direct OpenAI file processing: {e}", exc_info=True)
-        raise
-
-async def get_files_metadata(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Get metadata for all files and folders to be processed.
-    Optimized to make a single API call to get the file system.
-    """
-    try:
-        metadata = {
-            "files": [],
-            "folders": [],
-            "total_size": 0,
-            "file_count": 0
-        }
-        
-        # Get the file system once
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file-system",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            file_system = response.json()
-        
-        # Process requested files
-        for file_id in file_ids:
-            file_found = False
-            for folder in file_system:
-                for file in folder.get("files", []):
-                    if file.get("id") == file_id:
-                        token_count = file.get("token_count", 0)
-                        estimated_size = token_count * 4  # Rough estimate: 4 bytes per token
-                        
-                        file_meta = {
-                            "id": file.get("id"),
-                            "name": file.get("name"),
-                            "file_id": file.get("file_id"),
-                            "document_id": file.get("document_id"),
-                            "content_type": file.get("chat_file_type"),
-                            "size": estimated_size,
-                            "token_count": token_count,
-                            "indexed": file.get("indexed", False),
-                            "status": file.get("status", "UNKNOWN")
-                        }
-                        
-                        metadata["files"].append(file_meta)
-                        metadata["total_size"] += estimated_size
-                        metadata["file_count"] += 1
-                        file_found = True
-                        break
-                if file_found:
-                    break
-            
-            if not file_found:
-                logger.warning(f"[OPENAI_DIRECT] File {file_id} not found in file system")
-        
-        # Process requested folders
-        for folder_id in folder_ids:
-            folder_found = False
-            for folder in file_system:
-                if folder.get("id") == folder_id:
-                    total_size = 0
-                    file_count = len(folder.get("files", []))
-                    
-                    for file in folder.get("files", []):
-                        token_count = file.get("token_count", 0)
-                        estimated_size = token_count * 4
-                        total_size += estimated_size
-                    
-                    folder_meta = {
-                        "id": folder.get("id"),
-                        "name": folder.get("name"),
-                        "description": folder.get("description"),
-                        "files": folder.get("files", []),
-                        "total_size": total_size,
-                        "file_count": file_count
-                    }
-                    
-                    metadata["folders"].append(folder_meta)
-                    metadata["file_count"] += file_count
-                    metadata["total_size"] += total_size
-                    folder_found = True
-                    break
-            
-            if not folder_found:
-                logger.warning(f"[OPENAI_DIRECT] Folder {folder_id} not found in file system")
-        
-        logger.info(f"[OPENAI_DIRECT] Retrieved metadata for {metadata['file_count']} files, total size: {metadata['total_size']} bytes")
-        return metadata
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error getting files metadata: {e}")
-        return {"files": [], "folders": [], "total_size": 0, "file_count": 0}
-
-async def get_folder_metadata(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Get metadata for a folder and its contents using the file system endpoint.
-    """
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            # Get the file system to find the folder
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file-system",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            file_system = response.json()
-            
-            # Search for the folder
-            for folder in file_system:
-                if folder.get("id") == folder_id:
-                    # Calculate total size and file count
-                    total_size = 0
-                    file_count = len(folder.get("files", []))
-                    
-                    for file in folder.get("files", []):
-                        token_count = file.get("token_count", 0)
-                        estimated_size = token_count * 4  # Rough estimate: 4 bytes per token
-                        total_size += estimated_size
-                    
-                    return {
-                        "id": folder.get("id"),
-                        "name": folder.get("name"),
-                        "description": folder.get("description"),
-                        "files": folder.get("files", []),
-                        "total_size": total_size,
-                        "file_count": file_count
-                    }
-            
-            logger.warning(f"[FOLDER_METADATA] Folder {folder_id} not found in file system")
-            return None
-            
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error getting folder metadata for folder {folder_id}: {e}")
-        return None
-
-def create_file_cache_key(file_ids: List[int], folder_ids: List[int], purpose: str) -> str:
-    """
-    Create a unique cache key for file processing.
-    """
-    import hashlib
-    key_data = {
-        "file_ids": sorted(file_ids),
-        "folder_ids": sorted(folder_ids),
-        "purpose": purpose,
-        "config_hash": hash(str(OPENAI_FILE_PROCESSING_CONFIG))
-    }
-    key_string = json.dumps(key_data, sort_keys=True)
-    return hashlib.md5(key_string.encode()).hexdigest()
-
-async def prepare_files_for_openai(metadata: Dict[str, Any], cookies: Dict[str, str]) -> List[Dict[str, Any]]:
-    """
-    Download and prepare files for OpenAI processing.
-    """
-    try:
-        prepared_files = []
-        
-        # Process individual files
-        for file_info in metadata["files"]:
-            try:
-                prepared_file = await download_and_prepare_file(file_info, cookies)
-                if prepared_file:
-                    prepared_files.append(prepared_file)
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] Failed to prepare file {file_info.get('id')}: {e}")
-        
-        # Process folder files
-        for folder_info in metadata["folders"]:
-            for file_info in folder_info.get("files", []):
-                try:
-                    prepared_file = await download_and_prepare_file(file_info, cookies)
-                    if prepared_file:
-                        prepared_files.append(prepared_file)
-                except Exception as e:
-                    logger.warning(f"[OPENAI_DIRECT] Failed to prepare folder file {file_info.get('id')}: {e}")
-        
-        logger.info(f"[OPENAI_DIRECT] Prepared {len(prepared_files)} files for OpenAI processing")
-        return prepared_files
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error preparing files for OpenAI: {e}")
-        return []
-
-async def download_and_prepare_file(file_info: Dict[str, Any], cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Download a file and prepare it for OpenAI processing.
-    """
-    try:
-        file_id = file_info.get("id")
-        file_name = file_info.get("name", f"file_{file_id}")
-        file_size = file_info.get("size", 0)
-        
-        # Check file size limits
-        if file_size > OPENAI_FILE_PROCESSING_CONFIG["max_file_size"]:
-            logger.warning(f"[OPENAI_DIRECT] File {file_name} too large ({file_size} bytes), skipping")
-            return None
-        
-        # Download file content
-        file_content = await download_file_content(file_id, cookies)
-        if not file_content:
-            return None
-        
-        # Determine file type and prepare accordingly
-        file_extension = get_file_extension(file_name)
-        prepared_content = await prepare_file_content(file_content, file_extension, file_name)
-        
-        return {
-            "id": file_id,
-            "name": file_name,
-            "size": file_size,
-            "extension": file_extension,
-            "content": prepared_content,
-            "metadata": file_info
-        }
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error preparing file {file_info.get('id')}: {e}")
-        return None
-
-async def download_file_content(file_id: int, cookies: Dict[str, str]) -> bytes:
-    """
-    Download file content from Onyx.
-    """
-    try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file/{file_id}/download",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            return response.content
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error downloading file {file_id}: {e}")
-        return None
-
-def get_file_extension(filename: str) -> str:
-    """
-    Get file extension from filename.
-    """
-    return os.path.splitext(filename.lower())[1]
-
-async def prepare_file_content(content: bytes, extension: str, filename: str) -> str:
-    """
-    Prepare file content for OpenAI processing based on file type.
-    Enhanced with better PDF and DOCX processing.
-    """
-    try:
-        if extension == ".txt" or extension == ".md":
-            # Text files - decode and clean
-            text_content = content.decode('utf-8', errors='replace').strip()
-            # Clean up common text artifacts
-            text_content = re.sub(r'\r\n', '\n', text_content)  # Normalize line endings
-            text_content = re.sub(r'\n{3,}', '\n\n', text_content)  # Remove excessive line breaks
-            return text_content
-        
-        elif extension == ".pdf":
-            # Enhanced PDF processing
-            try:
-                # Try to extract text using PyPDF2 if available
-                import PyPDF2
-                pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
-                text_content = ""
-                
-                for page_num, page in enumerate(pdf_reader.pages):
-                    page_text = page.extract_text()
-                    if page_text.strip():
-                        text_content += f"\n--- Page {page_num + 1} ---\n{page_text}\n"
-                
-                if text_content.strip():
-                    return text_content.strip()
-                else:
-                    return f"[PDF Content from {filename}] - Unable to extract text, {len(content)} bytes"
-                    
-            except ImportError:
-                logger.warning(f"[OPENAI_DIRECT] PyPDF2 not available for PDF processing: {filename}")
-                return f"[PDF Content from {filename}] - PyPDF2 not available, {len(content)} bytes"
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] PDF processing failed for {filename}: {e}")
-                return f"[PDF Content from {filename}] - Processing failed: {str(e)}, {len(content)} bytes"
-        
-        elif extension == ".docx":
-            # Enhanced DOCX processing
-            try:
-                # Try to extract text using python-docx if available
-                from docx import Document
-                doc = Document(io.BytesIO(content))
-                text_content = ""
-                
-                for paragraph in doc.paragraphs:
-                    if paragraph.text.strip():
-                        text_content += paragraph.text + "\n"
-                
-                # Extract text from tables
-                for table in doc.tables:
-                    for row in table.rows:
-                        row_text = " | ".join(cell.text.strip() for cell in row.cells if cell.text.strip())
-                        if row_text:
-                            text_content += row_text + "\n"
-                
-                if text_content.strip():
-                    return text_content.strip()
-                else:
-                    return f"[DOCX Content from {filename}] - Unable to extract text, {len(content)} bytes"
-                    
-            except ImportError:
-                logger.warning(f"[OPENAI_DIRECT] python-docx not available for DOCX processing: {filename}")
-                return f"[DOCX Content from {filename}] - python-docx not available, {len(content)} bytes"
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] DOCX processing failed for {filename}: {e}")
-                return f"[DOCX Content from {filename}] - Processing failed: {str(e)}, {len(content)} bytes"
-        
-        elif extension == ".csv":
-            # Enhanced CSV processing
-            try:
-                import csv
-                csv_content = content.decode('utf-8', errors='replace')
-                csv_reader = csv.reader(io.StringIO(csv_content))
-                
-                text_content = ""
-                for row_num, row in enumerate(csv_reader):
-                    if row and any(cell.strip() for cell in row):
-                        text_content += " | ".join(cell.strip() for cell in row) + "\n"
-                
-                return text_content.strip() if text_content.strip() else f"[CSV Content from {filename}] - Empty or invalid CSV"
-                
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] CSV processing failed for {filename}: {e}")
-                return content.decode('utf-8', errors='replace').strip()
-        
-        elif extension in [".json", ".xml", ".html"]:
-            # Structured files - decode and preserve structure
-            text_content = content.decode('utf-8', errors='replace').strip()
-            
-            # For JSON, try to format it nicely
-            if extension == ".json":
-                try:
-                    import json
-                    parsed_json = json.loads(text_content)
-                    return json.dumps(parsed_json, indent=2, ensure_ascii=False)
-                except:
-                    pass  # Return as-is if JSON parsing fails
-            
-            return text_content
-        
-        else:
-            # Unknown format - return as text if possible
-            try:
-                text_content = content.decode('utf-8', errors='replace').strip()
-                if text_content:
-                    return text_content
-                else:
-                    return f"[Binary Content from {filename}] - {len(content)} bytes"
-            except:
-                return f"[Binary Content from {filename}] - {len(content)} bytes"
-                
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error preparing file content for {filename}: {e}")
-        return f"[Error processing {filename}]: {str(e)}"
-
-async def extract_content_with_openai_assistant(
-    prepared_files: List[Dict[str, Any]], 
-    purpose: str, 
-    max_tokens: int
-) -> Dict[str, Any]:
-    """
-    Extract content using OpenAI Assistant with advanced prompting.
-    """
-    try:
-        client = get_openai_client()
-        
-        # Step 1: Upload files to OpenAI
-        file_ids = await upload_files_to_openai(prepared_files, client)
-        if not file_ids:
-            raise ValueError("Failed to upload files to OpenAI")
-        
-        # Step 2: Create specialized assistant
-        assistant = await create_content_extraction_assistant(client, file_ids, purpose)
-        
-        # Step 3: Create thread and process
-        thread = await client.beta.threads.create()
-        
-        # Step 4: Create comprehensive extraction prompt
-        extraction_prompt = create_extraction_prompt(purpose, prepared_files)
-        
-        # Step 5: Send message and run assistant
-        message = await client.beta.threads.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=extraction_prompt
-        )
-        
-        run = await client.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=assistant.id
-        )
-        
-        # Step 6: Wait for completion
-        run = await wait_for_run_completion(client, thread.id, run.id)
-        
-        if run.status != "completed":
-            raise Exception(f"Assistant run failed with status: {run.status}")
-        
-        # Step 7: Get results
-        messages = await client.beta.threads.messages.list(thread_id=thread.id)
-        latest_message = messages.data[0]  # Most recent message
-        
-        # Step 8: Parse results
-        extraction_result = parse_assistant_response(latest_message, prepared_files)
-        
-        # Step 9: Cleanup
-        await cleanup_openai_resources(client, assistant.id, file_ids)
-        
-        return extraction_result
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error in OpenAI assistant extraction: {e}", exc_info=True)
-        raise
-
-async def upload_files_to_openai(prepared_files: List[Dict[str, Any]], client: AsyncOpenAI) -> List[str]:
-    """
-    Upload files to OpenAI and return file IDs.
-    """
-    try:
-        file_ids = []
-        
-        for file_info in prepared_files:
-            try:
-                # Create file-like object from content
-                file_content = file_info["content"].encode('utf-8') if isinstance(file_info["content"], str) else file_info["content"]
-                file_obj = io.BytesIO(file_content)
-                
-                # Upload to OpenAI
-                response = await client.files.create(
-                    file=file_obj,
-                    purpose="assistants"
-                )
-                
-                file_ids.append(response.id)
-                logger.info(f"[OPENAI_DIRECT] Uploaded file {file_info['name']} with ID: {response.id}")
-                
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] Failed to upload file {file_info['name']}: {e}")
-        
-        return file_ids
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error uploading files to OpenAI: {e}")
-        return []
-
-async def create_content_extraction_assistant(
-    client: AsyncOpenAI, 
-    file_ids: List[str], 
-    purpose: str
-) -> str:
-    """
-    Create a specialized assistant for content extraction.
-    """
-    try:
-        # Create specialized instructions based on purpose
-        instructions = create_assistant_instructions(purpose)
-        
-        # Create assistant
-        assistant = await client.beta.assistants.create(
-            name=f"Content Extractor - {purpose}",
-            instructions=instructions,
-            model="gpt-4o",
-            tools=[{"type": "retrieval"}],
-            file_ids=file_ids
-        )
-        
-        logger.info(f"[OPENAI_DIRECT] Created assistant with ID: {assistant.id}")
-        return assistant.id
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error creating assistant: {e}")
-        raise
-
-def create_assistant_instructions(purpose: str) -> str:
-    """
-    Create specialized instructions for the assistant based on purpose.
-    """
-    base_instructions = """
-    You are an expert content extraction and analysis assistant. Your task is to comprehensively analyze the provided files and extract all relevant information for educational content creation.
-    
-    IMPORTANT GUIDELINES:
-    1. Extract ALL relevant content - don't skip important details
-    2. Maintain accuracy and preserve original meaning
-    3. Organize information logically and hierarchically
-    4. Identify key topics, concepts, and themes
-    5. Extract examples, definitions, and important insights
-    6. Preserve structure and relationships between concepts
-    7. Include metadata about the source files
-    """
-    
-    purpose_specific = {
-        "educational_content_creation": """
-        For educational content creation, focus on:
-        - Learning objectives and outcomes
-        - Key concepts and definitions
-        - Examples and case studies
-        - Step-by-step procedures
-        - Best practices and tips
-        - Common mistakes and how to avoid them
-        - Assessment criteria and evaluation methods
-        """,
-        "course_outline": """
-        For course outline creation, focus on:
-        - Main topics and subtopics
-        - Logical progression of concepts
-        - Prerequisites and dependencies
-        - Learning modules and units
-        - Time allocation and complexity
-        """,
-        "quiz_generation": """
-        For quiz generation, focus on:
-        - Key facts and concepts
-        - Important details and specifications
-        - Definitions and terminology
-        - Procedures and processes
-        - Examples and applications
-        - Common misconceptions
-        """
-    }
-    
-    specific_instructions = purpose_specific.get(purpose, purpose_specific["educational_content_creation"])
-    
-    return base_instructions + specific_instructions
-
-def create_extraction_prompt(purpose: str, prepared_files: List[Dict[str, Any]]) -> str:
-    """
-    Create a comprehensive extraction prompt for the assistant.
-    """
-    file_summary = "\n".join([
-        f"- {f['name']} ({f['extension']}, {f['size']} bytes)"
-        for f in prepared_files
-    ])
-    
-    prompt = f"""
-    Please comprehensively analyze the provided files and extract all relevant content for {purpose}.
-    
-    FILES TO ANALYZE:
-    {file_summary}
-    
-    EXTRACTION REQUIREMENTS:
-    1. Provide a comprehensive summary of each file
-    2. Extract all key topics, concepts, and themes
-    3. Identify important details, examples, and insights
-    4. Organize information in a structured format
-    5. Include any relevant metadata or context
-    6. Ensure completeness - extract 90%+ of relevant content
-    7. Maintain accuracy and preserve original meaning
-    
-    OUTPUT FORMAT:
-    Please structure your response as follows:
-    
-    ## COMPREHENSIVE SUMMARY
-    [Overall summary of all content]
-    
-    ## KEY TOPICS AND CONCEPTS
-    [List of main topics with descriptions]
-    
-    ## DETAILED CONTENT EXTRACTION
-    [Detailed extraction organized by topic/concept]
-    
-    ## IMPORTANT INSIGHTS AND EXAMPLES
-    [Key insights, examples, and important details]
-    
-    ## METADATA
-    - Total files processed: {len(prepared_files)}
-    - File types: {', '.join(set(f['extension'] for f in prepared_files))}
-    - Total content size: {sum(f['size'] for f in prepared_files)} bytes
-    
-    Make this extraction comprehensive and detailed, suitable for creating high-quality educational content.
-    """
-    
-    return prompt
-
-async def wait_for_run_completion(client: AsyncOpenAI, thread_id: str, run_id: str) -> Any:
-    """
-    Wait for assistant run to complete with timeout and retry logic.
-    """
-    try:
-        timeout = OPENAI_FILE_PROCESSING_CONFIG["assistant_timeout"]
-        start_time = time.time()
-        
-        while time.time() - start_time < timeout:
-            run = await client.beta.threads.runs.retrieve(
-                thread_id=thread_id,
-                run_id=run_id
-            )
-            
-            if run.status == "completed":
-                return run
-            elif run.status in ["failed", "cancelled", "expired"]:
-                raise Exception(f"Assistant run failed with status: {run.status}")
-            
-            # Wait before checking again
-            await asyncio.sleep(2)
-        
-        raise Exception(f"Assistant run timed out after {timeout} seconds")
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error waiting for run completion: {e}")
-        raise
-
-def parse_assistant_response(message: Any, prepared_files: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Parse the assistant's response and structure it for further processing.
-    """
-    try:
-        content = message.content[0].text.value if message.content else ""
-        
-        # Parse the structured response
-        parsed_result = {
-            "raw_response": content,
-            "comprehensive_summary": "",
-            "key_topics": [],
-            "detailed_content": {},
-            "important_insights": [],
-            "metadata": {
-                "files_processed": len(prepared_files),
-                "file_types": list(set(f['extension'] for f in prepared_files)),
-                "total_size": sum(f['size'] for f in prepared_files),
-                "extraction_method": "openai_assistant"
-            }
-        }
-        
-        # Extract sections from the response
-        sections = content.split("##")
-        for section in sections:
-            section = section.strip()
-            if not section:
-                continue
-                
-            lines = section.split('\n', 1)
-            if len(lines) < 2:
-                continue
-                
-            section_title = lines[0].strip().upper()
-            section_content = lines[1].strip()
-            
-            if "COMPREHENSIVE SUMMARY" in section_title:
-                parsed_result["comprehensive_summary"] = section_content
-            elif "KEY TOPICS" in section_title:
-                parsed_result["key_topics"] = extract_topics_from_section(section_content)
-            elif "DETAILED CONTENT" in section_title:
-                parsed_result["detailed_content"] = parse_detailed_content(section_content)
-            elif "IMPORTANT INSIGHTS" in section_title:
-                parsed_result["important_insights"] = extract_insights_from_section(section_content)
-        
-        return parsed_result
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error parsing assistant response: {e}")
-        return {
-            "raw_response": str(message.content) if message.content else "",
-            "comprehensive_summary": "Error parsing response",
-            "key_topics": [],
-            "detailed_content": {},
-            "important_insights": [],
-            "metadata": {"error": str(e)}
-        }
-
-def extract_topics_from_section(content: str) -> List[str]:
-    """
-    Extract topics from a section of the assistant response.
-    """
-    try:
-        topics = []
-        lines = content.split('\n')
-        
-        for line in lines:
-            line = line.strip()
-            if line and not line.startswith('-') and not line.startswith('*'):
-                # Remove common prefixes and clean up
-                clean_topic = re.sub(r'^\d+\.\s*', '', line)
-                clean_topic = re.sub(r'^[-*]\s*', '', clean_topic)
-                if clean_topic and len(clean_topic) > 3:
-                    topics.append(clean_topic)
-        
-        return topics[:20]  # Limit to top 20 topics
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error extracting topics: {e}")
-        return []
-
-def parse_detailed_content(content: str) -> Dict[str, str]:
-    """
-    Parse detailed content section into structured format.
-    """
-    try:
-        detailed_content = {}
-        current_topic = None
-        current_content = []
-        
-        lines = content.split('\n')
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            
-            # Check if this is a new topic (starts with number or bullet)
-            if re.match(r'^\d+\.\s', line) or re.match(r'^[-*]\s', line):
-                # Save previous topic
-                if current_topic and current_content:
-                    detailed_content[current_topic] = '\n'.join(current_content)
-                
-                # Start new topic
-                current_topic = re.sub(r'^\d+\.\s*|^[-*]\s*', '', line)
-                current_content = []
-            else:
-                # Add to current topic content
-                if current_topic:
-                    current_content.append(line)
-        
-        # Save last topic
-        if current_topic and current_content:
-            detailed_content[current_topic] = '\n'.join(current_content)
-        
-        return detailed_content
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error parsing detailed content: {e}")
-        return {}
-
-def extract_insights_from_section(content: str) -> List[str]:
-    """
-    Extract insights from a section of the assistant response.
-    """
-    try:
-        insights = []
-        lines = content.split('\n')
-        
-        for line in lines:
-            line = line.strip()
-            if line and (line.startswith('-') or line.startswith('*')):
-                insight = re.sub(r'^[-*]\s*', '', line)
-                if insight and len(insight) > 10:
-                    insights.append(insight)
-        
-        return insights[:15]  # Limit to top 15 insights
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error extracting insights: {e}")
-        return []
-
-async def structure_extraction_results(
-    extraction_result: Dict[str, Any], 
-    file_metadata: Dict[str, Any], 
-    purpose: str
-) -> Dict[str, Any]:
-    """
-    Structure and enhance the extraction results for final output.
-    """
-    try:
-        structured_result = {
-            "extraction_method": "openai_direct",
-            "purpose": purpose,
-            "comprehensive_summary": extraction_result.get("comprehensive_summary", ""),
-            "key_topics": extraction_result.get("key_topics", []),
-            "detailed_content": extraction_result.get("detailed_content", {}),
-            "important_insights": extraction_result.get("important_insights", []),
-            "file_summaries": [],
-            "folder_contexts": [],
-            "metadata": {
-                **extraction_result.get("metadata", {}),
-                "file_count": file_metadata.get("file_count", 0),
-                "total_size": file_metadata.get("total_size", 0),
-                "processing_time": time.time(),
-                "purpose": purpose
-            }
-        }
-        
-        # Create file summaries from detailed content
-        for file_info in file_metadata.get("files", []):
-            file_summary = {
-                "file_id": file_info.get("id"),
-                "file_name": file_info.get("name"),
-                "file_size": file_info.get("size"),
-                "summary": f"Content extracted from {file_info.get('name')}",
-                "topics": extraction_result.get("key_topics", [])[:5]  # Top 5 topics
-            }
-            structured_result["file_summaries"].append(file_summary)
-        
-        # Create folder contexts
-        for folder_info in file_metadata.get("folders", []):
-            folder_context = {
-                "folder_id": folder_info.get("id"),
-                "folder_name": folder_info.get("name"),
-                "file_count": len(folder_info.get("files", [])),
-                "summary": f"Folder containing {len(folder_info.get('files', []))} files",
-                "topics": extraction_result.get("key_topics", [])[:5]  # Top 5 topics
-            }
-            structured_result["folder_contexts"].append(folder_context)
-        
-        return structured_result
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error structuring extraction results: {e}")
-        return {
-            "extraction_method": "openai_direct",
-            "purpose": purpose,
-            "error": str(e),
-            "metadata": {"error": str(e)}
-        }
-
-async def cleanup_openai_resources(client: AsyncOpenAI, assistant_id: str, file_ids: List[str]):
-    """
-    Clean up OpenAI resources after processing.
-    """
-    try:
-        # Delete assistant
-        try:
-            await client.beta.assistants.delete(assistant_id)
-            logger.info(f"[OPENAI_DIRECT] Deleted assistant: {assistant_id}")
-        except Exception as e:
-            logger.warning(f"[OPENAI_DIRECT] Failed to delete assistant {assistant_id}: {e}")
-        
-        # Delete files
-        for file_id in file_ids:
-            try:
-                await client.files.delete(file_id)
-                logger.info(f"[OPENAI_DIRECT] Deleted file: {file_id}")
-            except Exception as e:
-                logger.warning(f"[OPENAI_DIRECT] Failed to delete file {file_id}: {e}")
-                
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error cleaning up OpenAI resources: {e}")
-
-def should_use_openai_direct_processing(file_ids: List[int], folder_ids: List[int], file_metadata: Dict[str, Any]) -> bool:
-    """
-    Determine if we should use direct OpenAI processing based on file characteristics.
-    """
-    try:
-        total_files = len(file_ids) + sum(len(folder.get("files", [])) for folder in file_metadata.get("folders", []))
-        total_size = file_metadata.get("total_size", 0)
-        
-        # Use direct OpenAI for:
-        # 1. Large files (>5MB total)
-        # 2. Many files (>3 files)
-        # 3. Complex file types (PDFs, DOCX)
-        
-        has_large_files = total_size > 5 * 1024 * 1024  # 5MB
-        has_many_files = total_files > 3
-        has_complex_types = any(
-            f.get("name", "").lower().endswith((".pdf", ".docx"))
-            for f in file_metadata.get("files", [])
-        )
-        
-        use_direct = has_large_files or has_many_files or has_complex_types
-        
-        logger.info(f"[OPENAI_DIRECT] Processing decision: large_files={has_large_files}, many_files={has_many_files}, complex_types={has_complex_types}, use_direct={use_direct}")
-        
-        return use_direct
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT] Error determining processing method: {e}")
-        return False  # Default to hybrid approach on error
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -4609,384 +3678,6 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
 FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
 FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
 
-# --- Enhanced Large File Processing Functions ---
-
-async def extract_comprehensive_file_content(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str], max_tokens: int = 8000) -> Dict[str, Any]:
-    """
-    Extract comprehensive content from large files using Onyx's search capabilities.
-    This approach uses progressive search queries to gather all relevant content
-    rather than relying on chat messages which have token limitations.
-    """
-    try:
-        logger.info(f"[COMPREHENSIVE_EXTRACT] Starting comprehensive extraction for {len(file_ids)} files and {len(folder_ids)} folders")
-        
-        comprehensive_content = {
-            "file_contents": [],
-            "file_summaries": [],
-            "key_topics": [],
-            "important_sections": [],
-            "metadata": {
-                "total_files": len(file_ids),
-                "total_folders": len(folder_ids),
-                "extraction_method": "comprehensive_search",
-                "max_tokens": max_tokens
-            }
-        }
-        
-        # Step 1: Extract basic file information and structure
-        for file_id in file_ids:
-            try:
-                file_content = await extract_file_via_search(file_id, cookies, max_tokens)
-                if file_content:
-                    comprehensive_content["file_contents"].append(file_content)
-                    comprehensive_content["file_summaries"].append(file_content.get("summary", ""))
-                    comprehensive_content["key_topics"].extend(file_content.get("topics", []))
-                    comprehensive_content["important_sections"].extend(file_content.get("important_sections", []))
-                    logger.info(f"[COMPREHENSIVE_EXTRACT] Successfully extracted content from file {file_id}")
-            except Exception as e:
-                logger.warning(f"[COMPREHENSIVE_EXTRACT] Failed to extract content from file {file_id}: {e}")
-        
-        # Step 2: Extract folder content
-        for folder_id in folder_ids:
-            try:
-                folder_content = await extract_folder_via_search(folder_id, cookies, max_tokens)
-                if folder_content:
-                    comprehensive_content["file_contents"].append(folder_content)
-                    comprehensive_content["file_summaries"].append(folder_content.get("summary", ""))
-                    comprehensive_content["key_topics"].extend(folder_content.get("topics", []))
-                    comprehensive_content["important_sections"].extend(folder_content.get("important_sections", []))
-                    logger.info(f"[COMPREHENSIVE_EXTRACT] Successfully extracted content from folder {folder_id}")
-            except Exception as e:
-                logger.warning(f"[COMPREHENSIVE_EXTRACT] Failed to extract content from folder {folder_id}: {e}")
-        
-        # Step 3: Remove duplicates and organize content
-        comprehensive_content["key_topics"] = list(set(comprehensive_content["key_topics"]))
-        
-        # Step 4: Create a comprehensive summary if we have content
-        if comprehensive_content["file_contents"]:
-            comprehensive_content["comprehensive_summary"] = await create_comprehensive_summary(
-                comprehensive_content["file_contents"], 
-                comprehensive_content["key_topics"],
-                max_tokens
-            )
-        
-        logger.info(f"[COMPREHENSIVE_EXTRACT] Completed extraction: {len(comprehensive_content['file_contents'])} content items, {len(comprehensive_content['key_topics'])} topics")
-        
-        return comprehensive_content
-        
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_EXTRACT] Error in comprehensive extraction: {e}", exc_info=True)
-        return {
-            "file_contents": [],
-            "file_summaries": [],
-            "key_topics": [],
-            "important_sections": [],
-            "metadata": {"error": str(e)}
-        }
-
-async def extract_file_via_search(file_id: int, cookies: Dict[str, str], max_tokens: int) -> Dict[str, Any]:
-    """
-    Extract content from a single file using Onyx's search capabilities.
-    Uses progressive search queries to gather comprehensive content.
-    """
-    try:
-        # Get file metadata first
-        file_metadata = await get_file_metadata(file_id, cookies)
-        if not file_metadata:
-            return None
-        
-        file_name = file_metadata.get("name", f"File_{file_id}")
-        file_size = file_metadata.get("size", 0)
-        
-        logger.info(f"[FILE_SEARCH] Extracting content from {file_name} (size: {file_size})")
-        
-        # Step 1: Get file structure and main topics
-        structure_query = f"Analyze the structure and main topics of the document '{file_name}'. What are the key sections, chapters, or main themes?"
-        structure_content = await search_file_content(file_id, structure_query, cookies)
-        
-        # Step 2: Extract key sections progressively
-        important_sections = []
-        key_topics = []
-        
-        # Use the structure to guide our extraction
-        if structure_content:
-            # Extract main topics from structure analysis
-            topics_query = f"Based on the structure of '{file_name}', what are the main topics, concepts, or themes covered? List them clearly."
-            topics_content = await search_file_content(file_id, topics_query, cookies)
-            if topics_content:
-                key_topics = extract_topics_from_content(topics_content)
-            
-            # Extract important sections
-            for topic in key_topics[:5]:  # Limit to top 5 topics to avoid token overflow
-                section_query = f"Extract the most important information about '{topic}' from '{file_name}'. Include key details, definitions, examples, and insights."
-                section_content = await search_file_content(file_id, section_query, cookies)
-                if section_content:
-                    important_sections.append({
-                        "topic": topic,
-                        "content": section_content,
-                        "relevance_score": 1.0
-                    })
-        
-        # Step 3: Create a comprehensive summary
-        summary_query = f"Create a comprehensive summary of '{file_name}' that includes all the main topics, key insights, and important information. Make it detailed but well-organized."
-        summary_content = await search_file_content(file_id, summary_query, cookies)
-        
-        # Step 4: Extract any remaining important content
-        remaining_query = f"What other important information, details, or insights from '{file_name}' should be included for comprehensive understanding?"
-        remaining_content = await search_file_content(file_id, remaining_query, cookies)
-        
-        # Combine all content
-        combined_content = {
-            "file_id": file_id,
-            "file_name": file_name,
-            "summary": summary_content or f"Comprehensive content extracted from {file_name}",
-            "topics": key_topics,
-            "important_sections": important_sections,
-            "structure_analysis": structure_content,
-            "additional_content": remaining_content,
-            "metadata": {
-                "file_size": file_size,
-                "extraction_method": "progressive_search",
-                "sections_extracted": len(important_sections)
-            }
-        }
-        
-        return combined_content
-        
-    except Exception as e:
-        logger.error(f"[FILE_SEARCH] Error extracting file {file_id} via search: {e}")
-        return None
-
-async def search_file_content(file_id: int, query: str, cookies: Dict[str, str]) -> str:
-    """
-    Search for specific content within a file using Onyx's search capabilities.
-    """
-    try:
-        # Create a temporary chat session for search
-        persona_id = await get_contentbuilder_persona_id(cookies)
-        temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
-        
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            payload = {
-                "chat_session_id": temp_chat_id,
-                "message": query,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": [file_id],
-                "user_folder_ids": [],
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": {
-                    "run_search": "always",
-                    "real_time": False,
-                    "limit": 20,  # Get more results for comprehensive extraction
-                    "chunks_above": 2,
-                    "chunks_below": 2
-                },
-                "stream_response": True,
-            }
-            
-            # Use streaming endpoint for better handling of large responses
-            async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
-                resp.raise_for_status()
-                content = ""
-                async for raw_line in resp.aiter_lines():
-                    if not raw_line:
-                        continue
-                    line = raw_line.strip()
-                    if line.startswith("data:"):
-                        line = line.split("data:", 1)[1].strip()
-                    if line == "[DONE]":
-                        break
-                    try:
-                        pkt = json.loads(line)
-                        if "answer_piece" in pkt:
-                            content += pkt["answer_piece"].replace("\\n", "\n")
-                    except json.JSONDecodeError:
-                        continue
-                
-                return content.strip()
-                
-    except Exception as e:
-        logger.error(f"[SEARCH_CONTENT] Error searching file {file_id}: {e}")
-        return ""
-
-async def get_file_metadata(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Get basic metadata about a file using the file system endpoint.
-    """
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            # Get the file system to find the file
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file-system",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            file_system = response.json()
-            
-            # Search for the file in all folders
-            for folder in file_system:
-                for file in folder.get("files", []):
-                    if file.get("id") == file_id:
-                        # Return file metadata with estimated size based on token count
-                        # Since Onyx doesn't store file size, we estimate based on token count
-                        token_count = file.get("token_count", 0)
-                        estimated_size = token_count * 4  # Rough estimate: 4 bytes per token
-                        
-                        return {
-                            "id": file.get("id"),
-                            "name": file.get("name"),
-                            "file_id": file.get("file_id"),
-                            "document_id": file.get("document_id"),
-                            "content_type": file.get("chat_file_type"),
-                            "size": estimated_size,
-                            "token_count": token_count,
-                            "indexed": file.get("indexed", False),
-                            "status": file.get("status", "UNKNOWN")
-                        }
-            
-            logger.warning(f"[FILE_METADATA] File {file_id} not found in file system")
-            return None
-            
-    except Exception as e:
-        logger.error(f"[FILE_METADATA] Error getting metadata for file {file_id}: {e}")
-        return None
-
-def extract_topics_from_content(content: str) -> List[str]:
-    """
-    Extract topics from content using simple text processing.
-    """
-    try:
-        # Simple topic extraction - look for common patterns
-        topics = []
-        lines = content.split('\n')
-        
-        for line in lines:
-            line = line.strip()
-            # Look for numbered or bulleted items
-            if re.match(r'^\d+\.\s', line) or re.match(r'^[-*•]\s', line):
-                topic = re.sub(r'^\d+\.\s|^[-*•]\s', '', line)
-                if topic and len(topic) > 3:
-                    topics.append(topic)
-            # Look for capitalized phrases that might be topics
-            elif re.match(r'^[A-Z][A-Za-z\s]+:', line):
-                topic = line.split(':')[0].strip()
-                if topic and len(topic) > 3:
-                    topics.append(topic)
-        
-        return topics[:10]  # Limit to top 10 topics
-    except Exception as e:
-        logger.error(f"[TOPIC_EXTRACT] Error extracting topics: {e}")
-        return []
-
-async def create_comprehensive_summary(file_contents: List[Dict[str, Any]], key_topics: List[str], max_tokens: int) -> str:
-    """
-    Create a comprehensive summary of all extracted content.
-    """
-    try:
-        # Combine all summaries and important sections
-        all_summaries = []
-        all_sections = []
-        
-        for content in file_contents:
-            if content.get("summary"):
-                all_summaries.append(content["summary"])
-            if content.get("important_sections"):
-                for section in content["important_sections"]:
-                    all_sections.append(f"{section['topic']}: {section['content']}")
-        
-        # Create a comprehensive prompt
-        f_summary = '\n\n'.join(all_summaries)
-        important_sections = '\n\n'.join(all_sections)
-        comprehensive_prompt = f"""
-        Create a comprehensive summary of the following educational content:
-        
-        KEY TOPICS: {', '.join(key_topics)}
-        
-        FILE SUMMARIES:
-        {f_summary}
-        
-        IMPORTANT SECTIONS:
-        {important_sections}
-        
-        Please create a detailed, well-organized summary that:
-        1. Covers all the main topics comprehensively
-        2. Includes key insights and important details
-        3. Is structured logically for educational content creation
-        4. Provides enough detail for creating 1000+ word content pieces
-        5. Maintains accuracy and completeness
-        
-        Make this summary comprehensive and detailed, suitable for creating educational materials.
-        """
-        
-        # Use OpenAI to create the comprehensive summary
-        client = get_openai_client()
-        response = await client.chat.completions.create(
-            model=LLM_DEFAULT_MODEL,
-            messages=[
-                {"role": "system", "content": "You are an expert content analyst. Create comprehensive, detailed summaries that capture all important information from source materials."},
-                {"role": "user", "content": comprehensive_prompt}
-            ],
-            max_tokens=min(max_tokens, 4000),  # Limit to prevent token overflow
-            temperature=0.2
-        )
-        
-        return response.choices[0].message.content.strip()
-        
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_SUMMARY] Error creating comprehensive summary: {e}")
-        return "Comprehensive content extracted from provided files and folders."
-
-async def extract_folder_via_search(folder_id: int, cookies: Dict[str, str], max_tokens: int) -> Dict[str, Any]:
-    """
-    Extract content from a folder using search capabilities.
-    """
-    try:
-        # Get folder files
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}",
-                cookies=cookies
-            )
-            response.raise_for_status()
-            
-            folder_data = response.json()
-            files = folder_data.get("files", [])
-            
-            if not files:
-                return {"folder_id": folder_id, "summary": "Empty folder", "topics": [], "important_sections": []}
-            
-            # Extract content from each file in the folder
-            folder_contents = []
-            folder_topics = []
-            folder_sections = []
-            
-            for file_info in files:
-                if file_info.get("status") == "INDEXED":
-                    file_content = await extract_file_via_search(file_info["id"], cookies, max_tokens // len(files))
-                    if file_content:
-                        folder_contents.append(file_content)
-                        folder_topics.extend(file_content.get("topics", []))
-                        folder_sections.extend(file_content.get("important_sections", []))
-            
-            # Create folder summary
-            folder_summary = await create_comprehensive_summary(folder_contents, folder_topics, max_tokens // 2)
-            
-            return {
-                "folder_id": folder_id,
-                "folder_name": folder_data.get("name", f"Folder_{folder_id}"),
-                "summary": folder_summary,
-                "topics": list(set(folder_topics)),
-                "important_sections": folder_sections,
-                "file_count": len(files),
-                "extracted_files": len(folder_contents)
-            }
-            
-    except Exception as e:
-        logger.error(f"[FOLDER_SEARCH] Error extracting folder {folder_id}: {e}")
-        return None
-
 async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract relevant context from files and folders using Onyx's capabilities.
@@ -5005,112 +3696,67 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         
         logger.info(f"[FILE_CONTEXT] Extracting context from {len(file_ids)} files and {len(folder_ids)} folders")
         
-        # Step 1: Get file metadata to determine processing method
-        file_metadata = await get_files_metadata(file_ids, folder_ids, cookies)
+        extracted_context = {
+            "file_summaries": [],
+            "file_contents": [],
+            "folder_contexts": [],
+            "key_topics": [],
+            "metadata": {
+                "total_files": len(file_ids),
+                "total_folders": len(folder_ids),
+                "extraction_time": time.time()
+            }
+        }
         
-        # Step 2: Determine processing method
-        use_openai_direct = should_use_openai_direct_processing(file_ids, folder_ids, file_metadata)
-        total_files = len(file_ids) + len(folder_ids)
-        use_comprehensive = total_files > 2 or any(await check_file_sizes(file_ids, cookies))
-        
-        if use_openai_direct:
-            logger.info(f"[FILE_CONTEXT] Using Direct OpenAI processing for optimal performance")
+        # Extract file contexts
+        successful_extractions = 0
+        for file_id in file_ids:
             try:
-                extracted_context = await process_files_with_openai_direct(
-                    file_ids, 
-                    folder_ids, 
-                    cookies, 
-                    extraction_purpose="educational_content_creation",
-                    max_tokens=8000
-                )
+                file_context = await extract_single_file_context(file_id, cookies)
+                if file_context and file_context.get("summary"):
+                    extracted_context["file_summaries"].append(file_context["summary"])
+                    extracted_context["file_contents"].append(file_context["content"])
+                    extracted_context["key_topics"].extend(file_context.get("topics", []))
+                    successful_extractions += 1
+                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
+                else:
+                    logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id}")
             except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] Direct OpenAI failed, falling back to comprehensive extraction: {e}")
-                use_openai_direct = False
+                logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id}: {e}")
         
-        if not use_openai_direct and use_comprehensive:
-            logger.info(f"[FILE_CONTEXT] Using comprehensive extraction for large file set ({total_files} items)")
-            extracted_context = await extract_comprehensive_file_content(file_ids, folder_ids, cookies, max_tokens=8000)
-            
-            # Transform comprehensive format to match expected format
-            transformed_context = {
-                "file_summaries": extracted_context.get("file_summaries", []),
-                "file_contents": [content.get("summary", "") for content in extracted_context.get("file_contents", [])],
-                "folder_contexts": [content for content in extracted_context.get("file_contents", []) if content.get("folder_id")],
-                "key_topics": extracted_context.get("key_topics", []),
-                "comprehensive_summary": extracted_context.get("comprehensive_summary", ""),
-                "metadata": {
-                    "total_files": len(file_ids),
-                    "total_folders": len(folder_ids),
-                    "extraction_time": time.time(),
-                    "extraction_method": "comprehensive_search",
-                    "important_sections": extracted_context.get("important_sections", [])
-                }
-            }
-        else:
-            logger.info(f"[FILE_CONTEXT] Using standard extraction for small file set ({total_files} items)")
-            extracted_context = {
-                "file_summaries": [],
-                "file_contents": [],
-                "folder_contexts": [],
-                "key_topics": [],
-                "metadata": {
-                    "total_files": len(file_ids),
-                    "total_folders": len(folder_ids),
-                    "extraction_time": time.time()
-                }
-            }
-            
-            # Extract file contexts using standard method
-            successful_extractions = 0
-            for file_id in file_ids:
-                try:
-                    file_context = await extract_single_file_context(file_id, cookies)
-                    if file_context and file_context.get("summary"):
-                        extracted_context["file_summaries"].append(file_context["summary"])
-                        extracted_context["file_contents"].append(file_context["content"])
-                        extracted_context["key_topics"].extend(file_context.get("topics", []))
-                        successful_extractions += 1
-                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
-                    else:
-                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id}")
-                except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id}: {e}")
-            
-            # Extract folder contexts
-            for folder_id in folder_ids:
-                try:
-                    folder_context = await extract_folder_context(folder_id, cookies)
-                    if folder_context and folder_context.get("summary"):
-                        extracted_context["folder_contexts"].append(folder_context)
-                        extracted_context["key_topics"].extend(folder_context.get("topics", []))
-                        successful_extractions += 1
-                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
-                    else:
-                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
-                except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
-            
-            # If no context was extracted successfully, provide a fallback
-            if successful_extractions == 0:
-                logger.warning(f"[FILE_CONTEXT] No context extracted successfully, providing fallback context")
-                extracted_context["file_summaries"] = [f"File(s) provided for content creation (IDs: {file_ids + folder_ids})"]
-                extracted_context["key_topics"] = ["content creation", "educational materials"]
-                extracted_context["metadata"]["fallback_used"] = True
-            
-            transformed_context = extracted_context
+        # Extract folder contexts
+        for folder_id in folder_ids:
+            try:
+                folder_context = await extract_folder_context(folder_id, cookies)
+                if folder_context and folder_context.get("summary"):
+                    extracted_context["folder_contexts"].append(folder_context)
+                    extracted_context["key_topics"].extend(folder_context.get("topics", []))
+                    successful_extractions += 1
+                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
+                else:
+                    logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
+            except Exception as e:
+                logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
+        
+        # If no context was extracted successfully, provide a fallback
+        if successful_extractions == 0:
+            logger.warning(f"[FILE_CONTEXT] No context extracted successfully, providing fallback context")
+            extracted_context["file_summaries"] = [f"File(s) provided for content creation (IDs: {file_ids + folder_ids})"]
+            extracted_context["key_topics"] = ["content creation", "educational materials"]
+            extracted_context["metadata"]["fallback_used"] = True
         
         # Remove duplicate topics
-        transformed_context["key_topics"] = list(set(transformed_context["key_topics"]))
+        extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
         
         # Cache the result
         FILE_CONTEXT_CACHE[cache_key] = {
-            "context": transformed_context,
+            "context": extracted_context,
             "timestamp": time.time()
         }
         
-        logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(transformed_context['file_summaries'])} file summaries, {len(transformed_context['key_topics'])} key topics")
+        logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_summaries'])} file summaries, {len(extracted_context['key_topics'])} key topics")
         
-        return transformed_context
+        return extracted_context
         
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] Error extracting file context: {e}", exc_info=True)
@@ -5121,26 +3767,6 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "key_topics": [],
             "metadata": {"error": str(e)}
         }
-
-async def check_file_sizes(file_ids: List[int], cookies: Dict[str, str]) -> List[bool]:
-    """
-    Check if any files are large (over 1MB) to determine if comprehensive extraction is needed.
-    """
-    try:
-        large_files = []
-        for file_id in file_ids:
-            try:
-                metadata = await get_file_metadata(file_id, cookies)
-                if metadata and metadata.get("size", 0) > 1024 * 1024:  # 1MB threshold
-                    large_files.append(True)
-                else:
-                    large_files.append(False)
-            except Exception:
-                large_files.append(False)  # Assume not large if we can't check
-        return large_files
-    except Exception as e:
-        logger.error(f"[FILE_SIZE_CHECK] Error checking file sizes: {e}")
-        return [False] * len(file_ids)
 
 async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
@@ -7706,10 +6332,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -7723,10 +6349,6 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-            except Exception as e:
-                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -7754,9 +6376,14 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-        yield (json.dumps(done_packet) + "\n").encode()
+                yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-        return
+                return
+                
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
 
     return StreamingResponse(
@@ -8595,10 +7222,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -8621,10 +7248,11 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
-            except Exception as e:
+        except Exception as e:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
+            raise
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -11139,10 +9767,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -11159,10 +9787,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-            except Exception as e:
+        except Exception as e:
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
 
     return StreamingResponse(
         streamer(),
@@ -11917,10 +10545,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
+                                assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -11937,10 +10565,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-            except Exception as e:
+        except Exception as e:
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
 
     return StreamingResponse(
         streamer(),
@@ -12289,243 +10917,3 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
-
-@app.post("/api/custom/comprehensive-extract")
-async def comprehensive_file_extraction(payload: dict, request: Request):
-    """
-    NEW: Comprehensive file content extraction endpoint for large files.
-    This demonstrates the enhanced file processing capabilities.
-    """
-    try:
-        # Extract cookies for Onyx authentication
-        cookies = dict(request.cookies)
-        
-        # Parse file and folder IDs
-        file_ids = []
-        folder_ids = []
-        
-        if payload.get("fileIds"):
-            try:
-                file_ids = [int(fid) for fid in payload["fileIds"].split(',') if fid.strip().isdigit()]
-            except Exception as e:
-                logger.error(f"[COMPREHENSIVE_EXTRACT] Failed to parse file IDs: {e}")
-        
-        if payload.get("folderIds"):
-            try:
-                folder_ids = [int(fid) for fid in payload["folderIds"].split(',') if fid.strip().isdigit()]
-            except Exception as e:
-                logger.error(f"[COMPREHENSIVE_EXTRACT] Failed to parse folder IDs: {e}")
-        
-        if not file_ids and not folder_ids:
-            raise HTTPException(status_code=400, detail="No file or folder IDs provided")
-        
-        # Extract comprehensive content
-        max_tokens = payload.get("maxTokens", 8000)
-        comprehensive_content = await extract_comprehensive_file_content(file_ids, folder_ids, cookies, max_tokens)
-        
-        return {
-            "success": True,
-            "content": comprehensive_content,
-            "metadata": {
-                "files_processed": len(file_ids),
-                "folders_processed": len(folder_ids),
-                "extraction_method": "comprehensive_search",
-                "max_tokens_used": max_tokens
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_EXTRACT] Error in comprehensive extraction: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Comprehensive extraction failed: {str(e)}")
-
-@app.post("/api/custom/openai-direct-extract")
-async def openai_direct_file_extraction(payload: dict, request: Request):
-    """
-    NEW: Direct OpenAI file processing endpoint with advanced context extraction.
-    This provides the most efficient and reliable file processing for large files.
-    """
-    try:
-        # Extract cookies for Onyx authentication
-        cookies = dict(request.cookies)
-        
-        # Parse file and folder IDs
-        file_ids = []
-        folder_ids = []
-        
-        if payload.get("fileIds"):
-            try:
-                file_ids = [int(fid) for fid in payload["fileIds"].split(',') if fid.strip().isdigit()]
-            except Exception as e:
-                logger.error(f"[OPENAI_DIRECT_ENDPOINT] Failed to parse file IDs: {e}")
-        
-        if payload.get("folderIds"):
-            try:
-                folder_ids = [int(fid) for fid in payload["folderIds"].split(',') if fid.strip().isdigit()]
-            except Exception as e:
-                logger.error(f"[OPENAI_DIRECT_ENDPOINT] Failed to parse folder IDs: {e}")
-        
-        if not file_ids and not folder_ids:
-            raise HTTPException(status_code=400, detail="No file or folder IDs provided")
-        
-        # Get extraction parameters
-        extraction_purpose = payload.get("purpose", "educational_content_creation")
-        max_tokens = payload.get("maxTokens", 8000)
-        
-        # Process with Direct OpenAI
-        start_time = time.time()
-        extraction_result = await process_files_with_openai_direct(
-            file_ids, 
-            folder_ids, 
-            cookies, 
-            extraction_purpose=extraction_purpose,
-            max_tokens=max_tokens
-        )
-        processing_time = time.time() - start_time
-        
-        return {
-            "success": True,
-            "content": extraction_result,
-            "metadata": {
-                "files_processed": len(file_ids),
-                "folders_processed": len(folder_ids),
-                "extraction_method": "openai_direct",
-                "extraction_purpose": extraction_purpose,
-                "max_tokens_used": max_tokens,
-                "processing_time_seconds": round(processing_time, 2),
-                "performance_metrics": {
-                    "files_per_second": len(file_ids) / processing_time if processing_time > 0 else 0,
-                    "bytes_per_second": extraction_result.get("metadata", {}).get("total_size", 0) / processing_time if processing_time > 0 else 0
-                }
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"[OPENAI_DIRECT_ENDPOINT] Error in Direct OpenAI extraction: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Direct OpenAI extraction failed: {str(e)}")
-
-# ============================
-# CREDITS MANAGEMENT ENDPOINTS
-# ============================
-
-@app.get("/api/custom/credits/me", response_model=UserCredits)
-async def get_my_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Get current user's credit balance (auto-creates if new user)"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        # This will auto-create the user if they don't exist yet
-        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
-        return credits
-    except Exception as e:
-        logger.error(f"Error getting user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve credits")
-
-@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
-async def list_all_user_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to list all user credits"""
-    await verify_admin_user(request)
-    
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT * FROM user_credits 
-                ORDER BY updated_at DESC
-            """)
-            return [UserCredits(**dict(row)) for row in rows]
-    except Exception as e:
-        logger.error(f"Error listing user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
-
-@app.post("/api/custom/admin/credits/migrate-users")
-async def migrate_onyx_users_to_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to manually trigger migration of Onyx users to credits table"""
-    await verify_admin_user(request)
-    
-    try:
-        # Use the same migration function as startup
-        migrated_count = await migrate_onyx_users_to_credits_table()
-        
-        return {
-            "success": True,
-            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
-            "users_migrated": migrated_count
-        }
-    except Exception as e:
-        logger.error(f"Error migrating users: {e}")
-        raise HTTPException(status_code=500, detail="Failed to migrate users")
-
-@app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
-async def modify_user_credits(
-    transaction: CreditTransactionRequest,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to add or remove credits for a user by email"""
-    await verify_admin_user(request)
-    
-    try:
-        if transaction.amount <= 0:
-            raise HTTPException(status_code=400, detail="Amount must be positive")
-        
-        updated_credits = await modify_user_credits_by_email(
-            transaction.user_email,
-            transaction.amount,
-            transaction.action,
-            pool,
-            transaction.reason
-        )
-        
-        action_msg = "added to" if transaction.action == "add" else "removed from"
-        message = f"Successfully {action_msg} {transaction.user_email}: {transaction.amount} credits"
-        
-        return CreditTransactionResponse(
-            success=True,
-            message=message,
-            new_balance=updated_credits.credits_balance,
-            user_credits=updated_credits
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error modifying user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to modify credits")
-
-@app.get("/api/custom/admin/credits/user/{user_email}", response_model=UserCredits)
-async def get_user_credits_by_email(
-    user_email: str,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to get specific user's credits by email"""
-    await verify_admin_user(request)
-    
-    try:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM user_credits WHERE onyx_user_id = $1",
-                user_email
-            )
-            
-            if not row:
-                # Create entry for user if doesn't exist
-                row = await conn.fetchrow("""
-                    INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                    VALUES ($1, $2, $3)
-                    RETURNING *
-                """, user_email, user_email.split('@')[0], 0)
-            
-            return UserCredits(**dict(row))
-            
-    except Exception as e:
-        logger.error(f"Error getting user credits by email: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
