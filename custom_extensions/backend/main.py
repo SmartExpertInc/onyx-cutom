@@ -3699,6 +3699,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
     **Global Fields:**
     1.  `lessonTitle` (string): Main lesson title for the document.
+       - Look for patterns like "**Course Name** : **Lesson** : **Lesson Title**" or "**Lesson** : **Lesson Title**"
+       - Extract ONLY the lesson title part (the last part after the last "**")
+       - For example: "**Code Optimization Course** : **Lesson** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+       - For example: "**Lesson** : **JavaScript Basics**" → extract "JavaScript Basics"
+       - Do NOT include the course name or "Lesson" label in the title
+       - If no clear pattern is found, use the first meaningful title or heading
     2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
     3.  `detectedLanguage` (string): e.g., "en", "ru".
 
@@ -3761,7 +3767,13 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
 
             **Global Fields:**
-            1.  `textTitle` (string, optional): Main title for the document. This should be derived from a Level 1 headline (`#`).
+            1.  `textTitle` (string, optional): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+               - Extract ONLY the title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Text Presentation" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
             2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
             3.  `detectedLanguage` (string): e.g., "en", "ru".
 
@@ -9688,7 +9700,14 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
 
             REQUIREMENTS:
-            1. Extract the quiz title from the content
+            1. Extract the quiz title from the content:
+               - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+               - Extract ONLY the quiz title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+               - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Quiz" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
+            
             2. For each question in the content, create a structured question object with:
                - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
                - "question_text": The actual question text
@@ -9706,6 +9725,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
             - If content is unclear, infer question types based on structure
             - Language: {payload.language}
+            - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
             """,
             target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
         )
@@ -10449,7 +10469,13 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
 
             **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`).
+            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+               - Extract ONLY the title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Text Presentation" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
             2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
             3.  `detectedLanguage` (string): e.g., "en", "ru".
 

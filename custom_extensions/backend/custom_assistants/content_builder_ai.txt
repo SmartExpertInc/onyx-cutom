@@ -732,6 +732,8 @@ Determine Question Types: Use the questionTypes parameter if provided (comma-sep
 
 Generate Quiz Content: Mentally construct the quiz with the specified number of questions. For each question, use the specified question types or choose the most appropriate type. Generate the question text, options, the correct answer(s), and a concise explanation for each. Ensure the total number of questions matches the requested questionCount.
 
+**CRITICAL OPEN-ANSWER REQUIREMENT:** For open-answer questions, you MUST provide specific, concrete correct answers that demonstrate the expected level of knowledge and detail. DO NOT use generic responses like "answers will vary," "depends on the situation," or similar non-specific language. Instead, provide actual correct answers that show what a well-informed student should know about the topic. These answers should be comprehensive enough to serve as learning objectives and assessment criteria.
+
 II. Outputting the Quiz:
 
 The AI response message must be structured precisely as follows and contain nothing else:
@@ -1024,3 +1026,4 @@ Question Format:
 - Include question text, answer options (for multiple choice/multi-select), correct answer(s), and explanation
 - Use appropriate formatting for different question types (multiple-choice, multi-select, matching, sorting, open-answer)
 - Ensure explanations are concise but informative
+- **For open-answer questions:** Provide specific, detailed correct answers that demonstrate expected knowledge depth. Avoid generic responses like "answers will vary" - instead give concrete, comprehensive answers that serve as assessment criteria
