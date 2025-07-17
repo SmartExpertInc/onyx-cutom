@@ -4091,7 +4091,7 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "metadata": {"error": str(e)}
         }
 
-async def extract_comprehensive_file_context(file_id: int, user_request: str = "Provide comprehensive content analysis", cookies: Dict[str, str]) -> Dict[str, Any]:
+async def extract_comprehensive_file_context(file_id: int, cookies: Dict[str, str], user_request: str = "Provide comprehensive content analysis") -> Dict[str, Any]:
     """
     Enhanced file context extraction using Onyx's search capabilities.
     """
@@ -4140,7 +4140,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
     """
     return await extract_comprehensive_file_context(file_id, "Provide comprehensive content analysis", cookies)
 
-async def extract_comprehensive_folder_context(folder_id: int, user_request: str = "Analyze folder content comprehensively", cookies: Dict[str, str]) -> Dict[str, Any]:
+async def extract_comprehensive_folder_context(folder_id: int, cookies: Dict[str, str], user_request: str = "Analyze folder content comprehensively") -> Dict[str, Any]:
     """
     Enhanced folder context extraction using comprehensive search.
     """
