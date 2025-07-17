@@ -7774,6 +7774,18 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
             "theme": "cherry"
         })
         
+        # First, parse the outline to get auto-calculated totalHours
+        parsed_orig = _parse_outline_markdown(cached_preview)
+        logger.info(f"[FINALIZE] Parsed outline with {len(parsed_orig)} modules")
+        
+        # Create a mapping of module titles to auto-calculated totalHours
+        auto_calculated_hours = {}
+        for module in parsed_orig:
+            title = module.get('title', '')
+            total_hours = module.get('totalHours', 0.0)
+            auto_calculated_hours[title] = total_hours
+            logger.info(f"[FINALIZE] Auto-calculated hours for '{title}': {total_hours}")
+        
         training_plan_details = await parse_ai_response_with_llm(
             ai_response=cached_preview,
             project_name=row["project_name"],
@@ -7785,6 +7797,16 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
         
         if not training_plan_details:
             raise HTTPException(status_code=400, detail="Failed to parse the edited training plan")
+        
+        # Override LLM-calculated totalHours with auto-calculated values
+        for section in training_plan_details.sections:
+            section_title = section.title
+            if section_title in auto_calculated_hours:
+                original_hours = section.totalHours
+                section.totalHours = auto_calculated_hours[section_title]
+                logger.info(f"[FINALIZE] Overrode totalHours for '{section_title}': {original_hours} -> {section.totalHours}")
+            else:
+                logger.warning(f"[FINALIZE] No auto-calculated hours found for section: '{section_title}'")
         
         # Post-process module IDs to ensure № character is preserved
         for section in training_plan_details.sections:
