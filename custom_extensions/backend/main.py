@@ -6445,7 +6445,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
 
-        # Cache full raw outline for later finalize step
+                # Cache full raw outline for later finalize step
         if chat_id:
             OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
             logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
@@ -6468,17 +6468,17 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             yield (json.dumps(error_packet) + "\n").encode()
             return
         
-                # Send completion packet with the parsed outline
+        # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-                yield (json.dumps(done_packet) + "\n").encode()
+        yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-                return
+        return
                 
-            except Exception as e:
-                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+        yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+        return
 
 
     return StreamingResponse(
