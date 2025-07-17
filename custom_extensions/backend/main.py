@@ -150,7 +150,6 @@ async def stream_openai_response(prompt: str, model: str = None):
                             logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
         logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
         logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-        break
         
     except Exception as e:
         logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
