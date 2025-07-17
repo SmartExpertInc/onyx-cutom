@@ -863,6 +863,7 @@ const FolderRow: React.FC<{
                                 onRestore={handleRestoreProject}
                                 onDeletePermanently={handleDeletePermanently}
                                 folderId={folder.id}
+                                refreshProjects={refreshProjects}
                             />
                         </td>
                     </tr>
@@ -3535,6 +3536,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                 onRestore={handleRestoreProject}
                                                 onDeletePermanently={handleDeletePermanently}
                                                 folderId={folderId}
+                                                refreshProjects={refreshProjects}
                                             />
                                         </td>
                                     </tr>
@@ -3659,6 +3661,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                 onRestore={handleRestoreProject}
                                                 onDeletePermanently={handleDeletePermanently}
                                                 folderId={folderId}
+                                                refreshProjects={refreshProjects}
                                             />
                                         </td>
                                     </tr>
