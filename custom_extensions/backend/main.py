@@ -10660,3 +10660,89 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+
+@app.post("/api/custom-projects-backend/projects/duplicate/{project.id}")
+async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
+    """
+    Duplicate a project. If it's a Training Plan, also duplicate all connected products (lessons, quizzes, etc.).
+    """
+    async with DB_POOL.acquire() as conn:
+        orig = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
+        if not orig:
+            raise HTTPException(status_code=404, detail="Project not found")
+        new_name = f"Copy of {orig['project_name']}"
+        now = datetime.now(timezone.utc)
+        if orig['microproduct_type'] == "Training Plan":
+            new_session_id = str(uuid4())
+            new_outline_id = await conn.fetchval(
+                """
+                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                RETURNING id
+                """,
+                user_id,
+                new_name,
+                orig['product_type'],
+                orig['microproduct_type'],
+                orig['microproduct_name'],
+                orig['microproduct_content'],
+                orig['design_template_id'],
+                now,
+                new_session_id,
+                orig['folder_id'],
+                orig['order'],
+                orig['is_standalone']
+            )
+            connected = await conn.fetch(
+                "SELECT * FROM projects WHERE source_chat_session_id = $1 AND id != $2",
+                orig['source_chat_session_id'], orig['id']
+            )
+            for prod in connected:
+                prod_name = prod['project_name']
+                if prod_name.startswith(orig['project_name']):
+                    prod_name = prod_name.replace(orig['project_name'], new_name, 1)
+                micro_name = prod['microproduct_name']
+                if micro_name and micro_name.startswith(orig['project_name']):
+                    micro_name = micro_name.replace(orig['project_name'], new_name, 1)
+                await conn.execute(
+                    """
+                    INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                    """,
+                    user_id,
+                    prod_name,
+                    prod['product_type'],
+                    prod['microproduct_type'],
+                    micro_name,
+                    prod['microproduct_content'],
+                    prod['design_template_id'],
+                    now,
+                    new_session_id,
+                    prod['folder_id'],
+                    prod['order'],
+                    prod['is_standalone']
+                )
+            return {"id": new_outline_id}
+        else:
+            new_prod_name = f"Copy of {orig['project_name']}"
+            new_id = await conn.fetchval(
+                """
+                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                RETURNING id
+                """,
+                user_id,
+                new_prod_name,
+                orig['product_type'],
+                orig['microproduct_type'],
+                orig['microproduct_name'],
+                orig['microproduct_content'],
+                orig['design_template_id'],
+                now,
+                str(uuid4()),
+                orig['folder_id'],
+                orig['order'],
+                orig['is_standalone']
+            )
+            return {"id": new_id}
