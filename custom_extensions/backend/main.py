@@ -3790,7 +3790,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         KEY_INFO: [most important information]
         """
         
-        async with httpx.AsyncClient(timeout=30.0) as client:  # Reduced timeout for context extraction
+        async with httpx.AsyncClient(timeout=180.0) as client:  # 3 minutes timeout for large files like 200-page PDFs
             payload = {
                 "chat_session_id": temp_chat_id,
                 "message": analysis_prompt,
@@ -3871,7 +3871,7 @@ async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dic
     """
     try:
         # Get folder files
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=180.0) as client:  # 3 minutes timeout for large files like 200-page PDFs
             response = await client.get(
                 f"{ONYX_API_SERVER_URL}/user/folder/{folder_id}",
                 cookies=cookies
