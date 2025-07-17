@@ -3709,13 +3709,18 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         }
         
         # Extract file contexts
+        successful_extractions = 0
         for file_id in file_ids:
             try:
                 file_context = await extract_single_file_context(file_id, cookies)
-                if file_context:
+                if file_context and file_context.get("summary"):
                     extracted_context["file_summaries"].append(file_context["summary"])
                     extracted_context["file_contents"].append(file_context["content"])
                     extracted_context["key_topics"].extend(file_context.get("topics", []))
+                    successful_extractions += 1
+                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
+                else:
+                    logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id}")
             except Exception as e:
                 logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id}: {e}")
         
@@ -3723,11 +3728,22 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         for folder_id in folder_ids:
             try:
                 folder_context = await extract_folder_context(folder_id, cookies)
-                if folder_context:
+                if folder_context and folder_context.get("summary"):
                     extracted_context["folder_contexts"].append(folder_context)
                     extracted_context["key_topics"].extend(folder_context.get("topics", []))
+                    successful_extractions += 1
+                    logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
+                else:
+                    logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
             except Exception as e:
                 logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
+        
+        # If no context was extracted successfully, provide a fallback
+        if successful_extractions == 0:
+            logger.warning(f"[FILE_CONTEXT] No context extracted successfully, providing fallback context")
+            extracted_context["file_summaries"] = [f"File(s) provided for content creation (IDs: {file_ids + folder_ids})"]
+            extracted_context["key_topics"] = ["content creation", "educational materials"]
+            extracted_context["metadata"]["fallback_used"] = True
         
         # Remove duplicate topics
         extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
@@ -3774,7 +3790,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         KEY_INFO: [most important information]
         """
         
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:  # Reduced timeout for context extraction
             payload = {
                 "chat_session_id": temp_chat_id,
                 "message": analysis_prompt,
@@ -3785,18 +3801,42 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
                 "prompt_id": None,
                 "search_doc_ids": None,
                 "retrieval_options": {"run_search": "never", "real_time": False},
-                "stream_response": False,
+                "stream_response": True,
             }
             
-            response = await client.post(
-                f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
-                json=payload,
-                cookies=cookies
-            )
-            response.raise_for_status()
-            
-            result = response.json()
-            analysis_text = result.get("answer", "")
+            # Try the simple API first, fallback to regular streaming endpoint
+            try:
+                response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                    json=payload,
+                    cookies=cookies
+                )
+                response.raise_for_status()
+                result = response.json()
+                analysis_text = result.get("answer", "")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for file {file_id}")
+                    # Fallback to streaming endpoint
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+                        resp.raise_for_status()
+                        analysis_text = ""
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    raise
             
             # Parse the analysis
             summary = ""
@@ -3876,18 +3916,42 @@ async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dic
                 "prompt_id": None,
                 "search_doc_ids": None,
                 "retrieval_options": {"run_search": "never", "real_time": False},
-                "stream_response": False,
+                "stream_response": True,
             }
             
-            response = await client.post(
-                f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
-                json=payload,
-                cookies=cookies
-            )
-            response.raise_for_status()
-            
-            result = response.json()
-            analysis_text = result.get("answer", "")
+            # Try the simple API first, fallback to regular streaming endpoint
+            try:
+                response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                    json=payload,
+                    cookies=cookies
+                )
+                response.raise_for_status()
+                result = response.json()
+                analysis_text = result.get("answer", "")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for folder {folder_id}")
+                    # Fallback to streaming endpoint
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+                        resp.raise_for_status()
+                        analysis_text = ""
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    raise
             
             # Parse the analysis
             summary = ""
@@ -3928,6 +3992,10 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[
 
 """
     
+    # Check if fallback was used
+    if file_context.get("metadata", {}).get("fallback_used"):
+        enhanced_prompt += "NOTE: File context extraction was limited, but files were provided for content creation.\n\n"
+    
     # Add file summaries
     if file_context.get("file_summaries"):
         enhanced_prompt += "FILE SUMMARIES:\n"
@@ -3947,7 +4015,13 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[
         enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
     
     # Add specific instructions for the product type
-    enhanced_prompt += f"""
+    if file_context.get("metadata", {}).get("fallback_used"):
+        enhanced_prompt += f"""
+IMPORTANT: Files were provided for content creation. Create a {product_type} that is relevant to the uploaded materials.
+If specific content details are not available, focus on creating high-quality educational content that would be appropriate for the file types provided.
+"""
+    else:
+        enhanced_prompt += f"""
 IMPORTANT: Use the context from the uploaded files to create a {product_type} that is relevant and accurate to the source materials. 
 Ensure that the content aligns with the topics and information provided in the file summaries and folder contexts.
 """
@@ -5084,7 +5158,7 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
             # First, fetch all the data we need to move to trash
             projects_to_trash = await conn.fetch("""
                 SELECT 
-                    id, onyx_user_id, project_name, product_type, microproduct_type,
+                    id, onyx_user_id, project_name, product_type, microproduct_type, 
                     microproduct_name, microproduct_content, design_template_id, created_at,
                     source_chat_session_id, folder_id, "order", completion_time
                 FROM projects 
@@ -10697,7 +10771,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
 
             2.  **`type: "paragraph"`**
                 * `text` (string): Full paragraph text.
-                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендация', 'Рекомендація' — or their localized equivalents, and isn't a part of the bullet list.
+                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
 
             3.  **`type: "bullet_list"`**
                 * `items` (array of `ListItem`): Can be strings or other nested content blocks.
@@ -10843,130 +10917,3 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
-
-# ============================
-# CREDITS MANAGEMENT ENDPOINTS
-# ============================
-
-@app.get("/api/custom/credits/me", response_model=UserCredits)
-async def get_my_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Get current user's credit balance (auto-creates if new user)"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        # This will auto-create the user if they don't exist yet
-        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
-        return credits
-    except Exception as e:
-        logger.error(f"Error getting user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve credits")
-
-@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
-async def list_all_user_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to list all user credits"""
-    await verify_admin_user(request)
-    
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT * FROM user_credits 
-                ORDER BY updated_at DESC
-            """)
-            return [UserCredits(**dict(row)) for row in rows]
-    except Exception as e:
-        logger.error(f"Error listing user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
-
-@app.post("/api/custom/admin/credits/migrate-users")
-async def migrate_onyx_users_to_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to manually trigger migration of Onyx users to credits table"""
-    await verify_admin_user(request)
-    
-    try:
-        # Use the same migration function as startup
-        migrated_count = await migrate_onyx_users_to_credits_table()
-        
-        return {
-            "success": True,
-            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
-            "users_migrated": migrated_count
-        }
-    except Exception as e:
-        logger.error(f"Error migrating users: {e}")
-        raise HTTPException(status_code=500, detail="Failed to migrate users")
-
-@app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
-async def modify_user_credits(
-    transaction: CreditTransactionRequest,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to add or remove credits for a user by email"""
-    await verify_admin_user(request)
-    
-    try:
-        if transaction.amount <= 0:
-            raise HTTPException(status_code=400, detail="Amount must be positive")
-        
-        updated_credits = await modify_user_credits_by_email(
-            transaction.user_email,
-            transaction.amount,
-            transaction.action,
-            pool,
-            transaction.reason
-        )
-        
-        action_msg = "added to" if transaction.action == "add" else "removed from"
-        message = f"Successfully {action_msg} {transaction.user_email}: {transaction.amount} credits"
-        
-        return CreditTransactionResponse(
-            success=True,
-            message=message,
-            new_balance=updated_credits.credits_balance,
-            user_credits=updated_credits
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error modifying user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to modify credits")
-
-@app.get("/api/custom/admin/credits/user/{user_email}", response_model=UserCredits)
-async def get_user_credits_by_email(
-    user_email: str,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to get specific user's credits by email"""
-    await verify_admin_user(request)
-    
-    try:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM user_credits WHERE onyx_user_id = $1",
-                user_email
-            )
-            
-            if not row:
-                # Create entry for user if doesn't exist
-                row = await conn.fetchrow("""
-                    INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                    VALUES ($1, $2, $3)
-                    RETURNING *
-                """, user_email, user_email.split('@')[0], 0)
-            
-            return UserCredits(**dict(row))
-            
-    except Exception as e:
-        logger.error(f"Error getting user credits by email: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
