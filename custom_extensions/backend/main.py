@@ -11472,3 +11472,130 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+
+# ============================
+# CREDITS MANAGEMENT ENDPOINTS
+# ============================
+
+@app.get("/api/custom/credits/me", response_model=UserCredits)
+async def get_my_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get current user's credit balance (auto-creates if new user)"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # This will auto-create the user if they don't exist yet
+        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        return credits
+    except Exception as e:
+        logger.error(f"Error getting user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve credits")
+
+@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
+async def list_all_user_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to list all user credits"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT * FROM user_credits 
+                ORDER BY updated_at DESC
+            """)
+            return [UserCredits(**dict(row)) for row in rows]
+    except Exception as e:
+        logger.error(f"Error listing user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+@app.post("/api/custom/admin/credits/migrate-users")
+async def migrate_onyx_users_to_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to manually trigger migration of Onyx users to credits table"""
+    await verify_admin_user(request)
+    
+    try:
+        # Use the same migration function as startup
+        migrated_count = await migrate_onyx_users_to_credits_table()
+        
+        return {
+            "success": True,
+            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
+            "users_migrated": migrated_count
+        }
+    except Exception as e:
+        logger.error(f"Error migrating users: {e}")
+        raise HTTPException(status_code=500, detail="Failed to migrate users")
+
+@app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
+async def modify_user_credits(
+    transaction: CreditTransactionRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to add or remove credits for a user by email"""
+    await verify_admin_user(request)
+    
+    try:
+        if transaction.amount <= 0:
+            raise HTTPException(status_code=400, detail="Amount must be positive")
+        
+        updated_credits = await modify_user_credits_by_email(
+            transaction.user_email,
+            transaction.amount,
+            transaction.action,
+            pool,
+            transaction.reason
+        )
+        
+        action_msg = "added to" if transaction.action == "add" else "removed from"
+        message = f"Successfully {action_msg} {transaction.user_email}: {transaction.amount} credits"
+        
+        return CreditTransactionResponse(
+            success=True,
+            message=message,
+            new_balance=updated_credits.credits_balance,
+            user_credits=updated_credits
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error modifying user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to modify credits")
+
+@app.get("/api/custom/admin/credits/user/{user_email}", response_model=UserCredits)
+async def get_user_credits_by_email(
+    user_email: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to get specific user's credits by email"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT * FROM user_credits WHERE onyx_user_id = $1",
+                user_email
+            )
+            
+            if not row:
+                # Create entry for user if doesn't exist
+                row = await conn.fetchrow("""
+                    INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                    VALUES ($1, $2, $3)
+                    RETURNING *
+                """, user_email, user_email.split('@')[0], 0)
+            
+            return UserCredits(**dict(row))
+            
+    except Exception as e:
+        logger.error(f"Error getting user credits by email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
