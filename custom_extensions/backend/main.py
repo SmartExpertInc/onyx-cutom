@@ -6332,10 +6332,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -6349,6 +6349,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -6376,15 +6380,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-                yield (json.dumps(done_packet) + "\n").encode()
+        yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-                return
+        return
                 
-            except Exception as e:
-                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
-
 
     return StreamingResponse(
         streamer(),
@@ -7222,10 +7221,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -7248,11 +7247,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
-            raise
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -9767,10 +9765,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -9787,10 +9785,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
@@ -10545,10 +10543,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -10565,10 +10563,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
