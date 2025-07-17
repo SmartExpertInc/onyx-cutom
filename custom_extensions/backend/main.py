@@ -124,312 +124,204 @@ async def retrieve_comprehensive_content_from_files(
         search_query = "retrieve all document content"
     
     async with httpx.AsyncClient(timeout=300.0) as client:
-        # Use Onyx's document search API with comprehensive retrieval settings
-        search_payload = {
-            "message": search_query,
-            "search_type": "semantic",  # Use semantic search for better content matching
-            "retrieval_options": {
-                "run_search": "always",
-                "real_time": False,
-                "limit": 100,  # Get more results for comprehensive coverage
-                "offset": 0,
-                "dedupe_docs": False,  # Keep all content
-                "enable_auto_detect_filters": False
-            },
-            "evaluation_type": "skip",  # Skip LLM evaluation for faster retrieval
-            "chunks_above": chunks_above,
-            "chunks_below": chunks_below,
-            "full_doc": full_doc,  # Get full documents when possible
-            "rerank_settings": None
-        }
-        
+        # Strategy 1: Try GPT Document Search (simplest, available in standard version)
         try:
-            # Use the document search endpoint for comprehensive retrieval
-            search_url = f"{ONYX_API_SERVER_URL}/query/document-search"
-            logger.info(f"[COMPREHENSIVE_RETRIEVAL] POST {search_url} with comprehensive settings")
+            logger.info("[COMPREHENSIVE_RETRIEVAL] Attempting GPT document search...")
+            gpt_search_payload = {
+                "query": search_query
+            }
             
-            resp = await client.post(search_url, json=search_payload, cookies=cookies)
+            gpt_search_url = f"{ONYX_API_SERVER_URL}/gpts/gpt-document-search"
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] POST {gpt_search_url}")
+            
+            resp = await client.post(gpt_search_url, json=gpt_search_payload, cookies=cookies)
             resp.raise_for_status()
             
-            search_data = resp.json()
-            top_documents = search_data.get("top_documents", [])
+            gpt_results = resp.json()
+            matching_chunks = gpt_results.get("matching_document_chunks", [])
             
-            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Retrieved {len(top_documents)} documents")
-            
-            # Log first few documents for debugging
-            for i, doc in enumerate(top_documents[:3]):
-                logger.info(f"[COMPREHENSIVE_RETRIEVAL] Document {i+1}: id={doc.get('document_id', 'N/A')}, title={doc.get('semantic_identifier', 'N/A')}")
-            
-            # Process each document to extract comprehensive content
-            for doc in top_documents:
-                try:
-                    # Extract document information
-                    document_id = doc.get("document_id", "")
-                    semantic_identifier = doc.get("semantic_identifier", "Unknown")
-                    content = doc.get("content", "")
-                    source_type = doc.get("source_type", "unknown")
-                    metadata = doc.get("metadata", {})
-                    
-                    # Calculate token count (approximate)
-                    token_count = len(content.split()) * 1.3  # Rough token estimation
-                    
-                    # Check if this document is from our target files/folders
-                    # We'll filter based on document_id patterns or metadata
-                    if _is_document_from_target_sources(document_id, metadata, file_ids, folder_ids):
-                        result = ComprehensiveContentResult(
-                            content=content,
-                            document_id=document_id,
-                            semantic_identifier=semantic_identifier,
-                            source_type=source_type,
-                            metadata=metadata,
-                            token_count=int(token_count),
-                            chunks_retrieved=1
-                        )
-                        results.append(result)
-                        logger.debug(f"[COMPREHENSIVE_RETRIEVAL] Added document: {semantic_identifier} ({len(content)} chars)")
+            if matching_chunks:
+                logger.info(f"[COMPREHENSIVE_RETRIEVAL] GPT search successful, found {len(matching_chunks)} chunks")
                 
-                except Exception as e:
-                    logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error processing document: {e}")
-                    continue
-            
-            # Log filtering results
-            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Filtered {len(results)} documents from {len(top_documents)} total")
-            
-            # If we didn't get enough content, try with different search strategies
-            if len(results) == 0:
-                logger.warning("[COMPREHENSIVE_RETRIEVAL] No documents found, trying alternative search strategies")
-                results = await _try_alternative_search_strategies(
-                    file_ids, folder_ids, cookies, client, max_tokens
-                )
-            
-            # Combine and truncate content if needed
-            combined_results = _combine_and_truncate_results(results, max_tokens)
-            
-            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Final result: {len(combined_results)} documents, total tokens: {sum(r.token_count for r in combined_results)}")
-            return combined_results
-            
+                # Convert GPT results to our format
+                comprehensive_results = []
+                for chunk in matching_chunks:
+                    result = ComprehensiveContentResult(
+                        document_id=chunk.get("title", "Unknown"),
+                        content=chunk.get("content", ""),
+                        source_type=chunk.get("source_type", "unknown"),
+                        metadata=chunk.get("metadata", {}),
+                        score=1.0,  # GPT search doesn't provide scores
+                        link=chunk.get("link", ""),
+                        document_age=chunk.get("document_age", "Unknown")
+                    )
+                    comprehensive_results.append(result)
+                
+                return comprehensive_results
+            else:
+                logger.warning("[COMPREHENSIVE_RETRIEVAL] GPT search returned no results, trying admin search...")
+                
         except Exception as e:
-            logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
-            # Fallback to traditional method
-            return await _fallback_content_retrieval(file_ids, folder_ids, cookies)
-
-def _is_document_from_target_sources(
-    document_id: str, 
-    metadata: Dict[str, Any], 
-    file_ids: List[int], 
-    folder_ids: List[int]
-) -> bool:
-    """Check if a document is from our target file or folder sources"""
-    logger.debug(f"[DOCUMENT_FILTER] Checking document_id: {document_id}")
-    logger.debug(f"[DOCUMENT_FILTER] Metadata: {metadata}")
-    logger.debug(f"[DOCUMENT_FILTER] Target file_ids: {file_ids}, folder_ids: {folder_ids}")
-    
-    # If no specific files/folders are targeted, accept all documents
-    if not file_ids and not folder_ids:
-        logger.debug("[DOCUMENT_FILTER] No specific targets, accepting all documents")
-        return True
-    
-    # Check if document_id contains any of our file IDs
-    for file_id in file_ids:
-        if str(file_id) in document_id:
-            logger.debug(f"[DOCUMENT_FILTER] Matched file_id {file_id} in document_id")
-            return True
-    
-    # Check metadata for folder information
-    if metadata:
-        folder_info = metadata.get("folder_id") or metadata.get("user_folder_id")
-        if folder_info:
-            try:
-                folder_id_int = int(folder_info)
-                if folder_id_int in folder_ids:
-                    logger.debug(f"[DOCUMENT_FILTER] Matched folder_id {folder_id_int} in metadata")
-                    return True
-            except (ValueError, TypeError):
-                pass
-    
-    # For user files, check various document_id patterns
-    user_file_patterns = [
-        "USER_FILE_CONNECTOR__",
-        "user_file_",
-        "file_",
-        "document_"
-    ]
-    
-    for pattern in user_file_patterns:
-        if document_id.startswith(pattern):
-            logger.debug(f"[DOCUMENT_FILTER] Matched user file pattern: {pattern}")
-            return True
-    
-    # If we have specific targets but this document doesn't match, reject it
-    logger.debug(f"[DOCUMENT_FILTER] Document {document_id} does not match any target criteria")
-    return False
-
-async def _try_alternative_search_strategies(
-    file_ids: List[int],
-    folder_ids: List[int], 
-    cookies: Dict[str, str],
-    client: httpx.AsyncClient,
-    max_tokens: int
-) -> List[ComprehensiveContentResult]:
-    """Try alternative search strategies if the main approach fails"""
-    results = []
-    
-    # Strategy 1: Try keyword search with more specific terms
-    try:
-        keyword_payload = {
-            "message": "document content text information data",
-            "search_type": "keyword",
-            "retrieval_options": {
-                "run_search": "always",
-                "real_time": False,
-                "limit": 100,  # Increased limit
-                "offset": 0,
-                "dedupe_docs": False,
-                "enable_auto_detect_filters": False
-            },
-            "evaluation_type": "skip",
-            "chunks_above": 5,
-            "chunks_below": 5,
-            "full_doc": True
-        }
+            logger.warning(f"[COMPREHENSIVE_RETRIEVAL] GPT search failed: {str(e)}, trying admin search...")
         
-        resp = await client.post(f"{ONYX_API_SERVER_URL}/query/document-search", json=keyword_payload, cookies=cookies)
-        if resp.status_code == 200:
-            data = resp.json()
-            for doc in data.get("top_documents", []):
-                if _is_document_from_target_sources(doc.get("document_id", ""), doc.get("metadata", {}), file_ids, folder_ids):
-                    results.append(ComprehensiveContentResult(
-                        content=doc.get("content", ""),
-                        document_id=doc.get("document_id", ""),
-                        semantic_identifier=doc.get("semantic_identifier", "Unknown"),
+        # Strategy 2: Try Admin Search (requires admin privileges, but available in standard version)
+        try:
+            logger.info("[COMPREHENSIVE_RETRIEVAL] Attempting admin search...")
+            admin_search_payload = {
+                "query": search_query,
+                "filters": {
+                    "source_type": None,
+                    "document_set": None,
+                    "time_cutoff": None,
+                    "tags": None,
+                    "kg_entities": None,
+                    "kg_relationships": None,
+                    "kg_terms": None,
+                    "kg_sources": None,
+                    "kg_chunk_id_zero_only": False
+                }
+            }
+            
+            admin_search_url = f"{ONYX_API_SERVER_URL}/admin/search"
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] POST {admin_search_url}")
+            
+            resp = await client.post(admin_search_url, json=admin_search_payload, cookies=cookies)
+            resp.raise_for_status()
+            
+            admin_results = resp.json()
+            documents = admin_results.get("documents", [])
+            
+            if documents:
+                logger.info(f"[COMPREHENSIVE_RETRIEVAL] Admin search successful, found {len(documents)} documents")
+                
+                # Convert admin results to our format
+                comprehensive_results = []
+                for doc in documents:
+                    result = ComprehensiveContentResult(
+                        document_id=doc.get("document_id", "Unknown"),
+                        content=doc.get("blurb", ""),  # Admin search returns blurb, not full content
                         source_type=doc.get("source_type", "unknown"),
                         metadata=doc.get("metadata", {}),
-                        token_count=int(len(doc.get("content", "").split()) * 1.3),
-                        chunks_retrieved=1
-                    ))
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_RETRIEVAL] Alternative strategy 1 failed: {e}")
-    
-    # Strategy 2: Try to get all documents without specific filtering
-    if not results:
+                        score=doc.get("score", 0.0),
+                        link=doc.get("link", ""),
+                        document_age="Unknown"  # Admin search doesn't provide age
+                    )
+                    comprehensive_results.append(result)
+                
+                return comprehensive_results
+            else:
+                logger.warning("[COMPREHENSIVE_RETRIEVAL] Admin search returned no results, falling back to chat approach...")
+                
+        except Exception as e:
+            logger.warning(f"[COMPREHENSIVE_RETRIEVAL] Admin search failed: {str(e)}, falling back to chat approach...")
+        
+        # Strategy 3: Fallback to Chat-based approach (send-message endpoint)
+        logger.info("[COMPREHENSIVE_RETRIEVAL] Using chat-based retrieval as fallback...")
+        
+        # Create a temporary chat session for retrieval
         try:
-            logger.info("[COMPREHENSIVE_RETRIEVAL] Trying strategy 2: get all documents")
-            all_docs_payload = {
-                "message": "all documents content",
-                "search_type": "semantic",
+            # Create a chat session
+            chat_session_payload = {
+                "persona_id": 0,  # Use default persona
+                "description": f"Comprehensive content retrieval for files: {file_ids}, folders: {folder_ids}"
+            }
+            
+            chat_session_url = f"{ONYX_API_SERVER_URL}/chat/create"
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] POST {chat_session_url}")
+            
+            resp = await client.post(chat_session_url, json=chat_session_payload, cookies=cookies)
+            resp.raise_for_status()
+            
+            chat_session_data = resp.json()
+            chat_session_id = chat_session_data.get("chat_session_id")
+            
+            if not chat_session_id:
+                raise Exception("Failed to create chat session")
+            
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Created chat session: {chat_session_id}")
+            
+            # Send a comprehensive retrieval message
+            chat_message_payload = {
+                "chat_session_id": chat_session_id,
+                "parent_message_id": None,
+                "message": f"Please provide comprehensive content from the following sources. Files: {file_ids}, Folders: {folder_ids}. Include all relevant information, sections, and details from these documents.",
+                "file_descriptors": [],
+                "user_file_ids": file_ids,
+                "user_folder_ids": folder_ids,
+                "prompt_id": None,
+                "search_doc_ids": None,
                 "retrieval_options": {
                     "run_search": "always",
                     "real_time": False,
-                    "limit": 200,  # Get even more results
+                    "limit": 100,  # Get more results for comprehensive coverage
                     "offset": 0,
-                    "dedupe_docs": False,
-                    "enable_auto_detect_filters": False
+                    "dedupe_docs": False,  # Keep all content
+                    "enable_auto_detect_filters": False,
+                    "filters": None,
+                    "chunks_above": chunks_above,
+                    "chunks_below": chunks_below,
+                    "full_doc": full_doc
                 },
-                "evaluation_type": "skip",
-                "chunks_above": 3,
-                "chunks_below": 3,
-                "full_doc": True
+                "rerank_settings": None,
+                "query_override": None,
+                "regenerate": None,
+                "llm_override": None,
+                "prompt_override": None,
+                "temperature_override": None,
+                "alternate_assistant_id": None,
+                "skip_gen_ai_answer_generation": True  # Skip AI generation, just get documents
             }
             
-            resp = await client.post(f"{ONYX_API_SERVER_URL}/query/document-search", json=all_docs_payload, cookies=cookies)
-            if resp.status_code == 200:
-                data = resp.json()
-                logger.info(f"[COMPREHENSIVE_RETRIEVAL] Strategy 2 retrieved {len(data.get('top_documents', []))} documents")
-                for doc in data.get("top_documents", []):
-                    # Accept all documents in this fallback strategy
-                    results.append(ComprehensiveContentResult(
-                        content=doc.get("content", ""),
-                        document_id=doc.get("document_id", ""),
-                        semantic_identifier=doc.get("semantic_identifier", "Unknown"),
+            chat_message_url = f"{ONYX_API_SERVER_URL}/chat/create-message"
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] POST {chat_message_url}")
+            
+            resp = await client.post(chat_message_url, json=chat_message_payload, cookies=cookies)
+            resp.raise_for_status()
+            
+            chat_message_data = resp.json()
+            message_id = chat_message_data.get("message_id")
+            
+            if not message_id:
+                raise Exception("Failed to create chat message")
+            
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] Created chat message: {message_id}")
+            
+            # Get the message details to extract retrieved documents
+            message_details_url = f"{ONYX_API_SERVER_URL}/chat/message/{message_id}"
+            logger.info(f"[COMPREHENSIVE_RETRIEVAL] GET {message_details_url}")
+            
+            resp = await client.get(message_details_url, cookies=cookies)
+            resp.raise_for_status()
+            
+            message_details = resp.json()
+            context_docs = message_details.get("context_docs", {})
+            top_documents = context_docs.get("top_documents", [])
+            
+            if top_documents:
+                logger.info(f"[COMPREHENSIVE_RETRIEVAL] Chat retrieval successful, found {len(top_documents)} documents")
+                
+                # Convert chat results to our format
+                comprehensive_results = []
+                for doc in top_documents:
+                    result = ComprehensiveContentResult(
+                        document_id=doc.get("document_id", "Unknown"),
+                        content=doc.get("blurb", ""),  # Chat returns blurb
                         source_type=doc.get("source_type", "unknown"),
                         metadata=doc.get("metadata", {}),
-                        token_count=int(len(doc.get("content", "").split()) * 1.3),
-                        chunks_retrieved=1
-                    ))
+                        score=doc.get("score", 0.0),
+                        link=doc.get("link", ""),
+                        document_age="Unknown"  # Chat doesn't provide age
+                    )
+                    comprehensive_results.append(result)
+                
+                return comprehensive_results
+            else:
+                logger.warning("[COMPREHENSIVE_RETRIEVAL] Chat retrieval returned no documents")
+                return []
+                
         except Exception as e:
-            logger.error(f"[COMPREHENSIVE_RETRIEVAL] Alternative strategy 2 failed: {e}")
-    
-    return results
-
-def _combine_and_truncate_results(
-    results: List[ComprehensiveContentResult], 
-    max_tokens: int
-) -> List[ComprehensiveContentResult]:
-    """Combine results and truncate if they exceed token limits"""
-    if not results:
-        return results
-    
-    # Sort by content length (prioritize longer content)
-    sorted_results = sorted(results, key=lambda x: len(x.content), reverse=True)
-    
-    total_tokens = 0
-    final_results = []
-    
-    for result in sorted_results:
-        if total_tokens + result.token_count <= max_tokens:
-            final_results.append(result)
-            total_tokens += result.token_count
-        else:
-            # Truncate this result if it would exceed the limit
-            remaining_tokens = max_tokens - total_tokens
-            if remaining_tokens > 1000:  # Only add if we have significant space left
-                truncated_content = _truncate_content_to_tokens(result.content, remaining_tokens)
-                truncated_result = ComprehensiveContentResult(
-                    content=truncated_content,
-                    document_id=result.document_id,
-                    semantic_identifier=result.semantic_identifier,
-                    source_type=result.source_type,
-                    metadata=result.metadata,
-                    token_count=remaining_tokens,
-                    chunks_retrieved=result.chunks_retrieved
-                )
-                final_results.append(truncated_result)
-            break
-    
-    return final_results
-
-def _truncate_content_to_tokens(content: str, target_tokens: int) -> str:
-    """Truncate content to approximately target token count"""
-    # Rough estimation: 1 token ≈ 0.75 words
-    target_words = int(target_tokens * 0.75)
-    words = content.split()
-    
-    if len(words) <= target_words:
-        return content
-    
-    truncated_words = words[:target_words]
-    return " ".join(truncated_words) + "..."
-
-async def _fallback_content_retrieval(
-    file_ids: List[int], 
-    folder_ids: List[int], 
-    cookies: Dict[str, str]
-) -> List[ComprehensiveContentResult]:
-    """Fallback to traditional chat-based content retrieval"""
-    logger.warning("[COMPREHENSIVE_RETRIEVAL] Using fallback chat-based retrieval")
-    
-    # Create a simple chat session for fallback
-    try:
-        chat_id = await create_onyx_chat_session(await get_contentbuilder_persona_id(cookies), cookies)
-        
-        # Use a simple query to get content
-        fallback_message = "Please provide all the content from the uploaded files and folders in a comprehensive manner."
-        
-        # Use the existing stream_chat_message function as fallback
-        content = await stream_chat_message(chat_id, fallback_message, cookies)
-        
-        return [ComprehensiveContentResult(
-            content=content,
-            document_id="fallback",
-            semantic_identifier="Fallback Content",
-            source_type="fallback",
-            metadata={},
-            token_count=len(content.split()) * 1.3,
-            chunks_retrieved=1
-        )]
-    except Exception as e:
-        logger.error(f"[COMPREHENSIVE_RETRIEVAL] Fallback also failed: {e}")
-        return []
+            logger.error(f"[COMPREHENSIVE_RETRIEVAL] Chat-based retrieval failed: {str(e)}")
+            return []
 
 def should_use_comprehensive_retrieval(payload: Any) -> bool:
     """Determine if we should use comprehensive retrieval instead of chat messages"""
@@ -5649,7 +5541,7 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
             # First, fetch all the data we need to move to trash
             projects_to_trash = await conn.fetch("""
                 SELECT 
-                    id, onyx_user_id, project_name, product_type, microproduct_type,
+                    id, onyx_user_id, project_name, product_type, microproduct_type, 
                     microproduct_name, microproduct_content, design_template_id, created_at,
                     source_chat_session_id, folder_id, "order", completion_time
                 FROM projects 
@@ -10742,940 +10634,3 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(quiz_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(quiz_key, None)
         logger.info(f"[QUIZ_FINALIZE_CLEANUP] Removed quiz_key from active set: {quiz_key}")
-
-@app.delete("/api/custom/lessons/{lesson_id}", status_code=204)
-async def delete_lesson(lesson_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Delete a lesson project permanently"""
-    try:
-        async with pool.acquire() as conn:
-            # First, verify the lesson exists and belongs to the user
-            lesson = await conn.fetchrow(
-                "SELECT id, project_name, microproduct_type FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                lesson_id, onyx_user_id
-            )
-            
-            if not lesson:
-                raise HTTPException(status_code=404, detail="Lesson not found or not owned by user")
-            
-            # Check if this is actually a lesson (not a training plan/course outline)
-            if lesson['microproduct_type'] in ('Training Plan', 'Course Outline'):
-                raise HTTPException(status_code=400, detail="Cannot delete training plans or course outlines. Please delete individual lessons instead.")
-            
-            # Delete the lesson
-            result = await conn.execute(
-                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                lesson_id, onyx_user_id
-            )
-            
-            if result == "DELETE 0":
-                raise HTTPException(status_code=404, detail="Lesson not found")
-            
-            logger.info(f"User {onyx_user_id} deleted lesson {lesson_id} ({lesson['project_name']})")
-            return JSONResponse(status_code=204, content={})
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error deleting lesson {lesson_id} for user {onyx_user_id}: {e}", exc_info=not IS_PRODUCTION)
-        detail_msg = "An error occurred while deleting the lesson." if IS_PRODUCTION else f"Database error during lesson deletion: {str(e)}"
-        raise HTTPException(status_code=500, detail=detail_msg)
-
-
-# Default quiz JSON example for LLM parsing
-DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
-{
-  "quizTitle": "Example Quiz with All Question Types",
-  "questions": [
-    {
-      "question_type": "multiple-choice",
-      "question_text": "What is the capital of France?",
-      "options": [
-        {"id": "A", "text": "London"},
-        {"id": "B", "text": "Paris"},
-        {"id": "C", "text": "Berlin"},
-        {"id": "D", "text": "Madrid"}
-      ],
-      "correct_option_id": "B",
-      "explanation": "Paris is the capital and largest city of France."
-    },
-    {
-      "question_type": "multi-select",
-      "question_text": "Which of the following are programming languages?",
-      "options": [
-        {"id": "A", "text": "Python"},
-        {"id": "B", "text": "HTML"},
-        {"id": "C", "text": "JavaScript"},
-        {"id": "D", "text": "CSS"}
-      ],
-      "correct_option_ids": ["A", "C"],
-      "explanation": "Python and JavaScript are programming languages, while HTML and CSS are markup/styling languages."
-    },
-    {
-      "question_type": "matching",
-      "question_text": "Match the countries with their capitals:",
-      "prompts": [
-        {"id": "A", "text": "Germany"},
-        {"id": "B", "text": "Italy"},
-        {"id": "C", "text": "Spain"}
-      ],
-      "options": [
-        {"id": "1", "text": "Berlin"},
-        {"id": "2", "text": "Rome"},
-        {"id": "3", "text": "Madrid"}
-      ],
-      "correct_matches": {"A": "1", "B": "2", "C": "3"},
-      "explanation": "Germany-Berlin, Italy-Rome, Spain-Madrid are the correct country-capital pairs."
-    },
-    {
-      "question_type": "sorting",
-      "question_text": "Arrange the following steps in the correct order for a sales process:",
-      "items_to_sort": [
-        {"id": "step1", "text": "Identify customer needs"},
-        {"id": "step2", "text": "Present solution"},
-        {"id": "step3", "text": "Handle objections"},
-        {"id": "step4", "text": "Close the sale"}
-      ],
-      "correct_order": ["step1", "step2", "step3", "step4"],
-      "explanation": "The sales process follows a logical sequence: first understand needs, then present solutions, address concerns, and finally close."
-    },
-    {
-      "question_type": "open-answer",
-      "question_text": "What are the three key elements of an effective elevator pitch?",
-      "acceptable_answers": [
-        "Problem, Solution, Call to Action",
-        "Problem statement, Your solution, What you want them to do next",
-        "The issue, How you solve it, What action to take"
-      ],
-      "explanation": "An effective elevator pitch should clearly state the problem, present your solution, and include a clear call to action."
-    }
-  ],
-  "detectedLanguage": "en"
-}
-
-CRITICAL REQUIREMENTS:
-- Output ONLY the JSON object, no other text or formatting
-- Every question MUST have "question_type" field with exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-- Use exact field names as shown above
-- All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
-- The "question_type" field is MANDATORY for every question
-"""
-
-# Default text presentation JSON example for LLM parsing
-DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
-{
-  "textTitle": "Example Text Presentation with Nested Lists",
-  "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "Main Title of the Presentation" },
-    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
-    {
-      "type": "bullet_list",
-      "items": [
-        "Top level item 1, demonstrating a simple string item.",
-        {
-          "type": "bullet_list",
-          "iconName": "chevronRight",
-          "items": [
-            "Nested item A: This is a sub-item.",
-            "Nested item B: Another sub-item to show structure.",
-            {
-              "type": "numbered_list",
-              "items": [
-                "Further nested numbered item 1.",
-                "Further nested numbered item 2."
-              ]
-            }
-          ]
-        },
-        "Top level item 2, followed by a nested numbered list.",
-        {
-          "type": "numbered_list",
-          "items": [
-            "Nested numbered 1: First point in nested ordered list.",
-            "Nested numbered 2: Second point."
-          ]
-        },
-        "Top level item 3."
-      ]
-    },
-    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
-    {
-      "type": "numbered_list",
-      "items": [
-        "Main numbered point 1.",
-        {
-          "type": "bullet_list",
-          "items": [
-            "Sub-bullet C under numbered list.",
-            "Sub-bullet D, also useful for breaking down complex points."
-          ]
-        },
-        "Main numbered point 2."
-      ]
-    },
-    { "type": "section_break", "style": "dashed" }
-  ],
-  "detectedLanguage": "en"
-}
-"""
-
-# Text Presentation Pydantic models
-class TextPresentationWizardPreview(BaseModel):
-    outlineId: Optional[int] = None
-    lesson: Optional[str] = None
-    courseName: Optional[str] = None
-    prompt: Optional[str] = None
-    language: str = "en"
-    length: str = "medium"
-    styles: Optional[str] = None
-    fromFiles: bool = False
-    folderIds: Optional[str] = None
-    fileIds: Optional[str] = None
-    fromText: bool = False
-    textMode: Optional[str] = None
-    userText: Optional[str] = None
-    chatSessionId: Optional[str] = None
-
-class TextPresentationWizardFinalize(BaseModel):
-    aiResponse: str
-    lesson: Optional[str] = None
-    courseName: Optional[str] = None
-    language: str = "en"
-    chatSessionId: Optional[str] = None
-
-class TextPresentationEditRequest(BaseModel):
-    content: str
-    editPrompt: str
-    chatSessionId: Optional[str] = None
-
-@app.post("/api/custom/text-presentation/generate")
-async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
-    """Generate text presentation content with streaming response"""
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_START] Text presentation preview initiated")
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
-    
-    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-    logger.info(f"[TEXT_PRESENTATION_PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
-
-    if payload.chatSessionId:
-        chat_id = payload.chatSessionId
-        logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Using existing chat session: {chat_id}")
-    else:
-        logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Creating new chat session")
-        try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id}")
-            chat_id = await create_onyx_chat_session(persona_id, cookies)
-            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Created new chat session: {chat_id}")
-        except Exception as e:
-            logger.error(f"[TEXT_PRESENTATION_PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
-
-    wiz_payload = {
-        "product": "Text Presentation",
-        "prompt": payload.prompt or "Create a comprehensive text presentation",
-        "language": payload.language,
-        "length": payload.length,
-    }
-
-    # Add styles if provided
-    if payload.styles:
-        wiz_payload["styles"] = payload.styles
-
-    # Add outline context if provided
-    if payload.outlineId:
-        wiz_payload["outlineId"] = payload.outlineId
-    if payload.lesson:
-        wiz_payload["lesson"] = payload.lesson
-    if payload.courseName:
-        wiz_payload["courseName"] = payload.courseName
-
-    # Add file context if provided
-    if payload.fromFiles:
-        wiz_payload["fromFiles"] = True
-        if payload.folderIds:
-            wiz_payload["folderIds"] = payload.folderIds
-        if payload.fileIds:
-            wiz_payload["fileIds"] = payload.fileIds
-
-    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
-    if payload.fromText and payload.userText:
-        wiz_payload["fromText"] = True
-        wiz_payload["textMode"] = payload.textMode
-        
-        text_length = len(payload.userText)
-        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
-        
-        if text_length > LARGE_TEXT_THRESHOLD:
-            # Use virtual file system for large texts to prevent AI memory issues
-            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
-            try:
-                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
-                wiz_payload["virtualFileId"] = virtual_file_id
-                wiz_payload["textCompressed"] = False
-                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
-            except Exception as e:
-                logger.error(f"Failed to create virtual file for large text: {e}")
-                # Fallback to chunking if virtual file creation fails
-                chunks = chunk_text(payload.userText)
-                if len(chunks) == 1:
-                    # Single chunk, use compression
-                    compressed_text = compress_text(payload.userText)
-                    wiz_payload["userText"] = compressed_text
-                    wiz_payload["textCompressed"] = True
-                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
-                else:
-                    # Multiple chunks, use first chunk with compression
-                    first_chunk = chunks[0]
-                    compressed_chunk = compress_text(first_chunk)
-                    wiz_payload["userText"] = compressed_chunk
-                    wiz_payload["textCompressed"] = True
-                    wiz_payload["textChunked"] = True
-                    wiz_payload["totalChunks"] = len(chunks)
-                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
-        elif text_length > TEXT_SIZE_THRESHOLD:
-            # Compress medium text to reduce payload size
-            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
-            compressed_text = compress_text(payload.userText)
-            wiz_payload["userText"] = compressed_text
-            wiz_payload["textCompressed"] = True
-            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
-        else:
-            # Use direct text for small content
-            logger.info(f"Using direct text for small content ({text_length} chars)")
-            wiz_payload["userText"] = payload.userText
-            wiz_payload["textCompressed"] = False
-    elif payload.fromText and not payload.userText:
-        # Log this problematic case to help with debugging
-        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
-        # Don't process fromText if userText is empty to avoid confusing the AI
-    elif payload.fromText:
-        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
-
-    # Decompress text if it was compressed
-    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
-        try:
-            decompressed_text = decompress_text(wiz_payload["userText"])
-            wiz_payload["userText"] = decompressed_text
-            wiz_payload["textCompressed"] = False  # Mark as decompressed
-            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
-        except Exception as e:
-            logger.error(f"Failed to decompress text: {e}")
-            # Continue with original text if decompression fails
-    
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
-
-    # ---------- StreamingResponse with keep-alive -----------
-    async def streamer():
-        assistant_reply: str = ""
-        last_send = asyncio.get_event_loop().time()
-        chunks_received = 0
-        total_bytes_received = 0
-        done_received = False
-
-        # Use longer timeout for large text processing to prevent AI memory issues
-        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
-        logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
-        logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
-        
-        # NEW: Check if we should use comprehensive retrieval approach
-        if should_use_comprehensive_retrieval(payload):
-            logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING COMPREHENSIVE RETRIEVAL (Search API + OpenAI generation)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            
-            try:
-                # Use the new comprehensive retrieval system
-                comprehensive_response = await generate_content_with_comprehensive_retrieval(
-                    payload, wizard_message, cookies, max_tokens=50000
-                )
-                
-                # Stream the comprehensive response
-                for char in comprehensive_response:
-                    assistant_reply += char
-                    current_time = asyncio.get_event_loop().time()
-                    if current_time - last_send >= 0.1:  # Send every 100ms
-                        yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
-                        last_send = current_time
-                
-                # Send final response
-                yield (json.dumps({"type": "delta", "text": assistant_reply}) + "\n").encode()
-                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                return
-                
-            except Exception as e:
-                logger.error(f"[COMPREHENSIVE_RETRIEVAL] Error in comprehensive retrieval: {e}")
-                logger.info("[COMPREHENSIVE_RETRIEVAL] Falling back to hybrid approach")
-        
-        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
-        if should_use_hybrid_approach(payload):
-            logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            
-            try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    try:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    try:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
-                
-                # Step 2: Use OpenAI with enhanced context
-                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation"):
-                    if chunk_data["type"] == "delta":
-                        delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
-                        chunks_received += 1
-                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                    elif chunk_data["type"] == "error":
-                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
-                        yield (json.dumps(chunk_data) + "\n").encode()
-                        return
-                    
-                    # Send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
-                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
-                
-                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                return
-                
-            except Exception as e:
-                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
-        
-        # FALLBACK: Use OpenAI directly when no file context
-        else:
-            logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            try:
-                async for chunk_data in stream_openai_response(wizard_message):
-                    if chunk_data["type"] == "delta":
-                        delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
-                        chunks_received += 1
-                        logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                    elif chunk_data["type"] == "error":
-                        logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
-                        yield (json.dumps(chunk_data) + "\n").encode()
-                        return
-                    
-                    # Send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
-                        logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
-                
-                logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                return
-                    
-            except Exception as e:
-                logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-                return
-
-    return StreamingResponse(
-        streamer(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "Content-Type": "text/event-stream",
-        }
-    )
-
-@app.post("/api/custom/text-presentation/edit")
-async def text_presentation_edit(payload: TextPresentationEditRequest, request: Request):
-    """Edit text presentation content with streaming response"""
-    logger.info(f"[TEXT_PRESENTATION_EDIT_START] Text presentation edit initiated")
-    logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
-    
-    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-    logger.info(f"[TEXT_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
-
-    if payload.chatSessionId:
-        chat_id = payload.chatSessionId
-        logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Using existing chat session: {chat_id}")
-    else:
-        logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Creating new chat session")
-        try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Got persona ID: {persona_id}")
-            chat_id = await create_onyx_chat_session(persona_id, cookies)
-            logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Created new chat session: {chat_id}")
-        except Exception as e:
-            logger.error(f"[TEXT_PRESENTATION_EDIT_CHAT_ERROR] Failed to create chat session: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
-
-    wiz_payload = {
-        "product": "Text Presentation Edit",
-        "prompt": payload.editPrompt,
-        "language": "en",  # Default to English for edits
-        "originalContent": payload.content,
-        "editMode": True
-    }
-
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
-
-    # ---------- StreamingResponse with keep-alive -----------
-    async def streamer():
-        assistant_reply: str = ""
-        last_send = asyncio.get_event_loop().time()
-        chunks_received = 0
-
-        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] Starting streamer")
-        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
-        
-        # NEW: Use OpenAI directly for text presentation editing
-        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for text presentation editing")
-        try:
-            async for chunk_data in stream_openai_response(wizard_message):
-                if chunk_data["type"] == "delta":
-                    delta_text = chunk_data["text"]
-                    assistant_reply += delta_text
-                    chunks_received += 1
-                    logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                elif chunk_data["type"] == "error":
-                    logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_ERROR] {chunk_data['text']}")
-                    yield (json.dumps(chunk_data) + "\n").encode()
-                    return
-                
-                # Send keep-alive every 8s
-                now = asyncio.get_event_loop().time()
-                if now - last_send > 8:
-                    yield b" "
-                    last_send = now
-                    logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Sent keep-alive")
-            
-            logger.info(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-            
-        except Exception as e:
-            logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
-
-        logger.info(f"[TEXT_PRESENTATION_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
-        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-
-    return StreamingResponse(
-        streamer(),
-        media_type="text/plain",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
-
-@app.post("/api/custom/text-presentation/finalize")
-async def text_presentation_finalize(payload: TextPresentationWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Finalize text presentation creation by parsing AI response and saving to database"""
-    onyx_user_id = await get_current_onyx_user_id(request)
-    
-    # Get user ID and deduct credits for one-pager creation
-    try:
-        credits_needed = calculate_product_credits("one_pager")
-        
-        # Check and deduct credits
-        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
-        if user_credits.credits_balance < credits_needed:
-            raise HTTPException(
-                status_code=402, 
-                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
-            )
-        
-        # Deduct credits
-        await deduct_credits(onyx_user_id, credits_needed, pool, "One-pager creation")
-        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for one-pager creation")
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error processing credits for one-pager creation: {e}")
-        raise HTTPException(status_code=500, detail="Failed to process credits")
-    
-    # Create a unique key for this text presentation finalization to prevent duplicates
-    text_presentation_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
-    
-    # Check if this text presentation is already being processed
-    if text_presentation_key in ACTIVE_QUIZ_FINALIZE_KEYS:  # Reuse the same set for simplicity
-        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_DUPLICATE] Text presentation finalization already in progress for key: {text_presentation_key}")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Text presentation finalization already in progress")
-    
-    # Add to active set and track timestamp
-    ACTIVE_QUIZ_FINALIZE_KEYS.add(text_presentation_key)
-    QUIZ_FINALIZE_TIMESTAMPS[text_presentation_key] = time.time()
-    
-    # Clean up stale entries (older than 5 minutes)
-    current_time = time.time()
-    stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
-    for stale_key in stale_keys:
-        ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
-        QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
-    
-    try:
-        # Ensure text presentation template exists
-        template_id = await _ensure_text_presentation_template(pool)
-        
-        # Create a consistent project name to prevent re-parsing issues
-        if payload.courseName:
-            project_name = f"Text Presentation - {payload.courseName}: {payload.lesson or 'Standalone Presentation'}"
-        else:
-            project_name = f"Text Presentation - {payload.lesson or 'Standalone Presentation'}"
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] courseName: {payload.courseName}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=f"""
-            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
-            This product is for general text like introductions, goal descriptions, etc.
-            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
-
-            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
-
-            **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
-               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
-               - Extract ONLY the title part (the last part after the last "**")
-               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
-               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
-               - Do NOT include the course name or "Text Presentation" label in the title
-               - If no clear pattern is found, use the first meaningful title or heading
-            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
-            3.  `detectedLanguage` (string): e.g., "en", "ru".
-
-            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
-
-            1.  **`type: "headline"`**
-                * `level` (integer):
-                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
-                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
-                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
-                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
-                * `text` (string): Headline text.
-                * `iconName` (string, optional): Based on level and context as described above.
-                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
-
-            2.  **`type: "paragraph"`**
-                * `text` (string): Full paragraph text.
-                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
-
-            3.  **`type: "bullet_list"`**
-                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
-                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
-
-            4.  **`type: "numbered_list"`**
-                * `items` (array of `ListItem`):
-                    * Can be simple strings for basic numbered points.
-                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
-                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
-                        * The `items` of this *inner* `bullet_list` should then be:
-                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
-                            2. A `paragraph` block (for the main descriptive text).
-                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
-                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
-
-            5.  **`type: "alert"`**
-                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
-                *   `title` (string, optional): The title of the alert.
-                *   `text` (string): The body text of the alert.
-                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
-
-            6.  **`type: "section_break"`**
-                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
-
-            **General Parsing Rules & Icon Names:**
-            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
-            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
-            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
-            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
-            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
-            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
-
-            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
-              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
-              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
-              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
-
-            Return ONLY the JSON object.
-            """,
-            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
-        )
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
-        
-        # Detect language if not provided
-        if not parsed_text_presentation.detectedLanguage:
-            parsed_text_presentation.detectedLanguage = detect_language(payload.aiResponse)
-        
-        # If parsing failed and we have no content blocks, create a basic structure
-        if not parsed_text_presentation.contentBlocks:
-            logger.warning(f"[TEXT_PRESENTATION_FINALIZE_FALLBACK] LLM parsing failed for text presentation, creating fallback structure")
-            # Create a simple text presentation with the AI response as content
-            parsed_text_presentation.textTitle = project_name
-            parsed_text_presentation.contentBlocks = [
-                {
-                    "type": "paragraph",
-                    "text": payload.aiResponse
-                }
-            ]
-        else:
-            # Validate that all content blocks have the required type field
-            valid_content_blocks = []
-            for i, block in enumerate(parsed_text_presentation.contentBlocks):
-                if hasattr(block, 'type') and block.type:
-                    valid_content_blocks.append(block)
-                else:
-                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] Content block {i} missing type, converting to paragraph")
-                    # Convert to paragraph if type is missing
-                    if hasattr(block, 'text'):
-                        valid_content_blocks.append({
-                            "type": "paragraph",
-                            "text": block.text
-                        })
-                    elif hasattr(block, 'items'):
-                        valid_content_blocks.append({
-                            "type": "bullet_list",
-                            "items": block.items
-                        })
-                    else:
-                        # Fallback to paragraph with string representation
-                        valid_content_blocks.append({
-                            "type": "paragraph",
-                            "text": str(block)
-                        })
-            
-            if not valid_content_blocks:
-                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] No valid content blocks found, creating fallback structure")
-                parsed_text_presentation.contentBlocks = [
-                    {
-                        "type": "paragraph",
-                        "text": payload.aiResponse
-                    }
-                ]
-            else:
-                parsed_text_presentation.contentBlocks = valid_content_blocks
-        
-        # Use the parsed text title or fallback to the consistent project name
-        final_project_name = parsed_text_presentation.textTitle or project_name
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
-        
-        # For text presentation components, we need to insert directly to avoid double parsing
-        # since add_project_to_custom_db would call parse_ai_response_with_llm again
-        insert_query = """
-        INSERT INTO projects (
-            onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, created_at;
-        """
-        
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                insert_query,
-                onyx_user_id,
-                final_project_name,
-                "Text Presentation",  # product_type
-                "Text Presentation",  # microproduct_type
-                final_project_name,  # microproduct_name
-                parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
-                template_id,  # design_template_id
-                payload.chatSessionId  # source_chat_session_id
-            )
-        
-        if not row:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create text presentation project entry.")
-        
-        created_project = ProjectDB(**dict(row))
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}")
-        return {"id": created_project.id, "name": final_project_name}
-        
-    except Exception as e:
-        logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    finally:
-        # Always remove from active set and timestamps
-        ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
-        QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
-
-# ============================
-# CREDITS MANAGEMENT ENDPOINTS
-# ============================
-
-@app.get("/api/custom/credits/me", response_model=UserCredits)
-async def get_my_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Get current user's credit balance (auto-creates if new user)"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        # This will auto-create the user if they don't exist yet
-        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
-        return credits
-    except Exception as e:
-        logger.error(f"Error getting user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve credits")
-
-@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
-async def list_all_user_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to list all user credits"""
-    await verify_admin_user(request)
-    
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT * FROM user_credits 
-                ORDER BY updated_at DESC
-            """)
-            return [UserCredits(**dict(row)) for row in rows]
-    except Exception as e:
-        logger.error(f"Error listing user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
-
-@app.post("/api/custom/admin/credits/migrate-users")
-async def migrate_onyx_users_to_credits(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to manually trigger migration of Onyx users to credits table"""
-    await verify_admin_user(request)
-    
-    try:
-        # Use the same migration function as startup
-        migrated_count = await migrate_onyx_users_to_credits_table()
-        
-        return {
-            "success": True,
-            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
-            "users_migrated": migrated_count
-        }
-    except Exception as e:
-        logger.error(f"Error migrating users: {e}")
-        raise HTTPException(status_code=500, detail="Failed to migrate users")
-
-@app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
-async def modify_user_credits(
-    transaction: CreditTransactionRequest,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to add or remove credits for a user by email"""
-    await verify_admin_user(request)
-    
-    try:
-        if transaction.amount <= 0:
-            raise HTTPException(status_code=400, detail="Amount must be positive")
-        
-        updated_credits = await modify_user_credits_by_email(
-            transaction.user_email,
-            transaction.amount,
-            transaction.action,
-            pool,
-            transaction.reason
-        )
-        
-        action_msg = "added to" if transaction.action == "add" else "removed from"
-        message = f"Successfully {action_msg} {transaction.user_email}: {transaction.amount} credits"
-        
-        return CreditTransactionResponse(
-            success=True,
-            message=message,
-            new_balance=updated_credits.credits_balance,
-            user_credits=updated_credits
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error modifying user credits: {e}")
-        raise HTTPException(status_code=500, detail="Failed to modify credits")
-
-@app.get("/api/custom/admin/credits/user/{user_email}", response_model=UserCredits)
-async def get_user_credits_by_email(
-    user_email: str,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to get specific user's credits by email"""
-    await verify_admin_user(request)
-    
-    try:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM user_credits WHERE onyx_user_id = $1",
-                user_email
-            )
-            
-            if not row:
-                # Create entry for user if doesn't exist
-                row = await conn.fetchrow("""
-                    INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                    VALUES ($1, $2, $3)
-                    RETURNING *
-                """, user_email, user_email.split('@')[0], 0)
-            
-            return UserCredits(**dict(row))
-            
-    except Exception as e:
-        logger.error(f"Error getting user credits by email: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
