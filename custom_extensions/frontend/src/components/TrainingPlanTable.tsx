@@ -547,14 +547,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
       
-      // Recalculate hours for all lessons in this module
+      // Recalculate hours for all lessons in this module and update their quality_tier
       const section = dataToDisplay?.sections[sectionIndex];
       if (section && section.lessons) {
         let totalSectionHours = 0;
         
         section.lessons.forEach((lesson, lessonIndex) => {
-          // Only update hours - don't clear lesson-level tier settings
-          // The backend will handle tier inheritance properly
+          // Update lesson's quality_tier to match the new module tier
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
           if (lesson.completionTime) {
             const completionTimeMinutes = parseInt(lesson.completionTime.replace('m', '')) || 0;
             const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
