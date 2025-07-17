@@ -6799,10 +6799,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -7723,10 +7723,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -10296,10 +10296,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -11102,10 +11102,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
