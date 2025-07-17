@@ -36,6 +36,10 @@ import {
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
+import debounce from 'lodash.debounce';
+
+// Add at the top of the file, after imports
+const duplicatingProjects = new Set<number>();
 
 // Client Name Modal Component
 const ClientNameModal: React.FC<{
@@ -894,7 +898,8 @@ const ProjectCard: React.FC<{
     onDeletePermanently: (id: number) => void;
     isTrashMode: boolean;
     folderId?: number | null;
-}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId }) => {
+    refreshProjects: () => Promise<void>;
+}> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId, refreshProjects }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -953,7 +958,9 @@ const ProjectCard: React.FC<{
             }
             
             // Refresh the page to update the view
-            window.location.reload();
+            if (typeof refreshProjects === 'function') {
+                await refreshProjects();
+            }
         } catch (error) {
             console.error('Error removing from folder:', error);
             alert('Failed to remove project from folder');
@@ -1077,9 +1084,12 @@ const ProjectCard: React.FC<{
     const [duplicateError, setDuplicateError] = useState<string | null>(null);
 
     // 2. Add duplicate handler
-    const handleDuplicate = async () => {
-        if (!isOutline) return;
+    const duplicateInProgressRef = React.useRef(false);
+    const handleDuplicate = useCallback(debounce(async () => {
+        if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
         setIsDuplicating(true);
+        duplicateInProgressRef.current = true;
+        duplicatingProjects.add(project.id);
         setDuplicateError(null);
         try {
             const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -1101,15 +1111,19 @@ const ProjectCard: React.FC<{
                 const errTxt = await resp.text();
                 throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
             }
-            // Optionally, you can get the new project info from resp.json()
-            window.location.reload();
+            // Instead of reload, call refreshProjects
+            if (typeof refreshProjects === 'function') {
+                await refreshProjects();
+            }
         } catch (error) {
             setDuplicateError((error as Error).message);
             alert((error as Error).message);
         } finally {
             setIsDuplicating(false);
+            duplicateInProgressRef.current = false;
+            duplicatingProjects.delete(project.id);
         }
-    };
+    }, [isOutline, isDuplicating, refreshProjects]);
     
     return (
         <div 
@@ -1250,7 +1264,7 @@ const ProjectCard: React.FC<{
                                         <span>Add to favorites</span>
                                     </button>
                                     <button
-                                        disabled={!isOutline || isDuplicating}
+                                        disabled={!isOutline || isDuplicating || duplicateInProgressRef.current}
                                         onClick={async (e) => {
                                             e.stopPropagation();
                                             e.preventDefault();
@@ -1445,7 +1459,9 @@ const ProjectCard: React.FC<{
                                         await Promise.all(tasks);
 
                                         setRenameModalOpen(false);
-                                        window.location.reload();
+                                        if (typeof refreshProjects === 'function') {
+                                            await refreshProjects();
+                                        }
                                     } catch (error) {
                                         console.error(error);
                                         alert((error as Error).message);
@@ -1490,7 +1506,8 @@ const ProjectRowMenu: React.FC<{
     onRestore: (id: number) => void;
     onDeletePermanently: (id: number) => void;
     folderId?: number | null;
-}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId }) => {
+    refreshProjects: () => Promise<void>;
+}> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId, refreshProjects }) => {
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [renameModalOpen, setRenameModalOpen] = React.useState(false);
     const [isRenaming, setIsRenaming] = React.useState(false);
@@ -1505,9 +1522,12 @@ const ProjectRowMenu: React.FC<{
     // Add duplicate state and handler here
     const [isDuplicating, setIsDuplicating] = React.useState(false);
     const [duplicateError, setDuplicateError] = React.useState<string | null>(null);
-    const handleDuplicate = async () => {
-        if (!isOutline) return;
+    const duplicateInProgressRef = React.useRef(false);
+    const handleDuplicate = useCallback(debounce(async () => {
+        if (!isOutline || isDuplicating || duplicateInProgressRef.current || duplicatingProjects.has(project.id)) return;
         setIsDuplicating(true);
+        duplicateInProgressRef.current = true;
+        duplicatingProjects.add(project.id);
         setDuplicateError(null);
         try {
             const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -1529,14 +1549,19 @@ const ProjectRowMenu: React.FC<{
                 const errTxt = await resp.text();
                 throw new Error(`Failed to duplicate: ${resp.status} ${errTxt}`);
             }
-            window.location.reload();
+            // Instead of reload, call refreshProjects
+            if (typeof refreshProjects === 'function') {
+                await refreshProjects();
+            }
         } catch (error) {
             setDuplicateError((error as Error).message);
             alert((error as Error).message);
         } finally {
             setIsDuplicating(false);
+            duplicateInProgressRef.current = false;
+            duplicatingProjects.delete(project.id);
         }
-    };
+    }, [isOutline, isDuplicating, refreshProjects]);
     
     const handleRemoveFromFolder = async () => {
         try {
@@ -1563,7 +1588,9 @@ const ProjectRowMenu: React.FC<{
             }
             
             // Refresh the page to update the view
-            window.location.reload();
+            if (typeof refreshProjects === 'function') {
+                await refreshProjects();
+            }
         } catch (error) {
             console.error('Error removing from folder:', error);
             alert('Failed to remove project from folder');
@@ -1688,7 +1715,7 @@ const ProjectRowMenu: React.FC<{
                                     <span>Add to favorites</span>
                                 </button>
                                 <button
-                                    disabled={!isOutline || isDuplicating}
+                                    disabled={!isOutline || isDuplicating || duplicateInProgressRef.current}
                                     onClick={async (e) => {
                                         e.stopPropagation();
                                         e.preventDefault();
@@ -1847,7 +1874,9 @@ const ProjectRowMenu: React.FC<{
                                         }
                                         await Promise.all(tasks);
                                         setRenameModalOpen(false);
-                                        window.location.reload();
+                                        if (typeof refreshProjects === 'function') {
+                                            await refreshProjects();
+                                        }
                                     } catch (error) {
                                         console.error(error);
                                         alert((error as Error).message);
@@ -2576,7 +2605,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            window.location.reload();
+            if (typeof refreshProjects === 'function') {
+                refreshProjects();
+            }
         }
     };
 
@@ -2613,7 +2644,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             alert((error as Error).message);
             setProjects(originalProjects);
         } finally {
-            window.location.reload();
+            if (typeof refreshProjects === 'function') {
+                refreshProjects();
+            }
         }
     };
 
@@ -2641,7 +2674,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             }
             
             // Refresh the projects list
-            refreshProjects();
+            if (typeof refreshProjects === 'function') {
+                refreshProjects();
+            }
         } catch (error) {
             console.error('Error deleting project permanently:', error);
         }
@@ -2675,11 +2710,15 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             }
             
             // Refresh the projects list
-            refreshProjects();
+            if (typeof refreshProjects === 'function') {
+                refreshProjects();
+            }
             
             // Reload the page to ensure all changes are visually applied
             setTimeout(() => {
-                window.location.reload();
+                if (typeof refreshProjects === 'function') {
+                    refreshProjects();
+                }
             }, 500); // Small delay to show success state
         } catch (error) {
             console.error('Error deleting folder:', error);
@@ -2716,7 +2755,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 }
                 
                 // Refresh the projects list
-                refreshProjects();
+                if (typeof refreshProjects === 'function') {
+                    refreshProjects();
+                }
             } catch (error) {
                 console.error('Error moving project to folder:', error);
             }
@@ -3218,6 +3259,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 onDeletePermanently={handleDeletePermanently}
                                 isTrashMode={trashMode}
                                 folderId={folderId}
+                                refreshProjects={refreshProjects}
                             />
                         ))}
                     </div>
