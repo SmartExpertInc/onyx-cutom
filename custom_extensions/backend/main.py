@@ -3713,7 +3713,7 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         for file_id in file_ids:
             try:
                 file_context = await extract_single_file_context(file_id, cookies)
-                if file_context and file_context.get("summary"):
+                if file_context and file_context.get("content"):
                     extracted_context["file_summaries"].append(file_context["summary"])
                     extracted_context["file_contents"].append(file_context["content"])
                     extracted_context["key_topics"].extend(file_context.get("topics", []))
@@ -3821,20 +3821,25 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
                     async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
                         resp.raise_for_status()
                         analysis_text = ""
+                        line_count = 0
                         async for raw_line in resp.aiter_lines():
+                            line_count += 1
                             if not raw_line:
                                 continue
                             line = raw_line.strip()
                             if line.startswith("data:"):
                                 line = line.split("data:", 1)[1].strip()
                             if line == "[DONE]":
+                                logger.info(f"[FILE_CONTEXT] Stream completed for file {file_id} after {line_count} lines")
                                 break
                             try:
                                 pkt = json.loads(line)
                                 if "answer_piece" in pkt:
                                     analysis_text += pkt["answer_piece"].replace("\\n", "\n")
                             except json.JSONDecodeError:
+                                logger.debug(f"[FILE_CONTEXT] JSON decode error on line {line_count}: {line[:100]}")
                                 continue
+                        logger.info(f"[FILE_CONTEXT] Stream processing completed for file {file_id}, total text length: {len(analysis_text)}")
                 else:
                     raise
             
@@ -3842,6 +3847,9 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
             summary = ""
             topics = []
             key_info = ""
+            
+            # Log the raw response for debugging
+            logger.info(f"[FILE_CONTEXT] Raw analysis response for file {file_id} (length: {len(analysis_text)}): {analysis_text[:500]}{'...' if len(analysis_text) > 500 else ''}")
             
             lines = analysis_text.split('\n')
             for line in lines:
@@ -3852,6 +3860,19 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
                     topics = [t.strip() for t in topics_text.split(',') if t.strip()]
                 elif line.startswith("KEY_INFO:"):
                     key_info = line.replace("KEY_INFO:", "").strip()
+            
+            # If no structured response, try to extract a summary from the raw text
+            if not summary and analysis_text.strip():
+                # Take first 200 characters as summary if no structured response
+                summary = analysis_text.strip()[:200]
+                if len(analysis_text) > 200:
+                    summary += "..."
+                logger.info(f"[FILE_CONTEXT] No structured SUMMARY found, using first 200 chars as summary for file {file_id}")
+            
+            # If still no summary, use a fallback
+            if not summary:
+                summary = f"File content available for analysis (ID: {file_id})"
+                logger.warning(f"[FILE_CONTEXT] No summary could be extracted for file {file_id}, using fallback")
             
             return {
                 "file_id": file_id,
@@ -3936,20 +3957,25 @@ async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dic
                     async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
                         resp.raise_for_status()
                         analysis_text = ""
+                        line_count = 0
                         async for raw_line in resp.aiter_lines():
+                            line_count += 1
                             if not raw_line:
                                 continue
                             line = raw_line.strip()
                             if line.startswith("data:"):
                                 line = line.split("data:", 1)[1].strip()
                             if line == "[DONE]":
+                                logger.info(f"[FILE_CONTEXT] Stream completed for folder {folder_id} after {line_count} lines")
                                 break
                             try:
                                 pkt = json.loads(line)
                                 if "answer_piece" in pkt:
                                     analysis_text += pkt["answer_piece"].replace("\\n", "\n")
                             except json.JSONDecodeError:
+                                logger.debug(f"[FILE_CONTEXT] JSON decode error on line {line_count}: {line[:100]}")
                                 continue
+                        logger.info(f"[FILE_CONTEXT] Stream processing completed for folder {folder_id}, total text length: {len(analysis_text)}")
                 else:
                     raise
             
@@ -4842,7 +4868,7 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
             try:
                 # Parse JSON string to dict
                 details_dict = json.loads(details_data)
-                # Round hours to integers in the content before returning
+                # Round hours to integers before returning
                 details_dict = round_hours_in_content(details_dict)
                 parsed_details = details_dict
             except (json.JSONDecodeError, TypeError) as e:
