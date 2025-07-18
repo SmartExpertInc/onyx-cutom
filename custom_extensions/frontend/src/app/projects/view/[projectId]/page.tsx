@@ -306,6 +306,7 @@ export default function ProjectInstanceViewPage() {
   }, [displayOptsSynced, projectId, editableData, projectInstanceData, searchParams]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
+    console.log('handleTextChange called with:', { path, newValue, currentEditableData: editableData });
 
     setEditableData(currentData => {
       if (currentData === null || currentData === undefined) {
@@ -343,9 +344,11 @@ export default function ProjectInstanceViewPage() {
         console.error("Error updating editableData at path:", path, e.message);
         return currentData;
       }
+      
+      console.log('handleTextChange: Updated data:', JSON.stringify(newData, null, 2));
       return newData;
     });
-  }, []);
+  }, [editableData]);
 
   // Handler for SmartPromptEditor content updates
   const handleSmartEditContentUpdate = useCallback((updatedContent: any) => {
@@ -468,6 +471,62 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const payload = { microProductContent: editableData };
+      console.log('Auto-save: Payload being sent:', JSON.stringify(payload, null, 2));
+      
+      // Only do detailed validation for TrainingPlanData
+      if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
+        const trainingPlanData = editableData as TrainingPlanData;
+        console.log('Auto-save: Data validation check:', {
+          hasMainTitle: !!trainingPlanData.mainTitle,
+          hasSections: !!trainingPlanData.sections,
+          sectionsLength: trainingPlanData.sections?.length || 0,
+          hasDetectedLanguage: !!trainingPlanData.detectedLanguage,
+          sectionsStructure: trainingPlanData.sections?.map(section => ({
+            hasId: !!section.id,
+            hasTitle: !!section.title,
+            hasLessons: !!section.lessons,
+            lessonsLength: section.lessons?.length || 0,
+            lessonsStructure: section.lessons?.map(lesson => ({
+              hasTitle: !!lesson.title,
+              hasCheck: !!lesson.check,
+              hasContentAvailable: !!lesson.contentAvailable,
+              hasSource: !!lesson.source,
+              hasHours: typeof lesson.hours === 'number',
+              hasCompletionTime: !!lesson.completionTime
+            }))
+          }))
+        });
+        
+        // Validate and fix data structure before sending
+        if (trainingPlanData.sections) {
+          trainingPlanData.sections.forEach(section => {
+            if (section.lessons) {
+              section.lessons.forEach(lesson => {
+                // Ensure hours is always a number
+                if (typeof lesson.hours !== 'number') {
+                  lesson.hours = 0;
+                }
+                // Ensure check and contentAvailable objects exist
+                if (!lesson.check) {
+                  lesson.check = { type: 'unknown', text: '' };
+                }
+                if (!lesson.contentAvailable) {
+                  lesson.contentAvailable = { type: 'unknown', text: '' };
+                }
+                // Ensure source is a string
+                if (typeof lesson.source !== 'string') {
+                  lesson.source = '';
+                }
+                // Ensure completionTime is a string
+                if (typeof lesson.completionTime !== 'string') {
+                  lesson.completionTime = '5m';
+                }
+              });
+            }
+          });
+        }
+      }
+      
       console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
@@ -476,8 +535,33 @@ export default function ProjectInstanceViewPage() {
         console.warn('Auto-save failed:', response.status);
         const errorText = await response.text();
         console.warn('Auto-save error details:', errorText);
+        
+        // Try to parse error details for better debugging
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.warn('Auto-save parsed error:', errorJson);
+          if (errorJson.detail) {
+            console.warn('Auto-save validation errors:', errorJson.detail);
+          }
+        } catch (e) {
+          console.warn('Could not parse error response as JSON');
+        }
       } else {
         console.log('Auto-save successful');
+        const responseData = await response.json();
+        console.log('Auto-save response data:', JSON.stringify(responseData, null, 2));
+        
+        // Check if the response data matches what we sent (only for TrainingPlanData)
+        if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
+          const trainingPlanData = editableData as TrainingPlanData;
+          console.log('Auto-save: Data comparison:', {
+            sentMainTitle: trainingPlanData.mainTitle,
+            receivedMainTitle: responseData.microproduct_content?.mainTitle,
+            sentSectionsCount: trainingPlanData.sections?.length || 0,
+            receivedSectionsCount: responseData.microproduct_content?.sections?.length || 0,
+            dataMatches: JSON.stringify(trainingPlanData) === JSON.stringify(responseData.microproduct_content)
+          });
+        }
       }
       // Don't refresh page or show alerts for auto-save
     } catch (err: any) {

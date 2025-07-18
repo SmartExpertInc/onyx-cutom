@@ -766,7 +766,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     if (onTextChange) {
         const valueStr = event.target.value;
         const numValue = parseFloat(valueStr);
-        onTextChange(path, valueStr === "" ? "" : (isNaN(numValue) ? 0 : numValue));
+        // Always send a number, never an empty string
+        onTextChange(path, isNaN(numValue) ? 0 : numValue);
         if (autoCalcPath && valueStr !== "") {
             onTextChange(autoCalcPath, false);
         }
