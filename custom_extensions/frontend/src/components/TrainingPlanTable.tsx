@@ -553,6 +553,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const completionTimeMinutes = parseInt(lesson.completionTime.replace('m', '')) || 0;
         const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
+        
+        // Recalculate module total hours
+        recalculateHoursForSection(sectionIndex);
       }
     }
     
@@ -570,6 +573,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       currentCustomRate: section.custom_rate,
       currentQualityTier: section.quality_tier
     });
+  };
+
+  // Function to recalculate hours when quality tier changes
+  const recalculateHoursForSection = (sectionIdx: number) => {
+    const section = sections?.[sectionIdx];
+    if (section && section.lessons && onTextChange) {
+      const newTotalHours = section.lessons.reduce((total, lesson) => {
+        const lessonHours = lesson.hours || 0;
+        return total + lessonHours;
+      }, 0);
+      onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
+      onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
+    }
   };
 
   // Handle saving module settings
@@ -599,6 +615,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         
         // Update section total hours
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
+        onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
       }
     }
     
@@ -921,7 +938,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               type="number" step="0.1"
                               value={section.totalHours === null || section.totalHours === undefined ? '' : section.totalHours}
                               readOnly
-                              className={`${editingInputSmallClass} w-16 text-right bg-gray-50 cursor-not-allowed`}
+                              className={`${editingInputSmallClass} w-16 text-right`}
                               placeholder="Hrs"
                               title="Auto-calculated from lesson hours"
                             />
@@ -942,21 +959,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     );
                   }
                   if (col.key === 'qualityTier') {
-                    const effectiveTier = section.quality_tier || 'interactive';
-                    const tierColorClasses = getTierColorClasses(effectiveTier);
                     return (
-                      <div key={col.key} className={`text-gray-600 ${borderClasses}`}>
+                      <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
+                        <div className="w-4 flex justify-center"> <NewPieChartIcon color={iconBaseColor} className="w-4 h-4"/> </div>
                         {isEditing && onTextChange ? (
-                          <button
-                            onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
-                            className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${tierColorClasses.text} ${tierColorClasses.hover} ${tierColorClasses.bg} ${tierColorClasses.border} border`}
-                            title="Click to change module quality tier"
-                          >
-                            {currentTierLabels[effectiveTier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
-                          </button>
+                            <button
+                              onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
+                              className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(section.quality_tier || 'interactive').text} hover:bg-gray-50`}
+                            >
+                              {currentTierLabels[section.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                            </button>
                         ) : (
-                          <span className={`text-xs capitalize px-2 py-1 rounded ${tierColorClasses.text} ${tierColorClasses.bg} ${tierColorClasses.border} border`}>
-                            {currentTierLabels[effectiveTier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                          <span className={`text-xs capitalize ${getTierColorClasses(section.quality_tier || 'interactive').text}`}>
+                            {currentTierLabels[section.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
                           </span>
                         )}
                       </div>
@@ -1026,13 +1041,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               {isEditing && onTextChange ? (
                                 <button
                                   onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
-                                  className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(lesson.quality_tier || 'interactive').text} ${getTierColorClasses(lesson.quality_tier || 'interactive').hover} ${getTierColorClasses(lesson.quality_tier || 'interactive').bg} ${getTierColorClasses(lesson.quality_tier || 'interactive').border} border`}
-                                  title="Click to change lesson quality tier"
+                                  className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(lesson.quality_tier || 'interactive').text} hover:bg-gray-50`}
                                 >
                                   {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
                                 </button>
                               ) : (
-                                <span className={`text-xs capitalize px-2 py-1 rounded ${getTierColorClasses(lesson.quality_tier || 'interactive').text} ${getTierColorClasses(lesson.quality_tier || 'interactive').bg} ${getTierColorClasses(lesson.quality_tier || 'interactive').border} border`}>
+                                <span className={`text-xs capitalize ${getTierColorClasses(lesson.quality_tier || 'interactive').text}`}>
                                   {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
                                 </span>
                               )}
