@@ -22,8 +22,7 @@ import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
-
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown } from 'lucide-react';
 
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -90,11 +89,6 @@ export default function ProjectInstanceViewPage() {
   const [editableData, setEditableData] = useState<MicroProductContentData>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  
-  // Smart editing state
-  const [showSmartEditor, setShowSmartEditor] = useState(false);
-  
-
   
   // State for the absolute chat URL
   const [chatRedirectUrl, setChatRedirectUrl] = useState<string | null>(null);
@@ -306,8 +300,6 @@ export default function ProjectInstanceViewPage() {
   }, [displayOptsSynced, projectId, editableData, projectInstanceData, searchParams]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
-    console.log('handleTextChange called with:', { path, newValue, currentEditableData: editableData });
-
     setEditableData(currentData => {
       if (currentData === null || currentData === undefined) {
         console.warn("Attempted to update null or undefined editableData at path:", path);
@@ -344,11 +336,9 @@ export default function ProjectInstanceViewPage() {
         console.error("Error updating editableData at path:", path, e.message);
         return currentData;
       }
-      
-      console.log('handleTextChange: Updated data:', JSON.stringify(newData, null, 2));
       return newData;
     });
-  }, [editableData]);
+  }, []);
 
   // Handler for SmartPromptEditor content updates
   const handleSmartEditContentUpdate = useCallback((updatedContent: any) => {
@@ -439,133 +429,6 @@ export default function ProjectInstanceViewPage() {
       alert(`Save failed: ${err.message}`);
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  // Auto-save function that doesn't refresh the page or show alerts
-  const handleAutoSave = async () => {
-    console.log('Auto-save triggered'); // Debug log
-    if (!projectId || !editableData || !projectInstanceData) {
-      console.log('Auto-save: Missing required data', { projectId, hasEditableData: !!editableData, hasProjectInstance: !!projectInstanceData });
-      return; // Silent fail for auto-save
-    }
-    
-    const editableComponentTypes = [
-      COMPONENT_NAME_PDF_LESSON,
-      COMPONENT_NAME_TRAINING_PLAN,
-      COMPONENT_NAME_SLIDE_DECK,
-      COMPONENT_NAME_VIDEO_LESSON,
-      COMPONENT_NAME_QUIZ,
-      COMPONENT_NAME_TEXT_PRESENTATION,
-    ];
-    if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
-      console.log('Auto-save: Unsupported component type', projectInstanceData.component_name);
-      return; // Silent fail for unsupported types
-    }
-
-    const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-    const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-    if (devUserId && process.env.NODE_ENV === 'development') {
-      saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-    }
-
-    try {
-      const payload = { microProductContent: editableData };
-      console.log('Auto-save: Payload being sent:', JSON.stringify(payload, null, 2));
-      
-      // Only do detailed validation for TrainingPlanData
-      if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-        const trainingPlanData = editableData as TrainingPlanData;
-        console.log('Auto-save: Data validation check:', {
-          hasMainTitle: !!trainingPlanData.mainTitle,
-          hasSections: !!trainingPlanData.sections,
-          sectionsLength: trainingPlanData.sections?.length || 0,
-          hasDetectedLanguage: !!trainingPlanData.detectedLanguage,
-          sectionsStructure: trainingPlanData.sections?.map(section => ({
-            hasId: !!section.id,
-            hasTitle: !!section.title,
-            hasLessons: !!section.lessons,
-            lessonsLength: section.lessons?.length || 0,
-            lessonsStructure: section.lessons?.map(lesson => ({
-              hasTitle: !!lesson.title,
-              hasCheck: !!lesson.check,
-              hasContentAvailable: !!lesson.contentAvailable,
-              hasSource: !!lesson.source,
-              hasHours: typeof lesson.hours === 'number',
-              hasCompletionTime: !!lesson.completionTime
-            }))
-          }))
-        });
-        
-        // Validate and fix data structure before sending
-        if (trainingPlanData.sections) {
-          trainingPlanData.sections.forEach(section => {
-            if (section.lessons) {
-              section.lessons.forEach(lesson => {
-                // Ensure hours is always a number
-                if (typeof lesson.hours !== 'number') {
-                  lesson.hours = 0;
-                }
-                // Ensure check and contentAvailable objects exist
-                if (!lesson.check) {
-                  lesson.check = { type: 'unknown', text: '' };
-                }
-                if (!lesson.contentAvailable) {
-                  lesson.contentAvailable = { type: 'unknown', text: '' };
-                }
-                // Ensure source is a string
-                if (typeof lesson.source !== 'string') {
-                  lesson.source = '';
-                }
-                // Ensure completionTime is a string
-                if (typeof lesson.completionTime !== 'string') {
-                  lesson.completionTime = '5m';
-                }
-              });
-            }
-          });
-        }
-      }
-      
-      console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
-        method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        console.warn('Auto-save failed:', response.status);
-        const errorText = await response.text();
-        console.warn('Auto-save error details:', errorText);
-        
-        // Try to parse error details for better debugging
-        try {
-          const errorJson = JSON.parse(errorText);
-          console.warn('Auto-save parsed error:', errorJson);
-          if (errorJson.detail) {
-            console.warn('Auto-save validation errors:', errorJson.detail);
-          }
-        } catch (e) {
-          console.warn('Could not parse error response as JSON');
-        }
-      } else {
-        console.log('Auto-save successful');
-        const responseData = await response.json();
-        console.log('Auto-save response data:', JSON.stringify(responseData, null, 2));
-        
-        // Check if the response data matches what we sent (only for TrainingPlanData)
-        if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-          const trainingPlanData = editableData as TrainingPlanData;
-          console.log('Auto-save: Data comparison:', {
-            sentMainTitle: trainingPlanData.mainTitle,
-            receivedMainTitle: responseData.microproduct_content?.mainTitle,
-            sentSectionsCount: trainingPlanData.sections?.length || 0,
-            receivedSectionsCount: responseData.microproduct_content?.sections?.length || 0,
-            dataMatches: JSON.stringify(trainingPlanData) === JSON.stringify(responseData.microproduct_content)
-          });
-        }
-      }
-      // Don't refresh page or show alerts for auto-save
-    } catch (err: any) {
-      console.warn('Auto-save error:', err.message);
     }
   };
 
@@ -673,8 +536,6 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-
-
   if (pageState === 'initial_loading' || pageState === 'fetching') {
     return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">Loading project details...</div></div>;
   }
@@ -703,8 +564,8 @@ export default function ProjectInstanceViewPage() {
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
           <div>
-            {/* Smart Prompt Editor - show when smart editing is enabled */}
-            {showSmartEditor && (
+            {/* Smart Prompt Editor - only show when editing Training Plans */}
+            {isEditing && (
               <SmartPromptEditor
                 projectId={projectInstanceData.project_id}
                 onContentUpdate={handleSmartEditContentUpdate}
@@ -714,8 +575,8 @@ export default function ProjectInstanceViewPage() {
             )}
             <TrainingPlanTableComponent
               dataToDisplay={trainingPlanData}
+              isEditing={isEditing}
               onTextChange={handleTextChange}
-              onAutoSave={handleAutoSave}
               sourceChatSessionId={projectInstanceData.sourceChatSessionId}
               allUserMicroproducts={allUserMicroproducts}
               parentProjectName={parentProjectNameForCurrentView}
@@ -793,7 +654,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `Project ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+                          [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
@@ -829,17 +690,6 @@ export default function ProjectInstanceViewPage() {
                    <ArrowDownToLine size={16} className="mr-2" /> Download PDF
                   </button>
             )}
-            {/* Smart Edit button for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
-              <button
-                onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center"
-                title="Smart edit with AI"
-              >
-                <Sparkles size={16} className="mr-2" /> Smart Edit
-              </button>
-            )}
-            {/* Edit mode toggle for other content types */}
             {canEditContent && projectId && (
               <button
                 onClick={handleToggleEdit}
