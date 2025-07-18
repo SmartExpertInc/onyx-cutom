@@ -10238,6 +10238,44 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                         if row_patch and row_patch["microproduct_content"] is not None:
                             project_db_candidate.microproduct_content = row_patch["microproduct_content"]
 
+            # --- Recalculate module total hours after creation ---
+            if content_valid and project_db_candidate.microproduct_content:
+                try:
+                    async with pool.acquire() as conn:
+                        content = project_db_candidate.microproduct_content
+                        if isinstance(content, dict) and content.get("sections"):
+                            sections = content["sections"]
+                            updated_sections = []
+                            
+                            for section in sections:
+                                if isinstance(section, dict) and section.get("lessons"):
+                                    # Calculate total hours from lesson hours
+                                    total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
+                                    # Update section with calculated total hours and set autoCalculateHours to true
+                                    updated_section = {
+                                        **section,
+                                        "totalHours": total_hours,
+                                        "autoCalculateHours": True
+                                    }
+                                    updated_sections.append(updated_section)
+                                else:
+                                    updated_sections.append(section)
+                            
+                            # Update the project with recalculated totals
+                            if updated_sections:
+                                updated_content = {**content, "sections": updated_sections}
+                                await conn.execute(
+                                    """
+                                    UPDATE projects
+                                    SET microproduct_content = $1::jsonb
+                                    WHERE id = $2
+                                    """,
+                                    json.dumps(updated_content), project_db_candidate.id
+                                )
+                                logger.info(f"Direct parser path: Recalculated module total hours for project {project_db_candidate.id}")
+                except Exception as e:
+                    logger.warning(f"Direct parser path: Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+
             # Success when we have valid parsed content
             if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
