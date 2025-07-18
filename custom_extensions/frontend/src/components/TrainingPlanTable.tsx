@@ -540,28 +540,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Handle saving lesson settings
   const handleLessonSettingsSave = (customRate: number, qualityTier: string) => {
-    const { sectionIndex, lessonIndex } = lessonSettingsModalState;
+    if (!onTextChange || lessonSettingsModalState.sectionIndex === -1 || lessonSettingsModalState.lessonIndex === -1) return;
     
-    if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
-      // Update lesson's custom rate and quality tier
-      onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], customRate);
-      onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
-      
-      // Recalculate hours based on new rate
-      const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex];
-      if (lesson && lesson.completionTime) {
-        const completionTimeMinutes = parseInt(lesson.completionTime.replace('m', '')) || 0;
-        const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
-        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
-        
-        // Recalculate module total hours
-        recalculateHoursForSection(sectionIndex);
-      }
-    }
+    const sectionIdx = lessonSettingsModalState.sectionIndex;
+    const lessonIndex = lessonSettingsModalState.lessonIndex;
     
-    setLessonSettingsModalState({ 
-      isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' 
-    });
+    // Update lesson quality tier
+    onTextChange(['sections', sectionIdx, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
+    
+    // Trigger module hours recalculation when quality tier changes
+    recalculateModuleHours(sectionIdx);
+    
+    setLessonSettingsModalState({ isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' });
   };
 
   // Handle opening module settings modal
@@ -575,53 +565,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     });
   };
 
-  // Function to recalculate hours when quality tier changes
-  const recalculateHoursForSection = (sectionIdx: number) => {
-    const section = sections?.[sectionIdx];
-    if (section && section.lessons && onTextChange) {
-      const newTotalHours = section.lessons.reduce((total, lesson) => {
-        const lessonHours = lesson.hours || 0;
-        return total + lessonHours;
-      }, 0);
-      onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
-      onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
-    }
-  };
-
   // Handle saving module settings
   const handleModuleSettingsSave = async (customRate: number, qualityTier: string) => {
-    const { sectionIndex } = moduleSettingsModalState;
+    if (!onTextChange || moduleSettingsModalState.sectionIndex === -1) return;
     
-    if (onTextChange && sectionIndex >= 0) {
-      // Update module's custom rate and quality tier
-      onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
-      onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
-      
-      // Recalculate hours for all lessons in this module and update their quality_tier
-      const section = dataToDisplay?.sections[sectionIndex];
-      if (section && section.lessons) {
-        let totalSectionHours = 0;
-        
-        section.lessons.forEach((lesson, lessonIndex) => {
-          // Update lesson's quality_tier to match the new module tier
-          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
-          if (lesson.completionTime) {
-            const completionTimeMinutes = parseInt(lesson.completionTime.replace('m', '')) || 0;
-            const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
-            onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
-            totalSectionHours += newHours;
-          }
-        });
-        
-        // Update section total hours
-        onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
-        onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
-      }
-    }
+    const sectionIdx = moduleSettingsModalState.sectionIndex;
     
-    setModuleSettingsModalState({ 
-      isOpen: false, moduleTitle: '', sectionIndex: -1 
-    });
+    // Update module quality tier
+    onTextChange(['sections', sectionIdx, 'quality_tier'], qualityTier);
+    
+    // Trigger module hours recalculation when quality tier changes
+    recalculateModuleHours(sectionIdx);
+    
+    setModuleSettingsModalState({ isOpen: false, moduleTitle: '', sectionIndex: -1 });
   };
 
   // Theme configuration for training plan colors
@@ -719,12 +675,32 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const calculateTotalCreationTime = (section: SectionType): number => {
     if (!section.lessons || section.lessons.length === 0) return 0;
     
-    const totalHours = section.lessons.reduce((total, lesson) => {
+    return section.lessons.reduce((total, lesson) => {
       const hours = lesson.hours || 0;
-      return total + hours;
+      const qualityTier = lesson.quality_tier || 'interactive';
+      
+      // Get hours multiplier based on quality tier
+      const tierMultipliers = {
+        basic: 1,
+        interactive: 2,
+        advanced: 3,
+        immersive: 7
+      };
+      
+      return total + (hours * tierMultipliers[qualityTier as keyof typeof tierMultipliers]);
     }, 0);
+  };
+
+  // Recalculate module total hours when quality tier changes
+  const recalculateModuleHours = (sectionIdx: number) => {
+    if (!sections || !onTextChange) return;
     
-    return totalHours;
+    const section = sections[sectionIdx];
+    if (section) {
+      const newTotalHours = calculateTotalCreationTime(section);
+      onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
+      onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
+    }
   };
 
   // ---- Determine column visibility based on query params OR stored displayOptions ----
@@ -938,7 +914,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               type="number" step="0.1"
                               value={section.totalHours === null || section.totalHours === undefined ? '' : section.totalHours}
                               readOnly
-                              className={`${editingInputSmallClass} w-16 text-right`}
+                              className={`${editingInputSmallClass} w-16 text-right cursor-not-allowed`}
                               placeholder="Hrs"
                               title="Auto-calculated from lesson hours"
                             />
@@ -959,19 +935,21 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     );
                   }
                   if (col.key === 'qualityTier') {
+                    const effectiveTier = section.quality_tier || 'interactive';
+                    const tierColorClasses = getTierColorClasses(effectiveTier);
                     return (
-                      <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
-                        <div className="w-4 flex justify-center"> <NewPieChartIcon color={iconBaseColor} className="w-4 h-4"/> </div>
-                        {isEditing && onTextChange ? (
-                            <button
-                              onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
-                              className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(section.quality_tier || 'interactive').text} hover:bg-gray-50`}
-                            >
-                              {currentTierLabels[section.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
-                            </button>
+                      <div key={col.key} className={`text-gray-600 ${borderClasses}`}>
+                        {isEditing ? (
+                          <button
+                            onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
+                            className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${tierColorClasses.text} bg-yellow-50 hover:bg-yellow-100 border border-yellow-200`}
+                            title="Click to change module quality tier"
+                          >
+                            {currentTierLabels[effectiveTier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                          </button>
                         ) : (
-                          <span className={`text-xs capitalize ${getTierColorClasses(section.quality_tier || 'interactive').text}`}>
-                            {currentTierLabels[section.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                          <span className={`text-xs capitalize px-2 py-1 ${tierColorClasses.text}`}>
+                            {currentTierLabels[effectiveTier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
                           </span>
                         )}
                       </div>
@@ -1041,12 +1019,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               {isEditing && onTextChange ? (
                                 <button
                                   onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
-                                  className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(lesson.quality_tier || 'interactive').text} hover:bg-gray-50`}
+                                  className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(lesson.quality_tier || 'interactive').text} bg-yellow-50 hover:bg-yellow-100 border border-yellow-200`}
+                                  title="Click to change lesson quality tier"
                                 >
                                   {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
                                 </button>
                               ) : (
-                                <span className={`text-xs capitalize ${getTierColorClasses(lesson.quality_tier || 'interactive').text}`}>
+                                <span className={`text-xs capitalize px-2 py-1 ${getTierColorClasses(lesson.quality_tier || 'interactive').text}`}>
                                   {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
                                 </span>
                               )}
@@ -1064,13 +1043,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                   onChange={(e) => {
                                     // Update lesson hours
                                     handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e);
-                                    // Auto-recalculate module total hours
+                                    // Auto-recalculate module total hours using quality tier multipliers
                                     const newValue = parseFloat(e.target.value) || 0;
                                     const currentSection = sections?.[sectionIdx];
                                     if (currentSection) {
-                                      const updatedLessons = [...(currentSection.lessons || [])];
-                                      updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newValue };
-                                      const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
+                                      const newTotalHours = calculateTotalCreationTime(currentSection);
                                       onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
                                       onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
                                     }
