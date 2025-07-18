@@ -438,7 +438,7 @@ const EditProjectPageComponent = () => {
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-black">Total Hours (auto-calculated):</label>
-                        <input type="number" value={Math.round(section.totalHours)} readOnly className={`${smallInputClasses} bg-gray-100 cursor-not-allowed`} />
+                        <input type="number" value={Math.round(section.totalHours)} readOnly className={`${smallInputClasses} cursor-not-allowed`} />
                     </div>
                 </div>
                 <h4 className="text-md font-semibold text-black mb-2 mt-4">Lessons/Items:</h4>
