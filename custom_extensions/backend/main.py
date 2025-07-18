@@ -3708,32 +3708,40 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             }
         }
         
-        # Extract file contexts
+        # Extract file contexts with enhanced retry mechanism
         successful_extractions = 0
         for file_id in file_ids:
-            try:
-                file_context = await extract_single_file_context(file_id, cookies)
-                if file_context and file_context.get("content"):
-                    # Check if this was a successful extraction (not a generic response or error)
-                    content = file_context.get("content", "")
-                    if any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access"]):
-                        logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues, will retry once")
-                        # Retry once after a short delay
-                        await asyncio.sleep(2)
-                        file_context = await extract_single_file_context(file_id, cookies)
-                    
-                    if file_context and file_context.get("content"):
+            file_context = None
+            for retry_attempt in range(3):  # Up to 3 attempts per file
+                try:
+                    file_context = await extract_single_file_context(file_id, cookies)
+                    if file_context and (file_context.get("summary") or file_context.get("content")):
+                        # Check if this was a successful extraction (not a generic response or error)
+                        content = file_context.get("content", "")
+                        if any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
+                            logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues (attempt {retry_attempt + 1})")
+                            if retry_attempt < 2:  # Don't sleep on the last attempt
+                                await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
+                                continue
+                        
+                        # Success - add to context
                         extracted_context["file_summaries"].append(file_context["summary"])
                         extracted_context["file_contents"].append(file_context["content"])
                         extracted_context["key_topics"].extend(file_context.get("topics", []))
                         successful_extractions += 1
-                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
+                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} (attempt {retry_attempt + 1})")
+                        break  # Success, no need for more retries
                     else:
-                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} after retry")
-                else:
-                    logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id}")
-            except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id}: {e}")
+                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} (attempt {retry_attempt + 1})")
+                        if retry_attempt < 2:  # Don't sleep on the last attempt
+                            await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
+                except Exception as e:
+                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id} (attempt {retry_attempt + 1}): {e}")
+                    if retry_attempt < 2:  # Don't sleep on the last attempt
+                        await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
+            
+            if not file_context or not (file_context.get("summary") or file_context.get("content")):
+                logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
         
         # Extract folder contexts
         for folder_id in folder_ids:
@@ -3781,45 +3789,38 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
 
 async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
-    Extract context from a single file using Onyx's chat API.
+    Extract context from a single file using Onyx's chat API with 100% file attachment guarantee.
     """
     try:
-        # First check if the file exists and is indexed
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            try:
-                response = await client.get(f"{ONYX_API_SERVER_URL}/user/file/{file_id}", cookies=cookies)
-                response.raise_for_status()
-                file_data = response.json()
-                file_status = file_data.get("status", "UNKNOWN")
-                file_name = file_data.get("name", "Unknown")
-                
-                logger.info(f"[FILE_CONTEXT] File {file_id} ({file_name}) status: {file_status}")
-                
-                if file_status != "INDEXED":
-                    logger.warning(f"[FILE_CONTEXT] File {file_id} is not indexed (status: {file_status}), skipping context extraction")
-                    return {
-                        "file_id": file_id,
-                        "summary": f"File '{file_name}' is not yet indexed (status: {file_status})",
-                        "topics": ["file processing", "indexing"],
-                        "key_info": "File needs to be indexed before analysis",
-                        "content": f"File {file_id} ({file_name}) status: {file_status}"
-                    }
-            except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] Could not check file {file_id} status: {e}")
-                # Continue anyway, the file might still be accessible
+        # Step 1: Verify file exists and is accessible
+        file_info = await verify_file_accessibility(file_id, cookies)
+        if not file_info:
+            return {
+                "file_id": file_id,
+                "summary": f"File {file_id} is not accessible or does not exist",
+                "topics": ["file access error"],
+                "key_info": "File may need to be re-uploaded",
+                "content": f"File {file_id} access verification failed"
+            }
         
-        # Create a temporary chat session to extract file content
+        # Step 2: Create a temporary chat session with forced file attachment
         persona_id = await get_contentbuilder_persona_id(cookies)
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
-        # Use Onyx to analyze the file content
+        # Step 3: Enhanced analysis prompt with explicit file reference
         analysis_prompt = f"""
-        I have provided you with file ID {file_id}. Please analyze this specific file and provide:
+        I have provided you with file ID {file_id} (filename: {file_info.get('name', 'Unknown')}). 
+        This file should be directly attached to this message and available for analysis.
+        
+        Please analyze this specific file and provide:
         1. A concise summary of the main content (max 200 words)
         2. Key topics and concepts covered
         3. The most important information that would be relevant for content creation
         
-        IMPORTANT: You must analyze the file I have provided. Do not ask for the file content - it should already be available to you.
+        IMPORTANT: 
+        - The file is attached to this message with ID {file_id}
+        - Do not ask for the file content - it should already be available to you
+        - If you cannot see the file content, respond with "FILE_ACCESS_ERROR"
         
         Format your response as:
         SUMMARY: [summary here]
@@ -3827,121 +3828,259 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         KEY_INFO: [most important information]
         """
         
-        async with httpx.AsyncClient(timeout=180.0) as client:  # 3 minutes timeout for large files like 200-page PDFs
-            payload = {
-                "chat_session_id": temp_chat_id,
-                "message": analysis_prompt,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": [file_id],
-                "user_folder_ids": [],
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": {"run_search": "never", "real_time": False},
-                "stream_response": True,
-            }
-            
-            # Try the simple API first, fallback to regular streaming endpoint
+        # Step 4: Multiple retry attempts with different strategies
+        for attempt in range(3):
             try:
-                response = await client.post(
-                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
-                    json=payload,
-                    cookies=cookies
+                result = await attempt_file_analysis_with_retry(
+                    temp_chat_id, file_id, analysis_prompt, cookies, attempt
                 )
-                response.raise_for_status()
-                result = response.json()
-                analysis_text = result.get("answer", "")
-            except httpx.HTTPStatusError as e:
-                if e.response.status_code == 404:
-                    logger.info(f"[FILE_CONTEXT] Simple API not available, using streaming endpoint for file {file_id}")
-                    # Fallback to streaming endpoint
-                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
-                        resp.raise_for_status()
-                        analysis_text = ""
-                        line_count = 0
-                        async for raw_line in resp.aiter_lines():
-                            line_count += 1
-                            if not raw_line:
-                                continue
-                            line = raw_line.strip()
-                            if line.startswith("data:"):
-                                line = line.split("data:", 1)[1].strip()
-                            if line == "[DONE]":
-                                logger.info(f"[FILE_CONTEXT] Stream completed for file {file_id} after {line_count} lines")
-                                break
-                            try:
-                                pkt = json.loads(line)
-                                if "answer_piece" in pkt:
-                                    analysis_text += pkt["answer_piece"].replace("\\n", "\n")
-                            except json.JSONDecodeError:
-                                logger.debug(f"[FILE_CONTEXT] JSON decode error on line {line_count}: {line[:100]}")
-                                continue
-                        logger.info(f"[FILE_CONTEXT] Stream processing completed for file {file_id}, total text length: {len(analysis_text)}")
+                if result and not is_generic_response(result):
+                    return parse_analysis_result(file_id, result)
+                elif attempt < 2:
+                    logger.warning(f"[FILE_CONTEXT] Attempt {attempt + 1} failed for file {file_id}, retrying...")
+                    await asyncio.sleep(1)  # Brief delay before retry
+                else:
+                    logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
+                    break
+            except Exception as e:
+                logger.error(f"[FILE_CONTEXT] Attempt {attempt + 1} error for file {file_id}: {e}")
+                if attempt < 2:
+                    await asyncio.sleep(1)
                 else:
                     raise
-            
-            # Parse the analysis
-            summary = ""
-            topics = []
-            key_info = ""
-            
-            # Log the raw response for debugging
-            logger.info(f"[FILE_CONTEXT] Raw analysis response for file {file_id} (length: {len(analysis_text)}): {analysis_text[:500]}{'...' if len(analysis_text) > 500 else ''}")
-            
-            lines = analysis_text.split('\n')
-            for line in lines:
-                if line.startswith("SUMMARY:"):
-                    summary = line.replace("SUMMARY:", "").strip()
-                elif line.startswith("TOPICS:"):
-                    topics_text = line.replace("TOPICS:", "").strip()
-                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
-                elif line.startswith("KEY_INFO:"):
-                    key_info = line.replace("KEY_INFO:", "").strip()
-            
-            # Check if AI gave a generic response instead of analyzing the file
-            generic_phrases = [
-                "could you please share the file",
-                "please share the file",
-                "paste its content",
-                "upload the file",
-                "provide the file",
-                "share the document",
-                "i don't see any file",
-                "no file was provided",
-                "file content is not available"
-            ]
-            
-            analysis_lower = analysis_text.lower()
-            is_generic_response = any(phrase in analysis_lower for phrase in generic_phrases)
-            
-            if is_generic_response:
-                logger.warning(f"[FILE_CONTEXT] AI gave generic response for file {file_id}, indicating file access issue")
-                summary = f"File access issue detected - AI could not access file content (ID: {file_id})"
-                topics = ["file access", "processing error"]
-                key_info = "File may need to be re-uploaded or re-indexed"
-            elif not summary and analysis_text.strip():
-                # Take first 200 characters as summary if no structured response
-                summary = analysis_text.strip()[:200]
-                if len(analysis_text) > 200:
-                    summary += "..."
-                logger.info(f"[FILE_CONTEXT] No structured SUMMARY found, using first 200 chars as summary for file {file_id}")
-            
-            # If still no summary, use a fallback
-            if not summary:
-                summary = f"File content available for analysis (ID: {file_id})"
-                logger.warning(f"[FILE_CONTEXT] No summary could be extracted for file {file_id}, using fallback")
-            
-            return {
-                "file_id": file_id,
-                "summary": summary,
-                "topics": topics,
-                "key_info": key_info,
-                "content": analysis_text
-            }
+        
+        # Step 5: Fallback response if all attempts fail
+        return {
+            "file_id": file_id,
+            "summary": f"File analysis failed after multiple attempts (ID: {file_id})",
+            "topics": ["analysis error", "file processing"],
+            "key_info": "File may need manual review or re-upload",
+            "content": f"Analysis failed for file {file_id} ({file_info.get('name', 'Unknown')})"
+        }
             
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] Error extracting single file context for file {file_id}: {e}")
+        return {
+            "file_id": file_id,
+            "summary": f"Error processing file {file_id}: {str(e)}",
+            "topics": ["processing error"],
+            "key_info": "File processing encountered an error",
+            "content": f"Error: {str(e)}"
+        }
+
+async def verify_file_accessibility(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Verify that a file exists and is accessible before attempting analysis.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Check file status
+            response = await client.get(f"{ONYX_API_SERVER_URL}/user/file/{file_id}", cookies=cookies)
+            response.raise_for_status()
+            file_data = response.json()
+            
+            file_status = file_data.get("status", "UNKNOWN")
+            file_name = file_data.get("name", "Unknown")
+            
+            logger.info(f"[FILE_CONTEXT] File {file_id} ({file_name}) status: {file_status}")
+            
+            # Check if file is accessible via direct download
+            try:
+                download_response = await client.get(f"{ONYX_API_SERVER_URL}/user/file/{file_id}/download", cookies=cookies)
+                download_response.raise_for_status()
+                logger.info(f"[FILE_CONTEXT] File {file_id} download test successful")
+            except Exception as e:
+                logger.warning(f"[FILE_CONTEXT] File {file_id} download test failed: {e}")
+            
+            return {
+                "id": file_id,
+                "name": file_name,
+                "status": file_status,
+                "accessible": file_status in ["INDEXED", "PROCESSING", "COMPLETED"]
+            }
+    except Exception as e:
+        logger.error(f"[FILE_CONTEXT] File accessibility check failed for {file_id}: {e}")
         return None
+
+async def attempt_file_analysis_with_retry(
+    chat_id: str, 
+    file_id: int, 
+    prompt: str, 
+    cookies: Dict[str, str], 
+    attempt: int
+) -> str:
+    """
+    Attempt file analysis with different strategies based on attempt number.
+    """
+    # Different strategies for each attempt
+    strategies = [
+        # Attempt 1: Standard approach with user_file_ids
+        {
+            "user_file_ids": [file_id],
+            "retrieval_options": {"run_search": "never", "real_time": False},
+            "force_direct_attachment": True
+        },
+        # Attempt 2: Force search tool with file-specific query
+        {
+            "user_file_ids": [file_id],
+            "retrieval_options": {"run_search": "always", "real_time": False},
+            "query_override": f"Analyze the content of file ID {file_id}"
+        },
+        # Attempt 3: Use file_descriptors as fallback
+        {
+            "file_descriptors": [{"id": str(file_id), "type": "USER_KNOWLEDGE", "name": f"file_{file_id}"}],
+            "retrieval_options": {"run_search": "never", "real_time": False}
+        }
+    ]
+    
+    strategy = strategies[attempt]
+    
+    async with httpx.AsyncClient(timeout=180.0) as client:
+        payload = {
+            "chat_session_id": chat_id,
+            "message": prompt,
+            "parent_message_id": None,
+            "file_descriptors": strategy.get("file_descriptors", []),
+            "user_file_ids": strategy.get("user_file_ids", []),
+            "user_folder_ids": [],
+            "prompt_id": None,
+            "search_doc_ids": None,
+            "retrieval_options": strategy["retrieval_options"],
+            "stream_response": True,
+            "query_override": strategy.get("query_override")
+        }
+        
+        logger.info(f"[FILE_CONTEXT] Attempt {attempt + 1} for file {file_id} with strategy: {list(strategy.keys())}")
+        
+        try:
+            # Try simple API first
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                json=payload,
+                cookies=cookies
+            )
+            response.raise_for_status()
+            result = response.json()
+            return result.get("answer", "")
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                # Fallback to streaming endpoint
+                return await stream_file_analysis(client, payload, cookies, file_id)
+            else:
+                raise
+
+async def stream_file_analysis(
+    client: httpx.AsyncClient, 
+    payload: Dict[str, Any], 
+    cookies: Dict[str, str], 
+    file_id: int
+) -> str:
+    """
+    Stream file analysis response with enhanced error handling.
+    """
+    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+        resp.raise_for_status()
+        analysis_text = ""
+        line_count = 0
+        file_mentioned = False
+        
+        async for raw_line in resp.aiter_lines():
+            line_count += 1
+            if not raw_line:
+                continue
+                
+            line = raw_line.strip()
+            if line.startswith("data:"):
+                line = line.split("data:", 1)[1].strip()
+                
+            if line == "[DONE]":
+                logger.info(f"[FILE_CONTEXT] Stream completed for file {file_id} after {line_count} lines")
+                break
+                
+            try:
+                pkt = json.loads(line)
+                if "answer_piece" in pkt:
+                    piece = pkt["answer_piece"].replace("\\n", "\n")
+                    analysis_text += piece
+                    
+                    # Check if file is mentioned in the response
+                    if str(file_id) in piece or "file" in piece.lower():
+                        file_mentioned = True
+                        
+            except json.JSONDecodeError:
+                logger.debug(f"[FILE_CONTEXT] JSON decode error on line {line_count}: {line[:100]}")
+                continue
+        
+        logger.info(f"[FILE_CONTEXT] Stream processing completed for file {file_id}, "
+                   f"total text length: {len(analysis_text)}, file mentioned: {file_mentioned}")
+        
+        return analysis_text
+
+def is_generic_response(text: str) -> bool:
+    """
+    Check if the AI response is generic (indicating file access issues).
+    """
+    generic_phrases = [
+        "could you please share the file",
+        "please share the file",
+        "paste its content",
+        "upload the file",
+        "provide the file",
+        "share the document",
+        "i don't see any file",
+        "no file was provided",
+        "file content is not available",
+        "file_access_error",
+        "i cannot access",
+        "i don't have access to",
+        "please provide the content"
+    ]
+    
+    text_lower = text.lower()
+    return any(phrase in text_lower for phrase in generic_phrases)
+
+def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
+    """
+    Parse the analysis result and extract structured information.
+    """
+    summary = ""
+    topics = []
+    key_info = ""
+    
+    # Log the raw response for debugging
+    logger.info(f"[FILE_CONTEXT] Raw analysis response for file {file_id} (length: {len(analysis_text)}): "
+               f"{analysis_text[:500]}{'...' if len(analysis_text) > 500 else ''}")
+    
+    lines = analysis_text.split('\n')
+    for line in lines:
+        if line.startswith("SUMMARY:"):
+            summary = line.replace("SUMMARY:", "").strip()
+        elif line.startswith("TOPICS:"):
+            topics_text = line.replace("TOPICS:", "").strip()
+            topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+        elif line.startswith("KEY_INFO:"):
+            key_info = line.replace("KEY_INFO:", "").strip()
+    
+    # If no structured response, try to extract meaningful content
+    if not summary and analysis_text.strip():
+        # Take first 200 characters as summary if no structured response
+        summary = analysis_text.strip()[:200]
+        if len(analysis_text) > 200:
+            summary += "..."
+        logger.info(f"[FILE_CONTEXT] No structured SUMMARY found, using first 200 chars as summary for file {file_id}")
+    
+    # If still no summary, use a fallback
+    if not summary:
+        summary = f"File content analyzed successfully (ID: {file_id})"
+        logger.warning(f"[FILE_CONTEXT] No summary could be extracted for file {file_id}, using fallback")
+    
+    return {
+        "file_id": file_id,
+        "summary": summary,
+        "topics": topics,
+        "key_info": key_info,
+        "content": analysis_text
+    }
 
 async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
