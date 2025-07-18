@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/TrainingPlanTable.tsx
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
@@ -33,9 +33,9 @@ const NewClockIcon = ({ color = '#FF1414', className = '' }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.23618 4.45109C7.29889 4.52215 7.3286 4.62291 7.31771 4.71767C7.10348 6.58871 5.53656 8 3.67288 8C1.64747 8 0 6.35149 0 4.32497C0 2.45827 1.45205 0.852133 3.30583 0.668632C3.40056 0.658956 3.49167 0.690319 3.56065 0.75371C3.62964 0.817101 3.66991 0.906516 3.66991 1.0006V4.33332H6.98993C7.08401 4.33332 7.17379 4.38002 7.23618 4.45109ZM7.98647 3.24899C7.81515 1.47437 6.4981 0.172845 4.68889 0.0013554C4.59614 -0.00698556 4.50536 0.0233755 4.43671 0.0867668C4.36805 0.150158 4.33009 0.23924 4.33009 0.333326V0.341666V3.34441C4.33009 3.52858 4.47566 3.66604 4.65786 3.66604H7.62865H7.66331C7.66529 3.66604 7.6676 3.66604 7.66991 3.66604C7.85212 3.66604 8 3.52257 8 3.33841C8 3.30504 7.99538 3.27935 7.98647 3.24899Z" fill={color}/></svg>
 );
 
-// Inline editing styles
-const inlineEditingInputClass = "p-1 bg-yellow-50 border border-yellow-400 rounded text-black outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-400 text-xs";
-const inlineEditingInputSmallClass = `${inlineEditingInputClass} h-8 w-16`;
+// Inline editing styles - matching original sizes
+const inlineEditingInputClass = "p-1 bg-yellow-50 border border-yellow-400 rounded text-black outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-400 text-xs w-full";
+const inlineEditingInputSmallClass = `${inlineEditingInputClass} h-8`;
 const inlineEditingInputTitleClass = `${inlineEditingInputClass} text-base font-semibold`;
 const inlineEditingInputMainTitleClass = `${inlineEditingInputClass} text-xl md:text-2xl font-bold bg-gray-700 text-white`;
 
@@ -79,6 +79,7 @@ const StatusBadge = ({
 interface TrainingPlanTableProps {
   dataToDisplay?: TrainingPlanData | null;
   onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
+  onAutoSave?: () => void;
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
@@ -217,6 +218,7 @@ const findMicroproductByTitle = (
 const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   dataToDisplay,
   onTextChange,
+  onAutoSave,
   allUserMicroproducts,
   parentProjectName,
   sourceChatSessionId,
@@ -266,10 +268,30 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     });
   };
 
-  // Helper function to stop editing
+  // Helper function to stop editing and save changes
   const stopEditing = () => {
     setEditingField(null);
   };
+
+
+
+  // Add click outside listener
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      if (editingField && onTextChange) {
+        // Check if click is outside any editing input
+        const target = event.target as HTMLElement;
+        if (!target.closest('input[type="text"], input[type="number"]')) {
+          stopEditing();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, [editingField, onTextChange]);
 
   // Helper function to check if a field is currently being edited
   const isEditingField = (type: 'mainTitle' | 'sectionId' | 'sectionTitle' | 'lessonTitle' | 'source' | 'hours' | 'completionTime' | 'check' | 'contentAvailable', sectionIndex?: number, lessonIndex?: number) => {
@@ -709,7 +731,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const currentTierLabels = tierLabels[lang];
 
   const handleGenericInputChange = (path: (string|number)[], event: React.ChangeEvent<HTMLInputElement>) => {
-    if (onTextChange) onTextChange(path, event.target.value);
+    if (onTextChange) {
+      onTextChange(path, event.target.value);
+      // Auto-save the changes
+      setTimeout(() => {
+        if (onAutoSave) {
+          onAutoSave();
+        }
+      }, 1000);
+    }
   };
 
   const handleNumericInputChange = (
@@ -724,6 +754,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         if (autoCalcPath && valueStr !== "") {
             onTextChange(autoCalcPath, false);
         }
+        // Auto-save the changes
+        setTimeout(() => {
+          if (onAutoSave) {
+            onAutoSave();
+          }
+        }, 1000);
     }
   };
 
@@ -897,7 +933,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               <input
                 type="text" value={mainTitle || ''}
                 onChange={(e) => handleGenericInputChange(['mainTitle'], e)}
-                onBlur={() => stopEditing()}
                 className={inlineEditingInputMainTitleClass} placeholder="Main Training Plan Title"
               />
             ) : ( 
@@ -957,7 +992,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         type="text" 
                         value={section.id} 
                         onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} 
-                        onBlur={() => stopEditing()}
                         className={`${inlineEditingInputSmallClass} w-24`} 
                         placeholder="ID"
                       />
@@ -965,7 +999,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         type="text" 
                         value={section.title} 
                         onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'title'], e)} 
-                        onBlur={() => stopEditing()}
                         className={`${inlineEditingInputTitleClass} flex-grow`} 
                         placeholder="Section Title"
                       />
@@ -1048,7 +1081,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             type="text" 
                             value={lesson.title} 
                             onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} 
-                            onBlur={() => stopEditing()}
                             className={`${inlineEditingInputClass} flex-1`} 
                             placeholder="Lesson Title"
                           />
@@ -1097,7 +1129,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                     type="text" 
                                     value={lesson.source} 
                                     onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'source'], e)} 
-                                    onBlur={() => stopEditing()}
                                     className={inlineEditingInputSmallClass} 
                                     placeholder="Source"
                                   />
@@ -1147,7 +1178,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                       onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
                                     }
                                   }}
-                                  onBlur={() => stopEditing()}
                                   className={`${inlineEditingInputSmallClass} w-16 text-right`} 
                                   placeholder="Hrs"
                                 />
@@ -1170,7 +1200,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                   type="text" 
                                   value={lesson.completionTime || ''} 
                                   onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e)} 
-                                  onBlur={() => stopEditing()}
                                   className={`${inlineEditingInputSmallClass} w-16 text-right`} 
                                   placeholder="5m"
                                 />

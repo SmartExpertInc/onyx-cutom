@@ -21,8 +21,9 @@ import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
+import SmartPromptEditor from '@/components/SmartPromptEditor';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
 
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -89,6 +90,11 @@ export default function ProjectInstanceViewPage() {
   const [editableData, setEditableData] = useState<MicroProductContentData>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  
+  // Smart editing state
+  const [showSmartEditor, setShowSmartEditor] = useState(false);
+  
+
   
   // State for the absolute chat URL
   const [chatRedirectUrl, setChatRedirectUrl] = useState<string | null>(null);
@@ -300,6 +306,7 @@ export default function ProjectInstanceViewPage() {
   }, [displayOptsSynced, projectId, editableData, projectInstanceData, searchParams]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
+
     setEditableData(currentData => {
       if (currentData === null || currentData === undefined) {
         console.warn("Attempted to update null or undefined editableData at path:", path);
@@ -536,6 +543,8 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
+
+
   if (pageState === 'initial_loading' || pageState === 'fetching') {
     return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">Loading project details...</div></div>;
   }
@@ -563,15 +572,27 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
-          <TrainingPlanTableComponent
-            dataToDisplay={trainingPlanData}
-            onTextChange={handleTextChange}
-            sourceChatSessionId={projectInstanceData.sourceChatSessionId}
-            allUserMicroproducts={allUserMicroproducts}
-            parentProjectName={parentProjectNameForCurrentView}
-            theme={trainingPlanData?.theme || 'cherry'}
-            columnVisibility={columnVisibility}
-          />
+          <div>
+            {/* Smart Prompt Editor - show when smart editing is enabled */}
+            {showSmartEditor && (
+              <SmartPromptEditor
+                projectId={projectInstanceData.project_id}
+                onContentUpdate={handleSmartEditContentUpdate}
+                onError={handleSmartEditError}
+                onRevert={handleSmartEditRevert}
+              />
+            )}
+            <TrainingPlanTableComponent
+              dataToDisplay={trainingPlanData}
+              onTextChange={handleTextChange}
+              onAutoSave={handleSave}
+              sourceChatSessionId={projectInstanceData.sourceChatSessionId}
+              allUserMicroproducts={allUserMicroproducts}
+              parentProjectName={parentProjectNameForCurrentView}
+              theme={trainingPlanData?.theme || 'cherry'}
+              columnVisibility={columnVisibility}
+            />
+          </div>
         );
       case COMPONENT_NAME_PDF_LESSON:
         const pdfLessonData = editableData as PdfLessonData | null;
@@ -678,15 +699,14 @@ export default function ProjectInstanceViewPage() {
                    <ArrowDownToLine size={16} className="mr-2" /> Download PDF
                   </button>
             )}
-            {/* Save button for Training Plans (inline editing) */}
+            {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                title="Save changes"
+                onClick={() => setShowSmartEditor(!showSmartEditor)}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center"
+                title="Smart edit with AI"
               >
-                <Save size={16} className="mr-2" /> {isSaving ? 'Saving...' : 'Save Changes'}
+                <Sparkles size={16} className="mr-2" /> Smart Edit
               </button>
             )}
             {/* Edit mode toggle for other content types */}
