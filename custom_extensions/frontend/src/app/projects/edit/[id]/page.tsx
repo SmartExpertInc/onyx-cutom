@@ -341,19 +341,6 @@ const EditProjectPageComponent = () => {
     newSections[sectionIndex] = currentSection;
     setTrainingPlanData({ ...trainingPlanData, sections: newSections });
   };
-  const toggleAutoCalculateHours = (sectionIndex: number) => {
-    if (!trainingPlanData) return;
-    const newSections = [...trainingPlanData.sections];
-    const section = newSections[sectionIndex];
-    if (section) {
-      const newAutoCalculateState = !section.autoCalculateHours;
-      newSections[sectionIndex] = { ...section, autoCalculateHours: newAutoCalculateState };
-      if (newAutoCalculateState) {
-        newSections[sectionIndex].totalHours = section.lessons.reduce((sum, lesson) => sum + (Number(lesson.hours) || 0), 0);
-      }
-      setTrainingPlanData({ ...trainingPlanData, sections: newSections });
-    }
-  };
 
   if (isLoading && !initialDataLoaded) return <div className="p-8 text-center font-['Inter',_sans-serif]">Loading project details...</div>;
   if (error && (!trainingPlanData && !initialDataLoaded)) return <div className="p-8 text-center text-red-500 font-['Inter',_sans-serif]">Error: {error}</div>;
@@ -364,9 +351,6 @@ const EditProjectPageComponent = () => {
   const smallInputClasses = `${inputBaseClasses} text-black`;
   const sectionTitleClasses = "text-lg font-semibold text-black p-2 border border-gray-300 rounded-md w-full";
   const lessonTitleClasses = `${inputBaseClasses} text-black`;
-  const switchContainerClasses = "flex items-center space-x-2";
-  const switchBaseClasses = "relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
-  const switchKnobClasses = "inline-block w-4 h-4 transform bg-white rounded-full transition-transform";
 
 
   return (
@@ -452,18 +436,9 @@ const EditProjectPageComponent = () => {
                         <label className="block text-xs font-medium text-black">Section ID (e.g., №1, Mod1):</label>
                         <input type="text" value={section.id} onChange={(e) => handleSectionChange(sectionIdx, 'id', e.target.value)} placeholder="Section ID" className={smallInputClasses} />
                     </div>
-                    <div className="flex items-end space-x-3">
-                        <div className="flex-grow">
-                            <label className="block text-xs font-medium text-black">Total Hours {section.autoCalculateHours ? "(auto-calculated)" : "(manual)"}:</label>
-                            <input type="number" value={Math.round(section.totalHours)} readOnly={section.autoCalculateHours} onChange={(e) => !section.autoCalculateHours && handleSectionChange(sectionIdx, 'totalHours', parseInt(e.target.value) || 0)} className={`${smallInputClasses} ${section.autoCalculateHours ? 'bg-gray-100' : 'bg-white'}`} />
-                        </div>
-                        <div className={switchContainerClasses} title="Toggle auto-calculation of total hours">
-                            <button type="button" onClick={() => toggleAutoCalculateHours(sectionIdx)} className={`${switchBaseClasses} ${section.autoCalculateHours ? 'bg-green-600' : 'bg-gray-300'}`} aria-pressed={section.autoCalculateHours}>
-                                <span className="sr-only">Toggle auto-calculate hours</span>
-                                <span className={`${switchKnobClasses} ${section.autoCalculateHours ? 'translate-x-5' : 'translate-x-1'}`} />
-                            </button>
-                             <span className="text-xs text-gray-600">{section.autoCalculateHours ? "Auto" : "Manual"}</span>
-                        </div>
+                    <div>
+                        <label className="block text-xs font-medium text-black">Total Hours (auto-calculated):</label>
+                        <input type="number" value={Math.round(section.totalHours)} readOnly className={`${smallInputClasses} bg-gray-100 cursor-not-allowed`} />
                     </div>
                 </div>
                 <h4 className="text-md font-semibold text-black mb-2 mt-4">Lessons/Items:</h4>
@@ -483,7 +458,23 @@ const EditProjectPageComponent = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div>
                             <label className="block text-xs font-medium text-black">Hours (if applicable):</label>
-                            <input type="number" step="1" value={Math.round(lesson.hours)} onChange={(e) => handleLessonChange(sectionIdx, lessonIdx, 'hours', parseInt(e.target.value) || 0)} placeholder="Hours" className={smallInputClasses}/>
+                            <input 
+                              type="number" 
+                              step="1" 
+                              value={Math.round(lesson.hours)} 
+                              onChange={(e) => {
+                                const newHours = parseInt(e.target.value) || 0;
+                                handleLessonChange(sectionIdx, lessonIdx, 'hours', newHours);
+                                // Auto-recalculate module total hours
+                                const updatedLessons = [...section.lessons];
+                                updatedLessons[lessonIdx] = { ...updatedLessons[lessonIdx], hours: newHours };
+                                const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
+                                handleSectionChange(sectionIdx, 'totalHours', newTotalHours);
+                                handleSectionChange(sectionIdx, 'autoCalculateHours', true);
+                              }} 
+                              placeholder="Hours" 
+                              className={smallInputClasses}
+                            />
                         </div>
                         <div>
                             <label className="block text-xs font-medium text-black">Source (if applicable):</label>

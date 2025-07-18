@@ -920,13 +920,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             <input
                               type="number" step="0.1"
                               value={section.totalHours === null || section.totalHours === undefined ? '' : section.totalHours}
-                              onChange={(e) => handleNumericInputChange(
-                                  ['sections', sectionIdx, 'totalHours'], e,
-                                  ['sections', sectionIdx, 'autoCalculateHours']
-                              )}
-                              className={`${editingInputSmallClass} w-16 text-right`}
+                              readOnly
+                              className={`${editingInputSmallClass} w-16 text-right bg-gray-50 cursor-not-allowed`}
                               placeholder="Hrs"
-                              title={section.autoCalculateHours ? "Auto-calculated from lesson hours. Click to edit manually." : "Manual hours. Will auto-calculate when lesson hours change."}
+                              title="Auto-calculated from lesson hours"
                             />
                         ) : (
                           <span style={{ color: iconBaseColor }} className="flex-grow text-left">
