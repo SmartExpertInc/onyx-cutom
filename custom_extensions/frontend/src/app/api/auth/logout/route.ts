@@ -1,44 +1,25 @@
-import { NEXT_PUBLIC_CLOUD_ENABLED } from "@/lib/constants";
-import { getAuthTypeMetadataSS, logoutSS } from "@/lib/userSS";
-import { NextRequest } from "next/server";
-
-export const POST = async (request: NextRequest) => {
-  // Directs the logout request to the appropriate FastAPI endpoint.
-  // Needed since env variables don't work well on the client-side
-  const authTypeMetadata = await getAuthTypeMetadataSS();
-  const response = await logoutSS(authTypeMetadata.authType, request.headers);
-
-  if (response && !response.ok) {
-    return new Response(response.body, { status: response?.status });
-  }
-
-  // Delete cookies only if cloud is enabled (jwt auth)
-  if (NEXT_PUBLIC_CLOUD_ENABLED) {
-    const cookiesToDelete = ["fastapiusersauth"];
-    const cookieOptions = {
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "lax" as const,
-    };
-
-    // Logout successful, delete cookies
-    const headers = new Headers();
-
+// Simple logout API route for custom_extensions
+export async function POST() {
+  try {
+    // Create response with cleared cookies
+    const response = new Response(null, { status: 204 });
+    
+    // Clear authentication cookies
+    const cookiesToDelete = ["fastapiusersauth", "session", "auth_token"];
+    const cookieHeaders: string[] = [];
+    
     cookiesToDelete.forEach((cookieName) => {
-      headers.append(
-        "Set-Cookie",
-        `${cookieName}=; Max-Age=0; ${Object.entries(cookieOptions)
-          .map(([key, value]) => `${key}=${value}`)
-          .join("; ")}`
-      );
+      cookieHeaders.push(`${cookieName}=; Max-Age=0; path=/; httpOnly=true; sameSite=lax`);
     });
-
-    return new Response(null, {
-      status: 204,
-      headers: headers,
+    
+    // Set headers to clear cookies
+    cookieHeaders.forEach((cookie, index) => {
+      response.headers.set(index === 0 ? "Set-Cookie" : `Set-Cookie-${index}`, cookie);
     });
-  } else {
+    
+    return response;
+  } catch (error) {
+    console.error("Logout error:", error);
     return new Response(null, { status: 204 });
   }
-}; 
+} 
