@@ -10678,8 +10678,8 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
             new_session_id = str(uuid4())
             new_outline_id = await conn.fetchval(
                 """
-                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                 RETURNING id
                 """,
                 user_id,
@@ -10693,7 +10693,10 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                 new_session_id,
                 orig['folder_id'],
                 orig['order'],
-                orig['is_standalone']
+                orig['is_standalone'],
+                orig.get('completion_time'),
+                orig.get('custom_rate'),
+                orig.get('quality_tier')
             )
             connected = await conn.fetch(
                 "SELECT * FROM projects WHERE source_chat_session_id = $1 AND id != $2",
@@ -10708,8 +10711,8 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     micro_name = micro_name.replace(orig['project_name'], new_name, 1)
                 await conn.execute(
                     """
-                    INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                    INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     """,
                     user_id,
                     prod_name,
@@ -10722,15 +10725,18 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     new_session_id,
                     prod['folder_id'],
                     prod['order'],
-                    prod['is_standalone']
+                    prod['is_standalone'],
+                    prod.get('completion_time'),
+                    prod.get('custom_rate'),
+                    prod.get('quality_tier')
                 )
             return {"id": new_outline_id}
         else:
             new_prod_name = f"Copy of {orig['project_name']}"
             new_id = await conn.fetchval(
                 """
-                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                 RETURNING id
                 """,
                 user_id,
@@ -10744,6 +10750,9 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                 str(uuid4()),
                 orig['folder_id'],
                 orig['order'],
-                orig['is_standalone']
+                orig['is_standalone'],
+                orig.get('completion_time'),
+                orig.get('custom_rate'),
+                orig.get('quality_tier')
             )
             return {"id": new_id}
