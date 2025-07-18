@@ -40,13 +40,16 @@ const inlineEditingInputTitleClass = `${inlineEditingInputClass} text-base font-
 const inlineEditingInputMainTitleClass = `${inlineEditingInputClass} text-xl md:text-2xl font-bold bg-gray-700 text-white`;
 
 const StatusBadge = ({
-  type, text, columnContext, isEditing, onTextChange, path, iconColor = '#FF1414'
+  type, text, columnContext, isEditing, onTextChange, path, iconColor = '#FF1414', onAutoSave, autoSaveTimeoutRef, onBlur
 }: {
   type: string; text: string; columnContext?: 'check' | 'contentAvailable';
   isEditing?: boolean;
   onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
   path?: (string | number)[];
   iconColor?: string;
+  onAutoSave?: () => void;
+  autoSaveTimeoutRef?: React.MutableRefObject<NodeJS.Timeout | null>;
+  onBlur?: () => void;
 }) => {
   const defaultIconSize = "w-4 h-4";
 
@@ -57,9 +60,23 @@ const StatusBadge = ({
         value={text}
         onChange={(e) => {
           onTextChange(path, e.target.value);
-          // Auto-save will be handled by the parent component's debouncing
+          
+          // Clear existing timeout
+          if (autoSaveTimeoutRef?.current) {
+            clearTimeout(autoSaveTimeoutRef.current);
+          }
+          
+          // Set new timeout for auto-save
+          if (autoSaveTimeoutRef && onAutoSave) {
+            autoSaveTimeoutRef.current = setTimeout(() => {
+              console.log('StatusBadge auto-save timeout triggered for path:', path); // Debug log
+              onAutoSave();
+            }, 2000); // 2 second delay
+          }
+          
           console.log('StatusBadge input changed:', path, e.target.value); // Debug log
         }}
+        onBlur={onBlur}
         className={`${inlineEditingInputSmallClass} w-full`}
         placeholder={columnContext === 'check' ? "Check text" : "Availability text"}
       />
@@ -237,6 +254,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     path: (string | number)[];
   } | null>(null);
 
+  // Auto-save timeout ref
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const [contentModalState, setContentModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
@@ -261,9 +281,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     isOpen: boolean; moduleTitle: string; sectionIndex: number;
     currentCustomRate?: number; currentQualityTier?: string;
   }>({ isOpen: false, moduleTitle: '', sectionIndex: -1 });
-
-  // Auto-save debouncing
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper function to start editing a field
   const startEditing = (type: 'mainTitle' | 'sectionId' | 'sectionTitle' | 'lessonTitle' | 'source' | 'hours' | 'completionTime' | 'check' | 'contentAvailable', sectionIndex?: number, lessonIndex?: number, path?: (string | number)[]) => {
@@ -758,6 +775,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     }
   };
 
+  const handleInputBlur = () => {
+    // Trigger auto-save immediately when user finishes editing
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    if (onAutoSave) {
+      console.log('Auto-save triggered on blur'); // Debug log
+      onAutoSave();
+    }
+  };
+
   const handleNumericInputChange = (
     path: (string|number)[],
     event: React.ChangeEvent<HTMLInputElement>,
@@ -959,6 +987,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               <input
                 type="text" value={mainTitle || ''}
                 onChange={(e) => handleGenericInputChange(['mainTitle'], e)}
+                onBlur={handleInputBlur}
                 className={inlineEditingInputMainTitleClass} placeholder="Main Training Plan Title"
               />
             ) : ( 
@@ -1018,6 +1047,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         type="text" 
                         value={section.id} 
                         onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} 
+                        onBlur={handleInputBlur}
                         className={`${inlineEditingInputSmallClass} w-24`} 
                         placeholder="ID"
                       />
@@ -1025,6 +1055,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         type="text" 
                         value={section.title} 
                         onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'title'], e)} 
+                        onBlur={handleInputBlur}
                         className={`${inlineEditingInputTitleClass} flex-grow`} 
                         placeholder="Section Title"
                       />
@@ -1107,6 +1138,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             type="text" 
                             value={lesson.title} 
                             onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} 
+                            onBlur={handleInputBlur}
                             className={`${inlineEditingInputClass} flex-1`} 
                             placeholder="Lesson Title"
                           />
@@ -1139,13 +1171,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           return (
                             <div key={col.key} className={`flex justify-start ${commonCls}`}>
                               {isEditingField('check', sectionIdx, lessonIndex) && onTextChange ? (
-                                <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={true} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor}/>
+                                <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={true} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor} onAutoSave={onAutoSave} autoSaveTimeoutRef={autoSaveTimeoutRef} onBlur={handleInputBlur}/>
                               ) : (
                                 <div 
                                   className="cursor-pointer hover:bg-yellow-50 p-1 rounded"
                                   onClick={() => onTextChange && startEditing('check', sectionIdx, lessonIndex, ['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text'])}
                                 >
-                                  <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={false} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor}/>
+                                  <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={false} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor} onAutoSave={onAutoSave} autoSaveTimeoutRef={autoSaveTimeoutRef} onBlur={handleInputBlur}/>
                                 </div>
                               )}
                             </div>
@@ -1154,13 +1186,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           return (
                             <div key={col.key} className={`flex justify-start ${commonCls}`}>
                               {isEditingField('contentAvailable', sectionIdx, lessonIndex) && onTextChange ? (
-                                <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={true} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor}/>
+                                <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={true} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor} onAutoSave={onAutoSave} autoSaveTimeoutRef={autoSaveTimeoutRef} onBlur={handleInputBlur}/>
                               ) : (
                                 <div 
                                   className="cursor-pointer hover:bg-yellow-50 p-1 rounded"
                                   onClick={() => onTextChange && startEditing('contentAvailable', sectionIdx, lessonIndex, ['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text'])}
                                 >
-                                  <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={false} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor}/>
+                                  <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={false} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor} onAutoSave={onAutoSave} autoSaveTimeoutRef={autoSaveTimeoutRef} onBlur={handleInputBlur}/>
                                 </div>
                               )}
                             </div>
@@ -1173,6 +1205,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                     type="text" 
                                     value={lesson.source} 
                                     onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'source'], e)} 
+                                    onBlur={handleInputBlur}
                                     className={inlineEditingInputSmallClass} 
                                     placeholder="Source"
                                   />
@@ -1222,6 +1255,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                       onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
                                     }
                                   }}
+                                  onBlur={handleInputBlur}
                                   className={`${inlineEditingInputSmallClass} w-16 text-right`} 
                                   placeholder="Hrs"
                                 />
@@ -1244,6 +1278,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                   type="text" 
                                   value={lesson.completionTime || ''} 
                                   onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e)} 
+                                  onBlur={handleInputBlur}
                                   className={`${inlineEditingInputSmallClass} w-16 text-right`} 
                                   placeholder="5m"
                                 />
