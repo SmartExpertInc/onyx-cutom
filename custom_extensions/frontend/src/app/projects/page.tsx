@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
+import { UserDropdown } from '../../components/UserDropdown';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -526,6 +527,7 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
           {userCredits !== null ? `${userCredits} credits` : 'Loading...'}
         </span>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
+        <UserDropdown />
       </div>
     </header>
   );
