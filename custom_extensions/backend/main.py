@@ -12862,7 +12862,7 @@ async def download_projects_list_pdf(
                                             CASE 
                                                 WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
                                                 THEN (REPLACE(lesson->>'completionTime', 'm', '')::int)
-                                                ELSE 0 
+                                                ELSE 5 
                                             END
                                         ), 0)
                                         FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
@@ -12903,26 +12903,35 @@ async def download_projects_list_pdf(
                                         total_hours += float(lesson['hours'])
                                     except (ValueError, TypeError):
                                         pass
-                                if lesson.get('completionTime'):
-                                    time_str = str(lesson['completionTime']).strip()
+                                
+                                # Calculate completion time - treat missing completion time as 5 minutes
+                                completion_time_str = lesson.get('completionTime', '')
+                                if completion_time_str:
+                                    time_str = str(completion_time_str).strip()
                                     if time_str and time_str != '':
                                         if time_str.endswith('m'):
                                             try:
                                                 minutes = int(time_str[:-1])
                                                 total_completion_time += minutes
                                             except ValueError:
-                                                pass
+                                                total_completion_time += 5  # Fallback to 5 minutes
                                         elif time_str.endswith('h'):
                                             try:
                                                 hours = int(time_str[:-1])
                                                 total_completion_time += (hours * 60)
                                             except ValueError:
-                                                pass
+                                                total_completion_time += 5  # Fallback to 5 minutes
                                         elif time_str.isdigit():
                                             try:
                                                 total_completion_time += int(time_str)
                                             except ValueError:
-                                                pass
+                                                total_completion_time += 5  # Fallback to 5 minutes
+                                        else:
+                                            total_completion_time += 5  # Fallback to 5 minutes
+                                    else:
+                                        total_completion_time += 5  # Empty string, use 5 minutes
+                                else:
+                                    total_completion_time += 5  # No completion time, use 5 minutes
             
             projects_data.append({
                 'id': row_dict['id'],
