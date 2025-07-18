@@ -12179,6 +12179,9 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                 del section['custom_rate']
                             if 'quality_tier' in section:
                                 del section['quality_tier']
+                            
+                            # Update the module's tier name to match the new folder tier
+                            section['quality_tier'] = req.quality_tier
                                 
                             section_total_hours = 0
                             for lesson in section['lessons']:
