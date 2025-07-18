@@ -698,6 +698,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return formatCompletionTimeDisplay(`${totalMinutes}m`, lang);
   };
 
+  // Calculate total creation time for a section
+  const calculateTotalCreationTime = (section: SectionType): number => {
+    if (!section.lessons || section.lessons.length === 0) return 0;
+    
+    const totalHours = section.lessons.reduce((total, lesson) => {
+      const hours = lesson.hours || 0;
+      return total + hours;
+    }, 0);
+    
+    return totalHours;
+  };
+
   // ---- Determine column visibility based on query params OR stored displayOptions ----
   const searchParams = useSearchParams();
 
@@ -914,7 +926,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               )}
                               className={`${editingInputSmallClass} w-16 text-right`}
                               placeholder="Hrs"
-                              title={section.autoCalculateHours ? "Auto-calculated. Editing sets to manual." : "Manual hours"}
+                              title={section.autoCalculateHours ? "Auto-calculated from lesson hours. Click to edit manually." : "Manual hours. Will auto-calculate when lesson hours change."}
                             />
                         ) : (
                           <span style={{ color: iconBaseColor }} className="flex-grow text-left">
@@ -973,16 +985,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                       {isEditing && onTextChange ? (
                         <div className="flex items-center gap-2">
                           <input type="text" value={lesson.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'title'], e)} className={`${editingInputClass} flex-1`} placeholder="Lesson Title"/>
-                          {/* Show gear button here only if quality tier column is hidden */}
-                          {!visibleColumns.qualityTier && (
-                            <button
-                              onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
-                              className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                              title="Lesson Settings"
-                            >
-                              <Settings className="w-4 h-4" />
-                            </button>
-                          )}
                         </div>
                       ) : (
                         <button
@@ -1044,7 +1046,27 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             <div key={col.key} className={`flex items-center justify-start space-x-2 text-gray-500 px-2 ${borderClasses}`}>
                               <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4" /> </div>
                               {isEditing && onTextChange ? (
-                                <input type="number" step="0.1" value={lesson.hours || 0} onChange={(e) => handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e)} className={`${editingInputSmallClass} w-16 text-right`} placeholder="Hrs"/>
+                                <input 
+                                  type="number" 
+                                  step="0.1" 
+                                  value={lesson.hours || 0} 
+                                  onChange={(e) => {
+                                    // Update lesson hours
+                                    handleNumericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], e);
+                                    // Auto-recalculate module total hours
+                                    const newValue = parseFloat(e.target.value) || 0;
+                                    const currentSection = sections?.[sectionIdx];
+                                    if (currentSection) {
+                                      const updatedLessons = [...(currentSection.lessons || [])];
+                                      updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newValue };
+                                      const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
+                                      onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
+                                      onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
+                                    }
+                                  }} 
+                                  className={`${editingInputSmallClass} w-16 text-right`} 
+                                  placeholder="Hrs"
+                                />
                               ) : ( <span className="flex-grow text-left">{formatHoursDisplay(lesson.hours, lang, localized, false)}</span> )}
                             </div>
                           );
