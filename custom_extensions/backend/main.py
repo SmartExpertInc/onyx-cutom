@@ -3809,8 +3809,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         
         # Step 3: Enhanced analysis prompt with explicit file reference
         analysis_prompt = f"""
-        I have provided you with file ID {file_id} (filename: {file_info.get('name', 'Unknown')}). 
-        This file should be directly attached to this message and available for analysis.
+        I have provided you with file ID {file_id}. This file should be directly attached to this message and available for analysis.
         
         Please analyze this specific file and provide:
         1. A concise summary of the main content (max 200 words)
@@ -3821,6 +3820,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         - The file is attached to this message with ID {file_id}
         - Do not ask for the file content - it should already be available to you
         - If you cannot see the file content, respond with "FILE_ACCESS_ERROR"
+        - If you can see the file content, proceed with the analysis
         
         Format your response as:
         SUMMARY: [summary here]
@@ -3874,33 +3874,36 @@ async def verify_file_accessibility(file_id: int, cookies: Dict[str, str]) -> Di
     """
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
-            # Check file status
-            response = await client.get(f"{ONYX_API_SERVER_URL}/user/file/{file_id}", cookies=cookies)
+            # Check file indexing status using the correct endpoint
+            response = await client.get(
+                f"{ONYX_API_SERVER_URL}/user/file/indexing-status?file_ids={file_id}", 
+                cookies=cookies
+            )
             response.raise_for_status()
-            file_data = response.json()
+            status_data = response.json()
             
-            file_status = file_data.get("status", "UNKNOWN")
-            file_name = file_data.get("name", "Unknown")
+            is_indexed = status_data.get(str(file_id), False)
+            file_status = "INDEXED" if is_indexed else "NOT_INDEXED"
             
-            logger.info(f"[FILE_CONTEXT] File {file_id} ({file_name}) status: {file_status}")
+            logger.info(f"[FILE_CONTEXT] File {file_id} indexing status: {file_status}")
             
-            # Check if file is accessible via direct download
-            try:
-                download_response = await client.get(f"{ONYX_API_SERVER_URL}/user/file/{file_id}/download", cookies=cookies)
-                download_response.raise_for_status()
-                logger.info(f"[FILE_CONTEXT] File {file_id} download test successful")
-            except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] File {file_id} download test failed: {e}")
-            
+            # For now, assume the file is accessible if we can check its status
+            # The actual file content will be verified during the analysis phase
             return {
                 "id": file_id,
-                "name": file_name,
+                "name": f"file_{file_id}",  # We'll get the real name during analysis
                 "status": file_status,
-                "accessible": file_status in ["INDEXED", "PROCESSING", "COMPLETED"]
+                "accessible": True  # Assume accessible, let the analysis phase handle actual access
             }
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] File accessibility check failed for {file_id}: {e}")
-        return None
+        # Return a basic info structure even if check fails
+        return {
+            "id": file_id,
+            "name": f"file_{file_id}",
+            "status": "UNKNOWN",
+            "accessible": True  # Let the analysis phase determine actual accessibility
+        }
 
 async def attempt_file_analysis_with_retry(
     chat_id: str, 
@@ -3926,10 +3929,11 @@ async def attempt_file_analysis_with_retry(
             "retrieval_options": {"run_search": "always", "real_time": False},
             "query_override": f"Analyze the content of file ID {file_id}"
         },
-        # Attempt 3: Use file_descriptors as fallback
+        # Attempt 3: Use file_descriptors as fallback with search
         {
             "file_descriptors": [{"id": str(file_id), "type": "USER_KNOWLEDGE", "name": f"file_{file_id}"}],
-            "retrieval_options": {"run_search": "never", "real_time": False}
+            "retrieval_options": {"run_search": "always", "real_time": False},
+            "query_override": f"Find and analyze the content of file {file_id}"
         }
     ]
     
@@ -4033,7 +4037,13 @@ def is_generic_response(text: str) -> bool:
         "file_access_error",
         "i cannot access",
         "i don't have access to",
-        "please provide the content"
+        "please provide the content",
+        "i wasn't able to access the file",
+        "it might be in a format i don't support",
+        "could be password-protected",
+        "try a different file",
+        "proceed based on a general topic",
+        "using my knowledge"
     ]
     
     text_lower = text.lower()
