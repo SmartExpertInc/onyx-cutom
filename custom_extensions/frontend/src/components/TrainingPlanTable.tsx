@@ -257,6 +257,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Auto-save timeout ref
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Ref to track if we need to auto-save after tier changes
+  const pendingTierSaveRef = useRef<boolean>(false);
+
   // Cleanup effect to save any pending changes when component unmounts
   useEffect(() => {
     return () => {
@@ -270,6 +273,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       }
     };
   }, [onAutoSave]);
+
+  // Effect to handle pending tier saves after state updates
+  useEffect(() => {
+    if (pendingTierSaveRef.current && onAutoSave) {
+      console.log('State updated - triggering pending tier save');
+      pendingTierSaveRef.current = false;
+      // Use a small delay to ensure state is fully updated
+      setTimeout(() => {
+        onAutoSave();
+      }, 0);
+    }
+  }, [dataToDisplay, onAutoSave]);
 
   // Handle page navigation - save any pending changes
   useEffect(() => {
@@ -676,14 +691,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
         }
       }
-      // Clear any existing timeout and save immediately
+      // Clear any existing timeout and mark for pending save
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
-      if (onAutoSave) {
-        console.log('Immediate save triggered for lesson tier change');
-        onAutoSave();
-      }
+      console.log('Lesson tier change - marking for pending save');
+      pendingTierSaveRef.current = true;
     }
     
     setLessonSettingsModalState({ 
@@ -734,14 +747,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
         onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
       }
-      // Clear any existing timeout and save immediately
+      // Clear any existing timeout and mark for pending save
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
-      if (onAutoSave) {
-        console.log('Immediate save triggered for module tier change');
-        onAutoSave();
-      }
+      console.log('Module tier change - marking for pending save');
+      pendingTierSaveRef.current = true;
     }
     
     setModuleSettingsModalState({ 
