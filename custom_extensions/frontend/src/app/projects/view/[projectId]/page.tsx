@@ -21,7 +21,7 @@ import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
-import SmartPromptEditor from '@/components/SmartPromptEditor';
+
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown } from 'lucide-react';
 
 
@@ -563,27 +563,15 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
-          <div>
-            {/* Smart Prompt Editor - only show when editing Training Plans */}
-            {isEditing && (
-              <SmartPromptEditor
-                projectId={projectInstanceData.project_id}
-                onContentUpdate={handleSmartEditContentUpdate}
-                onError={handleSmartEditError}
-                onRevert={handleSmartEditRevert}
-              />
-            )}
-            <TrainingPlanTableComponent
-              dataToDisplay={trainingPlanData}
-              isEditing={isEditing}
-              onTextChange={handleTextChange}
-              sourceChatSessionId={projectInstanceData.sourceChatSessionId}
-              allUserMicroproducts={allUserMicroproducts}
-              parentProjectName={parentProjectNameForCurrentView}
-              theme={trainingPlanData?.theme || 'cherry'}
-              columnVisibility={columnVisibility}
-            />
-          </div>
+          <TrainingPlanTableComponent
+            dataToDisplay={trainingPlanData}
+            onTextChange={handleTextChange}
+            sourceChatSessionId={projectInstanceData.sourceChatSessionId}
+            allUserMicroproducts={allUserMicroproducts}
+            parentProjectName={parentProjectNameForCurrentView}
+            theme={trainingPlanData?.theme || 'cherry'}
+            columnVisibility={columnVisibility}
+          />
         );
       case COMPONENT_NAME_PDF_LESSON:
         const pdfLessonData = editableData as PdfLessonData | null;
@@ -654,7 +642,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `Project ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
@@ -690,6 +678,18 @@ export default function ProjectInstanceViewPage() {
                    <ArrowDownToLine size={16} className="mr-2" /> Download PDF
                   </button>
             )}
+            {/* Save button for Training Plans (inline editing) */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                title="Save changes"
+              >
+                <Save size={16} className="mr-2" /> {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            )}
+            {/* Edit mode toggle for other content types */}
             {canEditContent && projectId && (
               <button
                 onClick={handleToggleEdit}
