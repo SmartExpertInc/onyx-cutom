@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/TrainingPlanTable.tsx
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
@@ -55,7 +55,10 @@ const StatusBadge = ({
       <input
         type="text"
         value={text}
-        onChange={(e) => onTextChange(path, e.target.value)}
+        onChange={(e) => {
+          onTextChange(path, e.target.value);
+          // Auto-save will be handled by the parent component's debouncing
+        }}
         className={`${inlineEditingInputSmallClass} w-full`}
         placeholder={columnContext === 'check' ? "Check text" : "Availability text"}
       />
@@ -257,6 +260,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     isOpen: boolean; moduleTitle: string; sectionIndex: number;
     currentCustomRate?: number; currentQualityTier?: string;
   }>({ isOpen: false, moduleTitle: '', sectionIndex: -1 });
+
+  // Auto-save debouncing
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper function to start editing a field
   const startEditing = (type: 'mainTitle' | 'sectionId' | 'sectionTitle' | 'lessonTitle' | 'source' | 'hours' | 'completionTime' | 'check' | 'contentAvailable', sectionIndex?: number, lessonIndex?: number, path?: (string | number)[]) => {
@@ -733,12 +739,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const handleGenericInputChange = (path: (string|number)[], event: React.ChangeEvent<HTMLInputElement>) => {
     if (onTextChange) {
       onTextChange(path, event.target.value);
-      // Auto-save the changes
-      setTimeout(() => {
+      
+      // Clear existing timeout
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+      
+      // Set new timeout for auto-save
+      autoSaveTimeoutRef.current = setTimeout(() => {
         if (onAutoSave) {
           onAutoSave();
         }
-      }, 1000);
+      }, 2000); // Increased delay to 2 seconds
     }
   };
 
@@ -754,12 +766,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         if (autoCalcPath && valueStr !== "") {
             onTextChange(autoCalcPath, false);
         }
-        // Auto-save the changes
-        setTimeout(() => {
+        
+        // Clear existing timeout
+        if (autoSaveTimeoutRef.current) {
+          clearTimeout(autoSaveTimeoutRef.current);
+        }
+        
+        // Set new timeout for auto-save
+        autoSaveTimeoutRef.current = setTimeout(() => {
           if (onAutoSave) {
             onAutoSave();
           }
-        }, 1000);
+        }, 2000); // Increased delay to 2 seconds
     }
   };
 
@@ -1112,13 +1130,31 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         case 'knowledgeCheck':
                           return (
                             <div key={col.key} className={`flex justify-start ${commonCls}`}>
-                              <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={isEditingField('check', sectionIdx, lessonIndex)} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor}/>
+                              {isEditingField('check', sectionIdx, lessonIndex) && onTextChange ? (
+                                <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={true} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor}/>
+                              ) : (
+                                <div 
+                                  className="cursor-pointer hover:bg-yellow-50 p-1 rounded"
+                                  onClick={() => onTextChange && startEditing('check', sectionIdx, lessonIndex, ['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text'])}
+                                >
+                                  <StatusBadge type={lesson.check.type} text={lesson.check.text} columnContext="check" isEditing={false} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'check', 'text']} iconColor={iconBaseColor}/>
+                                </div>
+                              )}
                             </div>
                           );
                         case 'contentAvailability':
                           return (
                             <div key={col.key} className={`flex justify-start ${commonCls}`}>
-                              <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={isEditingField('contentAvailable', sectionIdx, lessonIndex)} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor}/>
+                              {isEditingField('contentAvailable', sectionIdx, lessonIndex) && onTextChange ? (
+                                <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={true} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor}/>
+                              ) : (
+                                <div 
+                                  className="cursor-pointer hover:bg-yellow-50 p-1 rounded"
+                                  onClick={() => onTextChange && startEditing('contentAvailable', sectionIdx, lessonIndex, ['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text'])}
+                                >
+                                  <StatusBadge type={lesson.contentAvailable.type} text={lesson.contentAvailable.text} columnContext="contentAvailable" isEditing={false} onTextChange={onTextChange} path={['sections', sectionIdx, 'lessons', lessonIndex, 'contentAvailable', 'text']} iconColor={iconBaseColor}/>
+                                </div>
+                              )}
                             </div>
                           );
                         case 'informationSource':

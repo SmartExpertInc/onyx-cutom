@@ -439,6 +439,44 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
+  // Auto-save function that doesn't refresh the page or show alerts
+  const handleAutoSave = async () => {
+    if (!projectId || !editableData || !projectInstanceData) {
+      return; // Silent fail for auto-save
+    }
+    
+    const editableComponentTypes = [
+      COMPONENT_NAME_PDF_LESSON,
+      COMPONENT_NAME_TRAINING_PLAN,
+      COMPONENT_NAME_SLIDE_DECK,
+      COMPONENT_NAME_VIDEO_LESSON,
+      COMPONENT_NAME_QUIZ,
+      COMPONENT_NAME_TEXT_PRESENTATION,
+    ];
+    if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
+      return; // Silent fail for unsupported types
+    }
+
+    const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+    const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+    if (devUserId && process.env.NODE_ENV === 'development') {
+      saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+    }
+
+    try {
+      const payload = { microProductContent: editableData };
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+        method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        console.warn('Auto-save failed:', response.status);
+      }
+      // Don't refresh page or show alerts for auto-save
+    } catch (err: any) {
+      console.warn('Auto-save error:', err.message);
+    }
+  };
+
   const handleToggleEdit = () => {
     if (!projectInstanceData) { alert("Project data not loaded yet."); return; }
     const editableComponentTypes = [
@@ -585,7 +623,7 @@ export default function ProjectInstanceViewPage() {
             <TrainingPlanTableComponent
               dataToDisplay={trainingPlanData}
               onTextChange={handleTextChange}
-              onAutoSave={handleSave}
+              onAutoSave={handleAutoSave}
               sourceChatSessionId={projectInstanceData.sourceChatSessionId}
               allUserMicroproducts={allUserMicroproducts}
               parentProjectName={parentProjectNameForCurrentView}
