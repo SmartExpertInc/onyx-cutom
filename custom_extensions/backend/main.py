@@ -3678,7 +3678,7 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
 FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
 FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
 
-async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Extract relevant context from files and folders using Onyx's capabilities.
     Returns structured context that can be used with OpenAI.
@@ -3714,7 +3714,7 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             file_context = None
             for retry_attempt in range(3):  # Up to 3 attempts per file
                 try:
-                    file_context = await extract_single_file_context(file_id, cookies)
+                    file_context = await extract_single_file_context(file_id, cookies, user_context)
                     if file_context and (file_context.get("summary") or file_context.get("content")):
                         # Check if this was a successful extraction (not a generic response or error)
                         content = file_context.get("content", "")
@@ -3787,7 +3787,7 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "metadata": {"error": str(e)}
         }
 
-async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
+async def extract_single_file_context(file_id: int, cookies: Dict[str, str], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Extract context from a single file using Onyx's chat API with 100% file attachment guarantee.
     """
@@ -3807,20 +3807,39 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         persona_id = await get_contentbuilder_persona_id(cookies)
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
-        # Step 3: Enhanced analysis prompt with explicit file reference
+        # Step 3: Enhanced analysis prompt with explicit file reference and user context
+        user_context_info = ""
+        if user_context:
+            user_context_info = f"""
+        
+        USER CONTEXT FOR TAILORED ANALYSIS:
+        - Product Type: {user_context.get('product', 'Unknown')}
+        - User Prompt: {user_context.get('prompt', 'Not specified')}
+        - Language: {user_context.get('language', 'en')}
+        - Target Length: {user_context.get('length', 'Not specified')}
+        - Modules: {user_context.get('modules', 'Not specified')}
+        - Lessons per Module: {user_context.get('lessonsPerModule', 'Not specified')}
+        - Question Count: {user_context.get('questionCount', 'Not specified')}
+        - Question Types: {user_context.get('questionTypes', 'Not specified')}
+        - Slides Count: {user_context.get('slidesCount', 'Not specified')}
+        
+        Please tailor your analysis to be specifically relevant for creating this type of content.
+        """
+        
         analysis_prompt = f"""
         I have provided you with file ID {file_id}. This file should be directly attached to this message and available for analysis.
         
         Please analyze this specific file and provide:
-        1. A concise summary of the main content (max 200 words)
-        2. Key topics and concepts covered
-        3. The most important information that would be relevant for content creation
+        1. A concise summary of the main content (max 400 words) - tailored to the user's content creation needs
+        2. Key topics and concepts covered - focus on what's most relevant for the target content type
+        3. The most important information that would be relevant for content creation - specifically for the user's intended use case
         
         IMPORTANT: 
         - The file is attached to this message with ID {file_id}
         - Do not ask for the file content - it should already be available to you
         - If you cannot see the file content, respond with "FILE_ACCESS_ERROR"
         - If you can see the file content, proceed with the analysis
+        - Focus your analysis on what would be most useful for the user's specific content creation goals{user_context_info}
         
         Format your response as:
         SUMMARY: [summary here]
