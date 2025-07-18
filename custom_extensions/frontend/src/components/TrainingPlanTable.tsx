@@ -58,6 +58,7 @@ const StatusBadge = ({
         onChange={(e) => {
           onTextChange(path, e.target.value);
           // Auto-save will be handled by the parent component's debouncing
+          console.log('StatusBadge input changed:', path, e.target.value); // Debug log
         }}
         className={`${inlineEditingInputSmallClass} w-full`}
         placeholder={columnContext === 'check' ? "Check text" : "Availability text"}
@@ -747,8 +748,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       
       // Set new timeout for auto-save
       autoSaveTimeoutRef.current = setTimeout(() => {
+        console.log('Auto-save timeout triggered for path:', path); // Debug log
         if (onAutoSave) {
           onAutoSave();
+        } else {
+          console.warn('onAutoSave function not provided');
         }
       }, 2000); // Increased delay to 2 seconds
     }
@@ -774,8 +778,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         
         // Set new timeout for auto-save
         autoSaveTimeoutRef.current = setTimeout(() => {
+          console.log('Auto-save timeout triggered for numeric path:', path); // Debug log
           if (onAutoSave) {
             onAutoSave();
+          } else {
+            console.warn('onAutoSave function not provided');
           }
         }, 2000); // Increased delay to 2 seconds
     }

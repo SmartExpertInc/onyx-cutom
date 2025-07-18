@@ -441,7 +441,9 @@ export default function ProjectInstanceViewPage() {
 
   // Auto-save function that doesn't refresh the page or show alerts
   const handleAutoSave = async () => {
+    console.log('Auto-save triggered'); // Debug log
     if (!projectId || !editableData || !projectInstanceData) {
+      console.log('Auto-save: Missing required data', { projectId, hasEditableData: !!editableData, hasProjectInstance: !!projectInstanceData });
       return; // Silent fail for auto-save
     }
     
@@ -454,6 +456,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_TEXT_PRESENTATION,
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
+      console.log('Auto-save: Unsupported component type', projectInstanceData.component_name);
       return; // Silent fail for unsupported types
     }
 
@@ -465,11 +468,16 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const payload = { microProductContent: editableData };
+      console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
       });
       if (!response.ok) {
         console.warn('Auto-save failed:', response.status);
+        const errorText = await response.text();
+        console.warn('Auto-save error details:', errorText);
+      } else {
+        console.log('Auto-save successful');
       }
       // Don't refresh page or show alerts for auto-save
     } catch (err: any) {
