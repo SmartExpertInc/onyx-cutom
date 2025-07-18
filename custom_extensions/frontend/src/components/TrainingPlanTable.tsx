@@ -107,6 +107,40 @@ const tierLabels = {
   uk: { basic: "Базовий", interactive: "Інтерактивний", advanced: "Поглиблений", immersive: "Іммерсивний" },
   es: { basic: "Básico", interactive: "Interactivo", advanced: "Avanzado", immersive: "Inmersivo" },
 };
+
+// Add quality tier colors mapping
+const tierColors = {
+  basic: {
+    text: 'text-green-600',
+    bg: 'bg-green-50',
+    border: 'border-green-200',
+    hover: 'hover:bg-green-100'
+  },
+  interactive: {
+    text: 'text-orange-600',
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
+    hover: 'hover:bg-orange-100'
+  },
+  advanced: {
+    text: 'text-purple-600',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
+    hover: 'hover:bg-purple-100'
+  },
+  immersive: {
+    text: 'text-blue-600',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    hover: 'hover:bg-blue-100'
+  }
+};
+
+// Helper function to get tier color classes
+const getTierColorClasses = (tier: string) => {
+  return tierColors[tier as keyof typeof tierColors] || tierColors.interactive;
+};
+
 const timeUnits = {
   ru: { timeUnitSingular: "ч", timeUnitDecimalPlural: "ч", timeUnitGeneralPlural: "ч", minuteUnit: "м" },
   en: { timeUnitSingular: "h", timeUnitDecimalPlural: "h", timeUnitGeneralPlural: "h", minuteUnit: "m" },
@@ -854,13 +888,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                     <div className="flex items-center gap-2 w-full">
                       <input type="text" value={section.id} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'id'], e)} className={`${editingInputSmallClass} w-24`} placeholder="ID"/>
                       <input type="text" value={section.title} onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'title'], e)} className={`${editingInputTitleClass} flex-grow`} placeholder="Section Title"/>
-                      <button
-                        onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
-                        className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                        title="Module Settings"
-                      >
-                        <Settings className="w-4 h-4" />
-                      </button>
                     </div>
                   ) : (
                     <>
@@ -902,6 +929,27 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                       <div key={col.key} className={`flex items-center justify-start space-x-2 font-semibold px-2 ${borderClasses}`}>
                         <div className="w-4 flex justify-center"> <NewClockIcon color={iconBaseColor} className="w-4 h-4"/> </div>
                         <span style={{ color: iconBaseColor }} className="flex-grow text-left">{calculateTotalCompletionTime(section)}</span>
+                      </div>
+                    );
+                  }
+                  if (col.key === 'qualityTier') {
+                    const effectiveTier = section.quality_tier || 'interactive';
+                    const tierColorClasses = getTierColorClasses(effectiveTier);
+                    return (
+                      <div key={col.key} className={`text-gray-600 ${borderClasses}`}>
+                        {isEditing && onTextChange ? (
+                          <button
+                            onClick={() => handleModuleSettingsOpen(section, sectionIdx)}
+                            className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${tierColorClasses.text} ${tierColorClasses.hover} ${tierColorClasses.bg} ${tierColorClasses.border} border`}
+                            title="Click to change module quality tier"
+                          >
+                            {currentTierLabels[effectiveTier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                          </button>
+                        ) : (
+                          <span className={`text-xs capitalize px-2 py-1 rounded ${tierColorClasses.text} ${tierColorClasses.bg} ${tierColorClasses.border} border`}>
+                            {currentTierLabels[effectiveTier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                          </span>
+                        )}
                       </div>
                     );
                   }
@@ -977,21 +1025,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           return (
                             <div key={col.key} className={`text-gray-600 ${commonCls}`}>
                               {isEditing && onTextChange ? (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs capitalize flex-1">
-                                    {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
-                                  </span>
-                                  {/* Show gear button in tier column when it's visible in edit mode */}
-                                  <button
-                                    onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
-                                    className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                                    title="Lesson Settings"
-                                  >
-                                    <Settings className="w-4 h-4" />
-                                  </button>
-                                </div>
+                                <button
+                                  onClick={() => handleLessonSettingsOpen(lesson, sectionIdx, lessonIndex)}
+                                  className={`w-full text-left px-2 py-1 rounded text-xs capitalize transition-colors ${getTierColorClasses(lesson.quality_tier || 'interactive').text} ${getTierColorClasses(lesson.quality_tier || 'interactive').hover} ${getTierColorClasses(lesson.quality_tier || 'interactive').bg} ${getTierColorClasses(lesson.quality_tier || 'interactive').border} border`}
+                                  title="Click to change lesson quality tier"
+                                >
+                                  {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                                </button>
                               ) : (
-                                <span className="text-xs capitalize">{currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}</span>
+                                <span className={`text-xs capitalize px-2 py-1 rounded ${getTierColorClasses(lesson.quality_tier || 'interactive').text} ${getTierColorClasses(lesson.quality_tier || 'interactive').bg} ${getTierColorClasses(lesson.quality_tier || 'interactive').border} border`}>
+                                  {currentTierLabels[lesson.quality_tier as keyof typeof currentTierLabels] || currentTierLabels.interactive}
+                                </span>
                               )}
                             </div>
                           );

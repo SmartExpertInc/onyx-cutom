@@ -122,6 +122,22 @@
         .theme-number-color { color: #6B7280; }
         .theme-icon-color { color: #FF1414; }
         .theme-icon-fill { fill: #FF1414; }
+
+        /* Quality tier colors */
+        .tier-basic { color: #059669; background-color: #ecfdf5; border-color: #a7f3d0; }
+        .tier-interactive { color: #ea580c; background-color: #fff7ed; border-color: #fed7aa; }
+        .tier-advanced { color: #7c3aed; background-color: #f3f4f6; border-color: #c4b5fd; }
+        .tier-immersive { color: #2563eb; background-color: #eff6ff; border-color: #93c5fd; }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid;
+            font-size: 0.68rem;
+            text-transform: capitalize;
+            font-weight: 500;
+        }
     </style>
 
     {# Dynamic row height adjustment #}
@@ -227,10 +243,30 @@
                 {% for section in details.sections %}
                 <div>
                     <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200" style="background-color: {{ current_theme.moduleHeaderBg }};">
-                        <div class="flex items-center space-x-2 pr-2 {% if time_show or ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span) }}">
+                        <div class="flex items-center space-x-2 pr-2 {% if time_show or ct_show or qt_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span - span_qt) }}">
                             <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: {{ current_theme.iconColor }};">{{ section.id }}</span>
                             <span class="font-semibold text-gray-800">{{ section.title }}</span>
                         </div>
+                        {% if qt_show %}<div class="text-left px-2 font-semibold {% if time_show or ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_qt) }}">
+                            {% set tier_labels = {
+                                'ru': {'basic': 'Базовый', 'interactive': 'Интерактивный', 'advanced': 'Продвинутый', 'immersive': 'Иммерсивный'},
+                                'en': {'basic': 'Basic', 'interactive': 'Interactive', 'advanced': 'Advanced', 'immersive': 'Immersive'},
+                                'uk': {'basic': 'Базовий', 'interactive': 'Інтерактивний', 'advanced': 'Поглиблений', 'immersive': 'Іммерсивний'},
+                                'es': {'basic': 'Básico', 'interactive': 'Interactivo', 'advanced': 'Avanzado', 'immersive': 'Inmersivo'}
+                            } %}
+                            {% set current_tier_labels = tier_labels.get(lang, tier_labels['en']) %}
+                            {% set section_tier = section.quality_tier or 'interactive' %}
+                            {% set tier_colors = {
+                                'basic': {'color': '#059669', 'bg': '#ecfdf5', 'border': '#a7f3d0'},
+                                'interactive': {'color': '#ea580c', 'bg': '#fff7ed', 'border': '#fed7aa'},
+                                'advanced': {'color': '#7c3aed', 'bg': '#f3f4f6', 'border': '#c4b5fd'},
+                                'immersive': {'color': '#2563eb', 'bg': '#eff6ff', 'border': '#93c5fd'}
+                            } %}
+                            {% set current_tier_colors = tier_colors.get(section_tier, tier_colors['interactive']) %}
+                            <span class="tier-badge" style="color: {{ current_tier_colors.color }}; background-color: {{ current_tier_colors.bg }}; border-color: {{ current_tier_colors.border }};">
+                                {{ current_tier_labels.get(section_tier, section_tier.title()) }}
+                            </span>
+                        </div>{% endif %}
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 font-semibold px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                              <div class="w-3 h-3 flex justify-center items-center">
                                  <svg class="w-3 h-3" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill="#FF1414"/></svg>
@@ -304,7 +340,16 @@
                             } %}
                             {% set current_tier_labels = tier_labels.get(lang, tier_labels['en']) %}
                             {% set lesson_tier = lesson.quality_tier or 'interactive' %}
-                            <span class="text-xxs capitalize">{{ current_tier_labels.get(lesson_tier, lesson_tier.title()) }}</span>
+                            {% set tier_colors = {
+                                'basic': {'color': '#059669', 'bg': '#ecfdf5', 'border': '#a7f3d0'},
+                                'interactive': {'color': '#ea580c', 'bg': '#fff7ed', 'border': '#fed7aa'},
+                                'advanced': {'color': '#7c3aed', 'bg': '#f3f4f6', 'border': '#c4b5fd'},
+                                'immersive': {'color': '#2563eb', 'bg': '#eff6ff', 'border': '#93c5fd'}
+                            } %}
+                            {% set current_tier_colors = tier_colors.get(lesson_tier, tier_colors['interactive']) %}
+                            <span class="tier-badge" style="color: {{ current_tier_colors.color }}; background-color: {{ current_tier_colors.bg }}; border-color: {{ current_tier_colors.border }};">
+                                {{ current_tier_labels.get(lesson_tier, lesson_tier.title()) }}
+                            </span>
                         </div>{% endif %}
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                             <div class="w-3 flex justify-center">
