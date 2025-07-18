@@ -105,10 +105,8 @@ export function UserDropdown({
         onClick={() => setUserInfoVisible(!userInfoVisible)}
         className="flex relative cursor-pointer"
       >
-        <div className="my-auto bg-gray-800 hover:bg-gray-700 transition-colors duration-150 rounded-full inline-block flex-none w-8 h-8 flex items-center justify-center text-white text-sm">
-          {user && user.email
-            ? user.email[0]?.toUpperCase()
-            : "A"}
+        <div className="my-auto bg-gray-800 hover:bg-gray-700 transition-colors duration-150 rounded-full inline-block flex-none w-8 h-8 flex items-center justify-center text-white">
+          <User size={18} />
         </div>
       </div>
 
@@ -123,39 +121,12 @@ export function UserDropdown({
               />
             ) : (
               <>
-                {showAdminPanel && (
-                  <DropdownOption
-                    href="/admin/indexing/status"
-                    icon={<Settings size={16} className="my-auto" />}
-                    label="Admin Panel"
-                  />
-                )}
-
-                {showCuratorPanel && (
-                  <DropdownOption
-                    href="/admin/indexing/status"
-                    icon={<Settings size={16} className="my-auto" />}
-                    label="Curator Panel"
-                  />
-                )}
-
-                <DropdownOption
-                  onClick={() => {
-                    // Handle notifications
-                  }}
-                  icon={<Bell size={16} className="my-auto" />}
-                  label="Notifications"
-                />
-
                 {showLogout && (
-                  <>
-                    <div className="border-t border-gray-200 my-1" />
-                    <DropdownOption
-                      onClick={handleLogout}
-                      icon={<LogOut size={16} className="my-auto" />}
-                      label="Log out"
-                    />
-                  </>
+                  <DropdownOption
+                    onClick={handleLogout}
+                    icon={<LogOut size={16} className="my-auto" />}
+                    label="Log out"
+                  />
                 )}
               </>
             )}
