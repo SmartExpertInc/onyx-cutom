@@ -3713,8 +3713,8 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         for file_id in file_ids:
             file_context = None
             for retry_attempt in range(3):  # Up to 3 attempts per file
-            try:
-                file_context = await extract_single_file_context(file_id, cookies)
+                try:
+                    file_context = await extract_single_file_context(file_id, cookies)
                     if file_context and (file_context.get("summary") or file_context.get("content")):
                         # Check if this was a successful extraction (not a generic response or error)
                         content = file_context.get("content", "")
@@ -3725,17 +3725,17 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
                                 continue
                         
                         # Success - add to context
-                    extracted_context["file_summaries"].append(file_context["summary"])
-                    extracted_context["file_contents"].append(file_context["content"])
-                    extracted_context["key_topics"].extend(file_context.get("topics", []))
-                    successful_extractions += 1
+                        extracted_context["file_summaries"].append(file_context["summary"])
+                        extracted_context["file_contents"].append(file_context["content"])
+                        extracted_context["key_topics"].extend(file_context.get("topics", []))
+                        successful_extractions += 1
                         logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} (attempt {retry_attempt + 1})")
                         break  # Success, no need for more retries
-                else:
+                    else:
                         logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} (attempt {retry_attempt + 1})")
                         if retry_attempt < 2:  # Don't sleep on the last attempt
                             await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-            except Exception as e:
+                except Exception as e:
                     logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id} (attempt {retry_attempt + 1}): {e}")
                     if retry_attempt < 2:  # Don't sleep on the last attempt
                         await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
@@ -3940,35 +3940,35 @@ async def attempt_file_analysis_with_retry(
     strategy = strategies[attempt]
     
     async with httpx.AsyncClient(timeout=180.0) as client:
-            payload = {
+        payload = {
             "chat_session_id": chat_id,
             "message": prompt,
-                "parent_message_id": None,
+            "parent_message_id": None,
             "file_descriptors": strategy.get("file_descriptors", []),
             "user_file_ids": strategy.get("user_file_ids", []),
-                "user_folder_ids": [],
-                "prompt_id": None,
-                "search_doc_ids": None,
+            "user_folder_ids": [],
+            "prompt_id": None,
+            "search_doc_ids": None,
             "retrieval_options": strategy["retrieval_options"],
-                "stream_response": True,
+            "stream_response": True,
             "query_override": strategy.get("query_override")
-            }
-            
+        }
+        
         logger.info(f"[FILE_CONTEXT] Attempt {attempt + 1} for file {file_id} with strategy: {list(strategy.keys())}")
         
-            try:
+        try:
             # Try simple API first
-                response = await client.post(
-                    f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
-                    json=payload,
-                    cookies=cookies
-                )
-                response.raise_for_status()
-                result = response.json()
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api",
+                json=payload,
+                cookies=cookies
+            )
+            response.raise_for_status()
+            result = response.json()
             return result.get("answer", "")
-            except httpx.HTTPStatusError as e:
-                if e.response.status_code == 404:
-                    # Fallback to streaming endpoint
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                # Fallback to streaming endpoint
                 return await stream_file_analysis(client, payload, cookies, file_id)
             else:
                 raise
@@ -3982,28 +3982,28 @@ async def stream_file_analysis(
     """
     Stream file analysis response with enhanced error handling.
     """
-                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
-                        resp.raise_for_status()
-                        analysis_text = ""
+    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=payload, cookies=cookies) as resp:
+        resp.raise_for_status()
+        analysis_text = ""
         line_count = 0
         file_mentioned = False
         
-                        async for raw_line in resp.aiter_lines():
+        async for raw_line in resp.aiter_lines():
             line_count += 1
-                            if not raw_line:
-                                continue
+            if not raw_line:
+                continue
                 
-                            line = raw_line.strip()
-                            if line.startswith("data:"):
-                                line = line.split("data:", 1)[1].strip()
+            line = raw_line.strip()
+            if line.startswith("data:"):
+                line = line.split("data:", 1)[1].strip()
                 
-                            if line == "[DONE]":
+            if line == "[DONE]":
                 logger.info(f"[FILE_CONTEXT] Stream completed for file {file_id} after {line_count} lines")
-                                break
+                break
                 
-                            try:
-                                pkt = json.loads(line)
-                                if "answer_piece" in pkt:
+            try:
+                pkt = json.loads(line)
+                if "answer_piece" in pkt:
                     piece = pkt["answer_piece"].replace("\\n", "\n")
                     analysis_text += piece
                     
@@ -4011,9 +4011,9 @@ async def stream_file_analysis(
                     if str(file_id) in piece or "file" in piece.lower():
                         file_mentioned = True
                         
-                            except json.JSONDecodeError:
+            except json.JSONDecodeError:
                 logger.debug(f"[FILE_CONTEXT] JSON decode error on line {line_count}: {line[:100]}")
-                                continue
+                continue
         
         logger.info(f"[FILE_CONTEXT] Stream processing completed for file {file_id}, "
                    f"total text length: {len(analysis_text)}, file mentioned: {file_mentioned}")
@@ -4053,24 +4053,24 @@ def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
     """
     Parse the analysis result and extract structured information.
     """
-            summary = ""
-            topics = []
-            key_info = ""
-            
+    summary = ""
+    topics = []
+    key_info = ""
+    
     # Log the raw response for debugging
     logger.info(f"[FILE_CONTEXT] Raw analysis response for file {file_id} (length: {len(analysis_text)}): "
                f"{analysis_text[:500]}{'...' if len(analysis_text) > 500 else ''}")
     
-            lines = analysis_text.split('\n')
-            for line in lines:
-                if line.startswith("SUMMARY:"):
-                    summary = line.replace("SUMMARY:", "").strip()
-                elif line.startswith("TOPICS:"):
-                    topics_text = line.replace("TOPICS:", "").strip()
-                    topics = [t.strip() for t in topics_text.split(',') if t.strip()]
-                elif line.startswith("KEY_INFO:"):
-                    key_info = line.replace("KEY_INFO:", "").strip()
-            
+    lines = analysis_text.split('\n')
+    for line in lines:
+        if line.startswith("SUMMARY:"):
+            summary = line.replace("SUMMARY:", "").strip()
+        elif line.startswith("TOPICS:"):
+            topics_text = line.replace("TOPICS:", "").strip()
+            topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+        elif line.startswith("KEY_INFO:"):
+            key_info = line.replace("KEY_INFO:", "").strip()
+    
     # If no structured response, try to extract meaningful content
     if not summary and analysis_text.strip():
         # Take first 200 characters as summary if no structured response
@@ -4084,13 +4084,13 @@ def parse_analysis_result(file_id: int, analysis_text: str) -> Dict[str, Any]:
         summary = f"File content analyzed successfully (ID: {file_id})"
         logger.warning(f"[FILE_CONTEXT] No summary could be extracted for file {file_id}, using fallback")
     
-            return {
-                "file_id": file_id,
-                "summary": summary,
-                "topics": topics,
-                "key_info": key_info,
-                "content": analysis_text
-            }
+    return {
+        "file_id": file_id,
+        "summary": summary,
+        "topics": topics,
+        "key_info": key_info,
+        "content": analysis_text
+    }
 
 async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
@@ -6564,10 +6564,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -6612,10 +6612,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-                yield (json.dumps(done_packet) + "\n").encode()
+        yield (json.dumps(done_packet) + "\n").encode()
         logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-                return
-
+        return
+                
 
     return StreamingResponse(
         streamer(),
@@ -7453,10 +7453,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -7479,7 +7479,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
@@ -9997,10 +9997,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -10017,10 +10017,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
@@ -10775,10 +10775,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -10795,10 +10795,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
@@ -11274,3 +11274,4 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+        
