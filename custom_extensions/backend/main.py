@@ -12171,20 +12171,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                     sections = content['sections']
                     total_completion_time = 0
                     
-                    # Calculate total completion time
-                    for section in sections:
-                        if isinstance(section, dict) and 'lessons' in section:
-                            for lesson in section['lessons']:
-                                if isinstance(lesson, dict):
-                                    completion_time_str = lesson.get('completionTime', '')
-                                    if completion_time_str:
-                                        try:
-                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
-                                            total_completion_time += completion_time_minutes
-                                        except (ValueError, AttributeError):
-                                            pass
-                    
-                    # Update tier names and sum existing hours for section totals
+                    # Calculate total completion time and update tier names and hours
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
                             # Clear any existing module-level tier settings to ensure folder-level tier takes precedence
@@ -12205,14 +12192,43 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     # Update the tier name to match the new folder tier
                                     lesson['quality_tier'] = req.quality_tier
                                     
-                                    # If lesson has completion time, recalculate hours with new folder rate
-                                    if lesson.get('completionTime'):
-                                        lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(lesson, section, req.custom_rate)
-                                        lesson['hours'] = lesson_creation_hours
-                                        section_total_hours += lesson_creation_hours
-                                    # If lesson already has hours but no completion time, preserve existing hours
-                                    elif lesson.get('hours'):
-                                        section_total_hours += float(lesson['hours'])
+                                    # Parse completion time - treat missing as 5 minutes
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Add to total completion time
+                                    total_completion_time += completion_time_minutes
+                                    
+                                    # Recalculate hours with new folder rate using completion time (or 5 minutes default)
+                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
                             
                             # Update the section's totalHours with sum of existing lesson hours
                             if 'totalHours' in section:
@@ -12404,9 +12420,39 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                         if isinstance(section, dict) and 'lessons' in section:
                             section_total_hours = 0
                             for lesson in section['lessons']:
-                                if isinstance(lesson, dict) and lesson.get('completionTime'):
-                                    # Calculate hours using lesson-level tier settings if available, otherwise use folder rate
-                                    lesson_creation_hours = calculate_lesson_creation_hours(lesson, folder_custom_rate)
+                                if isinstance(lesson, dict):
+                                    # Parse completion time - treat missing as 5 minutes
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Calculate hours using completion time (or 5 minutes default)
+                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
@@ -12524,14 +12570,40 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                     # Update the tier name to match the new project tier  
                                     lesson['quality_tier'] = req.quality_tier
                                     
-                                    # If lesson has completion time, recalculate hours with new project rate
-                                    if lesson.get('completionTime'):
-                                        lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(lesson, section, req.custom_rate)
-                                        lesson['hours'] = lesson_creation_hours
-                                        section_total_hours += lesson_creation_hours
-                                    # If lesson already has hours but no completion time, preserve existing hours
-                                    elif lesson.get('hours'):
-                                        section_total_hours += float(lesson['hours'])
+                                    # Parse completion time - treat missing as 5 minutes
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Recalculate hours with new project rate using completion time (or 5 minutes default)
+                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
                             
                             # Update the section's totalHours with sum of existing lesson hours
                             if 'totalHours' in section:
@@ -12696,17 +12768,39 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                             # Sum up completion time and use existing lesson hours for this section
                             for lesson in lessons:
                                 if isinstance(lesson, dict):
-                                    # Parse completion time (e.g., "5m", "6m", "7m", "8m")
+                                    # Parse completion time (e.g., "5m", "6m", "7m", "8m") - treat missing as 5 minutes
                                     completion_time_str = lesson.get("completionTime", "")
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
                                     if completion_time_str:
-                                        try:
-                                            # Remove 'm' suffix and convert to integer
-                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
-                                            section_completion_time += completion_time_minutes
-                                            total_completion_time += completion_time_minutes
-                                        except (ValueError, AttributeError):
-                                            # If parsing fails, skip this lesson's completion time
-                                            pass
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Add to totals
+                                    section_completion_time += completion_time_minutes
+                                    total_completion_time += completion_time_minutes
                                     
                                     # Use existing lesson hours if available, otherwise calculate with folder rate
                                     if lesson.get('hours'):
@@ -12715,24 +12809,15 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                             section_hours += lesson_creation_hours
                                             total_hours += lesson_creation_hours
                                         except (ValueError, TypeError):
-                                            # If hours parsing fails, fallback to calculation
-                                            if completion_time_str:
-                                                try:
-                                                    completion_time_minutes = int(completion_time_str.replace('m', ''))
-                                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
-                                                    section_hours += lesson_creation_hours
-                                                    total_hours += lesson_creation_hours
-                                                except (ValueError, AttributeError):
-                                                    pass
-                                    elif completion_time_str:
-                                        # No existing hours, calculate with folder rate
-                                        try:
-                                            completion_time_minutes = int(completion_time_str.replace('m', ''))
+                                            # If hours parsing fails, calculate with completion time
                                             lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
                                             section_hours += lesson_creation_hours
                                             total_hours += lesson_creation_hours
-                                        except (ValueError, AttributeError):
-                                            pass
+                                    else:
+                                        # No existing hours, calculate with completion time
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
+                                        section_hours += lesson_creation_hours
+                                        total_hours += lesson_creation_hours
                             
                             # Add section data with tier-adjusted totals
                             sections_data.append({
