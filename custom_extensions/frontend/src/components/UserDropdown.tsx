@@ -72,6 +72,15 @@ export function UserDropdown({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Helper function to redirect to main app's auth endpoint (copied from projects page logic)
+  const redirectToMainAuth = (path: string) => {
+    // Get the current domain and protocol
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const mainAppUrl = `${protocol}//${host}${path}`;
+    window.location.href = mainAppUrl;
+  };
+
   const handleLogout = () => {
     logout().then((response: Response) => {
       if (!response.ok) {
@@ -79,16 +88,10 @@ export function UserDropdown({
         return;
       }
 
-      // Construct the current URL
-      const currentUrl = `${pathname}${
-        searchParams?.toString() ? `?${searchParams.toString()}` : ""
-      }`;
-
-      // Encode the current URL to use as a redirect parameter
-      const encodedRedirect = encodeURIComponent(currentUrl);
-
-      // Redirect to login page with the current page as a redirect parameter
-      router.push(`/auth/login?next=${encodedRedirect}`);
+      // Redirect to main app's login page after logout
+      // This follows the same pattern as the authentication check in projects page
+      const currentUrl = window.location.pathname + window.location.search;
+      redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
     });
   };
 
