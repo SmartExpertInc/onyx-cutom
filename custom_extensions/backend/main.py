@@ -10691,9 +10691,9 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                 orig['design_template_id'],
                 now,
                 new_session_id,
-                orig['folder_id'],
-                orig['order'],
-                orig['is_standalone'],
+                orig.get('folder_id'),
+                orig.get('order'),
+                orig.get('is_standalone'),
                 orig.get('completion_time'),
                 orig.get('custom_rate'),
                 orig.get('quality_tier')
@@ -10702,7 +10702,9 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                 "SELECT * FROM projects WHERE source_chat_session_id = $1 AND id != $2",
                 orig['source_chat_session_id'], orig['id']
             )
+            logger.info(f"[DUPLICATION] Training Plan {orig['id']} has {len(connected)} connected products")
             for prod in connected:
+                logger.info(f"[DUPLICATION] Duplicating connected product: {prod['project_name']} (type: {prod['microproduct_type']})")
                 prod_name = prod['project_name']
                 if prod_name.startswith(orig['project_name']):
                     prod_name = prod_name.replace(orig['project_name'], new_name, 1)
@@ -10723,13 +10725,14 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     prod['design_template_id'],
                     now,
                     new_session_id,
-                    prod['folder_id'],
-                    prod['order'],
-                    prod['is_standalone'],
+                    prod.get('folder_id'),
+                    prod.get('order'),
+                    prod.get('is_standalone'),
                     prod.get('completion_time'),
                     prod.get('custom_rate'),
                     prod.get('quality_tier')
                 )
+            logger.info(f"[DUPLICATION] Successfully duplicated Training Plan {orig['id']} -> {new_outline_id} with {len(connected)} connected products")
             return {"id": new_outline_id}
         else:
             new_prod_name = f"Copy of {orig['project_name']}"
@@ -10748,9 +10751,9 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                 orig['design_template_id'],
                 now,
                 str(uuid4()),
-                orig['folder_id'],
-                orig['order'],
-                orig['is_standalone'],
+                orig.get('folder_id'),
+                orig.get('order'),
+                orig.get('is_standalone'),
                 orig.get('completion_time'),
                 orig.get('custom_rate'),
                 orig.get('quality_tier')
