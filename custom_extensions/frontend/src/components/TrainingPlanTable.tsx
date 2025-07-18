@@ -647,9 +647,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Handle saving lesson settings
   const handleLessonSettingsSave = (customRate: number, qualityTier: string) => {
+    console.log('handleLessonSettingsSave called with:', { customRate, qualityTier, lessonSettingsModalState });
     const { sectionIndex, lessonIndex } = lessonSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
+      console.log('Updating lesson settings for section:', sectionIndex, 'lesson:', lessonIndex);
+      
       // Update lesson's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
@@ -663,6 +666,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
         const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
         
+        console.log('Recalculating lesson hours:', { completionTime, completionTimeMinutes, customRate, newHours });
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
         
         // Auto-recalculate module total hours
@@ -672,6 +676,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours };
           const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
           
+          console.log('Updating section total hours:', { newTotalHours });
           onTextChange(['sections', sectionIndex, 'totalHours'], newTotalHours);
           onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
         }
@@ -680,8 +685,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       // Trigger auto-save after all changes
       if (onAutoSave) {
         console.log('Lesson settings saved - triggering auto-save');
-        onAutoSave();
+        // Add a small delay to ensure state updates are processed
+        setTimeout(() => {
+          onAutoSave();
+        }, 100);
+      } else {
+        console.warn('onAutoSave function not provided for lesson settings');
       }
+    } else {
+      console.warn('Cannot save lesson settings:', { onTextChange: !!onTextChange, sectionIndex, lessonIndex });
     }
     
     setLessonSettingsModalState({ 
@@ -702,9 +714,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Handle saving module settings
   const handleModuleSettingsSave = async (customRate: number, qualityTier: string) => {
+    console.log('handleModuleSettingsSave called with:', { customRate, qualityTier, moduleSettingsModalState });
     const { sectionIndex } = moduleSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0) {
+      console.log('Updating module settings for section:', sectionIndex);
+      
       // Update module's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
@@ -715,6 +730,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       if (section && section.lessons) {
         let totalSectionHours = 0;
         
+        console.log('Updating all lessons in section:', sectionIndex, 'count:', section.lessons.length);
+        
         section.lessons.forEach((lesson, lessonIndex) => {
           // Update lesson's quality_tier to match the new module tier
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
@@ -724,11 +741,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
           const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
           
+          console.log('Updating lesson:', lessonIndex, { completionTime, completionTimeMinutes, customRate, newHours });
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
           totalSectionHours += newHours;
         });
         
         // Update section total hours and set autoCalculateHours to true
+        console.log('Updating section total hours:', { totalSectionHours });
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
         onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
       }
@@ -736,8 +755,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       // Trigger auto-save after all changes
       if (onAutoSave) {
         console.log('Module settings saved - triggering auto-save');
-        onAutoSave();
+        // Add a small delay to ensure state updates are processed
+        setTimeout(() => {
+          onAutoSave();
+        }, 100);
+      } else {
+        console.warn('onAutoSave function not provided for module settings');
       }
+    } else {
+      console.warn('Cannot save module settings:', { onTextChange: !!onTextChange, sectionIndex });
     }
     
     setModuleSettingsModalState({ 

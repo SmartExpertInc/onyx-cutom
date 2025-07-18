@@ -445,6 +445,8 @@ export default function ProjectInstanceViewPage() {
   // Auto-save function that doesn't refresh the page or show alerts
   const handleAutoSave = async () => {
     console.log('Auto-save triggered'); // Debug log
+    console.log('Auto-save: Current editableData state:', JSON.stringify(editableData, null, 2));
+    
     if (!projectId || !editableData || !projectInstanceData) {
       console.log('Auto-save: Missing required data', { projectId, hasEditableData: !!editableData, hasProjectInstance: !!projectInstanceData });
       return; // Silent fail for auto-save
