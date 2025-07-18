@@ -10663,46 +10663,101 @@ async def get_user_credits_by_email(
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
 
 
+@app.get("/api/custom/projects/debug/{project_id}")
+async def debug_project_connections(project_id: int, user_id: str = Depends(get_current_onyx_user_id)):
+    """Debug endpoint to check project connections"""
+    async with DB_POOL.acquire() as conn:
+        # Get the project
+        project = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get connected products
+        connected = []
+        if project['source_chat_session_id']:
+            connected = await conn.fetch(
+                "SELECT id, project_name, microproduct_type, source_chat_session_id FROM projects WHERE source_chat_session_id = $1 AND id != $2",
+                project['source_chat_session_id'], project_id
+            )
+        
+        return {
+            "project": {
+                "id": project['id'],
+                "name": project['project_name'],
+                "type": project['microproduct_type'],
+                "session_id": str(project['source_chat_session_id']) if project['source_chat_session_id'] else None
+            },
+            "connected_products": [
+                {
+                    "id": p['id'],
+                    "name": p['project_name'],
+                    "type": p['microproduct_type'],
+                    "session_id": str(p['source_chat_session_id']) if p['source_chat_session_id'] else None
+                }
+                for p in connected
+            ]
+        }
+
 @app.post("/api/custom/projects/duplicate/{project_id}")
 async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
     """
     Duplicate a project. If it's a Training Plan, also duplicate all connected products (lessons, quizzes, etc.).
     """
+    logger.info(f"[DUPLICATION_START] Starting duplication of project {project_id} for user {user_id}")
     async with DB_POOL.acquire() as conn:
         orig = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
         if not orig:
             raise HTTPException(status_code=404, detail="Project not found")
+        
+        logger.info(f"[DUPLICATION_ORIG] Original project: ID={orig['id']}, name='{orig['project_name']}', type='{orig['microproduct_type']}', session_id={orig['source_chat_session_id']}")
+        
         new_name = f"Copy of {orig['project_name']}"
         now = datetime.now(timezone.utc)
         if orig['microproduct_type'] == "Training Plan":
             new_session_id = str(uuid4())
-            new_outline_id = await conn.fetchval(
-                """
-                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-                RETURNING id
-                """,
-                user_id,
-                new_name,
-                orig['product_type'],
-                orig['microproduct_type'],
-                orig['microproduct_name'],
-                orig['microproduct_content'],
-                orig['design_template_id'],
-                now,
-                new_session_id,
-                orig.get('folder_id'),
-                orig.get('order'),
-                orig.get('is_standalone'),
-                orig.get('completion_time'),
-                orig.get('custom_rate'),
-                orig.get('quality_tier')
-            )
-            connected = await conn.fetch(
-                "SELECT * FROM projects WHERE source_chat_session_id = $1 AND id != $2",
-                orig['source_chat_session_id'], orig['id']
-            )
-            logger.info(f"[DUPLICATION] Training Plan {orig['id']} has {len(connected)} connected products")
+            logger.info(f"[DUPLICATION] Creating new Training Plan with session_id: {new_session_id}")
+            try:
+                new_outline_id = await conn.fetchval(
+                    """
+                    INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                    RETURNING id
+                    """,
+                    user_id,
+                    new_name,
+                    orig['product_type'],
+                    orig['microproduct_type'],
+                    orig['microproduct_name'],
+                    orig['microproduct_content'],
+                    orig['design_template_id'],
+                    now,
+                    new_session_id,
+                    orig.get('folder_id'),
+                    orig.get('order'),
+                    orig.get('is_standalone'),
+                    orig.get('completion_time'),
+                    orig.get('custom_rate'),
+                    orig.get('quality_tier')
+                )
+                logger.info(f"[DUPLICATION] Successfully created new Training Plan with ID: {new_outline_id}")
+            except Exception as e:
+                logger.error(f"[DUPLICATION] Failed to create new Training Plan: {e}")
+                raise e
+            # Check if original training plan has a source_chat_session_id
+            if orig['source_chat_session_id'] is None:
+                logger.warning(f"[DUPLICATION] Training Plan {orig['id']} has NULL source_chat_session_id, no connected products to duplicate")
+                connected = []
+            else:
+                connected = await conn.fetch(
+                    "SELECT * FROM projects WHERE source_chat_session_id = $1 AND id != $2",
+                    orig['source_chat_session_id'], orig['id']
+                )
+                logger.info(f"[DUPLICATION] Training Plan {orig['id']} has {len(connected)} connected products")
+                
+                # Log details about found connected products
+                for i, prod in enumerate(connected):
+                    logger.info(f"[DUPLICATION] Connected product {i+1}: ID={prod['id']}, name='{prod['project_name']}', type='{prod['microproduct_type']}', session_id={prod['source_chat_session_id']}")
+            
             for prod in connected:
                 logger.info(f"[DUPLICATION] Duplicating connected product: {prod['project_name']} (type: {prod['microproduct_type']})")
                 prod_name = prod['project_name']
@@ -10711,51 +10766,76 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                 micro_name = prod['microproduct_name']
                 if micro_name and micro_name.startswith(orig['project_name']):
                     micro_name = micro_name.replace(orig['project_name'], new_name, 1)
-                await conn.execute(
+                try:
+                    new_prod_id = await conn.fetchval(
+                        """
+                        INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        RETURNING id
+                        """,
+                        user_id,
+                        prod_name,
+                        prod['product_type'],
+                        prod['microproduct_type'],
+                        micro_name,
+                        prod['microproduct_content'],
+                        prod['design_template_id'],
+                        now,
+                        new_session_id,
+                        prod.get('folder_id'),
+                        prod.get('order'),
+                        prod.get('is_standalone'),
+                        prod.get('completion_time'),
+                        prod.get('custom_rate'),
+                        prod.get('quality_tier')
+                    )
+                    logger.info(f"[DUPLICATION] Successfully created duplicate of {prod['project_name']} -> ID {new_prod_id}")
+                except Exception as e:
+                    logger.error(f"[DUPLICATION] Failed to duplicate connected product {prod['project_name']}: {e}")
+                    raise e
+            logger.info(f"[DUPLICATION] Successfully duplicated Training Plan {orig['id']} -> {new_outline_id} with {len(connected)} connected products")
+            
+            # Verify the duplication by checking what was actually created
+            verification_query = """
+            SELECT id, project_name, microproduct_type, source_chat_session_id 
+            FROM projects 
+            WHERE source_chat_session_id = $1 OR id = $1
+            ORDER BY id
+            """
+            verification_results = await conn.fetch(verification_query, new_session_id)
+            logger.info(f"[DUPLICATION_VERIFICATION] Found {len(verification_results)} total products with new session_id {new_session_id}")
+            for i, result in enumerate(verification_results):
+                logger.info(f"[DUPLICATION_VERIFICATION] Product {i+1}: ID={result['id']}, name='{result['project_name']}', type='{result['microproduct_type']}', session_id={result['source_chat_session_id']}")
+            
+            return {"id": new_outline_id}
+        else:
+            logger.info(f"[DUPLICATION] Duplicating regular product: {orig['project_name']} (type: {orig['microproduct_type']})")
+            new_prod_name = f"Copy of {orig['project_name']}"
+            try:
+                new_id = await conn.fetchval(
                     """
                     INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                    RETURNING id
                     """,
                     user_id,
-                    prod_name,
-                    prod['product_type'],
-                    prod['microproduct_type'],
-                    micro_name,
-                    prod['microproduct_content'],
-                    prod['design_template_id'],
+                    new_prod_name,
+                    orig['product_type'],
+                    orig['microproduct_type'],
+                    orig['microproduct_name'],
+                    orig['microproduct_content'],
+                    orig['design_template_id'],
                     now,
-                    new_session_id,
-                    prod.get('folder_id'),
-                    prod.get('order'),
-                    prod.get('is_standalone'),
-                    prod.get('completion_time'),
-                    prod.get('custom_rate'),
-                    prod.get('quality_tier')
+                    str(uuid4()),
+                    orig.get('folder_id'),
+                    orig.get('order'),
+                    orig.get('is_standalone'),
+                    orig.get('completion_time'),
+                    orig.get('custom_rate'),
+                    orig.get('quality_tier')
                 )
-            logger.info(f"[DUPLICATION] Successfully duplicated Training Plan {orig['id']} -> {new_outline_id} with {len(connected)} connected products")
-            return {"id": new_outline_id}
-        else:
-            new_prod_name = f"Copy of {orig['project_name']}"
-            new_id = await conn.fetchval(
-                """
-                INSERT INTO projects (onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, source_chat_session_id, folder_id, "order", is_standalone, completion_time, custom_rate, quality_tier)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-                RETURNING id
-                """,
-                user_id,
-                new_prod_name,
-                orig['product_type'],
-                orig['microproduct_type'],
-                orig['microproduct_name'],
-                orig['microproduct_content'],
-                orig['design_template_id'],
-                now,
-                str(uuid4()),
-                orig.get('folder_id'),
-                orig.get('order'),
-                orig.get('is_standalone'),
-                orig.get('completion_time'),
-                orig.get('custom_rate'),
-                orig.get('quality_tier')
-            )
-            return {"id": new_id}
+                logger.info(f"[DUPLICATION] Successfully created duplicate regular product with ID: {new_id}")
+                return {"id": new_id}
+            except Exception as e:
+                logger.error(f"[DUPLICATION] Failed to duplicate regular product: {e}")
+                raise e
