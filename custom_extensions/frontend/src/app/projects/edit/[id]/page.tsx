@@ -280,6 +280,53 @@ const EditProjectPageComponent = () => {
     newSections[sectionIndex] = currentSection;
     setTrainingPlanData({ ...trainingPlanData, sections: newSections });
   };
+
+  // Path-based handler for TrainingPlanTable component
+  const handlePathBasedChange = (path: (string | number)[], value: any) => {
+    if (!trainingPlanData) return;
+    
+    setTrainingPlanData(prev => {
+      if (!prev) return prev;
+      
+      const newData = { ...prev };
+      let current: any = newData;
+      
+      // Navigate to the parent of the target
+      for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i];
+        if (typeof key === 'number') {
+          // Handle array indices
+          if (!Array.isArray(current[key])) {
+            current[key] = [];
+          }
+          current = current[key];
+        } else {
+          // Handle object keys
+          if (!current[key]) {
+            current[key] = {};
+          }
+          current = current[key];
+        }
+      }
+      
+      // Set the final value
+      const finalKey = path[path.length - 1];
+      current[finalKey] = value;
+      
+      // Special handling for hours changes to trigger auto-recalculation
+      if (path.length >= 4 && path[2] === 'lessons' && path[4] === 'hours') {
+        const sectionIndex = path[1] as number;
+        const lessonIndex = path[3] as number;
+        const section = newData.sections[sectionIndex];
+        if (section && section.autoCalculateHours) {
+          const totalHours = section.lessons.reduce((sum: number, lesson: any) => sum + (Number(lesson.hours) || 0), 0);
+          newData.sections[sectionIndex].totalHours = totalHours;
+        }
+      }
+      
+      return newData;
+    });
+  };
   const handleLessonStatusChange = (sectionIndex: number, lessonIndex: number, field: 'check' | 'contentAvailable', subField: keyof StatusInfo, value: string) => {
       if (!trainingPlanData) return;
       const newSections = [...trainingPlanData.sections];
