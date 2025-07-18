@@ -257,6 +257,39 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Auto-save timeout ref
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Cleanup effect to save any pending changes when component unmounts
+  useEffect(() => {
+    return () => {
+      // If there's a pending auto-save timeout, trigger it immediately
+      if (autoSaveTimeoutRef.current) {
+        console.log('Component unmounting - triggering pending auto-save');
+        clearTimeout(autoSaveTimeoutRef.current);
+        if (onAutoSave) {
+          onAutoSave();
+        }
+      }
+    };
+  }, [onAutoSave]);
+
+  // Handle page navigation - save any pending changes
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (autoSaveTimeoutRef.current) {
+        console.log('Page navigation detected - triggering pending auto-save');
+        clearTimeout(autoSaveTimeoutRef.current);
+        if (onAutoSave) {
+          onAutoSave();
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [onAutoSave]);
+
   const [contentModalState, setContentModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
