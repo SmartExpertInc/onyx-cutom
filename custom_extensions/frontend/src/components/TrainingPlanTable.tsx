@@ -676,6 +676,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
         }
       }
+      
+      // Trigger auto-save after all changes
+      if (onAutoSave) {
+        console.log('Lesson settings saved - triggering auto-save');
+        onAutoSave();
+      }
     }
     
     setLessonSettingsModalState({ 
@@ -725,6 +731,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         // Update section total hours and set autoCalculateHours to true
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
         onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
+      }
+      
+      // Trigger auto-save after all changes
+      if (onAutoSave) {
+        console.log('Module settings saved - triggering auto-save');
+        onAutoSave();
       }
     }
     
