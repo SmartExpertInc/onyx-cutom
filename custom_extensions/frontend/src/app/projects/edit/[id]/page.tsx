@@ -329,38 +329,17 @@ const EditProjectPageComponent = () => {
    const moveLesson = (sectionIndex: number, lessonIndex: number, direction: 'up' | 'down') => {
     if (!trainingPlanData) return;
     const newSections = [...trainingPlanData.sections];
-    const section = newSections[sectionIndex];
-    if (section && lessonIndex >= 0 && lessonIndex < section.lessons.length) {
-      const lessons = [...section.lessons];
-      if (direction === 'up' && lessonIndex > 0) {
-        [lessons[lessonIndex], lessons[lessonIndex - 1]] = [lessons[lessonIndex - 1], lessons[lessonIndex]];
-      } else if (direction === 'down' && lessonIndex < lessons.length - 1) {
-        [lessons[lessonIndex], lessons[lessonIndex + 1]] = [lessons[lessonIndex + 1], lessons[lessonIndex]];
-      }
-      section.lessons = lessons;
-      newSections[sectionIndex] = section;
-      setTrainingPlanData({ ...trainingPlanData, sections: newSections });
-    }
-  };
-
-  // Calculate total creation time for a section with quality tier multipliers
-  const calculateTotalCreationTime = (section: any): number => {
-    if (!section.lessons || section.lessons.length === 0) return 0;
-    
-    return section.lessons.reduce((total: number, lesson: any) => {
-      const hours = lesson.hours || 0;
-      const qualityTier = lesson.quality_tier || 'interactive';
-      
-      // Get hours multiplier based on quality tier
-      const tierMultipliers = {
-        basic: 1,
-        interactive: 2,
-        advanced: 3,
-        immersive: 7
-      };
-      
-      return total + (hours * tierMultipliers[qualityTier as keyof typeof tierMultipliers]);
-    }, 0);
+    if (!newSections[sectionIndex]) return;
+    const currentSection = { ...newSections[sectionIndex] };
+    const lessons = [...currentSection.lessons];
+    const targetIndex = direction === 'up' ? lessonIndex - 1 : lessonIndex + 1;
+    if (targetIndex < 0 || targetIndex >= lessons.length) return;
+    const temp = lessons[lessonIndex];
+    lessons[lessonIndex] = lessons[targetIndex];
+    lessons[targetIndex] = temp;
+    currentSection.lessons = lessons;
+    newSections[sectionIndex] = currentSection;
+    setTrainingPlanData({ ...trainingPlanData, sections: newSections });
   };
 
   if (isLoading && !initialDataLoaded) return <div className="p-8 text-center font-['Inter',_sans-serif]">Loading project details...</div>;
@@ -459,7 +438,7 @@ const EditProjectPageComponent = () => {
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-black">Total Hours (auto-calculated):</label>
-                        <input type="number" value={Math.round(section.totalHours)} readOnly className={`${smallInputClasses} cursor-not-allowed`} />
+                        <input type="number" value={Math.round(section.totalHours)} readOnly className={`${smallInputClasses} bg-gray-100 cursor-not-allowed`} />
                     </div>
                 </div>
                 <h4 className="text-md font-semibold text-black mb-2 mt-4">Lessons/Items:</h4>
@@ -486,11 +465,10 @@ const EditProjectPageComponent = () => {
                               onChange={(e) => {
                                 const newHours = parseInt(e.target.value) || 0;
                                 handleLessonChange(sectionIdx, lessonIdx, 'hours', newHours);
-                                // Auto-recalculate module total hours using quality tier multipliers
+                                // Auto-recalculate module total hours
                                 const updatedLessons = [...section.lessons];
                                 updatedLessons[lessonIdx] = { ...updatedLessons[lessonIdx], hours: newHours };
-                                const updatedSection = { ...section, lessons: updatedLessons };
-                                const newTotalHours = calculateTotalCreationTime(updatedSection);
+                                const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
                                 handleSectionChange(sectionIdx, 'totalHours', newTotalHours);
                                 handleSectionChange(sectionIdx, 'autoCalculateHours', true);
                               }} 
