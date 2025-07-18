@@ -10736,44 +10736,98 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     
                     logger.info(f"Created new Training Plan with ID {new_outline_id}")
                     
-                    # Find all connected products using the original session ID
-                    connected = await conn.fetch(
-                        "SELECT * FROM projects WHERE source_chat_session_id = $1 AND id != $2 ORDER BY created_at",
-                        orig['source_chat_session_id'], orig['id']
-                    )
+                    # Find all connected products using NAMING PATTERNS (like the frontend does)
+                    # This matches the logic in findMicroproductByTitle frontend function
                     
-                    logger.info(f"Found {len(connected)} connected products to duplicate")
+                    # First, get the original training plan content to find all lesson titles
+                    original_content = orig['microproduct_content']
+                    lesson_titles = []
                     
-                    # Duplicate each connected product
-                    duplicated_products = []
-                    for i, prod in enumerate(connected):
-                        try:
-                            # Smart name replacement - handle various naming patterns
-                            prod_name = prod['project_name']
-                            if prod_name.startswith(orig['project_name']):
-                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
-                            else:
-                                # If name doesn't start with parent name, just add "Copy of" prefix
-                                prod_name = f"Copy of {prod_name}"
+                    if original_content and isinstance(original_content, dict):
+                        sections = original_content.get('sections', [])
+                        for section in sections:
+                            lessons = section.get('lessons', [])
+                            for lesson in lessons:
+                                lesson_title = lesson.get('title', '').strip()
+                                if lesson_title:
+                                    lesson_titles.append(lesson_title)
+                    
+                    logger.info(f"Found {len(lesson_titles)} lesson titles in training plan: {lesson_titles}")
+                    
+                    # Find connected products using the same logic as frontend findMicroproductByTitle
+                    connected = []
+                    if lesson_titles:
+                        # Build a query to find all potential connected products
+                        # We'll search for products that match the naming patterns
+                        all_user_products = await conn.fetch(
+                            "SELECT * FROM projects WHERE onyx_user_id = $1 AND id != $2 ORDER BY created_at",
+                            user_id, orig['id']
+                        )
+                        
+                        logger.info(f"Searching through {len(all_user_products)} user products for connected items")
+                        
+                        for product in all_user_products:
+                            prod_project_name = product['project_name']
+                            prod_micro_name = product['microproduct_name']
                             
-                            # Update microproduct name if it references the parent
-                            micro_name = prod['microproduct_name']
-                            if micro_name and micro_name.startswith(orig['project_name']):
-                                micro_name = micro_name.replace(orig['project_name'], new_name, 1)
-                            
-                            # Insert the duplicated product with all fields
-                            new_prod_id = await conn.fetchval(
-                                """
-                                INSERT INTO projects (
-                                    onyx_user_id, project_name, product_type, microproduct_type, 
-                                    microproduct_name, microproduct_content, design_template_id, 
-                                    created_at, source_chat_session_id, folder_id, "order", 
-                                    is_standalone, completion_time, custom_rate, quality_tier
-                                )
-                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-                                RETURNING id
-                                """,
-                                user_id,
+                            # Check if this product is connected to any lesson
+                            for lesson_title in lesson_titles:
+                                is_connected = False
+                                
+                                # Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+                                if (prod_project_name == orig['project_name'] and 
+                                    prod_micro_name and prod_micro_name.strip() == lesson_title):
+                                    is_connected = True
+                                    logger.info(f"Found connected product (Legacy): {prod_project_name} -> {lesson_title}")
+                                
+                                # Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+                                elif prod_project_name == f"{orig['project_name']}: {lesson_title}":
+                                    is_connected = True
+                                    logger.info(f"Found connected product (New): {prod_project_name} -> {lesson_title}")
+                                
+                                if is_connected:
+                                    connected.append(product)
+                                    break  # Don't check other lesson titles for this product
+                    
+                                    logger.info(f"Found {len(connected)} connected products to duplicate")
+                
+                # Duplicate each connected product
+                duplicated_products = []
+                for i, prod in enumerate(connected):
+                    try:
+                        # Smart name replacement - handle various naming patterns
+                        prod_name = prod['project_name']
+                        
+                        # Handle the two naming patterns
+                        if prod_name.startswith(f"{orig['project_name']}: "):
+                            # New pattern: "Original Name: Lesson Title" -> "Copy of Original Name: Lesson Title"
+                            lesson_part = prod_name[len(f"{orig['project_name']}: "):]
+                            prod_name = f"{new_name}: {lesson_part}"
+                        elif prod_name == orig['project_name']:
+                            # Legacy pattern: project name matches outline exactly
+                            prod_name = new_name
+                        else:
+                            # Fallback: just add "Copy of" prefix
+                            prod_name = f"Copy of {prod_name}"
+                        
+                        # Update microproduct name if it references the parent
+                        micro_name = prod['microproduct_name']
+                        if micro_name and micro_name.startswith(orig['project_name']):
+                            micro_name = micro_name.replace(orig['project_name'], new_name, 1)
+                        
+                        # Insert the duplicated product with all fields
+                        new_prod_id = await conn.fetchval(
+                            """
+                            INSERT INTO projects (
+                                onyx_user_id, project_name, product_type, microproduct_type, 
+                                microproduct_name, microproduct_content, design_template_id, 
+                                created_at, source_chat_session_id, folder_id, "order", 
+                                is_standalone, completion_time, custom_rate, quality_tier
+                            )
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                            RETURNING id
+                            """,
+                            user_id,
                                 prod_name,
                                 prod['product_type'],
                                 prod['microproduct_type'],
