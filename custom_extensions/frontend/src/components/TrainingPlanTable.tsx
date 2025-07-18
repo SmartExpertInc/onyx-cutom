@@ -542,8 +542,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const handleLessonSettingsSave = (customRate: number, qualityTier: string) => {
     const { sectionIndex, lessonIndex } = lessonSettingsModalState;
     
-    console.log('Lesson settings save:', { customRate, qualityTier, sectionIndex, lessonIndex });
-    
     if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
       // Update lesson's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], customRate);
@@ -551,19 +549,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       
       // Recalculate hours based on new rate
       const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex];
-      console.log('Current lesson data:', lesson);
       
-      if (lesson && lesson.completionTime) {
-        const completionTimeMinutes = parseInt(lesson.completionTime.replace(/[^0-9]/g, '')) || 0;
+      if (lesson) {
+        // Use completion time if available, otherwise default to 5 minutes
+        const completionTime = lesson.completionTime || '5m';
+        const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
         const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
-        
-        console.log('Hours calculation:', {
-          completionTime: lesson.completionTime,
-          completionTimeMinutes,
-          customRate,
-          newHours,
-          formula: `(${completionTimeMinutes} / 60.0) * ${customRate} = ${newHours}`
-        });
         
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
         
@@ -573,12 +564,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           const updatedLessons = [...section.lessons];
           updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours };
           const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
-          
-          console.log('Module total calculation:', {
-            oldTotal: section.totalHours,
-            newTotal: newTotalHours,
-            lessonHours: updatedLessons.map(l => l.hours)
-          });
           
           onTextChange(['sections', sectionIndex, 'totalHours'], newTotalHours);
           onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
@@ -606,8 +591,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const handleModuleSettingsSave = async (customRate: number, qualityTier: string) => {
     const { sectionIndex } = moduleSettingsModalState;
     
-    console.log('Module settings save:', { customRate, qualityTier, sectionIndex });
-    
     if (onTextChange && sectionIndex >= 0) {
       // Update module's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
@@ -615,7 +598,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       
       // Recalculate hours for all lessons in this module and update their quality_tier
       const section = dataToDisplay?.sections[sectionIndex];
-      console.log('Current section data:', section);
       
       if (section && section.lessons) {
         let totalSectionHours = 0;
@@ -623,28 +605,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         section.lessons.forEach((lesson, lessonIndex) => {
           // Update lesson's quality_tier to match the new module tier
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
-          if (lesson.completionTime) {
-            const completionTimeMinutes = parseInt(lesson.completionTime.replace(/[^0-9]/g, '')) || 0;
-            const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
-            
-            console.log(`Lesson ${lessonIndex} calculation:`, {
-              title: lesson.title,
-              completionTime: lesson.completionTime,
-              completionTimeMinutes,
-              customRate,
-              newHours,
-              formula: `(${completionTimeMinutes} / 60.0) * ${customRate} = ${newHours}`
-            });
-            
-            onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
-            totalSectionHours += newHours;
-          }
-        });
-        
-        console.log('Module total calculation:', {
-          oldTotal: section.totalHours,
-          newTotal: totalSectionHours,
-          lessonCount: section.lessons.length
+          
+          // Use completion time if available, otherwise default to 5 minutes
+          const completionTime = lesson.completionTime || '5m';
+          const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
+          const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
+          totalSectionHours += newHours;
         });
         
         // Update section total hours and set autoCalculateHours to true
