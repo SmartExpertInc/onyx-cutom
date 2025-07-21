@@ -7006,7 +7006,21 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, pool:
             assistant_instructions = f.read()
 
         # Compose the parsing prompt
-        parsing_prompt = f"{assistant_instructions}\n\nWIZARD_REQUEST\n{{\"product\": \"Text Presentation\", \"prompt\": \"Приведи этот текст к нужному формату one-pager для ContentBuilder.ai\", \"language\": \"ru\", \"fromText\": true, \"textMode\": \"context\", \"userText\": \"{result.replace('\"', '\\\"')}\"}}"
+        parsing_prompt = (
+            f"{assistant_instructions}\n\n"
+            "WIZARD_REQUEST\n"
+            + json.dumps({
+                "product": "Text Presentation",
+                "microproduct": "One-Pager",
+                "prompt": "Приведи этот текст к нужному формату one-pager для ContentBuilder.ai",
+                "language": "ru",
+                "fromText": True,
+                "textMode": "context",
+                "userText": result,
+                "strict": True,
+                "parseMode": "onepager"
+            }, ensure_ascii=False)
+        )
 
         # Call OpenAI again (use gpt-4o-mini or your preferred model)
         parsed_response = await client.chat.completions.create(
