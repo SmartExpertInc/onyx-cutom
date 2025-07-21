@@ -7845,7 +7845,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 * `headers` (array of strings): The column headers for the table.
                 * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
                 * `caption` (string, optional): A short description or title for the table, if present in the source text.
-                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table. Do not attempt to represent tables as lists or paragraphs.
+                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
 
             6.  **`type: "alert"`**
                 *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
