@@ -6795,13 +6795,6 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
 
         Ответь только текстом one-pager по этим правилам, без пояснений.
         """
-        try:
-            with open("custom_extensions/backend/custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
-                example_text = f.read()
-        except Exception as e:
-            logger.error(f"[AI-Audit] Error reading example: {e}")
-            example_text = "(Example not found)"
-        prompt += example_text
         prompt += "\n\nСгенерируй только текст one-pager по этим правилам, без пояснений."
         logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
         client = get_openai_client()
