@@ -7035,6 +7035,8 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
         )
         parsed_markdown = parsed_response.choices[0].message.content
 
+        parsed_markdown = parsed_markdown.replace("lessonTitle", "textTitle")
+
         parsed_json = await parse_ai_response_with_llm(
             ai_response=parsed_markdown,
             project_name=payload.companyName,
