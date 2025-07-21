@@ -320,7 +320,9 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     const handleSave = (newValue: string) => {
       const updatedDeck = { ...localDeck };
       const slide = updatedDeck.slides.find((s: any) => s.slideId === slideId);
-      if (slide) {
+      
+      // Only proceed if this is a legacy slide with contentBlocks
+      if (slide && 'contentBlocks' in slide && slide.contentBlocks) {
         const updatedBlock = { ...block };
         
         // Update based on block type
@@ -701,7 +703,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
             ))
           ) : (
             /* Legacy content-block slide rendering */
-            localDeck.slides.map((slide) => (
+            localDeck.slides.map((slide: any) => (
               <div
                 key={slide.slideId}
                 className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
@@ -718,7 +720,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                         initialValue={slide.slideTitle}
                         onSave={(newTitle) => {
                           const updatedDeck = { ...localDeck };
-                          const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
+                          const targetSlide = updatedDeck.slides.find((s: any) => s.slideId === slide.slideId);
                           if (targetSlide) {
                             targetSlide.slideTitle = newTitle;
                             setLocalDeck(updatedDeck);
@@ -738,7 +740,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
 
                 {/* Content Blocks */}
                 <div className={`slide-content ${getSlideLayout(slide)}`}>
-                  {slide.contentBlocks.map((block, blockIndex) => (
+                  {slide.contentBlocks.map((block: any, blockIndex: number) => (
                     <div key={blockIndex} className="content-block">
                       {renderContentBlock(block, slide.slideId, blockIndex)}
                     </div>
@@ -795,7 +797,7 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         className="inline-editor-textarea"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e: any) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         rows={4}
@@ -809,7 +811,7 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
       className="inline-editor-input"
       type="text"
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={(e: any) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
     />
