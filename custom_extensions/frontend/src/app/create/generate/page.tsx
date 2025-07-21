@@ -1394,4 +1394,9 @@ function GenerateProductPicker() {
   );
 }
 
-export default GenerateProductPicker;
+const GeneratePage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <GenerateProductPicker />
+  </Suspense>
+);
+export default GeneratePage;
