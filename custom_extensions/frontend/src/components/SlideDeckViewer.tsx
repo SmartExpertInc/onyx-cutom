@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import * as React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock } from '@/types/pdfLesson';
 import { 
   TemplateBasedSlideDeck, 
@@ -12,10 +13,13 @@ import {
   migrateContentBlocksToTemplate,
 } from '@/components/slideTemplates';
 
+// Union type that supports both legacy and template-based decks
+type UniversalSlideDeck = SlideDeckData | TemplateBasedSlideDeck;
+
 interface SlideDeckViewerProps {
-  deck: SlideDeckData;
+  deck: UniversalSlideDeck;
   isEditable?: boolean;
-  onSave?: (updatedDeck: SlideDeckData) => void;
+  onSave?: (updatedDeck: UniversalSlideDeck) => void;
 }
 
 // Type guard to check if we're working with the new template system
@@ -135,14 +139,14 @@ const SLIDE_TEMPLATES = {
 };
 
 export default function SlideDeckViewer({ deck, isEditable = false, onSave }: SlideDeckViewerProps) {
-  const [localDeck, setLocalDeck] = useState<SlideDeckData>(deck);
+  const [localDeck, setLocalDeck] = useState<UniversalSlideDeck>(deck);
   const [selectedSlideId, setSelectedSlideId] = useState<string>(deck.slides[0]?.slideId || '');
   const [showTemplates, setShowTemplates] = useState(false);
   const [editingBlock, setEditingBlock] = useState<{ slideId: string; blockIndex: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
   
   // Check if we're using the new template system
-  const isUsingTemplates = isNewTemplateSystem(localDeck);
+  const isUsingTemplates = isNewTemplateSystem(localDeck as UnifiedSlideDeckData);
 
   // Determine slide layout based on content
   const getSlideLayout = (slide: DeckSlide): string => {
@@ -315,7 +319,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const renderInlineEditor = (block: AnyContentBlock, slideId: string, blockIndex: number): React.ReactNode => {
     const handleSave = (newValue: string) => {
       const updatedDeck = { ...localDeck };
-      const slide = updatedDeck.slides.find(s => s.slideId === slideId);
+      const slide = updatedDeck.slides.find((s: any) => s.slideId === slideId);
       if (slide) {
         const updatedBlock = { ...block };
         
@@ -384,7 +388,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const applyTemplate = (slideId: string, templateKey: keyof typeof SLIDE_TEMPLATES) => {
     const template = SLIDE_TEMPLATES[templateKey];
     const updatedDeck = { ...localDeck };
-    const slide = updatedDeck.slides.find(s => s.slideId === slideId);
+    const slide = updatedDeck.slides.find((s: any) => s.slideId === slideId);
     
     if (slide) {
       slide.contentBlocks = [...template.blocks];
@@ -422,18 +426,18 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
 
     const updatedDeck = {
       ...localDeck,
-      slides: localDeck.slides.filter(s => s.slideId !== slideId)
+      slides: localDeck.slides.filter((s: any) => s.slideId !== slideId)
     };
 
     // Update slide numbers
-    updatedDeck.slides.forEach((slide, index) => {
+    updatedDeck.slides.forEach((slide: any, index: number) => {
       slide.slideNumber = index + 1;
     });
 
     setLocalDeck(updatedDeck);
     
     // Select next slide or previous if last was deleted
-    const deletedIndex = localDeck.slides.findIndex(s => s.slideId === slideId);
+    const deletedIndex = localDeck.slides.findIndex((s: any) => s.slideId === slideId);
     const nextSlide = updatedDeck.slides[deletedIndex] || updatedDeck.slides[deletedIndex - 1];
     setSelectedSlideId(nextSlide?.slideId || '');
     
@@ -489,7 +493,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     if (isUsingTemplates) return;
     
     const legacyDeck = localDeck;
-    const convertedSlides: TemplateBasedSlide[] = legacyDeck.slides.map((slide, index) => {
+    const convertedSlides: TemplateBasedSlide[] = legacyDeck.slides.map((slide: any, index: number) => {
       const migration = migrateContentBlocksToTemplate(slide.contentBlocks);
       
       if (migration) {
@@ -633,7 +637,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
           </div>
           
           <div className="slide-thumbnails">
-            {localDeck.slides.map((slide) => (
+            {localDeck.slides.map((slide: any) => (
               <div
                 key={slide.slideId}
                 className={`slide-thumbnail ${selectedSlideId === slide.slideId ? 'active' : ''}`}
@@ -649,12 +653,12 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                 <div className="thumbnail-number">{slide.slideNumber}</div>
                 <div className="thumbnail-preview">
                   <div className="preview-title">
-                    {slide.contentBlocks.find(block => block.type === 'headline')
-                      ? (slide.contentBlocks.find(block => block.type === 'headline') as HeadlineBlock).text
+                    {slide.contentBlocks?.find((block: any) => block.type === 'headline')
+                      ? (slide.contentBlocks.find((block: any) => block.type === 'headline') as HeadlineBlock).text
                       : slide.slideTitle}
                   </div>
                   <div className="preview-content">
-                    {slide.contentBlocks.slice(1, 3).map((block, index) => (
+                    {slide.contentBlocks?.slice(1, 3).map((block: any, index: number) => (
                       <div key={index} className="preview-block">
                         {block.type === 'paragraph' ? (block as ParagraphBlock).text.substring(0, 30) + '...' :
                          block.type === 'bullet_list' ? '• List items...' :
@@ -668,7 +672,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                 {isEditable && localDeck.slides.length > 1 && (
                   <button
                     className="delete-slide-button"
-                    onClick={(e) => {
+                    onClick={(e: any) => {
                       e.stopPropagation();
                       deleteSlide(slide.slideId);
                     }}
