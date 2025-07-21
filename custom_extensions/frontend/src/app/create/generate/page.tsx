@@ -1063,4 +1063,19 @@ function GenerateProductPicker() {
                         {lessonsForModule.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
-                      </select
+                      </select>
+                    )}
+                  </>
+                )}
+                {/* Add any additional UI for standalone presentation if needed */}
+              </div>
+            )}
+          </div>
+        )}
+        {/* Add similar blocks for AI-Audit and other products as needed */}
+      </div>
+    </main>
+  );
+}
+
+export default GenerateProductPicker;
