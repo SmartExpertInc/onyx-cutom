@@ -6896,7 +6896,7 @@ async def insert_onepager_to_db(
     microproduct_type: str,
     microproduct_name: str,
     microproduct_content: dict,
-    design_template_id: int = 1,  # Use a real template ID
+    design_template_id: int = 11,
     component_name: str = "TextPresentationDisplay",
     chat_session_id: str = None,
     is_standalone: bool = True
