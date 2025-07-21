@@ -369,7 +369,7 @@
                             <thead>
                               <tr>
                                 {% for header in block_data.headers %}
-                                  <th style="border:1px solid #E5E7EB; background:#F3F4F6; padding:4px 8px; font-weight:600; text-align:left;">{{ header }}</th>
+                                  <th style="border:1px solid #E5E7EB; background:#C00; color:#FFF; padding:4px 8px; font-weight:600; text-align:left;">{{ header }}</th>
                                 {% endfor %}
                               </tr>
                             </thead>
@@ -377,96 +377,101 @@
                               {% for row in block_data.rows %}
                                 <tr>
                                   {% for cell in row %}
-                                    <td style="border:1px solid #E5E7EB; padding:4px 8px; vertical-align:top;">{{ cell }}</td>
-                                  {% endfor %}
-                                </tr>
-                              {% endfor %}
-                            </tbody>
-                          </table>
-                        </div>
-                    {% elif block_type == 'paragraph' %}
-                        <p class="paragraph-block {{ 'recommendation' if block_data.isRecommendation else '' }}">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
-                    {% elif block_type == 'bullet_list' or block_type == 'numbered_list' %}
-                        {% set has_recommendation = false %}
-                        {% if block_type == 'bullet_list' and block_data.get('items') is iterable and block_data.get('items') is not string %}
-                            {% for item_content in block_data.get('items', []) %}
-                                {% if item_content is mapping and item_content.get('type') == 'paragraph' and item_content.get('isRecommendation') %}
-                                    {% set has_recommendation = true %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        <div class="list-block-wrapper {{block_type}} depth-{{depth}} {% if has_recommendation %}has-recommendation{% endif %}">
-                            {% if block_type == 'bullet_list' %}
-                                <ul>{{ render_list_items_recursive_macro(block_data.get('items'), block_type, block_data.iconName, depth, is_in_mini_section) }}</ul>
-                            {% else %} {# numbered_list #}
-                                <ol>{{ render_list_items_recursive_macro(block_data.get('items'), block_type, None, depth, is_in_mini_section) }}</ol>
-                            {% endif %}
-                        </div>
-                    {% elif block_type == 'alert' %}
-                       <div class="alert-block alert-{{ block_data.alertType | default('info') }}"
-                             style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %}{% if block_data.borderColor %}border-color: {{ block_data.borderColor }};{% endif %}{% if block_data.textColor %}color: {{ block_data.textColor }};{% endif %}">
-                            <div class="icon-container" style="{% if block_data.iconColor %}color: {{ block_data.iconColor }}; fill: {{ block_data.iconColor }};{% endif %}">
-                                {{ render_icon_svg_macro(block_data.iconName, 'alert-' + (block_data.alertType|default('info')) ) }}
-                            </div>
-                            <div class="text-container">
-                                {% if block_data.title %}<div class="alert-title">{% set segments = alert_title_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>{% endif %}
-                                <div class="alert-text">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>
-                            </div>
-                        </div>
-                    {% elif block_type == 'section_break' %}
-                        {% if block_data.style == 'solid' or block_data.style == 'dashed' %}
-                            <hr class="section-break-block {{ block_data.style }}">
-                        {% elif block_data.style == 'none' %}
-                             <div class="section-break-block none"></div>
-                        {% endif %}
-                    {% else %}
-                        <p class="error-message">Unsupported block type: {{ block_type }}</p>
-                    {% endif %}
-                </div>
-            {% else %}
-                <p class="error-message">Block data is not a dictionary/mapping: {{ block_data }}</p>
+                                    <td style="border:1px solid #E5E7EB; padding:4px 8px; vertical-align:top; color:#111;">
+                  {% set segments = cell.split('**') %}
+                  {% for segment in segments %}
+                    {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
+                  {% endfor %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+{% elif block_type == 'paragraph' %}
+    <p class="paragraph-block {{ 'recommendation' if block_data.isRecommendation else '' }}">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
+{% elif block_type == 'bullet_list' or block_type == 'numbered_list' %}
+    {% set has_recommendation = false %}
+    {% if block_type == 'bullet_list' and block_data.get('items') is iterable and block_data.get('items') is not string %}
+        {% for item_content in block_data.get('items', []) %}
+            {% if item_content is mapping and item_content.get('type') == 'paragraph' and item_content.get('isRecommendation') %}
+                {% set has_recommendation = true %}
             {% endif %}
-        {% endmacro %}
-
-        <div class="content-wrapper">
-        {% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}
-            {% set blocks_to_render = text_data.contentBlocks %}
-            {% if text_data.textTitle and blocks_to_render and blocks_to_render[0].type == 'headline' and blocks_to_render[0].level in [1, 2] and blocks_to_render[0].text | trim | lower == text_data.textTitle | trim | lower %}
-                {% set blocks_to_render = blocks_to_render[1:] %}
-            {% endif %}
-
-            {% set next_block_in_box_content = [false] %}
-            {% for loop_index in range(blocks_to_render | length) %}
-                {% set current_block_item = blocks_to_render[loop_index] %}
-                {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
-                {% set is_last_block_overall = loop_index == (blocks_to_render | length) - 1 %}
-                
-                {% if next_block_in_box_content[0] %}
-                    {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
-                {% else %}
-                    {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
-                    {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
-                    
-                    {% if is_important_headline_check %} 
-                        <div class="mini-section-box-wrapper"> <div class="mini-section-box">
-                            {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
-                            {% if is_relevant_content_following_for_box_check %}
-                                {{ render_single_block_recursive_macro(next_block_item, 0, is_in_mini_section=true) }}
-                                {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
-                            {% endif %}
-                        </div> </div>
-                    {% else %} 
-                        {{ render_single_block_recursive_macro(current_block_item, 0) }}
-                    {% endif %}
-                {% endif %}
-
-            {% endfor %}
-        {% elif text_data and text_data.contentBlocks is not none %}
-             <p class="error-message">contentBlocks is not iterable. Type: {{ text_data.contentBlocks|type }}</p>
-        {% else %}
-             <p class="warning-message">No content blocks found.</p>
+        {% endfor %}
+    {% endif %}
+    <div class="list-block-wrapper {{block_type}} depth-{{depth}} {% if has_recommendation %}has-recommendation{% endif %}">
+        {% if block_type == 'bullet_list' %}
+            <ul>{{ render_list_items_recursive_macro(block_data.get('items'), block_type, block_data.iconName, depth, is_in_mini_section) }}</ul>
+        {% else %} {# numbered_list #}
+            <ol>{{ render_list_items_recursive_macro(block_data.get('items'), block_type, None, depth, is_in_mini_section) }}</ol>
         {% endif %}
+    </div>
+{% elif block_type == 'alert' %}
+   <div class="alert-block alert-{{ block_data.alertType | default('info') }}"
+         style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %}{% if block_data.borderColor %}border-color: {{ block_data.borderColor }};{% endif %}{% if block_data.textColor %}color: {{ block_data.textColor }};{% endif %}">
+        <div class="icon-container" style="{% if block_data.iconColor %}color: {{ block_data.iconColor }}; fill: {{ block_data.iconColor }};{% endif %}">
+            {{ render_icon_svg_macro(block_data.iconName, 'alert-' + (block_data.alertType|default('info')) ) }}
+        </div>
+        <div class="text-container">
+            {% if block_data.title %}<div class="alert-title">{% set segments = alert_title_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>{% endif %}
+            <div class="alert-text">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>
         </div>
     </div>
+{% elif block_type == 'section_break' %}
+    {% if block_data.style == 'solid' or block_data.style == 'dashed' %}
+        <hr class="section-break-block {{ block_data.style }}">
+    {% elif block_data.style == 'none' %}
+         <div class="section-break-block none"></div>
+    {% endif %}
+{% else %}
+    <p class="error-message">Unsupported block type: {{ block_type }}</p>
+{% endif %}
+</div>
+{% else %}
+    <p class="error-message">Block data is not a dictionary/mapping: {{ block_data }}</p>
+{% endif %}
+{% endmacro %}
+
+<div class="content-wrapper">
+{% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}
+    {% set blocks_to_render = text_data.contentBlocks %}
+    {% if text_data.textTitle and blocks_to_render and blocks_to_render[0].type == 'headline' and blocks_to_render[0].level in [1, 2] and blocks_to_render[0].text | trim | lower == text_data.textTitle | trim | lower %}
+        {% set blocks_to_render = blocks_to_render[1:] %}
+    {% endif %}
+
+    {% set next_block_in_box_content = [false] %}
+    {% for loop_index in range(blocks_to_render | length) %}
+        {% set current_block_item = blocks_to_render[loop_index] %}
+        {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
+        {% set is_last_block_overall = loop_index == (blocks_to_render | length) - 1 %}
+        
+        {% if next_block_in_box_content[0] %}
+            {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
+        {% else %}
+            {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
+            {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
+            
+            {% if is_important_headline_check %} 
+                <div class="mini-section-box-wrapper"> <div class="mini-section-box">
+                    {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
+                    {% if is_relevant_content_following_for_box_check %}
+                        {{ render_single_block_recursive_macro(next_block_item, 0, is_in_mini_section=true) }}
+                        {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
+                    {% endif %}
+                </div> </div>
+            {% else %} 
+                {{ render_single_block_recursive_macro(current_block_item, 0) }}
+            {% endif %}
+        {% endif %}
+
+    {% endfor %}
+{% elif text_data and text_data.contentBlocks is not none %}
+     <p class="error-message">contentBlocks is not iterable. Type: {{ text_data.contentBlocks|type }}</p>
+{% else %}
+     <p class="warning-message">No content blocks found.</p>
+{% endif %}
+</div>
+</div>
 </body>
 </html> 

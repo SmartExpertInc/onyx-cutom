@@ -420,6 +420,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     }
     case 'table': {
       const { headers, rows, caption } = block as any;
+      // Helper to render bold for **text**
+      const renderCellContent = (cell: string) => {
+        const segments = cell.split('**');
+        return segments.map((seg, idx) => idx % 2 === 1 ? <strong key={idx}>{seg}</strong> : seg);
+      };
       return (
         <div className="overflow-x-auto my-4">
           <table className="min-w-full border border-gray-300 text-[10px]">
@@ -427,7 +432,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <thead>
               <tr>
                 {headers.map((header: string, idx: number) => (
-                  <th key={idx} className="border-b border-gray-300 px-2 py-1 bg-gray-100 font-semibold text-left">{header}</th>
+                  <th key={idx} className="border-b border-gray-300 px-2 py-1 bg-red-600 text-white font-semibold text-left">{header}</th>
                 ))}
               </tr>
             </thead>
@@ -435,7 +440,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               {rows.map((row: string[], rIdx: number) => (
                 <tr key={rIdx}>
                   {row.map((cell: string, cIdx: number) => (
-                    <td key={cIdx} className="border-b border-gray-200 px-2 py-1 align-top">{cell}</td>
+                    <td key={cIdx} className="border-b border-gray-200 px-2 py-1 align-top text-black">{renderCellContent(cell)}</td>
                   ))}
                 </tr>
               ))}
