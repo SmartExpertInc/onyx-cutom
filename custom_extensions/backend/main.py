@@ -6926,7 +6926,7 @@ async def insert_onepager_to_db(
     return row["id"]
     
 @app.post("/api/custom/ai-audit/generate")
-async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
+async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
         duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
@@ -7035,8 +7035,12 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, pool:
         )
         parsed_markdown = parsed_response.choices[0].message.content
 
+        data = json.loads(parsed_markdown)
+        if "lessonTitle" in data and "textTitle" not in data:
+            data["textTitle"] = data.pop("lessonTitle")
+
         parsed_json = await parse_ai_response_with_llm(
-            ai_response=parsed_markdown,
+            ai_response=data,
             project_name=payload.companyName,
             target_model=TextPresentationDetails,  # or your one-pager model
             default_error_model_instance=TextPresentationDetails(textTitle="Parse error", contentBlocks=[]),
