@@ -50,7 +50,7 @@ const styleOptions = [
   { value: "section_breaks", label: "Section Breaks" },
   { value: "icons", label: "Icons" },
   { value: "important_sections", label: "Important Sections" },
-  { value: "tables", label: "Tables" }, // Added tables style
+  { value: "tables", label: "Tables" },
 ];
 
 export default function TextPresentationClient() {

@@ -222,6 +222,29 @@
         .headline-block, .alert-block, li, .paragraph-block { page-break-inside: avoid; }
         .headline-block.h2 { page-break-before: auto; page-break-after: avoid; }
         hr.content-section-divider { page-break-before: auto; page-break-after: avoid;}
+
+        .pdf-table {
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            border-radius: 6px;
+        }
+        .pdf-table th {
+            padding: 8px 12px;
+            border-bottom: 2px solid #e5e7eb;
+            background: #f3f4f6;
+            color: #374151;
+            text-align: left;
+            font-weight: 600;
+        }
+        .pdf-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+        }
+        .pdf-table tr.even-row {
+            background: #f9fafb;
+        }
     </style>
 </head>
 <body>
@@ -388,6 +411,29 @@
                                 {% if block_data.title %}<div class="alert-title">{% set segments = alert_title_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>{% endif %}
                                 <div class="alert-text">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>
                             </div>
+                        </div>
+                    {% elif block_type == 'table' %}
+                        <div class="table-block-wrapper" style="overflow-x: auto; margin: 16px 0;">
+                          <table class="pdf-table">
+                            {% if block_data.rows and block_data.rows|length > 0 %}
+                              <thead>
+                                <tr>
+                                  {% for cell in block_data.rows[0] %}
+                                    <th>{{ cell }}</th>
+                                  {% endfor %}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for row in block_data.rows[1:] %}
+                                  <tr class="{% if loop.index0 % 2 == 1 %}even-row{% endif %}">
+                                    {% for cell in row %}
+                                      <td>{{ cell }}</td>
+                                    {% endfor %}
+                                  </tr>
+                                {% endfor %}
+                              </tbody>
+                            {% endif %}
+                          </table>
                         </div>
                     {% elif block_type == 'section_break' %}
                         {% if block_data.style == 'solid' or block_data.style == 'dashed' %}

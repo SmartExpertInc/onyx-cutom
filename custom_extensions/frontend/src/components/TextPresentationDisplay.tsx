@@ -419,23 +419,25 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return <hr className={`my-3 border-t ${borderStyle} ${THEME_COLORS.defaultBorder}`} />;
     }
     case 'table': {
-      // Table block rendering
-      const { headers, rows } = block as any;
+      const { rows } = block as any;
+      if (!rows || !Array.isArray(rows) || rows.length === 0) return null;
+      const header = rows[0];
+      const dataRows = rows.slice(1);
       return (
         <div className="overflow-x-auto my-4">
-          <table className="min-w-full border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
-            <thead className="bg-[#FAFAFA]">
+          <table className="min-w-full border border-gray-300 text-xs bg-white rounded-md">
+            <thead>
               <tr>
-                {headers && headers.map((header: string, idx: number) => (
-                  <th key={idx} className="px-4 py-2 text-xs font-semibold text-[#20355D] border-b border-gray-200 text-left uppercase tracking-wider bg-[#F3F6FB]">{header}</th>
+                {header.map((cell: string, idx: number) => (
+                  <th key={idx} className="px-3 py-2 border-b border-gray-300 font-semibold bg-gray-100 text-gray-700 text-left">{cell}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows && rows.map((row: string[], rowIdx: number) => (
-                <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#F8FAFC]'}>
+              {dataRows.map((row: string[], rowIdx: number) => (
+                <tr key={rowIdx} className="even:bg-gray-50">
                   {row.map((cell: string, cellIdx: number) => (
-                    <td key={cellIdx} className="px-4 py-2 text-xs text-[#4B4B4B] border-b border-gray-100 align-top">{parseAndStyleText(cell)}</td>
+                    <td key={cellIdx} className="px-3 py-2 border-b border-gray-200 text-gray-800">{cell}</td>
                   ))}
                 </tr>
               ))}

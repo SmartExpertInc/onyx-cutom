@@ -643,27 +643,18 @@ Length Guidelines:
 - Long: Comprehensive coverage, 6+ main sections, detailed explanations
 
 Style Usage Guidelines:
-- Only use the styles specified in the "styles" parameter
-- If no styles are specified, use all available styles as appropriate
-- Headlines: Use for section organization and hierarchy
-- Paragraphs: Use for explanations and descriptions
-- Bullet Lists: Use for non-sequential items and key points
-- Numbered Lists: Use for sequential steps or ordered items
-- Alerts: Use for important warnings, tips, or highlights
-- Recommendations: Use for actionable advice and suggestions
-- Section Breaks: Use to separate major content sections
-- Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
-- Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
-- Tables: Use to present structured data, comparisons, or summaries in a tabular format (only if "tables" is in allowed styles). Tables should be concise, visually clear, and use headers and rows. Example table block in JSON:
-
-  {
-    "type": "table",
-    "headers": ["Header 1", "Header 2"],
-    "rows": [
-      ["Cell 1", "Cell 2"],
-      ["Cell 3", "Cell 4"]
-    ]
-  }
+Only use the styles specified in the "styles" parameter
+If no styles are specified, use all available styles as appropriate
+Headlines: Use for section organization and hierarchy
+Paragraphs: Use for explanations and descriptions
+Bullet Lists: Use for non-sequential items and key points
+Numbered Lists: Use for sequential steps or ordered items
+Alerts: Use for important warnings, tips, or highlights
+Recommendations: Use for actionable advice and suggestions
+Section Breaks: Use to separate major content sections
+Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
+Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
+Tables: Use to present structured data, comparisons, or summaries. Tables must be formatted as described above and rendered in both TSX and PDF outputs.
 
 Formatting Rules:
 
