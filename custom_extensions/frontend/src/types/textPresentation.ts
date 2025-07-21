@@ -34,11 +34,6 @@ export interface SectionBreakBlock {
   style?: 'dashed' | 'solid' | 'none' | null;
 }
 
-export interface TableBlock {
-  type: 'table';
-  rows: string[][]; // First row is header, rest are data
-}
-
 // --- List Block Types ---
 // Forward declaration for AnyContentBlock used in ListItem
 export type AnyContentBlock =
@@ -48,7 +43,6 @@ export type AnyContentBlock =
   | SectionBreakBlock
   | BulletListBlock
   | NumberedListBlock
-  | TableBlock
   | MiniSection
   | StandaloneBlock;
 

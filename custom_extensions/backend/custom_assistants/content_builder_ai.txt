@@ -627,7 +627,7 @@ Determine Language:
 
 Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium".
 
-Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, alerts, recommendations, section_breaks, icons, important_sections, tables), otherwise use all available styles.
+Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
 Determine Content Origin & Style (Based on gathered info and identified topic).
 
@@ -636,6 +636,12 @@ Adhere to Specific Requirements (Defaults, user can modify with follow-up instru
 Text Presentation & Readability:
 - This is a comprehensive and self-contained block for creating a structured Text Presentation. It includes a main title, sections, and various content blocks within those sections. You must follow the formatting rules below precisely.
 - To create a rich and effective document, you should use a variety of elements, including headlines, paragraphs, bulleted and numbered lists, alerts, and section breaks. Do not limit the presentation to just lists.
+- If the 'tables' style is selected, you MUST output any tabular data as a table block. The table block must have:
+  - type: "table"
+  - headers: array of strings (column headers)
+  - rows: array of arrays of strings (each inner array is a row, each string is a cell)
+  - caption: (optional) string, a short description/title for the table if present in the source
+- Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
 - Short: Focus on key points only, 2-3 main sections, concise content
@@ -643,18 +649,17 @@ Length Guidelines:
 - Long: Comprehensive coverage, 6+ main sections, detailed explanations
 
 Style Usage Guidelines:
-Only use the styles specified in the "styles" parameter
-If no styles are specified, use all available styles as appropriate
-Headlines: Use for section organization and hierarchy
-Paragraphs: Use for explanations and descriptions
-Bullet Lists: Use for non-sequential items and key points
-Numbered Lists: Use for sequential steps or ordered items
-Alerts: Use for important warnings, tips, or highlights
-Recommendations: Use for actionable advice and suggestions
-Section Breaks: Use to separate major content sections
-Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
-Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
-Tables: Use to present structured data, comparisons, or summaries. Tables must be formatted as described above and rendered in both TSX and PDF outputs.
+- Only use the styles specified in the "styles" parameter
+- If no styles are specified, use all available styles as appropriate
+- Headlines: Use for section organization and hierarchy
+- Paragraphs: Use for explanations and descriptions
+- Bullet Lists: Use for non-sequential items and key points
+- Numbered Lists: Use for sequential steps or ordered items
+- Alerts: Use for important warnings, tips, or highlights
+- Recommendations: Use for actionable advice and suggestions
+- Section Breaks: Use to separate major content sections
+- Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
+- Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
 
 Formatting Rules:
 

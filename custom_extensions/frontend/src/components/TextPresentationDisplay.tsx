@@ -418,34 +418,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const borderStyle = style === 'dashed' ? 'border-dashed' : 'border-solid';
       return <hr className={`my-3 border-t ${borderStyle} ${THEME_COLORS.defaultBorder}`} />;
     }
-    case 'table': {
-      const { rows } = block as any;
-      if (!rows || !Array.isArray(rows) || rows.length === 0) return null;
-      const header = rows[0];
-      const dataRows = rows.slice(1);
-      return (
-        <div className="overflow-x-auto my-4">
-          <table className="min-w-full border border-gray-300 text-xs bg-white rounded-md">
-            <thead>
-              <tr>
-                {header.map((cell: string, idx: number) => (
-                  <th key={idx} className="px-3 py-2 border-b border-gray-300 font-semibold bg-gray-100 text-gray-700 text-left">{cell}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {dataRows.map((row: string[], rowIdx: number) => (
-                <tr key={rowIdx} className="even:bg-gray-50">
-                  {row.map((cell: string, cellIdx: number) => (
-                    <td key={cellIdx} className="px-3 py-2 border-b border-gray-200 text-gray-800">{cell}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
     default:
       return null;
   }

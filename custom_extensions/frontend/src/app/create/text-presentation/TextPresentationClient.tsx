@@ -45,12 +45,12 @@ const styleOptions = [
   { value: "paragraphs", label: "Paragraphs" },
   { value: "bullet_lists", label: "Bullet Lists" },
   { value: "numbered_lists", label: "Numbered Lists" },
+  { value: "tables", label: "Tables" },
   { value: "alerts", label: "Alerts" },
   { value: "recommendations", label: "Recommendations" },
   { value: "section_breaks", label: "Section Breaks" },
   { value: "icons", label: "Icons" },
   { value: "important_sections", label: "Important Sections" },
-  { value: "tables", label: "Tables" },
 ];
 
 export default function TextPresentationClient() {

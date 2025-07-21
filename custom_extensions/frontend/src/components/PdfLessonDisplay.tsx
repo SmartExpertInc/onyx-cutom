@@ -361,6 +361,32 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (sb.style === 'dashed') hrClassName = "my-3 border-dashed border-gray-200"; 
       return <hr className={hrClassName} />;
     }
+    case 'table': {
+      const { headers, rows, caption } = block as any;
+      return (
+        <div className="overflow-x-auto my-4">
+          <table className="min-w-full border border-gray-300 text-[10px]">
+            {caption && <caption className="text-xs text-gray-500 mb-2">{caption}</caption>}
+            <thead>
+              <tr>
+                {headers.map((header: string, idx: number) => (
+                  <th key={idx} className="border-b border-gray-300 px-2 py-1 bg-gray-100 font-semibold text-left">{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row: string[], rIdx: number) => (
+                <tr key={rIdx}>
+                  {row.map((cell: string, cIdx: number) => (
+                    <td key={cIdx} className="border-b border-gray-200 px-2 py-1 align-top">{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
     default:
       const exhaustiveCheck: never = block;
       return <div className="text-red-500 text-[10px]">Unsupported block type: {(exhaustiveCheck as any)?.type}</div>;
