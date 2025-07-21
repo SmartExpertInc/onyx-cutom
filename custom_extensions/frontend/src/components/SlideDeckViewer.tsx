@@ -1,31 +1,11 @@
-import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock } from '@/types/pdfLesson';
-import { 
-  TemplateBasedSlideDeck, 
-  TemplateBasedSlide,
-  UnifiedSlideDeckData,
-  isTemplateBasedDeck,
-  isTemplateBasedSlide,
-  TemplateRenderer,
-  getAllTemplates,
-  createDefaultSlideProps,
-  migrateContentBlocksToTemplate,
-} from '@/components/slideTemplates';
-
-// Union type that supports both legacy and template-based decks
-type UniversalSlideDeck = SlideDeckData | TemplateBasedSlideDeck;
 
 interface SlideDeckViewerProps {
-  deck: UniversalSlideDeck;
+  deck: SlideDeckData;
   isEditable?: boolean;
-  onSave?: (updatedDeck: UniversalSlideDeck) => void;
+  onSave?: (updatedDeck: SlideDeckData) => void;
 }
-
-// Type guard to check if we're working with the new template system
-const isNewTemplateSystem = (deck: UnifiedSlideDeckData): deck is TemplateBasedSlideDeck => {
-  return isTemplateBasedDeck(deck);
-};
 
 // Professional slide templates based on industry best practices
 const SLIDE_TEMPLATES = {
@@ -139,14 +119,11 @@ const SLIDE_TEMPLATES = {
 };
 
 export default function SlideDeckViewer({ deck, isEditable = false, onSave }: SlideDeckViewerProps) {
-  const [localDeck, setLocalDeck] = useState<UniversalSlideDeck>(deck);
+  const [localDeck, setLocalDeck] = useState<SlideDeckData>(deck);
   const [selectedSlideId, setSelectedSlideId] = useState<string>(deck.slides[0]?.slideId || '');
   const [showTemplates, setShowTemplates] = useState(false);
   const [editingBlock, setEditingBlock] = useState<{ slideId: string; blockIndex: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
-  
-  // Check if we're using the new template system
-  const isUsingTemplates = isNewTemplateSystem(localDeck as UnifiedSlideDeckData);
 
   // Determine slide layout based on content
   const getSlideLayout = (slide: DeckSlide): string => {
@@ -319,10 +296,8 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const renderInlineEditor = (block: AnyContentBlock, slideId: string, blockIndex: number): React.ReactNode => {
     const handleSave = (newValue: string) => {
       const updatedDeck = { ...localDeck };
-      const slide = updatedDeck.slides.find((s: any) => s.slideId === slideId);
-      
-      // Only proceed if this is a legacy slide with contentBlocks
-      if (slide && 'contentBlocks' in slide && slide.contentBlocks) {
+      const slide = updatedDeck.slides.find(s => s.slideId === slideId);
+      if (slide) {
         const updatedBlock = { ...block };
         
         // Update based on block type
@@ -390,7 +365,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const applyTemplate = (slideId: string, templateKey: keyof typeof SLIDE_TEMPLATES) => {
     const template = SLIDE_TEMPLATES[templateKey];
     const updatedDeck = { ...localDeck };
-    const slide = updatedDeck.slides.find((s: any) => s.slideId === slideId);
+    const slide = updatedDeck.slides.find(s => s.slideId === slideId);
     
     if (slide) {
       slide.contentBlocks = [...template.blocks];
@@ -428,108 +403,22 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
 
     const updatedDeck = {
       ...localDeck,
-      slides: localDeck.slides.filter((s: any) => s.slideId !== slideId)
+      slides: localDeck.slides.filter(s => s.slideId !== slideId)
     };
 
     // Update slide numbers
-    updatedDeck.slides.forEach((slide: any, index: number) => {
+    updatedDeck.slides.forEach((slide, index) => {
       slide.slideNumber = index + 1;
     });
 
     setLocalDeck(updatedDeck);
     
     // Select next slide or previous if last was deleted
-    const deletedIndex = localDeck.slides.findIndex((s: any) => s.slideId === slideId);
+    const deletedIndex = localDeck.slides.findIndex(s => s.slideId === slideId);
     const nextSlide = updatedDeck.slides[deletedIndex] || updatedDeck.slides[deletedIndex - 1];
     setSelectedSlideId(nextSlide?.slideId || '');
     
     onSave?.(updatedDeck);
-  };
-
-  // Handle template-based slide changes
-  const handleTemplateSlideChange = (updatedSlide: TemplateBasedSlide) => {
-    if (!isUsingTemplates) return;
-    
-    const templateDeck = localDeck as TemplateBasedSlideDeck;
-    const updatedDeck: TemplateBasedSlideDeck = {
-      ...templateDeck,
-      slides: templateDeck.slides.map(slide => 
-        slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-      )
-    };
-    
-    setLocalDeck(updatedDeck);
-    onSave?.(updatedDeck);
-  };
-
-  // Add new template-based slide
-  const addTemplateSlide = (templateId: string = 'title-slide') => {
-    if (!isUsingTemplates) return;
-    
-    const templateDeck = localDeck as TemplateBasedSlideDeck;
-    const newSlideId = `slide-${Date.now()}`;
-    const newSlideNumber = templateDeck.slides.length + 1;
-    
-    const defaultProps = createDefaultSlideProps(templateId, newSlideId, newSlideNumber);
-    if (!defaultProps) return;
-    
-    const newSlide: TemplateBasedSlide = {
-      slideId: newSlideId,
-      slideNumber: newSlideNumber,
-      templateId,
-      props: defaultProps,
-    };
-
-    const updatedDeck: TemplateBasedSlideDeck = {
-      ...templateDeck,
-      slides: [...templateDeck.slides, newSlide]
-    };
-
-    setLocalDeck(updatedDeck);
-    setSelectedSlideId(newSlide.slideId);
-    onSave?.(updatedDeck);
-  };
-
-  // Convert legacy deck to template-based deck
-  const convertToTemplateSystem = () => {
-    if (isUsingTemplates) return;
-    
-    const legacyDeck = localDeck;
-    const convertedSlides: TemplateBasedSlide[] = legacyDeck.slides.map((slide: any, index: number) => {
-      const migration = migrateContentBlocksToTemplate(slide.contentBlocks);
-      
-      if (migration) {
-        return {
-          slideId: slide.slideId,
-          slideNumber: slide.slideNumber,
-          templateId: migration.templateId,
-          props: {
-            slideId: slide.slideId,
-            slideNumber: slide.slideNumber,
-            ...migration.props,
-          } as any,
-        };
-      }
-      
-      // Fallback to title slide
-      return {
-        slideId: slide.slideId,
-        slideNumber: slide.slideNumber,
-        templateId: 'title-slide',
-        props: createDefaultSlideProps('title-slide', slide.slideId, slide.slideNumber)!,
-      };
-    });
-
-    const templateDeck: TemplateBasedSlideDeck = {
-      lessonTitle: legacyDeck.lessonTitle,
-      slides: convertedSlides,
-      currentSlideId: legacyDeck.currentSlideId,
-      lessonNumber: legacyDeck.lessonNumber,
-      detectedLanguage: legacyDeck.detectedLanguage,
-    };
-
-    setLocalDeck(templateDeck);
-    onSave?.(templateDeck);
   };
 
   return (
@@ -544,51 +433,20 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
           
           {isEditable && (
             <div className="header-controls">
-              {isUsingTemplates ? (
-                /* Template system controls */
-                <>
-                  <button 
-                    className="control-button template-button"
-                    onClick={() => setShowTemplates(!showTemplates)}
-                  >
-                    <span className="button-icon">⊞</span>
-                    Templates
-                  </button>
-                  <button 
-                    className="control-button add-button"
-                    onClick={() => addTemplateSlide()}
-                  >
-                    <span className="button-icon">+</span>
-                    Add Slide
-                  </button>
-                </>
-              ) : (
-                /* Legacy system controls */
-                <>
-                  <button 
-                    className="control-button convert-button"
-                    onClick={convertToTemplateSystem}
-                    title="Convert to modern template system"
-                  >
-                    <span className="button-icon">🔄</span>
-                    Upgrade to Templates
-                  </button>
-                  <button 
-                    className="control-button template-button"
-                    onClick={() => setShowTemplates(!showTemplates)}
-                  >
-                    <span className="button-icon">⊞</span>
-                    Templates
-                  </button>
-                  <button 
-                    className="control-button add-button"
-                    onClick={addSlide}
-                  >
-                    <span className="button-icon">+</span>
-                    Add Slide
-                  </button>
-                </>
-              )}
+              <button 
+                className="control-button template-button"
+                onClick={() => setShowTemplates(!showTemplates)}
+              >
+                <span className="button-icon">⊞</span>
+                Templates
+              </button>
+              <button 
+                className="control-button add-button"
+                onClick={addSlide}
+              >
+                <span className="button-icon">+</span>
+                Add Slide
+              </button>
             </div>
           )}
         </div>
@@ -597,34 +455,17 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         {showTemplates && isEditable && (
           <div className="template-selector">
             <div className="template-grid">
-              {isUsingTemplates ? (
-                /* New template system */
-                getAllTemplates().map((template) => (
-                  <button
-                    key={template.id}
-                    className="template-card"
-                    onClick={() => addTemplateSlide(template.id)}
-                  >
-                    <div className="template-icon">⊞</div>
-                    <div className="template-name">{template.name}</div>
-                    <div className="template-description">{template.description}</div>
-                    <div className="template-category">{template.category}</div>
-                  </button>
-                ))
-              ) : (
-                /* Legacy template system */
-                Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
-                  <button
-                    key={key}
-                    className="template-card"
-                    onClick={() => applyTemplate(selectedSlideId, key as keyof typeof SLIDE_TEMPLATES)}
-                  >
-                    <div className="template-icon">{template.icon}</div>
-                    <div className="template-name">{template.name}</div>
-                    <div className="template-description">{template.description}</div>
-                  </button>
-                ))
-              )}
+              {Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
+                <button
+                  key={key}
+                  className="template-card"
+                  onClick={() => applyTemplate(selectedSlideId, key as keyof typeof SLIDE_TEMPLATES)}
+                >
+                  <div className="template-icon">{template.icon}</div>
+                  <div className="template-name">{template.name}</div>
+                  <div className="template-description">{template.description}</div>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -639,7 +480,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
           </div>
           
           <div className="slide-thumbnails">
-            {localDeck.slides.map((slide: any) => (
+            {localDeck.slides.map((slide) => (
               <div
                 key={slide.slideId}
                 className={`slide-thumbnail ${selectedSlideId === slide.slideId ? 'active' : ''}`}
@@ -655,12 +496,12 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                 <div className="thumbnail-number">{slide.slideNumber}</div>
                 <div className="thumbnail-preview">
                   <div className="preview-title">
-                    {slide.contentBlocks?.find((block: any) => block.type === 'headline')
-                      ? (slide.contentBlocks.find((block: any) => block.type === 'headline') as HeadlineBlock).text
+                    {slide.contentBlocks.find(block => block.type === 'headline')
+                      ? (slide.contentBlocks.find(block => block.type === 'headline') as HeadlineBlock).text
                       : slide.slideTitle}
                   </div>
                   <div className="preview-content">
-                    {slide.contentBlocks?.slice(1, 3).map((block: any, index: number) => (
+                    {slide.contentBlocks.slice(1, 3).map((block, index) => (
                       <div key={index} className="preview-block">
                         {block.type === 'paragraph' ? (block as ParagraphBlock).text.substring(0, 30) + '...' :
                          block.type === 'bullet_list' ? '• List items...' :
@@ -674,7 +515,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                 {isEditable && localDeck.slides.length > 1 && (
                   <button
                     className="delete-slide-button"
-                    onClick={(e: any) => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       deleteSlide(slide.slideId);
                     }}
@@ -689,66 +530,51 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
 
         {/* Slides Container */}
         <div className="slides-container">
-          {isUsingTemplates ? (
-            /* Template-based slide rendering */
-            (localDeck as TemplateBasedSlideDeck).slides.map((slide) => (
-              <div key={slide.slideId} id={`slide-${slide.slideId}`}>
-                <TemplateRenderer
-                  slide={slide}
-                  isEditable={isEditable}
-                  onSlideChange={handleTemplateSlideChange}
-                  className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
-                />
-              </div>
-            ))
-          ) : (
-            /* Legacy content-block slide rendering */
-            localDeck.slides.map((slide: any) => (
-              <div
-                key={slide.slideId}
-                className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
-                id={`slide-${slide.slideId}`}
-              >
-                {/* Editable Slide Title */}
-                {isEditable ? (
-                  <div 
-                    className="slide-title-editable"
-                    onClick={() => setEditingTitle(slide.slideId)}
-                  >
-                    {editingTitle === slide.slideId ? (
-                      <InlineEditor
-                        initialValue={slide.slideTitle}
-                        onSave={(newTitle) => {
-                          const updatedDeck = { ...localDeck };
-                          const targetSlide = updatedDeck.slides.find((s: any) => s.slideId === slide.slideId);
-                          if (targetSlide) {
-                            targetSlide.slideTitle = newTitle;
-                            setLocalDeck(updatedDeck);
-                            onSave?.(updatedDeck);
-                          }
-                          setEditingTitle(null);
-                        }}
-                        onCancel={() => setEditingTitle(null)}
-                      />
-                    ) : (
-                      <h2 className="slide-title-text">{slide.slideTitle}</h2>
-                    )}
-                  </div>
-                ) : (
-                  <h2 className="slide-title-display">{slide.slideTitle}</h2>
-                )}
-
-                {/* Content Blocks */}
-                <div className={`slide-content ${getSlideLayout(slide)}`}>
-                  {slide.contentBlocks.map((block: any, blockIndex: number) => (
-                    <div key={blockIndex} className="content-block">
-                      {renderContentBlock(block, slide.slideId, blockIndex)}
-                    </div>
-                  ))}
+          {localDeck.slides.map((slide) => (
+            <div
+              key={slide.slideId}
+              className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
+              id={`slide-${slide.slideId}`}
+            >
+              {/* Editable Slide Title */}
+              {isEditable ? (
+                <div 
+                  className="slide-title-editable"
+                  onClick={() => setEditingTitle(slide.slideId)}
+                >
+                  {editingTitle === slide.slideId ? (
+                    <InlineEditor
+                      initialValue={slide.slideTitle}
+                      onSave={(newTitle) => {
+                        const updatedDeck = { ...localDeck };
+                        const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
+                        if (targetSlide) {
+                          targetSlide.slideTitle = newTitle;
+                          setLocalDeck(updatedDeck);
+                          onSave?.(updatedDeck);
+                        }
+                        setEditingTitle(null);
+                      }}
+                      onCancel={() => setEditingTitle(null)}
+                    />
+                  ) : (
+                    <h2 className="slide-title-text">{slide.slideTitle}</h2>
+                  )}
                 </div>
+              ) : (
+                <h2 className="slide-title-display">{slide.slideTitle}</h2>
+              )}
+
+              {/* Content Blocks */}
+              <div className={`slide-content ${getSlideLayout(slide)}`}>
+                {slide.contentBlocks.map((block, blockIndex) => (
+                  <div key={blockIndex} className="content-block">
+                    {renderContentBlock(block, slide.slideId, blockIndex)}
+                  </div>
+                ))}
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -797,7 +623,7 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         className="inline-editor-textarea"
         value={value}
-        onChange={(e: any) => setValue(e.target.value)}
+        onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         rows={4}
@@ -811,7 +637,7 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
       className="inline-editor-input"
       type="text"
       value={value}
-      onChange={(e: any) => setValue(e.target.value)}
+      onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
     />

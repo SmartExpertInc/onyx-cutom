@@ -1,165 +1,231 @@
-// Template-based slide system types
+// custom_extensions/frontend/src/types/slideTemplates.ts
 
-// Base template prop interface that all templates must extend
+import React from 'react';
+
+// --- Base Template System Types ---
+
 export interface BaseTemplateProps {
   slideId: string;
-  slideNumber: number;
+  isEditable?: boolean;
+  onUpdate?: (props: any) => void;
 }
 
-// Common prop types used across templates
-export interface ImageProps {
-  src?: string;
-  alt?: string;
-  description?: string; // For AI-generated content description
-}
-
-export interface TextProps {
-  text: string;
-  style?: 'normal' | 'bold' | 'italic' | 'emphasis';
-  color?: string;
-}
-
-// Specific template prop interfaces
-export interface TitleSlideProps extends BaseTemplateProps {
-  title: TextProps;
-  subtitle?: TextProps;
-  backgroundImage?: ImageProps;
-}
-
-export interface BigImageLeftProps extends BaseTemplateProps {
-  title: TextProps;
-  image: ImageProps;
-  content: TextProps;
-  bulletPoints?: string[];
-}
-
-export interface QuoteCenterProps extends BaseTemplateProps {
-  quote: TextProps;
-  author?: TextProps;
-  backgroundImage?: ImageProps;
-}
-
-export interface BulletPointsProps extends BaseTemplateProps {
-  title: TextProps;
-  bullets: TextProps[];
-  layout?: 'single-column' | 'two-column';
-}
-
-export interface TwoColumnProps extends BaseTemplateProps {
-  title: TextProps;
-  leftColumn: {
-    heading?: TextProps;
-    content: TextProps;
-    image?: ImageProps;
-  };
-  rightColumn: {
-    heading?: TextProps;
-    content: TextProps;
-    image?: ImageProps;
-  };
-}
-
-export interface ComparisonProps extends BaseTemplateProps {
-  title: TextProps;
-  beforeSection: {
-    heading: TextProps;
-    content: TextProps;
-    image?: ImageProps;
-  };
-  afterSection: {
-    heading: TextProps;
-    content: TextProps;
-    image?: ImageProps;
-  };
-}
-
-export interface ProcessStepsProps extends BaseTemplateProps {
-  title: TextProps;
-  steps: Array<{
-    number: number;
-    title: TextProps;
-    description: TextProps;
-  }>;
-}
-
-export interface AgendaProps extends BaseTemplateProps {
-  title: TextProps;
-  items: Array<{
-    title: TextProps;
-    duration?: string;
-    description?: TextProps;
-  }>;
-}
-
-// Union type of all template props
-export type AnyTemplateProps = 
-  | TitleSlideProps
-  | BigImageLeftProps
-  | QuoteCenterProps
-  | BulletPointsProps
-  | TwoColumnProps
-  | ComparisonProps
-  | ProcessStepsProps
-  | AgendaProps;
-
-// Template component type
-export type SlideTemplate<T extends BaseTemplateProps = BaseTemplateProps> = (props: T) => any;
-
-// Template definition for the registry
-export interface TemplateDefinition<T extends BaseTemplateProps = BaseTemplateProps> {
+export interface TemplateComponentInfo {
   id: string;
   name: string;
   description: string;
-  category: 'presentation' | 'content' | 'special';
-  component: SlideTemplate<T>;
-  defaultProps: Omit<T, 'slideId' | 'slideNumber'>;
+  category: 'title' | 'content' | 'media' | 'layout' | 'special';
+  icon: string;
   previewImage?: string;
+  component: React.ComponentType<BaseTemplateProps & any>;
+  defaultProps: Record<string, any>;
+  propSchema: Record<string, PropDefinition>;
 }
 
-// New slide data structure using templates
-export interface TemplateBasedSlide {
+export interface PropDefinition {
+  type: 'text' | 'richtext' | 'image' | 'color' | 'number' | 'boolean' | 'select' | 'array';
+  label: string;
+  description?: string;
+  required?: boolean;
+  default?: any;
+  options?: Array<{value: any; label: string}>; // For select type
+  min?: number; // For number type
+  max?: number; // For number type
+  maxLength?: number; // For text type
+  arrayItemType?: PropDefinition; // For array type
+}
+
+// --- Template Registry ---
+
+export type TemplateRegistry = Record<string, TemplateComponentInfo>;
+
+// --- New Slide Data Model ---
+
+export interface ComponentBasedSlide {
   slideId: string;
   slideNumber: number;
   templateId: string;
-  props: AnyTemplateProps;
+  props: Record<string, any>;
+  metadata?: {
+    createdAt?: string;
+    updatedAt?: string;
+    version?: string;
+    notes?: string;
+  };
 }
 
-// New deck data structure
-export interface TemplateBasedSlideDeck {
+export interface ComponentBasedSlideDeck {
   lessonTitle: string;
-  slides: TemplateBasedSlide[];
+  slides: ComponentBasedSlide[];
   currentSlideId?: string | null;
   lessonNumber?: number | null;
   detectedLanguage?: string | null;
+  templateVersion?: string;
+  metadata?: {
+    createdAt?: string;
+    updatedAt?: string;
+    author?: string;
+    description?: string;
+  };
 }
 
-// Migration types for backward compatibility
+// --- Specific Template Prop Interfaces ---
+
+export interface TitleSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  author?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  backgroundImage?: string;
+}
+
+export interface ContentSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  alignment?: 'left' | 'center' | 'right';
+  backgroundImage?: string;
+}
+
+export interface BigImageLeftProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  imageUrl: string;
+  imageAlt: string;
+  imageSize?: 'small' | 'medium' | 'large';
+  titleColor?: string;
+  contentColor?: string;
+  backgroundColor?: string;
+}
+
+export interface QuoteCenterProps extends BaseTemplateProps {
+  quote: string;
+  author?: string;
+  attribution?: string;
+  backgroundColor?: string;
+  quoteColor?: string;
+  authorColor?: string;
+  fontSize?: 'small' | 'medium' | 'large' | 'xlarge';
+}
+
+export interface BulletPointsProps extends BaseTemplateProps {
+  title: string;
+  bullets: string[];
+  maxColumns?: 1 | 2 | 3;
+  bulletStyle?: 'dot' | 'arrow' | 'check' | 'star' | 'number';
+  titleColor?: string;
+  bulletColor?: string;
+  backgroundColor?: string;
+}
+
+export interface TwoColumnProps extends BaseTemplateProps {
+  title: string;
+  leftTitle: string;
+  leftContent: string;
+  rightTitle: string;
+  rightContent: string;
+  columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface ComparisonSlideProps extends BaseTemplateProps {
+  title: string;
+  beforeTitle: string;
+  beforeContent: string;
+  afterTitle: string;
+  afterContent: string;
+  beforeImage?: string;
+  afterImage?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface ProcessStepsProps extends BaseTemplateProps {
+  title: string;
+  steps: Array<{
+    title: string;
+    description: string;
+    icon?: string;
+  }>;
+  layout?: 'vertical' | 'horizontal' | 'circular';
+  stepColor?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+}
+
+// --- Migration and Compatibility ---
+
 export interface LegacySlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
-  contentBlocks: any[]; // Legacy content blocks
+  contentBlocks: any[];
   deckgoTemplate?: string;
   imagePlaceholders?: any[];
 }
 
-export interface LegacySlideDeck {
-  lessonTitle: string;
-  slides: LegacySlide[];
-  currentSlideId?: string | null;
-  lessonNumber?: number | null;
-  detectedLanguage?: string | null;
+export interface MigrationResult {
+  success: boolean;
+  slide?: ComponentBasedSlide;
+  errors?: string[];
+  warnings?: string[];
 }
 
-// Union type for both old and new systems  
-export type UnifiedSlideDeckData = TemplateBasedSlideDeck | LegacySlideDeck;
-
-// Type guard to check if deck uses new template system
-export function isTemplateBasedDeck(deck: UnifiedSlideDeckData): deck is TemplateBasedSlideDeck {
-  return deck.slides.length > 0 && 'templateId' in deck.slides[0];
+export interface SlideEditor {
+  templateId: string;
+  props: Record<string, any>;
+  onPropsChange: (newProps: Record<string, any>) => void;
+  onTemplateChange: (newTemplateId: string) => void;
 }
 
-// Type guard to check if slide uses new template system
-export function isTemplateBasedSlide(slide: any): slide is TemplateBasedSlide {
-  return slide && typeof slide.templateId === 'string' && slide.props;
+// --- Utility Types ---
+
+export type TemplateId = 
+  | 'title-slide'
+  | 'content-slide'
+  | 'big-image-left'
+  | 'quote-center'
+  | 'bullet-points'
+  | 'two-column'
+  | 'comparison-slide'
+  | 'process-steps';
+
+export interface TemplatePreview {
+  templateId: string;
+  name: string;
+  description: string;
+  category: string;
+  thumbnail: string;
+  tags: string[];
+}
+
+// --- Editor Integration ---
+
+export interface EditableField {
+  key: string;
+  label: string;
+  type: PropDefinition['type'];
+  value: any;
+  onChange: (value: any) => void;
+  validation?: {
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    pattern?: RegExp;
+  };
+}
+
+export interface TemplateEditor {
+  fields: EditableField[];
+  onSave: () => void;
+  onCancel: () => void;
+  onPreview: () => void;
 } 

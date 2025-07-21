@@ -1,466 +1,391 @@
 // custom_extensions/frontend/src/components/EnhancedSlideDeckViewer.tsx
 
-import React, { useState, useEffect, useRef } from 'react';
-import { SlideDeckData, DeckSlide, AnyContentBlock } from '@/types/pdfLesson';
-import { templateManager } from '../templates/template-manager';
-import { SlideTemplate } from '../templates/slides/basic/index';
-import { ContentAnalysis } from '../templates/ai-selectors/content-analyzer';
+import React, { useState, useEffect } from 'react';
+import { SlideDeckData } from '@/types/pdfLesson';
+import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
+import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
+import { migrateLegacySlideDeck, createNewComponentSlide } from '@/utils/slideMigration';
+import { getAllTemplates, getTemplatesByCategory } from './templates/registry';
 
 interface EnhancedSlideDeckViewerProps {
-  deck: SlideDeckData;
+  // Can accept either legacy or new format
+  deck?: SlideDeckData;
+  componentDeck?: ComponentBasedSlideDeck;
   isEditable?: boolean;
-  onSave?: (updatedDeck: SlideDeckData) => void;
+  onSave?: (updatedDeck: ComponentBasedSlideDeck) => void;
+  onLegacySave?: (updatedDeck: SlideDeckData) => void;
 }
 
-export default function EnhancedSlideDeckViewer({ deck, isEditable = false, onSave }: EnhancedSlideDeckViewerProps) {
-  const [localDeck, setLocalDeck] = useState<SlideDeckData>(deck);
-  const [selectedSlideId, setSelectedSlideId] = useState<string>(deck.slides[0]?.slideId || '');
+export const EnhancedSlideDeckViewer: React.FC<EnhancedSlideDeckViewerProps> = ({
+  deck,
+  componentDeck,
+  isEditable = false,
+  onSave,
+  onLegacySave
+}) => {
+  const [localComponentDeck, setLocalComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
+  const [selectedSlideId, setSelectedSlideId] = useState<string>('');
   const [showTemplates, setShowTemplates] = useState(false);
-  const [showAIInsights, setShowAIInsights] = useState(false);
-  const [templatesByCategory, setTemplatesByCategory] = useState<Record<string, SlideTemplate[]>>({});
-  const [currentAnalysis, setCurrentAnalysis] = useState<ContentAnalysis | null>(null);
-  const [recommendedTemplates, setRecommendedTemplates] = useState<SlideTemplate[]>([]);
-  const [presentationInsights, setPresentationInsights] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredTemplates, setFilteredTemplates] = useState<SlideTemplate[]>([]);
+  const [migrationStatus, setMigrationStatus] = useState<'none' | 'available' | 'migrating' | 'completed'>('none');
+  const [selectedTemplateCategory, setSelectedTemplateCategory] = useState<string>('all');
 
-  // Ініціалізація
+  // Initialize component deck (either from prop or by migrating legacy deck)
   useEffect(() => {
-    setLocalDeck(deck);
-    setTemplatesByCategory(templateManager.getTemplatesByCategory());
+    if (componentDeck) {
+      setLocalComponentDeck(componentDeck);
+      setSelectedSlideId(componentDeck.currentSlideId || componentDeck.slides[0]?.slideId || '');
+      setMigrationStatus('completed');
+    } else if (deck) {
+      setMigrationStatus('available');
+      setSelectedSlideId(deck.currentSlideId || deck.slides[0]?.slideId || '');
+    }
+  }, [deck, componentDeck]);
+
+  // Migrate legacy deck
+  const handleMigrateDeck = async () => {
+    if (!deck) return;
+
+    setMigrationStatus('migrating');
     
-    // Аналізуємо всю презентацію
-    if (deck.slides.length > 0) {
-      const insights = templateManager.analyzePresentationFlow(deck.slides);
-      setPresentationInsights(insights);
-    }
-  }, [deck]);
-
-  // Аналізуємо поточний слайд при зміні
-  useEffect(() => {
-    const currentSlide = localDeck.slides.find(s => s.slideId === selectedSlideId);
-    if (currentSlide) {
-      const result = templateManager.analyzeAndRecommend(currentSlide);
-      setCurrentAnalysis(result.analysis);
-      setRecommendedTemplates(result.recommendedTemplates);
-    }
-  }, [selectedSlideId, localDeck]);
-
-  // Пошук шаблонів
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      const results = templateManager.searchTemplates(searchQuery);
-      setFilteredTemplates(results);
-    } else {
-      setFilteredTemplates([]);
-    }
-  }, [searchQuery]);
-
-  // Застосовуємо шаблон до слайду
-  const applyTemplate = (slideId: string, templateId: string) => {
-    const template = templateManager.getTemplate(templateId);
-    if (!template) return;
-
-    const updatedDeck = { ...localDeck };
-    const slide = updatedDeck.slides.find(s => s.slideId === slideId);
-    
-    if (slide) {
-      slide.contentBlocks = [...template.blocks];
+    try {
+      const migrationResult = migrateLegacySlideDeck(deck);
       
-      // Якщо шаблон має DeckDeckGo специфікацію
-      if (template.deckgoTemplate) {
-        (slide as any).deckgoTemplate = template.deckgoTemplate;
+      if (migrationResult.success && migrationResult.deck) {
+        setLocalComponentDeck(migrationResult.deck);
+        setMigrationStatus('completed');
+        
+        // Show migration results to user
+        const warnings = migrationResult.results.flatMap(r => r.warnings || []);
+        const errors = migrationResult.results.flatMap(r => r.errors || []);
+        
+        if (warnings.length > 0) {
+          console.warn('Migration warnings:', warnings);
+        }
+        if (errors.length > 0) {
+          console.error('Migration errors:', errors);
+        }
+        
+        // Auto-save if callback provided
+        if (onSave) {
+          onSave(migrationResult.deck);
+        }
+      } else {
+        console.error('Migration failed');
+        setMigrationStatus('available');
       }
-      
-      setLocalDeck(updatedDeck);
-      onSave?.(updatedDeck);
-    }
-    setShowTemplates(false);
-  };
-
-  // Автоматичне застосування найкращого шаблону
-  const autoApplyBestTemplate = (slideId: string) => {
-    const slide = localDeck.slides.find(s => s.slideId === slideId);
-    if (!slide) return;
-
-    const bestTemplate = templateManager.autoSelectTemplate(slide);
-    if (bestTemplate) {
-      applyTemplate(slideId, bestTemplate.id);
+    } catch (error) {
+      console.error('Migration error:', error);
+      setMigrationStatus('available');
     }
   };
 
-  // Додавання нового слайду з AI рекомендацією
-  const addSmartSlide = () => {
-    const newSlide: DeckSlide = {
-      slideId: `slide-${Date.now()}`,
-      slideNumber: localDeck.slides.length + 1,
-      slideTitle: `Slide ${localDeck.slides.length + 1}`,
-      contentBlocks: []
-    };
-
-    // AI визначає найкращий тип слайду на основі контексту
-    let suggestedTemplate: SlideTemplate | null = null;
-    
-    if (localDeck.slides.length === 0) {
-      // Перший слайд - завжди титульний
-      suggestedTemplate = templateManager.getTemplate('title-basic') || null;
-    } else if (localDeck.slides.length === localDeck.slides.length) {
-      // Останній слайд - підсумок
-      suggestedTemplate = templateManager.searchTemplates('summary')[0] || null;
-    } else {
-      // Аналізуємо попередні слайди для кращої рекомендації
-      const insights = templateManager.analyzePresentationFlow(localDeck.slides);
-      if (insights.overallAnalysis.interactivityBalance < 0.5) {
-        const interactiveTemplates = templateManager.getTemplatesByInteractivity('high');
-        suggestedTemplate = interactiveTemplates[0] || null;
-      }
-    }
-
-    if (suggestedTemplate) {
-      newSlide.contentBlocks = [...suggestedTemplate.blocks];
-      if (suggestedTemplate.deckgoTemplate) {
-        (newSlide as any).deckgoTemplate = suggestedTemplate.deckgoTemplate;
-      }
-    }
+  // Handle slide updates
+  const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
+    if (!localComponentDeck) return;
 
     const updatedDeck = {
-      ...localDeck,
-      slides: [...localDeck.slides, newSlide]
+      ...localComponentDeck,
+      slides: localComponentDeck.slides.map(slide => 
+        slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+      )
     };
 
-    setLocalDeck(updatedDeck);
-    setSelectedSlideId(newSlide.slideId);
+    setLocalComponentDeck(updatedDeck);
     onSave?.(updatedDeck);
   };
 
-  // Оптимізація всієї презентації
-  const optimizePresentation = () => {
-    const optimizedDeck = { ...localDeck };
-    
-    optimizedDeck.slides.forEach(slide => {
-      const bestTemplate = templateManager.autoSelectTemplate(slide);
-      if (bestTemplate && bestTemplate.interactivity === 'high') {
-        // Застосовуємо тільки високоінтерактивні шаблони для покращення
-        slide.contentBlocks = [...bestTemplate.blocks];
-        if (bestTemplate.deckgoTemplate) {
-          (slide as any).deckgoTemplate = bestTemplate.deckgoTemplate;
-        }
-      }
-    });
+  // Handle template changes
+  const handleTemplateChange = (slideId: string, newTemplateId: string) => {
+    if (!localComponentDeck) return;
 
-    setLocalDeck(optimizedDeck);
-    onSave?.(optimizedDeck);
+    const slideIndex = localComponentDeck.slides.findIndex(s => s.slideId === slideId);
+    if (slideIndex === -1) return;
+
+    const oldSlide = localComponentDeck.slides[slideIndex];
+    const newSlide = createNewComponentSlide(newTemplateId, oldSlide.slideNumber);
+    
+    // Preserve slide ID and number
+    newSlide.slideId = oldSlide.slideId;
+    newSlide.slideNumber = oldSlide.slideNumber;
+
+    const updatedDeck = {
+      ...localComponentDeck,
+      slides: localComponentDeck.slides.map(slide => 
+        slide.slideId === slideId ? newSlide : slide
+      )
+    };
+
+    setLocalComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
   };
 
-  // Компонент для відображення AI інсайтів
-  const AIInsightsPanel = () => (
-    <div className="ai-insights-panel bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-        🤖 AI Аналіз Презентації
-      </h3>
-      
-      {presentationInsights && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {Math.round(presentationInsights.overallAnalysis.diversity * 100)}%
-              </div>
-              <div className="text-sm text-gray-600">Різноманітність</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {Math.round(presentationInsights.overallAnalysis.interactivityBalance * 100)}%
-              </div>
-              <div className="text-sm text-gray-600">Інтерактивність</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {Math.round(presentationInsights.overallAnalysis.flowScore * 100)}%
-              </div>
-              <div className="text-sm text-gray-600">Логічність</div>
-            </div>
-          </div>
+  // Add new slide
+  const handleAddSlide = (templateId: string) => {
+    if (!localComponentDeck) return;
 
-          <div className="mt-4">
-            <h4 className="font-semibold text-gray-700 mb-2">💡 Рекомендації:</h4>
-            <ul className="space-y-1">
-              {presentationInsights.suggestions.map((suggestion: string, index: number) => (
-                <li key={index} className="text-sm text-gray-600 flex items-start">
-                  <span className="mr-2">•</span>
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+    const newSlide = createNewComponentSlide(templateId, localComponentDeck.slides.length + 1);
+    const updatedDeck = {
+      ...localComponentDeck,
+      slides: [...localComponentDeck.slides, newSlide]
+    };
 
-      {currentAnalysis && (
-        <div className="mt-4 pt-4 border-t border-blue-200">
-          <h4 className="font-semibold text-gray-700 mb-2">
-            🎯 Поточний слайд: {currentAnalysis.contentType}
-          </h4>
-          <div className="text-sm text-gray-600">
-            Складність: <span className="font-medium">{currentAnalysis.complexity}</span> | 
-            Інтерактивність: <span className="font-medium">{currentAnalysis.interactivityNeeded}</span> | 
-            Впевненість: <span className="font-medium">{Math.round(currentAnalysis.confidence * 100)}%</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    setLocalComponentDeck(updatedDeck);
+    setSelectedSlideId(newSlide.slideId);
+    onSave?.(updatedDeck);
+    setShowTemplates(false);
+  };
 
-  // Компонент для розширеного селектора шаблонів
-  const EnhancedTemplateSelector = () => (
-    <div className="enhanced-template-selector bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-      {/* Пошук шаблонів */}
-      <div className="mb-4">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Пошук шаблонів..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <div className="absolute right-3 top-2.5">
-            🔍
-          </div>
+  // Delete slide
+  const handleDeleteSlide = (slideId: string) => {
+    if (!localComponentDeck || localComponentDeck.slides.length <= 1) return;
+
+    const updatedSlides = localComponentDeck.slides
+      .filter(s => s.slideId !== slideId)
+      .map((slide, index) => ({ ...slide, slideNumber: index + 1 }));
+
+    const deletedIndex = localComponentDeck.slides.findIndex(s => s.slideId === slideId);
+    const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
+
+    const updatedDeck = {
+      ...localComponentDeck,
+      slides: updatedSlides
+    };
+
+    setLocalComponentDeck(updatedDeck);
+    setSelectedSlideId(nextSlide?.slideId || '');
+    onSave?.(updatedDeck);
+  };
+
+  // Get available templates
+  const availableTemplates = selectedTemplateCategory === 'all' 
+    ? getAllTemplates() 
+    : getTemplatesByCategory(selectedTemplateCategory);
+
+  // Render migration prompt if legacy deck needs migration
+  if (migrationStatus === 'available' && !localComponentDeck) {
+    return (
+      <div style={{
+        padding: '40px',
+        textAlign: 'center',
+        backgroundColor: '#f8f9fa',
+        border: '2px dashed #dee2e6',
+        borderRadius: '8px',
+        margin: '20px'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: 600, marginBottom: '16px' }}>
+          🚀 Upgrade Available
         </div>
+        <div style={{ fontSize: '16px', color: '#6c757d', marginBottom: '24px' }}>
+          This presentation is using the legacy format. Migrate to the new component-based system
+          for better editing, more templates, and enhanced features.
+        </div>
+        <div style={{ fontSize: '14px', color: '#6c757d', marginBottom: '24px' }}>
+          Current: {deck?.slides.length} slides with content blocks<br/>
+          After migration: Component-based templates with full customization
+        </div>
+        <button
+          onClick={handleMigrateDeck}
+          disabled={migrationStatus === 'migrating'}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '16px',
+            fontWeight: 600,
+            cursor: migrationStatus === 'migrating' ? 'not-allowed' : 'pointer',
+            opacity: migrationStatus === 'migrating' ? 0.6 : 1
+          }}
+        >
+          {migrationStatus === 'migrating' ? 'Migrating...' : 'Migrate Now'}
+        </button>
       </div>
+    );
+  }
 
-      {/* AI рекомендації */}
-      {recommendedTemplates.length > 0 && (
-        <div className="mb-6">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-            ✨ AI Рекомендації для поточного слайду
-          </h4>
-          <div className="grid grid-cols-1 gap-3">
-            {recommendedTemplates.map((template, index) => (
-              <button
-                key={template.id}
-                className="flex items-center p-3 rounded-lg border border-blue-200 hover:border-blue-400 bg-blue-50 hover:bg-blue-100 transition-colors text-left"
-                onClick={() => applyTemplate(selectedSlideId, template.id)}
-              >
-                <span className="text-2xl mr-3">{template.icon}</span>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-800">{template.name}</div>
-                  <div className="text-sm text-gray-600">{template.description}</div>
-                  {template.deckgoTemplate && (
-                    <div className="text-xs text-blue-600 mt-1">
-                      DeckDeckGo: {template.deckgoTemplate}
-                    </div>
-                  )}
-                </div>
-                <div className="text-xs bg-blue-200 px-2 py-1 rounded text-blue-800">
-                  #{index + 1}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Результати пошуку */}
-      {filteredTemplates.length > 0 && (
-        <div className="mb-6">
-          <h4 className="font-semibold text-gray-800 mb-3">
-            🔍 Результати пошуку ({filteredTemplates.length})
-          </h4>
-          <div className="grid grid-cols-2 gap-3">
-            {filteredTemplates.map((template) => (
-              <button
-                key={template.id}
-                className="template-card p-3 rounded-lg border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all text-left"
-                onClick={() => applyTemplate(selectedSlideId, template.id)}
-              >
-                <div className="flex items-center mb-2">
-                  <span className="text-xl mr-2">{template.icon}</span>
-                  <span className="font-medium text-sm">{template.name}</span>
-                </div>
-                <div className="text-xs text-gray-600">{template.description}</div>
-                <div className="text-xs text-gray-500 mt-1 flex items-center justify-between">
-                  <span>{template.category}</span>
-                  {template.interactivity && (
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      template.interactivity === 'high' ? 'bg-red-100 text-red-700' :
-                      template.interactivity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
-                    }`}>
-                      {template.interactivity}
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Шаблони по категоріях */}
-      {Object.entries(templatesByCategory).map(([category, templates]) => (
-        templates.length > 0 && (
-          <div key={category} className="mb-6">
-            <h4 className="font-semibold text-gray-800 mb-3 capitalize">
-              {category === 'basic' ? '🟢 Базові' :
-               category === 'business' ? '💼 Бізнес' :
-               category === 'educational' ? '📚 Освітні' :
-               category === 'creative' ? '🎨 Креативні' :
-               '💻 Технічні'} ({templates.length})
-            </h4>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-              {templates.map((template) => (
-                <button
-                  key={template.id}
-                  className="template-card p-3 rounded-lg border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all text-left"
-                  onClick={() => applyTemplate(selectedSlideId, template.id)}
-                >
-                  <div className="flex items-center mb-2">
-                    <span className="text-lg mr-2">{template.icon}</span>
-                    <span className="font-medium text-sm">{template.name}</span>
-                  </div>
-                  <div className="text-xs text-gray-600 mb-2">{template.description}</div>
-                  {template.deckgoTemplate && (
-                    <div className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                      DeckDeckGo
-                    </div>
-                  )}
-                </button>
-              ))}
+  // Render component-based deck
+  if (localComponentDeck) {
+    return (
+      <div className="enhanced-slide-deck-viewer">
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 0',
+          borderBottom: '1px solid #dee2e6',
+          marginBottom: '20px'
+        }}>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>
+              {localComponentDeck.lessonTitle}
+            </h1>
+            <div style={{ fontSize: '14px', color: '#6c757d', marginTop: '4px' }}>
+              {localComponentDeck.slides.length} slides • Component-based v{localComponentDeck.templateVersion}
             </div>
-          </div>
-        )
-      ))}
-    </div>
-  );
-
-  return (
-    <div className="enhanced-slide-deck-viewer">
-      {/* Покращений Header */}
-      <div className="professional-header bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <div className="presentation-info">
-            <h1 className="text-2xl font-bold text-gray-900">{localDeck.lessonTitle}</h1>
-            <span className="text-gray-600">{localDeck.slides.length} слайдів</span>
           </div>
           
           {isEditable && (
-            <div className="flex items-center gap-3">
-              <button 
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center gap-2"
-                onClick={() => setShowAIInsights(!showAIInsights)}
-              >
-                🤖 AI Інсайти
-              </button>
-              
-              <button 
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
                 onClick={() => setShowTemplates(!showTemplates)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: showTemplates ? '#6c757d' : '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
               >
-                ⊞ Шаблони
-              </button>
-              
-              <button 
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                onClick={addSmartSlide}
-              >
-                ✨ Smart Слайд
-              </button>
-
-              <button 
-                className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-                onClick={optimizePresentation}
-                title="Автоматична оптимізація презентації"
-              >
-                ⚡
-              </button>
-
-              <button 
-                className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                onClick={() => autoApplyBestTemplate(selectedSlideId)}
-                title="Застосувати найкращий шаблон"
-              >
-                🎯
+                {showTemplates ? 'Hide Templates' : 'Add Slide'}
               </button>
             </div>
           )}
         </div>
 
-        {/* AI Інсайти панель */}
-        {showAIInsights && isEditable && (
-          <div className="mt-4">
-            <AIInsightsPanel />
-          </div>
-        )}
-
-        {/* Розширений селектор шаблонів */}
+        {/* Template Selector */}
         {showTemplates && isEditable && (
-          <div className="mt-4">
-            <EnhancedTemplateSelector />
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #dee2e6',
+            borderRadius: '8px',
+            padding: '20px',
+            marginBottom: '20px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0 }}>Choose a Template</h3>
+              <select
+                value={selectedTemplateCategory}
+                onChange={(e) => setSelectedTemplateCategory(e.target.value)}
+                style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #dee2e6' }}
+              >
+                <option value="all">All Templates</option>
+                <option value="title">Title</option>
+                <option value="content">Content</option>
+                <option value="media">Media</option>
+                <option value="layout">Layout</option>
+                <option value="special">Special</option>
+              </select>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: '16px'
+            }}>
+              {availableTemplates.map((template) => (
+                <div
+                  key={template.id}
+                  onClick={() => handleAddSlide(template.id)}
+                  style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '6px',
+                    padding: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'center'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = '#007bff';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,123,255,0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = '#dee2e6';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>{template.icon}</div>
+                  <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
+                    {template.name}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6c757d' }}>
+                    {template.description}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-      </div>
 
-      {/* Основний контент - використовуємо оригінальну логіку SlideDeckViewer */}
-      <div className="main-content flex">
-        {/* Sidebar з мініатюрами слайдів */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
-          <h3 className="font-semibold text-gray-800 mb-4">Слайди</h3>
-          <div className="space-y-2">
-            {localDeck.slides.map((slide) => (
+        {/* Slide Navigation */}
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {/* Sidebar */}
+          <div style={{
+            width: '200px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px',
+            padding: '16px',
+            maxHeight: '600px',
+            overflowY: 'auto'
+          }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 600 }}>Slides</h4>
+            {localComponentDeck.slides.map((slide) => (
               <div
                 key={slide.slideId}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                  selectedSlideId === slide.slideId 
-                    ? 'bg-blue-100 border-blue-300 border-2' 
-                    : 'bg-white border border-gray-200 hover:bg-gray-50'
-                }`}
                 onClick={() => setSelectedSlideId(slide.slideId)}
+                style={{
+                  padding: '8px',
+                  marginBottom: '8px',
+                  backgroundColor: selectedSlideId === slide.slideId ? '#007bff' : 'white',
+                  color: selectedSlideId === slide.slideId ? 'white' : '#333',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
               >
-                <div className="text-sm font-medium text-gray-800 mb-1">
-                  {slide.slideNumber}. {slide.slideTitle}
+                <div>
+                  <div style={{ fontWeight: 600 }}>Slide {slide.slideNumber}</div>
+                  <div style={{ opacity: 0.8 }}>{slide.templateId}</div>
                 </div>
-                <div className="text-xs text-gray-500">
-                  {slide.contentBlocks.length} блоків
-                </div>
-                {(slide as any).deckgoTemplate && (
-                  <div className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded mt-1 inline-block">
-                    DeckDeckGo
-                  </div>
+                {isEditable && localComponentDeck.slides.length > 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteSlide(slide.slideId);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                      fontSize: '16px',
+                      opacity: 0.6
+                    }}
+                  >
+                    ×
+                  </button>
                 )}
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Область перегляду слайдів */}
-        <div className="flex-1 p-6 bg-white">
-          {selectedSlideId && localDeck.slides.find(s => s.slideId === selectedSlideId) && (
-            <div className="slide-viewer bg-white rounded-lg shadow-sm border border-gray-200 p-8 min-h-[600px]">
-              {/* Тут буде відображатися вміст поточного слайду */}
-              <div className="slide-content">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  {localDeck.slides.find(s => s.slideId === selectedSlideId)?.slideTitle}
-                </h2>
-                
-                <div className="prose max-w-none">
-                  {localDeck.slides.find(s => s.slideId === selectedSlideId)?.contentBlocks.map((block, index) => (
-                    <div key={index} className="mb-4">
-                      {/* Тут буде рендеритися кожен блок контенту */}
-                      <div className="content-block p-2 border-l-4 border-blue-200">
-                        {JSON.stringify(block, null, 2)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Main Content */}
+          <div style={{ flex: 1 }}>
+            <ComponentBasedSlideDeckRenderer
+              slides={localComponentDeck.slides}
+              selectedSlideId={selectedSlideId}
+              isEditable={isEditable}
+              onSlideUpdate={handleSlideUpdate}
+              onTemplateChange={handleTemplateChange}
+            />
+          </div>
         </div>
       </div>
+    );
+  }
+
+  // Fallback loading state
+  return (
+    <div style={{ padding: '40px', textAlign: 'center' }}>
+      <div>Loading slide deck...</div>
     </div>
   );
-}
+};
 
-export { EnhancedSlideDeckViewer }; 
+export default EnhancedSlideDeckViewer; 
