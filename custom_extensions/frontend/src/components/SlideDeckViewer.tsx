@@ -1,11 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock } from '@/types/pdfLesson';
+import { 
+  TemplateBasedSlideDeck, 
+  TemplateBasedSlide,
+  UnifiedSlideDeckData,
+  isTemplateBasedDeck,
+  isTemplateBasedSlide,
+  TemplateRenderer,
+  getAllTemplates,
+  createDefaultSlideProps,
+  migrateContentBlocksToTemplate,
+} from '@/components/slideTemplates';
 
 interface SlideDeckViewerProps {
   deck: SlideDeckData;
   isEditable?: boolean;
   onSave?: (updatedDeck: SlideDeckData) => void;
 }
+
+// Type guard to check if we're working with the new template system
+const isNewTemplateSystem = (deck: UnifiedSlideDeckData): deck is TemplateBasedSlideDeck => {
+  return isTemplateBasedDeck(deck);
+};
 
 // Professional slide templates based on industry best practices
 const SLIDE_TEMPLATES = {
@@ -124,6 +140,9 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const [showTemplates, setShowTemplates] = useState(false);
   const [editingBlock, setEditingBlock] = useState<{ slideId: string; blockIndex: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
+  
+  // Check if we're using the new template system
+  const isUsingTemplates = isNewTemplateSystem(localDeck);
 
   // Determine slide layout based on content
   const getSlideLayout = (slide: DeckSlide): string => {
@@ -421,6 +440,92 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     onSave?.(updatedDeck);
   };
 
+  // Handle template-based slide changes
+  const handleTemplateSlideChange = (updatedSlide: TemplateBasedSlide) => {
+    if (!isUsingTemplates) return;
+    
+    const templateDeck = localDeck as TemplateBasedSlideDeck;
+    const updatedDeck: TemplateBasedSlideDeck = {
+      ...templateDeck,
+      slides: templateDeck.slides.map(slide => 
+        slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+      )
+    };
+    
+    setLocalDeck(updatedDeck);
+    onSave?.(updatedDeck);
+  };
+
+  // Add new template-based slide
+  const addTemplateSlide = (templateId: string = 'title-slide') => {
+    if (!isUsingTemplates) return;
+    
+    const templateDeck = localDeck as TemplateBasedSlideDeck;
+    const newSlideId = `slide-${Date.now()}`;
+    const newSlideNumber = templateDeck.slides.length + 1;
+    
+    const defaultProps = createDefaultSlideProps(templateId, newSlideId, newSlideNumber);
+    if (!defaultProps) return;
+    
+    const newSlide: TemplateBasedSlide = {
+      slideId: newSlideId,
+      slideNumber: newSlideNumber,
+      templateId,
+      props: defaultProps,
+    };
+
+    const updatedDeck: TemplateBasedSlideDeck = {
+      ...templateDeck,
+      slides: [...templateDeck.slides, newSlide]
+    };
+
+    setLocalDeck(updatedDeck);
+    setSelectedSlideId(newSlide.slideId);
+    onSave?.(updatedDeck);
+  };
+
+  // Convert legacy deck to template-based deck
+  const convertToTemplateSystem = () => {
+    if (isUsingTemplates) return;
+    
+    const legacyDeck = localDeck;
+    const convertedSlides: TemplateBasedSlide[] = legacyDeck.slides.map((slide, index) => {
+      const migration = migrateContentBlocksToTemplate(slide.contentBlocks);
+      
+      if (migration) {
+        return {
+          slideId: slide.slideId,
+          slideNumber: slide.slideNumber,
+          templateId: migration.templateId,
+          props: {
+            slideId: slide.slideId,
+            slideNumber: slide.slideNumber,
+            ...migration.props,
+          } as any,
+        };
+      }
+      
+      // Fallback to title slide
+      return {
+        slideId: slide.slideId,
+        slideNumber: slide.slideNumber,
+        templateId: 'title-slide',
+        props: createDefaultSlideProps('title-slide', slide.slideId, slide.slideNumber)!,
+      };
+    });
+
+    const templateDeck: TemplateBasedSlideDeck = {
+      lessonTitle: legacyDeck.lessonTitle,
+      slides: convertedSlides,
+      currentSlideId: legacyDeck.currentSlideId,
+      lessonNumber: legacyDeck.lessonNumber,
+      detectedLanguage: legacyDeck.detectedLanguage,
+    };
+
+    setLocalDeck(templateDeck);
+    onSave?.(templateDeck);
+  };
+
   return (
     <div className="slide-deck-viewer">
       {/* Professional Header */}
@@ -433,20 +538,51 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
           
           {isEditable && (
             <div className="header-controls">
-              <button 
-                className="control-button template-button"
-                onClick={() => setShowTemplates(!showTemplates)}
-              >
-                <span className="button-icon">⊞</span>
-                Templates
-              </button>
-              <button 
-                className="control-button add-button"
-                onClick={addSlide}
-              >
-                <span className="button-icon">+</span>
-                Add Slide
-              </button>
+              {isUsingTemplates ? (
+                /* Template system controls */
+                <>
+                  <button 
+                    className="control-button template-button"
+                    onClick={() => setShowTemplates(!showTemplates)}
+                  >
+                    <span className="button-icon">⊞</span>
+                    Templates
+                  </button>
+                  <button 
+                    className="control-button add-button"
+                    onClick={() => addTemplateSlide()}
+                  >
+                    <span className="button-icon">+</span>
+                    Add Slide
+                  </button>
+                </>
+              ) : (
+                /* Legacy system controls */
+                <>
+                  <button 
+                    className="control-button convert-button"
+                    onClick={convertToTemplateSystem}
+                    title="Convert to modern template system"
+                  >
+                    <span className="button-icon">🔄</span>
+                    Upgrade to Templates
+                  </button>
+                  <button 
+                    className="control-button template-button"
+                    onClick={() => setShowTemplates(!showTemplates)}
+                  >
+                    <span className="button-icon">⊞</span>
+                    Templates
+                  </button>
+                  <button 
+                    className="control-button add-button"
+                    onClick={addSlide}
+                  >
+                    <span className="button-icon">+</span>
+                    Add Slide
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -455,17 +591,34 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         {showTemplates && isEditable && (
           <div className="template-selector">
             <div className="template-grid">
-              {Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
-                <button
-                  key={key}
-                  className="template-card"
-                  onClick={() => applyTemplate(selectedSlideId, key as keyof typeof SLIDE_TEMPLATES)}
-                >
-                  <div className="template-icon">{template.icon}</div>
-                  <div className="template-name">{template.name}</div>
-                  <div className="template-description">{template.description}</div>
-                </button>
-              ))}
+              {isUsingTemplates ? (
+                /* New template system */
+                getAllTemplates().map((template) => (
+                  <button
+                    key={template.id}
+                    className="template-card"
+                    onClick={() => addTemplateSlide(template.id)}
+                  >
+                    <div className="template-icon">⊞</div>
+                    <div className="template-name">{template.name}</div>
+                    <div className="template-description">{template.description}</div>
+                    <div className="template-category">{template.category}</div>
+                  </button>
+                ))
+              ) : (
+                /* Legacy template system */
+                Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
+                  <button
+                    key={key}
+                    className="template-card"
+                    onClick={() => applyTemplate(selectedSlideId, key as keyof typeof SLIDE_TEMPLATES)}
+                  >
+                    <div className="template-icon">{template.icon}</div>
+                    <div className="template-name">{template.name}</div>
+                    <div className="template-description">{template.description}</div>
+                  </button>
+                ))
+              )}
             </div>
           </div>
         )}
@@ -530,51 +683,66 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
 
         {/* Slides Container */}
         <div className="slides-container">
-          {localDeck.slides.map((slide) => (
-            <div
-              key={slide.slideId}
-              className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
-              id={`slide-${slide.slideId}`}
-            >
-              {/* Editable Slide Title */}
-              {isEditable ? (
-                <div 
-                  className="slide-title-editable"
-                  onClick={() => setEditingTitle(slide.slideId)}
-                >
-                  {editingTitle === slide.slideId ? (
-                    <InlineEditor
-                      initialValue={slide.slideTitle}
-                      onSave={(newTitle) => {
-                        const updatedDeck = { ...localDeck };
-                        const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
-                        if (targetSlide) {
-                          targetSlide.slideTitle = newTitle;
-                          setLocalDeck(updatedDeck);
-                          onSave?.(updatedDeck);
-                        }
-                        setEditingTitle(null);
-                      }}
-                      onCancel={() => setEditingTitle(null)}
-                    />
-                  ) : (
-                    <h2 className="slide-title-text">{slide.slideTitle}</h2>
-                  )}
-                </div>
-              ) : (
-                <h2 className="slide-title-display">{slide.slideTitle}</h2>
-              )}
-
-              {/* Content Blocks */}
-              <div className={`slide-content ${getSlideLayout(slide)}`}>
-                {slide.contentBlocks.map((block, blockIndex) => (
-                  <div key={blockIndex} className="content-block">
-                    {renderContentBlock(block, slide.slideId, blockIndex)}
-                  </div>
-                ))}
+          {isUsingTemplates ? (
+            /* Template-based slide rendering */
+            (localDeck as TemplateBasedSlideDeck).slides.map((slide) => (
+              <div key={slide.slideId} id={`slide-${slide.slideId}`}>
+                <TemplateRenderer
+                  slide={slide}
+                  isEditable={isEditable}
+                  onSlideChange={handleTemplateSlideChange}
+                  className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
+                />
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            /* Legacy content-block slide rendering */
+            localDeck.slides.map((slide) => (
+              <div
+                key={slide.slideId}
+                className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
+                id={`slide-${slide.slideId}`}
+              >
+                {/* Editable Slide Title */}
+                {isEditable ? (
+                  <div 
+                    className="slide-title-editable"
+                    onClick={() => setEditingTitle(slide.slideId)}
+                  >
+                    {editingTitle === slide.slideId ? (
+                      <InlineEditor
+                        initialValue={slide.slideTitle}
+                        onSave={(newTitle) => {
+                          const updatedDeck = { ...localDeck };
+                          const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
+                          if (targetSlide) {
+                            targetSlide.slideTitle = newTitle;
+                            setLocalDeck(updatedDeck);
+                            onSave?.(updatedDeck);
+                          }
+                          setEditingTitle(null);
+                        }}
+                        onCancel={() => setEditingTitle(null)}
+                      />
+                    ) : (
+                      <h2 className="slide-title-text">{slide.slideTitle}</h2>
+                    )}
+                  </div>
+                ) : (
+                  <h2 className="slide-title-display">{slide.slideTitle}</h2>
+                )}
+
+                {/* Content Blocks */}
+                <div className={`slide-content ${getSlideLayout(slide)}`}>
+                  {slide.contentBlocks.map((block, blockIndex) => (
+                    <div key={blockIndex} className="content-block">
+                      {renderContentBlock(block, slide.slideId, blockIndex)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

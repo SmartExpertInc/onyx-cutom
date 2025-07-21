@@ -10749,7 +10749,7 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     
                     for project in all_projects:
                         if project['id'] == orig['id']:
-                            continue  # Skip the original training plan
+                            continue  # Skip the original training plan.
                         
                         project_name = project['project_name'].strip()
                         micro_name = project['microproduct_name']
