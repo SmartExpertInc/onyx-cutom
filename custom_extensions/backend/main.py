@@ -2399,9 +2399,9 @@ async def duckduckgo_company_research(company_name: str, company_desc: str) -> s
     params = {
         "q": query,
         "format": "json",
-        "no_redirect": 1,
-        "no_html": 1,
-        "skip_disambig": 1,
+        "no_redirect": 0,
+        "no_html": 0,
+        "skip_disambig": 0,
     }
     logger.info(f"[DuckDuckGo] Query: {query}")
     try:
@@ -6743,7 +6743,7 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
-        with open("custom_extensions/backend/custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
+        with open("custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
             example_text = f.read()
     except Exception as e:
         logger.error(f"[AI-Audit] Error reading example: {e}")
