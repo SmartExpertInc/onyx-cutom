@@ -6743,6 +6743,13 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
+        with open("custom_extensions/backend/custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
+            example_text = f.read()
+    except Exception as e:
+        logger.error(f"[AI-Audit] Error reading example: {e}")
+        example_text = "(Example not found)"
+
+    try:
         duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc)
         logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
         if not duckduckgo_summary or duckduckgo_summary.strip() == "" or duckduckgo_summary.strip().startswith("(Нет релевантных данных"):
