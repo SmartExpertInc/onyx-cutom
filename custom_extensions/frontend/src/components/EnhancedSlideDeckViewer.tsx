@@ -162,7 +162,9 @@ export const EnhancedSlideDeckViewer: React.FC<EnhancedSlideDeckViewerProps> = (
     : getTemplatesByCategory(selectedTemplateCategory);
 
   // Render migration prompt if legacy deck needs migration
-  if (migrationStatus === 'available' && !localComponentDeck) {
+  if ((migrationStatus === 'available' || migrationStatus === 'migrating') && !localComponentDeck) {
+    const isLoading = migrationStatus === 'migrating';
+    
     return (
       <div style={{
         padding: '40px',
@@ -185,7 +187,7 @@ export const EnhancedSlideDeckViewer: React.FC<EnhancedSlideDeckViewerProps> = (
         </div>
         <button
           onClick={handleMigrateDeck}
-          disabled={migrationStatus === 'migrating'}
+          disabled={isLoading}
           style={{
             padding: '12px 24px',
             backgroundColor: '#007bff',
@@ -194,11 +196,11 @@ export const EnhancedSlideDeckViewer: React.FC<EnhancedSlideDeckViewerProps> = (
             borderRadius: '6px',
             fontSize: '16px',
             fontWeight: 600,
-            cursor: migrationStatus === 'migrating' ? 'not-allowed' : 'pointer',
-            opacity: migrationStatus === 'migrating' ? 0.6 : 1
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.6 : 1
           }}
         >
-          {migrationStatus === 'migrating' ? 'Migrating...' : 'Migrate Now'}
+          {isLoading ? 'Migrating...' : 'Migrate Now'}
         </button>
       </div>
     );
