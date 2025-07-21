@@ -34,12 +34,6 @@ export interface SectionBreakBlock {
   style?: 'dashed' | 'solid' | 'none' | null;
 }
 
-export interface TableBlock {
-  type: 'table';
-  headers: string[];
-  rows: string[][];
-}
-
 // --- List Block Types ---
 // Forward declaration for AnyContentBlock used in ListItem
 export type AnyContentBlock =
@@ -49,9 +43,9 @@ export type AnyContentBlock =
   | SectionBreakBlock
   | BulletListBlock
   | NumberedListBlock
+  | TableBlock // Added TableBlock
   | MiniSection
-  | StandaloneBlock
-  | TableBlock;
+  | StandaloneBlock;
 
 export type ListItem = string | AnyContentBlock;
 
@@ -65,6 +59,13 @@ export interface NumberedListBlock {
   type: 'numbered_list';
   items: ListItem[];
   // NumberedListBlock does not have its own iconName in the Pydantic model.
+}
+
+// --- Table Block Type ---
+export interface TableBlock {
+  type: 'table';
+  headers: string[];
+  rows: string[][];
 }
 
 // --- Composite Types for Rendering ---

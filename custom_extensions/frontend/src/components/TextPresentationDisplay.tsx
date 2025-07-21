@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
   BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock,
-  TableBlock,
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
@@ -413,46 +412,43 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         </div>
       );
     }
-    case 'table': {
-      return renderTableBlock(block);
-    }
     case 'section_break': {
       const { style } = block as SectionBreakBlock;
       if (style === 'none') return null;
       const borderStyle = style === 'dashed' ? 'border-dashed' : 'border-solid';
       return <hr className={`my-3 border-t ${borderStyle} ${THEME_COLORS.defaultBorder}`} />;
     }
+    case 'table': {
+      // Table block rendering
+      const { headers, rows } = block as any;
+      return (
+        <div className="overflow-x-auto my-4">
+          <table className="min-w-full border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
+            <thead className="bg-[#FAFAFA]">
+              <tr>
+                {headers && headers.map((header: string, idx: number) => (
+                  <th key={idx} className="px-4 py-2 text-xs font-semibold text-[#20355D] border-b border-gray-200 text-left uppercase tracking-wider bg-[#F3F6FB]">{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows && rows.map((row: string[], rowIdx: number) => (
+                <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#F8FAFC]'}>
+                  {row.map((cell: string, cellIdx: number) => (
+                    <td key={cellIdx} className="px-4 py-2 text-xs text-[#4B4B4B] border-b border-gray-100 align-top">{parseAndStyleText(cell)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
     default:
       return null;
   }
 };
 
-function renderTableBlock(block: AnyContentBlock) {
-  if (block.type !== 'table') return null;
-  const tableBlock = block as TableBlock;
-  return (
-    <div className="overflow-x-auto my-4">
-      <table className="min-w-full border border-gray-200 rounded-lg bg-white shadow-sm">
-        <thead className="bg-[#FAFAFA]">
-          <tr>
-            {tableBlock.headers.map((header: string, idx: number) => (
-              <th key={idx} className="px-4 py-2 text-left text-[#20355D] font-semibold border-b border-gray-200">{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {tableBlock.rows.map((row: string[], rIdx: number) => (
-            <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-[#F5F8FF]'}>
-              {row.map((cell: string, cIdx: number) => (
-                <td key={cIdx} className="px-4 py-2 text-[#4B4B4B] border-b border-gray-100 align-top">{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 export interface TextPresentationDisplayProps {
   dataToDisplay: TextPresentationData | null;
@@ -544,10 +540,10 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       )}
 
       <main>
-        {renderableItems.map((item: AnyContentBlock | MiniSection | StandaloneBlock | MajorSection, index) => {
+        {renderableItems.map((item, index) => {
           const isLastItem = index === renderableItems.length - 1;
 
-          if ("type" in item && item.type === 'major_section') {
+          if (item.type === 'major_section') {
             const originalHeadlineIndex = findOriginalIndex(item.headline);
             return (
               <section key={index} className="mb-4 p-3 rounded-md bg-white">
@@ -637,10 +633,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 onTextChange={onTextChange}
               />
             );
-          }
-
-          if (item.type === 'table') {
-            return renderTableBlock(item);
           }
 
           return null;
