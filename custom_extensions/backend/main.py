@@ -2399,9 +2399,9 @@ async def duckduckgo_company_research(company_name: str, company_desc: str) -> s
     params = {
         "q": query,
         "format": "json",
-        "no_redirect": 0,
-        "no_html": 0,
-        "skip_disambig": 0,
+        "no_redirect": 1,
+        "no_html": 1,
+        "skip_disambig": 1,
     }
     logger.info(f"[DuckDuckGo] Query: {query}")
     try:
