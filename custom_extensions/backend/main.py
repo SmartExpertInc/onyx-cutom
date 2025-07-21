@@ -6888,19 +6888,19 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
         )
         return row["id"]
 
-async def insert_onepager_to_db(
-    pool,
+# After you get the parsed content from the AI parser, insert it like this:
+async def insert_ai_audit_onepager_to_db(
+    pool: asyncpg.Pool,
     onyx_user_id: str,
     project_name: str,
-    product_type: str,
-    microproduct_type: str,
-    microproduct_name: str,
     microproduct_content: dict,
-    design_template_id: int = 11,
-    component_name: str = "TextPresentationDisplay",
-    chat_session_id: str = None,
-    is_standalone: bool = True
+    chat_session_id: str = None
 ) -> int:
+    """Insert AI-audit one-pager into database with correct template and component"""
+    
+    # First, ensure we have a Text Presentation template
+    template_id = await _ensure_text_presentation_template(pool)
+    
     insert_query = """
     INSERT INTO projects (
         onyx_user_id, project_name, product_type, microproduct_type,
@@ -6918,13 +6918,15 @@ async def insert_onepager_to_db(
             project_name,
             "Text Presentation",  # product_type
             "Text Presentation",  # microproduct_type
-            microproduct_name,
-            microproduct_content,
-            design_template_id,
-            chat_session_id,
+            project_name,  # microproduct_name
+            microproduct_content,  # parsed content from AI parser
+            template_id,  # design_template_id (from _ensure_text_presentation_template)
+            chat_session_id,  # source_chat_session_id
         )
+    
     if not row:
-        raise HTTPException(status_code=500, detail="Failed to create one-pager project entry.")
+        raise HTTPException(status_code=500, detail="Failed to create AI-audit one-pager project entry.")
+    
     return row["id"]
     
 @app.post("/api/custom/ai-audit/generate")
@@ -7126,28 +7128,18 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
         )
 
         onyx_user_id = await get_current_onyx_user_id(request)
-        project_name = payload.companyName
-        product_type = "Text Presentation"  # or "One-Pager"
-        microproduct_type = "One-Pager"
-        microproduct_name = payload.companyName + " One-Pager"
-        microproduct_content = parsed_json.model_dump(mode='json', exclude_none=True)
-        design_template_id = None  # or your template ID if you use one
-        chat_session_id = None  # or your chat session ID if you have one
 
-        onepager_id = await insert_onepager_to_db(
-            pool,
-            onyx_user_id,
-            project_name,
-            product_type,
-            microproduct_type,
-            microproduct_name,
-            microproduct_content,
-            design_template_id,
-            chat_session_id,
-            is_standalone=True
+        # After you get the parsed content from the AI parser:
+        project_id = await insert_ai_audit_onepager_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=f"AI-Аудит: {payload.companyName}",
+            microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
+            chat_session_id=None  # or pass a session ID if you have one
         )
 
-        return {"id": onepager_id}
+        logger.info(f"[AI-Audit] Successfully created project with ID: {project_id}")
+        return {"id": project_id, "name": f"AI-Аудит: {payload.companyName}"}
     
     except Exception as e:
         logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
