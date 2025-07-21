@@ -14656,6 +14656,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         if styles_param and 'table' in str(styles_param) and 'table' not in block_types:
             logger.warning(f"[TEXT_PRESENTATION_FINALIZE NEW] 'table' style requested but no table block found in contentBlocks")
 
+        logger.info(parsed_text_presentation.contentBlocks)
 
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
