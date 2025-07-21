@@ -36,6 +36,13 @@ export interface SectionBreakBlock {
 
 // --- List Block Types ---
 // Forward declaration for AnyContentBlock used in ListItem
+export interface TableBlock {
+  type: 'table';
+  headers: string[];
+  rows: string[][];
+  caption?: string;
+}
+
 export type AnyContentBlock =
   | HeadlineBlock
   | ParagraphBlock
@@ -43,6 +50,7 @@ export type AnyContentBlock =
   | SectionBreakBlock
   | BulletListBlock
   | NumberedListBlock
+  | TableBlock
   | MiniSection
   | StandaloneBlock;
 
