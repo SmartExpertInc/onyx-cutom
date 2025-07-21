@@ -247,7 +247,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager" | "AI-Audit">("Course Outline");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
