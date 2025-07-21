@@ -69,7 +69,8 @@ export default function AiAuditQuestionnaire() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/custom/ai-audit/generate", {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
