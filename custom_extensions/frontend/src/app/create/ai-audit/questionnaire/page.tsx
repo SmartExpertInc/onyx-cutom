@@ -93,7 +93,7 @@ export default function AiAuditQuestionnaire() {
       const data = await res.json();
       // Save markdown to localStorage or pass via router (for demo, use localStorage)
       localStorage.setItem("aiAuditOnePager", data.markdown);
-      router.push("/create/ai-audit/result");
+      router.push(`/projects/view/${data.id}`);
     } catch (err: any) {
       setError(err.message || "Ошибка генерации AI-аудита");
     } finally {

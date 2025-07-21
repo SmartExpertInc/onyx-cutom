@@ -6887,9 +6887,46 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
             "Training Plan", DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM, "Training Plan", COMPONENT_NAME_TRAINING_PLAN
         )
         return row["id"]
+
+async def insert_onepager_to_db(
+    pool,
+    onyx_user_id: str,
+    project_name: str,
+    product_type: str,
+    microproduct_type: str,
+    microproduct_name: str,
+    microproduct_content: dict,
+    design_template_id: int = None,
+    chat_session_id: str = None,
+    is_standalone: bool = True
+) -> int:
+    insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        RETURNING id;
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            insert_query,
+            onyx_user_id,
+            project_name,
+            product_type,
+            microproduct_type,
+            microproduct_name,
+            microproduct_content,  # This should be a dict, asyncpg will store as JSONB
+            design_template_id,
+            chat_session_id,
+            is_standalone
+        )
+    if not row:
+        raise HTTPException(status_code=500, detail="Failed to create one-pager project entry.")
+    return row["id"]
     
 @app.post("/api/custom/ai-audit/generate")
-async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
+async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
         duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
@@ -6956,14 +6993,67 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
                 ],
                 max_tokens=4096,
                 temperature=0.2,
-                timeout=httpx.Timeout(180.0)  # 120 seconds
+                timeout=httpx.Timeout(180.0)  # 180 seconds
             )
         except Exception as e:
             logger.error(f"[AI-Audit] OpenAI generation error: {e}", exc_info=True)
             return {"error": f"Ошибка генерации AI-аудита: {e}"}
+        
         result = response.choices[0].message.content
         logger.info(f"[AI-Audit] OpenAI result (first 500 chars): {result[:500]}")
-        return {"markdown": result}
+
+        with open("custom_assistants/content_builder_ai.txt", encoding="utf-8") as f:
+            assistant_instructions = f.read()
+
+        # Compose the parsing prompt
+        parsing_prompt = f"{assistant_instructions}\n\nWIZARD_REQUEST\n{{\"product\": \"Text Presentation\", \"prompt\": \"Приведи этот текст к нужному формату one-pager для ContentBuilder.ai\", \"language\": \"ru\", \"fromText\": true, \"textMode\": \"context\", \"userText\": \"{result.replace('\"', '\\\"')}\"}}"
+
+        # Call OpenAI again (use gpt-4o-mini or your preferred model)
+        parsed_response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Ты профессиональный AI-ассистент для парсинга продуктов ContentBuilder.ai."},
+                {"role": "user", "content": parsing_prompt}
+            ],
+            max_tokens=4096,
+            temperature=0.1,
+            timeout=httpx.Timeout(120.0)
+        )
+        parsed_markdown = parsed_response.choices[0].message.content
+
+        parsed_json = await parse_ai_response_with_llm(
+            ai_response=parsed_markdown,
+            project_name=payload.companyName,
+            target_model=TextPresentationDetails,  # or your one-pager model
+            default_error_model_instance=TextPresentationDetails(textTitle="Parse error", contentBlocks=[]),
+            dynamic_instructions="",
+            target_json_example=DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM
+        )
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+        project_name = payload.companyName
+        product_type = "Text Presentation"  # or "One-Pager"
+        microproduct_type = "One-Pager"
+        microproduct_name = payload.companyName + " One-Pager"
+        microproduct_content = parsed_json.model_dump(mode='json', exclude_none=True)
+        design_template_id = None  # or your template ID if you use one
+        chat_session_id = None  # or your chat session ID if you have one
+
+        onepager_id = await insert_onepager_to_db(
+            pool,
+            onyx_user_id,
+            project_name,
+            product_type,
+            microproduct_type,
+            microproduct_name,
+            microproduct_content,
+            design_template_id,
+            chat_session_id,
+            is_standalone=True
+        )
+
+        return {"id": onepager_id}
+    
     except Exception as e:
         logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
         return {"error": f"AI-аудит не сгенерирован: {e}"}
