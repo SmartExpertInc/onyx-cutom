@@ -1268,7 +1268,7 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Example PDF Lesson with Nested Lists",
+  "textTitle": "Example PDF Lesson with Nested Lists",
   "contentBlocks": [
     { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
     { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
@@ -7034,8 +7034,6 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
             timeout=httpx.Timeout(120.0)
         )
         parsed_markdown = parsed_response.choices[0].message.content
-
-        parsed_markdown = parsed_markdown.replace("lessonTitle", "textTitle")
 
         parsed_json = await parse_ai_response_with_llm(
             ai_response=parsed_markdown,
