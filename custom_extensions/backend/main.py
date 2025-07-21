@@ -14494,6 +14494,8 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
 async def text_presentation_finalize(payload: TextPresentationWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Finalize text presentation creation by parsing AI response and saving to database"""
     onyx_user_id = await get_current_onyx_user_id(request)
+    styles_param = getattr(payload, 'styles', None)
+    logger.info(f"[TEXT_PRESENTATION_FINALIZE] styles param: {styles_param}")
     
     # Get user ID and deduct credits for one-pager creation
     try:
@@ -14614,13 +14616,20 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                             3. Optionally, another `paragraph` block with `isRecommendation: true`.
                     * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
 
-            5.  **`type: "alert"`**
+            5.  **`type: "table"`**
+                * `headers` (array of strings): The column headers for the table.
+                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+                * `caption` (string, optional): A short description or title for the table, if present in the source text.
+                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
+
+
+            6.  **`type: "alert"`**
                 *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
                 *   `title` (string, optional): The title of the alert.
                 *   `text` (string): The body text of the alert.
                 *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
 
-            6.  **`type: "section_break"`**
+            7.  **`type: "section_break"`**
                 * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
 
             **General Parsing Rules & Icon Names:**
