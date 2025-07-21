@@ -6743,20 +6743,18 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
-        with open("custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
-            example_text = f.read()
-    except Exception as e:
-        logger.error(f"[AI-Audit] Error reading example: {e}")
-        example_text = "(Example not found)"
-
-    try:
         duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc)
         logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
+        try:
+            with open("custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
+                example_text = f.read()
+        except Exception as e:
+            logger.error(f"[AI-Audit] Error reading example: {e}")
+            example_text = "(Example not found)"
         if not duckduckgo_summary or duckduckgo_summary.strip() == "" or duckduckgo_summary.strip().startswith("(Нет релевантных данных"):
             duck_info = "(DuckDuckGo не дал информации. Используй только анкету.)"
         else:
             duck_info = duckduckgo_summary
-
         prompt = f"""
         Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
 
@@ -6795,24 +6793,31 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
 
         Ответь только текстом one-pager по этим правилам, без пояснений.
         """
-        prompt += "\n\nСгенерируй только текст one-pager по этим правилам, без пояснений."
         logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
         client = get_openai_client()
-        response = await client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=4096,
-            temperature=0.2
-        )
+        import httpx
+        try:
+            # Set a longer timeout for the OpenAI call
+            response = await client.chat.completions.create(
+                model="gpt-4o-mini",  # or "gpt-4o" if you want the full version
+                messages=[
+                    {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=4096,
+                temperature=0.2,
+                timeout=httpx.Timeout(120.0)  # 120 seconds
+            )
+        except Exception as e:
+            logger.error(f"[AI-Audit] OpenAI generation error: {e}", exc_info=True)
+            return {"error": f"Ошибка генерации AI-аудита: {e}"}
         result = response.choices[0].message.content
         logger.info(f"[AI-Audit] OpenAI result (first 500 chars): {result[:500]}")
         return {"markdown": result}
     except Exception as e:
         logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
         return {"error": f"AI-аудит не сгенерирован: {e}"}
+
 
 @app.post("/api/custom/course-outline/finalize")
 async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
