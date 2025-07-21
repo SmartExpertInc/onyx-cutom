@@ -7804,7 +7804,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
         elif selected_design_template.component_name == COMPONENT_NAME_TEXT_PRESENTATION:
             target_content_model = TextPresentationDetails
             default_error_instance = TextPresentationDetails(textTitle=f"LLM Parsing Error for {project_data.projectName}", contentBlocks=[])
-            llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM # Can reuse this example structure
+            llm_json_example = DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM # Can reuse this example structure
             component_specific_instructions = """
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
@@ -7841,13 +7841,19 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             4.  **`type: "numbered_list"`**
                 * `items` (array of `ListItem`): Can be simple strings or other blocks, including a `bullet_list` for nested content.
 
-            5.  **`type: "alert"`**
+            5.  **`type: "table"`**
+                * `headers` (array of strings): The column headers for the table.
+                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+                * `caption` (string, optional): A short description or title for the table, if present in the source text.
+                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table. Do not attempt to represent tables as lists or paragraphs.
+
+            6.  **`type: "alert"`**
                 *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
                 *   `title` (string, optional): The title of the alert.
                 *   `text` (string): The body text of the alert.
                 *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
 
-            6.  **`type: "section_break"`**
+            7.  **`type: "section_break"`**
                 * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
 
             **Key Parsing Rules:**
@@ -7858,6 +7864,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             *   Do NOT remove the `**` from the text for any other purpose; treat it as part of the text. It is critical that you preserve the double-asterisk (`**`) markdown for bold text within all `text` fields.
             *   You are encouraged to use a diverse range of the available `iconName` values to make the presentation visually engaging.
             *   If the raw text starts with `# Title`, this becomes the `textTitle`. The `contentBlocks` should not include this Level 1 headline. All other headlines (`##`, `###`, `####`) are content blocks.
+            *   **If the source text contains a Markdown table or tabular data, and the 'tables' style is selected, you MUST output a `table` block as described above. Do NOT output Markdown tables or represent tables as lists or paragraphs.**
 
             Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
               • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
