@@ -30,6 +30,8 @@ export default function AiAuditQuestionnaire() {
   const [priorityOther, setPriorityOther] = useState("");
   const [touched, setTouched] = useState<any>({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleCheckbox = (arr: string[], setArr: (v: string[]) => void, value: string) => {
@@ -40,7 +42,7 @@ export default function AiAuditQuestionnaire() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({
       companyName: true,
@@ -64,8 +66,34 @@ export default function AiAuditQuestionnaire() {
       priorities.length === 0 ||
       (priorities.includes("Other") && !priorityOther.trim())
     ) return;
-    setSubmitted(true);
-    setTimeout(() => router.push("/create/generate"), 1500);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/custom/ai-audit/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName,
+          companyDesc,
+          employees,
+          franchise,
+          onboardingProblems,
+          documents,
+          documentsOther,
+          priorities,
+          priorityOther,
+        }),
+      });
+      if (!res.ok) throw new Error("Ошибка генерации AI-аудита");
+      const data = await res.json();
+      // Save markdown to localStorage or pass via router (for demo, use localStorage)
+      localStorage.setItem("aiAuditOnePager", data.markdown);
+      router.push("/create/ai-audit/result");
+    } catch (err: any) {
+      setError(err.message || "Ошибка генерации AI-аудита");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -199,9 +227,11 @@ export default function AiAuditQuestionnaire() {
           <button
             type="submit"
             className="mt-4 px-8 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors cursor-pointer"
+            disabled={loading}
           >
-            Generate Audit
+            {loading ? "Генерация..." : "Сгенерировать аудит"}
           </button>
+          {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
         </form>
         )}
       </div>

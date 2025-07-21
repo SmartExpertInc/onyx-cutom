@@ -1199,6 +1199,10 @@ COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
 LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+
+BING_API_KEY = os.getenv("BING_API_KEY")
+BING_API_URL = "https://api.bing.microsoft.com/v7.0/search"
+
 # Endpoint for Chat Completions
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
 # Default model to use – gpt-4o-mini provides strong JSON adherence
@@ -1915,6 +1919,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- Bing Search API ---
+class AiAuditQuestionnaireRequest(BaseModel):
+    companyName: str
+    companyDesc: str
+    employees: str
+    franchise: str
+    onboardingProblems: str
+    documents: list[str]
+    documentsOther: str = ""
+    priorities: list[str]
+    priorityOther: str = ""
+
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
     type: str = "unknown"
@@ -2352,6 +2368,30 @@ class MicroproductPipelineGetResponse(BaseModel):
         )
 
 # --- Authentication and Utility Functions ---
+async def bing_company_research(company_name: str, company_desc: str) -> str:
+    if not BING_API_KEY:
+        return "(Bing API key not configured)"
+    query = f"{company_name} {company_desc} официальный сайт отзывы новости"
+    headers = {"Ocp-Apim-Subscription-Key": BING_API_KEY}
+    params = {"q": query, "mkt": "ru-RU"}
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.get(BING_API_URL, headers=headers, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    # Extract summary: snippet, knowledge panel, news, etc.
+    snippets = []
+    if "webPages" in data:
+        for item in data["webPages"].get("value", [])[:3]:
+            snippets.append(item.get("snippet", ""))
+    if "entities" in data and data["entities"].get("value"):
+        for ent in data["entities"]["value"]:
+            if ent.get("description"):
+                snippets.append(ent["description"])
+    if "news" in data and data["news"].get("value"):
+        for news in data["news"]["value"][:2]:
+            snippets.append(f"Новость: {news.get('name', '')} — {news.get('description', '')}")
+    return "\n".join(snippets)
+
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
     if not session_cookie_value:
@@ -6661,6 +6701,53 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
             "Training Plan", DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM, "Training Plan", COMPONENT_NAME_TRAINING_PLAN
         )
         return row["id"]
+    
+@app.post("/api/custom/ai-audit/generate")
+async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
+    # 1. Get Bing research
+    bing_summary = await bing_company_research(payload.companyName, payload.companyDesc)
+    # 2. Build OpenAI prompt
+    prompt = f"""
+    Сгенерируй профессиональный AI-аудит (one-pager) для компании, строго следуя структуре и секциям как в примере (см. ниже), на русском языке. Используй ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (Bing). Если данных не хватает — дополни логично, но приоритет реальным данным.
+
+    ---
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Количество сотрудников: {payload.employees}
+    - Франшиза: {payload.franchise}
+    - Проблемы онбординга: {payload.onboardingProblems}
+    - Документы: {', '.join(payload.documents)} {payload.documentsOther}
+    - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
+
+    ---
+    РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (Bing):
+    {bing_summary}
+
+    ---
+    СТРУКТУРА И ПРИМЕР (используй такие же секции, стиль, flow):
+    """
+    # Attach the example one-pager as reference
+    try:
+        with open("custom_extensions/backend/custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
+            example_text = f.read()
+    except Exception:
+        example_text = "(Example not found)"
+    prompt += example_text
+    prompt += "\n\nСгенерируй только текст one-pager по этим правилам, без пояснений."
+    # 3. Call OpenAI GPT-4
+    client = get_openai_client()
+    response = await client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=4096,
+        temperature=0.2
+    )
+    result = response.choices[0].message.content
+    return {"markdown": result}
 
 @app.post("/api/custom/course-outline/finalize")
 async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
