@@ -6896,16 +6896,17 @@ async def insert_onepager_to_db(
     microproduct_type: str,
     microproduct_name: str,
     microproduct_content: dict,
-    design_template_id: int = None,
+    design_template_id: int = 1,  # Use a real template ID
+    component_name: str = "TextPresentationDisplay",
     chat_session_id: str = None,
     is_standalone: bool = True
 ) -> int:
     insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+            microproduct_name, microproduct_content, design_template_id, component_name, source_chat_session_id, is_standalone, created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
         RETURNING id;
     """
     async with pool.acquire() as conn:
@@ -6916,8 +6917,9 @@ async def insert_onepager_to_db(
             product_type,
             microproduct_type,
             microproduct_name,
-            microproduct_content,  # This should be a dict, asyncpg will store as JSONB
+            microproduct_content,
             design_template_id,
+            component_name,
             chat_session_id,
             is_standalone
         )
@@ -11631,6 +11633,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
     try:
         # Ensure text presentation template exists
         template_id = await _ensure_text_presentation_template(pool)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
         
         # Create a consistent project name to prevent re-parsing issues
         if payload.courseName:
