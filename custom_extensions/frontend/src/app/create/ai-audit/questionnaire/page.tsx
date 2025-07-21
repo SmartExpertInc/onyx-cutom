@@ -21,6 +21,7 @@ const priorityOptions = [
 export default function AiAuditQuestionnaire() {
   const [companyName, setCompanyName] = useState("");
   const [companyDesc, setCompanyDesc] = useState("");
+  const [companyWebsite, setCompanyWebsite] = useState("");
   const [employees, setEmployees] = useState("");
   const [franchise, setFranchise] = useState("");
   const [onboardingProblems, setOnboardingProblems] = useState("");
@@ -47,6 +48,7 @@ export default function AiAuditQuestionnaire() {
     setTouched({
       companyName: true,
       companyDesc: true,
+      companyWebsite: true,
       employees: true,
       franchise: true,
       onboardingProblems: true,
@@ -58,6 +60,7 @@ export default function AiAuditQuestionnaire() {
     if (
       !companyName.trim() ||
       !companyDesc.trim() ||
+      !companyWebsite.trim() ||
       !employees ||
       !franchise ||
       !onboardingProblems.trim() ||
@@ -76,6 +79,7 @@ export default function AiAuditQuestionnaire() {
         body: JSON.stringify({
           companyName,
           companyDesc,
+          companyWebsite,
           employees,
           franchise,
           onboardingProblems,
@@ -128,6 +132,19 @@ export default function AiAuditQuestionnaire() {
               required
             />
             {touched.companyDesc && !companyDesc.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
+          </div>
+          <div>
+            <label className="block font-medium mb-1 text-black">Company website</label>
+            <input
+              type="url"
+              className={`w-full px-4 py-2 rounded border ${touched.companyWebsite && !companyWebsite.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
+              value={companyWebsite}
+              onChange={e => setCompanyWebsite(e.target.value)}
+              onBlur={() => setTouched((t:any) => ({ ...t, companyWebsite: true }))}
+              required
+              placeholder="https://example.com"
+            />
+            {touched.companyWebsite && !companyWebsite.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
           </div>
           <div>
             <label className="block font-medium mb-1 text-black">Number of employees</label>

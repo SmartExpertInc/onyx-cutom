@@ -1919,10 +1919,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Bing Search API ---
 class AiAuditQuestionnaireRequest(BaseModel):
     companyName: str
     companyDesc: str
+    companyWebsite: str
     employees: str
     franchise: str
     onboardingProblems: str
@@ -2392,42 +2392,81 @@ class MicroproductPipelineGetResponse(BaseModel):
 #             snippets.append(f"Новость: {news.get('name', '')} — {news.get('description', '')}")
 #     return "\n".join(snippets)
 
-async def duckduckgo_company_research(company_name: str, company_desc: str) -> str:
-    import httpx
-    query = f"{company_name} {company_desc} официальный сайт отзывы новости"
+async def duckduckgo_company_research(company_name: str, company_desc: str, company_website: str) -> str:
+    # Step 1: General info
+    general_query = f"{company_name} {company_desc} официальный сайт отзывы новости"
     url = "https://api.duckduckgo.com/"
     params = {
-        "q": query,
         "format": "json",
         "no_redirect": 1,
         "no_html": 1,
         "skip_disambig": 1,
     }
-    logger.info(f"[DuckDuckGo] Query: {query}")
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url, params=params)
-            logger.info(f"[DuckDuckGo] Status: {resp.status_code}")
-            resp.raise_for_status()
-            data = resp.json()
-        logger.info(f"[DuckDuckGo] Response: {str(data)[:500]}")
-    except Exception as e:
-        logger.error(f"[DuckDuckGo] Error: {e}")
-        return f"(DuckDuckGo error: {e})"
-    snippets = []
-    if data.get("AbstractText"):
-        snippets.append(data["AbstractText"])
-    if data.get("RelatedTopics"):
-        for topic in data["RelatedTopics"]:
-            if isinstance(topic, dict) and topic.get("Text"):
-                snippets.append(topic["Text"])
-    if data.get("Answer"):
-        snippets.append(data["Answer"])
-    if data.get("Definition"):
-        snippets.append(data["Definition"])
-    result = "\n".join([s for s in snippets if s]).strip() or "(Нет релевантных данных DuckDuckGo)"
-    logger.info(f"[DuckDuckGo] Final summary: {result[:300]}")
-    return result
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        # General info
+        resp = await client.get(url, params={**params, "q": general_query})
+        resp.raise_for_status()
+        data = resp.json()
+        general_snippets = []
+        if data.get("AbstractText"):
+            general_snippets.append(data["AbstractText"])
+        if data.get("RelatedTopics"):
+            for topic in data["RelatedTopics"]:
+                if isinstance(topic, dict) and topic.get("Text"):
+                    general_snippets.append(topic["Text"])
+        if data.get("Answer"):
+            general_snippets.append(data["Answer"])
+        if data.get("Definition"):
+            general_snippets.append(data["Definition"])
+        general_info = "\n".join([s for s in general_snippets if s]).strip() or "(Нет релевантных данных DuckDuckGo)"
+
+        # Step 2: Info about the company website
+        website_info = ""
+        if company_website:
+            website_query = f"site:{company_website} о компании информация контакты"
+            resp2 = await client.get(url, params={**params, "q": website_query})
+            resp2.raise_for_status()
+            data2 = resp2.json()
+            website_snippets = []
+            if data2.get("AbstractText"):
+                website_snippets.append(data2["AbstractText"])
+            if data2.get("RelatedTopics"):
+                for topic in data2["RelatedTopics"]:
+                    if isinstance(topic, dict) and topic.get("Text"):
+                        website_snippets.append(topic["Text"])
+            if data2.get("Answer"):
+                website_snippets.append(data2["Answer"])
+            if data2.get("Definition"):
+                website_snippets.append(data2["Definition"])
+            website_info = "\n".join([s for s in website_snippets if s]).strip() or "(Нет информации по сайту)"
+
+        # Step 3: Open positions
+        jobs_info = ""
+        if company_website:
+            jobs_query = f"site:{company_website} вакансии OR careers OR jobs"
+            resp3 = await client.get(url, params={**params, "q": jobs_query})
+            resp3.raise_for_status()
+            data3 = resp3.json()
+            jobs_snippets = []
+            if data3.get("AbstractText"):
+                jobs_snippets.append(data3["AbstractText"])
+            if data3.get("RelatedTopics"):
+                for topic in data3["RelatedTopics"]:
+                    if isinstance(topic, dict) and topic.get("Text"):
+                        jobs_snippets.append(topic["Text"])
+            if data3.get("Answer"):
+                jobs_snippets.append(data3["Answer"])
+            if data3.get("Definition"):
+                jobs_snippets.append(data3["Definition"])
+            jobs_info = "\n".join([s for s in jobs_snippets if s]).strip() or "(Нет информации о вакансиях)"
+
+    # Combine all
+    combined = (
+        f"[DuckDuckGo General Info]\n{general_info}\n\n"
+        f"[Website Info]\n{website_info}\n\n"
+        f"[Open Positions]\n{jobs_info}"
+    )
+    return combined
 
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
@@ -6743,7 +6782,7 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
-        duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc)
+        duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
         try:
             with open("custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
@@ -6777,6 +6816,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
         ДАННЫЕ АНКЕТЫ:
         - Название компании: {payload.companyName}
         - Описание компании: {payload.companyDesc}
+        - Сайт компании: {payload.companyWebsite}
         - Количество сотрудников: {payload.employees}
         - Франшиза: {payload.franchise}
         - Проблемы онбординга: {payload.onboardingProblems}
@@ -6799,14 +6839,14 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
         try:
             # Set a longer timeout for the OpenAI call
             response = await client.chat.completions.create(
-                model="gpt-4o-mini",  # or "gpt-4o" if you want the full version
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=4096,
                 temperature=0.2,
-                timeout=httpx.Timeout(120.0)  # 120 seconds
+                timeout=httpx.Timeout(180.0)  # 120 seconds
             )
         except Exception as e:
             logger.error(f"[AI-Audit] OpenAI generation error: {e}", exc_info=True)
