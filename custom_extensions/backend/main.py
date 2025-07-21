@@ -29,6 +29,9 @@ from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
 import inspect
+# NEW: OpenAI imports for direct usage
+import openai
+from openai import AsyncOpenAI
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -64,6 +67,128 @@ LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
 # Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+
+# NEW: OpenAI client for direct streaming
+OPENAI_CLIENT = None
+
+def get_openai_client():
+    """Get or create the OpenAI client instance."""
+    global OPENAI_CLIENT
+    if OPENAI_CLIENT is None:
+        api_key = LLM_API_KEY or LLM_API_KEY_FALLBACK
+        if not api_key:
+            raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
+        OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
+    return OPENAI_CLIENT
+
+async def stream_openai_response(prompt: str, model: str = None):
+    """
+    Stream response directly from OpenAI API.
+    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
+        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
+        
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Create the streaming chat completion
+        stream = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            stream=True,
+            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            temperature=0.2
+        )
+        
+        logger.info(f"[OPENAI_STREAM] Stream created successfully")
+        
+        # DEBUG: Collect full response for logging
+        full_response = ""
+        chunk_count = 0
+        
+        async for chunk in stream:
+            chunk_count += 1
+            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
+            
+            if chunk.choices and len(chunk.choices) > 0:
+                choice = chunk.choices[0]
+                if choice.delta and choice.delta.content:
+                    content = choice.delta.content
+                    full_response += content  # DEBUG: Accumulate full response
+                    yield {"type": "delta", "text": content}
+                    
+                # Check for finish reason
+                if choice.finish_reason:
+                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
+                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
+                    break
+                    
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
+        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+
+def should_use_openai_direct(payload) -> bool:
+    """
+    Determine if we should use OpenAI directly instead of Onyx.
+    Returns True when no file context is present.
+    """
+    # Check if files are explicitly provided
+    has_files = (
+        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
+        (hasattr(payload, 'folderIds') and payload.folderIds) or
+        (hasattr(payload, 'fileIds') and payload.fileIds)
+    )
+    
+    # Check if text context is provided (this still uses file system in some cases)
+    has_text_context = (
+        hasattr(payload, 'fromText') and payload.fromText and 
+        hasattr(payload, 'userText') and payload.userText
+    )
+    
+    # Use OpenAI directly only when there's no file context and no text context
+    use_openai = not has_files and not has_text_context
+    
+    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
+    return use_openai
+
+def should_use_hybrid_approach(payload) -> bool:
+    """
+    Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
+    Returns True when file context is present.
+    """
+    # Check if files are explicitly provided
+    has_files = (
+        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
+        (hasattr(payload, 'folderIds') and payload.folderIds) or
+        (hasattr(payload, 'fileIds') and payload.fileIds)
+    )
+    
+    # Check if text context is provided (this also uses hybrid approach)
+    has_text_context = (
+        hasattr(payload, 'fromText') and payload.fromText and 
+        hasattr(payload, 'userText') and payload.userText
+    )
+    
+    # Use hybrid approach when there's file context or text context
+    use_hybrid = has_files or has_text_context
+    
+    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_hybrid={use_hybrid}")
+    return use_hybrid
 
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
@@ -1011,206 +1136,6 @@ AnyQuizQuestion = Union[
     SortingQuestion,
     OpenAnswerQuestion
 ]
-
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
-# --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
-
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
-
-class DesignTemplateBase(BaseModel):
-    template_name: str
-    template_structuring_prompt: str
-    microproduct_type: str
-    component_name: str
-    model_config = {"from_attributes": True}
-
-class DesignTemplateCreate(DesignTemplateBase):
-    design_image_path: Optional[str] = None
-
-class DesignTemplateUpdate(BaseModel):
-    template_name: Optional[str] = None
-    template_structuring_prompt: Optional[str] = None
-    microproduct_type: Optional[str] = None
-    component_name: Optional[str] = None
-    design_image_path: Optional[str] = None
-    model_config = {"from_attributes": True}
-
-class DesignTemplateResponse(DesignTemplateBase):
-    id: int
-    design_image_path: Optional[str] = None
-    date_created: datetime
-
-class ProjectCreateRequest(BaseModel):
-    projectName: str
-    design_template_id: int
-    microProductName: Optional[str] = None
-    aiResponse: str
-    chatSessionId: Optional[uuid.UUID] = None
-    model_config = {"from_attributes": True}
-
-class ProjectDB(BaseModel):
-    id: int
-    onyx_user_id: str
-    project_name: str
-    product_type: Optional[str] = None
-    microproduct_type: Optional[str] = None
-    microproduct_name: Optional[str] = None
-    microproduct_content: Optional[MicroProductContentType] = None
-    design_template_id: Optional[int] = None
-    created_at: datetime
-    custom_rate: Optional[int] = None
-    quality_tier: Optional[str] = None
-    model_config = {"from_attributes": True}
-
-class MicroProductApiResponse(BaseModel):
-    name: str
-    slug: str
-    project_id: int
-    design_template_id: int
-    component_name: str
-    parentProjectName: Optional[str] = None
-    webLinkPath: Optional[str] = None
-    pdfLinkPath: Optional[str] = None
-    details: Optional[MicroProductContentType] = None
-    sourceChatSessionId: Optional[uuid.UUID] = None
-    model_config = {"from_attributes": True}
-
-class ProjectApiResponse(BaseModel):
-    id: int
-    projectName: str
-    projectSlug: str
-    microproduct_name: Optional[str] = None
-    design_template_name: Optional[str] = None
-    design_microproduct_type: Optional[str] = None
-    created_at: datetime
-    design_template_id: Optional[int] = None
-    folder_id: Optional[int] = None
-    order: Optional[int] = None
-    source_chat_session_id: Optional[str] = None
-    is_standalone: Optional[bool] = None  # Track whether this is standalone or part of an outline
-    model_config = {"from_attributes": True}
-
-class ProjectDetailForEditResponse(BaseModel):
-    id: int
-    projectName: str
-    microProductName: Optional[str] = None
-    design_template_id: Optional[int] = None
-    microProductContent: Optional[MicroProductContentType] = None
-    createdAt: Optional[datetime] = None
-    design_template_name: Optional[str] = None
-    design_component_name: Optional[str] = None
-    design_image_path: Optional[str] = None
-    model_config = {"from_attributes": True}
-
-class ProjectUpdateRequest(BaseModel):
-    projectName: Optional[str] = None
-    design_template_id: Optional[int] = None
-    microProductName: Optional[str] = None
-    microProductContent: Optional[MicroProductContentType] = None
-    custom_rate: Optional[int] = None
-    quality_tier: Optional[str] = None
-    model_config = {"from_attributes": True}
-
-class ProjectTierRequest(BaseModel):
-    quality_tier: str
-    custom_rate: int
-
-BulletListBlock.model_rebuild()
-NumberedListBlock.model_rebuild()
-PdfLessonDetails.model_rebuild()
-TextPresentationDetails.model_rebuild()
-QuizData.model_rebuild()
-ProjectDB.model_rebuild()
-MicroProductApiResponse.model_rebuild()
-ProjectDetailForEditResponse.model_rebuild()
-ProjectUpdateRequest.model_rebuild()
-TrainingPlanDetails.model_rebuild()
-
-class ErrorDetail(BaseModel):
-    detail: str
-
-class RequestAnalytics(BaseModel):
-    id: str
-    endpoint: str
-    method: str
-    user_id: Optional[str] = None
-    status_code: int
-    response_time_ms: int
-    request_size_bytes: Optional[int] = None
-    response_size_bytes: Optional[int] = None
-    error_message: Optional[str] = None
-    created_at: datetime
-    model_config = {"from_attributes": True}
-
-class ProjectsDeleteRequest(BaseModel):
-    project_ids: List[int]
-    scope: Optional[str] = 'self'
-
-class MicroproductPipelineBase(BaseModel):
-    pipeline_name: str
-    pipeline_description: Optional[str] = None
-    is_discovery_prompts: bool = Field(False, alias="is_prompts_data_collection")
-    is_structuring_prompts: bool = Field(False, alias="is_prompts_data_formating")
-    discovery_prompts_list: Optional[List[str]] = Field(default_factory=list)
-    structuring_prompts_list: Optional[List[str]] = Field(default_factory=list)
-    model_config = {"from_attributes": True, "populate_by_name": True}
-
-class MicroproductPipelineCreateRequest(MicroproductPipelineBase):
-    pass
-
-class MicroproductPipelineUpdateRequest(MicroproductPipelineBase):
-    pass
-
-class MicroproductPipelineDBRaw(BaseModel):
-    id: int
-    pipeline_name: str
-    pipeline_description: Optional[str] = None
-    is_prompts_data_collection: bool
-    is_prompts_data_formating: bool
-    prompts_data_collection: Optional[Dict[str, str]] = None
-    prompts_data_formating: Optional[Dict[str, str]] = None
-    created_at: datetime
-    model_config = {"from_attributes": True}
-
-class MicroproductPipelineGetResponse(BaseModel):
-    id: int
-    pipeline_name: str
-    pipeline_description: Optional[str] = None
-    is_discovery_prompts: bool
-    is_structuring_prompts: bool
-    discovery_prompts_list: List[str] = Field(default_factory=list)
-    structuring_prompts_list: List[str] = Field(default_factory=list)
-    created_at: datetime
-    model_config = {"from_attributes": True}
-
-    @classmethod
-    def from_db_model(cls, db_model: MicroproductPipelineDBRaw) -> "MicroproductPipelineGetResponse":
-        discovery_list = [db_model.prompts_data_collection[key] for key in sorted(db_model.prompts_data_collection.keys(), key=int)] if db_model.prompts_data_collection else []
-        structuring_list = [db_model.prompts_data_formating[key] for key in sorted(db_model.prompts_data_formating.keys(), key=int)] if db_model.prompts_data_formating else []
-        return cls(
-            id=db_model.id,
-            pipeline_name=db_model.pipeline_name,
-            pipeline_description=db_model.pipeline_description,
-            is_discovery_prompts=db_model.is_prompts_data_collection,
-            is_structuring_prompts=db_model.is_prompts_data_formating,
-            discovery_prompts_list=discovery_list,
-            structuring_prompts_list=structuring_list,
-            created_at=db_model.created_at
-        )
 
 # --- Authentication and Utility Functions ---
 async def get_current_onyx_user_id(request: Request) -> str:
