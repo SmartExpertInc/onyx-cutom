@@ -45,10 +45,10 @@ export default function AiAuditQuestionnaire() {
         ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="block font-medium mb-1">Company Name <span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1 text-black">Company Name <span className="text-red-500">*</span></label>
             <input
               type="text"
-              className={`w-full px-4 py-2 rounded border ${touched.companyName && !companyName.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400`}
+              className={`w-full px-4 py-2 rounded border ${touched.companyName && !companyName.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
               value={companyName}
               onChange={e => setCompanyName(e.target.value)}
               onBlur={() => setTouched(t => ({ ...t, companyName: true }))}
@@ -57,57 +57,57 @@ export default function AiAuditQuestionnaire() {
             {touched.companyName && !companyName.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
           </div>
           <div>
-            <label className="block font-medium mb-1">Link to the website or socials of the company</label>
+            <label className="block font-medium mb-1 text-black">Link to the website or socials of the company</label>
             <input
               type="url"
-              className="w-full px-4 py-2 rounded border border-gray-300 focus:border-blue-400"
+              className="w-full px-4 py-2 rounded border border-gray-300 focus:border-blue-400 text-black placeholder-black"
               value={companyLink}
               onChange={e => setCompanyLink(e.target.value)}
               placeholder="https://..."
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">Amount of employees <span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1 text-black">Amount of employees <span className="text-red-500">*</span></label>
             <select
-              className={`w-full px-4 py-2 rounded border ${touched.employees && !employees ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400`}
+              className={`w-full px-4 py-2 rounded border ${touched.employees && !employees ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black`}
               value={employees}
               onChange={e => setEmployees(e.target.value)}
               onBlur={() => setTouched(t => ({ ...t, employees: true }))}
               required
             >
-              <option value="">Select...</option>
-              {employeeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+              <option value="" className="text-black">Select...</option>
+              {employeeOptions.map(opt => <option key={opt} value={opt} className="text-black">{opt}</option>)}
             </select>
             {touched.employees && !employees && <div className="text-red-500 text-xs mt-1">Required</div>}
           </div>
           <div>
-            <label className="block font-medium mb-1">What is your main goal right now? <span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1 text-black">What is your main goal right now? <span className="text-red-500">*</span></label>
             <select
-              className={`w-full px-4 py-2 rounded border ${touched.mainGoal && !mainGoal ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400`}
+              className={`w-full px-4 py-2 rounded border ${touched.mainGoal && !mainGoal ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black`}
               value={mainGoal}
               onChange={e => setMainGoal(e.target.value)}
               onBlur={() => setTouched(t => ({ ...t, mainGoal: true }))}
               required
             >
-              <option value="">Select...</option>
-              {goalOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+              <option value="" className="text-black">Select...</option>
+              {goalOptions.map(opt => <option key={opt} value={opt} className="text-black">{opt}</option>)}
             </select>
             {touched.mainGoal && !mainGoal && <div className="text-red-500 text-xs mt-1">Required</div>}
           </div>
           <div>
-            <label className="block font-medium mb-1">Link to the job vacancy or career page</label>
+            <label className="block font-medium mb-1 text-black">Link to the job vacancy or career page</label>
             <input
               type="url"
-              className="w-full px-4 py-2 rounded border border-gray-300 focus:border-blue-400"
+              className="w-full px-4 py-2 rounded border border-gray-300 focus:border-blue-400 text-black placeholder-black"
               value={jobLink}
               onChange={e => setJobLink(e.target.value)}
               placeholder="https://..."
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">What is your biggest problem or challenge right now?</label>
+            <label className="block font-medium mb-1 text-black">What is your biggest problem or challenge right now?</label>
             <textarea
-              className="w-full px-4 py-2 rounded border border-gray-300 focus:border-blue-400 min-h-[80px]"
+              className="w-full px-4 py-2 rounded border border-gray-300 focus:border-blue-400 min-h-[80px] text-black placeholder-black"
               value={challenge}
               onChange={e => setChallenge(e.target.value)}
               placeholder="Describe your main challenge..."
