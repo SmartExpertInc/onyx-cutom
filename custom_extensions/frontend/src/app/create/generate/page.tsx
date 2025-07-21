@@ -988,8 +988,19 @@ function GenerateProductPicker() {
               <option value="es">Spanish</option>
               <option value="ru">Russian</option>
             </select>
+          </div>
+        )}
 
-
+        {/* AI-Audit Start Button */}
+        {activeProduct === "AI-Audit" && (
+          <div className="flex flex-wrap justify-center gap-2 mb-2">
+            <a
+              href="/custom-projects-ui/create/ai-audit/questionnaire"
+              className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-medium shadow transition-colors cursor-pointer"
+              type="button"
+            >
+              Start
+            </a>
           </div>
         )}
 
