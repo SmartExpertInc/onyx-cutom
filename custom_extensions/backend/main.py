@@ -7035,12 +7035,8 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
         )
         parsed_markdown = parsed_response.choices[0].message.content
 
-        data = json.loads(parsed_markdown)
-        if "lessonTitle" in data and "textTitle" not in data:
-            data["textTitle"] = data.pop("lessonTitle")
-
         parsed_json = await parse_ai_response_with_llm(
-            ai_response=data,
+            ai_response=parsed_markdown,
             project_name=payload.companyName,
             target_model=TextPresentationDetails,  # or your one-pager model
             default_error_model_instance=TextPresentationDetails(textTitle="Parse error", contentBlocks=[]),
