@@ -1065,17 +1065,25 @@ function GenerateProductPicker() {
                         ))}
                       </select>
                     )}
-                  </>
-                )}
+                      </>
+                    )}
                 {/* Add any additional UI for standalone presentation if needed */}
               </div>
             )}
           </div>
         )}
         {/* Add similar blocks for AI-Audit and other products as needed */}
-      </div>
+                </div>
     </main>
   );
 }
 
-export default GenerateProductPicker;
+const LoadingFallback = () => <div className="w-full flex justify-center items-center min-h-[40vh]">Loading...</div>;
+
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <GenerateProductPicker />
+    </Suspense>
+  );
+}
