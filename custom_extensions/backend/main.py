@@ -6902,26 +6902,26 @@ async def insert_onepager_to_db(
     is_standalone: bool = True
 ) -> int:
     insert_query = """
-        INSERT INTO projects (
-            onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, component_name, source_chat_session_id, is_standalone, created_at
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
-        RETURNING id;
+    INSERT INTO projects (
+        onyx_user_id, project_name, product_type, microproduct_type,
+        microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+    RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                microproduct_content, design_template_id, source_chat_session_id, created_at;
     """
+    
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             insert_query,
             onyx_user_id,
             project_name,
-            product_type,
-            microproduct_type,
+            "Text Presentation",  # product_type
+            "Text Presentation",  # microproduct_type
             microproduct_name,
             microproduct_content,
             design_template_id,
-            component_name,
             chat_session_id,
-            is_standalone
         )
     if not row:
         raise HTTPException(status_code=500, detail="Failed to create one-pager project entry.")
