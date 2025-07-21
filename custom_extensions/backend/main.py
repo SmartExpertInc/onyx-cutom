@@ -2393,6 +2393,7 @@ class MicroproductPipelineGetResponse(BaseModel):
 #     return "\n".join(snippets)
 
 async def duckduckgo_company_research(company_name: str, company_desc: str) -> str:
+    import httpx
     query = f"{company_name} {company_desc} официальный сайт отзывы новости"
     url = "https://api.duckduckgo.com/"
     params = {
@@ -2402,11 +2403,17 @@ async def duckduckgo_company_research(company_name: str, company_desc: str) -> s
         "no_html": 1,
         "skip_disambig": 1,
     }
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(url, params=params)
-        resp.raise_for_status()
-        data = resp.json()
-    # Extract the most relevant info
+    logger.info(f"[DuckDuckGo] Query: {query}")
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, params=params)
+            logger.info(f"[DuckDuckGo] Status: {resp.status_code}")
+            resp.raise_for_status()
+            data = resp.json()
+        logger.info(f"[DuckDuckGo] Response: {str(data)[:500]}")
+    except Exception as e:
+        logger.error(f"[DuckDuckGo] Error: {e}")
+        return f"(DuckDuckGo error: {e})"
     snippets = []
     if data.get("AbstractText"):
         snippets.append(data["AbstractText"])
@@ -2418,7 +2425,9 @@ async def duckduckgo_company_research(company_name: str, company_desc: str) -> s
         snippets.append(data["Answer"])
     if data.get("Definition"):
         snippets.append(data["Definition"])
-    return "\n".join([s for s in snippets if s]).strip() or "(Нет релевантных данных DuckDuckGo)"
+    result = "\n".join([s for s in snippets if s]).strip() or "(Нет релевантных данных DuckDuckGo)"
+    logger.info(f"[DuckDuckGo] Final summary: {result[:300]}")
+    return result
 
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
@@ -6732,50 +6741,55 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
     
 @app.post("/api/custom/ai-audit/generate")
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
-    # 1. Get Bing research
-    duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc)
-    # 2. Build OpenAI prompt
-    prompt = f"""
-    Сгенерируй профессиональный AI-аудит (one-pager) для компании, строго следуя структуре и секциям как в примере (см. ниже), на русском языке. Используй ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (Bing). Если данных не хватает — дополни логично, но приоритет реальным данным.
-
-    ---
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Количество сотрудников: {payload.employees}
-    - Франшиза: {payload.franchise}
-    - Проблемы онбординга: {payload.onboardingProblems}
-    - Документы: {', '.join(payload.documents)} {payload.documentsOther}
-    - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
-
-    ---
-    РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (Bing):
-    {duckduckgo_summary}
-
-    ---
-    СТРУКТУРА И ПРИМЕР (используй такие же секции, стиль, flow):
-    """
-    # Attach the example one-pager as reference
+    logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
-        with open("custom_extensions/backend/custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
-            example_text = f.read()
-    except Exception:
-        example_text = "(Example not found)"
-    prompt += example_text
-    prompt += "\n\nСгенерируй только текст one-pager по этим правилам, без пояснений."
-    # 3. Call OpenAI GPT-4
-    client = get_openai_client()
-    response = await client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=4096,
-        temperature=0.2
-    )
-    result = response.choices[0].message.content
-    return {"markdown": result}
+        duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc)
+        logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
+        prompt = f"""
+        Сгенерируй профессиональный AI-аудит (one-pager) для компании, строго следуя структуре и секциям как в примере (см. ниже), на русском языке. Используй ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo). Если данных не хватает — дополни логично, но приоритет реальным данным.
+
+        ---
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {payload.companyName}
+        - Описание компании: {payload.companyDesc}
+        - Количество сотрудников: {payload.employees}
+        - Франшиза: {payload.franchise}
+        - Проблемы онбординга: {payload.onboardingProblems}
+        - Документы: {', '.join(payload.documents)} {payload.documentsOther}
+        - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
+
+        ---
+        РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (DuckDuckGo):
+        {duckduckgo_summary}
+
+        ---
+        СТРУКТУРА И ПРИМЕР (используй такие же секции, стиль, flow):
+        """
+        try:
+            with open("custom_extensions/backend/custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
+                example_text = f.read()
+        except Exception as e:
+            logger.error(f"[AI-Audit] Error reading example: {e}")
+            example_text = "(Example not found)"
+        prompt += example_text
+        prompt += "\n\nСгенерируй только текст one-pager по этим правилам, без пояснений."
+        logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
+        client = get_openai_client()
+        response = await client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4096,
+            temperature=0.2
+        )
+        result = response.choices[0].message.content
+        logger.info(f"[AI-Audit] OpenAI result (first 500 chars): {result[:500]}")
+        return {"markdown": result}
+    except Exception as e:
+        logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
+        return {"error": f"AI-аудит не сгенерирован: {e}"}
 
 @app.post("/api/custom/course-outline/finalize")
 async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
