@@ -654,6 +654,7 @@ Style Usage Guidelines:
 - Section Breaks: Use to separate major content sections
 - Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
 - Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
+- Tables: Use for presenting structured data, comparisons, or summaries in a tabular format (only if "tables" is in allowed styles)
 
 Formatting Rules:
 
@@ -685,6 +686,18 @@ Paragraphs and Styling:
 - Complex Numbered List Items: A single item in a numbered list can now contain a sequence of blocks, such as a headline followed by a bulleted list.
   - Example: An item could be `[{"type": "headline", "level": 4, "text": "Sub-topic"}, {"type": "bullet_list", "items": ["Point 1", "Point 2"]}]`.
   - This allows for more structured and detailed enumeration within a single numbered point.
+- Tables: To present structured data, use a block of type `table` with the following structure:
+  ```json
+  {
+    "type": "table",
+    "headers": ["Header 1", "Header 2"],
+    "rows": [
+      ["Cell 1", "Cell 2"],
+      ["Cell 3", "Cell 4"]
+    ]
+  }
+  ```
+  Use tables for comparisons, summaries, or any information best presented in a grid. Only generate tables if the "tables" style is allowed.
 - Recommendations: To mark a paragraph as a recommendation, start it with the localized keyword for Recommendation in bold, e.g., `**Рекомендация:**`, `**Рекомендація:**`, `**Recomendación:**`. The parser will automatically style it and remove the keyword. This should not be used inside a list.
 
 Alerts: Use the specified alert format for drawing attention to specific types of information (info, success, warning, danger).
