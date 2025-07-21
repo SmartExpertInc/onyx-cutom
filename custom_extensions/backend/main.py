@@ -14650,6 +14650,13 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
         
+        block_types = [getattr(block, 'type', None) for block in parsed_text_presentation.contentBlocks]
+        from collections import Counter
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE NEW] Block types after parsing: {Counter(block_types)}")
+        if styles_param and 'table' in str(styles_param) and 'table' not in block_types:
+            logger.warning(f"[TEXT_PRESENTATION_FINALIZE NEW] 'table' style requested but no table block found in contentBlocks")
+
+
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
