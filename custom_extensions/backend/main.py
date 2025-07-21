@@ -2368,29 +2368,57 @@ class MicroproductPipelineGetResponse(BaseModel):
         )
 
 # --- Authentication and Utility Functions ---
-async def bing_company_research(company_name: str, company_desc: str) -> str:
-    if not BING_API_KEY:
-        return "(Bing API key not configured)"
+# async def bing_company_research(company_name: str, company_desc: str) -> str:
+#     if not BING_API_KEY:
+#         return "(Bing API key not configured)"
+#     query = f"{company_name} {company_desc} официальный сайт отзывы новости"
+#     headers = {"Ocp-Apim-Subscription-Key": BING_API_KEY}
+#     params = {"q": query, "mkt": "ru-RU"}
+#     async with httpx.AsyncClient(timeout=15.0) as client:
+#         resp = await client.get(BING_API_URL, headers=headers, params=params)
+#         resp.raise_for_status()
+#         data = resp.json()
+#     # Extract summary: snippet, knowledge panel, news, etc.
+#     snippets = []
+#     if "webPages" in data:
+#         for item in data["webPages"].get("value", [])[:3]:
+#             snippets.append(item.get("snippet", ""))
+#     if "entities" in data and data["entities"].get("value"):
+#         for ent in data["entities"]["value"]:
+#             if ent.get("description"):
+#                 snippets.append(ent["description"])
+#     if "news" in data and data["news"].get("value"):
+#         for news in data["news"]["value"][:2]:
+#             snippets.append(f"Новость: {news.get('name', '')} — {news.get('description', '')}")
+#     return "\n".join(snippets)
+
+async def duckduckgo_company_research(company_name: str, company_desc: str) -> str:
     query = f"{company_name} {company_desc} официальный сайт отзывы новости"
-    headers = {"Ocp-Apim-Subscription-Key": BING_API_KEY}
-    params = {"q": query, "mkt": "ru-RU"}
-    async with httpx.AsyncClient(timeout=15.0) as client:
-        resp = await client.get(BING_API_URL, headers=headers, params=params)
+    url = "https://api.duckduckgo.com/"
+    params = {
+        "q": query,
+        "format": "json",
+        "no_redirect": 1,
+        "no_html": 1,
+        "skip_disambig": 1,
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(url, params=params)
         resp.raise_for_status()
         data = resp.json()
-    # Extract summary: snippet, knowledge panel, news, etc.
+    # Extract the most relevant info
     snippets = []
-    if "webPages" in data:
-        for item in data["webPages"].get("value", [])[:3]:
-            snippets.append(item.get("snippet", ""))
-    if "entities" in data and data["entities"].get("value"):
-        for ent in data["entities"]["value"]:
-            if ent.get("description"):
-                snippets.append(ent["description"])
-    if "news" in data and data["news"].get("value"):
-        for news in data["news"]["value"][:2]:
-            snippets.append(f"Новость: {news.get('name', '')} — {news.get('description', '')}")
-    return "\n".join(snippets)
+    if data.get("AbstractText"):
+        snippets.append(data["AbstractText"])
+    if data.get("RelatedTopics"):
+        for topic in data["RelatedTopics"]:
+            if isinstance(topic, dict) and topic.get("Text"):
+                snippets.append(topic["Text"])
+    if data.get("Answer"):
+        snippets.append(data["Answer"])
+    if data.get("Definition"):
+        snippets.append(data["Definition"])
+    return "\n".join([s for s in snippets if s]).strip() or "(Нет релевантных данных DuckDuckGo)"
 
 async def get_current_onyx_user_id(request: Request) -> str:
     session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
@@ -6705,7 +6733,7 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 @app.post("/api/custom/ai-audit/generate")
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
     # 1. Get Bing research
-    bing_summary = await bing_company_research(payload.companyName, payload.companyDesc)
+    duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc)
     # 2. Build OpenAI prompt
     prompt = f"""
     Сгенерируй профессиональный AI-аудит (one-pager) для компании, строго следуя структуре и секциям как в примере (см. ниже), на русском языке. Используй ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (Bing). Если данных не хватает — дополни логично, но приоритет реальным данным.
@@ -6722,7 +6750,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
 
     ---
     РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (Bing):
-    {bing_summary}
+    {duckduckgo_summary}
 
     ---
     СТРУКТУРА И ПРИМЕР (используй такие же секции, стиль, flow):
