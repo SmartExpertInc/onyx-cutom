@@ -63,6 +63,9 @@ COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
 LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+
+SERPAPI_KEY = "ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7"
+
 # Endpoint for Chat Completions
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
 # Default model to use – gpt-4o-mini provides strong JSON adherence
@@ -2391,6 +2394,113 @@ class MicroproductPipelineGetResponse(BaseModel):
 #         for news in data["news"]["value"][:2]:
 #             snippets.append(f"Новость: {news.get('name', '')} — {news.get('description', '')}")
 #     return "\n".join(snippets)
+
+async def serpapi_company_research(company_name: str, company_desc: str, company_website: str) -> str:
+    """
+    Uses SerpAPI to gather:
+    - General company info (snippets, knowledge panel, about, etc.)
+    - Website-specific info (site: queries)
+    - Open job listings (site:company_website jobs/careers, and generic queries)
+    Returns a structured string with all findings.
+    """
+    url = "https://serpapi.com/search.json"
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        # 1. General company info
+        params_general = {
+            "q": f"{company_name} {company_desc}",
+            "engine": "google",
+            "api_key": SERPAPI_KEY,
+            "hl": "ru"
+        }
+        resp = await client.get(url, params=params_general)
+        resp.raise_for_status()
+        data = resp.json()
+        general_snippets = []
+        if "organic_results" in data:
+            for item in data["organic_results"][:3]:
+                if "snippet" in item:
+                    general_snippets.append(item["snippet"])
+        if "knowledge_graph" in data:
+            kg = data["knowledge_graph"]
+            if "description" in kg:
+                general_snippets.append(kg["description"])
+            if "title" in kg:
+                general_snippets.append(f"Название: {kg['title']}")
+            if "type" in kg:
+                general_snippets.append(f"Тип: {kg['type']}")
+            if "website" in kg:
+                general_snippets.append(f"Сайт: {kg['website']}")
+            if "address" in kg:
+                general_snippets.append(f"Адрес: {kg['address']}")
+            if "phone" in kg:
+                general_snippets.append(f"Телефон: {kg['phone']}")
+        general_info = "\n".join(general_snippets) or "(Нет релевантных данных SerpAPI)"
+
+        # 2. Website-specific info
+        website_info = ""
+        if company_website:
+            params_site = {
+                "q": f"site:{company_website} о компании информация контакты",
+                "engine": "google",
+                "api_key": SERPAPI_KEY,
+                "hl": "ru"
+            }
+            resp2 = await client.get(url, params=params_site)
+            resp2.raise_for_status()
+            data2 = resp2.json()
+            site_snippets = []
+            if "organic_results" in data2:
+                for item in data2["organic_results"][:3]:
+                    if "snippet" in item:
+                        site_snippets.append(item["snippet"])
+            website_info = "\n".join(site_snippets) or "(Нет информации по сайту)"
+
+        # 3. Open job listings (site:company_website + jobs/careers)
+        jobs_info = ""
+        jobs_snippets = []
+        if company_website:
+            # Try site:company_website jobs/careers
+            params_jobs_site = {
+                "q": f"site:{company_website} вакансии OR careers OR jobs OR работа",
+                "engine": "google",
+                "api_key": SERPAPI_KEY,
+                "hl": "ru"
+            }
+            resp3 = await client.get(url, params=params_jobs_site)
+            resp3.raise_for_status()
+            data3 = resp3.json()
+            if "organic_results" in data3:
+                for item in data3["organic_results"][:5]:
+                    title = item.get("title", "")
+                    link = item.get("link", "")
+                    snippet = item.get("snippet", "")
+                    jobs_snippets.append(f"{title}\n{snippet}\n{link}")
+        # If not enough, try generic company_name + jobs
+        if len(jobs_snippets) < 2:
+            params_jobs_generic = {
+                "q": f"{company_name} вакансии OR careers OR jobs OR работа",
+                "engine": "google",
+                "api_key": SERPAPI_KEY,
+                "hl": "ru"
+            }
+            resp4 = await client.get(url, params=params_jobs_generic)
+            resp4.raise_for_status()
+            data4 = resp4.json()
+            if "organic_results" in data4:
+                for item in data4["organic_results"][:5]:
+                    title = item.get("title", "")
+                    link = item.get("link", "")
+                    snippet = item.get("snippet", "")
+                    jobs_snippets.append(f"{title}\n{snippet}\n{link}")
+        jobs_info = "\n\n".join(jobs_snippets) or "(Нет информации о вакансиях)"
+
+    # Combine all
+    combined = (
+        f"[SerpAPI General Info]\n{general_info}\n\n"
+        f"[Website Info]\n{website_info}\n\n"
+        f"[Open Positions]\n{jobs_info}"
+    )
+    return combined
 
 async def duckduckgo_company_research(company_name: str, company_desc: str, company_website: str) -> str:
     # Step 1: General info
@@ -6782,7 +6892,7 @@ async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest):
     logger.info(f"[AI-Audit] Received payload: {payload}")
     try:
-        duckduckgo_summary = await duckduckgo_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
         try:
             with open("custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
