@@ -7236,7 +7236,6 @@ async def generate_and_finalize_course_outline_for_position(
             content = project_db_candidate.microproduct_content.model_dump(mode='json', exclude_none=True) if project_db_candidate.microproduct_content else {}
             
             if isinstance(content, dict) and content.get("sections"):
-                print(f'PROJECT DB CANDIDATE: {project_db_candidate}\n\n')
                 sections = content["sections"]
                 updated_sections = []
                 
@@ -7244,7 +7243,6 @@ async def generate_and_finalize_course_outline_for_position(
                     if isinstance(section, dict) and section.get("lessons"):
                         # Calculate total hours from lesson hours
                         total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
-                        print(f'TOTAL HOURS: {total_hours}\n\n')
                         # Update section with calculated total hours and set autoCalculateHours to true
                         updated_section = {
                             **section,
