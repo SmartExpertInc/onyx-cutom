@@ -7151,20 +7151,18 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
 
 def extract_open_positions_from_table(parsed_json):
     """
-    Extracts open positions from a TableBlock in parsed_json['contentBlocks'].
+    Extracts open positions from a TableBlock in parsed_json.contentBlocks.
     Returns a list of dicts, one per position, with keys matching the table headers.
     """
-    for block in parsed_json.get("contentBlocks", []):
-        if block.get("type") == "table":
-            headers = block.get("headers", [])
-            rows = block.get("rows", [])
+    for block in getattr(parsed_json, "contentBlocks", []):
+        if getattr(block, "type", None) == "table":
+            headers = getattr(block, "headers", [])
+            rows = getattr(block, "rows", [])
             # Normalize header names for easier matching
             header_map = {h.lower(): i for i, h in enumerate(headers)}
-            # Check if this table is likely the open positions table
             if "позиция" in header_map:
                 positions = []
                 for row in rows:
-                    # Build a dict for each row
                     position = {headers[i]: row[i] for i in range(min(len(headers), len(row)))}
                     positions.append(position)
                 return positions
