@@ -7192,31 +7192,27 @@ async def generate_and_finalize_course_outline_for_position(
     request: Request,
     language: str = "ru"):
     # 1. Build the prompt for the LLM
-    prompt = (
-        f"Создай подробный план онбординга для новой позиции: {position['Позиция']}.\n"
-        f"Локация: {position.get('Локация', '')}\n"
-        f"Формат работы: {position.get('Формат работы', '')}\n"
-        f"Тип занятости: {position.get('Тип занятости', '')}\n"
-    )
-    payload = OutlineWizardPreview(
-        prompt=prompt,
-        modules=4,
-        lessonsPerModule="5-7",
-        language="ru"
-    )
-    # Call the function as before
-    async with httpx.AsyncClient() as client:
-        async with client.stream("POST", "http://custom_backend:8000/api/custom/course-outline/preview", json=payload.model_dump()) as response:
-            outline_text = ""
-            async for chunk in response.aiter_text():
-                # Each chunk is a JSON line, parse and extract text
-                import json
-                try:
-                    data = json.loads(chunk)
-                    if data.get("type") == "delta":
-                        outline_text += data["text"]
-                except Exception:
-                    continue
+    wizard_request = {
+        "product": "Course Outline",
+        "prompt": (
+            f"Создай подробный план онбординга для новой позиции: {position['Позиция']}.\n"
+            f"Локация: {position.get('Локация', '')}\n"
+            f"Формат работы: {position.get('Формат работы', '')}\n"
+            f"Тип занятости: {position.get('Тип занятости', '')}\n"
+        ),
+        "modules": 4,
+        "lessonsPerModule": "5-7",
+        "language": "{language}"
+    }
+    # Convert to JSON string for the LLM
+    prompt = json.dumps(wizard_request, ensure_ascii=False)
+
+    outline_text = ""
+    async for chunk_data in stream_openai_response(prompt):
+        if chunk_data.get("type") == "delta":
+            outline_text += chunk_data["text"]
+        elif chunk_data.get("type") == "error":
+            raise Exception(f"OpenAI error: {chunk_data['text']}")
 
     # 4. Finalize/save the project (reuse add_project_to_custom_db)
     template_id = await _ensure_training_plan_template(pool)
