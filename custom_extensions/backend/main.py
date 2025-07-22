@@ -7168,7 +7168,7 @@ def extract_open_positions_from_table(parsed_json):
             headers = getattr(block, "headers", [])
             rows = getattr(block, "rows", [])
             # Normalize header names for easier matching
-            header_map = {h.lower(): i for i, h in enumerate(headers)}
+            header_map = {h.lower().replace("*", ""): i for i, h in enumerate(headers)}
             print("HEADER MAP:", header_map)
             if "позиция" in header_map:
                 positions = []
