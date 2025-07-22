@@ -105,6 +105,8 @@ interface TrainingPlanTableProps {
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
   theme?: string;
+  projectCustomRate?: number | null; // Project-level custom rate for fallback
+  projectQualityTier?: string | null; // Project-level quality tier for fallback
   columnVisibility?: {
     knowledgeCheck: boolean;
     contentAvailability: boolean;
@@ -244,6 +246,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   parentProjectName,
   sourceChatSessionId,
   theme = 'cherry', // Default theme
+  projectCustomRate,
+  projectQualityTier,
   columnVisibility,
 }) => {
   // Inline editing state management
@@ -1337,7 +1341,52 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                 <input 
                                   type="text" 
                                   value={lesson.completionTime || ''} 
-                                  onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e)} 
+                                  onChange={(e) => {
+                                    // Update completion time
+                                    handleGenericInputChange(['sections', sectionIdx, 'lessons', lessonIndex, 'completionTime'], e);
+                                    
+                                    // Auto-recalculate creation hours based on new completion time
+                                    const newCompletionTime = e.target.value;
+                                    if (newCompletionTime) {
+                                      // Parse completion time (e.g., "5m" -> 5)
+                                      const completionTimeMinutes = parseInt(newCompletionTime.replace(/[^0-9]/g, '')) || 5;
+                                      
+                                      // Get effective custom rate for this lesson
+                                      let effectiveCustomRate = 200; // Default to Interactive tier
+                                      
+                                      // Check lesson-level custom rate first
+                                      if (lesson.custom_rate) {
+                                        effectiveCustomRate = lesson.custom_rate;
+                                      } else {
+                                        // Check section-level custom rate
+                                        const section = sections?.[sectionIdx];
+                                        if (section?.custom_rate) {
+                                          effectiveCustomRate = section.custom_rate;
+                                        } else {
+                                          // Check project-level custom rate
+                                          if (projectCustomRate) {
+                                            effectiveCustomRate = projectCustomRate;
+                                          }
+                                        }
+                                      }
+                                      
+                                      // Calculate new creation hours using the same formula as backend
+                                      const newHours = Math.round((completionTimeMinutes / 60.0) * effectiveCustomRate);
+                                      
+                                      // Update lesson hours
+                                      onTextChange(['sections', sectionIdx, 'lessons', lessonIndex, 'hours'], newHours);
+                                      
+                                      // Auto-recalculate module total hours
+                                      const currentSection = sections?.[sectionIdx];
+                                      if (currentSection) {
+                                        const updatedLessons = [...(currentSection.lessons || [])];
+                                        updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours };
+                                        const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
+                                        onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
+                                        onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
+                                      }
+                                    }
+                                  }} 
                                   onBlur={handleInputBlur}
                                   className={`${inlineEditingInputSmallClass} w-16 text-right`} 
                                   placeholder="5m"

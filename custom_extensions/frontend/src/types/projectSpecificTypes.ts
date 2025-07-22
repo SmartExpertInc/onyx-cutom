@@ -91,6 +91,8 @@ export interface ProjectInstanceDetail {
   details?: MicroProductContentData; 
   detectedLanguage?: string; 
   sourceChatSessionId?: string | null;
+  custom_rate?: number | null; // Project-level custom rate
+  quality_tier?: string | null; // Project-level quality tier
 }
 
 // Type for Design Template API Response

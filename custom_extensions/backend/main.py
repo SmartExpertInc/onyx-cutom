@@ -2246,6 +2246,8 @@ class MicroProductApiResponse(BaseModel):
     pdfLinkPath: Optional[str] = None
     details: Optional[MicroProductContentType] = None
     sourceChatSessionId: Optional[uuid.UUID] = None
+    custom_rate: Optional[int] = None
+    quality_tier: Optional[str] = None
     model_config = {"from_attributes": True}
 
 class ProjectApiResponse(BaseModel):
@@ -5351,7 +5353,9 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         design_template_id=row_dict["design_template_id"], component_name=component_name,
         webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
         sourceChatSessionId=row_dict.get("source_chat_session_id"),
-        parentProjectName=row_dict.get('project_name')
+        parentProjectName=row_dict.get('project_name'),
+        custom_rate=row_dict.get("custom_rate"),
+        quality_tier=row_dict.get("quality_tier")
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
 

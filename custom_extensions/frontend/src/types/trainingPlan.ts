@@ -84,4 +84,6 @@ export interface ProjectInstanceDetail {
   webLinkPath?: string | null;
   pdfLinkPath?: string | null;
   details?: TrainingPlanData | null; // The actual content
+  custom_rate?: number | null; // Project-level custom rate
+  quality_tier?: string | null; // Project-level quality tier
 }

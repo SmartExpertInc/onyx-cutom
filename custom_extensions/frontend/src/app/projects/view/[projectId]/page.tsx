@@ -720,6 +720,8 @@ export default function ProjectInstanceViewPage() {
               allUserMicroproducts={allUserMicroproducts}
               parentProjectName={parentProjectNameForCurrentView}
               theme={trainingPlanData?.theme || 'cherry'}
+              projectCustomRate={projectInstanceData.custom_rate}
+              projectQualityTier={projectInstanceData.quality_tier}
               columnVisibility={columnVisibility}
             />
           </div>
