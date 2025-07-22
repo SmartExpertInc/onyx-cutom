@@ -7192,23 +7192,16 @@ async def generate_and_finalize_course_outline_for_position(
         f"Формат работы: {position.get('Формат работы', '')}\n"
         f"Тип занятости: {position.get('Тип занятости', '')}\n"
     )
-
-    # 2. Prepare the payload for the outline generator
-    outline_payload = {
-        "prompt": prompt,
-        "product": "Course Outline",
-        "language": language,
-        # Add other required fields if needed
-    }
-
-    outline_response = await wizard_outline_preview(
-        payload=type("Payload", (), outline_payload)(),
-        request=request
+    payload = OutlineWizardPreview(
+        prompt=prompt,
+        modules=4,
+        lessonsPerModule="5-7",
+        language="ru"
     )
-    # The response is a streaming generator, so collect the result:
+    # Call the function as before
+    outline_response = await wizard_outline_preview(payload, request)
     outline_text = ""
     async for chunk in outline_response:
-        # Each chunk is a bytes object with JSON {"type": "delta", "text": "..."}
         import json
         data = json.loads(chunk.decode())
         if data.get("type") == "delta":
