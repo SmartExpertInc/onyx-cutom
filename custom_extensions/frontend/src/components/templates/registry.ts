@@ -454,7 +454,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       afterContent: 'Improved situation or new approach',
       beforeImage: '',
       afterImage: '',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#3b82f6',
       titleColor: '#1a1a1a',
       contentColor: '#333333'
     },
