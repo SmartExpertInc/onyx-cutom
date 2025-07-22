@@ -7127,6 +7127,8 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
 
+        print(parsed_json)
+
         onyx_user_id = await get_current_onyx_user_id(request)
 
         # After you get the parsed content from the AI parser:
