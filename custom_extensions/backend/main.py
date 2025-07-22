@@ -7213,6 +7213,9 @@ async def generate_and_finalize_course_outline_for_position(
         elif chunk_data.get("type") == "error":
             raise Exception(f"OpenAI error: {chunk_data['text']}")
 
+    modules = _parse_outline_markdown(outline_text)
+    print("MODULES:", modules)
+
     # 4. Finalize/save the project (reuse add_project_to_custom_db)
     template_id = await _ensure_training_plan_template(pool)
 
@@ -7220,7 +7223,7 @@ async def generate_and_finalize_course_outline_for_position(
         projectName=f"Онбординг: {position['Позиция']}",
         design_template_id=template_id,
         microProductName=f"Онбординг: {position['Позиция']}",
-        aiResponse=outline_text,
+        aiResponse=modules,
         chatSessionId=None
     )
     project = await add_project_to_custom_db(
