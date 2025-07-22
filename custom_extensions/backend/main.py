@@ -11109,7 +11109,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         # Use extracted title if available, otherwise use parsed title or fallback
         if extracted_title:
-            parsed_quiz.quizTitle = project_name.split(":")[-1].strip()
+            parsed_quiz.quizTitle = "Quiz - " + project_name.split(":")[-1].strip()
             logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Using hardcoded title: '{parsed_quiz.quizTitle}'")
         
         # Detect language if not provided
