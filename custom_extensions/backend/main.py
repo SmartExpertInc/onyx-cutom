@@ -7155,13 +7155,11 @@ def extract_open_positions_from_table(parsed_json):
     Returns a list of dicts, one per position, with keys matching the table headers.
     """
     for block in getattr(parsed_json, "contentBlocks", []):
-        print(block)
         if getattr(block, "type", None) == "table":
             headers = getattr(block, "headers", [])
             rows = getattr(block, "rows", [])
             # Normalize header names for easier matching
             header_map = {h.lower(): i for i, h in enumerate(headers)}
-            print(header_map)
             if "позиция" in header_map:
                 positions = []
                 for row in rows:
