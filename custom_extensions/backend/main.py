@@ -7232,6 +7232,7 @@ async def generate_and_finalize_course_outline_for_position(
 
     try:
         async with pool.acquire() as conn:
+            print(f'PROJECT DB CANDIDATE: {project_db_candidate}\n\n')
             content = project_db_candidate.microproduct_content
             if isinstance(content, dict) and content.get("sections"):
                 sections = content["sections"]
