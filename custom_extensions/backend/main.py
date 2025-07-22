@@ -7213,8 +7213,6 @@ async def generate_and_finalize_course_outline_for_position(
         elif chunk_data.get("type") == "error":
             raise Exception(f"OpenAI error: {chunk_data['text']}")
 
-    modules = _parse_outline_markdown(outline_text)
-    print("MODULES:", modules)
 
     # 4. Finalize/save the project (reuse add_project_to_custom_db)
     template_id = await _ensure_training_plan_template(pool)
@@ -7223,15 +7221,53 @@ async def generate_and_finalize_course_outline_for_position(
         projectName=f"Онбординг: {position['Позиция']}",
         design_template_id=template_id,
         microProductName=f"Онбординг: {position['Позиция']}",
-        aiResponse=modules,
+        aiResponse=outline_text,
         chatSessionId=None
     )
-    project = await add_project_to_custom_db(
+    project_db_candidate = await add_project_to_custom_db(
         project_data=project_data,
         onyx_user_id=onyx_user_id,
         pool=pool
     )
-    return project
+
+    try:
+        async with pool.acquire() as conn:
+            content = project_db_candidate.microproduct_content
+            if isinstance(content, dict) and content.get("sections"):
+                sections = content["sections"]
+                updated_sections = []
+                
+                for section in sections:
+                    if isinstance(section, dict) and section.get("lessons"):
+                        # Calculate total hours from lesson hours
+                        total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
+                        # Update section with calculated total hours and set autoCalculateHours to true
+                        updated_section = {
+                            **section,
+                            "totalHours": total_hours,
+                            "autoCalculateHours": True
+                        }
+                        updated_sections.append(updated_section)
+                    else:
+                        updated_sections.append(section)
+                
+                # Update the project with recalculated totals
+                if updated_sections:
+                    updated_content = {**content, "sections": updated_sections}
+                    await conn.execute(
+                        """
+                        UPDATE projects
+                        SET microproduct_content = $1::jsonb
+                        WHERE id = $2
+                        """,
+                        json.dumps(updated_content), project_db_candidate.id
+                    )
+                    logger.info(f"Direct parser path: Recalculated module total hours for project {project_db_candidate.id}")
+    except Exception as e:
+        logger.warning(f"Direct parser path: Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+
+
+    return project_db_candidate
 
 
 @app.post("/api/custom/course-outline/finalize")
