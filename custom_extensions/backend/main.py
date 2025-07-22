@@ -7232,7 +7232,9 @@ async def generate_and_finalize_course_outline_for_position(
 
     try:
         async with pool.acquire() as conn:
-            content = project_db_candidate.microproduct_content
+            # Convert Pydantic model to dictionary for processing
+            content = project_db_candidate.microproduct_content.model_dump(mode='json', exclude_none=True) if project_db_candidate.microproduct_content else {}
+            
             if isinstance(content, dict) and content.get("sections"):
                 print(f'PROJECT DB CANDIDATE: {project_db_candidate}\n\n')
                 sections = content["sections"]
