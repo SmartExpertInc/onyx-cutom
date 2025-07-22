@@ -7127,7 +7127,8 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
 
-        print(parsed_json)
+        positions = extract_open_positions_from_table(parsed_json)
+        print(positions)
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -7146,6 +7147,28 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
     except Exception as e:
         logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
         return {"error": f"AI-аудит не сгенерирован: {e}"}
+    
+
+def extract_open_positions_from_table(parsed_json):
+    """
+    Extracts open positions from a TableBlock in parsed_json['contentBlocks'].
+    Returns a list of dicts, one per position, with keys matching the table headers.
+    """
+    for block in parsed_json.get("contentBlocks", []):
+        if block.get("type") == "table":
+            headers = block.get("headers", [])
+            rows = block.get("rows", [])
+            # Normalize header names for easier matching
+            header_map = {h.lower(): i for i, h in enumerate(headers)}
+            # Check if this table is likely the open positions table
+            if "позиция" in header_map:
+                positions = []
+                for row in rows:
+                    # Build a dict for each row
+                    position = {headers[i]: row[i] for i in range(min(len(headers), len(row)))}
+                    positions.append(position)
+                return positions
+    return []
 
 
 @app.post("/api/custom/course-outline/finalize")
