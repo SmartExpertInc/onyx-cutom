@@ -7128,7 +7128,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
         )
 
         positions = extract_open_positions_from_table(parsed_json)
-        print(positions)
+        print("ALL POSITIONS:", positions)
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -7160,6 +7160,7 @@ def extract_open_positions_from_table(parsed_json):
             rows = getattr(block, "rows", [])
             # Normalize header names for easier matching
             header_map = {h.lower(): i for i, h in enumerate(headers)}
+            print("HEADER MAP:", header_map)
             if "позиция" in header_map:
                 positions = []
                 for row in rows:
