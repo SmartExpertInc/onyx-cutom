@@ -620,7 +620,7 @@ export default function ProjectInstanceViewPage() {
               onSave={(updatedDeck) => {
                 // Convert the updated deck back to the format expected by handleTextChange
                 if (handleTextChange) {
-                  handleTextChange('', updatedDeck as any);
+                  handleTextChange([], updatedDeck as any);
                 }
               }}
               forceMode="auto"
