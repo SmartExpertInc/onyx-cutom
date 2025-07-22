@@ -77,7 +77,8 @@ export interface DeckSlide {
   slideNumber: number;
   slideTitle: string;
   contentBlocks: AnyContentBlock[];
-  deckgoTemplate?: string;  // "deckgo-slide-chart", "deckgo-slide-split", etc.
+  deckgoTemplate?: string;  // Legacy DeckDeckGo template support
+  templateId?: string;      // Component-based template ID (e.g., "hero-title-slide", "challenges-solutions")
   imagePlaceholders?: ImagePlaceholder[];
 }
 

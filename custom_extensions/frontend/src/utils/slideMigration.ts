@@ -23,11 +23,24 @@ export function migrateLegacySlide(legacySlide: DeckSlide): MigrationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Analyze content blocks to determine best template
-    const { templateId, props, templateWarnings } = analyzeContentBlocks(
-      legacySlide.contentBlocks, 
-      legacySlide.slideTitle
-    );
+    // Check if slide already has a templateId from AI-generated content
+    let templateId: string;
+    let props: Record<string, any>;
+    let templateWarnings: string[] = [];
+
+    if (legacySlide.templateId) {
+      // Use the templateId from AI-generated content
+      templateId = legacySlide.templateId;
+      props = extractPropsFromLegacySlide(legacySlide, templateId);
+      warnings.push(`Using AI-specified template: ${templateId}`);
+    } else {
+      // Fallback to auto-detection based on content analysis
+      const analysis = analyzeContentBlocks(legacySlide.contentBlocks, legacySlide.slideTitle);
+      templateId = analysis.templateId;
+      props = analysis.props;
+      templateWarnings = analysis.templateWarnings;
+      warnings.push(`Auto-detected template: ${templateId}`);
+    }
 
     warnings.push(...templateWarnings);
 
@@ -541,6 +554,264 @@ function getDefaultPropsForTemplate(templateId: string): Record<string, any> {
   };
 
   return defaults[templateId] || defaults['content-slide'];
+}
+
+/**
+ * Extracts appropriate props for a specific template from legacy slide content
+ */
+function extractPropsFromLegacySlide(legacySlide: DeckSlide, templateId: string): Record<string, any> {
+  const baseProps = {
+    slideId: legacySlide.slideId
+  };
+
+  // Get default props for the template
+  const defaultProps = getDefaultPropsForTemplate(templateId);
+
+  // Extract content based on template type
+  switch (templateId) {
+    case 'hero-title-slide':
+      return {
+        ...baseProps,
+        title: legacySlide.slideTitle,
+        subtitle: extractSubtitleFromContent(legacySlide.contentBlocks) || defaultProps.subtitle,
+        showAccent: true,
+        accentColor: '#3b82f6',
+        accentPosition: 'left',
+        backgroundColor: '#ffffff',
+        titleColor: '#1a1a1a',
+        subtitleColor: '#6b7280',
+        textAlign: 'center',
+        titleSize: 'xlarge',
+        subtitleSize: 'medium'
+      };
+
+    case 'title-slide':
+      const headlines = legacySlide.contentBlocks.filter(block => block.type === 'headline') as HeadlineBlock[];
+      return {
+        ...baseProps,
+        title: headlines[0]?.text || legacySlide.slideTitle,
+        subtitle: headlines[1]?.text || '',
+        author: headlines[2]?.text || '',
+        date: headlines[3]?.text || '',
+        backgroundColor: '#ffffff',
+        titleColor: '#1a1a1a',
+        subtitleColor: '#666666'
+      };
+
+    case 'bullet-points':
+      const bulletList = legacySlide.contentBlocks.find(block => block.type === 'bullet_list') as BulletListBlock;
+      return {
+        ...baseProps,
+        title: legacySlide.slideTitle,
+        bullets: bulletList?.items?.map(item => typeof item === 'string' ? item : 'Bullet point') || ['Key point 1', 'Key point 2', 'Key point 3'],
+        maxColumns: bulletList?.items?.length > 6 ? 3 : bulletList?.items?.length > 3 ? 2 : 1,
+        bulletStyle: 'dot',
+        titleColor: '#1a1a1a',
+        bulletColor: '#333333',
+        backgroundColor: '#ffffff'
+      };
+
+    case 'two-column':
+      const twoColumnContent = extractTwoColumnContent(legacySlide.contentBlocks);
+      return {
+        ...baseProps,
+        title: legacySlide.slideTitle,
+        leftTitle: twoColumnContent.leftTitle || 'Left Column',
+        leftContent: twoColumnContent.leftContent || 'Left content goes here',
+        rightTitle: twoColumnContent.rightTitle || 'Right Column',
+        rightContent: twoColumnContent.rightContent || 'Right content goes here',
+        columnRatio: '50-50',
+        backgroundColor: '#ffffff',
+        titleColor: '#1a1a1a',
+        contentColor: '#333333'
+      };
+
+    case 'challenges-solutions':
+      const challengesSolutions = extractChallengesSolutionsContent(legacySlide.contentBlocks);
+      return {
+        ...baseProps,
+        title: legacySlide.slideTitle,
+        challengesTitle: 'Challenges',
+        solutionsTitle: 'Solutions',
+        challenges: challengesSolutions.challenges || ['Challenge 1', 'Challenge 2'],
+        solutions: challengesSolutions.solutions || ['Solution 1', 'Solution 2'],
+        challengeColor: '#fef2f2',
+        solutionColor: '#f0fdf4',
+        challengeIconColor: '#dc2626',
+        solutionIconColor: '#16a34a',
+        backgroundColor: '#ffffff',
+        titleColor: '#1a1a1a',
+        contentColor: '#374151'
+      };
+
+    case 'image-comparison':
+      const comparisonContent = extractImageComparisonContent(legacySlide.contentBlocks);
+      return {
+        ...baseProps,
+        title: legacySlide.slideTitle,
+        leftTitle: comparisonContent.leftTitle || 'Option A',
+        leftDescription: comparisonContent.leftDescription || 'Description for option A',
+        leftImage: 'https://via.placeholder.com/400x200?text=Image+A',
+        rightTitle: comparisonContent.rightTitle || 'Option B',
+        rightDescription: comparisonContent.rightDescription || 'Description for option B',
+        rightImage: 'https://via.placeholder.com/400x200?text=Image+B',
+        backgroundColor: '#ffffff',
+        titleColor: '#1a1a1a',
+        subtitleColor: '#2d3748',
+        descriptionColor: '#4a5568',
+        columnGap: 'medium',
+        imageHeight: '200px',
+        showImageBorder: true,
+        imageBorderColor: '#e2e8f0'
+      };
+
+    case 'content-slide':
+    default:
+      return {
+        ...baseProps,
+        title: legacySlide.slideTitle,
+        content: extractTextContent(legacySlide.contentBlocks),
+        backgroundColor: '#ffffff',
+        titleColor: '#1a1a1a',
+        contentColor: '#333333',
+        alignment: 'left'
+      };
+  }
+}
+
+/**
+ * Helper function to extract subtitle from content blocks
+ */
+function extractSubtitleFromContent(contentBlocks: AnyContentBlock[]): string | null {
+  // Look for the first paragraph or second headline
+  const paragraph = contentBlocks.find(block => block.type === 'paragraph') as ParagraphBlock;
+  if (paragraph) return paragraph.text;
+
+  const headlines = contentBlocks.filter(block => block.type === 'headline') as HeadlineBlock[];
+  if (headlines.length > 1) return headlines[1].text;
+
+  return null;
+}
+
+/**
+ * Helper function to extract text content from blocks
+ */
+function extractTextContent(contentBlocks: AnyContentBlock[]): string {
+  return contentBlocks
+    .filter(block => block.type !== 'headline') // Skip main titles
+    .map(block => {
+      switch (block.type) {
+        case 'paragraph':
+          return (block as ParagraphBlock).text;
+        case 'bullet_list':
+          return (block as BulletListBlock).items
+            .map(item => typeof item === 'string' ? `• ${item}` : '• List item')
+            .join('\n');
+        case 'numbered_list':
+          return (block as NumberedListBlock).items
+            .map((item, index) => typeof item === 'string' ? `${index + 1}. ${item}` : `${index + 1}. List item`)
+            .join('\n');
+        default:
+          return '';
+      }
+    })
+    .filter(text => text.trim())
+    .join('\n\n') || 'No content available';
+}
+
+/**
+ * Helper function to extract two-column content structure
+ */
+function extractTwoColumnContent(contentBlocks: AnyContentBlock[]): {
+  leftTitle: string | null;
+  leftContent: string | null;
+  rightTitle: string | null;
+  rightContent: string | null;
+} {
+  const headlines = contentBlocks.filter(block => block.type === 'headline' && (block as HeadlineBlock).level >= 2) as HeadlineBlock[];
+  
+  if (headlines.length >= 2) {
+    const leftTitle = headlines[0].text;
+    const rightTitle = headlines[1].text;
+    
+    // Try to extract content between headlines
+    const leftContent = extractContentBetweenHeadlines(contentBlocks, headlines[0], headlines[1]);
+    const rightContent = extractContentAfterHeadline(contentBlocks, headlines[1]);
+    
+    return { leftTitle, leftContent, rightTitle, rightContent };
+  }
+
+  return { leftTitle: null, leftContent: null, rightTitle: null, rightContent: null };
+}
+
+/**
+ * Helper function to extract challenges and solutions content
+ */
+function extractChallengesSolutionsContent(contentBlocks: AnyContentBlock[]): {
+  challenges: string[] | null;
+  solutions: string[] | null;
+} {
+  // Look for bullet lists that could represent challenges/solutions
+  const bulletLists = contentBlocks.filter(block => block.type === 'bullet_list') as BulletListBlock[];
+  
+  if (bulletLists.length >= 2) {
+    const challenges = bulletLists[0].items.map(item => typeof item === 'string' ? item : 'Challenge item');
+    const solutions = bulletLists[1].items.map(item => typeof item === 'string' ? item : 'Solution item');
+    return { challenges, solutions };
+  } else if (bulletLists.length === 1) {
+    const items = bulletLists[0].items.map(item => typeof item === 'string' ? item : 'Item');
+    // Try to split items into challenges and solutions
+    const mid = Math.ceil(items.length / 2);
+    return { 
+      challenges: items.slice(0, mid),
+      solutions: items.slice(mid)
+    };
+  }
+
+  return { challenges: null, solutions: null };
+}
+
+/**
+ * Helper function to extract image comparison content
+ */
+function extractImageComparisonContent(contentBlocks: AnyContentBlock[]): {
+  leftTitle: string | null;
+  leftDescription: string | null;
+  rightTitle: string | null;
+  rightDescription: string | null;
+} {
+  // Similar to two-column but focused on comparison content
+  const twoColContent = extractTwoColumnContent(contentBlocks);
+  return {
+    leftTitle: twoColContent.leftTitle,
+    leftDescription: twoColContent.leftContent,
+    rightTitle: twoColContent.rightTitle,
+    rightDescription: twoColContent.rightContent
+  };
+}
+
+/**
+ * Helper function to extract content between two headlines
+ */
+function extractContentBetweenHeadlines(contentBlocks: AnyContentBlock[], startHeadline: HeadlineBlock, endHeadline: HeadlineBlock): string | null {
+  const startIndex = contentBlocks.indexOf(startHeadline);
+  const endIndex = contentBlocks.indexOf(endHeadline);
+  
+  if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) return null;
+  
+  const betweenBlocks = contentBlocks.slice(startIndex + 1, endIndex);
+  return extractTextContent(betweenBlocks) || null;
+}
+
+/**
+ * Helper function to extract content after a headline
+ */
+function extractContentAfterHeadline(contentBlocks: AnyContentBlock[], headline: HeadlineBlock): string | null {
+  const index = contentBlocks.indexOf(headline);
+  if (index === -1 || index >= contentBlocks.length - 1) return null;
+  
+  const afterBlocks = contentBlocks.slice(index + 1);
+  return extractTextContent(afterBlocks) || null;
 }
 
 /**

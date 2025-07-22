@@ -895,11 +895,12 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 Enhanced Slide Content Guidelines:
 - Create 6-10 slides per lesson (adjust based on content complexity and template variety)
-- Each slide MUST use an appropriate DeckDeckGo template component
+- Each slide MUST use an appropriate Component-Based template from the available 11 templates
 - 70%+ of slides MUST include strategic image placeholders
 - Focus on substantial educational value with actionable content
 - Balance text density with visual elements for optimal learning
 - Use professional typography and clear visual hierarchy
+- Ensure template variety throughout the presentation
 
 Component-Based Template Slide Format:
 
@@ -913,6 +914,19 @@ Component-Based Template Slide Format:
 [IMAGE_PLACEHOLDER: SIZE | POSITION | Description]
 
 Template-Specific Content Structures:
+
+AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
+1. `hero-title-slide` - Hero opening slides with detailed overview
+2. `title-slide` - Simple title slides with title/subtitle/author
+3. `content-slide` - Standard content slides with title and body text
+4. `bullet-points` - Formatted bullet point lists with customizable columns
+5. `two-column` - Split layout with two content areas
+6. `image-comparison` - Visual comparison with images and descriptions
+7. `comparison-slide` - Before/after or side-by-side comparison layout
+8. `challenges-solutions` - Problems vs solutions with visual indicators
+9. `process-steps` - Numbered process or workflow steps
+10. `big-image-left` - Large image on left with content on right
+11. `quote-center` - Prominently displayed quotes with attribution
 
 **Hero Title Slides** (`hero-title-slide`):
 ```
@@ -941,44 +955,10 @@ Template-Specific Content Structures:
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]
 ```
 
-**Image Comparison Slides** (`image-comparison`):
-```
----
-**Slide 3: [Comparison Topic]** `image-comparison`
-
-## [Main Comparison Title]
-
-### [Option A Title]
-[Description of first option/approach - 2-3 sentences with detailed explanation]
-
-[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Visual representing option A]
-
-### [Option B Title]
-[Description of second option/approach - 2-3 sentences with detailed explanation]
-
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual representing option B]
-```
-
-**Challenges vs Solutions Slides** (`challenges-solutions`):
-```
----
-**Slide 4: [Challenge Analysis Topic]** `challenges-solutions`
-
-## [Main Title about Problems and Solutions]
-
-### Challenges
-[Detailed paragraph about the main challenges - 2-3 sentences]
-
-### Solutions  
-[Detailed paragraph about the solutions - 2-3 sentences]
-
-[IMAGE_PLACEHOLDER: LARGE | CENTER | Visual showing problem-solution flow]
-```
-
 **Bullet Points Slides** (`bullet-points`):
 ```
 ---
-**Slide 5: [Key Points Topic]** `bullet-points`
+**Slide 3: [Key Points Topic]** `bullet-points`
 
 ## [Main Title]
 
@@ -993,7 +973,7 @@ Template-Specific Content Structures:
 **Two Column Layout Slides** (`two-column`):
 ```
 ---
-**Slide 6: [Comparative Analysis]** `two-column`
+**Slide 4: [Comparative Analysis]** `two-column`
 
 ## [Main Title]
 
@@ -1006,10 +986,105 @@ Template-Specific Content Structures:
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Supporting visual for comparison]
 ```
 
+**Image Comparison Slides** (`image-comparison`):
+```
+---
+**Slide 5: [Comparison Topic]** `image-comparison`
+
+## [Main Comparison Title]
+
+### [Option A Title]
+[Description of first option/approach - 2-3 sentences with detailed explanation]
+
+### [Option B Title]
+[Description of second option/approach - 2-3 sentences with detailed explanation]
+
+[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Visual representing option A]
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual representing option B]
+```
+
+**Challenges vs Solutions Slides** (`challenges-solutions`):
+```
+---
+**Slide 6: [Challenge Analysis Topic]** `challenges-solutions`
+
+## [Main Title about Problems and Solutions]
+
+### Challenges
+[Detailed paragraph about the main challenges - 2-3 sentences]
+
+### Solutions  
+[Detailed paragraph about the solutions - 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: LARGE | CENTER | Visual showing problem-solution flow]
+```
+
+**Process Steps Slides** (`process-steps`):
+```
+---
+**Slide 7: [Process Description]** `process-steps`
+
+## [Process Title]
+
+1. [First step with description]
+2. [Second step with description]
+3. [Third step with description]
+4. [Fourth step with description]
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Process flow diagram]
+```
+
+**Comparison Slides** (`comparison-slide`):
+```
+---
+**Slide 8: [Before vs After Topic]** `comparison-slide`
+
+## [Comparison Title]
+
+### Before
+[Description of current/old situation - 2-3 sentences]
+
+### After
+[Description of improved/new situation - 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Before state visual]
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | After state visual]
+```
+
+**Big Image Left Slides** (`big-image-left`):
+```
+---
+**Slide 9: [Visual Topic]** `big-image-left`
+
+## [Image Title]
+
+[Content that complements the image - 2-3 paragraphs with detailed explanation]
+
+* [Supporting point 1]
+* [Supporting point 2]
+
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Main visual content]
+```
+
+**Quote Center Slides** (`quote-center`):
+```
+---
+**Slide 10: [Quote Topic]** `quote-center`
+
+## [Quote Context Title]
+
+"[Inspiring quote that captures the essence of the message and resonates with the audience]"
+
+**— [Quote Author]**
+*[Author Title, Organization]*
+
+[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Subtle background visual]
+```
+
 **Title Slides** (`title-slide`):
 ```
 ---
-**Slide 7: [Simple Title]** `title-slide`
+**Slide 11: [Simple Title]** `title-slide`
 
 # [Main Title]
 ## [Subtitle]
@@ -1018,13 +1093,33 @@ Template-Specific Content Structures:
 ```
 
 Content Distribution Strategy (Updated for Component-Based Templates):
-- **Slide 1**: Hero opening slide with detailed overview (`hero-title-slide`)
-- **Slides 2-3**: Core concept introduction (`content-slide`)
-- **Slide 4**: Visual comparison when applicable (`image-comparison`)
-- **Slide 5**: Problems and solutions analysis (`challenges-solutions`)
-- **Slide 6**: Key takeaways or process steps (`bullet-points`)
-- **Slide 7**: Additional concepts or two-column layout (`two-column` or `content-slide`)
-- **Final Slide**: Summary and next steps (`title-slide` or `content-slide`)
+
+**STRATEGIC TEMPLATE SELECTION:**
+Choose templates based on content type and educational goals:
+
+- **Opening Slide**: Always use `hero-title-slide` for engaging introductions with detailed overview
+- **Core Content**: Use `content-slide` for standard explanations and concepts
+- **Key Points**: Use `bullet-points` for lists of important information (3-6 items ideal)
+- **Comparisons**: Choose between:
+  - `image-comparison` - For visual side-by-side comparisons with images
+  - `comparison-slide` - For before/after transformations
+  - `two-column` - For general comparative analysis without images
+- **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
+- **Workflows**: Use `process-steps` for sequential processes and procedures
+- **Visual Focus**: Use `big-image-left` when image is the primary focus
+- **Inspiration**: Use `quote-center` for motivational quotes or key messages
+- **Transitions**: Use `title-slide` for section breaks or conclusions
+
+**SLIDE COUNT RECOMMENDATIONS:**
+- **Short Lessons (5-7 slides)**: hero-title + 3-4 content slides + title conclusion
+- **Medium Lessons (8-12 slides)**: hero-title + 6-9 varied content slides + title conclusion  
+- **Long Lessons (13-15 slides)**: hero-title + 10-12 varied content slides + title conclusion
+
+**TEMPLATE VARIETY GUIDELINES:**
+- Use at least 4 different template types per presentation
+- Avoid using the same template more than 3 times consecutively
+- Balance text-heavy templates (content-slide, bullet-points) with visual templates (image-comparison, big-image-left)
+- Always start with `hero-title-slide` for maximum engagement
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides

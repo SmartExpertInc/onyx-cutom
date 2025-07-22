@@ -3910,6 +3910,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * Each slide should be separated by `---` in the input markdown
             * Extract slide titles from `**Slide N: Title**` format, which may include Component template specification like `` `hero-title-slide` ``
             * Parse Component template specification: Look for backtick-enclosed template names (e.g., `` `challenges-solutions` ``) in slide titles
+            * Store extracted template ID in the `templateId` field (NOT deckgoTemplate)
             * Extract image placeholders: Parse `[IMAGE_PLACEHOLDER: SIZE | POSITION | Description]` syntax
             * Convert slide content following content block rules, ignoring image placeholders in content flow
             * Generate appropriate `slideId` values based on slide number and title
@@ -3918,8 +3919,22 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             **Component-Based Template Parsing:**
             When you encounter a slide title like: `**Slide 8: Understanding Pricing** ` `` `challenges-solutions` ``
             - Extract `slideTitle`: "Understanding Pricing" (without the Slide number prefix)
-            - Extract `templateId`: "challenges-solutions"
-            - Store template information in the `templateId` field
+            - Extract `templateId`: "challenges-solutions" 
+            - Store template information in the `templateId` field (this is the primary template field)
+            - Do NOT use deckgoTemplate field for Component-Based templates
+
+            **Available Template IDs (must match exactly):**
+            - `hero-title-slide` - Hero opening slides with detailed overview
+            - `title-slide` - Simple title slides with title/subtitle/author
+            - `content-slide` - Standard content slides with title and body text
+            - `bullet-points` - Formatted bullet point lists with customizable columns
+            - `two-column` - Split layout with two content areas
+            - `image-comparison` - Visual comparison with images and descriptions
+            - `comparison-slide` - Before/after or side-by-side comparison layout
+            - `challenges-solutions` - Problems vs solutions with visual indicators
+            - `process-steps` - Numbered process or workflow steps
+            - `big-image-left` - Large image on left with content on right
+            - `quote-center` - Prominently displayed quotes with attribution
 
             **Image Placeholder Parsing:**
             When you encounter: `[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]`
