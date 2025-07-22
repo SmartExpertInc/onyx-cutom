@@ -11102,7 +11102,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         # NEW: Hardcoded title extraction from first line of AI response
         try:
-            extracted_title = project_name.split(":")[-1].strip()
+            extracted_title = project_name.split(":")[0].replace("Quiz - ", "").strip()
         except Exception as e:
             logger.error(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Error extracting title: {e}")
             extracted_title = None
@@ -11183,7 +11183,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             row = await conn.fetchrow(
                 insert_query,
                 onyx_user_id,
-                final_project_name,
+                extracted_title,
                 "Quiz",  # product_type
                 "Quiz",  # microproduct_type
                 final_project_name,  # microproduct_name
