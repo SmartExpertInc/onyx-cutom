@@ -138,7 +138,8 @@ const MAX_SOURCE_LENGTH = 25;
 const findMicroproductByTitle = (
   titleToMatch: string | undefined | null,
   parentProjectName: string | undefined,
-  allUserMicroproducts: ProjectListItem[] | undefined
+  allUserMicroproducts: ProjectListItem[] | undefined,
+  excludeComponentTypes: string[] = []
 ): ProjectListItem | undefined => {
 
   if (!allUserMicroproducts || !parentProjectName || !titleToMatch) {
@@ -152,6 +153,12 @@ const findMicroproductByTitle = (
     (mp) => {
       const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
       const mpProjectName = mp.projectName?.trim();
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+
+      // Skip if this component type should be excluded
+      if (excludeComponentTypes.includes(mpDesignMicroproductType)) {
+        return false;
+      }
 
       // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
       const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
@@ -316,7 +323,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               {(section.lessons || []).map((lesson: LessonType, lessonIndex: number) => {
                 lessonCounter++;
                 const currentLessonNumber = lessonCounter;
-                const matchingMicroproduct = findMicroproductByTitle(lesson.title, parentProjectName, allUserMicroproducts);
+                const matchingMicroproduct = findMicroproductByTitle(lesson.title, parentProjectName, allUserMicroproducts, ["Quiz"]);
 
                 return (
                   <div key={lesson.id || `lesson-${sectionIdx}-${lessonIndex}`} className="grid grid-cols-10 gap-0 p-4 items-center border-t border-gray-300 hover:bg-gray-50 transition-colors duration-150 min-h-[50px]">

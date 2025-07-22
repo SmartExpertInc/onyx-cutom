@@ -207,7 +207,8 @@ const MAX_SOURCE_LENGTH = 25;
 const findMicroproductByTitle = (
   titleToMatch: string | undefined | null,
   parentProjectName: string | undefined,
-  allUserMicroproducts: ProjectListItem[] | undefined
+  allUserMicroproducts: ProjectListItem[] | undefined,
+  excludeComponentTypes: string[] = []
 ): ProjectListItem | undefined => {
 
   if (!allUserMicroproducts || !parentProjectName || !titleToMatch) {
@@ -221,6 +222,12 @@ const findMicroproductByTitle = (
     (mp) => {
       const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
       const mpProjectName = mp.projectName?.trim();
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+
+      // Skip if this component type should be excluded
+      if (excludeComponentTypes.includes(mpDesignMicroproductType)) {
+        return false;
+      }
 
       // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
       const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
@@ -378,7 +385,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
-    return findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts);
+    // Find presentations/lessons but exclude quizzes to avoid double-matching
+    return findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz"]);
   };
 
   // Function to find existing quiz for a given lesson title
@@ -1186,7 +1194,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               {(section.lessons || []).map((lesson: LessonType, lessonIndex: number) => {
                 lessonCounter++;
                 const currentLessonNumber = lessonCounter;
-                const matchingMicroproduct = findMicroproductByTitle(lesson.title, parentProjectName, allUserMicroproducts);
+                const matchingMicroproduct = findMicroproductByTitle(lesson.title, parentProjectName, allUserMicroproducts, ["Quiz"]);
 
                 return (
                   <div
