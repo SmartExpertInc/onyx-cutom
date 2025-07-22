@@ -32,6 +32,7 @@ import inspect
 # NEW: OpenAI imports for direct usage
 import openai
 from openai import AsyncOpenAI
+from uuid import uuid4
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -2353,6 +2354,20 @@ class MicroproductPipelineGetResponse(BaseModel):
     discovery_prompts_list: List[str] = Field(default_factory=list)
     structuring_prompts_list: List[str] = Field(default_factory=list)
     created_at: datetime
+    model_config = {"from_attributes": True}
+
+class DuplicatedProductInfo(BaseModel):
+    original_id: int
+    new_id: int
+    type: str
+    name: str
+
+class ProjectDuplicationResponse(BaseModel):
+    id: int
+    name: str
+    type: str
+    connected_products: Optional[List[DuplicatedProductInfo]] = None
+    total_products_duplicated: int
     model_config = {"from_attributes": True}
 
     @classmethod
@@ -12091,4 +12106,259 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
-        
+
+
+@app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
+async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
+    """
+    Duplicate a project. If it's a Training Plan, also duplicate all connected products (lessons, quizzes, etc.).
+    Enhanced with proper transaction management and complete field mapping.
+    """
+    async with DB_POOL.acquire() as conn:
+        # Start transaction for atomic operations
+        async with conn.transaction():
+            try:
+                # Fetch original project with all fields
+                orig = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
+                if not orig:
+                    raise HTTPException(status_code=404, detail="Project not found")
+                
+                # Verify user ownership
+                if orig['onyx_user_id'] != user_id:
+                    raise HTTPException(status_code=403, detail="Access denied")
+                
+                new_name = f"Copy of {orig['project_name']}"
+                now = datetime.now(timezone.utc)
+                
+                logger.info(f"Starting duplication of project {project_id} (type: {orig['microproduct_type']}) for user {user_id}")
+                
+                if orig['microproduct_type'] == "Training Plan":
+                    # Training Plan duplication - handle connected products
+                    new_session_id = str(uuid4())
+                    
+                    # Duplicate the main Training Plan with all fields
+                    new_outline_id = await conn.fetchval(
+                        """
+                        INSERT INTO projects (
+                            onyx_user_id, project_name, product_type, microproduct_type, 
+                            microproduct_name, microproduct_content, design_template_id, 
+                            created_at, source_chat_session_id, folder_id, "order", 
+                            is_standalone, completion_time, custom_rate, quality_tier
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        RETURNING id
+                        """,
+                        user_id,
+                        new_name,
+                        orig['product_type'],
+                        orig['microproduct_type'],
+                        orig['microproduct_name'],
+                        orig['microproduct_content'],  # JSONB will be handled automatically by asyncpg
+                        orig['design_template_id'],
+                        now,
+                        new_session_id,
+                        orig['folder_id'],
+                        orig['order'],
+                        orig['is_standalone'],
+                        orig['completion_time'],
+                        orig['custom_rate'],
+                        orig['quality_tier']
+                    )
+                    
+                    logger.info(f"Created new Training Plan with ID {new_outline_id}")
+                    
+                    # Find all connected products using the same naming patterns as frontend
+                    # Get all user's projects to search through
+                    all_projects = await conn.fetch(
+                        "SELECT * FROM projects WHERE onyx_user_id = $1 ORDER BY created_at",
+                        user_id
+                    )
+                    
+                    # Find connected products using frontend naming patterns
+                    connected = []
+                    original_outline_name = orig['project_name'].strip()
+                    
+                    for project in all_projects:
+                        if project['id'] == orig['id']:
+                            continue  # Skip the original training plan
+                        
+                        project_name = project['project_name'].strip()
+                        micro_name = project['microproduct_name']
+                        
+                        # Skip other Training Plans
+                        if project['microproduct_type'] == "Training Plan":
+                            continue
+                        
+                        is_connected = False
+                        
+                        # Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+                        if project_name == original_outline_name and micro_name:
+                            is_connected = True
+                            logger.info(f"Found connected product via legacy matching: {project_name} (micro: {micro_name})")
+                        
+                        # Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+                        elif ': ' in project_name:
+                            outline_part = project_name.split(': ')[0].strip()
+                            if outline_part == original_outline_name:
+                                is_connected = True
+                                logger.info(f"Found connected product via new pattern: {project_name}")
+                        
+                        # Method 3: Quiz pattern - "Quiz - Outline Name: Lesson Title"
+                        elif project_name.startswith('Quiz - ') and ': ' in project_name:
+                            quiz_part = project_name.replace('Quiz - ', '', 1)
+                            if ': ' in quiz_part:
+                                outline_part = quiz_part.split(': ')[0].strip()
+                                if outline_part == original_outline_name:
+                                    is_connected = True
+                                    logger.info(f"Found connected product via quiz pattern: {project_name}")
+                        
+                        # Method 4: Alternative pattern - project name matches lesson title directly
+                        # This is for cases where the lesson title became the project name
+                        elif orig['microproduct_content']:
+                            # Check if this project name matches any lesson title in the training plan
+                            try:
+                                content = orig['microproduct_content']
+                                if isinstance(content, dict) and 'sections' in content:
+                                    for section in content['sections']:
+                                        if 'lessons' in section:
+                                            for lesson in section['lessons']:
+                                                lesson_title = lesson.get('title', '').strip()
+                                                if lesson_title and lesson_title == project_name:
+                                                    is_connected = True
+                                                    logger.info(f"Found connected product via lesson title matching: {project_name}")
+                                                    break
+                                        if is_connected:
+                                            break
+                                    if is_connected:
+                                        break
+                            except Exception as e:
+                                logger.warning(f"Error checking lesson title matching for {project_name}: {e}")
+                        
+                        if is_connected:
+                            connected.append(project)
+                    
+                    logger.info(f"Found {len(connected)} connected products to duplicate")
+                    
+                    # Duplicate each connected product
+                    duplicated_products = []
+                    for i, prod in enumerate(connected):
+                        try:
+                            # Smart name replacement - handle various naming patterns
+                            prod_name = prod['project_name']
+                            if prod_name.startswith(orig['project_name']):
+                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
+                            else:
+                                # If name doesn't start with parent name, just add "Copy of" prefix
+                                prod_name = f"Copy of {prod_name}"
+                            
+                            # Update microproduct name if it references the parent
+                            micro_name = prod['microproduct_name']
+                            if micro_name and micro_name.startswith(orig['project_name']):
+                                micro_name = micro_name.replace(orig['project_name'], new_name, 1)
+                            
+                            # Insert the duplicated product with all fields
+                            new_prod_id = await conn.fetchval(
+                                """
+                                INSERT INTO projects (
+                                    onyx_user_id, project_name, product_type, microproduct_type, 
+                                    microproduct_name, microproduct_content, design_template_id, 
+                                    created_at, source_chat_session_id, folder_id, "order", 
+                                    is_standalone, completion_time, custom_rate, quality_tier
+                                )
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                                RETURNING id
+                                """,
+                                user_id,
+                                prod_name,
+                                prod['product_type'],
+                                prod['microproduct_type'],
+                                micro_name,
+                                prod['microproduct_content'],  # JSONB content preserved
+                                prod['design_template_id'],
+                                now,
+                                new_session_id,  # Link to new Training Plan
+                                prod['folder_id'],
+                                prod['order'],
+                                prod['is_standalone'],
+                                prod['completion_time'],
+                                prod['custom_rate'],
+                                prod['quality_tier']
+                            )
+                            
+                            duplicated_products.append({
+                                'original_id': prod['id'],
+                                'new_id': new_prod_id,
+                                'type': prod['microproduct_type'],
+                                'name': prod_name
+                            })
+                            
+                            logger.info(f"Duplicated {prod['microproduct_type']} '{prod['project_name']}' -> '{prod_name}' (ID: {new_prod_id})")
+                            
+                        except Exception as e:
+                            logger.error(f"Failed to duplicate connected product {prod['id']} ({prod['microproduct_type']}): {str(e)}")
+                            # Re-raise to trigger transaction rollback
+                            raise HTTPException(
+                                status_code=500, 
+                                detail=f"Failed to duplicate {prod['microproduct_type']} '{prod['project_name']}': {str(e)}"
+                            )
+                    
+                    logger.info(f"Successfully duplicated Training Plan and {len(duplicated_products)} connected products")
+                    
+                    return {
+                        "id": new_outline_id,
+                        "name": new_name,
+                        "type": "Training Plan",
+                        "connected_products": duplicated_products,
+                        "total_products_duplicated": len(duplicated_products) + 1
+                    }
+                    
+                else:
+                    # Regular product duplication (non-Training Plan)
+                    new_prod_name = f"Copy of {orig['project_name']}"
+                    
+                    new_id = await conn.fetchval(
+                        """
+                        INSERT INTO projects (
+                            onyx_user_id, project_name, product_type, microproduct_type, 
+                            microproduct_name, microproduct_content, design_template_id, 
+                            created_at, source_chat_session_id, folder_id, "order", 
+                            is_standalone, completion_time, custom_rate, quality_tier
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        RETURNING id
+                        """,
+                        user_id,
+                        new_prod_name,
+                        orig['product_type'],
+                        orig['microproduct_type'],
+                        orig['microproduct_name'],
+                        orig['microproduct_content'],
+                        orig['design_template_id'],
+                        now,
+                        str(uuid4()),  # New session ID for standalone product
+                        orig['folder_id'],
+                        orig['order'],
+                        orig['is_standalone'],
+                        orig['completion_time'],
+                        orig['custom_rate'],
+                        orig['quality_tier']
+                    )
+                    
+                    logger.info(f"Successfully duplicated {orig['microproduct_type']} '{orig['project_name']}' -> '{new_prod_name}' (ID: {new_id})")
+                    
+                    return {
+                        "id": new_id,
+                        "name": new_prod_name,
+                        "type": orig['microproduct_type'],
+                        "total_products_duplicated": 1
+                    }
+                    
+            except HTTPException:
+                # Re-raise HTTP exceptions (these are expected errors)
+                raise
+            except Exception as e:
+                logger.error(f"Unexpected error during project duplication: {str(e)}")
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Failed to duplicate project: {str(e)}"
+                )

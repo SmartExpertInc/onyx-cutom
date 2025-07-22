@@ -1067,6 +1067,24 @@ const ProjectCard: React.FC<{
         }
     }
 
+    const handleDuplicateProject = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        //console.log("Duplicating project", project.id);
+        try {
+          const resp = await fetch(`/api/custom-projects-backend/projects/duplicate/${project.id}`, { method: "POST" });
+          if (resp.ok) {
+            window.location.reload();
+          } else {
+            const err = await resp.text();
+            alert("Failed to duplicate project: " + err);
+          }
+        } catch (error) {
+          alert("Failed to duplicate project: " + (error as Error).message);
+        }
+      };
+
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('en-US', options);
@@ -1210,7 +1228,8 @@ const ProjectCard: React.FC<{
                                         <Star size={16} className="text-gray-500"/>
                                         <span>Add to favorites</span>
                                     </button>
-                                    <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                    <button onClick={handleDuplicateProject}
+                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <Copy size={16} className="text-gray-500"/>
                                         <span>Duplicate</span>
                                     </button>
@@ -1532,6 +1551,24 @@ const ProjectRowMenu: React.FC<{
             onDelete(project.id, 'self');
         }
     };
+
+    const handleDuplicateProject = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        try {
+          const resp = await fetch(`/api/custom-projects-backend/projects/duplicate/${project.id}`, { method: "POST" });
+          if (resp.ok) {
+            window.location.reload();
+          } else {
+            const err = await resp.text();
+            alert("Failed to duplicate project: " + err);
+          }
+        } catch (error) {
+          alert("Failed to duplicate project: " + (error as Error).message);
+        }
+      };
+
     return (
         <div ref={menuRef} className="inline-block">
             <button 
@@ -1601,9 +1638,12 @@ const ProjectRowMenu: React.FC<{
                                     <Star size={16} className="text-gray-500"/>
                                     <span>Add to favorites</span>
                                 </button>
-                                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                                <button
+                                    onClick={handleDuplicateProject}
+                                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                >
                                     <Copy size={16} className="text-gray-500"/>
-                                    <span>Duplicate</span>
+                                <span>Duplicate</span>
                                 </button>
                                 <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <LinkIcon size={16} className="text-gray-500"/>

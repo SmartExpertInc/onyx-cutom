@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\contentbuilderai\onyx_original\onyx_custom\onyx\custom_extensions\backend\venv
+set VIRTUAL_ENV=D:\project\onyx-cutom\custom_extensions\backend\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
