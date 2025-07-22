@@ -7162,19 +7162,25 @@ def extract_open_positions_from_table(parsed_json):
     """
     Extracts open positions from a TableBlock in parsed_json.contentBlocks.
     Returns a list of dicts, one per position, with keys matching the table headers.
+    Removes trailing '*' from header keys.
     """
+    def clean_key(key):
+        # Remove all trailing and leading '*' and whitespace
+        return key.strip().rstrip("*").lstrip("*").strip()
+
     for block in getattr(parsed_json, "contentBlocks", []):
         if getattr(block, "type", None) == "table":
             headers = getattr(block, "headers", [])
             rows = getattr(block, "rows", [])
             # Normalize header names for easier matching
-            header_map = {h.lower().replace("*", ""): i for i, h in enumerate(headers)}
+            header_map = {clean_key(h).lower(): i for i, h in enumerate(headers)}
             print("HEADER MAP:", header_map)
             if "позиция" in header_map:
                 positions = []
                 for row in rows:
-                    position = {headers[i]: row[i] for i in range(min(len(headers), len(row)))}
+                    position = {clean_key(headers[i]): row[i] for i in range(min(len(headers), len(row)))}
                     positions.append(position)
+
                 return positions
     return []
 
