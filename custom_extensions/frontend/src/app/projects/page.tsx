@@ -417,14 +417,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Users size={18} />
           <span>Shared with you</span>
         </Link>
-        <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Globe size={18} />
-          <span>Sites</span>
-        </Link>
-        <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <ImageIcon size={18} />
-          <span>AI Images</span>
-        </Link>
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
@@ -462,29 +454,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>Templates</span>
         </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Sparkles size={18} />
-          <span>Inspiration</span>
-        </Link>
-        <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Palette size={18} />
           <span>Themes</span>
-        </Link>
-        <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Type size={18} />
-          <span>Custom fonts</span>
         </Link>
         <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
           <span>Trash</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => { if (typeof window !== 'undefined') window.location.href = '/chat'; }}
-          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600 cursor-pointer"
-        >
-          <MessageSquare size={18} />
-          <span>Chats</span>
-        </button>
       </nav>
     </aside>
   );
