@@ -106,13 +106,13 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         fontSize: '16px',
         color: '#6b7280'
       }}>
-        <div>
-          <div style={{ marginBottom: '12px' }}>🔄 Processing slide deck...</div>
-          {deckFormat !== 'auto' && (
-            <div style={{ fontSize: '14px', color: '#9ca3af' }}>
-              Format: {deckFormat}
-            </div>
-          )}
+                 <div>
+           <div style={{ marginBottom: '12px' }}>🔄 Processing slide deck...</div>
+           {forceMode !== 'auto' && (
+             <div style={{ fontSize: '14px', color: '#9ca3af' }}>
+               Format: {deckFormat}
+             </div>
+           )}
         </div>
       </div>
     );
