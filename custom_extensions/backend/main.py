@@ -7200,7 +7200,7 @@ async def generate_and_finalize_course_outline_for_position(
     )
     # Call the function as before
     async with httpx.AsyncClient() as client:
-        async with client.stream("POST", "http://localhost:8000/api/custom/course-outline/preview", json=payload.model_dump()) as response:
+        async with client.stream("POST", "http://custom_backend:8000/api/custom/course-outline/preview", json=payload.model_dump()) as response:
             outline_text = ""
             async for chunk in response.aiter_text():
                 # Each chunk is a JSON line, parse and extract text
