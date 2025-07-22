@@ -7132,6 +7132,15 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
+        results = []
+        for position in positions:
+            project = await generate_and_finalize_course_outline_for_position(
+                position, onyx_user_id, pool, request
+            )
+            results.append(project)
+
+        print("ALL RESULTS:", results)
+
         # After you get the parsed content from the AI parser:
         project_id = await insert_ai_audit_onepager_to_db(
             pool=pool,
@@ -7168,6 +7177,59 @@ def extract_open_positions_from_table(parsed_json):
                     positions.append(position)
                 return positions
     return []
+
+
+async def generate_and_finalize_course_outline_for_position(
+    position: dict,
+    onyx_user_id: str,
+    pool,
+    request: Request,
+    language: str = "ru"):
+    # 1. Build the prompt for the LLM
+    prompt = (
+        f"Создай подробный план онбординга для новой позиции: {position['Позиция']}.\n"
+        f"Локация: {position.get('Локация', '')}\n"
+        f"Формат работы: {position.get('Формат работы', '')}\n"
+        f"Тип занятости: {position.get('Тип занятости', '')}\n"
+    )
+
+    # 2. Prepare the payload for the outline generator
+    outline_payload = {
+        "prompt": prompt,
+        "product": "Course Outline",
+        "language": language,
+        # Add other required fields if needed
+    }
+
+    outline_response = await wizard_outline_preview(
+        payload=type("Payload", (), outline_payload)(),
+        request=request
+    )
+    # The response is a streaming generator, so collect the result:
+    outline_text = ""
+    async for chunk in outline_response:
+        # Each chunk is a bytes object with JSON {"type": "delta", "text": "..."}
+        import json
+        data = json.loads(chunk.decode())
+        if data.get("type") == "delta":
+            outline_text += data["text"]
+
+    # 4. Finalize/save the project (reuse add_project_to_custom_db)
+    template_id = await _ensure_training_plan_template(pool)
+
+    project_data = ProjectCreateRequest(
+        projectName=f"Онбординг: {position['Позиция']}",
+        design_template_id=template_id,
+        microProductName=f"Онбординг: {position['Позиция']}",
+        aiResponse=outline_text,
+        chatSessionId=None
+    )
+    project = await add_project_to_custom_db(
+        project_data=project_data,
+        onyx_user_id=onyx_user_id,
+        pool=pool
+    )
+    return project
 
 
 @app.post("/api/custom/course-outline/finalize")
