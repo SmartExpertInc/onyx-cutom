@@ -7199,13 +7199,18 @@ async def generate_and_finalize_course_outline_for_position(
         language="ru"
     )
     # Call the function as before
-    outline_response = await wizard_outline_preview(payload, request)
-    outline_text = ""
-    async for chunk in outline_response:
-        import json
-        data = json.loads(chunk.decode())
-        if data.get("type") == "delta":
-            outline_text += data["text"]
+    async with httpx.AsyncClient() as client:
+        async with client.stream("POST", "http://localhost:8000/api/custom/course-outline/preview", json=payload) as response:
+            outline_text = ""
+            async for chunk in response.aiter_text():
+                # Each chunk is a JSON line, parse and extract text
+                import json
+                try:
+                    data = json.loads(chunk)
+                    if data.get("type") == "delta":
+                        outline_text += data["text"]
+                except Exception:
+                    continue
 
     # 4. Finalize/save the project (reuse add_project_to_custom_db)
     template_id = await _ensure_training_plan_template(pool)
