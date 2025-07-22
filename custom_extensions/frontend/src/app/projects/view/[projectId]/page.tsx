@@ -710,6 +710,8 @@ export default function ProjectInstanceViewPage() {
                 onContentUpdate={handleSmartEditContentUpdate}
                 onError={handleSmartEditError}
                 onRevert={handleSmartEditRevert}
+                currentLanguage={trainingPlanData?.detectedLanguage}
+                currentTheme={trainingPlanData?.theme}
               />
             )}
             <TrainingPlanTableComponent

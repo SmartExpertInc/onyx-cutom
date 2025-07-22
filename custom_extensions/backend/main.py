@@ -8570,6 +8570,7 @@ class TrainingPlanEditRequest(BaseModel):
     projectId: int
     chatSessionId: Optional[str] = None
     language: str = "en"
+    theme: Optional[str] = "cherry"  # Theme to preserve during edit
     # File context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -8852,10 +8853,18 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             """
             
             # Create a default TrainingPlanDetails instance for error handling
+            # Preserve theme from existing content or use payload theme
+            theme_to_use = "cherry"
+            if existing_content and isinstance(existing_content, dict):
+                theme_to_use = existing_content.get("theme", "cherry")
+            else:
+                theme_to_use = payload.theme or "cherry"
+                
             default_training_plan = TrainingPlanDetails(
                 mainTitle=row["project_name"],
                 sections=[],
-                detectedLanguage=detect_language(assistant_reply)
+                detectedLanguage=detect_language(assistant_reply),
+                theme=theme_to_use
             )
             
             # Example JSON structure for the LLM parser
@@ -8880,7 +8889,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                     }
                 ],
                 "detectedLanguage": "en",
-                "theme": "cherry"
+                "theme": theme_to_use
             })
             
             logger.info(f"[SMART_EDIT_PARSER] Parsing AI response with length: {len(assistant_reply)}")
@@ -8898,6 +8907,16 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             if parsed_training_plan:
                 # Detect language and set it
                 parsed_training_plan.detectedLanguage = detect_language(assistant_reply)
+                
+                # Preserve the original theme
+                if existing_content and isinstance(existing_content, dict):
+                    original_theme = existing_content.get("theme", "cherry")
+                    parsed_training_plan.theme = original_theme
+                    logger.info(f"[SMART_EDIT_THEME] Preserved original theme: {original_theme}")
+                else:
+                    # Use the theme from the request payload if available
+                    parsed_training_plan.theme = payload.theme or "cherry"
+                    logger.info(f"[SMART_EDIT_THEME] Using theme from payload: {payload.theme}")
                 
                 # Post-process module IDs to ensure № character is preserved
                 for section in parsed_training_plan.sections:
@@ -8946,6 +8965,7 @@ class SmartEditConfirmRequest(BaseModel):
     projectId: int
     updatedContent: dict
     language: str = "en"
+    theme: Optional[str] = "cherry"  # Theme to preserve during confirmation
 
 @app.post("/api/custom/training-plan/confirm-edit")
 async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):

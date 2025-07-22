@@ -8,6 +8,8 @@ interface SmartPromptEditorProps {
   onContentUpdate: (updatedContent: any) => void;
   onError: (error: string) => void;
   onRevert?: () => void;
+  currentLanguage?: string | null; // Current language of the training plan
+  currentTheme?: string | null; // Current theme of the training plan
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -17,6 +19,8 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
   onContentUpdate,
   onError,
   onRevert,
+  currentLanguage,
+  currentTheme,
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
@@ -93,7 +97,8 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
         body: JSON.stringify({
           prompt: trimmed,
           projectId: projectId,
-          language: "en", // Could be dynamic based on project language
+          language: currentLanguage || "en", // Use current language or fallback to English
+          theme: currentTheme || "cherry", // Use current theme or fallback to cherry
         }),
       });
 
@@ -160,7 +165,8 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
         body: JSON.stringify({
           projectId: projectId,
           updatedContent: previewContent,
-          language: "en",
+          language: currentLanguage || "en",
+          theme: currentTheme || "cherry",
         }),
       });
 
