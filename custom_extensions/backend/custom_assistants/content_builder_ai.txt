@@ -438,21 +438,29 @@ For *every* lesson you output you **MUST** follow these steps **independently**:
 NEVER default to "20 h" unless the completion time is *exactly* 6 m.  Different completion times **must** give different creation times.  This will be automatically validated.
 
 C. Information Source: **DETERMINE THIS FIRST** before calculating Content Coverage
-- **If no source files/documents/text provided**: "Create from scratch" (or language equivalent)
-- **If using general knowledge without specific source materials**: "Create from scratch" (or language equivalent)
-- **If source materials are provided**: Use document names or specific source references
-- **Test Lessons**: Always "Create from scratch" (or language equivalent)
-- **CRITICAL RULE**: When using general knowledge without specific source materials, always use "Create from scratch"
+- **If no source files/documents/text provided and no fromText flag is set**: The Information Source for every lesson must be "Create from scratch" (or its translation), and the Content Coverage for every lesson must be 0%.
+    - English: "Create from scratch", "0%"
+    - Russian: "Создать с нуля", "0%"
+    - Ukrainian: "Створити з нуля", "0%"
+- **If using general knowledge without specific source materials**: Same as above.
+- **If source materials or fromText are provided**: Use document names or specific source references (translated), and set Content Coverage to a value reflecting the proportion of content derived from those sources.
+- **Test Lessons**: Always "Create from scratch" (or translation) and 0% Content Coverage.
+- **CRITICAL RULE**: When using general knowledge without specific source materials, always use "Create from scratch" (or translation) and 0% Content Coverage.
+- **NEVER set Content Coverage to 100% or any nonzero value when Information Source is 'Create from scratch' (or translation).**
 
 D. Content Coverage (%): **CALCULATE AFTER DETERMINING INFORMATION SOURCE**
-- **If Information Source is "Create from scratch" (or equivalent)**: Content Coverage MUST be 0%
-- **If Information Source is specific documents/sources**: Base percentage on how much content is derived from those materials
-- **Test Lessons**: Always 0%
-- **CRITICAL RULE**: Content Coverage MUST be 0% when Information Source is "Create from scratch" - this is a mandatory correlation
+- **If Information Source is "Create from scratch" (or translation)**: Content Coverage MUST be 0% (never 100% or any other value).
+- **If Information Source is specific documents/sources**: Base percentage on how much content is derived from those materials.
+- **Test Lessons**: Always 0%.
+- **CRITICAL RULE**: Content Coverage MUST be 0% when Information Source is "Create from scratch" (or translation) - this is a mandatory correlation.
 
 E. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
-IMPORTANT: For now, ALL lessons should have "Test" as the Knowledge Assessment value. The "Practice with an expert" and "No" options are currently disabled.
+IMPORTANT: For now, ALL lessons should have the Knowledge Assessment value translated to the target language:
+- English: "Test"
+- Russian: "Тест"
+- Ukrainian: "Тест"
+The "Practice with an expert" and "No" options are currently disabled unless DIRECTLY told to use by the user in the edit request.
 
 Test Placement Strategy: Tests should be strategically placed throughout the course to check understanding after sufficient knowledge accumulation. Apply no more than one test per 3 lessons unless specifically instructed otherwise by the user. Tests can be placed at any position within a module where it makes pedagogical sense to assess comprehension (like after big lessons).
 

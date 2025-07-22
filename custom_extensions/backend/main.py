@@ -7135,7 +7135,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
         results = []
         for position in positions:
             project = await generate_and_finalize_course_outline_for_position(
-                position, onyx_user_id, pool, request
+                payload.companyName, position, onyx_user_id, pool, request
             )
             results.append(project)
 
@@ -7186,6 +7186,7 @@ def extract_open_positions_from_table(parsed_json):
 
 
 async def generate_and_finalize_course_outline_for_position(
+    company_name: str,
     position: dict,
     onyx_user_id: str,
     pool,
@@ -7195,10 +7196,8 @@ async def generate_and_finalize_course_outline_for_position(
     wizard_request = {
         "product": "Course Outline",
         "prompt": (
-            f"Создай подробный план онбординга для новой позиции: {position['Позиция']}.\n"
-            f"Локация: {position.get('Локация', '')}\n"
-            f"Формат работы: {position.get('Формат работы', '')}\n"
-            f"Тип занятости: {position.get('Тип занятости', '')}\n"
+            f"Создай курс аутлайн 'Онбординг для должности {position['Позиция']}' для новых сотрудников этой должности в компании '{company_name}'. \n"
+            f"Структура должна охватывать все аспекты работы сотрудника на этой должности в данной среде. Не включай аспекты работы других должностей, только то, что касается должности '{position['Позиция']}'. \n"
         ),
         "modules": 4,
         "lessonsPerModule": "5-7",
