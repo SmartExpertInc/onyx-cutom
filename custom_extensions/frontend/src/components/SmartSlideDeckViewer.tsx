@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { SlideDeckData } from '@/types/pdfLesson';
-import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { detectSlideDeckFormat, adaptLegacySlideDeck } from '@/utils/legacySlideAdapter';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { SlideDeckViewer } from './SlideDeckViewer';
@@ -85,9 +85,32 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   }, [deck, deckFormat]);
 
   // Handle save for component-based decks
-  const handleComponentSave = (updatedDeck: ComponentBasedSlideDeck) => {
-    setAdaptedDeck(updatedDeck);
-    onSave?.(updatedDeck);
+  const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
+    if (adaptedDeck) {
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...adaptedDeck,
+        slides: adaptedDeck.slides.map(slide => 
+          slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+        )
+      };
+      setAdaptedDeck(updatedDeck);
+      onSave?.(updatedDeck);
+    }
+  };
+
+  const handleTemplateChange = (slideId: string, newTemplateId: string) => {
+    if (adaptedDeck) {
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...adaptedDeck,
+        slides: adaptedDeck.slides.map(slide => 
+          slide.slideId === slideId 
+            ? { ...slide, templateId: newTemplateId }
+            : slide
+        )
+      };
+      setAdaptedDeck(updatedDeck);
+      onSave?.(updatedDeck);
+    }
   };
 
   // Handle save for legacy decks (fallback)
@@ -176,9 +199,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       {/* Component-based rendering (preferred) */}
       {deckFormat === 'component' || (deckFormat === 'legacy' && adaptedDeck) ? (
         <ComponentBasedSlideDeckRenderer
-          deck={adaptedDeck!}
+          slides={adaptedDeck!.slides}
+          selectedSlideId={adaptedDeck!.currentSlideId || undefined}
           isEditable={isEditable}
-          onSave={isEditable ? handleComponentSave : undefined}
+          onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+          onTemplateChange={isEditable ? handleTemplateChange : undefined}
         />
       ) : deckFormat === 'legacy' ? (
         /* Legacy fallback (should rarely be used now) */
