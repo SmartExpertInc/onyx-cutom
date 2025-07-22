@@ -1031,7 +1031,7 @@ class DeckSlide(BaseModel):
     slideNumber: int           # 1, 2, 3, ...
     slideTitle: str            # "Introduction to Key Concepts"
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    deckgoTemplate: Optional[str] = None  # "deckgo-slide-chart", "deckgo-slide-split", etc.
+    templateId: Optional[str] = None  # "hero-title-slide", "challenges-solutions", "image-comparison", etc.
     imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
     model_config = {"from_attributes": True}
 
@@ -2039,7 +2039,7 @@ class DeckSlide(BaseModel):
     slideNumber: int           # 1, 2, 3, ...
     slideTitle: str            # "Introduction to Key Concepts"
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    deckgoTemplate: Optional[str] = None  # "deckgo-slide-chart", "deckgo-slide-split", etc.
+    templateId: Optional[str] = None  # "hero-title-slide", "challenges-solutions", "image-comparison", etc.
     imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
     model_config = {"from_attributes": True}
 
@@ -3886,10 +3886,10 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             )
             llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
             component_specific_instructions = """
-            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with DeckDeckGo template support.
+            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information, hierarchical relationships, DeckDeckGo templates, and image placeholders. Preserve the original language for all textual fields.
+            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information, hierarchical relationships, Component-Based templates, and image placeholders. Preserve the original language for all textual fields.
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
@@ -3903,23 +3903,23 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `slideNumber` (integer): Sequential slide number (1, 2, 3, ...).
             * `slideTitle` (string): Descriptive title for the slide.
             * `contentBlocks` (array): List of content block objects for this slide.
-            * `deckgoTemplate` (string, optional): DeckDeckGo template type (e.g., "deckgo-slide-chart", "deckgo-slide-split").
+            * `templateId` (string, optional): Component-Based template ID (e.g., "hero-title-slide", "challenges-solutions", "image-comparison").
             * `imagePlaceholders` (array, optional): List of image placeholder objects.
 
             **Enhanced Slide Parsing Rules:**
             * Each slide should be separated by `---` in the input markdown
-            * Extract slide titles from `**Slide N: Title**` format, which may include DeckDeckGo template specification like `` `deckgo-slide-chart` ``
-            * Parse DeckDeckGo template specification: Look for backtick-enclosed template names (e.g., `` `deckgo-slide-chart` ``) in slide titles
+            * Extract slide titles from `**Slide N: Title**` format, which may include Component template specification like `` `hero-title-slide` ``
+            * Parse Component template specification: Look for backtick-enclosed template names (e.g., `` `challenges-solutions` ``) in slide titles
             * Extract image placeholders: Parse `[IMAGE_PLACEHOLDER: SIZE | POSITION | Description]` syntax
             * Convert slide content following content block rules, ignoring image placeholders in content flow
             * Generate appropriate `slideId` values based on slide number and title
             * Preserve all formatting, bold text (**text**), and original language
 
-            **DeckDeckGo Template Parsing:**
-            When you encounter a slide title like: `**Slide 8: Understanding Schedules** ` `` `deckgo-slide-chart` ``
-            - Extract `slideTitle`: "Understanding Schedules" (without the Slide number prefix)
-            - Extract `deckgoTemplate`: "deckgo-slide-chart"
-            - Store template information in the `deckgoTemplate` field
+            **Component-Based Template Parsing:**
+            When you encounter a slide title like: `**Slide 8: Understanding Pricing** ` `` `challenges-solutions` ``
+            - Extract `slideTitle`: "Understanding Pricing" (without the Slide number prefix)
+            - Extract `templateId`: "challenges-solutions"
+            - Store template information in the `templateId` field
 
             **Image Placeholder Parsing:**
             When you encounter: `[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]`

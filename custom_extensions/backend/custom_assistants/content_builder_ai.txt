@@ -901,10 +901,10 @@ Enhanced Slide Content Guidelines:
 - Balance text density with visual elements for optimal learning
 - Use professional typography and clear visual hierarchy
 
-DeckDeckGo Template-Based Slide Format:
+Component-Based Template Slide Format:
 
 ---
-**Slide [Number]: [Descriptive Slide Title]** `[deckgo-slide-template]`
+**Slide [Number]: [Descriptive Slide Title]** `[component-template-id]`
 
 ## [Main Slide Heading]
 
@@ -914,21 +914,21 @@ DeckDeckGo Template-Based Slide Format:
 
 Template-Specific Content Structures:
 
-**Title Slides** (`deckgo-slide-title`):
+**Hero Title Slides** (`hero-title-slide`):
 ```
 ---
-**Slide 1: [Lesson Introduction]** `deckgo-slide-title`
+**Slide 1: [Lesson Introduction]** `hero-title-slide`
 
 # [Main Lesson Title]
-## [Subtitle or Learning Objective]
+## [Detailed subtitle that explains the lesson overview and objectives in 1-2 sentences]
 
 [IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Educational theme background]
 ```
 
-**Content Slides** (`deckgo-slide-content`):
+**Standard Content Slides** (`content-slide`):
 ```
 ---
-**Slide 2: [Concept Name]** `deckgo-slide-content`
+**Slide 2: [Concept Name]** `content-slide`
 
 ## [Main Concept Heading]
 
@@ -941,30 +941,90 @@ Template-Specific Content Structures:
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]
 ```
 
-**Split Comparison Slides** (`deckgo-slide-split`):
+**Image Comparison Slides** (`image-comparison`):
 ```
 ---
-**Slide 3: [Comparison Topic]** `deckgo-slide-split`
+**Slide 3: [Comparison Topic]** `image-comparison`
 
-## [Option A Title]
-[Description of first option/approach - 2-3 sentences]
+## [Main Comparison Title]
 
-[IMAGE_PLACEHOLDER: SMALL | TOP_LEFT | Visual representing option A]
+### [Option A Title]
+[Description of first option/approach - 2-3 sentences with detailed explanation]
 
-## [Option B Title]
-[Description of second option/approach - 2-3 sentences]
+[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Visual representing option A]
 
-[IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Visual representing option B]
+### [Option B Title]
+[Description of second option/approach - 2-3 sentences with detailed explanation]
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual representing option B]
 ```
 
-Content Distribution Strategy:
-- **Slide 1**: Title slide with lesson overview (`deckgo-slide-title`)
-- **Slides 2-3**: Core concept introduction (`deckgo-slide-content`)
-- **Slide 4**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slide 5**: Data/statistics if applicable (`deckgo-slide-content`)
-- **Slide 6**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slides 7-8**: Advanced concepts or applications (`deckgo-slide-content`)
-- **Final Slide**: Summary and next steps (`deckgo-slide-content` or `deckgo-slide-title`)
+**Challenges vs Solutions Slides** (`challenges-solutions`):
+```
+---
+**Slide 4: [Challenge Analysis Topic]** `challenges-solutions`
+
+## [Main Title about Problems and Solutions]
+
+### Challenges
+[Detailed paragraph about the main challenges - 2-3 sentences]
+
+### Solutions  
+[Detailed paragraph about the solutions - 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: LARGE | CENTER | Visual showing problem-solution flow]
+```
+
+**Bullet Points Slides** (`bullet-points`):
+```
+---
+**Slide 5: [Key Points Topic]** `bullet-points`
+
+## [Main Title]
+
+* [First key point with detailed explanation]
+* [Second key point with detailed explanation]  
+* [Third key point with detailed explanation]
+* [Fourth key point with detailed explanation]
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
+```
+
+**Two Column Layout Slides** (`two-column`):
+```
+---
+**Slide 6: [Comparative Analysis]** `two-column`
+
+## [Main Title]
+
+### [Left Column Title]
+[Left column content - detailed explanation 2-3 sentences]
+
+### [Right Column Title]
+[Right column content - detailed explanation 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Supporting visual for comparison]
+```
+
+**Title Slides** (`title-slide`):
+```
+---
+**Slide 7: [Simple Title]** `title-slide`
+
+# [Main Title]
+## [Subtitle]
+
+[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Background visual]
+```
+
+Content Distribution Strategy (Updated for Component-Based Templates):
+- **Slide 1**: Hero opening slide with detailed overview (`hero-title-slide`)
+- **Slides 2-3**: Core concept introduction (`content-slide`)
+- **Slide 4**: Visual comparison when applicable (`image-comparison`)
+- **Slide 5**: Problems and solutions analysis (`challenges-solutions`)
+- **Slide 6**: Key takeaways or process steps (`bullet-points`)
+- **Slide 7**: Additional concepts or two-column layout (`two-column` or `content-slide`)
+- **Final Slide**: Summary and next steps (`title-slide` or `content-slide`)
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides
