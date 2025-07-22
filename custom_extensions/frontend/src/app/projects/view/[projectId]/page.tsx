@@ -23,6 +23,7 @@ import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown } from 'lucide-react';
+import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -601,7 +602,7 @@ export default function ProjectInstanceViewPage() {
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">No slide deck data available</div>;
         }
-        // For slide decks, use the full editor page layout instead of the standard project view
+                // For slide decks, use the new SmartSlideDeckViewer with component-based templates
         return (
           <div style={{ 
             position: 'fixed', 
@@ -610,9 +611,21 @@ export default function ProjectInstanceViewPage() {
             width: '100vw', 
             height: '100vh', 
             zIndex: 9999, 
-            backgroundColor: '#f8f9fa' 
+            backgroundColor: '#f8f9fa',
+            padding: '20px'
           }}>
-            <EditorPage projectId={projectInstanceData.project_id.toString()} />
+            <SmartSlideDeckViewer
+              deck={slideDeckData}
+              isEditable={isEditable}
+              onSave={(updatedDeck) => {
+                // Convert the updated deck back to the format expected by handleTextChange
+                if (handleTextChange) {
+                  handleTextChange('', updatedDeck as any);
+                }
+              }}
+              forceMode="auto"
+              showFormatInfo={true}
+            />
           </div>
         );
        case COMPONENT_NAME_TEXT_PRESENTATION:

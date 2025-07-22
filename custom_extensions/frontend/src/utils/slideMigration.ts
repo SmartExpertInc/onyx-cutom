@@ -172,24 +172,44 @@ function analyzeContentBlocks(contentBlocks: AnyContentBlock[], slideTitle: stri
     }
   }
 
-  // Title slide detection - only headlines (multiple)
-  if (contentBlocks.every(block => block.type === 'headline')) {
-    const headlines = contentBlocks as HeadlineBlock[];
-    const titleProps: Partial<TitleSlideProps> = {
-      title: headlines[0]?.text || slideTitle,
-      subtitle: headlines[1]?.text || '',
-      author: headlines[2]?.text || '',
-      date: headlines[3]?.text || ''
-    };
+  // Enhanced bullet points detection - more aggressive pattern matching
+  if (contentBlocks.some(block => block.type === 'bullet_list')) {
+    // Find the first headline (if any) and the bullet list
+    const headline = contentBlocks.find(block => 
+      block.type === 'headline' && (block as HeadlineBlock).level <= 2
+    ) as HeadlineBlock | undefined;
+    
+    const bulletList = contentBlocks.find(block => 
+      block.type === 'bullet_list'
+    ) as BulletListBlock | undefined;
+    
+    if (bulletList) {
+      const bulletProps: Partial<BulletPointsProps> = {
+        title: headline?.text || slideTitle,
+        bullets: bulletList.items.map(item => 
+          typeof item === 'string' ? item : 'Complex bullet item'
+        ),
+        maxColumns: bulletList.items.length > 6 ? 3 : bulletList.items.length > 3 ? 2 : 1,
+        bulletStyle: 'dot',
+        titleColor: '#1a1a1a',
+        bulletColor: '#333333',
+        backgroundColor: '#ffffff'
+      };
 
-    return {
-      templateId: 'title-slide',
-      props: titleProps,
-      templateWarnings: headlines.length > 4 ? ['Title slide had more than 4 headlines - extras ignored'] : []
-    };
+      return {
+        templateId: 'bullet-points',
+        props: bulletProps,
+        templateWarnings: [
+          ...(bulletList.items.some(item => typeof item !== 'string') ? 
+            ['Some bullet items were complex objects and were simplified'] : []),
+          ...(contentBlocks.length > 2 ? 
+            ['Extra content blocks beyond title and bullets were ignored'] : [])
+        ]
+      };
+    }
   }
 
-  // Bullet points detection
+  // Original specific pattern detection (headline + bullet_list only)
   if (contentBlocks.length === 2 && 
       contentBlocks[0].type === 'headline' && 
       contentBlocks[1].type === 'bullet_list') {
@@ -211,6 +231,23 @@ function analyzeContentBlocks(contentBlocks: AnyContentBlock[], slideTitle: stri
       props: bulletProps,
       templateWarnings: bulletList.items.some(item => typeof item !== 'string') ? 
         ['Some bullet items were complex objects and were simplified'] : []
+    };
+  }
+
+  // Title slide detection - only headlines (multiple)
+  if (contentBlocks.every(block => block.type === 'headline')) {
+    const headlines = contentBlocks as HeadlineBlock[];
+    const titleProps: Partial<TitleSlideProps> = {
+      title: headlines[0]?.text || slideTitle,
+      subtitle: headlines[1]?.text || '',
+      author: headlines[2]?.text || '',
+      date: headlines[3]?.text || ''
+    };
+
+    return {
+      templateId: 'title-slide',
+      props: titleProps,
+      templateWarnings: headlines.length > 4 ? ['Title slide had more than 4 headlines - extras ignored'] : []
     };
   }
 

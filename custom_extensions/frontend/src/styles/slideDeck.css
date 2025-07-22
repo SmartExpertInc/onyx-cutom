@@ -646,11 +646,44 @@
 }
 
 .bullet-indicator {
-  color: var(--gray-400);
-  font-size: 1rem;
+  color: var(--gray-600);  /* Made darker for better visibility */
+  font-size: 1.2rem;       /* Made slightly larger */
   line-height: 1.6;
   flex-shrink: 0;
   margin-top: 2px;
+  font-weight: 600;        /* Made bolder */
+}
+
+/* Fallback bullet styling for lists without explicit bullet indicators */
+.professional-bullet-list ul,
+.slide-bullet-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.professional-bullet-list li,
+.slide-bullet-list li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.professional-bullet-list li:before,
+.slide-bullet-list li:before {
+  content: "•";
+  color: var(--gray-600);
+  font-size: 1.2rem;
+  font-weight: 600;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Ensure bullet points in component templates are visible */
+.bullet-points-template .bullet-icon,
+.component-based-slide .bullet-icon {
+  color: var(--gray-700) !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
 }
 
 .number-badge {

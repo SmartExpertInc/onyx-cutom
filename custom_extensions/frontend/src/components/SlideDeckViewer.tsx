@@ -237,7 +237,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
             <ul className="bullet-items">
               {bulletBlock.items.map((item, index) => (
                 <li key={index} className="professional-bullet-item">
-                  <span className="bullet-indicator">▪</span>
+                  <span className="bullet-indicator">•</span>  {/* Changed from ▪ to • for better visibility */}
                   <span className="bullet-text">{typeof item === 'string' ? item : 'Complex item'}</span>
                 </li>
               ))}
