@@ -8,7 +8,10 @@ import {
   TitleSlideProps,
   ContentSlideProps,
   BulletPointsProps,
-  TwoColumnProps
+  TwoColumnProps,
+  ChallengesSolutionsProps,
+  HeroTitleSlideProps,
+  ImageComparisonProps
 } from '@/types/slideTemplates';
 import { DeckSlide, SlideDeckData, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock } from '@/types/pdfLesson';
 
@@ -130,7 +133,33 @@ function analyzeContentBlocks(contentBlocks: AnyContentBlock[], slideTitle: stri
     };
   }
 
-  // Title slide detection - only headlines
+  // Hero Title slide detection - headline + paragraph (like from original HTML)
+  if (contentBlocks.length === 2 && 
+      contentBlocks[0].type === 'headline' && 
+      contentBlocks[1].type === 'paragraph') {
+    
+    const headline = contentBlocks[0] as HeadlineBlock;
+    const paragraph = contentBlocks[1] as ParagraphBlock;
+    
+    // Check if this looks like a hero title slide with detailed description
+    if (headline.level === 1 && paragraph.text.length > 50) {
+      const heroProps: Partial<HeroTitleSlideProps> = {
+        title: headline.text,
+        subtitle: paragraph.text,
+        showAccent: true,
+        accentPosition: 'left',
+        textAlign: 'center'
+      };
+
+      return {
+        templateId: 'hero-title-slide',
+        props: heroProps,
+        templateWarnings: []
+      };
+    }
+  }
+
+  // Title slide detection - only headlines (multiple)
   if (contentBlocks.every(block => block.type === 'headline')) {
     const headlines = contentBlocks as HeadlineBlock[];
     const titleProps: Partial<TitleSlideProps> = {
@@ -172,7 +201,7 @@ function analyzeContentBlocks(contentBlocks: AnyContentBlock[], slideTitle: stri
     };
   }
 
-  // Two-column detection - multiple h2 headlines with content
+  // Challenges-Solutions detection - detect problem/solution patterns
   const h2Headlines = contentBlocks.filter(block => 
     block.type === 'headline' && (block as HeadlineBlock).level === 2
   );
@@ -185,7 +214,125 @@ function analyzeContentBlocks(contentBlocks: AnyContentBlock[], slideTitle: stri
     const leftTitle = h2Headlines[0] as HeadlineBlock;
     const rightTitle = h2Headlines[1] as HeadlineBlock;
 
-    // Find content after each h2
+    // Check if this looks like challenges vs solutions
+    const isChallengesSolutions = 
+      (leftTitle.text.toLowerCase().includes('виклик') || 
+       leftTitle.text.toLowerCase().includes('проблем') || 
+       leftTitle.text.toLowerCase().includes('challenge') ||
+       leftTitle.text.toLowerCase().includes('problem')) &&
+      (rightTitle.text.toLowerCase().includes('рішення') || 
+       rightTitle.text.toLowerCase().includes('вирішення') || 
+       rightTitle.text.toLowerCase().includes('solution') ||
+       rightTitle.text.toLowerCase().includes('розв\'язок'));
+
+    if (isChallengesSolutions) {
+      // Extract bullet points for challenges and solutions
+      const challenges: string[] = [];
+      const solutions: string[] = [];
+      
+      let currentSection = 'none';
+      
+      for (const block of contentBlocks) {
+        if (block.type === 'headline' && (block as HeadlineBlock).level === 1) continue;
+        
+        if (block === leftTitle) {
+          currentSection = 'challenges';
+          continue;
+        }
+        if (block === rightTitle) {
+          currentSection = 'solutions';
+          continue;
+        }
+        
+        if (block.type === 'bullet_list') {
+          const bulletList = block as BulletListBlock;
+          const items = bulletList.items.map(item => 
+            typeof item === 'string' ? item : 'Complex item'
+          );
+          
+          if (currentSection === 'challenges') {
+            challenges.push(...items);
+          } else if (currentSection === 'solutions') {
+            solutions.push(...items);
+          }
+        } else if (block.type === 'paragraph') {
+          const paragraphText = (block as ParagraphBlock).text;
+          if (currentSection === 'challenges') {
+            challenges.push(paragraphText);
+          } else if (currentSection === 'solutions') {
+            solutions.push(paragraphText);
+          }
+        }
+      }
+
+      if (challenges.length > 0 && solutions.length > 0) {
+        const challengesSolutionsProps: Partial<ChallengesSolutionsProps> = {
+          title: mainTitle?.text || slideTitle,
+          challengesTitle: leftTitle.text,
+          solutionsTitle: rightTitle.text,
+          challenges,
+          solutions
+        };
+
+        return {
+          templateId: 'challenges-solutions',
+          props: challengesSolutionsProps,
+          templateWarnings: []
+        };
+      }
+    }
+
+    // Check if this looks like image comparison (grid layout with images)
+    // Look for pattern: main title, two H3 titles with paragraphs (suggests image-rich comparison)
+    if (leftTitle.level === 3 && rightTitle.level === 3) {
+      // Extract paragraphs for each section
+      const leftParagraphs: string[] = [];
+      const rightParagraphs: string[] = [];
+      
+      let currentSection = 'none';
+      
+      for (const block of contentBlocks) {
+        if (block.type === 'headline' && (block as HeadlineBlock).level === 1) continue;
+        
+        if (block === leftTitle) {
+          currentSection = 'left';
+          continue;
+        }
+        if (block === rightTitle) {
+          currentSection = 'right';
+          continue;
+        }
+        
+        if (block.type === 'paragraph') {
+          const paragraphText = (block as ParagraphBlock).text;
+          if (currentSection === 'left') {
+            leftParagraphs.push(paragraphText);
+          } else if (currentSection === 'right') {
+            rightParagraphs.push(paragraphText);
+          }
+        }
+      }
+
+      if (leftParagraphs.length > 0 && rightParagraphs.length > 0) {
+        const imageComparisonProps: Partial<ImageComparisonProps> = {
+          title: mainTitle?.text || slideTitle,
+          leftTitle: leftTitle.text,
+          leftDescription: leftParagraphs.join('\n\n'),
+          leftImage: 'https://via.placeholder.com/400x200?text=Left+Content',
+          rightTitle: rightTitle.text,
+          rightDescription: rightParagraphs.join('\n\n'),
+          rightImage: 'https://via.placeholder.com/400x200?text=Right+Content'
+        };
+
+        return {
+          templateId: 'image-comparison',
+          props: imageComparisonProps,
+          templateWarnings: ['Images set to placeholder - please update with actual images']
+        };
+      }
+    }
+
+    // Fallback to regular two-column if not image-comparison
     const leftContentBlocks: string[] = [];
     const rightContentBlocks: string[] = [];
     
@@ -346,6 +493,50 @@ function getDefaultPropsForTemplate(templateId: string): Record<string, any> {
       backgroundColor: '#ffffff',
       titleColor: '#1a1a1a',
       contentColor: '#333333'
+    },
+    'challenges-solutions': {
+      title: 'Виклики та Рішення',
+      challengesTitle: 'Виклики',
+      solutionsTitle: 'Рішення',
+      challenges: ['Перший виклик', 'Другий виклик', 'Третій виклик'],
+      solutions: ['Перше рішення', 'Друге рішення', 'Третє рішення'],
+      challengeColor: '#fef2f2',
+      solutionColor: '#f0fdf4',
+      challengeIconColor: '#dc2626',
+      solutionIconColor: '#16a34a',
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      contentColor: '#374151'
+    },
+    'hero-title-slide': {
+      title: 'Новий Hero Title Slide',
+      subtitle: 'Детальний опис або підзаголовок що пояснює основну ідею презентації',
+      showAccent: true,
+      accentColor: '#3b82f6',
+      accentPosition: 'left',
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      subtitleColor: '#6b7280',
+      textAlign: 'center',
+      titleSize: 'xlarge',
+      subtitleSize: 'medium'
+    },
+    'image-comparison': {
+      title: 'Порівняльний Слайд із Зображеннями',
+      leftTitle: 'Ліва Сторона',
+      leftDescription: 'Опис лівої частини порівняння з детальним поясненням',
+      leftImage: 'https://via.placeholder.com/400x200?text=Left+Image',
+      rightTitle: 'Права Сторона',
+      rightDescription: 'Опис правої частини порівняння з детальним поясненням',
+      rightImage: 'https://via.placeholder.com/400x200?text=Right+Image',
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      subtitleColor: '#2d3748',
+      descriptionColor: '#4a5568',
+      columnGap: 'medium',
+      imageHeight: '200px',
+      showImageBorder: true,
+      imageBorderColor: '#e2e8f0'
     }
   };
 

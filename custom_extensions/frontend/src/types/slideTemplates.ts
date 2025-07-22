@@ -161,6 +161,56 @@ export interface ProcessStepsProps extends BaseTemplateProps {
   titleColor?: string;
 }
 
+export interface ChallengesSolutionsProps extends BaseTemplateProps {
+  title: string;
+  challengesTitle?: string;
+  solutionsTitle?: string;
+  challenges: string[];
+  solutions: string[];
+  challengeColor?: string;
+  solutionColor?: string;
+  challengeIconColor?: string;
+  solutionIconColor?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface HeroTitleSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  showAccent?: boolean;
+  accentColor?: string;
+  accentPosition?: 'left' | 'right' | 'top' | 'bottom';
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  backgroundImage?: string;
+  textAlign?: 'left' | 'center' | 'right';
+  titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
+  subtitleSize?: 'small' | 'medium' | 'large';
+}
+
+export interface ImageComparisonProps extends BaseTemplateProps {
+  title: string;
+  leftTitle: string;
+  leftDescription: string;
+  leftImage: string;
+  leftImageAlt?: string;
+  rightTitle: string;
+  rightDescription: string;
+  rightImage: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  descriptionColor?: string;
+  columnGap?: 'small' | 'medium' | 'large';
+  imageHeight?: string;
+  showImageBorder?: boolean;
+  imageBorderColor?: string;
+}
+
 // --- Migration and Compatibility ---
 
 export interface LegacySlide {
@@ -196,7 +246,10 @@ export type TemplateId =
   | 'bullet-points'
   | 'two-column'
   | 'comparison-slide'
-  | 'process-steps';
+  | 'process-steps'
+  | 'challenges-solutions'
+  | 'hero-title-slide'
+  | 'image-comparison';
 
 export interface TemplatePreview {
   templateId: string;

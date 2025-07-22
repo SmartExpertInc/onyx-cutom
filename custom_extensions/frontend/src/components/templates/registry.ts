@@ -11,6 +11,9 @@ import { BulletPointsTemplate } from './BulletPointsTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
 import { ComparisonSlideTemplate } from './ComparisonSlideTemplate';
 import { ProcessStepsTemplate } from './ProcessStepsTemplate';
+import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
+import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
+import { ImageComparisonTemplate } from './ImageComparisonTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -586,6 +589,372 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         type: 'color',
         label: 'Title Color',
         default: '#1a1a1a'
+      }
+    }
+  },
+
+  'challenges-solutions': {
+    id: 'challenges-solutions',
+    name: 'Виклики та Рішення',
+    description: 'Порівняння проблем і рішень з візуальними іконками',
+    category: 'layout',
+    icon: '⚖️',
+    component: ChallengesSolutionsTemplate,
+    defaultProps: {
+      title: 'Виклики у Просуванні та Як Їх Подолати',
+      challengesTitle: 'Виклики',
+      solutionsTitle: 'Рішення',
+      challenges: [
+        'Відмова та низький відгук на холодні контакти',
+        'Відсутність чіткої кваліфікації лідів',
+        'Перевантаження інформацією потенційних клієнтів'
+      ],
+      solutions: [
+        'Інтенсивні тренінги для продавців із техніки просування',
+        'Впровадження автоматизації для ефективності',
+        'Ретельна сегментація ринку та персоналізація'
+      ],
+      challengeColor: '#fef2f2',
+      solutionColor: '#f0fdf4',
+      challengeIconColor: '#dc2626',
+      solutionIconColor: '#16a34a',
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      contentColor: '#374151'
+    },
+    propSchema: {
+      title: {
+        type: 'text',
+        label: 'Заголовок',
+        description: 'Основний заголовок слайду',
+        required: true,
+        maxLength: 150
+      },
+      challengesTitle: {
+        type: 'text',
+        label: 'Заголовок Викликів',
+        description: 'Назва розділу з викликами',
+        maxLength: 50,
+        default: 'Виклики'
+      },
+      solutionsTitle: {
+        type: 'text',
+        label: 'Заголовок Рішень',
+        description: 'Назва розділу з рішеннями',
+        maxLength: 50,
+        default: 'Рішення'
+      },
+      challenges: {
+        type: 'array',
+        label: 'Список Викликів',
+        description: 'Перелік проблем або викликів',
+        required: true,
+        arrayItemType: {
+          type: 'text',
+          label: 'Виклик',
+          maxLength: 200
+        }
+      },
+      solutions: {
+        type: 'array',
+        label: 'Список Рішень',
+        description: 'Перелік рішень або способів вирішення',
+        required: true,
+        arrayItemType: {
+          type: 'text',
+          label: 'Рішення',
+          maxLength: 200
+        }
+      },
+      challengeColor: {
+        type: 'color',
+        label: 'Колір Фону Викликів',
+        description: 'Фоновий колір розділу з викликами',
+        default: '#fef2f2'
+      },
+      solutionColor: {
+        type: 'color',
+        label: 'Колір Фону Рішень',
+        description: 'Фоновий колір розділу з рішеннями',
+        default: '#f0fdf4'
+      },
+      challengeIconColor: {
+        type: 'color',
+        label: 'Колір Іконки Викликів',
+        description: 'Колір іконки хрестика',
+        default: '#dc2626'
+      },
+      solutionIconColor: {
+        type: 'color',
+        label: 'Колір Іконки Рішень',
+        description: 'Колір іконки галочки',
+        default: '#16a34a'
+      },
+      backgroundColor: {
+        type: 'color',
+        label: 'Колір Фону Слайду',
+        default: '#ffffff'
+      },
+      titleColor: {
+        type: 'color',
+        label: 'Колір Заголовку',
+        default: '#1a1a1a'
+      },
+      contentColor: {
+        type: 'color',
+        label: 'Колір Тексту',
+        default: '#374151'
+      }
+    }
+  },
+
+  'hero-title-slide': {
+    id: 'hero-title-slide',
+    name: 'Hero Title Slide',
+    description: 'Потужний заголовковий слайд з акцентним елементом та детальним описом',
+    category: 'title',
+    icon: '🚀',
+    component: HeroTitleSlideTemplate,
+    defaultProps: {
+      title: 'Виявлення та Просування Нових Лідів для Генерації Продажів',
+      subtitle: 'Визначення лідів, перспектив і можливостей: шлях до успіху в продажах 2025 року.',
+      showAccent: true,
+      accentColor: '#3b82f6',
+      accentPosition: 'left',
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      subtitleColor: '#6b7280',
+      textAlign: 'center',
+      titleSize: 'xlarge',
+      subtitleSize: 'medium'
+    },
+    propSchema: {
+      title: {
+        type: 'text',
+        label: 'Заголовок',
+        description: 'Основний заголовок презентації',
+        required: true,
+        maxLength: 200
+      },
+      subtitle: {
+        type: 'richtext',
+        label: 'Підзаголовок',
+        description: 'Детальний опис або підзаголовок',
+        required: true,
+        maxLength: 400
+      },
+      showAccent: {
+        type: 'boolean',
+        label: 'Показати Акцентний Елемент',
+        description: 'Відображати декоративний акцентний елемент',
+        default: true
+      },
+      accentColor: {
+        type: 'color',
+        label: 'Колір Акценту',
+        description: 'Колір акцентного елементу',
+        default: '#3b82f6'
+      },
+      accentPosition: {
+        type: 'select',
+        label: 'Позиція Акценту',
+        description: 'Розташування акцентного елементу',
+        options: [
+          { value: 'left', label: 'Зліва' },
+          { value: 'right', label: 'Справа' },
+          { value: 'top', label: 'Зверху' },
+          { value: 'bottom', label: 'Знизу' }
+        ],
+        default: 'left'
+      },
+      backgroundColor: {
+        type: 'color',
+        label: 'Колір Фону',
+        default: '#ffffff'
+      },
+      titleColor: {
+        type: 'color',
+        label: 'Колір Заголовку',
+        default: '#1a1a1a'
+      },
+      subtitleColor: {
+        type: 'color',
+        label: 'Колір Підзаголовку',
+        default: '#6b7280'
+      },
+      backgroundImage: {
+        type: 'image',
+        label: 'Фонове Зображення',
+        description: 'Опціональне фонове зображення'
+      },
+      textAlign: {
+        type: 'select',
+        label: 'Вирівнювання Тексту',
+        options: [
+          { value: 'left', label: 'По лівому краю' },
+          { value: 'center', label: 'По центру' },
+          { value: 'right', label: 'По правому краю' }
+        ],
+        default: 'center'
+      },
+      titleSize: {
+        type: 'select',
+        label: 'Розмір Заголовку',
+        options: [
+          { value: 'small', label: 'Малий' },
+          { value: 'medium', label: 'Середній' },
+          { value: 'large', label: 'Великий' },
+          { value: 'xlarge', label: 'Дуже Великий' }
+        ],
+        default: 'xlarge'
+      },
+      subtitleSize: {
+        type: 'select',
+        label: 'Розмір Підзаголовку',
+        options: [
+          { value: 'small', label: 'Малий' },
+          { value: 'medium', label: 'Середній' },
+          { value: 'large', label: 'Великий' }
+        ],
+        default: 'medium'
+      }
+    }
+  },
+
+  'image-comparison': {
+    id: 'image-comparison',
+    name: 'Image Comparison',
+    description: 'Порівняльний слайд з двома колонками, що включають заголовки, описи та зображення',
+    category: 'media',
+    icon: '🖼️',
+    component: ImageComparisonTemplate,
+    defaultProps: {
+      title: 'Відмінності між Генерацією Лідів та Просуванням',
+      leftTitle: 'Генерація Лідів',
+      leftDescription: 'Широкомасштабна маркетингова активність, спрямована на залучення інтересу та збір контактів потенційних клієнтів через різні канали. Процес часто автоматизований.',
+      leftImage: 'https://via.placeholder.com/400x200?text=Lead+Generation',
+      leftImageAlt: 'Генерація лідів',
+      rightTitle: 'Просування (Проспектинг)',
+      rightDescription: 'Активний, цілеспрямований пошук та кваліфікація потенційних клієнтів. Цей процес є ручним та персоналізованим, фокусуючись на виявленні найкращих можливостей для продажу.',
+      rightImage: 'https://via.placeholder.com/400x200?text=Prospecting',
+      rightImageAlt: 'Просування',
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      subtitleColor: '#2d3748',
+      descriptionColor: '#4a5568',
+      columnGap: 'medium',
+      imageHeight: '200px',
+      showImageBorder: true,
+      imageBorderColor: '#e2e8f0'
+    },
+    propSchema: {
+      title: {
+        type: 'text',
+        label: 'Заголовок',
+        description: 'Основний заголовок слайду',
+        required: true,
+        maxLength: 150
+      },
+      leftTitle: {
+        type: 'text',
+        label: 'Заголовок Лівої Колонки',
+        description: 'Заголовок для лівої частини',
+        required: true,
+        maxLength: 100
+      },
+      leftDescription: {
+        type: 'richtext',
+        label: 'Опис Лівої Колонки',
+        description: 'Детальний опис для лівої частини',
+        required: true,
+        maxLength: 500
+      },
+      leftImage: {
+        type: 'image',
+        label: 'Зображення Лівої Колонки',
+        description: 'URL зображення для лівої частини',
+        required: true
+      },
+      leftImageAlt: {
+        type: 'text',
+        label: 'Alt текст лівого зображення',
+        description: 'Альтернативний текст для доступності',
+        maxLength: 100
+      },
+      rightTitle: {
+        type: 'text',
+        label: 'Заголовок Правої Колонки',
+        description: 'Заголовок для правої частини',
+        required: true,
+        maxLength: 100
+      },
+      rightDescription: {
+        type: 'richtext',
+        label: 'Опис Правої Колонки',
+        description: 'Детальний опис для правої частини',
+        required: true,
+        maxLength: 500
+      },
+      rightImage: {
+        type: 'image',
+        label: 'Зображення Правої Колонки',
+        description: 'URL зображення для правої частини',
+        required: true
+      },
+      rightImageAlt: {
+        type: 'text',
+        label: 'Alt текст правого зображення',
+        description: 'Альтернативний текст для доступності',
+        maxLength: 100
+      },
+      backgroundColor: {
+        type: 'color',
+        label: 'Колір Фону Слайду',
+        default: '#ffffff'
+      },
+      titleColor: {
+        type: 'color',
+        label: 'Колір Основного Заголовку',
+        default: '#1a1a1a'
+      },
+      subtitleColor: {
+        type: 'color',
+        label: 'Колір Підзаголовків',
+        default: '#2d3748'
+      },
+      descriptionColor: {
+        type: 'color',
+        label: 'Колір Тексту Опису',
+        default: '#4a5568'
+      },
+      columnGap: {
+        type: 'select',
+        label: 'Відстань між Колонками',
+        options: [
+          { value: 'small', label: 'Маленька (20px)' },
+          { value: 'medium', label: 'Середня (40px)' },
+          { value: 'large', label: 'Велика (60px)' }
+        ],
+        default: 'medium'
+      },
+      imageHeight: {
+        type: 'text',
+        label: 'Висота Зображень',
+        description: 'Висота зображень (наприклад: 200px, 15rem)',
+        default: '200px',
+        maxLength: 20
+      },
+      showImageBorder: {
+        type: 'boolean',
+        label: 'Показати Рамку Зображень',
+        description: 'Відображати рамку навколо зображень',
+        default: true
+      },
+      imageBorderColor: {
+        type: 'color',
+        label: 'Колір Рамки Зображень',
+        description: 'Колір рамки навколо зображень',
+        default: '#e2e8f0'
       }
     }
   }
