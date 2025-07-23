@@ -198,13 +198,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
       {/* Component-based rendering (preferred) */}
       {deckFormat === 'component' || (deckFormat === 'legacy' && adaptedDeck) ? (
-        <ComponentBasedSlideDeckRenderer
-          slides={adaptedDeck!.slides}
-          selectedSlideId={adaptedDeck!.currentSlideId || undefined}
-          isEditable={isEditable}
-          onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-          onTemplateChange={isEditable ? handleTemplateChange : undefined}
-        />
+        adaptedDeck && adaptedDeck.slides && adaptedDeck.slides.length > 0 ? (
+          <ComponentBasedSlideDeckRenderer
+            slides={adaptedDeck.slides}
+            selectedSlideId={adaptedDeck.currentSlideId || undefined}
+            isEditable={isEditable}
+            onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+            onTemplateChange={isEditable ? handleTemplateChange : undefined}
+          />
+        ) : (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+            No slides available in this presentation
+          </div>
+        )
       ) : deckFormat === 'legacy' ? (
         /* Legacy fallback (should rarely be used now) */
         <SlideDeckViewer

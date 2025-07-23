@@ -110,6 +110,15 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   onSlideUpdate,
   onTemplateChange
 }) => {
+  // Safety check for slides array
+  if (!slides || !Array.isArray(slides) || slides.length === 0) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+        No slides to display
+      </div>
+    );
+  }
+
   return (
     <div className="component-based-slide-deck">
       {slides.map((slide) => (
