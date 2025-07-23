@@ -995,12 +995,12 @@ class ImagePlaceholder(BaseModel):
     model_config = {"from_attributes": True}
 
 class DeckSlide(BaseModel):
-    slideId: str               # "slide_1_intro"
-    slideNumber: int           # 1, 2, 3, ...
-    slideTitle: str            # "Introduction to Key Concepts"
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    templateId: Optional[str] = None  # "hero-title-slide", "challenges-solutions", "image-comparison", etc.
-    imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
+    slideId: str               
+    slideNumber: int           
+    slideTitle: str            
+    templateId: str            # Зробити обов'язковим (без Optional)
+    props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
+    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
 class SlideDeckDetails(BaseModel):
@@ -1963,29 +1963,6 @@ class VideoLessonData(BaseModel):
     detectedLanguage: Optional[str] = None
     model_config = {"from_attributes": True}
 
-# --- NEW: Slide-based Lesson Presentation Models ---
-class ImagePlaceholder(BaseModel):
-    size: str          # "LARGE", "MEDIUM", "SMALL", "BANNER", "BACKGROUND"
-    position: str      # "LEFT", "RIGHT", "TOP_BANNER", "BACKGROUND", etc.
-    description: str   # Description of the image content
-    model_config = {"from_attributes": True}
-
-class DeckSlide(BaseModel):
-    slideId: str               # "slide_1_intro"
-    slideNumber: int           # 1, 2, 3, ...
-    slideTitle: str            # "Introduction to Key Concepts"
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    templateId: Optional[str] = None  # "hero-title-slide", "challenges-solutions", "image-comparison", etc.
-    imagePlaceholders: List[ImagePlaceholder] = Field(default_factory=list)
-    model_config = {"from_attributes": True}
-
-class SlideDeckDetails(BaseModel):
-    lessonTitle: str
-    slides: List[DeckSlide] = Field(default_factory=list)
-    currentSlideId: Optional[str] = None  # To store the active slide from frontend
-    lessonNumber: Optional[int] = None    # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
 
@@ -3820,7 +3797,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 lessonTitle=f"LLM Parsing Error for {project_data.projectName}",
                 slides=[]
             )
-            llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
+            llm_json_example = DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM  # Force use of new template format
             component_specific_instructions = """
             You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
