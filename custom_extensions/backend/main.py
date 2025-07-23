@@ -12039,7 +12039,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         if payload.courseName:
             course_name = payload.courseName
         else:
-            course_name = f"{payload.lesson or 'Standalone Presentation'}"
+            course_name = f"{payload.lesson or 'Standalone One-Pager'}"
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
