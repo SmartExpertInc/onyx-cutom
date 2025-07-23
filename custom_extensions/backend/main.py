@@ -12211,7 +12211,7 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
-
+        
 
 @app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
 async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):

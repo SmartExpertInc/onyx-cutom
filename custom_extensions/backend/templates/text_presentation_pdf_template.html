@@ -148,6 +148,8 @@
             color: var(--color-text-muted); 
         }
         .list-item-text-or-block { flex-grow: 1; }
+        .emoji-bullet { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", "EmojiOne Mozilla", "Twemoji Mozilla", "Segoe UI Symbol", Arial, sans-serif; font-size: 1em; margin-right: 0.375em; margin-top: 0.0625em; flex-shrink: 0; }
+        .list-block-wrapper li.nested { margin-left: 1.5em; }
 
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol { counter-reset: item; list-style-type: none; margin: 0; padding: 0; }
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: var(--space-md); }
@@ -243,25 +245,6 @@
         .headline-block, .alert-block, li, .paragraph-block { page-break-inside: avoid; }
         .headline-block.h2 { page-break-before: auto; page-break-after: avoid; }
         hr.content-section-divider { page-break-before: auto; page-break-after: avoid;}
-        
-        /* Ensure emojis display properly in PDFs */
-        * { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
-        
-        /* Emoji bullet styling */
-        .emoji-bullet { 
-            display: inline-block; 
-            margin-right: 6px; 
-            margin-top: 1px; 
-            font-size: 12px; 
-            line-height: 1; 
-        }
-        
-        /* Nested list indentation */
-        .nested-indent { 
-            width: 24px; 
-            height: 3px; 
-            flex-shrink: 0; 
-        }
     </style>
 </head>
 <body>
@@ -319,38 +302,11 @@
             </div>
         {% endif %}
 
-        {% macro get_emoji_from_text(text) %}
-            {% if text and text|length > 0 %}
-                {% set emoji_chars = ['🎯', '💰', '📈', '📊', '🎉', '✅', '❌', '⚠️', '💡', '🔥', '⭐', '🏆', '📝', '📋', '🎨', '🚀', '💼', '🎓', '🏠', '🌍', '📱', '💻', '🔧', '⚡', '🎪', '🎭', '🎨', '🎬', '🎵', '🎮', '🏈', '⚽', '🎾', '🏀', '🏓', '🏸', '🏊', '🏃', '🚴', '🏋️', '🧘', '🎯', '🎲', '🎮', '🎪', '🎭', '🎨', '🎬', '🎵', '🎮', '🏈', '⚽', '🎾', '🏀', '🏓', '🏸', '🏊', '🏃', '🚴', '🏋️', '🧘', '🎯', '🎲'] %}
-                {% for emoji in emoji_chars %}
-                    {% if text.startswith(emoji) %}
-                        {% set _ = emoji %}
-                        {% break %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% endmacro %}
-
-        {% macro get_text_without_emoji(text) %}
-            {% set emoji = get_emoji_from_text(text) %}
-            {% if emoji %}
-                {{ text[emoji|length:]|trim }}
-            {% else %}
-                {{ text }}
-            {% endif %}
-        {% endmacro %}
-
-        {% macro render_icon_svg_macro(icon_name_str, default_icon_for_type=None, css_class="", depth=0, item_text="") %}
+        {% macro render_icon_svg_macro(icon_name_str, default_icon_for_type=None, css_class="", depth=0) %}
             {% set final_icon_name = icon_name_str %}
-            
-            {% set emoji = get_emoji_from_text(item_text) %}
-            {% if emoji %}
-                <span class="emoji-bullet">{{ emoji }}</span>
-            {% elif default_icon_for_type == 'ul' or default_icon_for_type == 'ul-nested' %}
+
+            {% if default_icon_for_type == 'ul' or default_icon_for_type == 'ul-nested' %}
                 {% if icon_name_str == 'none' %}{% set final_icon_name = 'none' %}
-                {% elif depth > 0 %}
-                    <!-- For nested lists, show indentation instead of bullet -->
-                    <div class="nested-indent"></div>
                 {% else %}{% set final_icon_name = 'new-bullet' %}{% endif %}
             {% elif not icon_name_str %}
                 {% if default_icon_for_type == 'alert-info' %}{% set final_icon_name = 'info' %} 
@@ -362,7 +318,7 @@
                  {% set final_icon_name = icon_name_str %}
             {% endif %}
 
-            {% if final_icon_name and final_icon_name != 'none' and not emoji and depth == 0 %}
+            {% if final_icon_name and final_icon_name != 'none' %}
                 <svg class="icon-svg {{ css_class }} icon-{{final_icon_name}}"><use xlink:href="#icon-{{ final_icon_name }}" /></svg>
             {% endif %}
         {% endmacro %}
@@ -370,7 +326,7 @@
         {% macro render_list_items_recursive_macro(items_list, list_type_str, list_icon_name_str, depth, is_in_mini_section=false) %}
             {% if items_list is iterable and items_list is not string and items_list|length > 0 %}
                 {% for item_content in items_list %}
-                    <li>
+                    <li class="{{ 'nested' if depth > 0 else '' }}">
                         {% if list_type_str == 'numbered_list' %}
                             <span class="list-number-circle"></span>
                             <div class="list-content-column">
@@ -388,11 +344,11 @@
                             </div>
                         {% else %} {# bullet_list logic #}
                             <div class="list-marker">
-                                {{ render_icon_svg_macro(list_icon_name_str, 'ul' if depth == 0 else 'ul-nested', 'bullet-icon', depth, item_content if item_content is string else '') }}
+                                {{ render_icon_svg_macro(list_icon_name_str, 'ul' if depth == 0 else 'ul-nested', 'bullet-icon', depth) }}
                             </div>
                             <div class="list-item-text-or-block">
                             {% if item_content is string %}
-                                <span>{% set segments = get_text_without_emoji(item_content).split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</span>
+                                <span>{% set segments = item_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</span>
                             {% elif item_content is mapping %}
                                 {{ render_single_block_recursive_macro(item_content, depth + 1, is_in_mini_section) }}
                             {% elif item_content is iterable %}
