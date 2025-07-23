@@ -17,6 +17,7 @@
 
         :root {
             --font-primary: 'Inter', Arial, sans-serif;
+            --font-emoji: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiOne Color', 'EmojiSymbols', 'Symbola', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif;
             --color-primary-accent: #FF1414;
             --color-primary-accent-dark: #CC1010;
             --color-primary-accent-light-bg: #fafafa;
@@ -62,7 +63,7 @@
 
         @page { margin-top: 10mm; margin-bottom: 12mm; margin-left: 10mm; margin-right: 10mm; size: A4; }
         body {
-            font-family: var(--font-primary); margin: 0; padding: 0;
+            font-family: var(--font-primary), var(--font-emoji); margin: 0; padding: 0;
             background-color: var(--color-background-page); color: var(--color-text-default);
             font-size: var(--font-size-base); font-weight: var(--font-weight-normal);
             line-height: var(--line-height-base); widows: 3; orphans: 3;
@@ -91,6 +92,7 @@
         }
         .main-title-section { margin-bottom: 8px; text-align: left; }
         .main-title-text {
+            font-family: var(--font-primary), var(--font-emoji);
             font-size: var(--font-size-main-title); font-weight: var(--font-weight-medium);
             color: var(--color-text-darkest); margin: 0 0 var(--space-sm) 0; 
             line-height: 1.5; letter-spacing: var(--letter-spacing-increased); text-transform: uppercase;
@@ -114,11 +116,12 @@
 .headline-block.h3 { font-size: var(--font-size-h3-box); font-weight: var(--font-weight-bold); color: var(--color-text-black); margin-top: 10px; margin-bottom: 6px; text-align: left; }
 .headline-block.h4 { font-size: var(--font-size-h4-box); font-weight: var(--font-weight-bold); color: var(--color-text-black); margin-top: 8px; margin-bottom: 4px; text-align: left; }
         
-        .paragraph-block { font-size: var(--font-size-paragraph-small); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-weight: var(--font-weight-normal); margin-bottom: var(--space-sm); color: var(--color-text-default); text-align: left; width: 100%; }
+        .paragraph-block { font-family: var(--font-primary), var(--font-emoji); font-size: var(--font-size-paragraph-small); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-weight: var(--font-weight-normal); margin-bottom: var(--space-sm); color: var(--color-text-default); text-align: left; width: 100%; }
 
         .list-block-wrapper ul, .list-block-wrapper ol { padding-left: 0; list-style-type: none; margin-top: var(--space-xs); margin-bottom: var(--space-md); max-width: 100%; text-align: left; }
         .list-block-wrapper li { 
             margin-bottom: 2px; 
+            font-family: var(--font-primary), var(--font-emoji);
             font-size: var(--font-size-list-item); 
             font-weight: var(--font-weight-normal); 
             line-height: 1.5; 

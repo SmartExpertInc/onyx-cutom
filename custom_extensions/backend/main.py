@@ -5389,7 +5389,7 @@ async def download_folder_as_pdf(
 
         folder_name = folder_row['name']
         
-        # Get all projects in the folder, ordered by type and creation date
+        # Get all projects in the folder, ordered by their position in the folder
         async with pool.acquire() as conn:
             projects = await conn.fetch(
                 """
@@ -5398,13 +5398,7 @@ async def download_folder_as_pdf(
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.folder_id = $1 AND p.onyx_user_id = $2
-                ORDER BY 
-                    CASE 
-                        WHEN dt.component_name = 'TextPresentationDisplay' THEN 1
-                        WHEN dt.component_name = 'TrainingPlanTable' THEN 2
-                        ELSE 3
-                    END,
-                    p.created_at ASC;
+                ORDER BY p."order" ASC, p.created_at ASC;
                 """,
                 folder_id, onyx_user_id
             )
@@ -9538,7 +9532,13 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                         WHEN p.microproduct_content IS NOT NULL 
                         AND p.microproduct_content->>'sections' IS NOT NULL 
                         THEN (
-                            SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
+                            SELECT COALESCE(SUM(
+                                CASE 
+                                    WHEN lesson->>'hours' IS NOT NULL AND lesson->>'hours' != '' 
+                                    THEN (lesson->>'hours')::float
+                                    ELSE 0 
+                                END
+                            ), 0)
                             FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
                             CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
                         )
@@ -9556,7 +9556,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
                                 CASE 
                                     WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
                                     THEN (REPLACE(lesson->>'completionTime', 'm', '')::int)
-                                    ELSE 0 
+                                    ELSE 5 
                                 END
                             ), 0)
                             FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
