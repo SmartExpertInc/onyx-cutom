@@ -712,7 +712,6 @@ Formatting Rules:
 - Every section headline MUST include at least one emoji (e.g., `## 📊 Results`, `### 🚀 Launch Steps`).
 - Every list item SHOULD include an emoji (e.g., `- 💡 Key benefit`, `- 📅 Timeline`).
 - Table headers and/or cells SHOULD include emojis where appropriate.
-- Calls to action and contact information MUST be visually highlighted with emojis (e.g., `📞`, `📩`, `📅`).
 - A one-pager without visible emojis in every major block is considered non-compliant.
 - Emojis must be contextually relevant and varied throughout the document.
 
