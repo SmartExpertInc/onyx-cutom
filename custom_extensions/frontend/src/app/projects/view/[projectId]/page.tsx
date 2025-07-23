@@ -201,7 +201,7 @@ export default function ProjectInstanceViewPage() {
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData(copiedDetails as PdfLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
-          setEditableData(copiedDetails as SlideDeckData);
+          setEditableData(copiedDetails as ComponentBasedSlideDeck);
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
           setEditableData(copiedDetails as VideoLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
