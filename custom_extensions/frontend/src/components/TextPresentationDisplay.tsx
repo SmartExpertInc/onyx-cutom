@@ -221,8 +221,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'paragraph': { 
       const { text, isRecommendation } = block as ParagraphBlock;
       const isTopLevelParagraph = depth === 0;
-      let paragraphClasses = `${THEME_COLORS.primaryText} text-[10px] leading-normal`; 
-      if (isTopLevelParagraph) paragraphClasses += ` w-[75%]`; 
+      let paragraphClasses = `${THEME_COLORS.primaryText} text-[10px] leading-normal text-left`; 
+      if (isTopLevelParagraph) paragraphClasses += ` w-full`; 
       const defaultMb = depth > 0 ? 'mb-1' : 'mb-2';
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
       
@@ -235,11 +235,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-            <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb}`}>
+            <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left`}>
               <textarea 
                 value={currentRawText} 
                 onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-[75%]' : 'w-full'} text-[10px] leading-normal ${THEME_COLORS.primaryText.replace('text-black', '')}`} 
+                className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal ${THEME_COLORS.primaryText.replace('text-black', '')} text-left`} 
               />
             </div>
         );
@@ -557,35 +557,35 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   return (
     <div className="min-h-screen bg-white p-4">
-      <div className="bg-[#f4f5f6] rounded-lg p-4 sm:p-6 md:p-8 max-w-3xl mx-auto my-6">
-        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md">
+      <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+        <div className="bg-[#f4f5f6] rounded-lg p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
-            <header className="mb-4">
-              {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1">{parentProjectName}</p>}
+            <header className="mb-4 text-left">
+              {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
               
               {isEditing && onTextChange ? (
                   <input 
                       type="text" 
                       value={dataToDisplay.textTitle} 
                       onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
-                      className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText}`}
+                      className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
                   />
               ) : (
-                  <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2`}>{dataToDisplay.textTitle}</h1>
+                  <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
               )}
 
               <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} />
             </header>
           )}
 
-          <main>
+          <main className="text-left">
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
-                  <section key={index} className="mb-4 p-3 rounded-md bg-white">
+                  <section key={index} className="mb-4 p-3 rounded-md bg-white text-left">
                     {!item._skipRenderHeadline && (
                       <RenderBlock
                         block={item.headline}
@@ -594,14 +594,14 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onTextChange={onTextChange}
                       />
                     )}
-                    <div className={item._skipRenderHeadline ? '' : 'pl-1'}>
+                    <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
                       {item.items.map((subItem, subIndex) => {
                         const isLastSubItem = subIndex === item.items.length - 1;
                         if (subItem.type === 'mini_section') {
                           const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                           const originalMiniListIndex = findOriginalIndex(subItem.list);
                           return (
-                            <div key={subIndex} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500">
+                            <div key={subIndex} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500 text-left">
                               <RenderBlock
                                 block={subItem.headline}
                                 isMiniSectionHeadline={true}
@@ -640,7 +640,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
-                  <div key={index} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500">
+                  <div key={index} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500 text-left">
                     <RenderBlock
                       block={item.headline}
                       isMiniSectionHeadline={true}

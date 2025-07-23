@@ -71,10 +71,8 @@
         .pdf-container { 
             width: 100%; 
             padding: 0; 
-            background-color: #f4f5f6; 
+            background-color: white; 
             min-height: 100vh; 
-            border-radius: 8px; 
-            padding: 16px; 
         }
         .content-wrapper { 
             background-color: white; 
@@ -84,33 +82,41 @@
             max-width: 100%; 
             margin: 0 auto; 
         }
-        .main-title-section { margin-bottom: 8px; }
+        .grey-section {
+            background-color: #f4f5f6; 
+            border-radius: 8px; 
+            padding: 24px; 
+            margin: 0 auto; 
+            max-width: 100%; 
+        }
+        .main-title-section { margin-bottom: 8px; text-align: left; }
         .main-title-text {
             font-size: var(--font-size-main-title); font-weight: var(--font-weight-medium);
             color: var(--color-text-darkest); margin: 0 0 var(--space-sm) 0; 
             line-height: 1.5; letter-spacing: var(--letter-spacing-increased); text-transform: uppercase;
+            text-align: left;
         }
         .icon-svg { display: inline-block; vertical-align: middle; width: 1em; height: 1em; flex-shrink: 0; }
         .icon-svg.icon-new-bullet { fill: currentColor; stroke: none; }
 
-        .content-block-wrapper { margin-bottom: var(--space-sm); } 
+        .content-block-wrapper { margin-bottom: var(--space-sm); text-align: left; } 
         .content-block-wrapper:last-child { margin-bottom: 0; }
 
-        .headline-block { display: flex; align-items: center; line-height: 1.5; max-width: 100%; text-transform: uppercase; letter-spacing: var(--letter-spacing-increased); }
+        .headline-block { display: flex; align-items: center; line-height: 1.5; max-width: 100%; text-transform: uppercase; letter-spacing: var(--letter-spacing-increased); text-align: left; }
         .headline-block .icon-svg { 
             margin-right: var(--space-sm); width: 1.0em; height: 1.0em; 
             flex-shrink: 0; color: var(--color-primary-accent);
          }
 
-        .headline-block span { flex-grow: 1; }
-        .headline-block.h1 { font-size: var(--font-size-h1-content); font-weight: var(--font-weight-medium); color: var(--color-text-darkest); margin-top: var(--space-2xl); margin-bottom: 8px; }
-        .headline-block.h2 { font-family: var(--font-primary); font-size: var(--font-size-other-section-header); font-weight: var(--font-weight-medium); color: var(--color-text-darkest); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); margin-top: 16px; margin-bottom: 12px; }
-        .headline-block.h3 { font-size: var(--font-size-h3-box); font-weight: var(--font-weight-medium); color: var(--color-text-black); margin-top: 10px; margin-bottom: 6px; }
-        .headline-block.h4 { font-size: var(--font-size-h4-box); font-weight: var(--font-weight-medium); color: var(--color-text-black); margin-top: 8px; margin-bottom: 4px; }
+        .headline-block span { flex-grow: 1; text-align: left; }
+        .headline-block.h1 { font-size: var(--font-size-h1-content); font-weight: var(--font-weight-medium); color: var(--color-text-darkest); margin-top: var(--space-2xl); margin-bottom: 8px; text-align: left; }
+        .headline-block.h2 { font-family: var(--font-primary); font-size: var(--font-size-other-section-header); font-weight: var(--font-weight-medium); color: var(--color-text-darkest); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); margin-top: 16px; margin-bottom: 12px; text-align: left; }
+        .headline-block.h3 { font-size: var(--font-size-h3-box); font-weight: var(--font-weight-medium); color: var(--color-text-black); margin-top: 10px; margin-bottom: 6px; text-align: left; }
+        .headline-block.h4 { font-size: var(--font-size-h4-box); font-weight: var(--font-weight-medium); color: var(--color-text-black); margin-top: 8px; margin-bottom: 4px; text-align: left; }
         
-        .paragraph-block { font-size: var(--font-size-paragraph-small); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-weight: var(--font-weight-normal); margin-bottom: var(--space-sm); color: var(--color-text-default); }
+        .paragraph-block { font-size: var(--font-size-paragraph-small); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-weight: var(--font-weight-normal); margin-bottom: var(--space-sm); color: var(--color-text-default); text-align: left; width: 100%; }
 
-        .list-block-wrapper ul, .list-block-wrapper ol { padding-left: 0; list-style-type: none; margin-top: var(--space-xs); margin-bottom: var(--space-md); max-width: 100%; }
+        .list-block-wrapper ul, .list-block-wrapper ol { padding-left: 0; list-style-type: none; margin-top: var(--space-xs); margin-bottom: var(--space-md); max-width: 100%; text-align: left; }
         .list-block-wrapper li { 
             margin-bottom: 2px; 
             font-size: var(--font-size-list-item); 
@@ -450,44 +456,46 @@
 
 <div class="pdf-container">
   <div class="content-wrapper">
-{% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}
-    {% set blocks_to_render = text_data.contentBlocks %}
-    {% if text_data.textTitle and blocks_to_render and blocks_to_render[0].type == 'headline' and blocks_to_render[0].level in [1, 2] and blocks_to_render[0].text | trim | lower == text_data.textTitle | trim | lower %}
-        {% set blocks_to_render = blocks_to_render[1:] %}
-    {% endif %}
-
-    {% set next_block_in_box_content = [false] %}
-    {% for loop_index in range(blocks_to_render | length) %}
-        {% set current_block_item = blocks_to_render[loop_index] %}
-        {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
-        {% set is_last_block_overall = loop_index == (blocks_to_render | length) - 1 %}
-        
-        {% if next_block_in_box_content[0] %}
-            {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
-        {% else %}
-            {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
-            {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
-            
-            {% if is_important_headline_check %} 
-                <div class="mini-section-box-wrapper"> <div class="mini-section-box">
-                    {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
-                    {% if is_relevant_content_following_for_box_check %}
-                        {{ render_single_block_recursive_macro(next_block_item, 0, is_in_mini_section=true) }}
-                        {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
-                    {% endif %}
-                </div> </div>
-            {% else %} 
-                {{ render_single_block_recursive_macro(current_block_item, 0) }}
-            {% endif %}
+    <div class="grey-section">
+    {% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}
+        {% set blocks_to_render = text_data.contentBlocks %}
+        {% if text_data.textTitle and blocks_to_render and blocks_to_render[0].type == 'headline' and blocks_to_render[0].level in [1, 2] and blocks_to_render[0].text | trim | lower == text_data.textTitle | trim | lower %}
+            {% set blocks_to_render = blocks_to_render[1:] %}
         {% endif %}
 
-    {% endfor %}
-{% elif text_data and text_data.contentBlocks is not none %}
-     <p class="error-message">contentBlocks is not iterable. Type: {{ text_data.contentBlocks|type }}</p>
-{% else %}
-     <p class="warning-message">No content blocks found.</p>
-{% endif %}
-</div>
+        {% set next_block_in_box_content = [false] %}
+        {% for loop_index in range(blocks_to_render | length) %}
+            {% set current_block_item = blocks_to_render[loop_index] %}
+            {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
+            {% set is_last_block_overall = loop_index == (blocks_to_render | length) - 1 %}
+            
+            {% if next_block_in_box_content[0] %}
+                {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
+            {% else %}
+                {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
+                {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
+                
+                {% if is_important_headline_check %} 
+                    <div class="mini-section-box-wrapper"> <div class="mini-section-box">
+                        {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
+                        {% if is_relevant_content_following_for_box_check %}
+                            {{ render_single_block_recursive_macro(next_block_item, 0, is_in_mini_section=true) }}
+                            {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
+                        {% endif %}
+                    </div> </div>
+                {% else %} 
+                    {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% endif %}
+            {% endif %}
+
+        {% endfor %}
+    {% elif text_data and text_data.contentBlocks is not none %}
+         <p class="error-message">contentBlocks is not iterable. Type: {{ text_data.contentBlocks|type }}</p>
+    {% else %}
+         <p class="warning-message">No content blocks found.</p>
+    {% endif %}
+    </div>
+  </div>
 </div>
 </body>
 </html> 
