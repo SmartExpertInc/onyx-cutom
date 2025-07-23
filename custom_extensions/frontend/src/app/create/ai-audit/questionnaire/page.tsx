@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const documentOptions = [
@@ -34,6 +34,20 @@ export default function AiAuditQuestionnaire() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const [longLoading, setLongLoading] = useState(false);
+  const loadingTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (loading) {
+      loadingTimeout.current = setTimeout(() => setLongLoading(true), 60000);
+    } else {
+      setLongLoading(false);
+      if (loadingTimeout.current) clearTimeout(loadingTimeout.current);
+    }
+    return () => {
+      if (loadingTimeout.current) clearTimeout(loadingTimeout.current);
+    };
+  }, [loading]);
 
   const handleCheckbox = (arr: string[], setArr: (v: string[]) => void, value: string) => {
     if (arr.includes(value)) {
@@ -93,7 +107,12 @@ export default function AiAuditQuestionnaire() {
       const data = await res.json();
       // Save markdown to localStorage or pass via router (for demo, use localStorage)
       localStorage.setItem("aiAuditOnePager", data.markdown);
-      router.push(`/projects/view/${data.id}`);
+      // If folderId is returned, redirect to folder view
+      if (data.folderId) {
+        router.push(`/projects?folder=${data.folderId}`);
+      } else {
+        router.push(`/projects/view/${data.id}`);
+      }
     } catch (err: any) {
       setError(err.message || "Ошибка генерации AI-аудита");
     } finally {
@@ -102,13 +121,14 @@ export default function AiAuditQuestionnaire() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center p-6 bg-gradient-to-b from-white via-blue-50 to-blue-100">
-      <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-8 mt-12">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-900">AI Audit Questionnaire</h1>
+    <main className="min-h-screen flex flex-col items-center p-0 bg-[#F7F7F7] font-sans">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-10 mt-16 border border-gray-100">
+        <h1 className="text-4xl font-bold mb-8 text-center text-blue-900 tracking-tight">AI Audit Questionnaire</h1>
+        <div className="h-1 w-16 bg-blue-200 rounded-full mx-auto mb-8" />
         {submitted ? (
           <div className="text-center text-green-700 text-lg font-semibold py-12">Thank you! Your answers have been submitted.</div>
         ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-7">
           <div>
             <label className="block font-medium mb-1 text-black">Company name</label>
             <input
@@ -242,14 +262,20 @@ export default function AiAuditQuestionnaire() {
             {touched.priorities && priorities.length === 0 && <div className="text-red-500 text-xs mt-1">Required</div>}
             {priorities.includes("Other") && touched.priorityOther && !priorityOther.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
           </div>
+          {/* Example section divider: */}
+          <div className="h-px bg-gray-200 my-2" />
           <button
             type="submit"
-            className="mt-4 px-8 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors cursor-pointer"
+            className="mt-6 px-10 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold shadow-lg transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            {loading ? "Генерация..." : "Сгенерировать аудит"}
+            {loading ? (longLoading ? (
+              <span className="flex items-center gap-2"><span className="animate-spin h-5 w-5 border-2 border-t-2 border-blue-200 border-t-blue-600 rounded-full"></span> Still working...</span>
+            ) : (
+              <span className="flex items-center gap-2"><span className="animate-spin h-5 w-5 border-2 border-t-2 border-blue-200 border-t-blue-600 rounded-full"></span> Generating...</span>
+            )) : "Generate Audit"}
           </button>
-          {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
+          {error && <div className="text-red-600 text-base mt-2 text-center">{error}</div>}
         </form>
         )}
       </div>
