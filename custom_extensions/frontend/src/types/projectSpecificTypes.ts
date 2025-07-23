@@ -1,7 +1,6 @@
 // custom_extensions/frontend/src/types/projectSpecificTypes.ts
 import {
   PdfLessonData as PdfLessonDataType,
-  SlideDeckData,
   type AnyContentBlock as ContentBlockType,
   type HeadlineBlock as HeadlineBlockType,
   type ParagraphBlock as ParagraphBlockType,
@@ -10,6 +9,7 @@ import {
   type AlertBlock as AlertBlockType,
   type SectionBreakBlock as SectionBreakBlockType
 } from './pdfLesson';
+import { ComponentBasedSlideDeck } from './slideTemplates';
 import {
   TextPresentationData as TextPresentationDataType
 } from './textPresentation';
@@ -50,8 +50,8 @@ export interface TrainingPlanData {
 
 
 // Generic Content Type for MicroProducts
-// UPDATED to include VideoLessonData and SlideDeckData
-export type MicroProductContentData = TrainingPlanData | PdfLessonDataType | SlideDeckData | VideoLessonData | QuizData | TextPresentationDataType | null;
+// UPDATED to include VideoLessonData and ComponentBasedSlideDeck
+export type MicroProductContentData = TrainingPlanData | PdfLessonDataType | ComponentBasedSlideDeck | VideoLessonData | QuizData | TextPresentationDataType | null;
 
 
 // For fetching project details for the edit page
@@ -107,7 +107,6 @@ export interface DesignTemplateResponse {
 // Re-export PdfLessonData and its supporting types using "export type"
 export type {
   PdfLessonDataType as PdfLessonData, // Re-export with the original name
-  SlideDeckData,
   ContentBlockType as ContentBlock,
   HeadlineBlockType as HeadlineBlock,
   ParagraphBlockType as ParagraphBlock,
@@ -116,6 +115,9 @@ export type {
   AlertBlockType as AlertBlock,
   SectionBreakBlockType as SectionBreakBlock
 };
+
+// Re-export new slide deck types
+export type { ComponentBasedSlideDeck };
 
 // It's good practice to also export VideoLesson types if they are only defined in videoLessonTypes.ts
 // and used by MicroProductContentData here.

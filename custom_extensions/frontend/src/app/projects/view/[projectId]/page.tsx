@@ -13,7 +13,7 @@ import {
   TextPresentationData,
 } from '@/types/projectSpecificTypes';
 import { VideoLessonData } from '@/types/videoLessonTypes';
-import { SlideDeckData } from '@/types/pdfLesson';
+import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
@@ -598,7 +598,7 @@ export default function ProjectInstanceViewPage() {
           />
         );
       case COMPONENT_NAME_SLIDE_DECK:
-        const slideDeckData = editableData as SlideDeckData | null;
+        const slideDeckData = editableData as ComponentBasedSlideDeck | null;
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">No slide deck data available</div>;
         }
@@ -623,7 +623,6 @@ export default function ProjectInstanceViewPage() {
                   handleTextChange([], updatedDeck as any);
                 }
               }}
-              forceMode="auto"
               showFormatInfo={true}
             />
           </div>
