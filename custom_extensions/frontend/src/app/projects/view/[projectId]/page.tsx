@@ -605,14 +605,11 @@ export default function ProjectInstanceViewPage() {
                 // For slide decks, use the new SmartSlideDeckViewer with component-based templates
         return (
           <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100vw', 
-            height: '100vh', 
-            zIndex: 9999, 
+            width: '100%',
+            minHeight: '600px',
             backgroundColor: '#f8f9fa',
-            padding: '20px'
+            padding: '20px',
+            borderRadius: '8px'
           }}>
             <SmartSlideDeckViewer
               deck={slideDeckData}
