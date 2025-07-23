@@ -641,7 +641,8 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 - Each length corresponds to a minimum word count:
     - Short: at least 250 words
     - Medium: at least 400 words
-    - Long: at least 700 words
+    - Long: at least 1000 words
+- **WARNING:** Any long one-pager under 1000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
 - The assistant should use the full expected word count for the chosen length and err on the side of providing more content, not less.
 - Overly brief or sparse one-pagers are non-compliant. Each section should be well-developed and detailed.
 - If in doubt, make the one-pager longer and more comprehensive, not shorter.
@@ -659,7 +660,7 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium".
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 1000 words. If the draft is under 1000 words, add more examples, details, and grouped points until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
