@@ -247,7 +247,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager" | "AI-Audit">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -847,11 +847,6 @@ function GenerateProductPicker() {
     router.push(`/create/text-presentation?${params.toString()}`);
   };
 
-  // Add a simple icon for AI-Audit
-  const AiAuditIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
-    <svg width={size} height={size/8} viewBox={`0 0 ${size} ${size/8}`}><rect x="0" y="0" width={size} height={size/8} fill="#333" rx={size/16} /></svg>
-  );
-
   return (
     <main
       className="min-h-screen flex flex-col items-center p-6"
@@ -949,12 +944,6 @@ function GenerateProductPicker() {
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
           />
-          <TabButton
-            label="AI-Audit"
-            Icon={AiAuditIcon}
-            active={activeProduct === "AI-Audit"}
-            onClick={() => setActiveProduct("AI-Audit")}
-          />
         </div>
 
         {/* Dropdown chips */}
@@ -988,19 +977,6 @@ function GenerateProductPicker() {
               <option value="es">Spanish</option>
               <option value="ru">Russian</option>
             </select>
-          </div>
-        )}
-
-        {/* AI-Audit Start Button */}
-        {activeProduct === "AI-Audit" && (
-          <div className="flex flex-wrap justify-center gap-2 mb-2">
-            <a
-              href="/custom-projects-ui/create/ai-audit/questionnaire"
-              className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-medium shadow transition-colors cursor-pointer"
-              type="button"
-            >
-              Start
-            </a>
           </div>
         )}
 
