@@ -287,74 +287,42 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-      "deckgoTemplate": "deckgo-slide-title",
-      "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
-        { "type": "paragraph", "text": "This slide introduces the main topic." },
-        {
-          "type": "bullet_list",
-          "items": [
-            "Key point 1",
-            "Key point 2", 
-            "Key point 3"
-          ]
-        }
-      ],
-      "imagePlaceholders": [
-        {
-          "size": "BACKGROUND",
-          "position": "BACKGROUND",
-          "description": "Educational theme background"
-        }
-      ]
+      "templateId": "hero-title-slide",
+      "props": {
+        "title": "Welcome to the Lesson",
+        "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
+        "author": "Course Instructor",
+        "backgroundColor": "#f8f9fa",
+        "backgroundImage": "Educational theme background"
+      }
     },
     {
       "slideId": "slide_2_main",
       "slideNumber": 2,
       "slideTitle": "Main Concepts",
-      "deckgoTemplate": "deckgo-slide-content",
-      "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Core Ideas" },
-        {
-          "type": "numbered_list",
-          "items": [
-            "First important concept",
-            "Second important concept"
-          ]
-        },
-        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
-      ],
-      "imagePlaceholders": [
-        {
-          "size": "MEDIUM",
-          "position": "RIGHT",
-          "description": "Concept visualization or diagram"
-        }
-      ]
+      "templateId": "content-slide",
+      "props": {
+        "title": "Core Ideas",
+        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
+        "backgroundColor": "#ffffff",
+        "alignment": "left"
+      }
     },
     {
-      "slideId": "slide_3_data",
+      "slideId": "slide_3_process",
       "slideNumber": 3,
-      "slideTitle": "Understanding Schedules",
-      "deckgoTemplate": "deckgo-slide-chart",
-      "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Timetable Chart" },
-        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
-        {
-          "type": "bullet_list",
-          "items": [
-            "Check the departure and arrival columns carefully.",
-            "The station code is listed beside each time."
-          ]
-        }
-      ],
-      "imagePlaceholders": [
-        {
-          "size": "BACKGROUND",
-          "position": "BACKGROUND", 
-          "description": "A train timetable board"
-        }
-      ]
+      "slideTitle": "Step-by-Step Process",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Implementation Steps",
+        "steps": [
+          "Analyze the requirements carefully",
+          "Design the solution architecture", 
+          "Implement core functionality",
+          "Test and validate results"
+        ],
+        "backgroundColor": "#f8f9fa"
+      }
     }
   ],
   "currentSlideId": "slide_1_intro",
@@ -1295,74 +1263,42 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-      "deckgoTemplate": "deckgo-slide-title",
-      "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Welcome to the Lesson" },
-        { "type": "paragraph", "text": "This slide introduces the main topic." },
-        {
-          "type": "bullet_list",
-          "items": [
-            "Key point 1",
-            "Key point 2", 
-            "Key point 3"
-          ]
-        }
-      ],
-      "imagePlaceholders": [
-        {
-          "size": "BACKGROUND",
-          "position": "BACKGROUND",
-          "description": "Educational theme background"
-        }
-      ]
+      "templateId": "hero-title-slide",
+      "props": {
+        "title": "Welcome to the Lesson",
+        "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
+        "author": "Course Instructor",
+        "backgroundColor": "#f8f9fa",
+        "backgroundImage": "Educational theme background"
+      }
     },
     {
       "slideId": "slide_2_main",
       "slideNumber": 2,
       "slideTitle": "Main Concepts",
-      "deckgoTemplate": "deckgo-slide-content",
-      "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Core Ideas" },
-        {
-          "type": "numbered_list",
-          "items": [
-            "First important concept",
-            "Second important concept"
-          ]
-        },
-        { "type": "paragraph", "text": "These concepts form the foundation of understanding." }
-      ],
-      "imagePlaceholders": [
-        {
-          "size": "MEDIUM",
-          "position": "RIGHT",
-          "description": "Concept visualization or diagram"
-        }
-      ]
+      "templateId": "content-slide",
+      "props": {
+        "title": "Core Ideas",
+        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
+        "backgroundColor": "#ffffff",
+        "alignment": "left"
+      }
     },
     {
-      "slideId": "slide_3_data",
+      "slideId": "slide_3_process",
       "slideNumber": 3,
-      "slideTitle": "Understanding Schedules",
-      "deckgoTemplate": "deckgo-slide-chart",
-      "contentBlocks": [
-        { "type": "headline", "level": 2, "text": "Timetable Chart" },
-        { "type": "paragraph", "text": "Timetables and schedules keep you on track. Learn how to read a simple timetable chart." },
-        {
-          "type": "bullet_list",
-          "items": [
-            "Check the departure and arrival columns carefully.",
-            "The station code is listed beside each time."
-          ]
-        }
-      ],
-      "imagePlaceholders": [
-        {
-          "size": "BACKGROUND",
-          "position": "BACKGROUND", 
-          "description": "A train timetable board"
-        }
-      ]
+      "slideTitle": "Step-by-Step Process",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Implementation Steps",
+        "steps": [
+          "Analyze the requirements carefully",
+          "Design the solution architecture", 
+          "Implement core functionality",
+          "Test and validate results"
+        ],
+        "backgroundColor": "#f8f9fa"
+      }
     }
   ],
   "currentSlideId": "slide_1_intro",
@@ -3889,85 +3825,211 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            **Overall Goal:** Convert the provided slide deck lesson content into a structured JSON that represents multiple slides with content blocks. Capture all information, hierarchical relationships, Component-Based templates, and image placeholders. Preserve the original language for all textual fields.
+            **CRITICAL: Generate Component-Based Slides with templateId and props**
+            You must convert slides to the new component-based format using templateId and props instead of the legacy contentBlocks format.
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
-            2.  `slides` (array): Ordered list of slide objects.
+            2.  `slides` (array): Ordered list of slide objects in COMPONENT-BASED format.
             3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
             4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
             5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
 
-            **Slide Object (`slides` array items):**
+            **Component-Based Slide Object (`slides` array items):**
             * `slideId` (string): Unique identifier like "slide_1_intro", "slide_2_concepts".
             * `slideNumber` (integer): Sequential slide number (1, 2, 3, ...).
             * `slideTitle` (string): Descriptive title for the slide.
-            * `contentBlocks` (array): List of content block objects for this slide.
-            * `templateId` (string, optional): Component-Based template ID (e.g., "hero-title-slide", "challenges-solutions", "image-comparison").
-            * `imagePlaceholders` (array, optional): List of image placeholder objects.
+            * `templateId` (string): Component template ID (e.g., "hero-title-slide", "content-slide", "process-steps").
+            * `props` (object): Template-specific properties containing the actual content.
+
+            **Available Template IDs and their Props (must match exactly):**
+
+            1. **`hero-title-slide`** - Hero opening slides with detailed overview:
+            ```json
+            "props": {
+              "title": "Main slide title",
+              "subtitle": "Detailed subtitle explaining the overview",
+              "showAccent": true,
+              "accentColor": "#3b82f6",
+              "accentPosition": "left",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "subtitleColor": "#6b7280",
+              "textAlign": "center",
+              "titleSize": "xlarge",
+              "subtitleSize": "medium"
+            }
+            ```
+
+            2. **`title-slide`** - Simple title slides with title/subtitle/author:
+            ```json
+            "props": {
+              "title": "Presentation Title",
+              "subtitle": "Compelling subtitle that captures attention",
+              "author": "Author name",
+              "date": "Date",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "subtitleColor": "#666666"
+            }
+            ```
+
+            3. **`content-slide`** - Standard content slides with title and body text:
+            ```json
+            "props": {
+              "title": "Slide title",
+              "content": "Main content with bullet points:\n\n• Point 1\n• Point 2\n• Point 3",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "contentColor": "#333333",
+              "alignment": "left"
+            }
+            ```
+
+            4. **`bullet-points`** - Formatted bullet point lists with customizable columns:
+            ```json
+            "props": {
+              "title": "Key Points",
+              "bullets": [
+                "First important point",
+                "Second key insight",
+                "Third critical element"
+              ],
+              "maxColumns": 2,
+              "bulletStyle": "dot",
+              "titleColor": "#1a1a1a",
+              "bulletColor": "#333333",
+              "backgroundColor": "#ffffff"
+            }
+            ```
+
+            5. **`two-column`** - Split layout with two content areas:
+            ```json
+            "props": {
+              "title": "Two Column Layout",
+              "leftTitle": "Left Column",
+              "leftContent": "Content for the left side",
+              "rightTitle": "Right Column",
+              "rightContent": "Content for the right side",
+              "columnRatio": "50-50",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "contentColor": "#333333"
+            }
+            ```
+
+            6. **`process-steps`** - Numbered process or workflow steps:
+            ```json
+            "props": {
+              "title": "Process Steps",
+              "steps": [
+                "Step 1 description",
+                "Step 2 description", 
+                "Step 3 description"
+              ],
+              "layout": "horizontal",
+              "stepColor": "#007bff",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a"
+            }
+            ```
+
+            7. **`comparison-slide`** - Before/after or side-by-side comparison layout:
+            ```json
+            "props": {
+              "title": "Comparison Analysis",
+              "beforeTitle": "Before",
+              "beforeContent": "Current situation",
+              "afterTitle": "After",
+              "afterContent": "Improved situation",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "contentColor": "#333333"
+            }
+            ```
+
+            8. **`challenges-solutions`** - Problems vs solutions with visual indicators:
+            ```json
+            "props": {
+              "title": "Challenges and Solutions",
+              "challengesTitle": "Challenges",
+              "solutionsTitle": "Solutions",
+              "challenges": ["Challenge 1", "Challenge 2"],
+              "solutions": ["Solution 1", "Solution 2"],
+              "challengeColor": "#fef2f2",
+              "solutionColor": "#f0fdf4",
+              "challengeIconColor": "#dc2626",
+              "solutionIconColor": "#16a34a",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "contentColor": "#374151"
+            }
+            ```
+
+            9. **`image-comparison`** - Visual comparison with images and descriptions:
+            ```json
+            "props": {
+              "title": "Image Comparison",
+              "leftTitle": "Option A",
+              "leftDescription": "Description for option A",
+              "leftImage": "https://via.placeholder.com/400x200?text=Image+A",
+              "rightTitle": "Option B",
+              "rightDescription": "Description for option B", 
+              "rightImage": "https://via.placeholder.com/400x200?text=Image+B",
+              "backgroundColor": "#ffffff",
+              "titleColor": "#1a1a1a",
+              "subtitleColor": "#2d3748",
+              "descriptionColor": "#4a5568"
+            }
+            ```
+
+            10. **`big-image-left`** - Large image on left with content on right:
+            ```json
+            "props": {
+              "title": "Image Title",
+              "content": "Content that complements the image",
+              "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
+              "imageAlt": "Descriptive alt text",
+              "imageSize": "large",
+              "titleColor": "#1a1a1a",
+              "contentColor": "#333333",
+              "backgroundColor": "#ffffff"
+            }
+            ```
+
+            11. **`quote-center`** - Prominently displayed quotes with attribution:
+            ```json
+            "props": {
+              "quote": "This is an inspiring quote that captures the essence",
+              "author": "Quote Author",
+              "attribution": "Title, Organization",
+              "backgroundColor": "#f8f9fa",
+              "quoteColor": "#1a1a1a",
+              "authorColor": "#666666",
+              "fontSize": "large"
+            }
+            ```
 
             **Enhanced Slide Parsing Rules:**
             * Each slide should be separated by `---` in the input markdown
-            * Extract slide titles from `**Slide N: Title**` format, which may include Component template specification like `` `hero-title-slide` ``
-            * Parse Component template specification: Look for backtick-enclosed template names (e.g., `` `challenges-solutions` ``) in slide titles
-            * Store extracted template ID in the `templateId` field (NOT deckgoTemplate)
-            * Extract image placeholders: Parse `[IMAGE_PLACEHOLDER: SIZE | POSITION | Description]` syntax
-            * Convert slide content following content block rules, ignoring image placeholders in content flow
+            * Extract slide titles from `**Slide N: Title**` format, which may include template specification like `` `hero-title-slide` ``
+            * Parse template specification: Look for backtick-enclosed template names (e.g., `` `content-slide` ``) in slide titles
+            * Convert slide content to appropriate template props based on the template type
             * Generate appropriate `slideId` values based on slide number and title
-            * Preserve all formatting, bold text (**text**), and original language
+            * Preserve all formatting and original language in props
 
-            **Component-Based Template Parsing:**
-            When you encounter a slide title like: `**Slide 8: Understanding Pricing** ` `` `challenges-solutions` ``
-            - Extract `slideTitle`: "Understanding Pricing" (without the Slide number prefix)
-            - Extract `templateId`: "challenges-solutions" 
-            - Store template information in the `templateId` field (this is the primary template field)
-            - Do NOT use deckgoTemplate field for Component-Based templates
+            **Content to Props Conversion:**
+            - Headlines → `title` prop
+            - Paragraphs and lists → `content` prop (formatted as markdown text)
+            - Multiple sections → use appropriate template (two-column, process-steps, etc.)
+            - Always include `backgroundColor` prop (default: "#ffffff")
 
-            **Available Template IDs (must match exactly):**
-            - `hero-title-slide` - Hero opening slides with detailed overview
-            - `title-slide` - Simple title slides with title/subtitle/author
-            - `content-slide` - Standard content slides with title and body text
-            - `bullet-points` - Formatted bullet point lists with customizable columns
-            - `two-column` - Split layout with two content areas
-            - `image-comparison` - Visual comparison with images and descriptions
-            - `comparison-slide` - Before/after or side-by-side comparison layout
-            - `challenges-solutions` - Problems vs solutions with visual indicators
-            - `process-steps` - Numbered process or workflow steps
-            - `big-image-left` - Large image on left with content on right
-            - `quote-center` - Prominently displayed quotes with attribution
-
-            **Image Placeholder Parsing:**
-            When you encounter: `[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]`
-            Create an image placeholder object:
-            ```json
-            {
-              "size": "MEDIUM",
-              "position": "RIGHT", 
-              "description": "Concept visualization or diagram"
-            }
-            ```
-            Add these to the `imagePlaceholders` array. Do NOT include image placeholder text in content blocks.
-
-            **Content Block Instructions (enhanced):**
-            Parse each slide's content into appropriate content blocks:
-            - Headlines (levels 2-4 with optional icons and isImportant flags)
-            - Paragraphs (with optional isRecommendation flag)
-            - Bullet lists and numbered lists (with nesting support)
-            - Alerts (info, warning, success, danger)
-            - Section breaks
-            - **IGNORE**: Image placeholder syntax in content flow
-
-            **Special Content Handling:**
-            * Lines containing `[Chart/Data visualization content]` should be converted to appropriate content blocks or special chart content types
-            * Template-specific content should be preserved but not included as regular content blocks if it's placeholder syntax
-            * Focus on actual educational content, not template/placeholder instructions
-
-            **Content Guidelines per Slide:**
-            * Keep content focused - each slide should cover one main concept
-            * Limit text per slide for readability
-            * Use mix of content types for visual variety
-            * Maintain logical flow between slides
-            * Preserve educational value while supporting visual templates
+            **Template Selection Logic:**
+            - First slide: Use `hero-title-slide` for introduction
+            - Content with steps/process: Use `process-steps`
+            - Content with bullet points: Use `bullet-points`
+            - Content with two sections: Use `two-column`
+            - Default: Use `content-slide`
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

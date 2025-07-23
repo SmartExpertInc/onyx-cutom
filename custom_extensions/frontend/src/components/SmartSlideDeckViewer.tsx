@@ -1,25 +1,19 @@
 // components/SmartSlideDeckViewer.tsx
-// Smart viewer that handles both legacy and component-based slides
+// Simplified viewer for component-based slides only
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { SlideDeckData } from '@/types/pdfLesson';
+import React, { useState, useEffect } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
-import { detectSlideDeckFormat, adaptLegacySlideDeck } from '@/utils/legacySlideAdapter';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
-import { SlideDeckViewer } from './SlideDeckViewer';
 
 interface SmartSlideDeckViewerProps {
-  /** The slide deck data - can be legacy or component-based format */
-  deck: SlideDeckData | ComponentBasedSlideDeck | any;
+  /** The slide deck data - must be in component-based format */
+  deck: ComponentBasedSlideDeck | any;
   
   /** Whether the deck is editable */
   isEditable?: boolean;
   
   /** Save callback for changes */
-  onSave?: (updatedDeck: SlideDeckData | ComponentBasedSlideDeck) => void;
-  
-  /** Force a specific rendering mode */
-  forceMode?: 'auto' | 'legacy' | 'component';
+  onSave?: (updatedDeck: ComponentBasedSlideDeck) => void;
   
   /** Show format detection info */
   showFormatInfo?: boolean;
@@ -29,45 +23,40 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
   isEditable = false,
   onSave,
-  forceMode = 'auto',
   showFormatInfo = false
 }) => {
-  const [adaptedDeck, setAdaptedDeck] = useState<ComponentBasedSlideDeck | null>(null);
+  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Detect deck format
-  const deckFormat = useMemo(() => {
-    if (forceMode !== 'auto') {
-      return forceMode;
-    }
-    return detectSlideDeckFormat(deck);
-  }, [deck, forceMode]);
-
-  // Process deck based on format
+  // Process deck - expect component-based format only
   useEffect(() => {
     const processDeck = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        if (deckFormat === 'component') {
-          // Already in component format
-          setAdaptedDeck(deck as ComponentBasedSlideDeck);
-        } else if (deckFormat === 'legacy') {
-          // Convert legacy format to component format
-          console.log('🔄 Converting legacy slides to component-based format...');
-          const converted = adaptLegacySlideDeck(deck as SlideDeckData);
-          setAdaptedDeck(converted);
-          console.log('✅ Legacy slides converted successfully:', {
-            originalSlides: (deck as SlideDeckData).slides?.length || 0,
-            convertedSlides: converted.slides.length,
-            templates: converted.slides.map(s => s.templateId)
-          });
-        } else {
-          // Unknown format or error
-          setError(`Unknown slide deck format detected. Cannot render slides.`);
+        if (!deck || !deck.slides || !Array.isArray(deck.slides)) {
+          setError('Invalid slide deck format. Expected component-based slides.');
+          return;
         }
+
+        // Validate that slides have templateId and props (component-based format)
+        const hasValidFormat = deck.slides.every((slide: any) => 
+          slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props')
+        );
+
+        if (!hasValidFormat) {
+          setError('Slides must be in component-based format with templateId and props.');
+          return;
+        }
+
+        setComponentDeck(deck as ComponentBasedSlideDeck);
+        console.log('✅ Component-based slides loaded successfully:', {
+          slideCount: deck.slides.length,
+          templates: deck.slides.map((s: any) => s.templateId)
+        });
+        
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
         setError(`Error processing slide deck: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -82,40 +71,35 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       setIsLoading(false);
       setError('No slide deck provided');
     }
-  }, [deck, deckFormat]);
+  }, [deck]);
 
-  // Handle save for component-based decks
+  // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
-    if (adaptedDeck) {
+    if (componentDeck) {
       const updatedDeck: ComponentBasedSlideDeck = {
-        ...adaptedDeck,
-        slides: adaptedDeck.slides.map(slide => 
+        ...componentDeck,
+        slides: componentDeck.slides.map(slide => 
           slide.slideId === updatedSlide.slideId ? updatedSlide : slide
         )
       };
-      setAdaptedDeck(updatedDeck);
+      setComponentDeck(updatedDeck);
       onSave?.(updatedDeck);
     }
   };
 
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
-    if (adaptedDeck) {
+    if (componentDeck) {
       const updatedDeck: ComponentBasedSlideDeck = {
-        ...adaptedDeck,
-        slides: adaptedDeck.slides.map(slide => 
+        ...componentDeck,
+        slides: componentDeck.slides.map(slide => 
           slide.slideId === slideId 
             ? { ...slide, templateId: newTemplateId }
             : slide
         )
       };
-      setAdaptedDeck(updatedDeck);
+      setComponentDeck(updatedDeck);
       onSave?.(updatedDeck);
     }
-  };
-
-  // Handle save for legacy decks (fallback)
-  const handleLegacySave = (updatedDeck: SlideDeckData) => {
-    onSave?.(updatedDeck);
   };
 
   // Loading state
@@ -129,13 +113,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         fontSize: '16px',
         color: '#6b7280'
       }}>
-                 <div>
-           <div style={{ marginBottom: '12px' }}>🔄 Processing slide deck...</div>
-           {forceMode !== 'auto' && (
-             <div style={{ fontSize: '14px', color: '#9ca3af' }}>
-               Format: {deckFormat}
-             </div>
-           )}
+        <div>
+          <div style={{ marginBottom: '12px' }}>🔄 Loading slides...</div>
         </div>
       </div>
     );
@@ -167,17 +146,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             fontSize: '12px',
             color: '#6b7280'
           }}>
-                         Debug Info:
-             Detected Format: {deckFormat}
-             Has Slides: {deck?.slides ? 'Yes' : 'No'}
-             Slide Count: {deck?.slides?.length || 0}
+            Debug Info: Expected component-based format with templateId and props
           </div>
         )}
       </div>
     );
   }
 
-  // Success: Render appropriate viewer
+  // Success: Render component-based viewer
   return (
     <div>
       {/* Format Info (if enabled) */}
@@ -191,36 +167,22 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           fontSize: '14px',
           color: '#0369a1'
         }}>
-          <strong>📊 Slide Deck Info:</strong> {deckFormat} format • {adaptedDeck?.slides.length || 0} slides
-          {deckFormat === 'legacy' && ' • Automatically converted to component-based'}
+          <strong>📊 Slide Deck Info:</strong> Component-based format • {componentDeck?.slides.length || 0} slides
         </div>
       )}
 
-      {/* Component-based rendering (preferred) */}
-      {deckFormat === 'component' || (deckFormat === 'legacy' && adaptedDeck) ? (
-        adaptedDeck && adaptedDeck.slides && adaptedDeck.slides.length > 0 ? (
-          <ComponentBasedSlideDeckRenderer
-            slides={adaptedDeck.slides}
-            selectedSlideId={adaptedDeck.currentSlideId || undefined}
-            isEditable={isEditable}
-            onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-            onTemplateChange={isEditable ? handleTemplateChange : undefined}
-          />
-        ) : (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
-            No slides available in this presentation
-          </div>
-        )
-      ) : deckFormat === 'legacy' ? (
-        /* Legacy fallback (should rarely be used now) */
-        <SlideDeckViewer
-          deck={deck as SlideDeckData}
+      {/* Component-based rendering */}
+      {componentDeck && componentDeck.slides && componentDeck.slides.length > 0 ? (
+        <ComponentBasedSlideDeckRenderer
+          slides={componentDeck.slides}
+          selectedSlideId={componentDeck.currentSlideId || undefined}
           isEditable={isEditable}
-          onSave={isEditable ? handleLegacySave : undefined}
+          onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+          onTemplateChange={isEditable ? handleTemplateChange : undefined}
         />
       ) : (
         <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
-          No slides to display
+          No slides available in this presentation
         </div>
       )}
     </div>
