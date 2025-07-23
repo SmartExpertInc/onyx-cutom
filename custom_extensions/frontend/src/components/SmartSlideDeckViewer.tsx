@@ -284,7 +284,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       <div className="professional-header">
         <div className="header-content">
           <div className="presentation-info">
-            <h1 className="presentation-title">{componentDeck.title || 'Presentation'}</h1>
+            <h1 className="presentation-title">{componentDeck.lessonTitle || 'Presentation'}</h1>
             <span className="slide-counter">{componentDeck.slides.length} slides</span>
           </div>
           
