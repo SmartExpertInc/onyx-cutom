@@ -17,7 +17,7 @@
 
         :root {
             --font-primary: 'Inter', Arial, sans-serif;
-            --font-emoji: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiOne Color', 'EmojiSymbols', 'Symbola', 'Twemoji Mozilla', 'Segoe UI Symbol', 'Noto Emoji', 'EmojiOne', 'EmojiOne Mozilla', 'EmojiOne Apple', 'EmojiOne Twitter', 'EmojiOne Google', sans-serif;
+            --font-emoji: 'Noto Color Emoji', 'Noto Emoji', 'Segoe UI Emoji', 'Apple Color Emoji', 'Android Emoji', 'Twemoji Mozilla', 'Symbola', 'EmojiOne Color', 'EmojiSymbols', 'Segoe UI Symbol', sans-serif;
             --color-primary-accent: #FF1414;
             --color-primary-accent-dark: #CC1010;
             --color-primary-accent-light-bg: #fafafa;
@@ -68,6 +68,17 @@
             font-size: var(--font-size-base); font-weight: var(--font-weight-normal);
             line-height: var(--line-height-base); widows: 3; orphans: 3;
             letter-spacing: var(--letter-spacing-increased);
+        }
+        
+        /* Ensure emoji characters are properly rendered */
+        * {
+            font-family: var(--font-primary), var(--font-emoji) !important;
+        }
+        
+        /* Force emoji rendering for specific Unicode ranges */
+        .emoji, [data-emoji="true"] {
+            font-family: var(--font-emoji) !important;
+            font-feature-settings: "liga" 1, "dlig" 1;
         }
         .pdf-container { 
             width: 100%; 

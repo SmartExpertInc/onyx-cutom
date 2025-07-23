@@ -8,6 +8,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Pyppeteer's direct dependencies / common needs
     ca-certificates \
     fonts-liberation \
+    fonts-noto-color-emoji \
+    fonts-noto-emoji \
+    fonts-symbola \
+    fonts-twemoji \
+    fonts-segoe-ui \
     libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \

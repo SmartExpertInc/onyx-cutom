@@ -86,7 +86,31 @@ async def generate_pdf_from_html_template(
         raise HTTPException(status_code=500, detail=f"Failed to render PDF template: {e}")
 
     launch_options = {
-        'headless': 'new', 'args': ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote', '--js-flags=--max-old-space-size=512', '--single-process', '--disable-extensions', '--disable-background-networking', '--disable-default-apps', '--disable-sync', '--disable-translate', '--hide-scrollbars', '--metrics-recording-only', '--mute-audio', '--no-first-run', '--safeBrowse-disable-auto-update'], 'dumpio': True, 'executablePath': CHROME_EXEC_PATH
+        'headless': 'new', 
+        'args': [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox', 
+            '--disable-dev-shm-usage', 
+            '--disable-gpu', 
+            '--no-zygote', 
+            '--js-flags=--max-old-space-size=512', 
+            '--single-process', 
+            '--disable-extensions', 
+            '--disable-background-networking', 
+            '--disable-default-apps', 
+            '--disable-sync', 
+            '--disable-translate', 
+            '--hide-scrollbars', 
+            '--metrics-recording-only', 
+            '--mute-audio', 
+            '--no-first-run', 
+            '--safeBrowse-disable-auto-update',
+            '--font-render-hinting=none',
+            '--enable-font-antialiasing',
+            '--force-color-profile=srgb'
+        ], 
+        'dumpio': True, 
+        'executablePath': CHROME_EXEC_PATH
     }
 
     try:
@@ -95,18 +119,51 @@ async def generate_pdf_from_html_template(
         page = await browser.newPage()
         logger.info("New page created for HTML content.")
         
+        # Preload emoji fonts to ensure they're available
+        await page.evaluateOnNewDocument("""
+            // Preload emoji fonts
+            const emojiFonts = [
+                'Noto Color Emoji',
+                'Noto Emoji', 
+                'Segoe UI Emoji',
+                'Apple Color Emoji',
+                'Android Emoji',
+                'Twemoji Mozilla',
+                'Symbola'
+            ];
+            
+            // Create a test element to force font loading
+            const testElement = document.createElement('div');
+            testElement.style.fontFamily = emojiFonts.join(', ');
+            testElement.style.position = 'absolute';
+            testElement.style.visibility = 'hidden';
+            testElement.textContent = '🚀📚💡✅❌⚠️';
+            document.head.appendChild(testElement);
+        """)
+        
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
         logger.info("HTML content set in Pyppeteer page.")
         
-        # Optional: Add a small delay for rendering complex CSS if any
-        await asyncio.sleep(2)
+        # Wait for fonts to load and rendering to complete
+        await page.waitForFunction("""
+            () => {
+                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
+            }
+        """, timeout=10000)
+        
+        # Additional delay for complex rendering
+        await asyncio.sleep(3)
 
         logger.info("Generating PDF from HTML content...")
         await page.pdf({
-            'path': temp_pdf_path, 'format': 'A4', 'printBackground': True,
+            'path': temp_pdf_path, 
+            'format': 'A4', 
+            'printBackground': True,
             'margin': {'top': '20px', 'right': '20px', 'bottom': '20px', 'left': '20px'},
-            'preferCSSPageSize': True
+            'preferCSSPageSize': True,
+            'displayHeaderFooter': False,
+            'omitBackground': False
         })
         logger.info(f"PDF generated from HTML successfully at {temp_pdf_path}")
 
