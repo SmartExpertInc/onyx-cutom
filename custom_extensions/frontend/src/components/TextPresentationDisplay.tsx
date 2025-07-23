@@ -446,7 +446,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                         style={{ fontSize: '11px' }}
                       />
                     ) : (
-                      header
+                      renderCellContent(header)
                     )}
                   </th>
                 ))}
@@ -556,125 +556,129 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const styledTextTitle = parseAndStyleText(dataToDisplay.textTitle);
 
   return (
-    <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-      {dataToDisplay.textTitle && (
-        <header className="mb-4">
-          {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1">{parentProjectName}</p>}
-          
-          {isEditing && onTextChange ? (
-              <input 
-                  type="text" 
-                  value={dataToDisplay.textTitle} 
-                  onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
-                  className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText}`}
-              />
-          ) : (
-              <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2`}>{dataToDisplay.textTitle}</h1>
+    <div className="min-h-screen bg-white p-4">
+      <div className="bg-[#f4f5f6] rounded-lg p-4 sm:p-6 md:p-8 max-w-3xl mx-auto my-6">
+        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md">
+          {dataToDisplay.textTitle && (
+            <header className="mb-4">
+              {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1">{parentProjectName}</p>}
+              
+              {isEditing && onTextChange ? (
+                  <input 
+                      type="text" 
+                      value={dataToDisplay.textTitle} 
+                      onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
+                      className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText}`}
+                  />
+              ) : (
+                  <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2`}>{dataToDisplay.textTitle}</h1>
+              )}
+
+              <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} />
+            </header>
           )}
 
-          <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} />
-        </header>
-      )}
+          <main>
+            {renderableItems.map((item, index) => {
+              const isLastItem = index === renderableItems.length - 1;
 
-      <main>
-        {renderableItems.map((item, index) => {
-          const isLastItem = index === renderableItems.length - 1;
+              if (item.type === 'major_section') {
+                const originalHeadlineIndex = findOriginalIndex(item.headline);
+                return (
+                  <section key={index} className="mb-4 p-3 rounded-md bg-white">
+                    {!item._skipRenderHeadline && (
+                      <RenderBlock
+                        block={item.headline}
+                        basePath={['contentBlocks', originalHeadlineIndex]}
+                        isEditing={isEditing}
+                        onTextChange={onTextChange}
+                      />
+                    )}
+                    <div className={item._skipRenderHeadline ? '' : 'pl-1'}>
+                      {item.items.map((subItem, subIndex) => {
+                        const isLastSubItem = subIndex === item.items.length - 1;
+                        if (subItem.type === 'mini_section') {
+                          const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
+                          const originalMiniListIndex = findOriginalIndex(subItem.list);
+                          return (
+                            <div key={subIndex} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500">
+                              <RenderBlock
+                                block={subItem.headline}
+                                isMiniSectionHeadline={true}
+                                isFirstInBox={subIndex === 0}
+                                basePath={['contentBlocks', originalMiniHeadlineIndex]}
+                                isEditing={isEditing}
+                                onTextChange={onTextChange}
+                              />
+                              <RenderBlock
+                                block={subItem.list}
+                                isLastInBox={isLastSubItem}
+                                basePath={['contentBlocks', originalMiniListIndex]}
+                                isEditing={isEditing}
+                                onTextChange={onTextChange}
+                              />
+                            </div>
+                          );
+                        } else { // It's an AnyContentBlock
+                          const originalSubIndex = findOriginalIndex(subItem);
+                          return <RenderBlock
+                            key={subIndex}
+                            block={subItem}
+                            isLastInBox={isLastSubItem}
+                            basePath={['contentBlocks', originalSubIndex]}
+                            isEditing={isEditing}
+                            onTextChange={onTextChange}
+                          />;
+                        }
+                      })}
+                    </div>
+                  </section>
+                );
+              }
 
-          if (item.type === 'major_section') {
-            const originalHeadlineIndex = findOriginalIndex(item.headline);
-            return (
-              <section key={index} className="mb-4 p-3 rounded-md bg-white">
-                {!item._skipRenderHeadline && (
+              if (item.type === 'mini_section') {
+                const originalHeadlineIndex = findOriginalIndex(item.headline);
+                const originalListIndex = findOriginalIndex(item.list);
+                return (
+                  <div key={index} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500">
+                    <RenderBlock
+                      block={item.headline}
+                      isMiniSectionHeadline={true}
+                      isFirstInBox={index === 0}
+                      basePath={['contentBlocks', originalHeadlineIndex]}
+                      isEditing={isEditing}
+                      onTextChange={onTextChange}
+                    />
+                    <RenderBlock
+                      block={item.list}
+                      isLastInBox={isLastItem}
+                      basePath={['contentBlocks', originalListIndex]}
+                      isEditing={isEditing}
+                      onTextChange={onTextChange}
+                    />
+                  </div>
+                );
+              }
+
+              if (item.type === 'standalone_block') {
+                const originalIndex = findOriginalIndex(item.content);
+                return (
                   <RenderBlock
-                    block={item.headline}
-                    basePath={['contentBlocks', originalHeadlineIndex]}
+                    key={index}
+                    block={item.content}
+                    isLastInBox={isLastItem}
+                    basePath={['contentBlocks', originalIndex]}
                     isEditing={isEditing}
                     onTextChange={onTextChange}
                   />
-                )}
-                <div className={item._skipRenderHeadline ? '' : 'pl-1'}>
-                  {item.items.map((subItem, subIndex) => {
-                    const isLastSubItem = subIndex === item.items.length - 1;
-                    if (subItem.type === 'mini_section') {
-                      const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
-                      const originalMiniListIndex = findOriginalIndex(subItem.list);
-                      return (
-                        <div key={subIndex} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500">
-                          <RenderBlock
-                            block={subItem.headline}
-                            isMiniSectionHeadline={true}
-                            isFirstInBox={subIndex === 0}
-                            basePath={['contentBlocks', originalMiniHeadlineIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                          />
-                          <RenderBlock
-                            block={subItem.list}
-                            isLastInBox={isLastSubItem}
-                            basePath={['contentBlocks', originalMiniListIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                          />
-                        </div>
-                      );
-                    } else { // It's an AnyContentBlock
-                      const originalSubIndex = findOriginalIndex(subItem);
-                      return <RenderBlock
-                        key={subIndex}
-                        block={subItem}
-                        isLastInBox={isLastSubItem}
-                        basePath={['contentBlocks', originalSubIndex]}
-                        isEditing={isEditing}
-                        onTextChange={onTextChange}
-                      />;
-                    }
-                  })}
-                </div>
-              </section>
-            );
-          }
+                );
+              }
 
-          if (item.type === 'mini_section') {
-            const originalHeadlineIndex = findOriginalIndex(item.headline);
-            const originalListIndex = findOriginalIndex(item.list);
-            return (
-              <div key={index} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500">
-                <RenderBlock
-                  block={item.headline}
-                  isMiniSectionHeadline={true}
-                  isFirstInBox={index === 0}
-                  basePath={['contentBlocks', originalHeadlineIndex]}
-                  isEditing={isEditing}
-                  onTextChange={onTextChange}
-                />
-                <RenderBlock
-                  block={item.list}
-                  isLastInBox={isLastItem}
-                  basePath={['contentBlocks', originalListIndex]}
-                  isEditing={isEditing}
-                  onTextChange={onTextChange}
-                />
-              </div>
-            );
-          }
-
-          if (item.type === 'standalone_block') {
-            const originalIndex = findOriginalIndex(item.content);
-            return (
-              <RenderBlock
-                key={index}
-                block={item.content}
-                isLastInBox={isLastItem}
-                basePath={['contentBlocks', originalIndex]}
-                isEditing={isEditing}
-                onTextChange={onTextChange}
-              />
-            );
-          }
-
-          return null;
-        })}
-      </main>
+              return null;
+            })}
+          </main>
+        </div>
+      </div>
     </div>
   );
 };

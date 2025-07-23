@@ -68,7 +68,22 @@
             line-height: var(--line-height-base); widows: 3; orphans: 3;
             letter-spacing: var(--letter-spacing-increased);
         }
-        .pdf-container { width: 100%; padding: 0; }
+        .pdf-container { 
+            width: 100%; 
+            padding: 0; 
+            background-color: #f4f5f6; 
+            min-height: 100vh; 
+            border-radius: 8px; 
+            padding: 16px; 
+        }
+        .content-wrapper { 
+            background-color: white; 
+            border-radius: 8px; 
+            padding: 24px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            max-width: 100%; 
+            margin: 0 auto; 
+        }
         .main-title-section { margin-bottom: 8px; }
         .main-title-text {
             font-size: var(--font-size-main-title); font-weight: var(--font-weight-medium);
@@ -362,22 +377,22 @@
                         </div>
                     {% elif block_type == 'table' %}
                         <div class="table-block-wrapper" style="overflow-x:auto; margin: 16px 0;">
-                          <table style="border-collapse:collapse; width:100%; font-size:8.5pt;">
+                          <table style="border-collapse:collapse; width:100%; font-size:8.5pt; border-radius: 8px; overflow: hidden;">
                             {% if block_data.caption %}
                               <caption style="caption-side:bottom; text-align:left; color:#888; font-size:7pt; padding:4px 0;">{{ block_data.caption }}</caption>
                             {% endif %}
                             <thead>
                               <tr>
                                 {% for header in block_data.headers %}
-                                  <th style="border:1px solid #E5E7EB; background:#C00; color:#FFF; padding:4px 8px; font-weight:600; text-align:left;">{{ header }}</th>
+                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:4px 8px; font-weight:600; text-align:left;">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
                                 {% endfor %}
                               </tr>
                             </thead>
                             <tbody>
                               {% for row in block_data.rows %}
-                                <tr>
+                                <tr style="background-color: {% if loop.index0 % 2 == 0 %}#FFFFFF{% else %}#F7F8FA{% endif %};">
                                   {% for cell in row %}
-                                    <td style="border:1px solid #E5E7EB; padding:4px 8px; vertical-align:top; color:#111;">
+                                    <td style="border:1px solid #E5E7EB; padding:4px 8px; vertical-align:top; color:#000000;">
                   {% set segments = cell.split('**') %}
                   {% for segment in segments %}
                     {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
@@ -433,7 +448,8 @@
 {% endif %}
 {% endmacro %}
 
-<div class="content-wrapper">
+<div class="pdf-container">
+  <div class="content-wrapper">
 {% if text_data is mapping and text_data.contentBlocks is iterable and text_data.contentBlocks is not string %}
     {% set blocks_to_render = text_data.contentBlocks %}
     {% if text_data.textTitle and blocks_to_render and blocks_to_render[0].type == 'headline' and blocks_to_render[0].level in [1, 2] and blocks_to_render[0].text | trim | lower == text_data.textTitle | trim | lower %}
