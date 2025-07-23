@@ -294,7 +294,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "author": "Course Instructor",
         "backgroundColor": "#f8f9fa",
         "backgroundImage": "Educational theme background"
-      }
+        }
     },
     {
       "slideId": "slide_2_main",
@@ -306,7 +306,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
         "backgroundColor": "#ffffff",
         "alignment": "left"
-      }
+        }
     },
     {
       "slideId": "slide_3_process",
@@ -320,9 +320,9 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "Design the solution architecture", 
           "Implement core functionality",
           "Test and validate results"
-        ],
+      ],
         "backgroundColor": "#f8f9fa"
-      }
+        }
     }
   ],
   "currentSlideId": "slide_1_intro",
@@ -1270,7 +1270,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "author": "Course Instructor",
         "backgroundColor": "#f8f9fa",
         "backgroundImage": "Educational theme background"
-      }
+        }
     },
     {
       "slideId": "slide_2_main",
@@ -1282,7 +1282,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
         "backgroundColor": "#ffffff",
         "alignment": "left"
-      }
+        }
     },
     {
       "slideId": "slide_3_process",
@@ -1296,9 +1296,9 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "Design the solution architecture", 
           "Implement core functionality",
           "Test and validate results"
-        ],
+      ],
         "backgroundColor": "#f8f9fa"
-      }
+        }
     }
   ],
   "currentSlideId": "slide_1_intro",
