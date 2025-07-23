@@ -38,7 +38,7 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
 };
 
 const NewBulletIcon = () => (
-  <div className="w-1.5 h-1.5 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
+  <div className="w-0.75 h-0.75 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
 );
 
 // --- New Icon Set ---
@@ -164,23 +164,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const IconComponent = iconName ? iconMap[iconName] : null;
       
       let textStyleClass = 'uppercase '; 
-      if (level === 1) { textStyleClass += `text-lg lg:text-xl font-semibold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-base lg:text-lg font-semibold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-base lg:text-lg font-semibold ${THEME_COLORS.headingText}`; } 
-      else if (level === 4) { textStyleClass += `text-sm lg:text-base font-medium ${THEME_COLORS.subHeadingText}`; }
-      else { textStyleClass += `text-base font-medium ${THEME_COLORS.subHeadingText}`; }
+      if (level === 1) { textStyleClass += `text-lg lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
+      else if (level === 2) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; }  
+      else if (level === 3) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; } 
+      else if (level === 4) { textStyleClass += `text-sm lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
       if (depth > 0) {
         textStyleClass = 'uppercase '; 
-        if (level === 3) textStyleClass += `text-sm font-semibold ${THEME_COLORS.accentRed}`; 
-        else if (level === 4) textStyleClass += `text-xs font-medium ${THEME_COLORS.subHeadingText}`;
+        if (level === 3) textStyleClass += `text-sm font-bold ${THEME_COLORS.accentRed}`; 
+        else if (level === 4) textStyleClass += `text-xs font-bold ${THEME_COLORS.subHeadingText}`;
       }
       if (isMiniSectionHeadline) {
           textStyleClass = 'uppercase '; 
-          textStyleClass += level === 3 ? `text-base font-semibold ${THEME_COLORS.accentRed}` : `text-sm font-medium ${THEME_COLORS.accentRed}`; 
+          textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-sm font-bold ${THEME_COLORS.accentRed}`; 
           if (depth > 0) { 
             textStyleClass = 'uppercase '; 
-            textStyleClass += level === 3 ? `text-sm font-semibold ${THEME_COLORS.accentRed}` : `text-xs font-medium ${THEME_COLORS.accentRed}`;
+            textStyleClass += level === 3 ? `text-sm font-bold ${THEME_COLORS.accentRed}` : `text-xs font-bold ${THEME_COLORS.accentRed}`;
           }
       }
 
