@@ -86,20 +86,20 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 const THEME_COLORS = {
-  primaryText: 'text-[#4B4B4B]',        
+  primaryText: 'text-black',        
   headingText: 'text-black',        
   subHeadingText: 'text-black',     
   accentRed: 'text-[#FF1414]', 
   accentRedBg: 'bg-[#FF1414]',      
   veryLightAccentBg: 'bg-[#FAFAFA]',
   lightBorder: 'border-gray-200',   
-  mutedText: 'text-[#4B4B4B]',          
+  mutedText: 'text-black',          
   defaultBorder: 'border-gray-300', 
   underlineAccent: 'border-[#FF1414]',
-  alertInfoText: 'text-[#4B4B4B]',      
-  alertSuccessText: 'text-[#4B4B4B]',   
-  alertWarningText: 'text-[#4B4B4B]',   
-  alertDangerText: 'text-[#4B4B4B]',    
+  alertInfoText: 'text-black',      
+  alertSuccessText: 'text-black',   
+  alertWarningText: 'text-black',   
+  alertDangerText: 'text-black',    
   alertInfoIcon: 'text-blue-500', 
   alertSuccessIcon: 'text-green-500',
   alertWarningIcon: 'text-yellow-500',
@@ -221,7 +221,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'paragraph': { 
       const { text, isRecommendation } = block as ParagraphBlock;
       const isTopLevelParagraph = depth === 0;
-      let paragraphClasses = `${THEME_COLORS.primaryText} text-[10px] leading-normal text-left`; 
+      let paragraphClasses = `text-black text-[10px] leading-normal text-left`; 
       if (isTopLevelParagraph) paragraphClasses += ` w-full`; 
       const defaultMb = depth > 0 ? 'mb-1' : 'mb-2';
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
@@ -239,7 +239,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               <textarea 
                 value={currentRawText} 
                 onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal ${THEME_COLORS.primaryText.replace('text-black', '')} text-left`} 
+                className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal text-black text-left`} 
               />
             </div>
         );
@@ -302,7 +302,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             className={`${editingInputClass} w-full text-xs`}
                           />
                         ) : (
-                          <span className="text-gray-700 text-xs leading-snug">{styledItemText}</span>
+                          <span className="text-black text-xs leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
                           <div className="flex flex-col">
@@ -354,7 +354,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               return (
                 <li
                   key={index}
-                  className={`flex items-start ${THEME_COLORS.mutedText} text-xs leading-tight`}
+                  className={`flex items-start text-black text-xs leading-tight`}
                 >
                   {!isNumbered && BulletIconToRender && <BulletIconToRender />}
                   <div className="flex-grow">
