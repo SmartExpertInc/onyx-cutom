@@ -558,7 +558,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-        <div className="bg-[#f4f5f6] rounded-lg p-4 sm:p-6 md:p-8">
+        <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
             <header className="mb-4 text-left">
               {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
@@ -585,7 +585,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
-                  <section key={index} className="mb-4 p-3 rounded-md bg-white text-left">
+                  <section key={index} className="mb-4 p-3 rounded-md text-left">
                     {!item._skipRenderHeadline && (
                       <RenderBlock
                         block={item.headline}
