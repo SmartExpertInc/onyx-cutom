@@ -28,13 +28,53 @@ type RenderableItem = MajorSection | MiniSection | StandaloneBlock;
 
 const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] => {
   if (!text) return [];
-  const segments = text.split(/\*\*(.*?)\*\*/g); 
+  
+  const segments = text.split('**');
   return segments.map((segment, index) => {
-    if (index % 2 === 1) { 
-      return <span key={index} className="font-medium text-black">{segment}</span>;
+    if (index % 2 === 1) {
+      return <span key={index} className="font-bold text-black">{segment}</span>;
     }
-    return segment; 
-  }).filter(segment => segment !== ""); 
+    return segment;
+  });
+};
+
+// Helper function to detect if text starts with an emoji
+const getEmojiFromText = (text: string): string | null => {
+  if (!text || text.length === 0) return null;
+  
+  // Unicode emoji regex pattern
+  const emojiRegex = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F018}-\u{1F270}]|[\u{238C}-\u{2454}]|[\u{20D0}-\u{20FF}]|[\u{FE00}-\u{FE0F}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{1F100}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F910}-\u{1F96B}]|[\u{1F980}-\u{1F9E0}]/u;
+  
+  const match = text.match(emojiRegex);
+  return match ? match[0] : null;
+};
+
+// Helper function to get text without leading emoji
+const getTextWithoutEmoji = (text: string): string => {
+  const emoji = getEmojiFromText(text);
+  if (emoji) {
+    return text.substring(emoji.length).trim();
+  }
+  return text;
+};
+
+// Custom bullet icon component that can show emoji or dot
+const CustomBulletIcon: React.FC<{ text?: string; depth?: number }> = ({ text, depth = 0 }) => {
+  if (!text) {
+    return <NewBulletIcon />;
+  }
+  
+  const emoji = getEmojiFromText(text);
+  if (emoji) {
+    return <span className="mr-1.5 mt-[1px] shrink-0 text-base">{emoji}</span>;
+  }
+  
+  // For nested lists (depth > 0), show indentation instead of dot
+  if (depth > 0) {
+    return <div className="w-6 h-0.75 shrink-0" />; // Empty space for indentation
+  }
+  
+  return <NewBulletIcon />;
 };
 
 const NewBulletIcon = () => (
@@ -338,7 +378,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               if (isEditing && onTextChange && itemIsString) {
                 return (
                   <li key={index} className="flex items-start">
-                    {BulletIconToRender && !isNumbered && <BulletIconToRender />}
+                    {!isNumbered && (
+                      <CustomBulletIcon text={item} depth={depth} />
+                    )}
                     <input
                       type="text"
                       value={item}
@@ -354,10 +396,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   key={index}
                   className={`flex items-start text-black text-xs leading-tight`}
                 >
-                  {!isNumbered && BulletIconToRender && <BulletIconToRender />}
+                  {!isNumbered && (
+                    <CustomBulletIcon text={itemIsString ? item : undefined} depth={depth} />
+                  )}
                   <div className="flex-grow">
                     {itemIsString ? (
-                        <span className={isNumbered ? 'ml-1' : ''}>{styledItemText}</span>
+                        <span className={isNumbered ? 'ml-1' : ''}>
+                          {getEmojiFromText(item) ? getTextWithoutEmoji(item) : styledItemText}
+                        </span>
                     ) : Array.isArray(item) ? (
                         <div className="flex flex-col">
                             {(item as AnyContentBlock[]).map((block, blockIndex) => (
