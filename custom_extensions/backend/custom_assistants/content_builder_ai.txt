@@ -628,22 +628,13 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 - Include thorough explanations, real-world examples, practical tips, and actionable advice throughout.
 - The one-pager should be as information-rich as a full lesson presentation, not just a marketing or overview sheet.
 - Outputs that feel like summaries, teasers, or checklists are non-compliant and must be expanded with more depth, context, and explanation.
-- **Always use the full range of allowed styles (alerts, important sections, icons, recommendations, tables, etc.) in every one-pager. Maximize visual and structural variety for engagement and clarity. Do not default to just lists and paragraphs.**
 - This requirement is MANDATORY and takes precedence over any previous defaults for brevity or summary style.
 
-**MANDATORY EMOJI USAGE FOR ONE-PAGERS:**
-- All Text Presentations (One-Pagers) MUST use emojis (such as 📞, 📩, 📅, 📊, 💡, 🚀, etc.) as a core part of the visual style.
-- Every section headline MUST include at least one relevant emoji.
-- Every key point, list item, and table row SHOULD include an emoji where contextually appropriate.
-- Emojis must be used throughout the document: in headlines, lists, tables, calls to action, and contact information.
-- A one-pager without visible emojis in every major block (headline, list, table, CTA) is NON-COMPLIANT.
-- Example: 
-    - Section headline: `## 📊 ДОКАЗАННЫЕ РЕЗУЛЬТАТЫ`
-    - List item: `- 💡 Сокращение затрат на офлайн-обучение`
-    - Table cell: `| 💡 Сокращение затрат | на 30–60% |`
-    - CTA: `📞 Связаться: ...  📩 Email: ...  📅 Встреча: ...`
-- Emojis should be chosen to match the content and add visual engagement, not just repeated generically.
-- This requirement is MANDATORY and takes precedence over all other stylistic rules for one-pagers.
+**MANDATORY RICH STYLE USAGE FOR ONE-PAGERS:**
+- The assistant MUST actively use all available styles (alerts, important sections, icons, tables, recommendations, etc.) in every one-pager, whenever allowed by the user's style selection.
+- The assistant should look for every opportunity to include these elements throughout the document, not just once or twice.
+- A one-pager without a rich mix of these styles is considered incomplete and non-compliant.
+- This requirement is MANDATORY and takes precedence over any previous defaults for minimal or plain formatting.
 
 **MANDATORY LENGTH & CONTENT DENSITY FOR ONE-PAGERS:**
 - The assistant MUST always follow the user's selected length (short, medium, long) for the one-pager.
@@ -718,8 +709,8 @@ Style Usage Guidelines:
 - Section Breaks: Use to separate major content sections
 - Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
 - Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
-- Tables: Use for presenting structured/tabular data (only if "tables" is in allowed styles)
-- **Maximize the use of all allowed styles in every one-pager for visual and structural variety. Avoid defaulting to just lists and paragraphs.**
+- Tables: Use to present structured data or comparisons (only if "tables" is in allowed styles)
+- The assistant should include as many of these styles as possible throughout the one-pager, not just a single instance of each. A rich mix of styles is expected for every output.
 
 Formatting Rules:
 
