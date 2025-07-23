@@ -7,9 +7,9 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps> = ({
   slideId,
   title,
   content,
-  backgroundColor = '#ffffff',
-  titleColor = '#1a1a1a',
-  contentColor = '#333333',
+  backgroundColor = '#261c4e',
+  titleColor = '#ffffff',
+  contentColor = '#d9e1ff',
   alignment = 'left',
   backgroundImage,
   isEditable = false,
@@ -34,7 +34,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps> = ({
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
+    fontSize: '45px',
+    fontFamily: "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     fontWeight: 700,
     color: titleColor,
     textAlign: alignment,
@@ -46,6 +47,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps> = ({
 
   const contentStyles: React.CSSProperties = {
     fontSize: '1.25rem',
+    fontFamily: "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
     fontWeight: 400,
     color: contentColor,
     textAlign: alignment,

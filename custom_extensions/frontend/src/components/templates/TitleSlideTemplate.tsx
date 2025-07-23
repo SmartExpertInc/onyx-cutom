@@ -9,9 +9,9 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps> = ({
   subtitle,
   author,
   date,
-  backgroundColor = '#ffffff',
-  titleColor = '#1a1a1a',
-  subtitleColor = '#666666',
+  backgroundColor = '#261c4e',
+  titleColor = '#ffffff',
+  subtitleColor = '#d9e1ff',
   backgroundImage,
   isEditable = false,
   onUpdate
@@ -35,7 +35,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps> = ({
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3.5rem',
+    fontSize: '45px',
+    fontFamily: "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     fontWeight: 700,
     color: titleColor,
     textAlign: 'center',
@@ -47,6 +48,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps> = ({
 
   const subtitleStyles: React.CSSProperties = {
     fontSize: '1.5rem',
+    fontFamily: "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
     fontWeight: 400,
     color: subtitleColor,
     textAlign: 'center',

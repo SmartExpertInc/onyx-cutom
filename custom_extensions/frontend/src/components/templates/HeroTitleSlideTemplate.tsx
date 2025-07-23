@@ -10,9 +10,9 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
   showAccent = true,
   accentColor = '#3b82f6',
   accentPosition = 'left',
-  backgroundColor = '#ffffff',
-  titleColor = '#1a1a1a',
-  subtitleColor = '#6b7280',
+  backgroundColor = '#261c4e',
+  titleColor = '#ffffff',
+  subtitleColor = '#d9e1ff',
   backgroundImage,
   textAlign = 'center',
   titleSize = 'xlarge',
@@ -40,11 +40,11 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
 
   const getTitleFontSize = (size: string): string => {
     switch (size) {
-      case 'small': return '2rem';
-      case 'medium': return '2.5rem';
-      case 'large': return '3rem';
-      case 'xlarge': return '3.5rem';
-      default: return '3.5rem';
+      case 'small': return '35px';
+      case 'medium': return '40px';
+      case 'large': return '45px';
+      case 'xlarge': return '45px';
+      default: return '45px';
     }
   };
 
@@ -59,6 +59,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
 
   const titleStyles: React.CSSProperties = {
     fontSize: getTitleFontSize(titleSize),
+    fontFamily: "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     fontWeight: 700,
     color: titleColor,
     textAlign: textAlign as any,
@@ -72,6 +73,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
 
   const subtitleStyles: React.CSSProperties = {
     fontSize: getSubtitleFontSize(subtitleSize),
+    fontFamily: "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
     fontWeight: 400,
     color: subtitleColor,
     textAlign: textAlign as any,
