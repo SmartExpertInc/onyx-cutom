@@ -6947,6 +6947,201 @@ async def insert_ai_audit_onepager_to_db(
         raise HTTPException(status_code=500, detail="Failed to create AI-audit one-pager project entry.")
     
     return row["id"]
+
+
+async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
+    try:
+        with open(example_text_path, encoding="utf-8") as f:
+            example_text = f.read()
+    except Exception as e:
+        logger.error(f"[AI-Audit] Error reading example: {e}")
+        example_text = "(Example not found)"
+    if not duckduckgo_summary or duckduckgo_summary.strip() == "" or duckduckgo_summary.strip().startswith("(Нет релевантных данных"):
+        duck_info = "(DuckDuckGo не дал информации. Используй только анкету.)"
+    else:
+        duck_info = duckduckgo_summary
+    prompt = f"""
+    Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
+
+    ТВОЯ ЗАДАЧА:
+    - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
+    - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
+    - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
+    - Если в примере 5 секций — в твоём ответе тоже должно быть 5 секций с теми же названиями и в том же порядке.
+    - ЗАМЕНИ только данные, относящиеся к компании, на новые из анкеты и поиска.
+    - НЕ сокращай, НЕ добавляй новых секций, НЕ меняй структуру, НЕ меняй форматирование, НЕ меняй количество строк, НЕ меняй количество столбцов в таблицах.
+    - Если не уверен — лучше скопируй больше из примера, чем меньше.
+    - Твой ответ должен быть на 90% буквальной копией примера, только с новыми данными.
+    - Если DuckDuckGo не дал информации, используй только анкету.
+    - Если в примере есть таблица, твоя таблица должна быть с тем же количеством строк и столбцов, только с новыми данными.
+    - Если в примере есть абзац, твой ответ должен содержать такой же абзац на том же месте.
+    - Если в примере есть список, твой ответ должен содержать такой же список с тем же количеством пунктов.
+    - Не меняй ни одну структуру, даже если кажется, что это не подходит — просто замени данные.
+
+    ---
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Сайт компании: {payload.companyWebsite}
+    - Количество сотрудников: {payload.employees}
+    - Франшиза: {payload.franchise}
+    - Проблемы онбординга: {payload.onboardingProblems}
+    - Документы: {', '.join(payload.documents)} {payload.documentsOther}
+    - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
+
+    ---
+    РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (DuckDuckGo):
+    {duck_info}
+
+    ---
+    СКОПИРУЙ ПРИМЕР НИЖЕ, ЗАМЕНИВ ТОЛЬКО ДАННЫЕ О КОМПАНИИ:
+    {example_text}
+
+    Ответь только текстом one-pager по этим правилам, без пояснений.
+    """
+    logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
+    client = get_openai_client()
+    try:
+        # Set a longer timeout for the OpenAI call
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4096,
+            temperature=0.2,
+            timeout=httpx.Timeout(180.0)  # 180 seconds
+        )
+    except Exception as e:
+        logger.error(f"[AI-Audit] OpenAI generation error: {e}", exc_info=True)
+        return {"error": f"Ошибка генерации AI-аудита: {e}"}
+    
+    result = response.choices[0].message.content
+    logger.info(f"[AI-Audit] OpenAI result (first 500 chars): {result[:500]}")
+
+    with open("custom_assistants/content_builder_ai.txt", encoding="utf-8") as f:
+        assistant_instructions = f.read()
+
+    # Compose the parsing prompt
+    parsing_prompt = (
+        f"{assistant_instructions}\n\n"
+        "WIZARD_REQUEST\n"
+        + json.dumps({
+            "product": "Text Presentation",
+            "microproduct": "One-Pager",
+            "prompt": "Приведи этот текст к нужному формату one-pager для ContentBuilder.ai",
+            "language": "ru",
+            "fromText": True,
+            "textMode": "context",
+            "userText": result,
+            "strict": True,
+            "parseMode": "onepager"
+        }, ensure_ascii=False)
+    )
+
+    # Call OpenAI again (use gpt-4o-mini or your preferred model)
+    parsed_response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Ты профессиональный AI-ассистент для парсинга продуктов ContentBuilder.ai."},
+            {"role": "user", "content": parsing_prompt}
+        ],
+        max_tokens=4096,
+        temperature=0.1,
+        timeout=httpx.Timeout(120.0)
+    )
+    parsed_markdown = parsed_response.choices[0].message.content
+
+    parsed_json = await parse_ai_response_with_llm(
+        ai_response=parsed_markdown,
+        project_name=payload.companyName,
+        target_model=TextPresentationDetails,  # or your one-pager model
+        default_error_model_instance=TextPresentationDetails(textTitle="Parse error", contentBlocks=[]),
+        dynamic_instructions=f"""
+        You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+        This product is for general text like introductions, goal descriptions, etc.
+        Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+        **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
+
+        **Global Fields:**
+        1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+            - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+            - Extract ONLY the title part (the last part after the last "**")
+            - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+            - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+            - Do NOT include the course name or "Text Presentation" label in the title
+            - If no clear pattern is found, use the first meaningful title or heading
+        2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
+        3.  `detectedLanguage` (string): e.g., "en", "ru".
+
+        **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
+        1.  **`type: "headline"`**
+            * `level` (integer):
+                * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+            * `text` (string): Headline text.
+            * `iconName` (string, optional): Based on level and context as described above.
+            * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
+
+        2.  **`type: "paragraph"`**
+            * `text` (string): Full paragraph text.
+            * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
+
+        3.  **`type: "bullet_list"`**
+            * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+            * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
+
+        4.  **`type: "numbered_list"`**
+            * `items` (array of `ListItem`):
+                * Can be simple strings for basic numbered points.
+                * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                    * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                    * The `items` of this *inner* `bullet_list` should then be:
+                        1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                        2. A `paragraph` block (for the main descriptive text).
+                        3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
+
+        5.  **`type: "table"`**
+            * `headers` (array of strings): The column headers for the table.
+            * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+            * `caption` (string, optional): A short description or title for the table, if present in the source text.
+            * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
+
+
+        6.  **`type: "alert"`**
+            *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+            *   `title` (string, optional): The title of the alert.
+            *   `text` (string): The body text of the alert.
+            *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+        7.  **`type: "section_break"`**
+            * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+        **General Parsing Rules & Icon Names:**
+        * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+        * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+        * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+        * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+        * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+        * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+        Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+            • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+            • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+            • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+        Return ONLY the JSON object.
+        """,
+        target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+    )
+    return parsed_json
+
     
 @app.post("/api/custom/ai-audit/generate")
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
@@ -6954,211 +7149,12 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
     try:
         duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
-        try:
-            with open("custom_assistants/AI-Audit/First-one-pager.txt", encoding="utf-8") as f:
-                example_text = f.read()
-        except Exception as e:
-            logger.error(f"[AI-Audit] Error reading example: {e}")
-            example_text = "(Example not found)"
-        if not duckduckgo_summary or duckduckgo_summary.strip() == "" or duckduckgo_summary.strip().startswith("(Нет релевантных данных"):
-            duck_info = "(DuckDuckGo не дал информации. Используй только анкету.)"
-        else:
-            duck_info = duckduckgo_summary
-        prompt = f"""
-        Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
-
-        ТВОЯ ЗАДАЧА:
-        - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
-        - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
-        - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
-        - Если в примере 5 секций — в твоём ответе тоже должно быть 5 секций с теми же названиями и в том же порядке.
-        - ЗАМЕНИ только данные, относящиеся к компании, на новые из анкеты и поиска.
-        - НЕ сокращай, НЕ добавляй новых секций, НЕ меняй структуру, НЕ меняй форматирование, НЕ меняй количество строк, НЕ меняй количество столбцов в таблицах.
-        - Если не уверен — лучше скопируй больше из примера, чем меньше.
-        - Твой ответ должен быть на 90% буквальной копией примера, только с новыми данными.
-        - Если DuckDuckGo не дал информации, используй только анкету.
-        - Если в примере есть таблица, твоя таблица должна быть с тем же количеством строк и столбцов, только с новыми данными.
-        - Если в примере есть абзац, твой ответ должен содержать такой же абзац на том же месте.
-        - Если в примере есть список, твой ответ должен содержать такой же список с тем же количеством пунктов.
-        - Не меняй ни одну структуру, даже если кажется, что это не подходит — просто замени данные.
-
-        ---
-        ДАННЫЕ АНКЕТЫ:
-        - Название компании: {payload.companyName}
-        - Описание компании: {payload.companyDesc}
-        - Сайт компании: {payload.companyWebsite}
-        - Количество сотрудников: {payload.employees}
-        - Франшиза: {payload.franchise}
-        - Проблемы онбординга: {payload.onboardingProblems}
-        - Документы: {', '.join(payload.documents)} {payload.documentsOther}
-        - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
-
-        ---
-        РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (DuckDuckGo):
-        {duck_info}
-
-        ---
-        СКОПИРУЙ ПРИМЕР НИЖЕ, ЗАМЕНИВ ТОЛЬКО ДАННЫЕ О КОМПАНИИ:
-        {example_text}
-
-        Ответь только текстом one-pager по этим правилам, без пояснений.
-        """
-        logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
-        client = get_openai_client()
-        import httpx
-        try:
-            # Set a longer timeout for the OpenAI call
-            response = await client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=4096,
-                temperature=0.2,
-                timeout=httpx.Timeout(180.0)  # 180 seconds
-            )
-        except Exception as e:
-            logger.error(f"[AI-Audit] OpenAI generation error: {e}", exc_info=True)
-            return {"error": f"Ошибка генерации AI-аудита: {e}"}
-        
-        result = response.choices[0].message.content
-        logger.info(f"[AI-Audit] OpenAI result (first 500 chars): {result[:500]}")
-
-        with open("custom_assistants/content_builder_ai.txt", encoding="utf-8") as f:
-            assistant_instructions = f.read()
-
-        # Compose the parsing prompt
-        parsing_prompt = (
-            f"{assistant_instructions}\n\n"
-            "WIZARD_REQUEST\n"
-            + json.dumps({
-                "product": "Text Presentation",
-                "microproduct": "One-Pager",
-                "prompt": "Приведи этот текст к нужному формату one-pager для ContentBuilder.ai",
-                "language": "ru",
-                "fromText": True,
-                "textMode": "context",
-                "userText": result,
-                "strict": True,
-                "parseMode": "onepager"
-            }, ensure_ascii=False)
-        )
-
-        # Call OpenAI again (use gpt-4o-mini or your preferred model)
-        parsed_response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Ты профессиональный AI-ассистент для парсинга продуктов ContentBuilder.ai."},
-                {"role": "user", "content": parsing_prompt}
-            ],
-            max_tokens=4096,
-            temperature=0.1,
-            timeout=httpx.Timeout(120.0)
-        )
-        parsed_markdown = parsed_response.choices[0].message.content
-
-        parsed_json = await parse_ai_response_with_llm(
-            ai_response=parsed_markdown,
-            project_name=payload.companyName,
-            target_model=TextPresentationDetails,  # or your one-pager model
-            default_error_model_instance=TextPresentationDetails(textTitle="Parse error", contentBlocks=[]),
-            dynamic_instructions=f"""
-            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
-            This product is for general text like introductions, goal descriptions, etc.
-            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
-
-            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
-
-            **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
-               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
-               - Extract ONLY the title part (the last part after the last "**")
-               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
-               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
-               - Do NOT include the course name or "Text Presentation" label in the title
-               - If no clear pattern is found, use the first meaningful title or heading
-            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
-            3.  `detectedLanguage` (string): e.g., "en", "ru".
-
-            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
-
-            1.  **`type: "headline"`**
-                * `level` (integer):
-                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
-                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
-                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
-                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
-                * `text` (string): Headline text.
-                * `iconName` (string, optional): Based on level and context as described above.
-                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
-
-            2.  **`type: "paragraph"`**
-                * `text` (string): Full paragraph text.
-                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
-
-            3.  **`type: "bullet_list"`**
-                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
-                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
-
-            4.  **`type: "numbered_list"`**
-                * `items` (array of `ListItem`):
-                    * Can be simple strings for basic numbered points.
-                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
-                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
-                        * The `items` of this *inner* `bullet_list` should then be:
-                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
-                            2. A `paragraph` block (for the main descriptive text).
-                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
-                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
-
-            5.  **`type: "table"`**
-                * `headers` (array of strings): The column headers for the table.
-                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
-                * `caption` (string, optional): A short description or title for the table, if present in the source text.
-                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
-
-
-            6.  **`type: "alert"`**
-                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
-                *   `title` (string, optional): The title of the alert.
-                *   `text` (string): The body text of the alert.
-                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
-
-            7.  **`type: "section_break"`**
-                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
-
-            **General Parsing Rules & Icon Names:**
-            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
-            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
-            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
-            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
-            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
-            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
-
-            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
-              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
-              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
-              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
-
-            Return ONLY the JSON object.
-            """,
-            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
-        )
+        parsed_json = create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
 
         positions = extract_open_positions_from_table(parsed_json)
         print("ALL POSITIONS:", positions)
 
         onyx_user_id = await get_current_onyx_user_id(request)
-
-        results = []
-        for position in positions:
-            project = await generate_and_finalize_course_outline_for_position(
-                payload.companyName, position, onyx_user_id, pool, request
-            )
-            results.append(project)
-
-        print("ALL RESULTS:", results)
 
         # After you get the parsed content from the AI parser:
         project_id = await insert_ai_audit_onepager_to_db(
@@ -7170,7 +7166,32 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
         )
 
         logger.info(f"[AI-Audit] Successfully created project with ID: {project_id}")
-        return {"id": project_id, "name": f"AI-Аудит: {payload.companyName}"}
+
+        results = []
+        for position in positions:
+            project = await generate_and_finalize_course_outline_for_position(
+                payload.companyName, position, onyx_user_id, pool, request
+            )
+            results.append(project)
+
+        logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
+
+        parsed_json = create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
+
+        # After you get the parsed content from the AI parser:
+        project_id_2 = await insert_ai_audit_onepager_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=f"AI-Аудит: {payload.companyName} (2)",
+            microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
+            chat_session_id=None  # or pass a session ID if you have one
+        )
+
+        logger.info(f"[AI-Audit] Successfully created project with ID: {project_id_2}")
+
+        logger.info(f"[AI-Audit] Finished the AI-Audit Generation")
+
+        return {"id": project_id, "id_2": project_id_2, "name": f"AI-Аудит: {payload.companyName}"}
     
     except Exception as e:
         logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
