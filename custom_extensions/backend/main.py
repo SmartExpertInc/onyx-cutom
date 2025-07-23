@@ -41,7 +41,7 @@ except ImportError:
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
-IS_PRODUCTION = True  # Or True for production
+IS_PRODUCTION = False  # Or True for production
 
 # --- Logger ---
 logger = logging.getLogger(__name__)
