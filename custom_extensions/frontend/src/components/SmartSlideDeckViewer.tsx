@@ -175,7 +175,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       {componentDeck && componentDeck.slides && componentDeck.slides.length > 0 ? (
         <ComponentBasedSlideDeckRenderer
           slides={componentDeck.slides}
-          selectedSlideId={componentDeck.currentSlideId || undefined}
           isEditable={isEditable}
           onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
           onTemplateChange={isEditable ? handleTemplateChange : undefined}
