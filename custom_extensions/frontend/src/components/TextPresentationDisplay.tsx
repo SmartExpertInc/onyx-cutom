@@ -38,9 +38,7 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
 };
 
 const NewBulletIcon = () => (
-  <svg width="7" height="7" viewBox="0 0 3 4" xmlns="http://www.w3.org/2000/svg" className="mr-1.5 mt-[1px] shrink-0 icon-new-bullet" style={{ fill: "#FF1414" }}>
-    <path d="M3 2L8.69979e-08 3.73205L2.38419e-07 0.267944L3 2Z" />
-  </svg>
+  <div className="w-1.5 h-1.5 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
 );
 
 // --- New Icon Set ---
