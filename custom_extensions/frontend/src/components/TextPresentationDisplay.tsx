@@ -427,20 +427,52 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       };
       return (
         <div className="overflow-x-auto my-4">
-          <table className="min-w-full border border-gray-300 text-[10px]">
+          <table className="min-w-full border border-gray-200 text-[10px] rounded-lg overflow-hidden" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
             {caption && <caption className="text-xs text-gray-500 mb-2">{caption}</caption>}
             <thead>
               <tr>
                 {headers.map((header: string, idx: number) => (
-                  <th key={idx} className="border-b border-gray-300 px-2 py-1 bg-red-600 text-white font-semibold text-left">{header}</th>
+                  <th
+                    key={idx}
+                    className="px-3 py-2 text-left font-bold border-b border-gray-300 bg-[#232B3A] text-white"
+                    style={{ fontWeight: 700, fontSize: '11px', letterSpacing: 0.2, borderTopLeftRadius: idx === 0 ? 8 : 0, borderTopRightRadius: idx === headers.length - 1 ? 8 : 0 }}
+                  >
+                    {isEditing && onTextChange ? (
+                      <input
+                        type="text"
+                        value={header}
+                        onChange={e => onTextChange([...basePath, 'headers', idx], e.target.value)}
+                        className="bg-[#232B3A] text-white font-bold border-none outline-none w-full px-1 py-0.5 rounded"
+                        style={{ fontSize: '11px' }}
+                      />
+                    ) : (
+                      header
+                    )}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {rows.map((row: string[], rIdx: number) => (
-                <tr key={rIdx}>
+                <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-[#F7F8FA]'}>
                   {row.map((cell: string, cIdx: number) => (
-                    <td key={cIdx} className="border-b border-gray-200 px-2 py-1 align-top text-black">{renderCellContent(cell)}</td>
+                    <td
+                      key={cIdx}
+                      className="border-b border-gray-200 px-3 py-2 align-top text-black text-left"
+                      style={{ fontSize: '11px', minWidth: 60 }}
+                    >
+                      {isEditing && onTextChange ? (
+                        <input
+                          type="text"
+                          value={cell}
+                          onChange={e => onTextChange([...basePath, 'rows', rIdx, cIdx], e.target.value)}
+                          className="bg-transparent text-black border border-gray-300 rounded px-1 py-0.5 w-full outline-none focus:border-blue-400"
+                          style={{ fontSize: '11px' }}
+                        />
+                      ) : (
+                        renderCellContent(cell)
+                      )}
+                    </td>
                   ))}
                 </tr>
               ))}

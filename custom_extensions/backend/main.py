@@ -7209,7 +7209,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
 
         results = []
         for position in positions:
-            set_progress(job_id, f"Generating onboarding for '{position}'")
+            set_progress(job_id, f"Generating onboarding for '{position.get('Позиция', 'New Position')}'")
             project = await generate_and_finalize_course_outline_for_position(
                 payload.companyName, position, onyx_user_id, pool, request
             )

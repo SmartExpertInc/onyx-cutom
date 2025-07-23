@@ -184,6 +184,18 @@ export default function AiAuditQuestionnaire() {
     }
   }, [generationDone, finalRedirectUrl]);
 
+  // Only show the latest progress message
+  const latestProgress = progressMessages.length > 0 ? progressMessages[progressMessages.length - 1] : null;
+
+  // Redirect to /projects when audit is complete
+  useEffect(() => {
+    if (latestProgress && latestProgress.toLowerCase().includes('ai-audit complete')) {
+      setTimeout(() => {
+        router.push('/projects');
+      }, 800);
+    }
+  }, [latestProgress, router]);
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-[#F7F7F7] font-sans">
       <div className="w-full max-w-5xl flex flex-row bg-white rounded-2xl shadow-2xl mt-16 border border-gray-100 overflow-hidden">
@@ -210,7 +222,7 @@ export default function AiAuditQuestionnaire() {
               ))}
             </div>
           )}
-          {loading && <LoadingSpinner text={progressMessages[progressMessages.length-1] || "Generating..."} />}
+          {loading && <LoadingSpinner text={latestProgress || "Generating..."} />}
           {!loading && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-7">
               <div>
