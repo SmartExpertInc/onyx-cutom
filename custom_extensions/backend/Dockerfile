@@ -9,10 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     fonts-liberation \
     fonts-noto-color-emoji \
-    fonts-noto-emoji \
     fonts-symbola \
-    fonts-twemoji \
-    fonts-segoe-ui \
+    fonts-dejavu-core \
+    fonts-dejavu-extra \
+    fonts-unifont \
+    fonts-freefont-ttf \
     libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \

@@ -124,12 +124,12 @@ async def generate_pdf_from_html_template(
             // Preload emoji fonts
             const emojiFonts = [
                 'Noto Color Emoji',
-                'Noto Emoji', 
-                'Segoe UI Emoji',
-                'Apple Color Emoji',
-                'Android Emoji',
-                'Twemoji Mozilla',
-                'Symbola'
+                'Symbola',
+                'DejaVu Sans',
+                'Liberation Sans',
+                'Unifont',
+                'FreeSans',
+                'Arial Unicode MS'
             ];
             
             // Create a test element to force font loading
