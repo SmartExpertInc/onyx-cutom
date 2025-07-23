@@ -12035,6 +12035,11 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # Use the parsed text title or fallback to the consistent project name
         final_project_name = parsed_text_presentation.textTitle or project_name
+
+        if payload.courseName:
+            course_name = payload.courseName
+        else:
+            course_name = f"{payload.lesson or 'Standalone Presentation'}"
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
@@ -12054,7 +12059,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             row = await conn.fetchrow(
                 insert_query,
                 onyx_user_id,
-                final_project_name,
+                course_name,
                 "Text Presentation",  # product_type
                 "Text Presentation",  # microproduct_type
                 final_project_name,  # microproduct_name
