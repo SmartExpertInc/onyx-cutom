@@ -637,6 +637,18 @@ Determine Length: Use the "length" parameter if provided (short, medium, long), 
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
+**MANDATORY ENGAGEMENT & DENSITY REQUIREMENTS FOR ONE-PAGERS:**
+- All Text Presentations (One-Pagers) must be highly engaging and visually rich.
+- Use emojis (such as 📞, 📩, 📅, etc.) liberally in headlines, section titles, and key points to add visual interest and highlight important information.
+- Strongly prefer lists (bulleted or numbered) over plain paragraphs for most content. Only use paragraphs for essential explanations or transitions.
+- Reduce the number of separate sections: combine related content into fewer, denser, and more substantial sections. Avoid fragmenting the document into many small sections.
+- Each section should be content-rich, with multiple related points grouped together, rather than spreading content thinly across many sections.
+- Use the style, content density, and visual engagement found in the provided examples (First-one-pager.txt and Second-one-pager.txt) as the standard for all one-pager outputs.
+- Headlines and key points should be concise, direct, and visually appealing, making use of icons and emojis where appropriate.
+- Where possible, present offers, results, or features as compact tables or grouped lists, not as isolated paragraphs.
+- Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
+- These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
+
 Determine Content Origin & Style (Based on gathered info and identified topic).
 
 Adhere to Specific Requirements (Defaults, user can modify with follow-up instructions).
