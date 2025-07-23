@@ -41,24 +41,6 @@ const NewBulletIcon = () => (
   <div className="w-0.75 h-0.75 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
 );
 
-// Helper function to detect if text starts with an emoji
-const startsWithEmoji = (text: string): boolean => {
-  const emojiRegex = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
-  return emojiRegex.test(text.trim());
-};
-
-// Helper function to get the first emoji from text
-const getFirstEmoji = (text: string): string | null => {
-  const emojiRegex = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
-  const match = text.trim().match(emojiRegex);
-  return match ? match[0] : null;
-};
-
-// Helper function to render emoji as bullet icon
-const EmojiBulletIcon: React.FC<{emoji: string}> = ({ emoji }) => (
-  <span className="mr-1.5 mt-[1px] shrink-0 text-base">{emoji}</span>
-);
-
 // --- New Icon Set ---
 const InfoIcon: React.FC<{className?: string}> = ({ className }) => (
     <svg width="1em" height="1em" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -302,7 +284,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
               const textSource = itemIsString ? ((isNumbered && isPlainStringNoBold) ? `**${item}**` : item) : "";
-              let styledItemText = itemIsString ? parseAndStyleText(textSource) : null;
+              const styledItemText = itemIsString ? parseAndStyleText(textSource) : null;
 
               if (isNumbered) {
                 return (
@@ -367,32 +349,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 );
               }
 
-              // Determine bullet icon for this item
-              let ItemBulletIcon: React.ElementType | null = BulletIconToRender;
-              let itemText = itemIsString ? item : '';
-              
-              // Check if item starts with emoji and replace bullet with emoji
-              if (itemIsString && !isNumbered && startsWithEmoji(item)) {
-                const emoji = getFirstEmoji(item);
-                if (emoji) {
-                  ItemBulletIcon = () => <EmojiBulletIcon emoji={emoji} />;
-                  // Remove the emoji from the text since it's now the bullet
-                  itemText = item.replace(emoji, '').trim();
-                  // Update styled text without the emoji
-                  const textSource = isNumbered && !itemText.includes("**") ? `**${itemText}**` : itemText;
-                  styledItemText = parseAndStyleText(textSource);
-                }
-              }
-
-              // Handle nested list indentation
-              const nestedIndentation = depth > 0 ? 'ml-6' : '';
-
               return (
                 <li
                   key={index}
-                  className={`flex items-start text-black text-xs leading-tight ${nestedIndentation}`}
+                  className={`flex items-start text-black text-xs leading-tight`}
                 >
-                  {!isNumbered && ItemBulletIcon && <ItemBulletIcon />}
+                  {!isNumbered && BulletIconToRender && <BulletIconToRender />}
                   <div className="flex-grow">
                     {itemIsString ? (
                         <span className={isNumbered ? 'ml-1' : ''}>{styledItemText}</span>

@@ -148,8 +148,6 @@
             color: var(--color-text-muted); 
         }
         .list-item-text-or-block { flex-grow: 1; }
-        .emoji-bullet { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", "EmojiOne Mozilla", "Twemoji Mozilla", "Segoe UI Symbol", Arial, sans-serif; font-size: 1em; margin-right: 0.375em; margin-top: 0.0625em; flex-shrink: 0; }
-        .list-block-wrapper li.nested { margin-left: 1.5em; }
 
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol { counter-reset: item; list-style-type: none; margin: 0; padding: 0; }
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: var(--space-md); }
@@ -326,7 +324,7 @@
         {% macro render_list_items_recursive_macro(items_list, list_type_str, list_icon_name_str, depth, is_in_mini_section=false) %}
             {% if items_list is iterable and items_list is not string and items_list|length > 0 %}
                 {% for item_content in items_list %}
-                    <li class="{{ 'nested' if depth > 0 else '' }}">
+                    <li>
                         {% if list_type_str == 'numbered_list' %}
                             <span class="list-number-circle"></span>
                             <div class="list-content-column">
