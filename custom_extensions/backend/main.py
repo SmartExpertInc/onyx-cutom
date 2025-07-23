@@ -1142,7 +1142,7 @@ AnyQuizQuestion = Union[
 ]
 
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -1221,6 +1221,9 @@ ACTIVE_QUIZ_FINALIZE_KEYS: Set[str] = set()
 
 # Track quiz finalization timestamps for cleanup
 QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
+
+# In-memory job status store (for demo; use Redis for production)
+AI_AUDIT_PROGRESS = {}
 
 
 # --- Directory for Design Template Images ---
@@ -6949,6 +6952,34 @@ async def insert_ai_audit_onepager_to_db(
     return row["id"]
 
 
+async def create_audit_folder(pool, onyx_user_id, company_name):
+    async with pool.acquire() as conn:
+        query = """
+        INSERT INTO project_folders (onyx_user_id, name)
+        VALUES ($1, $2)
+        RETURNING id;
+        """
+        row = await conn.fetchrow(query, onyx_user_id, f"AI-Аудит: {company_name}")
+        return row["id"]
+    
+
+async def assign_projects_to_folder(pool, folder_id, project_ids):
+    async with pool.acquire() as conn:
+        await conn.executemany(
+            "UPDATE projects SET folder_id = $1 WHERE id = $2",
+            [(folder_id, pid) for pid in project_ids]
+        )
+
+
+def set_progress(job_id, message):
+    AI_AUDIT_PROGRESS.setdefault(job_id, []).append(message)
+
+
+@app.get("/api/custom/ai-audit/progress")
+async def get_audit_progress(jobId: str):
+    return {"messages": AI_AUDIT_PROGRESS.get(jobId, [])}
+
+
 async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
     try:
         with open(example_text_path, encoding="utf-8") as f:
@@ -7144,15 +7175,21 @@ async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
 
     
 @app.post("/api/custom/ai-audit/generate")
-async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    logger.info(f"[AI-Audit] Received payload: {payload}")
-    try:
-        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
-        logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
+async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+    job_id = str(uuid.uuid4())
+    set_progress(job_id, "Starting AI-Audit generation...")
+    background_tasks.add_task(_run_audit_generation, payload, request, pool, job_id)
+    return {"jobId": job_id}
 
-        positions = extract_open_positions_from_table(parsed_json)
-        print("ALL POSITIONS:", positions)
+
+async def _run_audit_generation(payload, request, pool, job_id):
+    try:
+        set_progress(job_id, "Researching company info...")
+        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        logger.info(f"[AI-Audit] SERPAPI summary: {duckduckgo_summary[:300]}")
+
+        set_progress(job_id, "Generating first one-pager...")
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -7162,13 +7199,17 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
             onyx_user_id=onyx_user_id,
             project_name=f"AI-Аудит: {payload.companyName}",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
-            chat_session_id=None  # or pass a session ID if you have one
+            chat_session_id=None
         )
 
         logger.info(f"[AI-Audit] Successfully created project with ID: {project_id}")
 
+        set_progress(job_id, "Researching open positions...")
+        positions = extract_open_positions_from_table(parsed_json)
+
         results = []
         for position in positions:
+            set_progress(job_id, f"Generating onboarding for '{position}'")
             project = await generate_and_finalize_course_outline_for_position(
                 payload.companyName, position, onyx_user_id, pool, request
             )
@@ -7176,6 +7217,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
 
         logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
 
+        set_progress(job_id, "Generating closing one-pager...")
         parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
 
         # After you get the parsed content from the AI parser:
@@ -7184,18 +7226,31 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
             onyx_user_id=onyx_user_id,
             project_name=f"AI-Аудит: {payload.companyName} (2)",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
-            chat_session_id=None  # or pass a session ID if you have one
+            chat_session_id=None
         )
 
         logger.info(f"[AI-Audit] Successfully created project with ID: {project_id_2}")
 
-        logger.info(f"[AI-Audit] Finished the AI-Audit Generation")
+        set_progress(job_id, "Finalizing and saving to folder...")
+        all_project_ids = [project_id] + [p.id for p in results] + [project_id_2]
 
-        return {"id": project_id, "id_2": project_id_2, "name": f"AI-Аудит: {payload.companyName}"}
+        # 1. Create a new folder
+        folder_id = await create_audit_folder(pool, onyx_user_id, payload.companyName)
+
+        # 2. Assign all projects to this folder
+        await assign_projects_to_folder(pool, folder_id, all_project_ids)
+
+        set_progress(job_id, "AI-Audit complete!")
+        logger.info(f"[AI-Audit] Finished the AI-Audit Generation")
+        return {
+            "id": project_id,
+            "id_2": project_id_2,
+            "name": f"AI-Аудит: {payload.companyName}",
+            "folderId": folder_id
+        }
     
     except Exception as e:
-        logger.error(f"[AI-Audit] Error in generation: {e}", exc_info=True)
-        return {"error": f"AI-аудит не сгенерирован: {e}"}
+        set_progress(job_id, f"Error: {str(e)}")
     
 
 def extract_open_positions_from_table(parsed_json):
