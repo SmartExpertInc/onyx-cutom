@@ -33,6 +33,11 @@ import inspect
 import openai
 from openai import AsyncOpenAI
 from uuid import uuid4
+# NEW: PDF manipulation imports
+try:
+    from PyPDF2 import PdfMerger
+except ImportError:
+    PdfMerger = None
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -10625,6 +10630,200 @@ async def download_projects_list_pdf(
     except Exception as e:
         logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
+
+
+@app.get("/api/custom/pdf/folder/{folder_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+async def download_folder_as_pdf(
+    folder_id: int,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download all products in a folder as a single PDF, ordered by type and creation date."""
+    try:
+        # First, verify the folder exists and belongs to the user
+        async with pool.acquire() as conn:
+            folder_row = await conn.fetchrow(
+                """
+                SELECT name FROM project_folders 
+                WHERE id = $1 AND onyx_user_id = $2;
+                """,
+                folder_id, onyx_user_id
+            )
+        if not folder_row:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Folder not found for user.")
+
+        folder_name = folder_row['name']
+        
+        # Get all projects in the folder, ordered by type and creation date
+        async with pool.acquire() as conn:
+            projects = await conn.fetch(
+                """
+                SELECT p.id, p.project_name, p.microproduct_name, p.microproduct_content,
+                       p.created_at, dt.component_name as design_component_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2 AND p.is_deleted = false
+                ORDER BY 
+                    CASE 
+                        WHEN dt.component_name = 'TextPresentationDisplay' THEN 1
+                        WHEN dt.component_name = 'TrainingPlanTable' THEN 2
+                        ELSE 3
+                    END,
+                    p.created_at ASC;
+                """,
+                folder_id, onyx_user_id
+            )
+        
+        if not projects:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No projects found in folder.")
+        
+        # Generate individual PDFs for each project
+        pdf_paths = []
+        project_names = []
+        
+        for project in projects:
+            project_id = project['id']
+            project_name = project['microproduct_name'] or project['project_name']
+            content_json = project['microproduct_content']
+            component_name = project['design_component_name']
+            
+            # Skip unsupported project types
+            if component_name not in ['TextPresentationDisplay', 'TrainingPlanTable']:
+                continue
+            
+            try:
+                # Generate PDF for this project using existing logic
+                mp_name_for_pdf_context = project_name
+                content_json = project['microproduct_content']
+                component_name = project['design_component_name']
+                data_for_template_render: Optional[Dict[str, Any]] = None
+                pdf_template_file: str
+
+                detected_lang_for_pdf = 'ru'  # Default language
+                if isinstance(content_json, dict) and content_json.get('detectedLanguage'):
+                    detected_lang_for_pdf = content_json.get('detectedLanguage')
+                elif mp_name_for_pdf_context:
+                    detected_lang_for_pdf = detect_language(mp_name_for_pdf_context)
+                
+                current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
+
+                if component_name == 'TextPresentationDisplay':
+                    pdf_template_file = "text_presentation_pdf_template.html"
+                    if content_json and isinstance(content_json, dict):
+                        data_for_template_render = json.loads(json.dumps(content_json))
+                        if not data_for_template_render.get('detectedLanguage'):
+                            data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
+                    else:
+                        data_for_template_render = {
+                            "title": f"Content Unavailable: {mp_name_for_pdf_context}",
+                            "contentBlocks": [],
+                            "detectedLanguage": detected_lang_for_pdf
+                        }
+                
+                elif component_name == 'TrainingPlanTable':
+                    pdf_template_file = "training_plan_pdf_template.html"
+                    if content_json and isinstance(content_json, dict):
+                        try:
+                            content_json = round_hours_in_content(content_json)
+                            parsed_model = TrainingPlanDetails(**content_json)
+                            if parsed_model.detectedLanguage:
+                                detected_lang_for_pdf = parsed_model.detectedLanguage
+                                current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
+                            
+                            data_for_template_render = {
+                                'mainTitle': parsed_model.mainTitle,
+                                'sections': parsed_model.sections,
+                                'detectedLanguage': detected_lang_for_pdf
+                            }
+                        except Exception as e:
+                            logger.error(f"Error parsing training plan for project {project_id}: {e}")
+                            data_for_template_render = {
+                                "mainTitle": f"Error: {mp_name_for_pdf_context}",
+                                "sections": [],
+                                "detectedLanguage": detected_lang_for_pdf
+                            }
+                    else:
+                        data_for_template_render = {
+                            "mainTitle": f"Content Unavailable: {mp_name_for_pdf_context}",
+                            "sections": [],
+                            "detectedLanguage": detected_lang_for_pdf
+                        }
+                
+                else:
+                    continue  # Skip unsupported types
+                
+                if not isinstance(data_for_template_render, dict):
+                    data_for_template_render = {"title": "Error", "contentBlocks": [], "detectedLanguage": "en"}
+                
+                unique_output_filename = f"folder_export_{folder_id}_project_{project_id}_{uuid.uuid4().hex[:8]}.pdf"
+                
+                context_for_jinja = {
+                    'details': data_for_template_render,
+                    'locale': current_pdf_locale_strings
+                }
+                
+                pdf_path = await generate_pdf_from_html_template(pdf_template_file, context_for_jinja, unique_output_filename)
+                if os.path.exists(pdf_path):
+                    pdf_paths.append(pdf_path)
+                    project_names.append(project_name)
+                
+            except Exception as e:
+                logger.error(f"Error generating PDF for project {project_id}: {e}")
+                continue
+        
+        if not pdf_paths:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No PDFs could be generated for projects in folder.")
+        
+        # Combine PDFs into a single file
+        try:
+            if PdfMerger is None:
+                # If PyPDF2 is not available, return the first PDF as a fallback
+                logger.warning("PyPDF2 not available, returning first PDF as fallback")
+                if pdf_paths:
+                    user_friendly_filename = f"{create_slug(folder_name)}_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                    return FileResponse(
+                        path=pdf_paths[0],
+                        filename=user_friendly_filename,
+                        media_type='application/pdf',
+                        headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+                    )
+                else:
+                    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No PDFs generated and PyPDF2 not available")
+            
+            merger = PdfMerger()
+            
+            for pdf_path in pdf_paths:
+                merger.append(pdf_path)
+            
+            combined_pdf_path = f"/tmp/folder_export_{folder_id}_{uuid.uuid4().hex[:8]}.pdf"
+            merger.write(combined_pdf_path)
+            merger.close()
+            
+            # Clean up individual PDF files
+            for pdf_path in pdf_paths:
+                try:
+                    os.remove(pdf_path)
+                except:
+                    pass
+            
+            user_friendly_filename = f"{create_slug(folder_name)}_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            
+            return FileResponse(
+                path=combined_pdf_path,
+                filename=user_friendly_filename,
+                media_type='application/pdf',
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            )
+            
+        except Exception as e:
+            logger.error(f"Error combining PDFs for folder {folder_id}: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to combine PDFs")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating folder PDF: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate folder PDF: {str(e)[:200]}")
 
 
 # Quiz endpoints

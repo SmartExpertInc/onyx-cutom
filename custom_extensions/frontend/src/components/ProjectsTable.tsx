@@ -32,7 +32,8 @@ import {
   CheckSquare,
   Square,
   ArrowDownToLine,
-  Settings
+  Settings,
+  Download
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
@@ -1890,6 +1891,53 @@ const FolderRowMenu: React.FC<{
         setShowSettingsModal(true);
     };
 
+    const handleExportFolder = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+        
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/folder/${folder.id}`, {
+                method: 'GET',
+                headers,
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    // Handle authentication error
+                    console.error('Authentication error during export');
+                    return;
+                }
+                throw new Error(`Export failed: ${response.status}`);
+            }
+
+            // Get the blob from the response
+            const blob = await response.blob();
+            
+            // Create a download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${folder.name}_export_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error exporting folder:', error);
+            // You could show a toast notification here
+        }
+    };
+
     return (
         <>
             <div ref={menuRef} className="inline-block">
@@ -1937,6 +1985,13 @@ const FolderRowMenu: React.FC<{
                             >
                                 <Settings size={16} className="text-gray-500" />
                                 <span>Settings</span>
+                            </button>
+                            <button 
+                                onClick={handleExportFolder}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                                <Download size={16} className="text-gray-500" />
+                                <span>Export as file</span>
                             </button>
                         </div>
                         <div className="py-1 border-t border-gray-100">
