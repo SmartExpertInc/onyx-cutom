@@ -5397,7 +5397,7 @@ async def download_folder_as_pdf(
                        p.created_at, dt.component_name as design_component_name
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                WHERE p.folder_id = $1 AND p.onyx_user_id = $2 AND p.is_deleted = false
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
                 ORDER BY 
                     CASE 
                         WHEN dt.component_name = 'TextPresentationDisplay' THEN 1
