@@ -621,6 +621,21 @@ Exactly two blank lines immediately following the Universal Product Header.
 The Product Content itself, formatted according to the rules below.
 
 C. If the User Wants to Create a TEXT PRESENTATION:
+
+**MANDATORY EMOJI USAGE FOR ONE-PAGERS:**
+- All Text Presentations (One-Pagers) MUST use emojis (such as 📞, 📩, 📅, 📊, 💡, 🚀, etc.) as a core part of the visual style.
+- Every section headline MUST include at least one relevant emoji.
+- Every key point, list item, and table row SHOULD include an emoji where contextually appropriate.
+- Emojis must be used throughout the document: in headlines, lists, tables, calls to action, and contact information.
+- A one-pager without visible emojis in every major block (headline, list, table, CTA) is NON-COMPLIANT.
+- Example: 
+    - Section headline: `## 📊 ДОКАЗАННЫЕ РЕЗУЛЬТАТЫ`
+    - List item: `- 💡 Сокращение затрат на офлайн-обучение`
+    - Table cell: `| 💡 Сокращение затрат | на 30–60% |`
+    - CTA: `📞 Связаться: ...  📩 Email: ...  📅 Встреча: ...`
+- Emojis should be chosen to match the content and add visual engagement, not just repeated generically.
+- This requirement is MANDATORY and takes precedence over all other stylistic rules for one-pagers.
+
 I. Internal Processing Steps (Your Standard Operating Procedure):
 
 Initiate Guided Conversation & Establish Basics: Follow the mandatory "Conversational Detail Gathering & Guiding Input" flow to establish the source material and the text topic.
@@ -682,6 +697,13 @@ Style Usage Guidelines:
 - Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
 
 Formatting Rules:
+
+- Every section headline MUST include at least one emoji (e.g., `## 📊 Results`, `### 🚀 Launch Steps`).
+- Every list item SHOULD include an emoji (e.g., `- 💡 Key benefit`, `- 📅 Timeline`).
+- Table headers and/or cells SHOULD include emojis where appropriate.
+- Calls to action and contact information MUST be visually highlighted with emojis (e.g., `📞`, `📩`, `📅`).
+- A one-pager without visible emojis in every major block is considered non-compliant.
+- Emojis must be contextually relevant and varied throughout the document.
 
 Main Title (Optional): The entire document can have a main title. If the user provides one, or if it's sensible to create one from the topic, it should be the first line of the document, formatted as a Level 1 Headline (`#`). This title should only appear if it is distinct from the first actual headline in the content. If the main title would be identical to the first headline, the main title should be omitted.
 
