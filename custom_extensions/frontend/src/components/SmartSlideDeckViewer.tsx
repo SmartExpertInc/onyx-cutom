@@ -56,30 +56,26 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
   };
 
   if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className="inline-editor-textarea"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        rows={4}
-      />
-    );
+    return React.createElement('textarea', {
+      ref: inputRef as React.RefObject<HTMLTextAreaElement>,
+      className: 'inline-editor-textarea',
+      value: value,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value),
+      onKeyDown: handleKeyDown,
+      onBlur: handleBlur,
+      rows: 4
+    });
   }
 
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className="inline-editor-input"
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-    />
-  );
+  return React.createElement('input', {
+    ref: inputRef as React.RefObject<HTMLInputElement>,
+    className: 'inline-editor-input',
+    type: 'text',
+    value: value,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
+    onKeyDown: handleKeyDown,
+    onBlur: handleBlur
+  });
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -285,18 +281,18 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         <div className="header-content">
           <div className="presentation-info">
             <h1 className="presentation-title">{componentDeck.lessonTitle || 'Presentation'}</h1>
-            <span className="slide-counter">{componentDeck.slides.length} slides</span>
+            {React.createElement('span', { className: 'slide-counter' }, `${componentDeck.slides.length} slides`)}
           </div>
           
           {isEditable && (
             <div className="header-controls">
-              <button 
-                className="control-button add-button"
-                onClick={addSlide}
-              >
-                <span className="button-icon">+</span>
-                Add Slide
-              </button>
+              {React.createElement('button', {
+                className: 'control-button add-button',
+                onClick: addSlide
+              }, [
+                React.createElement('span', { key: 'icon', className: 'button-icon' }, '+'),
+                'Add Slide'
+              ])}
             </div>
           )}
         </div>
@@ -312,7 +308,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             fontSize: '14px',
             color: '#0369a1'
           }}>
-            <span>📊 Slide Deck Info:</span> Component-based format • {componentDeck.slides.length} slides
+            {React.createElement('span', {}, '📊 Slide Deck Info:')} Component-based format • {componentDeck.slides.length} slides
           </div>
         )}
       </div>
@@ -342,7 +338,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 <div className="thumbnail-number">{slide.slideNumber}</div>
                 <div className="thumbnail-preview">
                   <div className="preview-title">
-                    {slide.props.title || slide.slideTitle || `Slide ${slide.slideNumber}`}
+                    {slide.props.title || `Slide ${slide.slideNumber}`}
                   </div>
                   <div className="preview-content">
                     <div className="preview-block">
@@ -355,15 +351,13 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 </div>
                 
                 {isEditable && componentDeck.slides.length > 1 && (
-                  <button
-                    className="delete-slide-button"
-                    onClick={(e: React.MouseEvent) => {
+                  React.createElement('button', {
+                    className: 'delete-slide-button',
+                    onClick: (e: React.MouseEvent) => {
                       e.stopPropagation();
                       deleteSlide(slide.slideId);
-                    }}
-                  >
-                    ×
-                  </button>
+                    }
+                  }, '×')
                 )}
               </div>
             ))}
@@ -386,12 +380,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 >
                   {editingTitle === slide.slideId ? (
                     <InlineEditor
-                      initialValue={slide.props.title || slide.slideTitle || `Slide ${slide.slideNumber}`}
+                      initialValue={slide.props.title || `Slide ${slide.slideNumber}`}
                       onSave={(newTitle) => {
                         const updatedSlide: ComponentBasedSlide = {
                           ...slide,
-                          props: { ...slide.props, title: newTitle },
-                          slideTitle: newTitle
+                          props: { ...slide.props, title: newTitle }
                         };
                         handleSlideUpdate(updatedSlide);
                         setEditingTitle(null);
@@ -399,11 +392,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                       onCancel={() => setEditingTitle(null)}
                     />
                   ) : (
-                    <h2 className="slide-title-text">{slide.props.title || slide.slideTitle || `Slide ${slide.slideNumber}`}</h2>
+                    <h2 className="slide-title-text">{slide.props.title || `Slide ${slide.slideNumber}`}</h2>
                   )}
                 </div>
               ) : (
-                <h2 className="slide-title-display">{slide.props.title || slide.slideTitle || `Slide ${slide.slideNumber}`}</h2>
+                <h2 className="slide-title-display">{slide.props.title || `Slide ${slide.slideNumber}`}</h2>
               )}
 
               {/* Component-based slide content */}
