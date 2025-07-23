@@ -29,9 +29,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       subtitle: 'Compelling subtitle that captures attention',
       author: '',
       date: '',
-      backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a',
-      subtitleColor: '#666666',
+      backgroundColor: '#261c4e',
+      titleColor: '#ffffff',
+      subtitleColor: '#d9e1ff',
       backgroundImage: ''
     },
     propSchema: {
@@ -63,17 +63,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: {
         type: 'color',
         label: 'Background Color',
-        default: '#ffffff'
+        default: '#261c4e'
       },
       titleColor: {
         type: 'color',
         label: 'Title Color',
-        default: '#1a1a1a'
+        default: '#ffffff'
       },
       subtitleColor: {
         type: 'color',
         label: 'Subtitle Color',
-        default: '#666666'
+        default: '#d9e1ff'
       },
       backgroundImage: {
         type: 'image',
@@ -93,9 +93,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Slide Title',
       content: 'Your content goes here. This is where you explain your key points with detailed information that supports your presentation narrative.',
-      backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a',
-      contentColor: '#333333',
+      backgroundColor: '#261c4e',
+      titleColor: '#ffffff',
+      contentColor: '#d9e1ff',
       alignment: 'left',
       backgroundImage: ''
     },
@@ -117,17 +117,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: {
         type: 'color',
         label: 'Background Color',
-        default: '#ffffff'
+        default: '#261c4e'
       },
       titleColor: {
         type: 'color',
         label: 'Title Color',
-        default: '#1a1a1a'
+        default: '#ffffff'
       },
       contentColor: {
         type: 'color',
         label: 'Content Color',
-        default: '#333333'
+        default: '#d9e1ff'
       },
       alignment: {
         type: 'select',

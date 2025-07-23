@@ -14,6 +14,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full font-sans">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" 
+          rel="stylesheet" 
+        />
+      </head>
       <body className="h-full bg-app-gradient">
         {/* If you have an intermediate div, make it h-full too if it's the main content wrapper */}
         {/* For example: <div className="flex flex-col min-h-screen"> OR just directly children */}

@@ -87,7 +87,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSlideId, setSelectedSlideId] = useState<string>('');
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
 
   // Process deck - expect component-based format only
@@ -113,7 +112,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         }
 
         setComponentDeck(deck as ComponentBasedSlideDeck);
-        setSelectedSlideId(deck.slides[0]?.slideId || '');
         console.log('✅ Component-based slides loaded successfully:', {
           slideCount: deck.slides.length,
           templates: deck.slides.map((s: any) => s.templateId)
@@ -175,7 +173,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       props: {
         title: `Slide ${componentDeck.slides.length + 1}`,
         content: 'Add your content here...',
-        backgroundColor: '#ffffff'
+        backgroundColor: '#261c4e'
       },
       metadata: {}
     };
@@ -186,7 +184,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     };
 
     setComponentDeck(updatedDeck);
-    setSelectedSlideId(newSlide.slideId);
     onSave?.(updatedDeck);
   };
 
@@ -206,10 +203,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
     setComponentDeck(updatedDeck);
     
-    // Select next slide or previous if last was deleted
-    const deletedIndex = componentDeck.slides.findIndex((s: ComponentBasedSlide) => s.slideId === slideId);
-    const nextSlide = updatedDeck.slides[deletedIndex] || updatedDeck.slides[deletedIndex - 1];
-    setSelectedSlideId(nextSlide?.slideId || '');
+    // Slide deleted - no need to select next slide since navigation is removed
     
     onSave?.(updatedDeck);
   };
@@ -315,67 +309,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
       {/* Main Content Area */}
       <div className="main-content">
-        {/* Professional Sidebar with Thumbnails */}
-        <div className="professional-sidebar">
-          <div className="sidebar-header">
-            <h3 className="sidebar-title">Slides</h3>
-          </div>
-          
-          <div className="slide-thumbnails">
-            {componentDeck.slides.map((slide: ComponentBasedSlide) => (
-              <div
-                key={slide.slideId}
-                className={`slide-thumbnail ${selectedSlideId === slide.slideId ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedSlideId(slide.slideId);
-                  // Scroll to the slide
-                  const slideElement = document.getElementById(`slide-${slide.slideId}`);
-                  if (slideElement) {
-                    slideElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }}
-              >
-                <div className="thumbnail-number">{slide.slideNumber}</div>
-                <div className="thumbnail-preview">
-                  <div className="preview-title">
-                    {slide.props.title || `Slide ${slide.slideNumber}`}
-                  </div>
-                  <div className="preview-content">
-                    <div className="preview-block">
-                      {slide.templateId.replace('-', ' ')} template
-                    </div>
-                    <div className="preview-block">
-                      {slide.props.content 
-                        ? String(slide.props.content).substring(0, 30) + '...' 
-                        : slide.props.subtitle 
-                        ? String(slide.props.subtitle).substring(0, 30) + '...'
-                        : 'Content...'}
-                    </div>
-                  </div>
-                </div>
-                
-                {isEditable && componentDeck.slides.length > 1 && (
-                  <button
-                    className="delete-slide-button"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      deleteSlide(slide.slideId);
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Slides Container */}
         <div className="slides-container">
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
             <div
               key={slide.slideId}
-              className={`professional-slide ${selectedSlideId === slide.slideId ? 'active' : ''}`}
+              className="professional-slide"
               id={`slide-${slide.slideId}`}
             >
               {/* Editable Slide Title */}
@@ -409,7 +348,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               <div className="slide-content">
                 <ComponentBasedSlideDeckRenderer
                   slides={[slide]}
-                  selectedSlideId={slide.slideId}
                   isEditable={isEditable}
                   onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                   onTemplateChange={isEditable ? handleTemplateChange : undefined}
