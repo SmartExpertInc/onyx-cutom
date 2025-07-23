@@ -628,6 +628,7 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 - Include thorough explanations, real-world examples, practical tips, and actionable advice throughout.
 - The one-pager should be as information-rich as a full lesson presentation, not just a marketing or overview sheet.
 - Outputs that feel like summaries, teasers, or checklists are non-compliant and must be expanded with more depth, context, and explanation.
+- **Always use the full range of allowed styles (alerts, important sections, icons, recommendations, tables, etc.) in every one-pager. Maximize visual and structural variety for engagement and clarity. Do not default to just lists and paragraphs.**
 - This requirement is MANDATORY and takes precedence over any previous defaults for brevity or summary style.
 
 **MANDATORY EMOJI USAGE FOR ONE-PAGERS:**
@@ -717,6 +718,8 @@ Style Usage Guidelines:
 - Section Breaks: Use to separate major content sections
 - Icons: Use to add visual appeal to headlines (only if "icons" is in allowed styles)
 - Important Sections: Use to highlight critical information (only if "important_sections" is in allowed styles)
+- Tables: Use for presenting structured/tabular data (only if "tables" is in allowed styles)
+- **Maximize the use of all allowed styles in every one-pager for visual and structural variety. Avoid defaulting to just lists and paragraphs.**
 
 Formatting Rules:
 
