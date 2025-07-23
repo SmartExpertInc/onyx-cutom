@@ -273,7 +273,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
   }
 
-  // Success: Render component-based viewer with classic UX
+  // Success: Render component-based viewer with classic UX and sidebar navigation
   return (
     <div className="slide-deck-viewer">
       {/* Professional Header */}
@@ -281,18 +281,18 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         <div className="header-content">
           <div className="presentation-info">
             <h1 className="presentation-title">{componentDeck.lessonTitle || 'Presentation'}</h1>
-            {React.createElement('span', { className: 'slide-counter' }, `${componentDeck.slides.length} slides`)}
+            <span className="slide-counter">{componentDeck.slides.length} slides</span>
           </div>
           
           {isEditable && (
             <div className="header-controls">
-              {React.createElement('button', {
-                className: 'control-button add-button',
-                onClick: addSlide
-              }, [
-                React.createElement('span', { key: 'icon', className: 'button-icon' }, '+'),
-                'Add Slide'
-              ])}
+              <button 
+                className="control-button add-button"
+                onClick={addSlide}
+              >
+                <span className="button-icon">+</span>
+                Add Slide
+              </button>
             </div>
           )}
         </div>
@@ -308,14 +308,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             fontSize: '14px',
             color: '#0369a1'
           }}>
-            {React.createElement('span', {}, '📊 Slide Deck Info:')} Component-based format • {componentDeck.slides.length} slides
+            <span>📊 Slide Deck Info:</span> Component-based format • {componentDeck.slides.length} slides
           </div>
         )}
       </div>
 
       {/* Main Content Area */}
       <div className="main-content">
-        {/* Professional Sidebar */}
+        {/* Professional Sidebar with Thumbnails */}
         <div className="professional-sidebar">
           <div className="sidebar-header">
             <h3 className="sidebar-title">Slides</h3>
@@ -342,22 +342,28 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   </div>
                   <div className="preview-content">
                     <div className="preview-block">
-                      {slide.templateId} template
+                      {slide.templateId.replace('-', ' ')} template
                     </div>
                     <div className="preview-block">
-                      {slide.props.content ? String(slide.props.content).substring(0, 30) + '...' : 'Content...'}
+                      {slide.props.content 
+                        ? String(slide.props.content).substring(0, 30) + '...' 
+                        : slide.props.subtitle 
+                        ? String(slide.props.subtitle).substring(0, 30) + '...'
+                        : 'Content...'}
                     </div>
                   </div>
                 </div>
                 
                 {isEditable && componentDeck.slides.length > 1 && (
-                  React.createElement('button', {
-                    className: 'delete-slide-button',
-                    onClick: (e: React.MouseEvent) => {
+                  <button
+                    className="delete-slide-button"
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       deleteSlide(slide.slideId);
-                    }
-                  }, '×')
+                    }}
+                  >
+                    ×
+                  </button>
                 )}
               </div>
             ))}
@@ -417,4 +423,4 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   );
 };
 
-export default SmartSlideDeckViewer; 
+export default SmartSlideDeckViewer;
