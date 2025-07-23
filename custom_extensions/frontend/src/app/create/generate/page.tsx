@@ -578,11 +578,11 @@ function GenerateProductPicker() {
   const lengthRangeForOption = (opt: string) => {
     switch (opt) {
       case "Short":
-        return "100-200 words";
-      case "Medium":
         return "300-400 words";
+      case "Medium":
+        return "600-800 words";
       case "Long":
-        return "500+ words";
+        return "1000-1500 words";
       default:
         return "300-400 words";
     }
