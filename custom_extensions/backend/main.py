@@ -7489,7 +7489,7 @@ async def generate_and_finalize_course_outline_for_position(
         ),
         "modules": 4,
         "lessonsPerModule": "5-7",
-        "language": "{language}"
+        "language": language
     }
     # Convert to JSON string for the LLM
     prompt = json.dumps(wizard_request, ensure_ascii=False)
@@ -7529,11 +7529,31 @@ async def generate_and_finalize_course_outline_for_position(
                 
                 for section in sections:
                     if isinstance(section, dict) and section.get("lessons"):
+                        # Ensure each lesson has proper hours value (default to 1 if missing)
+                        updated_lessons = []
+                        for lesson in section["lessons"]:
+                            if isinstance(lesson, dict):
+                                # Set default hours if missing or zero
+                                if lesson.get("hours", 0) == 0:
+                                    lesson["hours"] = 1
+                                updated_lessons.append(lesson)
+                            else:
+                                # If lesson is just a string, convert to proper structure
+                                updated_lessons.append({
+                                    "title": str(lesson),
+                                    "check": {"type": "no", "text": ""},
+                                    "contentAvailable": {"type": "no", "text": ""},
+                                    "source": "",
+                                    "hours": 1
+                                })
+                        
                         # Calculate total hours from lesson hours
-                        total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
+                        total_hours = sum(lesson.get("hours", 0) for lesson in updated_lessons)
+                        
                         # Update section with calculated total hours and set autoCalculateHours to true
                         updated_section = {
                             **section,
+                            "lessons": updated_lessons,
                             "totalHours": total_hours,
                             "autoCalculateHours": True
                         }
