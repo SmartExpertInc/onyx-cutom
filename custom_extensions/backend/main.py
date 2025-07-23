@@ -7149,7 +7149,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
     try:
         duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit] DuckDuckGo summary: {duckduckgo_summary[:300]}")
-        parsed_json = create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
 
         positions = extract_open_positions_from_table(parsed_json)
         print("ALL POSITIONS:", positions)
@@ -7176,7 +7176,7 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
 
         logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
 
-        parsed_json = create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
 
         # After you get the parsed content from the AI parser:
         project_id_2 = await insert_ai_audit_onepager_to_db(
