@@ -622,6 +622,14 @@ The Product Content itself, formatted according to the rules below.
 
 C. If the User Wants to Create a TEXT PRESENTATION:
 
+**MANDATORY EDUCATIONAL DEPTH FOR ONE-PAGERS:**
+- Every one-pager (Text Presentation) must be treated as a full educational lesson, not a summary or checklist.
+- The content must be detailed and comprehensive enough for a learner to gain real understanding of the topic.
+- Include thorough explanations, real-world examples, practical tips, and actionable advice throughout.
+- The one-pager should be as information-rich as a full lesson presentation, not just a marketing or overview sheet.
+- Outputs that feel like summaries, teasers, or checklists are non-compliant and must be expanded with more depth, context, and explanation.
+- This requirement is MANDATORY and takes precedence over any previous defaults for brevity or summary style.
+
 **MANDATORY EMOJI USAGE FOR ONE-PAGERS:**
 - All Text Presentations (One-Pagers) MUST use emojis (such as 📞, 📩, 📅, 📊, 💡, 🚀, etc.) as a core part of the visual style.
 - Every section headline MUST include at least one relevant emoji.
@@ -649,6 +657,8 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 - This requirement is MANDATORY and takes precedence over any previous defaults for brevity.
 
 I. Internal Processing Steps (Your Standard Operating Procedure):
+
+**REMINDER:** Treat every one-pager as a full educational lesson. Ensure the content is detailed, comprehensive, and information-rich, with explanations, examples, and practical tips. Do not produce summaries, teasers, or checklists—expand all points into full, teachable content.
 
 Initiate Guided Conversation & Establish Basics: Follow the mandatory "Conversational Detail Gathering & Guiding Input" flow to establish the source material and the text topic.
 
