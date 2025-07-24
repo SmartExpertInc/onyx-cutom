@@ -156,14 +156,14 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: BigImageLeftTemplate,
     defaultProps: {
       title: 'Image Title',
-      content: 'Content that complements the image and provides context or explanation.',
+      subtitle: 'Subtitle that complements the image and provides context or explanation.',
       imageUrl: 'https://via.placeholder.com/600x400?text=Your+Image',
       imageAlt: 'Descriptive alt text',
       imagePrompt: 'man sitting on a chair',
       imageSize: 'large',
-      titleColor: '#1a1a1a',
-      contentColor: '#333333',
-      backgroundColor: '#ffffff'
+      backgroundColor: '#261c4e',
+      titleColor: '#ffffff',
+      contentColor: '#d9e1ff'
     },
     propSchema: {
       title: {
@@ -172,9 +172,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         required: true,
         maxLength: 100
       },
-      content: {
+      subtitle: {
         type: 'richtext',
-        label: 'Content',
+        label: 'Subtitle',
         required: true,
         maxLength: 1000
       },
