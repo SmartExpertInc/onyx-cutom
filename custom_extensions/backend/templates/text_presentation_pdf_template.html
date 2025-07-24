@@ -609,14 +609,36 @@
                 {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
             {% else %}
                 {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
-                {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
                 
                 {% if is_important_headline_check %} 
                     <div class="mini-section-box-wrapper"> <div class="mini-section-box">
                         {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
-                        {% if is_relevant_content_following_for_box_check %}
-                            {{ render_single_block_recursive_macro(next_block_item, 0, is_in_mini_section=true) }}
-                            {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
+                        
+                        {# Include all blocks until next headline, table, or alert #}
+                        {% set next_index = loop_index + 1 %}
+                        {% while next_index < (blocks_to_render | length) %}
+                            {% set next_block = blocks_to_render[next_index] %}
+                            {% if next_block is mapping %}
+                                {% set next_block_type = next_block.get('type') %}
+                                {% if next_block_type in ['headline', 'table', 'alert'] %}
+                                    {# Stop at headline, table, or alert #}
+                                    {% break %}
+                                {% else %}
+                                    {# Include this block in the mini-section #}
+                                    {{ render_single_block_recursive_macro(next_block, 0, is_in_mini_section=true) }}
+                                    {% set next_index = next_index + 1 %}
+                                {% endif %}
+                            {% else %}
+                                {# Include non-mapping blocks too #}
+                                {{ render_single_block_recursive_macro(next_block, 0, is_in_mini_section=true) }}
+                                {% set next_index = next_index + 1 %}
+                            {% endif %}
+                        {% endwhile %}
+                        
+                        {# Mark that we've processed these blocks #}
+                        {% set blocks_to_skip = next_index - loop_index - 1 %}
+                        {% if blocks_to_skip > 0 %}
+                            {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(blocks_to_skip) %}
                         {% endif %}
                     </div> </div>
                 {% else %} 
