@@ -6,7 +6,6 @@ import { TemplateRegistry, TemplateComponentInfo, PropDefinition } from '@/types
 import { TitleSlideTemplate } from './TitleSlideTemplate';
 import { ContentSlideTemplate } from './ContentSlideTemplate';
 import { BigImageLeftTemplate } from './BigImageLeftTemplate';
-import { QuoteCenterTemplate } from './QuoteCenterTemplate';
 import { BulletPointsTemplate } from './BulletPointsTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
 import { ComparisonSlideTemplate } from './ComparisonSlideTemplate';
@@ -221,71 +220,6 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         type: 'color',
         label: 'Background Color',
         default: '#ffffff'
-      }
-    }
-  },
-
-  'quote-center': {
-    id: 'quote-center',
-    name: 'Quote Center',
-    description: 'Prominently displayed quote with optional author attribution',
-    category: 'special',
-    icon: '💬',
-    component: QuoteCenterTemplate,
-    defaultProps: {
-      quote: 'This is an inspiring quote that captures the essence of your message and resonates with your audience.',
-      author: 'Quote Author',
-      attribution: 'Title, Organization',
-      backgroundColor: '#f8f9fa',
-      quoteColor: '#1a1a1a',
-      authorColor: '#666666',
-      fontSize: 'large'
-    },
-    propSchema: {
-      quote: {
-        type: 'richtext',
-        label: 'Quote',
-        description: 'The main quote text',
-        required: true,
-        maxLength: 500
-      },
-      author: {
-        type: 'text',
-        label: 'Author',
-        description: 'Quote author name',
-        maxLength: 100
-      },
-      attribution: {
-        type: 'text',
-        label: 'Attribution',
-        description: 'Author title, organization, etc.',
-        maxLength: 200
-      },
-      backgroundColor: {
-        type: 'color',
-        label: 'Background Color',
-        default: '#f8f9fa'
-      },
-      quoteColor: {
-        type: 'color',
-        label: 'Quote Color',
-        default: '#1a1a1a'
-      },
-      authorColor: {
-        type: 'color',
-        label: 'Author Color',
-        default: '#666666'
-      },
-      fontSize: {
-        type: 'select',
-        label: 'Font Size',
-        options: [
-          { value: 'small', label: 'Small' },
-          { value: 'medium', label: 'Medium' },
-          { value: 'large', label: 'Large' },
-          { value: 'xlarge', label: 'Extra Large' }
-        ],
-        default: 'large'
       }
     }
   },

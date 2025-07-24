@@ -34,7 +34,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
-    backgroundColor: '#f8f9fa'
+    backgroundColor: backgroundColor // <-- тепер як у всього слайду
   };
 
   const getImageDimensions = () => {
@@ -81,7 +81,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
-    fontWeight: 'bold',
     marginBottom: '24px',
     lineHeight: '1.2'
   };

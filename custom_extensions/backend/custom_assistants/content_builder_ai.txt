@@ -926,7 +926,6 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 8. `challenges-solutions` - Problems vs solutions with visual indicators
 9. `process-steps` - Numbered process or workflow steps
 10. `big-image-left` - Large image on left with content on right
-11. `quote-center` - Prominently displayed quotes with attribution
 
 **Hero Title Slides** (`hero-title-slide`):
 ```
@@ -1066,21 +1065,6 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 [IMAGE_PLACEHOLDER: LARGE | LEFT | Main visual content]
 ```
 
-**Quote Center Slides** (`quote-center`):
-```
----
-**Slide 10: [Quote Topic]** `quote-center`
-
-## [Quote Context Title]
-
-"[Inspiring quote that captures the essence of the message and resonates with the audience]"
-
-**— [Quote Author]**
-*[Author Title, Organization]*
-
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Subtle background visual]
-```
-
 **Title Slides** (`title-slide`):
 ```
 ---
@@ -1107,8 +1091,7 @@ Choose templates based on content type and educational goals:
 - **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
 - **Workflows**: Use `process-steps` for sequential processes and procedures
 - **Visual Focus**: Use `big-image-left` when image is the primary focus
-- **Inspiration**: Use `quote-center` for motivational quotes or key messages
-- **Transitions**: Use `title-slide` for section breaks or conclusions
+- **Inspiration**: Use `title-slide` for section breaks or conclusions
 
 **SLIDE COUNT RECOMMENDATIONS:**
 - **Short Lessons (5-7 slides)**: hero-title + 3-4 content slides + title conclusion

@@ -3813,7 +3813,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
             **Available Template IDs and their Props (must match exactly):**
 
-                        1. **`hero-title-slide`** - Hero opening slides with detailed overview:
+            1. **`hero-title-slide`** - Hero opening slides with detailed overview:
             ```json
             "props": {
               "title": "Main slide title",
@@ -3923,23 +3923,15 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             ```json
             "props": {
               "title": "Slide Title",
-              "subtitle": "Content that complements the image",
+              "subtitle": "Subtitle or detailed description for the slide",
               "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
               "imageAlt": "Descriptive alt text",
-              "imagePrompt": "man sitting on a chair",
+              "imagePrompt": "A high-quality illustration that visually represents the slide title and subtitle, e.g. 'Street art in a public space, colorful mural, urban environment'",
               "imageSize": "large"
             }
             ```
 
-            11. **`quote-center`** - Prominently displayed quotes with attribution:
-            ```json
-            "props": {
-              "quote": "This is an inspiring quote that captures the essence",
-              "author": "Quote Author",
-              "attribution": "Title, Organization",
-              "fontSize": "large"
-            }
-            ```
+            
 
             **Enhanced Slide Parsing Rules:**
             * Each slide should be separated by `---` in the input markdown
@@ -3955,22 +3947,20 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Multiple sections → use appropriate template (two-column, process-steps, etc.)
             - Always include `backgroundColor` prop (default: "#ffffff")
 
-            **Template Selection Logic:**
-            - First slide: Use `hero-title-slide` for introduction
+            - First slide: Use `hero-title-slide` **or** `big-image-left` for introduction (choose `big-image-left` if потрібен сильний візуал)
             - Content with steps/process: Use `process-steps`
             - Content with bullet points: Use `bullet-points`
             - Content with two sections: Use `two-column`
             - Visual-focused content: Use `big-image-left` when image is central to understanding
             - Comparisons with images: Use `image-comparison` for side-by-side visual comparisons
             - Problem-solution content: Use `challenges-solutions`
-            - Inspirational quotes: Use `quote-center`
             - Default: Use `content-slide`
 
             **Special Instructions for `big-image-left`:**
-            - Always include meaningful `imagePrompt` for AI image generation
+            - Always include meaningful `imagePrompt` for AI image generation that describes both the title and subtitle
             - Use when the visual element is essential to understanding the content
             - Suitable for: case studies, examples, demonstrations, visual concepts
-            - `imagePrompt` should be descriptive and specific (e.g., "professional business meeting in modern office", "data visualization chart showing growth trends")
+            - `imagePrompt` should be descriptive and specific (e.g., "Street art in a public space, colorful mural, urban environment")
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
