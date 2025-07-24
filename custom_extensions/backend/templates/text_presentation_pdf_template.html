@@ -600,31 +600,41 @@
         {% endif %}
 
         {% set next_block_in_box_content = [false] %}
-        {% for loop_index in range(blocks_to_render | length) %}
-            {% set current_block_item = blocks_to_render[loop_index] %}
-            {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
-            {% set is_last_block_overall = loop_index == (blocks_to_render | length) - 1 %}
-            
-            {% if next_block_in_box_content[0] %}
-                {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
-            {% else %}
-                {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
-                {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
-                
-                {% if is_important_headline_check %} 
-                    <div class="mini-section-box-wrapper"> <div class="mini-section-box">
-                        {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
-                        {% if is_relevant_content_following_for_box_check %}
-                            {{ render_single_block_recursive_macro(next_block_item, 0, is_in_mini_section=true) }}
-                            {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
-                        {% endif %}
-                    </div> </div>
-                {% else %} 
-                    {{ render_single_block_recursive_macro(current_block_item, 0) }}
-                {% endif %}
-            {% endif %}
+        {% set i = 0 %}
+        {% set n = blocks_to_render | length %}
+        {% while i < n %}
+            {% set current_block_item = blocks_to_render[i] %}
+            {% set next_block_item = blocks_to_render[i+1] if (i+1) < n else none %}
+            {% set is_last_block_overall = i == n - 1 %}
 
-        {% endfor %}
+            {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
+            {% set is_table_or_alert = current_block_item is mapping and (current_block_item.get('type') == 'table' or current_block_item.get('type') == 'alert') %}
+
+            {% if is_important_headline_check %}
+                <div class="mini-section-box-wrapper"> <div class="mini-section-box">
+                    {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
+                    {% set j = i + 1 %}
+                    {% while j < n %}
+                        {% set block = blocks_to_render[j] %}
+                        {% if block is mapping and (block.get('type') == 'headline' or block.get('type') == 'table' or block.get('type') == 'alert') %}
+                            {% break %}
+                        {% endif %}
+                        {{ render_single_block_recursive_macro(block, 0, is_in_mini_section=true) }}
+                        {% set j = j + 1 %}
+                    {% endwhile %}
+                </div> </div>
+                {% set i = j %}
+                {% continue %}
+            {% elif is_table_or_alert %}
+                {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% set i = i + 1 %}
+                {% continue %}
+            {% else %}
+                {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% set i = i + 1 %}
+                {% continue %}
+            {% endif %}
+        {% endwhile %}
     {% elif text_data and text_data.contentBlocks is not none %}
          <p class="error-message">contentBlocks is not iterable. Type: {{ text_data.contentBlocks|type }}</p>
     {% else %}
