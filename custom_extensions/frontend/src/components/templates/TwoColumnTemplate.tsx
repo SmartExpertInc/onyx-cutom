@@ -26,7 +26,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     maxWidth: '320px',
-    height: '200px',
+    aspectRatio: '1 / 1',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
     borderRadius: '8px',
@@ -37,7 +37,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
     padding: '20px',
     textAlign: 'center',
     color: '#6c757d',
-    marginTop: '20px'
+    margin: '0 auto 24px auto'
   };
 
   return (
@@ -51,7 +51,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
     >
       <h1
         style={{
-          textAlign: 'center',
+          textAlign: 'left',
           marginBottom: '40px',
           fontWeight: '700',
           fontFamily: currentTheme.fonts.titleFont,
@@ -67,28 +67,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           gap: '40px',
         }}
       >
-        <div style={{ flex: 1 }}>
-          <h2
-            style={{
-              fontFamily: currentTheme.fonts.titleFont,
-              fontSize: '1.3rem',
-              color: currentTheme.colors.titleColor,
-              marginBottom: '12px',
-            }}
-          >
-            {leftTitle}
-          </h2>
-          <p
-            style={{
-              fontFamily: currentTheme.fonts.contentFont,
-              fontSize: currentTheme.fonts.contentSize,
-              color: currentTheme.colors.contentColor,
-              margin: 0,
-            }}
-          >
-            {leftContent}
-          </p>
-          {/* Left placeholder only */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Placeholder first */}
           <div style={placeholderStyles}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
             <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
@@ -98,32 +78,37 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               AI Prompt: "{leftDisplayPrompt}"
             </div>
             <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 200px
+              320px × 320px
             </div>
           </div>
-        </div>
-        <div style={{ flex: 1 }}>
+          {/* Mini title */}
           <h2
             style={{
               fontFamily: currentTheme.fonts.titleFont,
               fontSize: '1.3rem',
               color: currentTheme.colors.titleColor,
-              marginBottom: '12px',
+              margin: '16px 0 8px 0',
+              fontWeight: '700',
+              alignSelf: 'flex-start'
             }}
           >
-            {rightTitle}
+            {leftTitle}
           </h2>
+          {/* Main text */}
           <p
             style={{
               fontFamily: currentTheme.fonts.contentFont,
               fontSize: currentTheme.fonts.contentSize,
               color: currentTheme.colors.contentColor,
               margin: 0,
+              alignSelf: 'flex-start'
             }}
           >
-            {rightContent}
+            {leftContent}
           </p>
-          {/* Right placeholder only */}
+        </div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Placeholder first */}
           <div style={placeholderStyles}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
             <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
@@ -133,9 +118,34 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               AI Prompt: "{rightDisplayPrompt}"
             </div>
             <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 200px
+              320px × 320px
             </div>
           </div>
+          {/* Mini title */}
+          <h2
+            style={{
+              fontFamily: currentTheme.fonts.titleFont,
+              fontSize: '1.3rem',
+              color: currentTheme.colors.titleColor,
+              margin: '16px 0 8px 0',
+              fontWeight: '700',
+              alignSelf: 'flex-start'
+            }}
+          >
+            {rightTitle}
+          </h2>
+          {/* Main text */}
+          <p
+            style={{
+              fontFamily: currentTheme.fonts.contentFont,
+              fontSize: currentTheme.fonts.contentSize,
+              color: currentTheme.colors.contentColor,
+              margin: 0,
+              alignSelf: 'flex-start'
+            }}
+          >
+            {rightContent}
+          </p>
         </div>
       </div>
     </div>
