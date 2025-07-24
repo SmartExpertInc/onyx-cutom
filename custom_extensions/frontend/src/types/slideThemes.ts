@@ -30,7 +30,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       titleColor: '#ffffff',
       subtitleColor: '#d9e1ff',
       contentColor: '#d9e1ff',
-      accentColor: '#3b82f6'
+      accentColor: '#f35657'
     },
     fonts: {
       titleFont: 'Kanit, sans-serif',

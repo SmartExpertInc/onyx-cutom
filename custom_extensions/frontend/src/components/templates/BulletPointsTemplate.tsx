@@ -24,7 +24,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     minHeight: '600px',
     backgroundColor: currentTheme.colors.backgroundColor,
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'stretch',
     padding: '80px',
@@ -34,7 +34,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
 
   // Placeholder styles (left)
   const placeholderContainerStyles: React.CSSProperties = {
-    flex: '0 0 40%',
+    flex: '0 0 50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -42,8 +42,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   };
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
-    maxWidth: '320px',
-    aspectRatio: '1 / 1',
+    spectRatio: '1 / 1',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
     borderRadius: '8px',
@@ -59,21 +58,19 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
 
   // Right (bullets) styles
   const bulletsContainerStyles: React.CSSProperties = {
-    flex: '1 1 60%',
+    flex: '1 1 50%',
     fontSize: currentTheme.fonts.contentSize,
     fontFamily: currentTheme.fonts.contentFont,
     color: currentTheme.colors.contentColor,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
-    paddingLeft: '48px',
+    paddingLeft: '14px',
     minWidth: 0
   };
 
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
-    fontWeight: 700,
     color: currentTheme.colors.titleColor,
     textAlign: 'left',
     marginBottom: '32px'
@@ -122,7 +119,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   return (
     <div className="bullet-points-template" style={slideStyles}>
       <h1 style={titleStyles}>{title}</h1>
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
         {/* Left: Placeholder */}
         <div style={placeholderContainerStyles}>
           <div style={placeholderStyles}>
