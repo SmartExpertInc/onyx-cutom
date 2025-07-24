@@ -47,20 +47,24 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
 
   const imageDimensions = getImageDimensions();
 
-  const imageStyles: React.CSSProperties = {
-    ...imageDimensions,
-    objectFit: 'cover',
-    borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+  const imageContainerStyles: React.CSSProperties = {
+    flex: '0 0 40%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: backgroundColor,
+    position: 'relative',
+    minWidth: 0, // для flexbox overflow
   };
 
   const placeholderStyles: React.CSSProperties = {
-    // ...imageDimensions,
     width: '100%',
-    height: '100%',
+    aspectRatio: '1 / 1', // квадрат
+    maxWidth: '320px',
+    maxHeight: '320px',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
-    // borderRadius: '8px',
+    borderRadius: '8px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -71,11 +75,12 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
   };
 
   const contentContainerStyles: React.CSSProperties = {
-    flex: '1 1 50%',
+    flex: '1 1 60%',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    minWidth: 0,
   };
 
   const titleStyles: React.CSSProperties = {
