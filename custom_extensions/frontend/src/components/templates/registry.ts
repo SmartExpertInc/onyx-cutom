@@ -232,26 +232,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📝',
     component: BulletPointsTemplate,
     defaultProps: {
-      title: 'Key Points',
-      bullets: [
-        'First important point',
-        'Second key insight',
-        'Third critical element',
-        'Fourth essential detail'
-      ],
+      title: 'Bullet Points',
+      bullets: ['First point', 'Second point', 'Third point'],
       maxColumns: 2,
       bulletStyle: 'dot',
       titleColor: '#1a1a1a',
       bulletColor: '#333333',
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      imagePrompt: 'A relevant illustration for the bullet points',
+      imageAlt: 'Description of the image'
     },
     propSchema: {
-      title: {
-        type: 'text',
-        label: 'Title',
-        required: true,
-        maxLength: 100
-      },
+      title: { type: 'text', label: 'Title', required: true },
       bullets: {
         type: 'array',
         label: 'Bullet Points',
@@ -285,21 +277,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         ],
         default: 'dot'
       },
-      titleColor: {
-        type: 'color',
-        label: 'Title Color',
-        default: '#1a1a1a'
-      },
-      bulletColor: {
-        type: 'color',
-        label: 'Bullet Color',
-        default: '#333333'
-      },
-      backgroundColor: {
-        type: 'color',
-        label: 'Background Color',
-        default: '#ffffff'
-      }
+      titleColor: { type: 'color', label: 'Title Color', default: '#1a1a1a' },
+      bulletColor: { type: 'color', label: 'Bullet Color', default: '#333333' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false }
     }
   },
 

@@ -123,6 +123,8 @@ export interface BulletPointsProps extends BaseTemplateProps {
   titleColor?: string;
   bulletColor?: string;
   backgroundColor?: string;
+  imagePrompt?: string;
+  imageAlt?: string;
 }
 
 export interface TwoColumnProps extends BaseTemplateProps {

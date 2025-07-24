@@ -12,6 +12,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   bulletStyle = 'dot',
   isEditable = false,
   onUpdate,
+  imagePrompt,
+  imageAlt,
   theme
 }) => {
   // Use theme colors instead of props
@@ -19,16 +21,53 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
     minHeight: '600px',
     backgroundColor: currentTheme.colors.backgroundColor,
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: 'stretch',
     padding: '80px',
     position: 'relative',
     fontFamily: currentTheme.fonts.contentFont
+  };
+
+  // Placeholder styles (left)
+  const placeholderContainerStyles: React.CSSProperties = {
+    flex: '0 0 40%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 0
+  };
+  const placeholderStyles: React.CSSProperties = {
+    width: '100%',
+    maxWidth: '320px',
+    aspectRatio: '1 / 1',
+    backgroundColor: '#e9ecef',
+    border: '2px dashed #adb5bd',
+    borderRadius: '8px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '20px',
+    textAlign: 'center',
+    color: '#6c757d',
+    margin: '0 auto'
+  };
+
+  // Right (bullets) styles
+  const bulletsContainerStyles: React.CSSProperties = {
+    flex: '1 1 60%',
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: currentTheme.colors.contentColor,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    paddingLeft: '48px',
+    minWidth: 0
   };
 
   const titleStyles: React.CSSProperties = {
@@ -38,17 +77,6 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     color: currentTheme.colors.titleColor,
     textAlign: 'left',
     marginBottom: '32px'
-  };
-
-  const bulletsContainerStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    color: currentTheme.colors.contentColor,
-    width: '100%',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '24px',
-    flexWrap: 'wrap',
   };
 
   const bulletItemStyles: React.CSSProperties = {
@@ -88,65 +116,52 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     fontFamily: currentTheme.fonts.titleFont
   };
 
-  const editOverlayStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: isEditable ? 'flex' : 'none',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
-  const handleClick = () => {
-    if (isEditable && onUpdate) {
-      onUpdate({ slideId });
-    }
-  };
+  // AI prompt logic
+  const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   return (
-    <div className="bullet-points-template" style={slideStyles} onClick={handleClick}>
-      {/* Title */}
-      <h1 style={titleStyles}>
-        {title}
-      </h1>
-
-      {/* Bullet Points */}
-      <div style={bulletsContainerStyles}>
-        {bullets.map((bullet, index) => (
-          <div key={index} style={bulletItemStyles}>
-            <span style={bulletIconStyles}>
-              {getBulletIcon(bulletStyle, index)}
-            </span>
-            <span
-              style={{
-                fontFamily: currentTheme.fonts.contentFont,
-                fontSize: currentTheme.fonts.contentSize,
-                color: currentTheme.colors.contentColor,
-              }}
-            >
-              {bullet}
-            </span>
+    <div className="bullet-points-template" style={slideStyles}>
+      {/* Left: Placeholder */}
+      <div style={placeholderContainerStyles}>
+        <div style={placeholderStyles}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
+          <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+            Image Placeholder
           </div>
-        ))}
+          <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
+            AI Prompt: "{displayPrompt}"
+          </div>
+          <div style={{ fontSize: '12px', color: '#868e96' }}>
+            320px × 320px
+          </div>
+        </div>
       </div>
-
-      {/* Edit Overlay */}
-      <div style={editOverlayStyles}>
+      {/* Right: Bullets */}
+      <div style={bulletsContainerStyles}>
+        <h1 style={titleStyles}>{title}</h1>
         <div style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 600,
-          color: '#333',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          width: '100%',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '24px',
+          flexWrap: 'wrap',
         }}>
-          Click to edit bullet points
+          {bullets.map((bullet, index) => (
+            <div key={index} style={bulletItemStyles}>
+              <span style={bulletIconStyles}>
+                {getBulletIcon(bulletStyle, index)}
+              </span>
+              <span
+                style={{
+                  fontFamily: currentTheme.fonts.contentFont,
+                  fontSize: currentTheme.fonts.contentSize,
+                  color: currentTheme.colors.contentColor,
+                }}
+              >
+                {bullet}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

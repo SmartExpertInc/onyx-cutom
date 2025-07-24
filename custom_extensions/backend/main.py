@@ -1283,20 +1283,39 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "alignment": "left"
         }
     },
+
     {
-      "slideId": "slide_3_process",
+      "slideId": "slide_3_bullets",
       "slideNumber": 3,
+      "slideTitle": "Key Points",
+      "templateId": "bullet-points",
+      "props": {
+        "title": "Key Points",
+        "bullets": [
+          "First important point",
+          "Second key insight",
+          "Third critical element"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "dot",
+        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
+        "imageAlt": "Illustration for bullet points"
+      }
+    },
+    {
+      "slideId": "slide_4_process",
+      "slideNumber": 4,
       "slideTitle": "Step-by-Step Process",
       "templateId": "process-steps",
       "props": {
         "title": "Implementation Steps",
         "steps": [
           "Analyze the requirements carefully",
-          "Design the solution architecture", 
+          "Design the solution architecture",
           "Implement core functionality",
           "Test and validate results"
-      ]
-        }
+        ]
+      }
     }
   ],
   "currentSlideId": "slide_1_intro",
@@ -3851,7 +3870,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            4. **`bullet-points`** - Formatted bullet point lists with customizable columns:
+            4. **`bullet-points`** - Formatted bullet point lists with customizable columns and image placeholder:
             ```json
             "props": {
               "title": "Key Points",
@@ -3861,7 +3880,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 "Third critical element"
               ],
               "maxColumns": 2,
-              "bulletStyle": "dot"
+              "bulletStyle": "dot",
+              "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
+              "imageAlt": "Illustration for bullet points"
             }
             ```
 
@@ -3973,6 +3994,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Use when the visual element is essential to understanding the content
             - Suitable for: case studies, examples, demonstrations, visual concepts
             - `imagePrompt` should be descriptive and specific (e.g., "Street art in a public space, colorful mural, urban environment")
+
+             **Special Instructions for `bullet-points`:**
+            - Always include a meaningful `imagePrompt` for AI image generation that describes the overall topic of the bullet points
+            - `imageAlt` should be a short description of the illustration
+            - The image should visually represent the bullet points as a group (not individual bullets)
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
