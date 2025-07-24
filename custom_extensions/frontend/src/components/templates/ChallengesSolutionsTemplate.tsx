@@ -2,37 +2,35 @@
 
 import React from 'react';
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
-export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = ({
+export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { theme?: SlideTheme }> = ({
   slideId,
   title,
   challengesTitle = 'Виклики',
   solutionsTitle = 'Рішення',
   challenges,
   solutions,
-  challengeColor = '#fef2f2',
-  solutionColor = '#f0fdf4',
-  challengeIconColor = '#dc2626',
-  solutionIconColor = '#16a34a',
-  backgroundColor = '#ffffff',
-  titleColor = '#1a1a1a',
-  contentColor = '#374151',
   isEditable = false,
-  onUpdate
+  onUpdate,
+  theme
 }) => {
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor,
+    backgroundColor: currentTheme.colors.backgroundColor,
     padding: '60px',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    fontFamily: currentTheme.fonts.contentFont
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
+    fontSize: currentTheme.fonts.titleSize,
     fontWeight: 700,
-    color: titleColor,
+    color: currentTheme.colors.titleColor,
+    fontFamily: currentTheme.fonts.titleFont,
     textAlign: 'center',
     marginBottom: '50px',
     lineHeight: 1.3,
@@ -66,7 +64,8 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = (
   const sectionTitleStyles: React.CSSProperties = {
     fontSize: '1.25rem',
     fontWeight: 600,
-    color: contentColor,
+    color: currentTheme.colors.contentColor,
+    fontFamily: currentTheme.fonts.titleFont,
     margin: 0
   };
 
@@ -81,16 +80,17 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = (
     alignItems: 'flex-start',
     gap: '8px',
     marginBottom: '12px',
-    fontSize: '1rem',
+    fontSize: currentTheme.fonts.contentSize,
     lineHeight: 1.5,
-    color: contentColor
+    color: currentTheme.colors.contentColor,
+    fontFamily: currentTheme.fonts.contentFont
   };
 
   const bulletStyles: React.CSSProperties = {
     minWidth: '6px',
     width: '6px',
     height: '6px',
-    backgroundColor: contentColor,
+    backgroundColor: currentTheme.colors.contentColor,
     borderRadius: '50%',
     marginTop: '8px'
   };
@@ -109,19 +109,13 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = (
     transition: 'all 0.2s ease'
   };
 
-  const handleClick = () => {
-    if (isEditable && onUpdate) {
-      onUpdate({ slideId });
-    }
-  };
-
   // SVG Icons
   const XMarkIcon = () => (
     <svg 
       width="24" 
       height="24" 
       viewBox="0 0 512 512" 
-      fill={challengeIconColor}
+      fill={currentTheme.colors.accentColor}
       style={{ flexShrink: 0 }}
     >
       <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
@@ -133,12 +127,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = (
       width="24" 
       height="24" 
       viewBox="0 0 512 512" 
-      fill={solutionIconColor}
+      fill={currentTheme.colors.accentColor}
       style={{ flexShrink: 0 }}
     >
       <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
     </svg>
   );
+
+  const handleClick = () => {
+    if (isEditable && onUpdate) {
+      onUpdate({ slideId });
+    }
+  };
 
   return (
     <div className="challenges-solutions-template" style={slideStyles} onClick={handleClick}>
@@ -150,7 +150,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = (
       {/* Two Column Grid */}
       <div style={gridStyles}>
         {/* Challenges Column */}
-        <div style={calloutBoxStyles(challengeColor)}>
+        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
           <div style={headerStyles}>
             <XMarkIcon />
             <h2 style={sectionTitleStyles}>{challengesTitle}</h2>
@@ -166,7 +166,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps> = (
         </div>
 
         {/* Solutions Column */}
-        <div style={calloutBoxStyles(solutionColor)}>
+        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
           <div style={headerStyles}>
             <CheckIcon />
             <h2 style={sectionTitleStyles}>{solutionsTitle}</h2>
