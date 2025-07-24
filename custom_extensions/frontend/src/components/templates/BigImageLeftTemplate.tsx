@@ -33,7 +33,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '20px',
     backgroundColor: backgroundColor // <-- тепер як у всього слайду
   };
 
@@ -56,10 +55,12 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
   };
 
   const placeholderStyles: React.CSSProperties = {
-    ...imageDimensions,
+    // ...imageDimensions,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
-    borderRadius: '8px',
+    // borderRadius: '8px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
