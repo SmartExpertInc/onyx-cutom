@@ -127,7 +127,7 @@
         
         /* Add more spacing for custom bullet icons in mini-sections */
         .mini-section-box .list-marker .icon-svg:not(.icon-new-bullet) {
-            margin-right: 8px;
+            margin-right: 12px;
         }
         .mini-section-box .list-block-wrapper > ul,
         .mini-section-box .list-block-wrapper > ol { margin-bottom: 0 !important; }
@@ -193,7 +193,7 @@
         
         /* Add more spacing for custom bullet icons (not default dots) */
         .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker .icon-svg:not(.icon-new-bullet) {
-            margin-right: 8px;
+            margin-right: 12px;
         }
         .list-item-content-wrapper ul > li > .list-marker .icon-svg { 
             width: 0.6em; 
@@ -329,15 +329,8 @@
         {% set text_data = details %}
         {% set locale = locale %}
         
-        {% if text_data is mapping and text_data.textTitle %}
-            <div class="main-title-section">
-                <h1 class="main-title-text">
-                    {% set text_content = text_data.textTitle %}
-                    {% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}
-                </h1>
-            </div>
-        {% endif %}
-
+        {# Title rendering removed - PDF will not show the title #}
+        
         {% macro render_icon_svg_macro(icon_name_str, default_icon_for_type=None, css_class="", depth=0) %}
             {% set final_icon_name = icon_name_str %}
 
