@@ -122,11 +122,24 @@
         .mini-section-box .list-block-wrapper { max-width: 100%; }
         .mini-section-box .list-block-wrapper li { font-size: var(--font-size-list-item); }
         .mini-section-box .list-marker { margin-right: 8px; }
-        .mini-section-box .list-marker .icon-svg { color: var(--color-primary-accent) !important; width: 1.25em; height: 1.25em; }
+        .mini-section-box .list-marker .icon-svg { 
+            width: 1.25em; 
+            height: 1.25em; 
+            vertical-align: middle;
+            display: inline-block;
+        }
         
-        /* Reduce spacing for default bullet icons in mini-sections */
+        /* Default bullet dots should be black in mini-sections */
         .mini-section-box .list-marker .icon-svg.icon-new-bullet {
+            color: #000;
+            fill: #000;
             margin-right: 0;
+        }
+        
+        /* Custom icons should be red in mini-sections */
+        .mini-section-box .list-marker .icon-svg:not(.icon-new-bullet) {
+            color: var(--color-primary-accent);
+            fill: var(--color-primary-accent);
         }
         .mini-section-box .list-block-wrapper > ul,
         .mini-section-box .list-block-wrapper > ol { margin-bottom: 0 !important; }
@@ -185,10 +198,22 @@
         .list-block-wrapper ul > li > .list-marker .icon-svg {
             width: 1.25em;  
             height: 1.25em; 
-            color: var(--color-primary-accent); 
             fill: currentColor; 
             stroke: none; 
             display: block; 
+            vertical-align: middle;
+        }
+        
+        /* Default bullet dots should be black */
+        .list-block-wrapper ul > li > .list-marker .icon-svg.icon-new-bullet {
+            color: #000;
+            fill: #000;
+        }
+        
+        /* Custom icons should be red */
+        .list-block-wrapper ul > li > .list-marker .icon-svg:not(.icon-new-bullet) {
+            color: var(--color-primary-accent);
+            fill: var(--color-primary-accent);
         }
         
         .content-wrapper > .content-block-wrapper.type-bullet_list ul > li:not(:last-child) { margin-bottom: 2px; }
@@ -232,7 +257,7 @@
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li .list-content-column .list-block-wrapper.type-bullet_list .headline-block .icon-svg { display: none; }
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li .list-content-column .list-block-wrapper.type-bullet_list .paragraph-block { font-size: var(--font-size-mini-title-text); font-weight: var(--font-weight-normal); color: var(--color-text-muted); max-width: 100%; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); }
 
-        .alert-block { display: flex; padding: var(--space-md); border-left-width: 4px; border-radius: 3px; margin-bottom: var(--space-md); font-size: var(--font-size-paragraph-small); page-break-inside: avoid; color: var(--color-alert-text) !important; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-family: var(--font-primary), var(--font-emoji); }
+        .alert-block { display: flex; padding: var(--space-md); border-left: 4px solid; border-radius: 3px; margin-bottom: var(--space-md); font-size: var(--font-size-paragraph-small); page-break-inside: avoid; color: var(--color-alert-text) !important; line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-family: var(--font-primary), var(--font-emoji); }
         .alert-block .icon-container { margin-right: var(--space-sm); flex-shrink: 0; padding-top: 0.1em; }
         .alert-block .icon-container .icon-svg { width: 2.4em; height: 2.4em; display: block; }
         .alert-block .text-container { flex-grow: 1; }

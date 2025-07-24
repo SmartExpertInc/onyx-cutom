@@ -777,9 +777,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               
               if (isEditing && onTextChange && itemIsString) {
                 return (
-                  <li key={index} className="flex items-start">
+                  <li key={index} className="flex items-center">
                     {BulletIconToRender && !isNumbered && (
-                      <div className="flex-shrink-0 mr-1.5">
+                      <div className="flex-shrink-0 mr-1.5 flex items-center">
                         <BulletIconToRender />
                       </div>
                     )}
@@ -799,10 +799,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               return (
                 <li
                   key={index}
-                  className={`flex items-start text-black text-xs leading-tight ${nestedIndentation}`}
+                  className={`flex items-center text-black text-xs leading-tight ${nestedIndentation}`}
                 >
                   {!isNumbered && BulletIconToRender && (
-                    <div className="flex-shrink-0 mr-1.5">
+                    <div className="flex-shrink-0 mr-1.5 flex items-center">
                       <BulletIconToRender />
                     </div>
                   )}
