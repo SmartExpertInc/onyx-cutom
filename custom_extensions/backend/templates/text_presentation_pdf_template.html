@@ -355,6 +355,13 @@
         .mini-section-box-wrapper { page-break-inside: avoid; }
         .mini-section-box { page-break-inside: avoid; }
         
+        /* Allow page breaks for tables and numbered lists */
+        .content-block-wrapper.type-table { page-break-inside: auto; }
+        .content-block-wrapper.type-numbered_list { page-break-inside: auto; }
+        .content-block-wrapper.type-numbered_list .list-block-wrapper { page-break-inside: auto; }
+        .content-block-wrapper.type-numbered_list ol { page-break-inside: auto; }
+        .content-block-wrapper.type-numbered_list li { page-break-inside: auto; }
+        
         /* Increase spacing before headlines */
         .content-block-wrapper.type-headline { margin-top: 24px; }
         .content-block-wrapper.type-headline:first-child { margin-top: 0; }
