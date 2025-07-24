@@ -57,13 +57,17 @@
             --space-lg: 18px; --space-xl: 24px; --space-2xl: 32px; --space-3xl: 48px;
             --content-max-width-constrained: 75%;
             
+            /* Dynamic spacing variables for page optimization */
+            --dynamic-spacing-multiplier: 1;
+            --dynamic-font-size-multiplier: 1;
+            
             --color-alert-text: #000000;
             --letter-spacing-increased: 0.02em; 
         }
 
         @page { margin-top: 0mm; margin-bottom: 0mm; margin-left: 0mm; margin-right: 0mm; size: A4; }
         @page :first { margin-top: 0mm; }
-        @page :not(:first) { margin-top: 20mm; }
+        @page :not(:first) { margin-top: 30mm; }
         body {
             font-family: var(--font-primary), var(--font-emoji); margin: 0; padding: 0;
             background-color: var(--color-background-page); color: var(--color-text-default);
@@ -91,11 +95,17 @@
         .content-wrapper { 
             background-color: white; 
             border-radius: 8px; 
-            padding: 24px; 
+            padding: calc(24px * var(--dynamic-spacing-multiplier)); 
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
             max-width: 100%; 
             margin: 0 auto; 
         }
+        
+        /* Dynamic spacing classes for page optimization */
+        .content-wrapper.spacing-compact { --dynamic-spacing-multiplier: 0.8; --dynamic-font-size-multiplier: 0.95; }
+        .content-wrapper.spacing-normal { --dynamic-spacing-multiplier: 1; --dynamic-font-size-multiplier: 1; }
+        .content-wrapper.spacing-expanded { --dynamic-spacing-multiplier: 1.3; --dynamic-font-size-multiplier: 1.05; }
+        .content-wrapper.spacing-very-expanded { --dynamic-spacing-multiplier: 1.6; --dynamic-font-size-multiplier: 1.1; }
         .grey-section {
             background-color: #f4f5f6; 
             border-radius: 24px; 
@@ -160,7 +170,10 @@
         .icon-svg { display: inline-block; vertical-align: middle; width: 1em; height: 1em; flex-shrink: 0; }
         .icon-svg.icon-new-bullet { fill: currentColor; stroke: none; }
 
-        .content-block-wrapper { margin-bottom: var(--space-sm); text-align: left; } 
+                .content-block-wrapper { 
+            margin-bottom: calc(var(--space-sm) * var(--dynamic-spacing-multiplier)); 
+            text-align: left; 
+        }
         .content-block-wrapper:last-child { margin-bottom: 0; }
 
         .headline-block { 
@@ -583,5 +596,48 @@
     </div>
   </div>
 </div>
+
+<script>
+// Dynamic spacing adjustment based on page content
+function adjustPageSpacing() {
+    const contentWrapper = document.querySelector('.content-wrapper');
+    if (!contentWrapper) return;
+    
+    // Get the total height of content
+    const contentHeight = contentWrapper.scrollHeight;
+    const containerHeight = contentWrapper.clientHeight;
+    const availableSpace = containerHeight;
+    const usedSpace = contentHeight;
+    const emptySpace = availableSpace - usedSpace;
+    const fillPercentage = (usedSpace / availableSpace) * 100;
+    
+    // Remove existing spacing classes
+    contentWrapper.classList.remove('spacing-compact', 'spacing-normal', 'spacing-expanded', 'spacing-very-expanded');
+    
+    // Apply spacing based on fill percentage
+    if (fillPercentage < 60) {
+        // Very empty page - use maximum spacing
+        contentWrapper.classList.add('spacing-very-expanded');
+    } else if (fillPercentage < 75) {
+        // Somewhat empty - use expanded spacing
+        contentWrapper.classList.add('spacing-expanded');
+    } else if (fillPercentage > 95) {
+        // Very full page - use compact spacing
+        contentWrapper.classList.add('spacing-compact');
+    } else {
+        // Normal fill - use standard spacing
+        contentWrapper.classList.add('spacing-normal');
+    }
+}
+
+// Run adjustment when page loads and after any dynamic content changes
+document.addEventListener('DOMContentLoaded', adjustPageSpacing);
+window.addEventListener('load', adjustPageSpacing);
+
+// For PDF generation, also run after a short delay to ensure all content is rendered
+setTimeout(adjustPageSpacing, 100);
+setTimeout(adjustPageSpacing, 500);
+</script>
+
 </body>
 </html> 
