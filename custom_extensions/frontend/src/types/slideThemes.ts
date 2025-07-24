@@ -34,7 +34,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Kanit, sans-serif',
-      contentFont: 'Martian Mono, monospace',
+      contentFont: 'Martel Sans, sans-serif',
       titleSize: '45px',
       contentSize: '16px'
     }
@@ -52,7 +52,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Inter, sans-serif',
-      contentFont: 'Inter, sans-serif',
+      contentFont: 'Martel Sans, sans-serif',
       titleSize: '36px',
       contentSize: '16px'
     }
@@ -70,7 +70,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Roboto, sans-serif',
-      contentFont: 'Roboto, sans-serif',
+      contentFont: 'Martel Sans, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }

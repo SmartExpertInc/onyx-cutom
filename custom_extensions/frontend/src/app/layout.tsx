@@ -21,6 +21,10 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" 
           rel="stylesheet" 
         />
+        <link
+  href="https://fonts.googleapis.com/css2?family=Martel+Sans:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
       </head>
       <body className="h-full bg-app-gradient">
         {/* If you have an intermediate div, make it h-full too if it's the main content wrapper */}

@@ -53,9 +53,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
 
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '1 / 1', // квадрат
-    maxWidth: '320px',
-    maxHeight: '320px',
+    height: '100%',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
     borderRadius: '8px',
