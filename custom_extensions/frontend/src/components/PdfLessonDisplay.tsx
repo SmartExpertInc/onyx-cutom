@@ -148,7 +148,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   
   switch (block.type) {
     case 'headline': {
-      const { level, text, backgroundColor, textColor: headlineTextColor } = block as HeadlineBlock;
+      const { level, text, backgroundColor, textColor: headlineTextColor, isImportant } = block as HeadlineBlock;
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       
       let textStyleClass = 'uppercase '; 
@@ -187,21 +187,33 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const styledText = parseAndStyleText(text);
 
       return (
-        <Tag
-          className={finalClassName}
-          style={{ backgroundColor: backgroundColor || 'transparent', color: headlineTextColor || undefined , padding: backgroundColor ? '0.4rem 0.6rem' : undefined, borderRadius: backgroundColor ? '0.25rem' : undefined }}
-        >
-          {isLastSectionHeaderWithStar ? <LastSectionStarIcon /> : (isMiniSectionHeadline && <LessonGoalIcon />)}
-          {isEditing && onTextChange ? (
-            <input 
-              type="text" 
-              value={text}
-              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-              className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
-              style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
-            />
-          ) : ( styledText )}
-        </Tag>
+        <div className="w-full">
+          <Tag
+            className={finalClassName}
+            style={{ backgroundColor: backgroundColor || 'transparent', color: headlineTextColor || undefined , padding: backgroundColor ? '0.4rem 0.6rem' : undefined, borderRadius: backgroundColor ? '0.25rem' : undefined }}
+          >
+            {isLastSectionHeaderWithStar ? <LastSectionStarIcon /> : (isMiniSectionHeadline && <LessonGoalIcon />)}
+            {isEditing && onTextChange ? (
+              <input 
+                type="text" 
+                value={text}
+                onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+                className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
+                style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
+              />
+            ) : ( styledText )}
+          </Tag>
+          {isEditing && onTextChange && (
+            <label className="flex items-center gap-2 mt-1 text-xs text-gray-700">
+              <input
+                type="checkbox"
+                checked={!!isImportant}
+                onChange={e => onTextChange(fieldPath('isImportant'), e.target.checked)}
+              />
+              Important section
+            </label>
+          )}
+        </div>
       );
     }
     case 'paragraph': { 
@@ -221,13 +233,21 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-            <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb}`}>
-              <textarea 
-                value={currentRawText} 
-                onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-[75%]' : 'w-full'} text-[10px] leading-normal ${THEME_COLORS.primaryText.replace('text-black', '')}`} 
+          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb}`}>
+            <textarea 
+              value={currentRawText} 
+              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+              className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-[75%]' : 'w-full'} text-[10px] leading-normal ${THEME_COLORS.primaryText.replace('text-black', '')}`} 
+            />
+            <label className="flex items-center gap-2 mt-1 text-xs text-gray-700">
+              <input
+                type="checkbox"
+                checked={!!isRecommendation}
+                onChange={e => onTextChange(fieldPath('isRecommendation'), e.target.checked)}
               />
-            </div>
+              Recommendation
+            </label>
+          </div>
         );
       }
       return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()}>{styledText}</p> );
@@ -349,6 +369,69 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 )}
                 {isEditing && onTextChange ? ( <textarea value={alertBlock.text} onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)} className={`${editingTextareaClass} ${alertTextStyle} ${alertBlock.title ? 'mt-0.5' : ''} ${finalTextColorToUse.replace(THEME_COLORS.alertInfoText, '')}`}/>
                 ) : ( <div className={`${alertTextStyle} ${alertBlock.title ? 'mt-0.5' : ''}`} style={{ color: alertBlock.textColor || undefined }}>{styledAlertText}</div> )}
+                {isEditing && onTextChange && (
+                  <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-700">
+                    <label className="flex items-center gap-1">
+                      Type:
+                      <select
+                        value={alertBlock.alertType}
+                        onChange={e => onTextChange(fieldPath('alertType'), e.target.value)}
+                        className="border rounded px-1 py-0.5 text-xs"
+                      >
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="danger">Danger</option>
+                      </select>
+                    </label>
+                    <label className="flex items-center gap-1">
+                      Icon:
+                      <input
+                        type="text"
+                        value={alertBlock.iconName || ''}
+                        onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
+                        className="border rounded px-1 py-0.5 text-xs w-20"
+                        placeholder="iconName"
+                      />
+                    </label>
+                    <label className="flex items-center gap-1">
+                      Bg:
+                      <input
+                        type="color"
+                        value={alertBlock.backgroundColor || ''}
+                        onChange={e => onTextChange(fieldPath('backgroundColor'), e.target.value)}
+                        className="w-6 h-6 p-0 border rounded"
+                      />
+                    </label>
+                    <label className="flex items-center gap-1">
+                      Border:
+                      <input
+                        type="color"
+                        value={alertBlock.borderColor || ''}
+                        onChange={e => onTextChange(fieldPath('borderColor'), e.target.value)}
+                        className="w-6 h-6 p-0 border rounded"
+                      />
+                    </label>
+                    <label className="flex items-center gap-1">
+                      Text:
+                      <input
+                        type="color"
+                        value={alertBlock.textColor || ''}
+                        onChange={e => onTextChange(fieldPath('textColor'), e.target.value)}
+                        className="w-6 h-6 p-0 border rounded"
+                      />
+                    </label>
+                    <label className="flex items-center gap-1">
+                      Icon color:
+                      <input
+                        type="color"
+                        value={alertBlock.iconColor || ''}
+                        onChange={e => onTextChange(fieldPath('iconColor'), e.target.value)}
+                        className="w-6 h-6 p-0 border rounded"
+                      />
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
           </div>
