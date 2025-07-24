@@ -61,7 +61,7 @@
             --letter-spacing-increased: 0.02em; 
         }
 
-        @page { margin-top: 10mm; margin-bottom: 12mm; margin-left: 10mm; margin-right: 10mm; size: A4; }
+        @page { margin: 0; size: A4; }
         body {
             font-family: var(--font-primary), var(--font-emoji); margin: 0; padding: 0;
             background-color: var(--color-background-page); color: var(--color-text-default);
@@ -88,11 +88,11 @@
         }
         .content-wrapper { 
             background-color: white; 
-            border-radius: 8px; 
-            padding: 24px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            border-radius: 0; 
+            padding: 0; 
+            box-shadow: none; 
             max-width: 100%; 
-            margin: 0 auto; 
+            margin: 0; 
         }
         .grey-section {
             background-color: #f4f5f6; 
@@ -235,11 +235,11 @@
         .list-item-text-or-block { flex-grow: 1; }
 
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol { counter-reset: item; list-style-type: none; margin: 0; padding: 0; }
-        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: 30px; }
+        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: 30px !important; }
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li:not(:last-child) { margin-bottom: var(--space-sm); }
         .list-number-circle { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background-color: var(--color-primary-accent); color: white; font-size: 9pt; font-weight: var(--font-weight-medium); }
         .list-number-circle::before { content: counter(item); counter-increment: item; }
-        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li > .list-content-column { display: flex; flex-direction: column; width: 100%; }
+        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li > .list-content-column { display: flex; flex-direction: column; width: 100%; margin-left: 30px; }
 
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li::before { display: none; content: ""; }
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li > .list-marker { display: none; }
