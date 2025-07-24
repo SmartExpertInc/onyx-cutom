@@ -38,7 +38,7 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
 };
 
 const NewBulletIcon = () => (
-  <div className="w-1.5 h-1.5 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
+  <div className="w-0.75 h-0.75 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
 );
 
 // Helper function to detect if text starts with an emoji
