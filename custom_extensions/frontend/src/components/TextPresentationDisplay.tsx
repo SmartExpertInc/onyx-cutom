@@ -460,66 +460,68 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     className={`${editingTextareaClass} text-xs mb-2`}
                     placeholder="Alert text"
                   />
-                  <div className="mt-3 mb-2 p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-wrap gap-4 items-center">
-                    <div className="flex flex-col gap-1 min-w-[120px]">
-                      <label className="font-medium text-gray-800">Alert Type</label>
+                  <div className="mt-2 mb-1 p-2 bg-gray-50 border border-gray-200 rounded flex flex-wrap gap-2 items-center text-xs">
+                    <div className="flex flex-col gap-0.5 min-w-[90px]">
+                      <label className="font-medium text-gray-800 text-xs">Alert Type</label>
                       <select
                         value={alertType}
                         onChange={e => onTextChange(fieldPath('alertType'), e.target.value)}
-                        className="border rounded px-2 py-1 text-sm bg-white"
+                        className="border rounded px-1 py-0.5 text-xs bg-white"
+                        style={{ minWidth: 60 }}
                       >
                         <option value="info">Info</option>
                         <option value="success">Success</option>
                         <option value="warning">Warning</option>
                         <option value="danger">Danger</option>
                       </select>
-                      <span className="text-xs text-gray-500">Controls the color and icon</span>
+                      <span className="text-[10px] text-gray-400">Color & icon</span>
                     </div>
-                    <div className="flex flex-col gap-1 min-w-[120px]">
-                      <label className="font-medium text-gray-800">Icon Name</label>
+                    <div className="flex flex-col gap-0.5 min-w-[90px]">
+                      <label className="font-medium text-gray-800 text-xs">Icon Name</label>
                       <input
                         type="text"
                         value={iconName || ''}
                         onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
-                        className="border rounded px-2 py-1 text-sm bg-white"
+                        className="border rounded px-1 py-0.5 text-xs bg-white"
                         placeholder="iconName"
+                        style={{ minWidth: 60 }}
                       />
-                      <span className="text-xs text-gray-500">Lucide or custom icon</span>
+                      <span className="text-[10px] text-gray-400">Lucide/custom</span>
                     </div>
-                    <div className="flex flex-col gap-1 min-w-[120px]">
-                      <label className="font-medium text-gray-800">Background</label>
+                    <div className="flex flex-col gap-0.5 min-w-[70px]">
+                      <label className="font-medium text-gray-800 text-xs">Bg</label>
                       <input
                         type="color"
                         value={backgroundColor || ''}
                         onChange={e => onTextChange(fieldPath('backgroundColor'), e.target.value)}
-                        className="w-8 h-8 p-0 border rounded"
+                        className="w-5 h-5 p-0 border rounded"
                       />
                     </div>
-                    <div className="flex flex-col gap-1 min-w-[120px]">
-                      <label className="font-medium text-gray-800">Border</label>
+                    <div className="flex flex-col gap-0.5 min-w-[70px]">
+                      <label className="font-medium text-gray-800 text-xs">Border</label>
                       <input
                         type="color"
                         value={borderColor || ''}
                         onChange={e => onTextChange(fieldPath('borderColor'), e.target.value)}
-                        className="w-8 h-8 p-0 border rounded"
+                        className="w-5 h-5 p-0 border rounded"
                       />
                     </div>
-                    <div className="flex flex-col gap-1 min-w-[120px]">
-                      <label className="font-medium text-gray-800">Text Color</label>
+                    <div className="flex flex-col gap-0.5 min-w-[70px]">
+                      <label className="font-medium text-gray-800 text-xs">Text</label>
                       <input
                         type="color"
                         value={textColor || ''}
                         onChange={e => onTextChange(fieldPath('textColor'), e.target.value)}
-                        className="w-8 h-8 p-0 border rounded"
+                        className="w-5 h-5 p-0 border rounded"
                       />
                     </div>
-                    <div className="flex flex-col gap-1 min-w-[120px]">
-                      <label className="font-medium text-gray-800">Icon Color</label>
+                    <div className="flex flex-col gap-0.5 min-w-[70px]">
+                      <label className="font-medium text-gray-800 text-xs">Icon</label>
                       <input
                         type="color"
                         value={iconColor || ''}
                         onChange={e => onTextChange(fieldPath('iconColor'), e.target.value)}
-                        className="w-8 h-8 p-0 border rounded"
+                        className="w-5 h-5 p-0 border rounded"
                       />
                     </div>
                   </div>
@@ -611,19 +613,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
 // Add a simple Switch component for better UX
 const Switch = ({ checked, onChange, label, help }: { checked: boolean, onChange: (v: boolean) => void, label: string, help?: string }) => (
-  <label className="flex items-center gap-2 mt-2 mb-2 cursor-pointer select-none">
-    <span className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+  <label className="flex items-center gap-1 mt-1 mb-1 cursor-pointer select-none text-xs">
+    <span className="relative inline-block w-7 mr-1 align-middle select-none transition duration-200 ease-in">
       <input
         type="checkbox"
         checked={checked}
         onChange={e => onChange(e.target.checked)}
-        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-        style={{ left: checked ? '1.5rem' : '0' }}
+        className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none cursor-pointer"
+        style={{ left: checked ? '1.1rem' : '0' }}
       />
-      <span className={`toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 ${checked ? 'bg-green-400' : ''}`}></span>
+      <span className={`toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 ${checked ? 'bg-green-400' : ''}`}></span>
     </span>
-    <span className="font-medium text-gray-800">{label}</span>
-    {help && <span className="text-xs text-gray-500 ml-2">{help}</span>}
+    <span className="font-medium text-gray-800 text-xs">{label}</span>
+    {help && <span className="text-[10px] text-gray-400 ml-1">{help}</span>}
   </label>
 );
 
@@ -741,7 +743,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                           const originalMiniListIndex = findOriginalIndex(subItem.list);
                           return (
-                            <div key={subIndex} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500 text-left">
+                            <div key={subIndex} className="p-3 my-4 border-l-2 border-[#FF1414] bg-white text-left">
                               <RenderBlock
                                 block={subItem.headline}
                                 isMiniSectionHeadline={true}
