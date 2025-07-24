@@ -612,12 +612,16 @@
                 <div class="mini-section-box-wrapper"> <div class="mini-section-box">
                     {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
                     {% set j = block_index + 1 %}
+                    {% set should_continue = true %}
                     {% for inner_block_index in range(j, blocks_to_render | length) %}
-                        {% set block = blocks_to_render[inner_block_index] %}
-                        {% if block is mapping and (block.get('type') == 'headline' or block.get('type') == 'table' or block.get('type') == 'alert') %}
-                            {% break %}
+                        {% if should_continue %}
+                            {% set block = blocks_to_render[inner_block_index] %}
+                            {% if block is mapping and (block.get('type') == 'headline' or block.get('type') == 'table' or block.get('type') == 'alert') %}
+                                {% set should_continue = false %}
+                            {% else %}
+                                {{ render_single_block_recursive_macro(block, 0, is_in_mini_section=true) }}
+                            {% endif %}
                         {% endif %}
-                        {{ render_single_block_recursive_macro(block, 0, is_in_mini_section=true) }}
                     {% endfor %}
                 </div> </div>
                 {% set i = inner_block_index %}
