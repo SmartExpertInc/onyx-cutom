@@ -109,11 +109,11 @@
         .grey-section {
             background-color: #f4f5f6; 
             border-radius: 24px; 
-            padding: 19px; 
+            padding: 38px 19px 19px 19px; /* Add more top padding for page break gap */
             margin: 0 auto; 
             max-width: 100%; 
             page-break-inside: avoid;
-            margin-top: 40px; /* Increased from 20px for more space after page break */
+            margin-top: 40px;
             margin-bottom: 20px;
         }
         /* --- Mini-section (important) box: simple vertical red line, no curls, no background --- */
@@ -251,13 +251,23 @@
         }
         .list-item-text-or-block { flex-grow: 1; }
 
-        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol { counter-reset: numbered-list-counter; list-style-type: none; margin: 0; padding: 0; }
-        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: 30px; counter-increment: numbered-list-counter; }
+        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol { list-style-type: none; margin: 0; padding: 0; }
+        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: 16px; }
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li:not(:last-child) { margin-bottom: var(--space-sm); }
-        .list-number-circle { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background-color: var(--color-primary-accent); color: white; font-size: 9pt; font-weight: var(--font-weight-medium); margin-right: 8px; counter-increment: numbered-list-circle; }
-        .list-number-circle::before { content: counter(numbered-list-counter); }
-        .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li > .list-content-column { display: flex; flex-direction: column; width: 100%; }
-
+        .list-number-circle {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: #FF1414;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li::before { display: none; content: ""; }
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li > .list-marker { display: none; }
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li .list-content-column .list-item-text-or-block > .content-block-wrapper.type-bullet_list { margin-bottom: 0; }
@@ -445,7 +455,7 @@
                 {% for item_content in items_list %}
                     <li>
                         {% if list_type_str == 'numbered_list' %}
-                            <span class="list-number-circle"></span>
+                            <span class="list-number-circle">{{ loop.index }}</span>
                             <div class="list-content-column">
                                 {% if item_content is mapping %}
                                     {{ render_single_block_recursive_macro(item_content, depth + 1, is_in_mini_section) }}
