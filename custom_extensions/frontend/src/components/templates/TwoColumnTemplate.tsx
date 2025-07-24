@@ -26,6 +26,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     maxWidth: '320px',
+    maxHeight: '200px',
     // aspectRatio: '1 / 1',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
@@ -68,7 +69,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           gap: '40px',
         }}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Placeholder first */}
           <div style={placeholderStyles}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
