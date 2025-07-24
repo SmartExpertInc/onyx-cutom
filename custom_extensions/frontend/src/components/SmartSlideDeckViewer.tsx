@@ -111,12 +111,49 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
-        // Set the deck directly since AI now generates with correct colors
-        setComponentDeck(deck as ComponentBasedSlideDeck);
+        // Update existing slides with new default colors if they don't have backgroundColor set
+        const updatedSlides = deck.slides.map((slide: any) => {
+          const updatedProps = { ...slide.props };
+          
+          // Force update background color to new default
+          if (!updatedProps.backgroundColor || updatedProps.backgroundColor === '#ffffff' || updatedProps.backgroundColor === '#110c35') {
+            updatedProps.backgroundColor = '#261c4e';
+          }
+          
+          // Force update title color
+          if (!updatedProps.titleColor || updatedProps.titleColor === '#1a1a1a') {
+            updatedProps.titleColor = '#ffffff';
+          }
+          
+          // Force update content/subtitle colors
+          if (!updatedProps.contentColor || updatedProps.contentColor === '#333333') {
+            updatedProps.contentColor = '#d9e1ff';
+          }
+          if (!updatedProps.subtitleColor || updatedProps.subtitleColor === '#666666' || updatedProps.subtitleColor === '#cccccc') {
+            updatedProps.subtitleColor = '#d9e1ff';
+          }
+          
+          return {
+            ...slide,
+            props: updatedProps
+          };
+        });
+
+        const updatedDeck = {
+          ...deck,
+          slides: updatedSlides
+        };
+
+        setComponentDeck(updatedDeck as ComponentBasedSlideDeck);
         
-        console.log('✅ Component-based slides loaded successfully:', {
-          slideCount: deck.slides.length,
-          templates: deck.slides.map((s: any) => s.templateId)
+        // Save the updated colors back to parent
+        if (onSave && (JSON.stringify(updatedDeck) !== JSON.stringify(deck))) {
+          onSave(updatedDeck as ComponentBasedSlideDeck);
+        }
+        
+        console.log('✅ Component-based slides loaded and updated with new colors:', {
+          slideCount: updatedDeck.slides.length,
+          templates: updatedDeck.slides.map((s: any) => s.templateId)
         });
         
       } catch (err) {
