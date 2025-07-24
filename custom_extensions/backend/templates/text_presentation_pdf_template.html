@@ -92,8 +92,6 @@
             background-color: white; 
             min-height: 100vh; 
         }
-        
-        /* Vertical centering for PDF content */
         .content-wrapper { 
             background-color: white; 
             border-radius: 8px; 
@@ -101,13 +99,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
             max-width: 100%; 
             margin: 0 auto; 
-        }
-        
-        /* Page-specific vertical centering */
-        body {
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
         }
         
         /* Dynamic spacing classes for page optimization */
@@ -491,7 +482,7 @@
                         </div>
                     {% elif block_type == 'table' %}
                         <div class="table-block-wrapper" style="overflow-x:auto; margin: 16px 0;">
-                          <table style="border-collapse:collapse; width:100%; font-size:14px; border-radius: 8px; overflow: hidden; font-family: var(--font-primary), var(--font-emoji);">
+                          <table style="border-collapse:collapse; width:100%; font-size:13px; border-radius: 8px; overflow: hidden; font-family: var(--font-primary), var(--font-emoji);">
                             {% if block_data.caption %}
                                                               <caption style="caption-side:bottom; text-align:left; color:#888; font-size:11px; padding:4px 0; font-family: var(--font-primary), var(--font-emoji);">{{ block_data.caption }}</caption>
                             {% endif %}
