@@ -34,24 +34,24 @@
             --font-weight-semibold: 600;
             --font-weight-bold: 700;
 
-            --font-size-paragraph-small: 8pt;
-            --font-size-list-item: 7pt; 
-            --font-size-base: 10pt;
+            --font-size-paragraph-small: 8px;
+            --font-size-list-item: 7px; 
+            --font-size-base: 10px;
             --line-height-base: 1.5; 
 
-            --font-size-main-title: 19pt; 
-            --font-size-h1-content: 13pt;  
-            --font-size-other-section-header: 14pt; 
+            --font-size-main-title: 19px; 
+            --font-size-h1-content: 13px;  
+            --font-size-other-section-header: 14px; 
 
-            --font-size-h3-box: 11pt;
-            --font-size-h4-box: 10pt;
-            --font-size-p-box: 8.5pt;
+            --font-size-h3-box: 11px;
+            --font-size-h4-box: 10px;
+            --font-size-p-box: 8.5px;
 
-            --font-size-mini-title: 8pt;
-            --font-size-mini-title-text: 7pt;
+            --font-size-mini-title: 8px;
+            --font-size-mini-title-text: 7px;
             
             --list-number-circle-size: 24px;
-            --list-number-font-size: 11pt;
+            --list-number-font-size: 11px;
 
             --space-xxs: 2px; --space-xs: 4px; --space-sm: 8px; --space-md: 12px;
             --space-lg: 18px; --space-xl: 24px; --space-2xl: 32px; --space-3xl: 48px;
@@ -482,14 +482,14 @@
                         </div>
                     {% elif block_type == 'table' %}
                         <div class="table-block-wrapper" style="overflow-x:auto; margin: 16px 0;">
-                          <table style="border-collapse:collapse; width:100%; font-size:8.5pt; border-radius: 8px; overflow: hidden; font-family: var(--font-primary), var(--font-emoji);">
+                          <table style="border-collapse:collapse; width:100%; font-size:10px; border-radius: 8px; overflow: hidden; font-family: var(--font-primary), var(--font-emoji);">
                             {% if block_data.caption %}
-                              <caption style="caption-side:bottom; text-align:left; color:#888; font-size:7pt; padding:4px 0; font-family: var(--font-primary), var(--font-emoji);">{{ block_data.caption }}</caption>
+                                                              <caption style="caption-side:bottom; text-align:left; color:#888; font-size:7px; padding:4px 0; font-family: var(--font-primary), var(--font-emoji);">{{ block_data.caption }}</caption>
                             {% endif %}
                             <thead>
                               <tr>
                                 {% for header in block_data.headers %}
-                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:8px 16px; font-weight:600; text-align:left; vertical-align:middle; font-family: var(--font-primary), var(--font-emoji);">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
+                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:16px 24px; font-weight:600; text-align:left; vertical-align:middle; font-family: var(--font-primary), var(--font-emoji);">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
                                 {% endfor %}
                               </tr>
                             </thead>
@@ -497,7 +497,7 @@
                               {% for row in block_data.rows %}
                                 <tr style="background-color: {% if loop.index0 % 2 == 0 %}#FFFFFF{% else %}#F7F8FA{% endif %};">
                                   {% for cell in row %}
-                                    <td style="border:1px solid #E5E7EB; padding:8px 16px; vertical-align:middle; color:#000000; font-family: var(--font-primary), var(--font-emoji);">
+                                    <td style="border:1px solid #E5E7EB; padding:16px 24px; vertical-align:middle; color:#000000; font-family: var(--font-primary), var(--font-emoji);">
                   {% set segments = cell.split('**') %}
                   {% for segment in segments %}
                     {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
