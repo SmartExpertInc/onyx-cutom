@@ -204,14 +204,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             ) : ( styledText )}
           </Tag>
           {isEditing && onTextChange && (
-            <label className="flex items-center gap-2 mt-1 text-xs text-gray-700">
-              <input
-                type="checkbox"
+            <div className="mt-2 mb-2">
+              <Switch
                 checked={!!isImportant}
-                onChange={e => onTextChange(fieldPath('isImportant'), String(e.target.checked))}
+                onChange={v => onTextChange(fieldPath('isImportant'), String(v))}
+                label="Mark as Important Section"
+                help="Highlights this section visually. Use for key takeaways or goals."
               />
-              Important section
-            </label>
+            </div>
           )}
         </div>
       );
@@ -233,20 +233,20 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb}`}>
+          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb}`}> 
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-[75%]' : 'w-full'} text-[10px] leading-normal ${THEME_COLORS.primaryText.replace('text-black', '')}`} 
             />
-            <label className="flex items-center gap-2 mt-1 text-xs text-gray-700">
-              <input
-                type="checkbox"
+            <div className="mt-2 mb-2">
+              <Switch
                 checked={!!isRecommendation}
-                onChange={e => onTextChange(fieldPath('isRecommendation'), String(e.target.checked))}
+                onChange={v => onTextChange(fieldPath('isRecommendation'), String(v))}
+                label="Recommendation Paragraph"
+                help="Visually marks this paragraph as a recommendation."
               />
-              Recommendation
-            </label>
+            </div>
           </div>
         );
       }
@@ -370,66 +370,68 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 {isEditing && onTextChange ? ( <textarea value={alertBlock.text} onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)} className={`${editingTextareaClass} ${alertTextStyle} ${alertBlock.title ? 'mt-0.5' : ''} ${finalTextColorToUse.replace(THEME_COLORS.alertInfoText, '')}`}/>
                 ) : ( <div className={`${alertTextStyle} ${alertBlock.title ? 'mt-0.5' : ''}`} style={{ color: alertBlock.textColor || undefined }}>{styledAlertText}</div> )}
                 {isEditing && onTextChange && (
-                  <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-700">
-                    <label className="flex items-center gap-1">
-                      Type:
+                  <div className="mt-3 mb-2 p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-wrap gap-4 items-center">
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Alert Type</label>
                       <select
                         value={alertBlock.alertType}
                         onChange={e => onTextChange(fieldPath('alertType'), e.target.value)}
-                        className="border rounded px-1 py-0.5 text-xs"
+                        className="border rounded px-2 py-1 text-sm bg-white"
                       >
                         <option value="info">Info</option>
                         <option value="success">Success</option>
                         <option value="warning">Warning</option>
                         <option value="danger">Danger</option>
                       </select>
-                    </label>
-                    <label className="flex items-center gap-1">
-                      Icon:
+                      <span className="text-xs text-gray-500">Controls the color and icon</span>
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Icon Name</label>
                       <input
                         type="text"
                         value={alertBlock.iconName || ''}
                         onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
-                        className="border rounded px-1 py-0.5 text-xs w-20"
+                        className="border rounded px-2 py-1 text-sm bg-white"
                         placeholder="iconName"
                       />
-                    </label>
-                    <label className="flex items-center gap-1">
-                      Bg:
+                      <span className="text-xs text-gray-500">Lucide or custom icon</span>
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Background</label>
                       <input
                         type="color"
                         value={alertBlock.backgroundColor || ''}
                         onChange={e => onTextChange(fieldPath('backgroundColor'), e.target.value)}
-                        className="w-6 h-6 p-0 border rounded"
+                        className="w-8 h-8 p-0 border rounded"
                       />
-                    </label>
-                    <label className="flex items-center gap-1">
-                      Border:
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Border</label>
                       <input
                         type="color"
                         value={alertBlock.borderColor || ''}
                         onChange={e => onTextChange(fieldPath('borderColor'), e.target.value)}
-                        className="w-6 h-6 p-0 border rounded"
+                        className="w-8 h-8 p-0 border rounded"
                       />
-                    </label>
-                    <label className="flex items-center gap-1">
-                      Text:
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Text Color</label>
                       <input
                         type="color"
                         value={alertBlock.textColor || ''}
                         onChange={e => onTextChange(fieldPath('textColor'), e.target.value)}
-                        className="w-6 h-6 p-0 border rounded"
+                        className="w-8 h-8 p-0 border rounded"
                       />
-                    </label>
-                    <label className="flex items-center gap-1">
-                      Icon color:
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Icon Color</label>
                       <input
                         type="color"
                         value={alertBlock.iconColor || ''}
                         onChange={e => onTextChange(fieldPath('iconColor'), e.target.value)}
-                        className="w-6 h-6 p-0 border rounded"
+                        className="w-8 h-8 p-0 border rounded"
                       />
-                    </label>
+                    </div>
                   </div>
                 )}
               </div>
@@ -475,6 +477,24 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return <div className="text-red-500 text-[10px]">Unsupported block type: {(exhaustiveCheck as any)?.type}</div>;
   }
 };
+
+// Add a simple Switch component for better UX
+const Switch = ({ checked, onChange, label, help }: { checked: boolean, onChange: (v: boolean) => void, label: string, help?: string }) => (
+  <label className="flex items-center gap-2 mt-2 mb-2 cursor-pointer select-none">
+    <span className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => onChange(e.target.checked)}
+        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+        style={{ left: checked ? '1.5rem' : '0' }}
+      />
+      <span className={`toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 ${checked ? 'bg-green-400' : ''}`}></span>
+    </span>
+    <span className="font-medium text-gray-800">{label}</span>
+    {help && <span className="text-xs text-gray-500 ml-2">{help}</span>}
+  </label>
+);
 
 export interface PdfLessonDisplayProps {
   dataToDisplay: PdfLessonData | null;
