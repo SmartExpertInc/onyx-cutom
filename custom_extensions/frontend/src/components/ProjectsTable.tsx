@@ -38,6 +38,30 @@ import {
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
 
+// Loading Modal Component for Folder Export
+const FolderExportLoadingModal: React.FC<{
+  isOpen: boolean;
+  folderName: string;
+}> = ({ isOpen, folderName }) => {
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
+      <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Generating PDF</h3>
+        <p className="text-gray-600 text-center mb-4">
+          Creating PDF export for folder <span className="font-semibold text-blue-600">"{folderName}"</span>
+        </p>
+        <p className="text-sm text-gray-500 text-center">
+          This may take a few moments depending on the number of files...
+        </p>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 // Client Name Modal Component
 const ClientNameModal: React.FC<{
   isOpen: boolean;
@@ -1836,6 +1860,7 @@ const FolderRowMenu: React.FC<{
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
     const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+    const [isExporting, setIsExporting] = React.useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     
@@ -1897,6 +1922,9 @@ const FolderRowMenu: React.FC<{
         setMenuOpen(false);
         if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         
+        // Show loading modal
+        setIsExporting(true);
+        
         try {
             const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
             const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -1935,6 +1963,9 @@ const FolderRowMenu: React.FC<{
         } catch (error) {
             console.error('Error exporting folder:', error);
             // You could show a toast notification here
+        } finally {
+            // Hide loading modal
+            setIsExporting(false);
         }
     };
 
@@ -2016,6 +2047,12 @@ const FolderRowMenu: React.FC<{
                 onTierChange={(tier) => {
                     console.log('Folder tier changed to:', tier);
                 }}
+            />
+            
+            {/* Loading Modal for Folder Export */}
+            <FolderExportLoadingModal
+                isOpen={isExporting}
+                folderName={folder.name}
             />
         </>
     );
