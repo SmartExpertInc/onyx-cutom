@@ -28,13 +28,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
     overflow: 'hidden'
   };
 
-  const imageContainerStyles: React.CSSProperties = {
-    flex: '1 1 50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: backgroundColor // <-- тепер як у всього слайду
-  };
+  
 
   const getImageDimensions = () => {
     switch (imageSize) {
