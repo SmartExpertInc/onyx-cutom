@@ -4,32 +4,24 @@ import React from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
-export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }> = (props) => {
-  const currentTheme = props.theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }> = ({
+  title,
+  leftTitle,
+  leftContent,
+  leftImageAlt,
+  leftImagePrompt,
+  rightTitle,
+  rightContent,
+  rightImageAlt,
+  rightImagePrompt,
+  columnRatio,
+  theme
+}) => {
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
 
-  // Use the same logic as BigImageLeftTemplate for prompts
-  const leftDisplayPrompt = props.leftImagePrompt || props.leftImageAlt || "man sitting on a chair";
-  const rightDisplayPrompt = props.rightImagePrompt || props.rightImageAlt || "man sitting on a chair";
-
-  // Image container styles with theme background (like BigImageLeftTemplate)
-  const imageContainerStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.backgroundColor,
-    padding: '15px',
-    borderRadius: '8px',
-    marginTop: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  };
-
-  const imageStyles: React.CSSProperties = {
-    width: '100%',
-    maxWidth: '320px',
-    height: '200px',
-    objectFit: 'cover',
-    borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-  };
+  // AI prompt logic (like BigImageLeftTemplate)
+  const leftDisplayPrompt = leftImagePrompt || leftImageAlt || "man sitting on a chair";
+  const rightDisplayPrompt = rightImagePrompt || rightImageAlt || "man sitting on a chair";
 
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
@@ -44,7 +36,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
     justifyContent: 'center',
     padding: '20px',
     textAlign: 'center',
-    color: '#6c757d'
+    color: '#6c757d',
+    marginTop: '20px'
   };
 
   return (
@@ -66,7 +59,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           color: currentTheme.colors.titleColor,
         }}
       >
-        {props.title}
+        {title}
       </h1>
       <div
         style={{
@@ -83,7 +76,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               marginBottom: '12px',
             }}
           >
-            {props.leftTitle}
+            {leftTitle}
           </h2>
           <p
             style={{
@@ -93,30 +86,20 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               margin: 0,
             }}
           >
-            {props.leftContent}
+            {leftContent}
           </p>
-          {/* Left image with theme background container */}
-          <div style={imageContainerStyles}>
-            {props.leftImageUrl && props.leftImageUrl !== 'https://via.placeholder.com/600x400?text=Your+Image' ? (
-              <img
-                src={props.leftImageUrl}
-                alt={props.leftImageAlt || props.leftTitle}
-                style={imageStyles}
-              />
-            ) : (
-              <div style={placeholderStyles}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-                  Image Placeholder
-                </div>
-                <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-                  AI Prompt: "{leftDisplayPrompt}"
-                </div>
-                <div style={{ fontSize: '12px', color: '#868e96' }}>
-                  320px × 200px
-                </div>
-              </div>
-            )}
+          {/* Left placeholder only */}
+          <div style={placeholderStyles}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+              Image Placeholder
+            </div>
+            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
+              AI Prompt: "{leftDisplayPrompt}"
+            </div>
+            <div style={{ fontSize: '12px', color: '#868e96' }}>
+              320px × 200px
+            </div>
           </div>
         </div>
         <div style={{ flex: 1 }}>
@@ -128,7 +111,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               marginBottom: '12px',
             }}
           >
-            {props.rightTitle}
+            {rightTitle}
           </h2>
           <p
             style={{
@@ -138,30 +121,20 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               margin: 0,
             }}
           >
-            {props.rightContent}
+            {rightContent}
           </p>
-          {/* Right image with theme background container */}
-          <div style={imageContainerStyles}>
-            {props.rightImageUrl && props.rightImageUrl !== 'https://via.placeholder.com/600x400?text=Your+Image' ? (
-              <img
-                src={props.rightImageUrl}
-                alt={props.rightImageAlt || props.rightTitle}
-                style={imageStyles}
-              />
-            ) : (
-              <div style={placeholderStyles}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-                  Image Placeholder
-                </div>
-                <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-                  AI Prompt: "{rightDisplayPrompt}"
-                </div>
-                <div style={{ fontSize: '12px', color: '#868e96' }}>
-                  320px × 200px
-                </div>
-              </div>
-            )}
+          {/* Right placeholder only */}
+          <div style={placeholderStyles}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+              Image Placeholder
+            </div>
+            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
+              AI Prompt: "{rightDisplayPrompt}"
+            </div>
+            <div style={{ fontSize: '12px', color: '#868e96' }}>
+              320px × 200px
+            </div>
           </div>
         </div>
       </div>
