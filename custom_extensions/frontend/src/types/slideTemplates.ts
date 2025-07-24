@@ -95,7 +95,7 @@ export interface ContentSlideProps extends BaseTemplateProps {
 
 export interface BigImageLeftProps extends BaseTemplateProps {
   title: string;
-  content: string;
+  subtitle: string;
   imageUrl: string;
   imageAlt: string;
   imagePrompt?: string; // AI prompt for image generation
