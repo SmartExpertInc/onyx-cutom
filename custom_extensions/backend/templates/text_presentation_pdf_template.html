@@ -603,27 +603,27 @@
         {% for loop_index in range(blocks_to_render | length) %}
             {% if skip_blocks > 0 %}
                 {% set skip_blocks = skip_blocks - 1 %}
-                {% continue %}
-            {% endif %}
-            {% set current_block_item = blocks_to_render[loop_index] %}
-            {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
-            {% if is_important_headline_check %}
-                <div class="mini-section-box-wrapper"> <div class="mini-section-box">
-                    {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
-                    {% set inner_index = loop_index + 1 %}
-                    {% set blocks_in_section = 0 %}
-                    {% for j in range(inner_index, blocks_to_render | length) %}
-                        {% set next_block = blocks_to_render[j] %}
-                        {% if next_block is mapping and next_block.get('type') in ['headline', 'table', 'alert'] %}
-                            {% break %}
-                        {% endif %}
-                        {{ render_single_block_recursive_macro(next_block, 0, is_in_mini_section=true) }}
-                        {% set blocks_in_section = blocks_in_section + 1 %}
-                    {% endfor %}
-                    {% set skip_blocks = blocks_in_section %}
-                </div> </div>
             {% else %}
-                {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% set current_block_item = blocks_to_render[loop_index] %}
+                {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
+                {% if is_important_headline_check %}
+                    <div class="mini-section-box-wrapper"> <div class="mini-section-box">
+                        {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
+                        {% set inner_index = loop_index + 1 %}
+                        {% set blocks_in_section = 0 %}
+                        {% for j in range(inner_index, blocks_to_render | length) %}
+                            {% set next_block = blocks_to_render[j] %}
+                            {% if next_block is mapping and next_block.get('type') in ['headline', 'table', 'alert'] %}
+                                {% break %}
+                            {% endif %}
+                            {{ render_single_block_recursive_macro(next_block, 0, is_in_mini_section=true) }}
+                            {% set blocks_in_section = blocks_in_section + 1 %}
+                        {% endfor %}
+                        {% set skip_blocks = blocks_in_section %}
+                    </div> </div>
+                {% else %}
+                    {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% endif %}
             {% endif %}
         {% endfor %}
     {% elif text_data and text_data.contentBlocks is not none %}
