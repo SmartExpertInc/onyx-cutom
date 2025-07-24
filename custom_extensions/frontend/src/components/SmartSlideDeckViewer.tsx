@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -17,6 +18,9 @@ interface SmartSlideDeckViewerProps {
   
   /** Show format detection info */
   showFormatInfo?: boolean;
+  
+  /** Theme ID for the slide deck (optional, uses deck.theme or default) */
+  theme?: string;
 }
 
 // Inline Editor Component
@@ -82,12 +86,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
   isEditable = false,
   onSave,
-  showFormatInfo = false
+  showFormatInfo = false,
+  theme
 }) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
+  
+  // Get the current theme
+  const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
 
   // Process deck - expect component-based format only
   useEffect(() => {
@@ -111,84 +119,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
-        // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
-        console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
-        deck.slides.forEach((slide: any, index: number) => {
-          console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
-            slideId: slide.slideId,
-            templateId: slide.templateId,
-            props: slide.props,
-            backgroundColor: slide.props?.backgroundColor,
-            titleColor: slide.props?.titleColor,
-            contentColor: slide.props?.contentColor,
-            subtitleColor: slide.props?.subtitleColor
-          });
-        });
-
-        // Update existing slides with new default colors if they don't have backgroundColor set
-        const updatedSlides = deck.slides.map((slide: any) => {
-          const updatedProps = { ...slide.props };
-          
-          // 🔍 LOG: Before color updates
-          console.log(`🎨 BEFORE color update - Slide ${slide.slideId}:`, {
-            backgroundColor: updatedProps.backgroundColor,
-            titleColor: updatedProps.titleColor,
-            contentColor: updatedProps.contentColor,
-            subtitleColor: updatedProps.subtitleColor
-          });
-          
-          // Force update background color to new default
-          if (!updatedProps.backgroundColor || updatedProps.backgroundColor === '#ffffff' || updatedProps.backgroundColor === '#110c35') {
-            console.log(`🔄 Updating backgroundColor from "${updatedProps.backgroundColor}" to "#261c4e"`);
-            updatedProps.backgroundColor = '#261c4e';
-          }
-          
-          // Force update title color
-          if (!updatedProps.titleColor || updatedProps.titleColor === '#1a1a1a') {
-            console.log(`🔄 Updating titleColor from "${updatedProps.titleColor}" to "#ffffff"`);
-            updatedProps.titleColor = '#ffffff';
-          }
-          
-          // Force update content/subtitle colors
-          if (!updatedProps.contentColor || updatedProps.contentColor === '#333333') {
-            console.log(`🔄 Updating contentColor from "${updatedProps.contentColor}" to "#d9e1ff"`);
-            updatedProps.contentColor = '#d9e1ff';
-          }
-          if (!updatedProps.subtitleColor || updatedProps.subtitleColor === '#666666' || updatedProps.subtitleColor === '#cccccc') {
-            console.log(`🔄 Updating subtitleColor from "${updatedProps.subtitleColor}" to "#d9e1ff"`);
-            updatedProps.subtitleColor = '#d9e1ff';
-          }
-          
-          // 🔍 LOG: After color updates
-          console.log(`✅ AFTER color update - Slide ${slide.slideId}:`, {
-            backgroundColor: updatedProps.backgroundColor,
-            titleColor: updatedProps.titleColor,
-            contentColor: updatedProps.contentColor,
-            subtitleColor: updatedProps.subtitleColor
-          });
-          
-          return {
-            ...slide,
-            props: updatedProps
-          };
-        });
-
-        const updatedDeck = {
+        // Set theme on the deck
+        const deckWithTheme = {
           ...deck,
-          slides: updatedSlides
+          theme: theme || deck.theme || DEFAULT_SLIDE_THEME
         };
 
-        setComponentDeck(updatedDeck as ComponentBasedSlideDeck);
+        setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
-        // Save the updated colors back to parent
-        if (onSave && (JSON.stringify(updatedDeck) !== JSON.stringify(deck))) {
-          console.log('💾 Saving updated colors back to parent');
-          onSave(updatedDeck as ComponentBasedSlideDeck);
-        }
-        
-        console.log('✅ Component-based slides loaded and updated with new colors:', {
-          slideCount: updatedDeck.slides.length,
-          templates: updatedDeck.slides.map((s: any) => s.templateId)
+        console.log('✅ Component-based slides loaded with theme:', {
+          slideCount: deck.slides.length,
+          theme: deckWithTheme.theme,
+          themeColors: currentTheme.colors,
+          templates: deck.slides.map((s: any) => s.templateId)
         });
         
       } catch (err) {
@@ -246,8 +189,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       templateId: 'content-slide',
       props: {
         title: `Slide ${componentDeck.slides.length + 1}`,
-        content: 'Add your content here...',
-        backgroundColor: '#261c4e'
+        content: 'Add your content here...'
+        // Colors will be applied by theme, not props
       },
       metadata: {}
     };
@@ -425,6 +368,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           isEditable={isEditable}
           onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
           onTemplateChange={isEditable ? handleTemplateChange : undefined}
+          theme={componentDeck.theme}
         />
               </div>
             </div>

@@ -2,19 +2,22 @@
 
 import React from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
-export const BulletPointsTemplate: React.FC<BulletPointsProps> = ({
+export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideTheme }> = ({
   slideId,
   title,
   bullets,
   maxColumns = 2,
   bulletStyle = 'dot',
-  titleColor = '#1a1a1a',
-  bulletColor = '#333333',
-  backgroundColor = '#ffffff',
   isEditable = false,
-  onUpdate
+  onUpdate,
+  theme
 }) => {
+  // Use theme colors instead of props
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  const bulletColor = contentColor;
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',

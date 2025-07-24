@@ -61,6 +61,7 @@ export interface ComponentBasedSlideDeck {
   lessonNumber?: number | null;
   detectedLanguage?: string | null;
   templateVersion?: string;
+  theme?: string; // Theme ID for the slide deck
   metadata?: {
     createdAt?: string;
     updatedAt?: string;

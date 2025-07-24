@@ -621,6 +621,7 @@ export default function ProjectInstanceViewPage() {
                 }
               }}
               showFormatInfo={true}
+              theme="dark-purple"
             />
           </div>
         );

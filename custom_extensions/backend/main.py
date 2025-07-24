@@ -291,9 +291,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Welcome to the Lesson",
         "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
-        "author": "Course Instructor",
-        "backgroundColor": "#f8f9fa",
-        "backgroundImage": "Educational theme background"
+        "author": "Course Instructor"
         }
     },
     {
@@ -304,7 +302,6 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Core Ideas",
         "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "backgroundColor": "#ffffff",
         "alignment": "left"
         }
     },
@@ -320,8 +317,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "Design the solution architecture", 
           "Implement core functionality",
           "Test and validate results"
-      ],
-        "backgroundColor": "#f8f9fa"
+      ]
         }
     }
   ],
@@ -1267,9 +1263,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Welcome to the Lesson",
         "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
-        "author": "Course Instructor",
-        "backgroundColor": "#f8f9fa",
-        "backgroundImage": "Educational theme background"
+        "author": "Course Instructor"
         }
     },
     {
@@ -1280,7 +1274,6 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Core Ideas",
         "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "backgroundColor": "#ffffff",
         "alignment": "left"
         }
     },
@@ -1296,8 +1289,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "Design the solution architecture", 
           "Implement core functionality",
           "Test and validate results"
-      ],
-        "backgroundColor": "#f8f9fa"
+      ]
         }
     }
   ],
@@ -3821,17 +3813,13 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
             **Available Template IDs and their Props (must match exactly):**
 
-            1. **`hero-title-slide`** - Hero opening slides with detailed overview:
+                        1. **`hero-title-slide`** - Hero opening slides with detailed overview:
             ```json
             "props": {
               "title": "Main slide title",
               "subtitle": "Detailed subtitle explaining the overview",
               "showAccent": true,
-              "accentColor": "#3b82f6",
               "accentPosition": "left",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "subtitleColor": "#6b7280",
               "textAlign": "center",
               "titleSize": "xlarge",
               "subtitleSize": "medium"
@@ -3844,10 +3832,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "title": "Presentation Title",
               "subtitle": "Compelling subtitle that captures attention",
               "author": "Author name",
-              "date": "Date",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "subtitleColor": "#666666"
+              "date": "Date"
             }
             ```
 
@@ -3856,9 +3841,6 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             "props": {
               "title": "Slide title",
               "content": "Main content with bullet points:\n\n• Point 1\n• Point 2\n• Point 3",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "contentColor": "#333333",
               "alignment": "left"
             }
             ```
@@ -3873,10 +3855,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 "Third critical element"
               ],
               "maxColumns": 2,
-              "bulletStyle": "dot",
-              "titleColor": "#1a1a1a",
-              "bulletColor": "#333333",
-              "backgroundColor": "#ffffff"
+              "bulletStyle": "dot"
             }
             ```
 
@@ -3888,10 +3867,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "leftContent": "Content for the left side",
               "rightTitle": "Right Column",
               "rightContent": "Content for the right side",
-              "columnRatio": "50-50",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "contentColor": "#333333"
+              "columnRatio": "50-50"
             }
             ```
 
@@ -3904,10 +3880,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 "Step 2 description", 
                 "Step 3 description"
               ],
-              "layout": "horizontal",
-              "stepColor": "#007bff",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a"
+              "layout": "horizontal"
             }
             ```
 
@@ -3918,10 +3891,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "beforeTitle": "Before",
               "beforeContent": "Current situation",
               "afterTitle": "After",
-              "afterContent": "Improved situation",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "contentColor": "#333333"
+              "afterContent": "Improved situation"
             }
             ```
 
@@ -3932,14 +3902,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "challengesTitle": "Challenges",
               "solutionsTitle": "Solutions",
               "challenges": ["Challenge 1", "Challenge 2"],
-              "solutions": ["Solution 1", "Solution 2"],
-              "challengeColor": "#fef2f2",
-              "solutionColor": "#f0fdf4",
-              "challengeIconColor": "#dc2626",
-              "solutionIconColor": "#16a34a",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "contentColor": "#374151"
+              "solutions": ["Solution 1", "Solution 2"]
             }
             ```
 
@@ -3952,11 +3915,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "leftImage": "https://via.placeholder.com/400x200?text=Image+A",
               "rightTitle": "Option B",
               "rightDescription": "Description for option B", 
-              "rightImage": "https://via.placeholder.com/400x200?text=Image+B",
-              "backgroundColor": "#ffffff",
-              "titleColor": "#1a1a1a",
-              "subtitleColor": "#2d3748",
-              "descriptionColor": "#4a5568"
+              "rightImage": "https://via.placeholder.com/400x200?text=Image+B"
             }
             ```
 
@@ -3967,10 +3926,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "content": "Content that complements the image",
               "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
               "imageAlt": "Descriptive alt text",
-              "imageSize": "large",
-              "titleColor": "#1a1a1a",
-              "contentColor": "#333333",
-              "backgroundColor": "#ffffff"
+              "imageSize": "large"
             }
             ```
 
@@ -3980,9 +3936,6 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "quote": "This is an inspiring quote that captures the essence",
               "author": "Quote Author",
               "attribution": "Title, Organization",
-              "backgroundColor": "#f8f9fa",
-              "quoteColor": "#1a1a1a",
-              "authorColor": "#666666",
               "fontSize": "large"
             }
             ```

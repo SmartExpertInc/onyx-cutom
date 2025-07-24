@@ -2,24 +2,25 @@
 
 import React from 'react';
 import { HeroTitleSlideProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
-export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
+export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: SlideTheme }> = ({
   slideId,
   title,
   subtitle,
   showAccent = true,
-  accentColor = '#3b82f6',
   accentPosition = 'left',
-  backgroundColor = '#261c4e',
-  titleColor = '#ffffff',
-  subtitleColor = '#d9e1ff',
   backgroundImage,
   textAlign = 'center',
   titleSize = 'xlarge',
   subtitleSize = 'medium',
   isEditable = false,
-  onUpdate
+  onUpdate,
+  theme
 }) => {
+  // Use theme colors instead of props
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
@@ -39,27 +40,31 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
   };
 
   const getTitleFontSize = (size: string): string => {
+    // Use theme font size as base, but allow size variations
+    const baseSize = parseInt(currentTheme.fonts.titleSize);
     switch (size) {
-      case 'small': return '35px';
-      case 'medium': return '40px';
-      case 'large': return '45px';
-      case 'xlarge': return '45px';
-      default: return '45px';
+      case 'small': return `${baseSize - 10}px`;
+      case 'medium': return `${baseSize - 5}px`;
+      case 'large': return `${baseSize}px`;
+      case 'xlarge': return `${baseSize + 5}px`;
+      default: return currentTheme.fonts.titleSize;
     }
   };
 
   const getSubtitleFontSize = (size: string): string => {
+    // Use theme content font size as base for subtitles
+    const baseSize = parseInt(currentTheme.fonts.contentSize);
     switch (size) {
-      case 'small': return '1rem';
-      case 'medium': return '1.25rem';
-      case 'large': return '1.5rem';
-      default: return '1.25rem';
+      case 'small': return `${baseSize}px`;
+      case 'medium': return `${baseSize + 4}px`;
+      case 'large': return `${baseSize + 8}px`;
+      default: return `${baseSize + 4}px`;
     }
   };
 
   const titleStyles: React.CSSProperties = {
     fontSize: getTitleFontSize(titleSize),
-    fontFamily: "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontFamily: currentTheme.fonts.titleFont,
     fontWeight: 700,
     color: titleColor,
     textAlign: textAlign as any,
@@ -73,7 +78,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps> = ({
 
   const subtitleStyles: React.CSSProperties = {
     fontSize: getSubtitleFontSize(subtitleSize),
-    fontFamily: "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
+    fontFamily: currentTheme.fonts.contentFont,
     fontWeight: 400,
     color: subtitleColor,
     textAlign: textAlign as any,

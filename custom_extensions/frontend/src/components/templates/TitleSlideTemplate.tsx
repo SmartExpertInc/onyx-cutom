@@ -2,20 +2,22 @@
 
 import React from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
-export const TitleSlideTemplate: React.FC<TitleSlideProps> = ({
+export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme }> = ({
   slideId,
   title,
   subtitle,
   author,
   date,
-  backgroundColor = '#261c4e',
-  titleColor = '#ffffff',
-  subtitleColor = '#d9e1ff',
   backgroundImage,
   isEditable = false,
-  onUpdate
+  onUpdate,
+  theme
 }) => {
+  // Use theme colors instead of props
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
@@ -35,8 +37,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps> = ({
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '45px',
-    fontFamily: "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
     fontWeight: 700,
     color: titleColor,
     textAlign: 'center',
@@ -47,8 +49,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps> = ({
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
+    fontSize: `${parseInt(currentTheme.fonts.contentSize) + 8}px`,
+    fontFamily: currentTheme.fonts.contentFont,
     fontWeight: 400,
     color: subtitleColor,
     textAlign: 'center',

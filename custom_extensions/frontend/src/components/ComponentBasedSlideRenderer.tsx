@@ -3,21 +3,25 @@
 import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
   isEditable?: boolean;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
+  theme?: string;
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
   slide,
   isEditable = false,
   onSlideUpdate,
-  onTemplateChange
+  onTemplateChange,
+  theme
 }) => {
   const template = getTemplate(slide.templateId);
+  const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
 
   // Handle template prop updates
   const handlePropsUpdate = (newProps: any) => {
@@ -78,13 +82,14 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     );
   }
 
-  // Render the template component with props
+  // Render the template component with props and theme
   const TemplateComponent = template.component;
   const templateProps = {
     ...slide.props,
     slideId: slide.slideId,
     isEditable,
-    onUpdate: handlePropsUpdate
+    onUpdate: handlePropsUpdate,
+    theme: currentTheme
   };
 
   return (
@@ -101,6 +106,7 @@ interface ComponentBasedSlideDeckRendererProps {
   isEditable?: boolean;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
+  theme?: string;
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -108,7 +114,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   selectedSlideId,
   isEditable = false,
   onSlideUpdate,
-  onTemplateChange
+  onTemplateChange,
+  theme
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -135,6 +142,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             isEditable={isEditable}
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
+            theme={theme}
           />
         </div>
       ))}
