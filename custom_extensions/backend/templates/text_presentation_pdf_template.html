@@ -101,6 +101,7 @@
             padding: 24px; 
             margin: 0 auto; 
             max-width: 100%; 
+            page-break-inside: avoid;
         }
         /* --- Mini-section (important) box: simple vertical red line, no curls, no background --- */
         .mini-section-box-wrapper {
@@ -123,6 +124,11 @@
         .mini-section-box .list-block-wrapper li { font-size: var(--font-size-list-item); }
         .mini-section-box .list-marker { margin-right: var(--space-xs); }
         .mini-section-box .list-marker .icon-svg { color: var(--color-primary-accent) !important; width: 0.7em; height: 0.7em; }
+        
+        /* Add more spacing for custom bullet icons in mini-sections */
+        .mini-section-box .list-marker .icon-svg:not(.icon-new-bullet) {
+            margin-right: 8px;
+        }
         .mini-section-box .list-block-wrapper > ul,
         .mini-section-box .list-block-wrapper > ol { margin-bottom: 0 !important; }
         .mini-section-box .paragraph-block:last-child { margin-bottom: 0 !important; }
@@ -183,6 +189,11 @@
             fill: currentColor; 
             stroke: none; 
             display: block; 
+        }
+        
+        /* Add more spacing for custom bullet icons (not default dots) */
+        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker .icon-svg:not(.icon-new-bullet) {
+            margin-right: 8px;
         }
         .list-item-content-wrapper ul > li > .list-marker .icon-svg { 
             width: 0.6em; 
