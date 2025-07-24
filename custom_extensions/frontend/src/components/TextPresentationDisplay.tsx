@@ -177,7 +177,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   
   switch (block.type) {
     case 'headline': {
-      const { level, text, backgroundColor, textColor: headlineTextColor, iconName } = block as HeadlineBlock;
+      const { level, text, backgroundColor, textColor: headlineTextColor, iconName, isImportant } = block as HeadlineBlock;
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       const IconComponent = iconName ? iconMap[iconName] : null;
       
@@ -217,21 +217,33 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const styledText = parseAndStyleText(text);
 
       return (
-        <Tag
-          className={finalClassName}
-          style={{ backgroundColor: backgroundColor || 'transparent', color: headlineTextColor || undefined , padding: backgroundColor ? '0.4rem 0.6rem' : undefined, borderRadius: backgroundColor ? '0.25rem' : undefined }}
-        >
-          {IconComponent && <IconComponent className={`mr-1.5 shrink-0 ${THEME_COLORS.accentRed}`} />}
-          {isEditing && onTextChange ? (
-            <input 
-              type="text" 
-              value={text}
-              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-              className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
-              style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
-            />
-          ) : ( styledText )}
-        </Tag>
+        <div className="w-full">
+          <Tag
+            className={finalClassName}
+            style={{ backgroundColor: backgroundColor || 'transparent', color: headlineTextColor || undefined , padding: backgroundColor ? '0.4rem 0.6rem' : undefined, borderRadius: backgroundColor ? '0.25rem' : undefined }}
+          >
+            {IconComponent && <IconComponent className={`mr-1.5 shrink-0 ${THEME_COLORS.accentRed}`} />}
+            {isEditing && onTextChange ? (
+              <input 
+                type="text" 
+                value={text}
+                onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+                className={`${editingInputClass} ${textStyleClass.replace(/text-\w+/g, '').replace(/font-\w+/g, '').replace('uppercase', '')} m-0 p-0`} 
+                style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
+              />
+            ) : ( styledText )}
+          </Tag>
+          {isEditing && onTextChange && (
+            <div className="mt-2 mb-2">
+              <Switch
+                checked={!!isImportant}
+                onChange={v => onTextChange(fieldPath('isImportant'), String(v))}
+                label="Mark as Important Section"
+                help="Highlights this section visually. Use for key takeaways or goals."
+              />
+            </div>
+          )}
+        </div>
       );
     }
     case 'paragraph': { 
@@ -251,13 +263,21 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-            <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left`}>
-              <textarea 
-                value={currentRawText} 
-                onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-                className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal text-black text-left`} 
+          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left`}>
+            <textarea 
+              value={currentRawText} 
+              onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
+              className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal text-black text-left`} 
+            />
+            <div className="mt-2 mb-2">
+              <Switch
+                checked={!!isRecommendation}
+                onChange={v => onTextChange(fieldPath('isRecommendation'), String(v))}
+                label="Recommendation Paragraph"
+                help="Visually marks this paragraph as a recommendation."
               />
             </div>
+          </div>
         );
       }
       return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()}>{styledText}</p> );
@@ -416,16 +436,100 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       );
     }
     case 'alert': {
-      const { alertType, title, text } = block as AlertBlock;
-      const { bgColor, borderColor, textColor, iconColorClass, Icon } = getAlertColors(alertType);
-      
+      const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor } = block as AlertBlock;
+      const { bgColor, borderColor: defaultBorderColor, textColor: defaultTextColor, iconColorClass, Icon } = getAlertColors(alertType);
       return (
-        <div className={`p-2 border-l-4 ${bgColor} ${borderColor} ${isLastInBox ? 'mb-0' : 'mb-3'}`} role="alert">
+        <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'}`} role="alert">
           <div className="flex">
             <div className="py-1"><Icon className={`h-4 w-4 ${iconColorClass} mr-2`} /></div>
-            <div>
-              {title && <p className={`font-bold ${textColor}`}>{title}</p>}
-              <p className={`text-xs ${textColor}`}>{text}</p>
+            <div className="flex-grow">
+              {isEditing && onTextChange ? (
+                <>
+                  {title && (
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={e => handleInputChangeEvent(fieldPath('title'), e)}
+                      className={`${editingInputClass} font-bold mb-1`}
+                      placeholder="Alert title"
+                    />
+                  )}
+                  <textarea
+                    value={text}
+                    onChange={e => handleInputChangeEvent(fieldPath('text'), e)}
+                    className={`${editingTextareaClass} text-xs mb-2`}
+                    placeholder="Alert text"
+                  />
+                  <div className="mt-3 mb-2 p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-wrap gap-4 items-center">
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Alert Type</label>
+                      <select
+                        value={alertType}
+                        onChange={e => onTextChange(fieldPath('alertType'), e.target.value)}
+                        className="border rounded px-2 py-1 text-sm bg-white"
+                      >
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="danger">Danger</option>
+                      </select>
+                      <span className="text-xs text-gray-500">Controls the color and icon</span>
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Icon Name</label>
+                      <input
+                        type="text"
+                        value={iconName || ''}
+                        onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
+                        className="border rounded px-2 py-1 text-sm bg-white"
+                        placeholder="iconName"
+                      />
+                      <span className="text-xs text-gray-500">Lucide or custom icon</span>
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Background</label>
+                      <input
+                        type="color"
+                        value={backgroundColor || ''}
+                        onChange={e => onTextChange(fieldPath('backgroundColor'), e.target.value)}
+                        className="w-8 h-8 p-0 border rounded"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Border</label>
+                      <input
+                        type="color"
+                        value={borderColor || ''}
+                        onChange={e => onTextChange(fieldPath('borderColor'), e.target.value)}
+                        className="w-8 h-8 p-0 border rounded"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Text Color</label>
+                      <input
+                        type="color"
+                        value={textColor || ''}
+                        onChange={e => onTextChange(fieldPath('textColor'), e.target.value)}
+                        className="w-8 h-8 p-0 border rounded"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-[120px]">
+                      <label className="font-medium text-gray-800">Icon Color</label>
+                      <input
+                        type="color"
+                        value={iconColor || ''}
+                        onChange={e => onTextChange(fieldPath('iconColor'), e.target.value)}
+                        className="w-8 h-8 p-0 border rounded"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {title && <p className={`font-bold ${textColor}`}>{title}</p>}
+                  <p className={`text-xs ${textColor}`}>{text}</p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -505,6 +609,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   }
 };
 
+// Add a simple Switch component for better UX
+const Switch = ({ checked, onChange, label, help }: { checked: boolean, onChange: (v: boolean) => void, label: string, help?: string }) => (
+  <label className="flex items-center gap-2 mt-2 mb-2 cursor-pointer select-none">
+    <span className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => onChange(e.target.checked)}
+        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+        style={{ left: checked ? '1.5rem' : '0' }}
+      />
+      <span className={`toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 ${checked ? 'bg-green-400' : ''}`}></span>
+    </span>
+    <span className="font-medium text-gray-800">{label}</span>
+    {help && <span className="text-xs text-gray-500 ml-2">{help}</span>}
+  </label>
+);
 
 export interface TextPresentationDisplayProps {
   dataToDisplay: TextPresentationData | null;
