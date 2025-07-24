@@ -438,6 +438,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'alert': {
       const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor } = block as AlertBlock;
       const { bgColor, borderColor: defaultBorderColor, textColor: defaultTextColor, iconColorClass, Icon } = getAlertColors(alertType);
+      const effectiveTextColor = textColor || defaultTextColor;
       return (
         <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'}`} role="alert">
           <div className="flex">
@@ -528,8 +529,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </>
               ) : (
                 <>
-                  {title && <p className={`font-bold ${textColor}`}>{title}</p>}
-                  <p className={`text-xs ${textColor}`}>{text}</p>
+                  {title && <p className={`font-bold`} style={{ color: effectiveTextColor }}>{title}</p>}
+                  <p className={`text-xs`} style={{ color: effectiveTextColor }}>{text}</p>
                 </>
               )}
             </div>
@@ -614,16 +615,13 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 // Add a simple Switch component for better UX
 const Switch = ({ checked, onChange, label, help }: { checked: boolean, onChange: (v: boolean) => void, label: string, help?: string }) => (
   <label className="flex items-center gap-1 mt-1 mb-1 cursor-pointer select-none text-xs">
-    <span className="relative inline-block w-7 mr-1 align-middle select-none transition duration-200 ease-in">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={e => onChange(e.target.checked)}
-        className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none cursor-pointer"
-        style={{ left: checked ? '1.1rem' : '0' }}
-      />
-      <span className={`toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 ${checked ? 'bg-green-400' : ''}`}></span>
-    </span>
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={e => onChange(e.target.checked)}
+      className="form-checkbox h-3 w-3 text-green-500 border-gray-300 rounded focus:ring-0"
+      style={{ minWidth: 12, minHeight: 12 }}
+    />
     <span className="font-medium text-gray-800 text-xs">{label}</span>
     {help && <span className="text-[10px] text-gray-400 ml-1">{help}</span>}
   </label>
