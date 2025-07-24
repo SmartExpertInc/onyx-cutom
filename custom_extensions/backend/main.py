@@ -989,25 +989,20 @@ class HeadlineBlock(BaseContentBlock):
     backgroundColor: Optional[str] = None
     textColor: Optional[str] = None
     isImportant: Optional[bool] = Field(default=False, description="Set to true if this headline (typically Level 4) and its immediately following single block (list or paragraph) form an important section to be visually boxed.")
-    fontSize: Optional[str] = None
-    hasSectionStripe: Optional[bool] = Field(default=False, description="Set to true if this headline should have a red stripe for the entire section.")
 
 class ParagraphBlock(BaseContentBlock):
     type: str = "paragraph"
     text: str
     isRecommendation: Optional[bool] = Field(default=False, description="Set to true if this paragraph is a 'recommendation' within a numbered list item, to be styled distinctly.")
-    fontSize: Optional[str] = None
 
 class BulletListBlock(BaseContentBlock):
     type: Literal['bullet_list'] = 'bullet_list'
     items: List[ListItem] = []
     iconName: Optional[str] = None
-    fontSize: Optional[str] = None
 
 class NumberedListBlock(BaseContentBlock):
     type: Literal['numbered_list'] = 'numbered_list'
     items: List[ListItem] = []
-    fontSize: Optional[str] = None
 
 class AlertBlock(BaseContentBlock):
     type: str = "alert"
@@ -1019,7 +1014,6 @@ class AlertBlock(BaseContentBlock):
     borderColor: Optional[str] = None
     textColor: Optional[str] = None
     iconColor: Optional[str] = None
-    fontSize: Optional[str] = None
 
 class SectionBreakBlock(BaseContentBlock):
     type: str = "section_break"
