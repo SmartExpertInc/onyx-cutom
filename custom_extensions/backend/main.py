@@ -1259,9 +1259,9 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
   "lessonTitle": "Example Slide Deck Lesson",
   "slides": [
     {
-        "slideId": "slide_1_intro",
-        "slideNumber": 1,
-        "slideTitle": "Introduction",
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
         "templateId": "big-image-left",
         "props": {
             "title": "Welcome to the Lesson",
@@ -3868,12 +3868,18 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             5. **`two-column`** - Split layout with two content areas:
             ```json
             "props": {
-              "title": "Two Column Layout",
-              "leftTitle": "Left Column",
-              "leftContent": "Content for the left side",
-              "rightTitle": "Right Column",
-              "rightContent": "Content for the right side",
-              "columnRatio": "50-50"
+                "title": "Two Column Layout",
+                "leftTitle": "Left Column",
+                "leftContent": "Content for the left side",
+                "leftImageUrl": "https://via.placeholder.com/320x200?text=Left+Image",
+                "leftImageAlt": "Description of left image",
+                "leftImagePrompt": "Prompt for left image",
+                "rightTitle": "Right Column",
+                "rightContent": "Content for the right side",
+                "rightImageUrl": "https://via.placeholder.com/320x200?text=Right+Image",
+                "rightImageAlt": "Description of right image",
+                "rightImagePrompt": "Prompt for right image",
+                "columnRatio": "50-50"
             }
             ```
 

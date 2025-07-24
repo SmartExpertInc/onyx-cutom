@@ -129,8 +129,14 @@ export interface TwoColumnProps extends BaseTemplateProps {
   title: string;
   leftTitle: string;
   leftContent: string;
+  leftImageUrl?: string;
+  leftImageAlt?: string;
+  leftImagePrompt?: string;
   rightTitle: string;
   rightContent: string;
+  rightImageUrl?: string;
+  rightImageAlt?: string;
+  rightImagePrompt?: string;
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
   backgroundColor?: string;
   titleColor?: string;

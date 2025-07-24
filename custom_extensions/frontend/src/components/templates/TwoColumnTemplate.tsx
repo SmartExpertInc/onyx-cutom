@@ -55,6 +55,45 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           >
             {props.leftContent}
           </p>
+          {/* Left image */}
+          {props.leftImageUrl ? (
+            <img
+              src={props.leftImageUrl}
+              alt={props.leftImageAlt || props.leftTitle}
+              style={{
+                width: '100%',
+                maxWidth: '320px',
+                height: '200px',
+                objectFit: 'cover',
+                borderRadius: '8px',
+                marginTop: '20px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+              }}
+            />
+          ) : (
+            <div style={{
+              width: '100%',
+              maxWidth: '320px',
+              height: '200px',
+              backgroundColor: '#e9ecef',
+              border: '2px dashed #adb5bd',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: '20px',
+              color: '#6c757d',
+              flexDirection: 'column',
+              fontSize: '14px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
+              <div>Image Placeholder</div>
+              <div style={{ fontStyle: 'italic', fontSize: '12px', marginTop: '4px' }}>
+                AI Prompt: "{props.leftImagePrompt || props.leftImageAlt || props.leftTitle}"
+              </div>
+            </div>
+          )}
         </div>
         <div style={{ flex: 1 }}>
           <h2
@@ -77,6 +116,45 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           >
             {props.rightContent}
           </p>
+          {/* Right image */}
+          {props.rightImageUrl ? (
+            <img
+              src={props.rightImageUrl}
+              alt={props.rightImageAlt || props.rightTitle}
+              style={{
+                width: '100%',
+                maxWidth: '320px',
+                height: '200px',
+                objectFit: 'cover',
+                borderRadius: '8px',
+                marginTop: '20px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+              }}
+            />
+          ) : (
+            <div style={{
+              width: '100%',
+              maxWidth: '320px',
+              height: '200px',
+              backgroundColor: '#e9ecef',
+              border: '2px dashed #adb5bd',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: '20px',
+              color: '#6c757d',
+              flexDirection: 'column',
+              fontSize: '14px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
+              <div>Image Placeholder</div>
+              <div style={{ fontStyle: 'italic', fontSize: '12px', marginTop: '4px' }}>
+                AI Prompt: "{props.rightImagePrompt || props.rightImageAlt || props.rightTitle}"
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -916,32 +916,51 @@ Component-Based Template Slide Format:
 Template-Specific Content Structures:
 
 AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
-1. `hero-title-slide` - Hero opening slides with detailed overview
-2. `title-slide` - Simple title slides with title/subtitle/author
-3. `content-slide` - Standard content slides with title and body text
-4. `bullet-points` - Formatted bullet point lists with customizable columns
-5. `two-column` - Split layout with two content areas
-6. `image-comparison` - Visual comparison with images and descriptions
-7. `comparison-slide` - Before/after or side-by-side comparison layout
-8. `challenges-solutions` - Problems vs solutions with visual indicators
-9. `process-steps` - Numbered process or workflow steps
-10. `big-image-left` - Large image on left with content on right
+1. `big-image-left` - Large image on left with content on right (**Use for opening/title slide by default**)
+2. `hero-title-slide` - Hero opening slides with detailed overview (**Use only if text-focused intro is required**)
+3. `title-slide` - Simple title slides with title/subtitle/author
+4. `content-slide` - Standard content slides with title and body text
+5. `bullet-points` - Formatted bullet point lists with customizable columns
+6. `two-column` - Split layout with two content areas
+7. `image-comparison` - Visual comparison with images and descriptions
+8. `comparison-slide` - Before/after or side-by-side comparison layout
+9. `challenges-solutions` - Problems vs solutions with visual indicators
+10. `process-steps` - Numbered process or workflow steps
+
+**Big Image Left Slides** (`big-image-left`):
+```
+---
+**Slide 1: [Lesson Introduction]** `big-image-left`
+
+## [Main Lesson Title]
+
+[Detailed subtitle or description that introduces the lesson topic and provides context - 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Professional visual that represents the lesson topic and engages learners]
+
+- Use this template for the opening/title slide by default (strong visual impact)
+- The image should visually represent the main lesson topic
+- Keep subtitle concise but informative
+```
 
 **Hero Title Slides** (`hero-title-slide`):
 ```
 ---
-**Slide 1: [Lesson Introduction]** `hero-title-slide`
+**Slide 2: [Alternative Text Introduction]** `hero-title-slide`
 
 # [Main Lesson Title]
 ## [Detailed subtitle that explains the lesson overview and objectives in 1-2 sentences]
 
 [IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Educational theme background]
+
+- Use this template ONLY if a text-focused intro is specifically required
+- Less common alternative to big-image-left for opening slides
 ```
 
 **Standard Content Slides** (`content-slide`):
 ```
 ---
-**Slide 2: [Concept Name]** `content-slide`
+**Slide 3: [Concept Name]** `content-slide`
 
 ## [Main Concept Heading]
 
@@ -957,7 +976,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Bullet Points Slides** (`bullet-points`):
 ```
 ---
-**Slide 3: [Key Points Topic]** `bullet-points`
+**Slide 4: [Key Points Topic]** `bullet-points`
 
 ## [Main Title]
 
@@ -972,7 +991,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Two Column Layout Slides** (`two-column`):
 ```
 ---
-**Slide 4: [Comparative Analysis]** `two-column`
+**Slide 5: [Comparative Analysis]** `two-column`
 
 ## [Main Title]
 
@@ -988,7 +1007,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Image Comparison Slides** (`image-comparison`):
 ```
 ---
-**Slide 5: [Comparison Topic]** `image-comparison`
+**Slide 6: [Comparison Topic]** `image-comparison`
 
 ## [Main Comparison Title]
 
@@ -1005,7 +1024,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Challenges vs Solutions Slides** (`challenges-solutions`):
 ```
 ---
-**Slide 6: [Challenge Analysis Topic]** `challenges-solutions`
+**Slide 7: [Challenge Analysis Topic]** `challenges-solutions`
 
 ## [Main Title about Problems and Solutions]
 
@@ -1021,7 +1040,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Process Steps Slides** (`process-steps`):
 ```
 ---
-**Slide 7: [Process Description]** `process-steps`
+**Slide 8: [Process Description]** `process-steps`
 
 ## [Process Title]
 
@@ -1036,7 +1055,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Comparison Slides** (`comparison-slide`):
 ```
 ---
-**Slide 8: [Before vs After Topic]** `comparison-slide`
+**Slide 9: [Before vs After Topic]** `comparison-slide`
 
 ## [Comparison Title]
 
@@ -1050,30 +1069,18 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | After state visual]
 ```
 
-**Big Image Left Slides** (`big-image-left`):
-```
----
-**Slide 9: [Visual Topic]** `big-image-left`
-
-## [Image Title]
-
-[Content that complements the image - 2-3 paragraphs with detailed explanation]
-
-* [Supporting point 1]
-* [Supporting point 2]
-
-[IMAGE_PLACEHOLDER: LARGE | LEFT | Main visual content]
-```
-
 **Title Slides** (`title-slide`):
 ```
 ---
-**Slide 11: [Simple Title]** `title-slide`
+**Slide 10: [Simple Title]** `title-slide`
 
 # [Main Title]
 ## [Subtitle]
 
 [IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Background visual]
+
+- Use for section breaks or conclusions
+- Simple text-focused design
 ```
 
 Content Distribution Strategy (Updated for Component-Based Templates):
@@ -1081,7 +1088,7 @@ Content Distribution Strategy (Updated for Component-Based Templates):
 **STRATEGIC TEMPLATE SELECTION:**
 Choose templates based on content type and educational goals:
 
-- **Opening Slide**: By default, use `big-image-left` for the first slide (strong visual introduction). Use `hero-title-slide` only if a text-focused intro is required.
+- **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
 - **Core Content**: Use `content-slide` for standard explanations and concepts
 - **Key Points**: Use `bullet-points` for lists of important information (3-6 items ideal)
 - **Comparisons**: Choose between:
@@ -1094,15 +1101,15 @@ Choose templates based on content type and educational goals:
 - **Inspiration**: Use `title-slide` for section breaks or conclusions
 
 **SLIDE COUNT RECOMMENDATIONS:**
-- **Short Lessons (5-7 slides)**: hero-title + 3-4 content slides + title conclusion
-- **Medium Lessons (8-12 slides)**: hero-title + 6-9 varied content slides + title conclusion  
-- **Long Lessons (13-15 slides)**: hero-title + 10-12 varied content slides + title conclusion
+- **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 content slides + title conclusion
+- **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied content slides + title conclusion  
+- **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied content slides + title conclusion
 
 **TEMPLATE VARIETY GUIDELINES:**
 - Use at least 4 different template types per presentation
 - Avoid using the same template more than 3 times consecutively
 - Balance text-heavy templates (content-slide, bullet-points) with visual templates (image-comparison, big-image-left)
-- Always start with `hero-title-slide` for maximum engagement
+- **ALWAYS start with `big-image-left` for maximum visual engagement**
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides

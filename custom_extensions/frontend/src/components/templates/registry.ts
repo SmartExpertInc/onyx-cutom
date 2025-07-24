@@ -313,70 +313,36 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Two Column Layout',
       leftTitle: 'Left Column',
-      leftContent: 'Content for the left side of your slide.',
+      leftContent: 'Content for the left side',
+      leftImageUrl: '',
+      leftImageAlt: '',
+      leftImagePrompt: '',
       rightTitle: 'Right Column',
-      rightContent: 'Content for the right side of your slide.',
+      rightContent: 'Content for the right side',
+      rightImageUrl: '',
+      rightImageAlt: '',
+      rightImagePrompt: '',
       columnRatio: '50-50',
-      backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a',
-      contentColor: '#333333'
+      backgroundColor: '#261c4e',
+      titleColor: '#ffffff',
+      contentColor: '#d9e1ff'
     },
     propSchema: {
-      title: {
-        type: 'text',
-        label: 'Main Title',
-        required: true,
-        maxLength: 100
-      },
-      leftTitle: {
-        type: 'text',
-        label: 'Left Column Title',
-        maxLength: 100
-      },
-      leftContent: {
-        type: 'richtext',
-        label: 'Left Content',
-        required: true,
-        maxLength: 1000
-      },
-      rightTitle: {
-        type: 'text',
-        label: 'Right Column Title',
-        maxLength: 100
-      },
-      rightContent: {
-        type: 'richtext',
-        label: 'Right Content',
-        required: true,
-        maxLength: 1000
-      },
-      columnRatio: {
-        type: 'select',
-        label: 'Column Ratio',
-        options: [
-          { value: '50-50', label: '50-50' },
-          { value: '60-40', label: '60-40' },
-          { value: '40-60', label: '40-60' },
-          { value: '70-30', label: '70-30' },
-          { value: '30-70', label: '30-70' }
-        ],
-        default: '50-50'
-      },
-      backgroundColor: {
-        type: 'color',
-        label: 'Background Color',
-        default: '#ffffff'
-      },
-      titleColor: {
-        type: 'color',
-        label: 'Title Color',
-        default: '#1a1a1a'
-      },
-      contentColor: {
-        type: 'color',
-        label: 'Content Color',
-        default: '#333333'
-      }
+      title: { type: 'text', label: 'Title', required: true },
+      leftTitle: { type: 'text', label: 'Left Title', required: true },
+      leftContent: { type: 'richtext', label: 'Left Content', required: true },
+      leftImageUrl: { type: 'image', label: 'Left Image URL', required: false },
+      leftImageAlt: { type: 'text', label: 'Left Image Alt', required: false },
+      leftImagePrompt: { type: 'text', label: 'Left Image Prompt', required: false },
+      rightTitle: { type: 'text', label: 'Right Title', required: true },
+      rightContent: { type: 'richtext', label: 'Right Content', required: true },
+      rightImageUrl: { type: 'image', label: 'Right Image URL', required: false },
+      rightImageAlt: { type: 'text', label: 'Right Image Alt', required: false },
+      rightImagePrompt: { type: 'text', label: 'Right Image Prompt', required: false },
+      columnRatio: { type: 'select', label: 'Column Ratio', options: [ { value: '50-50', label: '50-50' }, { value: '60-40', label: '60-40' }, { value: '40-60', label: '40-60' }, { value: '70-30', label: '70-30' }, { value: '30-70', label: '30-70' } ], default: '50-50' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' }
     }
   },
 
