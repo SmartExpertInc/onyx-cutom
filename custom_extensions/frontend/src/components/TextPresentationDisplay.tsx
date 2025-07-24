@@ -1048,6 +1048,23 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     if (contentBlocksToProcess[i].type === 'section_break') { i++; continue; }
     const currentBlock = contentBlocksToProcess[i];
     const nextBlock = (i + 1 < contentBlocksToProcess.length) ? contentBlocksToProcess[i+1] : null;
+
+    // --- NEW IMPORTANT SECTION LOGIC ---
+    if (currentBlock.type === 'headline' && (currentBlock as HeadlineBlock).isImportant) {
+      const importantHeadline = currentBlock as HeadlineBlock;
+      const importantBlocks: AnyContentBlock[] = [];
+      i++;
+      while (i < contentBlocksToProcess.length) {
+        const b = contentBlocksToProcess[i];
+        if (b.type === 'headline' || b.type === 'table' || b.type === 'alert') break;
+        importantBlocks.push(b);
+        i++;
+      }
+      renderableItems.push({ type: 'important_section', headline: importantHeadline, blocks: importantBlocks });
+      continue;
+    }
+    // --- END NEW IMPORTANT SECTION LOGIC ---
+
     if (currentBlock.type === 'headline' && (currentBlock as HeadlineBlock).level === 2) {
       const majorSectionHeadline = currentBlock as HeadlineBlock;
       const sectionItemsInternal: Array<AnyContentBlock | MiniSection> = [];
@@ -1107,6 +1124,37 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           <main className="text-left">
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
+
+              // --- NEW IMPORTANT SECTION RENDERING ---
+              if (item.type === 'important_section') {
+                const originalHeadlineIndex = findOriginalIndex(item.headline);
+                return (
+                  <div key={index} className="p-3 my-4 bg-white border-l-4 border-[#FF1414] text-left rounded-md">
+                    <RenderBlock
+                      block={item.headline}
+                      isMiniSectionHeadline={true}
+                      isFirstInBox={true}
+                      basePath={['contentBlocks', originalHeadlineIndex]}
+                      isEditing={isEditing}
+                      onTextChange={onTextChange}
+                    />
+                    {item.blocks.map((block, blockIdx) => {
+                      const originalBlockIndex = findOriginalIndex(block);
+                      return (
+                        <RenderBlock
+                          key={blockIdx}
+                          block={block}
+                          isLastInBox={blockIdx === item.blocks.length - 1}
+                          basePath={['contentBlocks', originalBlockIndex]}
+                          isEditing={isEditing}
+                          onTextChange={onTextChange}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              }
+              // --- END NEW IMPORTANT SECTION RENDERING ---
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
