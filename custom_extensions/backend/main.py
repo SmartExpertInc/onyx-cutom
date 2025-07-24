@@ -3922,10 +3922,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             10. **`big-image-left`** - Large image on left with content on right:
             ```json
             "props": {
-              "title": "Image Title",
-              "content": "Content that complements the image",
+              "title": "Slide Title",
+              "subtitle": "Content that complements the image",
               "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
               "imageAlt": "Descriptive alt text",
+              "imagePrompt": "man sitting on a chair",
               "imageSize": "large"
             }
             ```
@@ -3959,7 +3960,17 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Content with steps/process: Use `process-steps`
             - Content with bullet points: Use `bullet-points`
             - Content with two sections: Use `two-column`
+            - Visual-focused content: Use `big-image-left` when image is central to understanding
+            - Comparisons with images: Use `image-comparison` for side-by-side visual comparisons
+            - Problem-solution content: Use `challenges-solutions`
+            - Inspirational quotes: Use `quote-center`
             - Default: Use `content-slide`
+
+            **Special Instructions for `big-image-left`:**
+            - Always include meaningful `imagePrompt` for AI image generation
+            - Use when the visual element is essential to understanding the content
+            - Suitable for: case studies, examples, demonstrations, visual concepts
+            - `imagePrompt` should be descriptive and specific (e.g., "professional business meeting in modern office", "data visualization chart showing growth trends")
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

@@ -16,49 +16,51 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
-  const bulletColor = contentColor;
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
+    backgroundColor: currentTheme.colors.backgroundColor,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: '80px',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    fontFamily: currentTheme.fonts.contentFont
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
     fontWeight: 700,
-    color: titleColor,
-    textAlign: 'center',
-    marginBottom: '50px',
-    lineHeight: 1.3,
-    maxWidth: '900px'
+    color: currentTheme.colors.titleColor,
+    textAlign: 'left',
+    marginBottom: '32px'
   };
 
   const bulletsContainerStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: currentTheme.colors.contentColor,
     width: '100%',
-    maxWidth: '1000px',
-    display: 'grid',
-    gridTemplateColumns: `repeat(${maxColumns}, 1fr)`,
+    display: 'flex',
+    alignItems: 'flex-start',
     gap: '24px',
-    alignItems: 'start'
+    flexWrap: 'wrap',
   };
 
   const bulletItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'flex-start',
     gap: '12px',
-    fontSize: '1.2rem',
+    fontSize: currentTheme.fonts.contentSize,
     lineHeight: 1.6,
-    color: bulletColor,
-    marginBottom: '16px'
+    color: currentTheme.colors.contentColor,
+    marginBottom: '16px',
+    minWidth: maxColumns === 2 ? '40%' : '100%',
+    flex: maxColumns === 2 ? '0 0 45%' : '1 1 100%'
   };
 
   const getBulletIcon = (style: string, index: number) => {
@@ -79,10 +81,11 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   };
 
   const bulletIconStyles: React.CSSProperties = {
-    color: titleColor,
+    color: currentTheme.colors.accentColor,
     fontWeight: 600,
     minWidth: '20px',
-    fontSize: bulletStyle === 'number' ? '1.1rem' : '1.2rem'
+    fontSize: bulletStyle === 'number' ? '1.1rem' : '1.2rem',
+    fontFamily: currentTheme.fonts.titleFont
   };
 
   const editOverlayStyles: React.CSSProperties = {
@@ -119,7 +122,15 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
             </span>
-            <span>{bullet}</span>
+            <span
+              style={{
+                fontFamily: currentTheme.fonts.contentFont,
+                fontSize: currentTheme.fonts.contentSize,
+                color: currentTheme.colors.contentColor,
+              }}
+            >
+              {bullet}
+            </span>
           </div>
         ))}
       </div>

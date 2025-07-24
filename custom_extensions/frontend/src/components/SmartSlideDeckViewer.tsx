@@ -119,6 +119,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
+        // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
+        console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
+        deck.slides.forEach((slide: any, index: number) => {
+          console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
+            slideId: slide.slideId,
+            templateId: slide.templateId,
+            props: slide.props
+          });
+        });
+
         // Set theme on the deck
         const deckWithTheme = {
           ...deck,

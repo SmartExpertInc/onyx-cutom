@@ -159,6 +159,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       content: 'Content that complements the image and provides context or explanation.',
       imageUrl: 'https://via.placeholder.com/600x400?text=Your+Image',
       imageAlt: 'Descriptive alt text',
+      imagePrompt: 'man sitting on a chair',
       imageSize: 'large',
       titleColor: '#1a1a1a',
       contentColor: '#333333',
@@ -189,6 +190,12 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'Descriptive text for accessibility',
         required: true,
         maxLength: 200
+      },
+      imagePrompt: {
+        type: 'text',
+        label: 'Image Prompt',
+        description: 'Prompt for image generation (e.g., "man sitting on a chair")',
+        maxLength: 500
       },
       imageSize: {
         type: 'select',

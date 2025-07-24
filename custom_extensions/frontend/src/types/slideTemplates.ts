@@ -98,6 +98,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   content: string;
   imageUrl: string;
   imageAlt: string;
+  imagePrompt?: string; // AI prompt for image generation
   imageSize?: 'small' | 'medium' | 'large';
   titleColor?: string;
   contentColor?: string;
