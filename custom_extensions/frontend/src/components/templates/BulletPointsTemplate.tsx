@@ -42,7 +42,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   };
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
-    spectRatio: '1 / 1',
+    aspectRatio: '1 / 1',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
     borderRadius: '8px',
