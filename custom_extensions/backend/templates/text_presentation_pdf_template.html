@@ -349,6 +349,21 @@
         .content-block-wrapper.type-headline { margin-top: 24px; }
         .content-block-wrapper.type-headline:first-child { margin-top: 0; }
         .content-wrapper > .content-block-wrapper.type-headline:first-child { margin-top: 0; }
+        
+        /* Increase spacing between end of section and next headline by 30% */
+        .content-block-wrapper:not(.type-headline) + .content-block-wrapper.type-headline { 
+            margin-top: calc(24px * 1.3); /* 30% increase from 24px */
+        }
+        
+        /* Increase spacing after mini-section-box (important sections) to next headline by 30% */
+        .mini-section-box-wrapper + .content-block-wrapper.type-headline { 
+            margin-top: calc(24px * 1.3); /* 30% increase from 24px */
+        }
+        
+        /* Increase spacing after content-block-wrapper to next headline by 30% */
+        .content-block-wrapper:not(.type-headline):last-child + .content-block-wrapper.type-headline { 
+            margin-top: calc(24px * 1.3); /* 30% increase from 24px */
+        }
     </style>
 </head>
 <body>
