@@ -175,13 +175,14 @@
             letter-spacing: var(--letter-spacing-increased);
         }
         
-        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li:not(:last-child) { margin-bottom: 2px; }
-        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker {
-            margin-right: 30px; 
+        /* General spacing for all bullet list markers */
+        .list-block-wrapper ul > li > .list-marker {
+            margin-right: 30px;
             flex-shrink: 0;
         }
         
-        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker .icon-svg {
+        /* General icon styling for all bullet lists */
+        .list-block-wrapper ul > li > .list-marker .icon-svg {
             width: 0.7em;  
             height: 0.7em; 
             color: var(--color-primary-accent); 
@@ -189,6 +190,8 @@
             stroke: none; 
             display: block; 
         }
+        
+        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li:not(:last-child) { margin-bottom: 2px; }
         
         /* Reduce spacing for default bullet icons */
         .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker .icon-svg.icon-new-bullet {
