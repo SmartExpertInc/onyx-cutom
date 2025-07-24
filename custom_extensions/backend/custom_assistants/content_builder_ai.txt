@@ -1081,7 +1081,7 @@ Content Distribution Strategy (Updated for Component-Based Templates):
 **STRATEGIC TEMPLATE SELECTION:**
 Choose templates based on content type and educational goals:
 
-- **Opening Slide**: Always use `hero-title-slide` for engaging introductions with detailed overview
+- **Opening Slide**: By default, use `big-image-left` for the first slide (strong visual introduction). Use `hero-title-slide` only if a text-focused intro is required.
 - **Core Content**: Use `content-slide` for standard explanations and concepts
 - **Key Points**: Use `bullet-points` for lists of important information (3-6 items ideal)
 - **Comparisons**: Choose between:

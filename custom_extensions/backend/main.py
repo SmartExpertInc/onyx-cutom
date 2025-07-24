@@ -1256,14 +1256,17 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
   "lessonTitle": "Example Slide Deck Lesson",
   "slides": [
     {
-      "slideId": "slide_1_intro",
-      "slideNumber": 1,
-      "slideTitle": "Introduction",
-      "templateId": "hero-title-slide",
-      "props": {
-        "title": "Welcome to the Lesson",
-        "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
-        "author": "Course Instructor"
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction",
+        "templateId": "big-image-left",
+        "props": {
+            "title": "Welcome to the Lesson",
+            "subtitle": "This slide introduces the main topic.",
+            "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
+            "imageAlt": "Descriptive alt text",
+            "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
+            "imageSize": "large"
         }
     },
     {
