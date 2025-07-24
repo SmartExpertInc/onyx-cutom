@@ -20,6 +20,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideT
         style={{
           textAlign: 'center',
           marginBottom: '40px',
+          fontWeight: '700',
           fontFamily: currentTheme.fonts.titleFont,
           fontSize: currentTheme.fonts.titleSize,
           color: currentTheme.colors.titleColor,

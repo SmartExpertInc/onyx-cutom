@@ -80,6 +80,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
+    fontWeight: '700',
     color: titleColor,
     marginBottom: '24px',
     lineHeight: '1.2'

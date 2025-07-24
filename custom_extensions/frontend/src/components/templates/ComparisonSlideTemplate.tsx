@@ -27,6 +27,7 @@ export const ComparisonSlideTemplate: React.FC<ComparisonSlideProps & { theme?: 
         style={{
           textAlign: 'center',
           marginBottom: '40px',
+          fontWeight: '700',
           fontFamily: currentTheme.fonts.titleFont,
           fontSize: currentTheme.fonts.titleSize,
           color: currentTheme.colors.titleColor,

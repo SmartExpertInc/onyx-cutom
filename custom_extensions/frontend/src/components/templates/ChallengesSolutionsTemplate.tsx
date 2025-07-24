@@ -63,7 +63,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
 
   const sectionTitleStyles: React.CSSProperties = {
     fontSize: '1.25rem',
-    fontWeight: 600,
+    fontWeight: 700,
     color: currentTheme.colors.contentColor,
     fontFamily: currentTheme.fonts.titleFont,
     margin: 0
