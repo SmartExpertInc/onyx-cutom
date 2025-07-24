@@ -5,15 +5,10 @@ WORKDIR /app
 
 # Install system dependencies for Pyppeteer/Chromium
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Pyppeteer's direct dependencies / common needs
     ca-certificates \
     fonts-liberation \
     fonts-noto-color-emoji \
     fonts-symbola \
-    fonts-dejavu-core \
-    fonts-dejavu-extra \
-    fonts-unifont \
-    fonts-freefont-ttf \
     libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \

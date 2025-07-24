@@ -38,7 +38,25 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
 };
 
 const NewBulletIcon = () => (
-  <div className="w-0.75 h-0.75 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
+  <div className="w-1.5 h-1.5 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
+);
+
+// Helper function to detect if text starts with an emoji
+const startsWithEmoji = (text: string): boolean => {
+  const emojiRegex = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+  return emojiRegex.test(text.trim());
+};
+
+// Helper function to get the first emoji from text
+const getFirstEmoji = (text: string): string | null => {
+  const emojiRegex = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+  const match = text.trim().match(emojiRegex);
+  return match ? match[0] : null;
+};
+
+// Helper function to render emoji as bullet icon
+const EmojiBulletIcon: React.FC<{emoji: string}> = ({ emoji }) => (
+  <span className="mr-1.5 mt-[1px] shrink-0 text-base">{emoji}</span>
 );
 
 // --- New Icon Set ---
@@ -284,7 +302,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
               const textSource = itemIsString ? ((isNumbered && isPlainStringNoBold) ? `**${item}**` : item) : "";
-              const styledItemText = itemIsString ? parseAndStyleText(textSource) : null;
+              let styledItemText = itemIsString ? parseAndStyleText(textSource) : null;
 
               if (isNumbered) {
                 return (
@@ -349,10 +367,13 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 );
               }
 
+              // Remove all emoji bullet logic and always use BulletIconToRender
+              const nestedIndentation = depth > 0 ? 'ml-6' : '';
+
               return (
                 <li
                   key={index}
-                  className={`flex items-start text-black text-xs leading-tight`}
+                  className={`flex items-start text-black text-xs leading-tight ${nestedIndentation}`}
                 >
                   {!isNumbered && BulletIconToRender && <BulletIconToRender />}
                   <div className="flex-grow">
