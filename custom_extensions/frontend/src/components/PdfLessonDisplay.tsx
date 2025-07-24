@@ -208,7 +208,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               <input
                 type="checkbox"
                 checked={!!isImportant}
-                onChange={e => onTextChange(fieldPath('isImportant'), e.target.checked)}
+                onChange={e => onTextChange(fieldPath('isImportant'), String(e.target.checked))}
               />
               Important section
             </label>
@@ -243,7 +243,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               <input
                 type="checkbox"
                 checked={!!isRecommendation}
-                onChange={e => onTextChange(fieldPath('isRecommendation'), e.target.checked)}
+                onChange={e => onTextChange(fieldPath('isRecommendation'), String(e.target.checked))}
               />
               Recommendation
             </label>
