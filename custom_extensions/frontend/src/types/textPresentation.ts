@@ -10,6 +10,7 @@ export interface HeadlineBlock {
   textColor?: string | null;
   isImportant?: boolean;
   fontSize?: string | null;
+  hasSectionStripe?: boolean;
 }
 
 export interface ParagraphBlock {

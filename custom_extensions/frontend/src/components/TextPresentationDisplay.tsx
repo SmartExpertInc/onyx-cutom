@@ -259,6 +259,19 @@ const BlockSettingsModal = ({
             <option value="16px">Extra Large (16px)</option>
           </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Section Red Stripe</label>
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              checked={!!headlineBlock.hasSectionStripe}
+              onChange={e => onTextChange?.(fieldPath('hasSectionStripe'), String(e.target.checked))}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="text-sm text-gray-700">Add red stripe to entire section (from this headline to next)</span>
+          </div>
+        </div>
       </div>
     );
   };
@@ -591,17 +604,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       return (
         <div className="w-full group relative">
-          <div className="pl-2.5 border-l-[3px] border-[#FF1414] py-1">
-            <Tag
-              className={finalClassName}
-              style={{ 
-                backgroundColor: backgroundColor || 'transparent', 
-                color: headlineTextColor || undefined, 
-                padding: backgroundColor ? '0.4rem 0.6rem' : undefined, 
-                borderRadius: backgroundColor ? '0.25rem' : undefined,
-                fontSize: fontSize || undefined
-              }}
-            >
+          <Tag
+            className={finalClassName}
+            style={{ 
+              backgroundColor: backgroundColor || 'transparent', 
+              color: headlineTextColor || undefined, 
+              padding: backgroundColor ? '0.4rem 0.6rem' : undefined, 
+              borderRadius: backgroundColor ? '0.25rem' : undefined,
+              fontSize: fontSize || undefined
+            }}
+          >
             {IconComponent && <IconComponent className={`mr-1.5 shrink-0 ${THEME_COLORS.accentRed}`} />}
             {isEditing && onTextChange ? (
               <input 
@@ -612,8 +624,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
               />
             ) : ( styledText )}
-            </Tag>
-          </div>
+          </Tag>
           
           {/* Modern Settings Button */}
           {isEditing && onTextChange && (
@@ -647,16 +658,13 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       let recommendationClasses = "";
       if (isRecommendation && !suppressRecommendationStripe) {
         recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
-      } else if (!suppressRecommendationStripe) {
-        // Add red stripe to all sections
-        recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
       const styledText = parseAndStyleText(text);
 
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${recommendationClasses} ${finalMb} text-left group relative`}>
+          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
@@ -711,9 +719,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let containerClasses = `flex flex-col ${finalMb} `;
       if (hasRecommendation) {
-        containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
-      } else {
-        // Add red stripe to all list sections
         containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
 
@@ -1072,6 +1077,24 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const findOriginalIndex = (blockToFind: AnyContentBlock | HeadlineBlock | BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock): number => {
       return (dataToDisplay?.contentBlocks || []).findIndex(cb => cb === blockToFind);
   };
+
+  // Helper function to determine if a section should have a red stripe
+  const shouldSectionHaveStripe = (sectionItems: Array<AnyContentBlock | MiniSection>): boolean => {
+    // Don't apply stripe if section has less than 4 elements
+    if (sectionItems.length < 4) return false;
+    
+    // Don't apply stripe if section contains alerts or tables
+    const hasAlertsOrTables = sectionItems.some(item => {
+      if (item.type === 'mini_section') {
+        return item.list.type === 'alert';
+      }
+      return item.type === 'alert' || item.type === 'table';
+    });
+    
+    if (hasAlertsOrTables) return false;
+    
+    return true;
+  };
   
   const styledTextTitle = parseAndStyleText(dataToDisplay.textTitle);
 
@@ -1104,8 +1127,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
+                const hasStripe = item.headline.hasSectionStripe && shouldSectionHaveStripe(item.items);
                 return (
-                  <section key={index} className="mb-4 p-3 rounded-md text-left">
+                  <section key={index} className={`mb-4 p-3 rounded-md text-left ${hasStripe ? 'border-l-4 border-[#FF1414] pl-4' : ''}`}>
                     {!item._skipRenderHeadline && (
                       <RenderBlock
                         block={item.headline}
