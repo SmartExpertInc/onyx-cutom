@@ -466,7 +466,7 @@
                             <thead>
                               <tr>
                                 {% for header in block_data.headers %}
-                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:12px 24px; font-weight:600; text-align:left; font-family: var(--font-primary), var(--font-emoji);">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
+                                  <th style="border:1px solid #E5E7EB; background:#232B3A; color:#FFF; padding:8px 16px; font-weight:600; text-align:left; vertical-align:middle; font-family: var(--font-primary), var(--font-emoji);">{% set segments = header.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: bold; color: #FFF;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</th>
                                 {% endfor %}
                               </tr>
                             </thead>
@@ -474,7 +474,7 @@
                               {% for row in block_data.rows %}
                                 <tr style="background-color: {% if loop.index0 % 2 == 0 %}#FFFFFF{% else %}#F7F8FA{% endif %};">
                                   {% for cell in row %}
-                                    <td style="border:1px solid #E5E7EB; padding:12px 24px; vertical-align:top; color:#000000; font-family: var(--font-primary), var(--font-emoji);">
+                                    <td style="border:1px solid #E5E7EB; padding:8px 16px; vertical-align:middle; color:#000000; font-family: var(--font-primary), var(--font-emoji);">
                   {% set segments = cell.split('**') %}
                   {% for segment in segments %}
                     {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
