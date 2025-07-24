@@ -97,7 +97,7 @@
         .grey-section {
             background-color: #f4f5f6; 
             border-radius: 24px; 
-            padding: 24px; 
+            padding: 19px; 
             margin: 0 auto; 
             max-width: 100%; 
             page-break-inside: avoid;
@@ -121,12 +121,12 @@
         .mini-section-box .content-block-wrapper, .mini-section-box .paragraph-block { max-width: 100%; }
         .mini-section-box .list-block-wrapper { max-width: 100%; }
         .mini-section-box .list-block-wrapper li { font-size: var(--font-size-list-item); }
-        .mini-section-box .list-marker { margin-right: var(--space-xs); }
+        .mini-section-box .list-marker { margin-right: 20px; }
         .mini-section-box .list-marker .icon-svg { color: var(--color-primary-accent) !important; width: 0.7em; height: 0.7em; }
         
-        /* Add more spacing for custom bullet icons in mini-sections */
-        .mini-section-box .list-marker .icon-svg:not(.icon-new-bullet) {
-            margin-right: 20px;
+        /* Reduce spacing for default bullet icons in mini-sections */
+        .mini-section-box .list-marker .icon-svg.icon-new-bullet {
+            margin-right: 0;
         }
         .mini-section-box .list-block-wrapper > ul,
         .mini-section-box .list-block-wrapper > ol { margin-bottom: 0 !important; }
@@ -177,7 +177,7 @@
         
         .content-wrapper > .content-block-wrapper.type-bullet_list ul > li:not(:last-child) { margin-bottom: 2px; }
         .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker {
-            margin-right: var(--space-xs); 
+            margin-right: 20px; 
             flex-shrink: 0;
         }
         
@@ -190,8 +190,13 @@
             display: block; 
         }
         
-        /* Add more spacing for custom bullet icons (not default dots) */
-        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker .icon-svg:not(.icon-new-bullet) {
+        /* Reduce spacing for default bullet icons */
+        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker .icon-svg.icon-new-bullet {
+            margin-right: 0;
+        }
+        
+        /* Ensure the list-marker itself has more spacing for custom icons */
+        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker:has(.icon-svg:not(.icon-new-bullet)) {
             margin-right: 20px;
         }
         .list-item-content-wrapper ul > li > .list-marker .icon-svg { 
