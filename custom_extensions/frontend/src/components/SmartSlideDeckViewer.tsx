@@ -111,27 +111,61 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
+        // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
+        console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
+        deck.slides.forEach((slide: any, index: number) => {
+          console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
+            slideId: slide.slideId,
+            templateId: slide.templateId,
+            props: slide.props,
+            backgroundColor: slide.props?.backgroundColor,
+            titleColor: slide.props?.titleColor,
+            contentColor: slide.props?.contentColor,
+            subtitleColor: slide.props?.subtitleColor
+          });
+        });
+
         // Update existing slides with new default colors if they don't have backgroundColor set
         const updatedSlides = deck.slides.map((slide: any) => {
           const updatedProps = { ...slide.props };
           
+          // 🔍 LOG: Before color updates
+          console.log(`🎨 BEFORE color update - Slide ${slide.slideId}:`, {
+            backgroundColor: updatedProps.backgroundColor,
+            titleColor: updatedProps.titleColor,
+            contentColor: updatedProps.contentColor,
+            subtitleColor: updatedProps.subtitleColor
+          });
+          
           // Force update background color to new default
           if (!updatedProps.backgroundColor || updatedProps.backgroundColor === '#ffffff' || updatedProps.backgroundColor === '#110c35') {
+            console.log(`🔄 Updating backgroundColor from "${updatedProps.backgroundColor}" to "#261c4e"`);
             updatedProps.backgroundColor = '#261c4e';
           }
           
           // Force update title color
           if (!updatedProps.titleColor || updatedProps.titleColor === '#1a1a1a') {
+            console.log(`🔄 Updating titleColor from "${updatedProps.titleColor}" to "#ffffff"`);
             updatedProps.titleColor = '#ffffff';
           }
           
           // Force update content/subtitle colors
           if (!updatedProps.contentColor || updatedProps.contentColor === '#333333') {
+            console.log(`🔄 Updating contentColor from "${updatedProps.contentColor}" to "#d9e1ff"`);
             updatedProps.contentColor = '#d9e1ff';
           }
           if (!updatedProps.subtitleColor || updatedProps.subtitleColor === '#666666' || updatedProps.subtitleColor === '#cccccc') {
+            console.log(`🔄 Updating subtitleColor from "${updatedProps.subtitleColor}" to "#d9e1ff"`);
             updatedProps.subtitleColor = '#d9e1ff';
           }
+          
+          // 🔍 LOG: After color updates
+          console.log(`✅ AFTER color update - Slide ${slide.slideId}:`, {
+            backgroundColor: updatedProps.backgroundColor,
+            titleColor: updatedProps.titleColor,
+            contentColor: updatedProps.contentColor,
+            subtitleColor: updatedProps.subtitleColor
+          });
           
           return {
             ...slide,
@@ -148,6 +182,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         
         // Save the updated colors back to parent
         if (onSave && (JSON.stringify(updatedDeck) !== JSON.stringify(deck))) {
+          console.log('💾 Saving updated colors back to parent');
           onSave(updatedDeck as ComponentBasedSlideDeck);
         }
         
