@@ -111,49 +111,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
-        // Update existing slides with new default colors if they don't have backgroundColor set
-        const updatedSlides = deck.slides.map((slide: any) => {
-          const updatedProps = { ...slide.props };
-          
-          // Force update background color to new default
-          if (!updatedProps.backgroundColor || updatedProps.backgroundColor === '#ffffff' || updatedProps.backgroundColor === '#110c35') {
-            updatedProps.backgroundColor = '#261c4e';
-          }
-          
-          // Force update title color
-          if (!updatedProps.titleColor || updatedProps.titleColor === '#1a1a1a') {
-            updatedProps.titleColor = '#ffffff';
-          }
-          
-          // Force update content/subtitle colors
-          if (!updatedProps.contentColor || updatedProps.contentColor === '#333333') {
-            updatedProps.contentColor = '#d9e1ff';
-          }
-          if (!updatedProps.subtitleColor || updatedProps.subtitleColor === '#666666' || updatedProps.subtitleColor === '#cccccc') {
-            updatedProps.subtitleColor = '#d9e1ff';
-          }
-          
-          return {
-            ...slide,
-            props: updatedProps
-          };
-        });
-
-        const updatedDeck = {
-          ...deck,
-          slides: updatedSlides
-        };
-
-        setComponentDeck(updatedDeck as ComponentBasedSlideDeck);
+        // Set the deck directly since AI now generates with correct colors
+        setComponentDeck(deck as ComponentBasedSlideDeck);
         
-        // Save the updated colors back to parent
-        if (onSave && (JSON.stringify(updatedDeck) !== JSON.stringify(deck))) {
-          onSave(updatedDeck as ComponentBasedSlideDeck);
-        }
-        
-        console.log('✅ Component-based slides loaded and updated with new colors:', {
-          slideCount: updatedDeck.slides.length,
-          templates: updatedDeck.slides.map((s: any) => s.templateId)
+        console.log('✅ Component-based slides loaded successfully:', {
+          slideCount: deck.slides.length,
+          templates: deck.slides.map((s: any) => s.templateId)
         });
         
       } catch (err) {
@@ -258,7 +221,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         fontSize: '16px',
         color: '#6b7280'
       }}>
-        <div>
+                 <div>
           <div style={{ marginBottom: '12px' }}>🔄 Loading slides...</div>
         </div>
       </div>
@@ -330,20 +293,20 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           )}
         </div>
 
-        {/* Format Info (if enabled) */}
-        {showFormatInfo && (
-          <div style={{
-            padding: '12px 16px',
-            backgroundColor: '#f0f9ff',
-            border: '1px solid #bae6fd',
-            borderRadius: '8px',
+      {/* Format Info (if enabled) */}
+      {showFormatInfo && (
+        <div style={{
+          padding: '12px 16px',
+          backgroundColor: '#f0f9ff',
+          border: '1px solid #bae6fd',
+          borderRadius: '8px',
             marginTop: '12px',
-            fontSize: '14px',
-            color: '#0369a1'
-          }}>
+          fontSize: '14px',
+          color: '#0369a1'
+        }}>
             <span>📊 Slide Deck Info:</span> Component-based format • {componentDeck.slides.length} slides
-          </div>
-        )}
+        </div>
+      )}
       </div>
 
       {/* Main Content Area */}
@@ -385,12 +348,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
               {/* Component-based slide content */}
               <div className="slide-content">
-                <ComponentBasedSlideDeckRenderer
+        <ComponentBasedSlideDeckRenderer
                   slides={[slide]}
-                  isEditable={isEditable}
-                  onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-                  onTemplateChange={isEditable ? handleTemplateChange : undefined}
-                />
+          isEditable={isEditable}
+          onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+          onTemplateChange={isEditable ? handleTemplateChange : undefined}
+        />
               </div>
             </div>
           ))}
@@ -400,4 +363,4 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   );
 };
 
-export default SmartSlideDeckViewer;
+export default SmartSlideDeckViewer; 
