@@ -62,6 +62,8 @@
         }
 
         @page { margin-top: 0mm; margin-bottom: 0mm; margin-left: 0mm; margin-right: 0mm; size: A4; }
+        @page :first { margin-top: 0mm; }
+        @page :not(:first) { margin-top: 20mm; }
         body {
             font-family: var(--font-primary), var(--font-emoji); margin: 0; padding: 0;
             background-color: var(--color-background-page); color: var(--color-text-default);
