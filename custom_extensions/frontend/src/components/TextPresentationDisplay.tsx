@@ -216,7 +216,7 @@ const BlockSettingsModal = ({
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
-              checked={!!headlineBlock.isImportant}
+              checked={headlineBlock.isImportant === true || headlineBlock.isImportant === 'true'}
               onChange={e => onTextChange?.(fieldPath('isImportant'), String(e.target.checked))}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
@@ -265,7 +265,7 @@ const BlockSettingsModal = ({
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
-              checked={!!headlineBlock.hasSectionStripe}
+              checked={headlineBlock.hasSectionStripe === true || headlineBlock.hasSectionStripe === 'true'}
               onChange={e => onTextChange?.(fieldPath('hasSectionStripe'), String(e.target.checked))}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
@@ -285,7 +285,7 @@ const BlockSettingsModal = ({
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
-              checked={!!paragraphBlock.isRecommendation}
+              checked={paragraphBlock.isRecommendation === true || paragraphBlock.isRecommendation === 'true'}
               onChange={e => onTextChange?.(fieldPath('isRecommendation'), String(e.target.checked))}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
@@ -564,7 +564,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   switch (block.type) {
     case 'headline': {
       const { level, text, backgroundColor, textColor: headlineTextColor, iconName, isImportant, fontSize } = block as HeadlineBlock;
-      console.log('Rendering headline with fontSize:', fontSize, 'for text:', text);
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       const IconComponent = iconName ? iconMap[iconName] : null;
       
@@ -657,7 +656,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
       
       let recommendationClasses = "";
-      if (isRecommendation && !suppressRecommendationStripe) {
+      if ((isRecommendation === true || isRecommendation === 'true') && !suppressRecommendationStripe) {
         recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
       const styledText = parseAndStyleText(text);
@@ -665,7 +664,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
+          <div className={`${(isRecommendation === true || isRecommendation === 'true') ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
@@ -699,7 +698,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const currentBlockIconName = block.type === 'bullet_list' ? (block as BulletListBlock).iconName : undefined;
       const { items, fontSize } = block; 
       const isNumbered = block.type === 'numbered_list';
-      const hasRecommendation = !isNumbered && items.some(item => typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation);
+      const hasRecommendation = !isNumbered && items.some(item => typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && ((item as ParagraphBlock).isRecommendation === true || (item as ParagraphBlock).isRecommendation === 'true'));
       
       let BulletIconToRender: React.ElementType | null = NewBulletIcon; 
       if (block.type === 'bullet_list') {
@@ -740,7 +739,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
-              const isRecommendationPara = !itemIsString && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation;
+              const isRecommendationPara = !itemIsString && (item as AnyContentBlock).type === 'paragraph' && ((item as ParagraphBlock).isRecommendation === true || (item as ParagraphBlock).isRecommendation === 'true');
               
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
@@ -1059,13 +1058,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         if (contentBlocksToProcess[i].type === 'section_break') { i++; continue; }
         const innerBlock = contentBlocksToProcess[i];
         const innerNextBlock = (i + 1 < contentBlocksToProcess.length) ? contentBlocksToProcess[i+1] : null;
-        if (innerBlock.type === 'headline' && ((innerBlock as HeadlineBlock).level === 3 || (innerBlock as HeadlineBlock).level === 4) && (innerBlock as HeadlineBlock).isImportant === true && innerNextBlock && (innerNextBlock.type === 'bullet_list' || innerNextBlock.type === 'numbered_list' || innerNextBlock.type === 'paragraph' || innerNextBlock.type === 'alert')) {
+        if (innerBlock.type === 'headline' && ((innerBlock as HeadlineBlock).level === 3 || (innerBlock as HeadlineBlock).level === 4) && ((innerBlock as HeadlineBlock).isImportant === true || (innerBlock as HeadlineBlock).isImportant === 'true') && innerNextBlock && (innerNextBlock.type === 'bullet_list' || innerNextBlock.type === 'numbered_list' || innerNextBlock.type === 'paragraph' || innerNextBlock.type === 'alert')) {
           sectionItemsInternal.push({ type: "mini_section", headline: innerBlock as HeadlineBlock, list: innerNextBlock as BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock });
           i += 2; 
         } else { sectionItemsInternal.push(innerBlock); i++;  }
       }
       renderableItems.push({ type: "major_section", headline: majorSectionHeadline, items: sectionItemsInternal, _skipRenderHeadline: headlineToSkipThisIteration });
-    } else if (currentBlock.type === 'headline' && ((currentBlock as HeadlineBlock).level === 3 || (currentBlock as HeadlineBlock).level === 4) && (currentBlock as HeadlineBlock).isImportant === true && nextBlock && (nextBlock.type === 'bullet_list' || nextBlock.type === 'numbered_list' || nextBlock.type === 'paragraph' || nextBlock.type === 'alert')) {
+    } else if (currentBlock.type === 'headline' && ((currentBlock as HeadlineBlock).level === 3 || (currentBlock as HeadlineBlock).level === 4) && ((currentBlock as HeadlineBlock).isImportant === true || (currentBlock as HeadlineBlock).isImportant === 'true') && nextBlock && (nextBlock.type === 'bullet_list' || nextBlock.type === 'numbered_list' || nextBlock.type === 'paragraph' || nextBlock.type === 'alert')) {
       renderableItems.push({ type: "mini_section", headline: currentBlock as HeadlineBlock, list: nextBlock as BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock });
       i += 2; 
     } else {
@@ -1081,11 +1080,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   // Helper function to determine if a section should have a red stripe
   const shouldSectionHaveStripe = (sectionItems: Array<AnyContentBlock | MiniSection>): boolean => {
-    console.log('shouldSectionHaveStripe called with items:', sectionItems.length, 'items:', sectionItems.map(item => item.type));
-    
     // Don't apply stripe if section has less than 4 elements
     if (sectionItems.length < 4) {
-      console.log('Section has less than 4 items, no stripe');
       return false;
     }
     
@@ -1098,11 +1094,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     });
     
     if (hasAlertsOrTables) {
-      console.log('Section contains alerts or tables, no stripe');
       return false;
     }
     
-    console.log('Section qualifies for stripe');
     return true;
   };
   
@@ -1137,14 +1131,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
-                const hasStripe = item.headline.hasSectionStripe && shouldSectionHaveStripe(item.items);
-                console.log('Section stripe debug:', {
-                  headlineText: item.headline.text,
-                  hasSectionStripe: item.headline.hasSectionStripe,
-                  shouldSectionHaveStripe: shouldSectionHaveStripe(item.items),
-                  finalHasStripe: hasStripe,
-                  itemCount: item.items.length
-                });
+                const hasStripe = (item.headline.hasSectionStripe === true || item.headline.hasSectionStripe === 'true') && shouldSectionHaveStripe(item.items);
                 return (
                   <section key={index} className={`mb-4 p-3 rounded-md text-left ${hasStripe ? 'border-l-4 border-[#FF1414] pl-4' : ''}`}>
                     {!item._skipRenderHeadline && (

@@ -8,15 +8,15 @@ export interface HeadlineBlock {
   iconName?: string | null;
   backgroundColor?: string | null;
   textColor?: string | null;
-  isImportant?: boolean;
+  isImportant?: boolean | string;
   fontSize?: string | null;
-  hasSectionStripe?: boolean;
+  hasSectionStripe?: boolean | string;
 }
 
 export interface ParagraphBlock {
   type: 'paragraph';
   text: string;
-  isRecommendation?: boolean;
+  isRecommendation?: boolean | string;
   fontSize?: string | null;
 }
 
