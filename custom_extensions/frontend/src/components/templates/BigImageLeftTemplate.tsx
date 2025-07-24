@@ -107,13 +107,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
     <div style={slideStyles}>
       {/* Left side - Image */}
       <div style={imageContainerStyles}>
-        {imageUrl && imageUrl !== 'https://via.placeholder.com/600x400?text=Your+Image' ? (
-          <img 
-            src={imageUrl} 
-            alt={imageAlt || title}
-            style={imageStyles}
-          />
-        ) : (
+       {(
           <div style={placeholderStyles}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>
             <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
