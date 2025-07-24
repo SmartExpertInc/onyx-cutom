@@ -255,7 +255,7 @@
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li { display: flex; align-items: center; gap: 30px; }
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li:not(:last-child) { margin-bottom: var(--space-sm); }
         .list-number-circle { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background-color: var(--color-primary-accent); color: white; font-size: 9pt; font-weight: var(--font-weight-medium); margin-right: 8px; }
-        .list-number-circle::before { content: counter(item); counter-increment: item; }
+        .list-number-circle::before { content: counter(item); counter-increment: item; font-size: inherit; }
         .content-wrapper > .content-block-wrapper.type-numbered_list > .list-block-wrapper > ol > li > .list-content-column { display: flex; flex-direction: column; width: 100%; }
 
         .content-wrapper > .content-block-wrapper.type-numbered_list ol > li::before { display: none; content: ""; }
@@ -475,7 +475,7 @@
                 <div class="content-block-wrapper type-{{block_type}}">
                     {% if block_type == 'headline' %}
                         <div class="headline-block h{{ level }}"
-                             style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %} {% if block_data.textColor %}color: {{ block_data.textColor }}; fill: {{block_data.textColor}};{% elif is_in_mini_section %}color: var(--color-primary-accent); fill: var(--color-primary-accent);{% endif %}">
+                             style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %} {% if block_data.textColor %}color: {{ block_data.textColor }}; fill: {{block_data.textColor}};{% elif is_in_mini_section %}color: var(--color-primary-accent); fill: var(--color-primary-accent);{% endif %} {% if block_data.fontSize %}font-size: {{ block_data.fontSize }};{% endif %}">
                             {% if is_in_mini_section and not block_data.iconName %}{{ render_icon_svg_macro('info') }}{% endif %}
                             {{ render_icon_svg_macro(block_data.iconName) }}
                             <span>{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</span>
@@ -510,7 +510,7 @@
       </table>
     </div>
 {% elif block_type == 'paragraph' %}
-    <p class="paragraph-block {{ 'recommendation' if block_data.isRecommendation else '' }}">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
+    <p class="paragraph-block {{ 'recommendation' if block_data.isRecommendation else '' }}" {% if block_data.fontSize %}style="font-size: {{ block_data.fontSize }};"{% endif %}>{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
 {% elif block_type == 'bullet_list' or block_type == 'numbered_list' %}
     {% set has_recommendation = false %}
     {% if block_type == 'bullet_list' and block_data.get('items') is iterable and block_data.get('items') is not string %}
@@ -520,7 +520,7 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-    <div class="list-block-wrapper {{block_type}} depth-{{depth}} {% if has_recommendation %}has-recommendation{% endif %}">
+    <div class="list-block-wrapper {{block_type}} depth-{{depth}} {% if has_recommendation %}has-recommendation{% endif %}" {% if block_data.fontSize %}style="font-size: {{ block_data.fontSize }};"{% endif %}>
         {% if block_type == 'bullet_list' %}
             <ul>{{ render_list_items_recursive_macro(block_data.get('items'), block_type, block_data.iconName, depth, is_in_mini_section) }}</ul>
         {% else %} {# numbered_list #}
@@ -529,13 +529,13 @@
     </div>
 {% elif block_type == 'alert' %}
    <div class="alert-block alert-{{ block_data.alertType | default('info') }}"
-         style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %}{% if block_data.borderColor %}border-color: {{ block_data.borderColor }};{% endif %}{% if block_data.textColor %}color: {{ block_data.textColor }};{% endif %}">
+         style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %}{% if block_data.borderColor %}border-color: {{ block_data.borderColor }};{% endif %}{% if block_data.textColor %}color: {{ block_data.textColor }};{% endif %}{% if block_data.fontSize %}font-size: {{ block_data.fontSize }};{% endif %}">
         <div class="icon-container" style="{% if block_data.iconColor %}color: {{ block_data.iconColor }}; fill: {{ block_data.iconColor }};{% endif %}">
             {{ render_icon_svg_macro(block_data.iconName, 'alert-' + (block_data.alertType|default('info')) ) }}
         </div>
         <div class="text-container">
-            {% if block_data.title %}<div class="alert-title">{% set segments = alert_title_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>{% endif %}
-            <div class="alert-text">{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>
+            {% if block_data.title %}<div class="alert-title" {% if block_data.fontSize %}style="font-size: {{ block_data.fontSize }};"{% endif %}>{% set segments = alert_title_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>{% endif %}
+            <div class="alert-text" {% if block_data.fontSize %}style="font-size: {{ block_data.fontSize }};"{% endif %}>{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</div>
         </div>
     </div>
 {% elif block_type == 'section_break' %}
@@ -563,6 +563,9 @@
         {% endif %}
 
         {% set next_block_in_box_content = [false] %}
+        {% set current_section_items = [] %}
+        {% set current_section_has_stripe = false %}
+        
         {% for loop_index in range(blocks_to_render | length) %}
             {% set current_block_item = blocks_to_render[loop_index] %}
             {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
@@ -582,8 +585,47 @@
                             {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
                         {% endif %}
                     </div> </div>
-                {% else %} 
-                    {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% else %}
+                    {% set is_headline = current_block_item is mapping and current_block_item.get('type') == 'headline' %}
+                    {% set is_section_start = is_headline and current_block_item.get('level') in [2, 3] %}
+                    
+                    {% if is_section_start and current_section_items %}
+                        {# Render previous section with stripe if needed #}
+                        {% if current_section_has_stripe and current_section_items | length >= 4 %}
+                            <div class="section-with-stripe" style="border-left: 4px solid #FF1414; padding-left: 16px;">
+                                {% for item in current_section_items %}
+                                    {{ render_single_block_recursive_macro(item, 0) }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {% for item in current_section_items %}
+                                {{ render_single_block_recursive_macro(item, 0) }}
+                            {% endfor %}
+                        {% endif %}
+                        {% set current_section_items = [] %}
+                        {% set current_section_has_stripe = false %}
+                    {% endif %}
+                    
+                    {% if is_section_start %}
+                        {% set current_section_has_stripe = current_block_item.get('hasSectionStripe', false) %}
+                    {% endif %}
+                    
+                    {% set _ = current_section_items.append(current_block_item) %}
+                    
+                    {% if is_last_block_overall and current_section_items %}
+                        {# Render final section #}
+                        {% if current_section_has_stripe and current_section_items | length >= 4 %}
+                            <div class="section-with-stripe" style="border-left: 4px solid #FF1414; padding-left: 16px;">
+                                {% for item in current_section_items %}
+                                    {{ render_single_block_recursive_macro(item, 0) }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {% for item in current_section_items %}
+                                {{ render_single_block_recursive_macro(item, 0) }}
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
                 {% endif %}
             {% endif %}
 

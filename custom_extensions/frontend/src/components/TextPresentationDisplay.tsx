@@ -564,6 +564,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   switch (block.type) {
     case 'headline': {
       const { level, text, backgroundColor, textColor: headlineTextColor, iconName, isImportant, fontSize } = block as HeadlineBlock;
+      console.log('Rendering headline with fontSize:', fontSize, 'for text:', text);
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       const IconComponent = iconName ? iconMap[iconName] : null;
       
@@ -1080,8 +1081,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   // Helper function to determine if a section should have a red stripe
   const shouldSectionHaveStripe = (sectionItems: Array<AnyContentBlock | MiniSection>): boolean => {
+    console.log('shouldSectionHaveStripe called with items:', sectionItems.length, 'items:', sectionItems.map(item => item.type));
+    
     // Don't apply stripe if section has less than 4 elements
     if (sectionItems.length < 4) {
+      console.log('Section has less than 4 items, no stripe');
       return false;
     }
     
@@ -1094,9 +1098,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     });
     
     if (hasAlertsOrTables) {
+      console.log('Section contains alerts or tables, no stripe');
       return false;
     }
     
+    console.log('Section qualifies for stripe');
     return true;
   };
   
@@ -1132,6 +1138,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const hasStripe = item.headline.hasSectionStripe && shouldSectionHaveStripe(item.items);
+                console.log('Section stripe debug:', {
+                  headlineText: item.headline.text,
+                  hasSectionStripe: item.headline.hasSectionStripe,
+                  shouldSectionHaveStripe: shouldSectionHaveStripe(item.items),
+                  finalHasStripe: hasStripe,
+                  itemCount: item.items.length
+                });
                 return (
                   <section key={index} className={`mb-4 p-3 rounded-md text-left ${hasStripe ? 'border-l-4 border-[#FF1414] pl-4' : ''}`}>
                     {!item._skipRenderHeadline && (
