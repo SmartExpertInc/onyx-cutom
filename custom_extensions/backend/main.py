@@ -287,11 +287,14 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-      "templateId": "hero-title-slide",
+      "templateId": "big-image-left",
       "props": {
         "title": "Welcome to the Lesson",
         "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
-        "author": "Course Instructor"
+        "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
+        "imageAlt": "Lesson introduction visual",
+        "imagePrompt": "A professional educational setting that represents the lesson topic",
+        "imageSize": "large"
         }
     },
     {
@@ -3950,7 +3953,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Multiple sections → use appropriate template (two-column, process-steps, etc.)
             - Always include `backgroundColor` prop (default: "#ffffff")
 
-            - First slide: Use `hero-title-slide` **or** `big-image-left` for introduction (choose `big-image-left` if потрібен сильний візуал)
+            - First slide: Use `big-image-left` for introduction by default (strong visual). Use `hero-title-slide` only if a text-focused intro is required.
             - Content with steps/process: Use `process-steps`
             - Content with bullet points: Use `bullet-points`
             - Content with two sections: Use `two-column`

@@ -209,17 +209,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: {
         type: 'color',
         label: 'Title Color',
-        default: '#1a1a1a'
+        default: '#ffffff'
       },
       contentColor: {
         type: 'color',
         label: 'Content Color',
-        default: '#333333'
+        default: '#d9e1ff'
       },
       backgroundColor: {
         type: 'color',
         label: 'Background Color',
-        default: '#ffffff'
+        default: '#261c4e'
       }
     }
   },
