@@ -99,6 +99,14 @@ const iconMap: { [key: string]: React.ElementType } = {
   chart: ChartIcon,
   clock: ClockIcon,
   globe: GlobeIcon,
+  // Add Lucide icon mappings for alerts to match PDF defaults
+  check: CheckCircle,
+  alertTriangle: AlertTriangle,
+  xCircle: XCircle,
+  // Add new-bullet for bullet lists
+  'new-bullet': NewBulletIcon,
+  // Add none for no icon
+  none: () => null,
 };
 
 const THEME_COLORS = {
@@ -130,13 +138,41 @@ const editingInputClass = "w-full p-1 bg-yellow-50 border border-yellow-300 roun
 const editingTextareaClass = `${editingInputClass} min-h-[50px] resize-y`;
 
 const getAlertColors = (alertType: AlertBlock['alertType']) => {
-    switch (alertType) {
-        case 'info': return { bgColor: THEME_COLORS.alertInfoBg, borderColor: THEME_COLORS.alertInfoBorder, textColor: THEME_COLORS.alertInfoText, iconColorClass: THEME_COLORS.alertInfoIcon, Icon: InfoIconLucide };
-        case 'success': return { bgColor: THEME_COLORS.alertSuccessBg, borderColor: THEME_COLORS.alertSuccessBorder, textColor: THEME_COLORS.alertSuccessText, iconColorClass: THEME_COLORS.alertSuccessIcon, Icon: CheckCircle };
-        case 'warning': return { bgColor: THEME_COLORS.alertWarningBg, borderColor: THEME_COLORS.alertWarningBorder, textColor: THEME_COLORS.alertWarningText, iconColorClass: THEME_COLORS.alertWarningIcon, Icon: AlertTriangle };
-        case 'danger': return { bgColor: THEME_COLORS.alertDangerBg, borderColor: THEME_COLORS.alertDangerBorder, textColor: THEME_COLORS.alertDangerText, iconColorClass: THEME_COLORS.alertDangerIcon, Icon: XCircle };
-        default: return { bgColor: THEME_COLORS.alertInfoBg, borderColor: THEME_COLORS.alertInfoBorder, textColor: THEME_COLORS.alertInfoText, iconColorClass: THEME_COLORS.alertInfoIcon, Icon: InfoIconLucide };
-      }
+  switch (alertType) {
+    case 'success':
+      return {
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-500',
+        textColor: 'text-green-800',
+        iconColorClass: 'text-green-500',
+        Icon: CheckCircle
+      };
+    case 'warning':
+      return {
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-500',
+        textColor: 'text-yellow-800',
+        iconColorClass: 'text-yellow-500',
+        Icon: AlertTriangle
+      };
+    case 'danger':
+      return {
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-500',
+        textColor: 'text-red-800',
+        iconColorClass: 'text-red-500',
+        Icon: XCircle
+      };
+    case 'info':
+    default:
+      return {
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-500',
+        textColor: 'text-blue-800',
+        iconColorClass: 'text-blue-500',
+        Icon: InfoIconLucide
+      };
+  }
 };
 
 interface RenderBlockProps { 
@@ -241,6 +277,28 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 label="Mark as Important Section"
                 help="Highlights this section visually. Use for key takeaways or goals."
               />
+              <div className="mt-1 mb-1">
+                <label className="font-medium text-gray-800 text-xs">Icon</label>
+                <select
+                  value={iconName || ''}
+                  onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
+                  className="border rounded px-1 py-0.5 text-xs bg-white ml-1"
+                  style={{ minWidth: 80 }}
+                >
+                  <option value="">None</option>
+                  <option value="info">Info</option>
+                  <option value="goal">Goal</option>
+                  <option value="star">Star</option>
+                  <option value="apple">Apple</option>
+                  <option value="award">Award</option>
+                  <option value="boxes">Boxes</option>
+                  <option value="calendar">Calendar</option>
+                  <option value="chart">Chart</option>
+                  <option value="clock">Clock</option>
+                  <option value="globe">Globe</option>
+                </select>
+                <span className="text-[10px] text-gray-400 ml-1">Icon for headline</span>
+              </div>
             </div>
           )}
         </div>
@@ -313,6 +371,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       return (
         <div className={containerClasses.trim()}>
+          {isEditing && onTextChange && block.type === 'bullet_list' && (
+            <div className="mt-1 mb-1">
+              <label className="font-medium text-gray-800 text-xs">List Icon</label>
+              <select
+                value={currentBlockIconName || ''}
+                onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
+                className="border rounded px-1 py-0.5 text-xs bg-white ml-1"
+                style={{ minWidth: 80 }}
+              >
+                <option value="">Default</option>
+                <option value="none">None</option>
+                <option value="info">Info</option>
+                <option value="goal">Goal</option>
+                <option value="star">Star</option>
+                <option value="apple">Apple</option>
+                <option value="award">Award</option>
+                <option value="boxes">Boxes</option>
+                <option value="calendar">Calendar</option>
+                <option value="chart">Chart</option>
+                <option value="clock">Clock</option>
+                <option value="globe">Globe</option>
+              </select>
+              <span className="text-[10px] text-gray-400 ml-1">Icon for list items</span>
+            </div>
+          )}
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
@@ -439,10 +522,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor } = block as AlertBlock;
       const { bgColor, borderColor: defaultBorderColor, textColor: defaultTextColor, iconColorClass, Icon } = getAlertColors(alertType);
       const effectiveTextColor = textColor || defaultTextColor;
+      
+      // Use custom icon if specified, otherwise use default for alert type
+      const AlertIconComponent = iconName ? iconMap[iconName] : Icon;
+      
       return (
         <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'}`} role="alert">
           <div className="flex">
-            <div className="py-1"><Icon className={`h-4 w-4 ${iconColorClass} mr-2`} /></div>
+            <div className="py-1">
+              <AlertIconComponent className={`h-4 w-4 ${iconColorClass} mr-2`} style={{ color: iconColor || undefined }} />
+            </div>
             <div className="flex-grow">
               {isEditing && onTextChange ? (
                 <>
@@ -479,15 +568,28 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     </div>
                     <div className="flex flex-col gap-0.5 min-w-[90px]">
                       <label className="font-medium text-gray-800 text-xs">Icon Name</label>
-                      <input
-                        type="text"
+                      <select
                         value={iconName || ''}
                         onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
                         className="border rounded px-1 py-0.5 text-xs bg-white"
-                        placeholder="iconName"
-                        style={{ minWidth: 60 }}
-                      />
-                      <span className="text-[10px] text-gray-400">Lucide/custom</span>
+                        style={{ minWidth: 80 }}
+                      >
+                        <option value="">Default</option>
+                        <option value="info">Info</option>
+                        <option value="check">Check</option>
+                        <option value="alertTriangle">Warning</option>
+                        <option value="xCircle">Error</option>
+                        <option value="goal">Goal</option>
+                        <option value="star">Star</option>
+                        <option value="apple">Apple</option>
+                        <option value="award">Award</option>
+                        <option value="boxes">Boxes</option>
+                        <option value="calendar">Calendar</option>
+                        <option value="chart">Chart</option>
+                        <option value="clock">Clock</option>
+                        <option value="globe">Globe</option>
+                      </select>
+                      <span className="text-[10px] text-gray-400">Custom icon</span>
                     </div>
                     <div className="flex flex-col gap-0.5 min-w-[70px]">
                       <label className="font-medium text-gray-800 text-xs">Bg</label>
@@ -741,7 +843,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                           const originalMiniListIndex = findOriginalIndex(subItem.list);
                           return (
-                            <div key={subIndex} className="p-3 my-4 border-l-2 border-[#FF1414] bg-white text-left">
+                            <div key={subIndex} className="p-3 my-4 bg-white border-l-2 border-[#FF1414] text-left">
                               <RenderBlock
                                 block={subItem.headline}
                                 isMiniSectionHeadline={true}
@@ -780,7 +882,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
-                  <div key={index} className="p-3 my-4 rounded-md bg-rose-50 border-l-4 border-rose-500 text-left">
+                  <div key={index} className="p-3 my-4 bg-white border-l-2 border-[#FF1414] text-left">
                     <RenderBlock
                       block={item.headline}
                       isMiniSectionHeadline={true}
