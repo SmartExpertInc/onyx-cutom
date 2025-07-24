@@ -210,9 +210,9 @@ const BlockSettingsModal = ({
   const renderHeadlineSettings = () => {
     const headlineBlock = block as HeadlineBlock;
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">Important Section</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Important Section</label>
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -225,11 +225,11 @@ const BlockSettingsModal = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Icon</label>
           <select
             value={headlineBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
             <option value="">No icon</option>
             <option value="info">ℹ️ Info</option>
@@ -244,6 +244,20 @@ const BlockSettingsModal = ({
             <option value="globe">🌍 Globe</option>
           </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <select
+            value={headlineBlock.level || 1}
+            onChange={e => onTextChange?.(fieldPath('level'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value={1}>Large (H1)</option>
+            <option value={2}>Medium (H2)</option>
+            <option value={3}>Small (H3)</option>
+            <option value={4}>Extra Small (H4)</option>
+          </select>
+        </div>
       </div>
     );
   };
@@ -251,16 +265,33 @@ const BlockSettingsModal = ({
   const renderParagraphSettings = () => {
     const paragraphBlock = block as ParagraphBlock;
     return (
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">Recommendation</label>
-        <div className="flex items-center space-x-3">
-          <input
-            type="checkbox"
-            checked={!!paragraphBlock.isRecommendation}
-            onChange={e => onTextChange?.(fieldPath('isRecommendation'), String(e.target.checked))}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <span className="text-sm text-gray-700">Mark as recommendation (adds red border)</span>
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Recommendation</label>
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              checked={!!paragraphBlock.isRecommendation}
+              onChange={e => onTextChange?.(fieldPath('isRecommendation'), String(e.target.checked))}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="text-sm text-gray-700">Mark as recommendation (adds red border)</span>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <select
+            value={paragraphBlock.fontSize || '10px'}
+            onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="8px">Extra Small (8px)</option>
+            <option value="10px">Small (10px)</option>
+            <option value="12px">Medium (12px)</option>
+            <option value="14px">Large (14px)</option>
+            <option value="16px">Extra Large (16px)</option>
+          </select>
         </div>
       </div>
     );
@@ -269,26 +300,43 @@ const BlockSettingsModal = ({
   const renderListSettings = () => {
     const listBlock = block as BulletListBlock;
     return (
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">List Icon</label>
-        <select
-          value={listBlock.iconName || ''}
-          onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
-        >
-          <option value="">Default bullet</option>
-          <option value="none">No icon</option>
-          <option value="info">ℹ️ Info</option>
-          <option value="goal">🎯 Goal</option>
-          <option value="star">⭐ Star</option>
-          <option value="apple">🍎 Apple</option>
-          <option value="award">🏆 Award</option>
-          <option value="boxes">📦 Boxes</option>
-          <option value="calendar">📅 Calendar</option>
-          <option value="chart">📊 Chart</option>
-          <option value="clock">⏰ Clock</option>
-          <option value="globe">🌍 Globe</option>
-        </select>
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">List Icon</label>
+          <select
+            value={listBlock.iconName || ''}
+            onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="">Default bullet</option>
+            <option value="none">No icon</option>
+            <option value="info">ℹ️ Info</option>
+            <option value="goal">🎯 Goal</option>
+            <option value="star">⭐ Star</option>
+            <option value="apple">🍎 Apple</option>
+            <option value="award">🏆 Award</option>
+            <option value="boxes">📦 Boxes</option>
+            <option value="calendar">📅 Calendar</option>
+            <option value="chart">📊 Chart</option>
+            <option value="clock">⏰ Clock</option>
+            <option value="globe">🌍 Globe</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <select
+            value={listBlock.fontSize || '10px'}
+            onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="8px">Extra Small (8px)</option>
+            <option value="10px">Small (10px)</option>
+            <option value="12px">Medium (12px)</option>
+            <option value="14px">Large (14px)</option>
+            <option value="16px">Extra Large (16px)</option>
+          </select>
+        </div>
       </div>
     );
   };
@@ -296,13 +344,13 @@ const BlockSettingsModal = ({
   const renderAlertSettings = () => {
     const alertBlock = block as AlertBlock;
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">Alert Type</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Alert Type</label>
           <select
             value={alertBlock.alertType}
             onChange={e => onTextChange?.(fieldPath('alertType'), e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
             <option value="info">ℹ️ Info</option>
             <option value="success">✅ Success</option>
@@ -312,11 +360,11 @@ const BlockSettingsModal = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">Custom Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Custom Icon</label>
           <select
             value={alertBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
             <option value="">Use default for alert type</option>
             <option value="info">ℹ️ Info</option>
@@ -337,41 +385,56 @@ const BlockSettingsModal = ({
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Background Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">Background Color</label>
             <input
               type="color"
               value={alertBlock.backgroundColor || '#ffffff'}
               onChange={e => onTextChange?.(fieldPath('backgroundColor'), e.target.value)}
-              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+              className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Border Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">Border Color</label>
             <input
               type="color"
               value={alertBlock.borderColor || '#000000'}
               onChange={e => onTextChange?.(fieldPath('borderColor'), e.target.value)}
-              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+              className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Text Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">Text Color</label>
             <input
               type="color"
               value={alertBlock.textColor || '#000000'}
               onChange={e => onTextChange?.(fieldPath('textColor'), e.target.value)}
-              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+              className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Icon Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">Icon Color</label>
             <input
               type="color"
               value={alertBlock.iconColor || '#000000'}
               onChange={e => onTextChange?.(fieldPath('iconColor'), e.target.value)}
-              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+              className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <select
+            value={alertBlock.fontSize || '10px'}
+            onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="8px">Extra Small (8px)</option>
+            <option value="10px">Small (10px)</option>
+            <option value="12px">Medium (12px)</option>
+            <option value="14px">Large (14px)</option>
+            <option value="16px">Extra Large (16px)</option>
+          </select>
         </div>
       </div>
     );
@@ -411,16 +474,16 @@ const BlockSettingsModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto border border-gray-100" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             {getBlockIcon()}
-            <h2 className="text-lg font-semibold text-gray-900">{getBlockTitle()}</h2>
+            <h2 className="text-xl font-bold text-gray-900">{getBlockTitle()}</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -433,7 +496,7 @@ const BlockSettingsModal = ({
         <div className="flex justify-end p-6 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
           >
             Close
           </button>
@@ -565,9 +628,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       );
     }
     case 'paragraph': { 
-      const { text, isRecommendation } = block as ParagraphBlock;
+      const { text, isRecommendation, fontSize } = block as ParagraphBlock;
       const isTopLevelParagraph = depth === 0;
-      let paragraphClasses = `text-black text-[10px] leading-normal text-left`; 
+      let paragraphClasses = `text-black leading-normal text-left`; 
       if (isTopLevelParagraph) paragraphClasses += ` w-full`; 
       const defaultMb = depth > 0 ? 'mb-1' : 'mb-2';
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
@@ -585,7 +648,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
-              className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal text-black text-left`} 
+              className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} leading-normal text-black text-left`} 
+              style={{ fontSize: fontSize || '10px' }}
             />
             
             {/* Modern Settings Button */}
@@ -607,12 +671,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           </div>
         );
       }
-      return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()}>{styledText}</p> );
+      return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '10px' }}>{styledText}</p> );
     }
     case 'bullet_list': 
     case 'numbered_list': {
       const currentBlockIconName = block.type === 'bullet_list' ? (block as BulletListBlock).iconName : undefined;
-      const { items } = block; 
+      const { items, fontSize } = block; 
       const isNumbered = block.type === 'numbered_list';
       const hasRecommendation = !isNumbered && items.some(item => typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation);
       
@@ -651,7 +715,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </button>
           )}
           
-          <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`}>
+          <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
@@ -782,7 +846,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       );
     }
     case 'alert': {
-      const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor } = block as AlertBlock;
+      const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor, fontSize } = block as AlertBlock;
       const { bgColor, borderColor: defaultBorderColor, textColor: defaultTextColor, iconColorClass, Icon } = getAlertColors(alertType);
       const effectiveTextColor = textColor || defaultTextColor;
       
@@ -805,19 +869,21 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       onChange={e => handleInputChangeEvent(fieldPath('title'), e)}
                       className={`${editingInputClass} font-bold mb-1`}
                       placeholder="Alert title"
+                      style={{ fontSize: fontSize || '10px' }}
                     />
                   )}
                   <textarea
                     value={text}
                     onChange={e => handleInputChangeEvent(fieldPath('text'), e)}
-                    className={`${editingTextareaClass} text-xs mb-2`}
+                    className={`${editingTextareaClass} mb-2`}
                     placeholder="Alert text"
+                    style={{ fontSize: fontSize || '10px' }}
                   />
                 </>
               ) : (
                 <>
-                  {title && <p className={`font-bold`} style={{ color: effectiveTextColor }}>{title}</p>}
-                  <p className={`text-xs`} style={{ color: effectiveTextColor }}>{text}</p>
+                  {title && <p className={`font-bold`} style={{ color: effectiveTextColor, fontSize: fontSize || '10px' }}>{title}</p>}
+                  <p style={{ color: effectiveTextColor, fontSize: fontSize || '10px' }}>{text}</p>
                 </>
               )}
             </div>

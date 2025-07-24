@@ -9,12 +9,14 @@ export interface HeadlineBlock {
   backgroundColor?: string | null;
   textColor?: string | null;
   isImportant?: boolean;
+  fontSize?: string | null;
 }
 
 export interface ParagraphBlock {
   type: 'paragraph';
   text: string;
   isRecommendation?: boolean;
+  fontSize?: string | null;
 }
 
 export interface AlertBlock {
@@ -27,6 +29,7 @@ export interface AlertBlock {
   borderColor?: string | null;
   textColor?: string | null;
   iconColor?: string | null;
+  fontSize?: string | null;
 }
 
 export interface SectionBreakBlock {
@@ -60,11 +63,13 @@ export interface BulletListBlock {
   type: 'bullet_list';
   items: ListItem[];
   iconName?: string | null; // Specific to BulletListBlock
+  fontSize?: string | null;
 }
 
 export interface NumberedListBlock {
   type: 'numbered_list';
   items: ListItem[];
+  fontSize?: string | null;
   // NumberedListBlock does not have its own iconName in the Pydantic model.
 }
 
