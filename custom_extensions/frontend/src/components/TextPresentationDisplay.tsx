@@ -778,12 +778,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               if (isEditing && onTextChange && itemIsString) {
                 return (
                   <li key={index} className="flex items-start">
-                    {BulletIconToRender && !isNumbered && <BulletIconToRender />}
+                    {BulletIconToRender && !isNumbered && (
+                      <div className="flex-shrink-0 mr-3">
+                        <BulletIconToRender />
+                      </div>
+                    )}
                     <input
                       type="text"
                       value={item}
                       onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                      className={`${editingInputClass} ml-2 w-full`}
+                      className={`${editingInputClass} w-full`}
                     />
                   </li>
                 );
@@ -797,7 +801,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   key={index}
                   className={`flex items-start text-black text-xs leading-tight ${nestedIndentation}`}
                 >
-                  {!isNumbered && BulletIconToRender && <BulletIconToRender />}
+                  {!isNumbered && BulletIconToRender && (
+                    <div className="flex-shrink-0 mr-3">
+                      <BulletIconToRender />
+                    </div>
+                  )}
                   <div className="flex-grow">
                     {itemIsString ? (
                         <span className={isNumbered ? 'ml-1' : ''}>{styledItemText}</span>
