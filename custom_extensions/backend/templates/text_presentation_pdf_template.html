@@ -54,7 +54,7 @@
             --list-number-font-size: 11pt;
 
             --space-xxs: 2px; --space-xs: 4px; --space-sm: 8px; --space-md: 12px;
-            --space-lg: 18px; --space-xl: 24px; --space-2xl: 32px; --space-3xl: 48px;
+            --space-lg: 18px; --space-xl: 26px; --space-2xl: 32px; --space-3xl: 48px;
             --content-max-width-constrained: 75%;
             
             --color-alert-text: #000000;
@@ -104,8 +104,8 @@
         }
         /* --- Mini-section (important) box: simple vertical red line, no curls, no background --- */
         .mini-section-box-wrapper {
-            margin-top: calc(var(--space-xl) * 1.3);
-            margin-bottom: calc(var(--space-xl) * 1.3);
+            margin-top: var(--space-xl);
+            margin-bottom: var(--space-xl);
             page-break-inside: avoid;
         }
         .mini-section-box {
@@ -156,7 +156,7 @@
         .icon-svg { display: inline-block; vertical-align: middle; width: 1em; height: 1em; flex-shrink: 0; }
         .icon-svg.icon-new-bullet { fill: currentColor; stroke: none; }
 
-        .content-block-wrapper { margin-bottom: calc(var(--space-sm) * 1.3); text-align: left; } 
+        .content-block-wrapper { margin-bottom: var(--space-sm); text-align: left; } 
         .content-block-wrapper:last-child { margin-bottom: 0; }
 
         .headline-block { 
@@ -321,17 +321,6 @@
         .headline-block, .alert-block, li, .paragraph-block { page-break-inside: avoid; }
         .headline-block.h2 { page-break-before: auto; page-break-after: avoid; }
         hr.content-section-divider { page-break-before: auto; page-break-after: avoid;}
-        
-        /* Add padding before elements that appear after page breaks */
-        .headline-block { margin-top: 20px; }
-        .headline-block.h1 { margin-top: 20px; }
-        .headline-block.h2 { margin-top: 20px; }
-        .headline-block.h3 { margin-top: 20px; }
-        .headline-block.h4 { margin-top: 20px; }
-        .paragraph-block { margin-top: 20px; }
-        .alert-block { margin-top: 20px; }
-        .list-block-wrapper { margin-top: 20px; }
-        .table-block-wrapper { margin-top: 20px; }
     </style>
 </head>
 <body>
