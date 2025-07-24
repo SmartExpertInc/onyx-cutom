@@ -620,6 +620,7 @@
                                 {% set block = blocks_to_render[inner_block_index] %}
                                 {% if block is mapping and (block.get('type') == 'headline' or block.get('type') == 'table' or block.get('type') == 'alert') %}
                                     {% set should_continue = false %}
+                                    {% set last_processed_index = inner_block_index - 1 %}
                                 {% else %}
                                     {{ render_single_block_recursive_macro(block, 0, is_in_mini_section=true) }}
                                     {% set last_processed_index = inner_block_index %}
