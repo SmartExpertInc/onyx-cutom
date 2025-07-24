@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
@@ -8,6 +8,7 @@ import {
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
+  Settings, X, Palette, Type, List, AlertCircle
 } from 'lucide-react';
 import { locales } from '@/locales';
 
@@ -188,6 +189,276 @@ interface RenderBlockProps {
   suppressRecommendationStripe?: boolean;
 }
 
+// Modern Settings Modal Component
+const BlockSettingsModal = ({ 
+  isOpen, 
+  onClose, 
+  block, 
+  onTextChange, 
+  basePath 
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  block: AnyContentBlock;
+  onTextChange?: (path: (string | number)[], newText: string) => void;
+  basePath: (string | number)[];
+}) => {
+  const fieldPath = (fieldKey: string) => [...basePath, fieldKey];
+  
+  if (!isOpen) return null;
+
+  const renderHeadlineSettings = () => {
+    const headlineBlock = block as HeadlineBlock;
+    return (
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">Important Section</label>
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              checked={!!headlineBlock.isImportant}
+              onChange={e => onTextChange?.(fieldPath('isImportant'), String(e.target.checked))}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="text-sm text-gray-700">Mark as important section (adds visual emphasis)</span>
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">Icon</label>
+          <select
+            value={headlineBlock.iconName || ''}
+            onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="">No icon</option>
+            <option value="info">ℹ️ Info</option>
+            <option value="goal">🎯 Goal</option>
+            <option value="star">⭐ Star</option>
+            <option value="apple">🍎 Apple</option>
+            <option value="award">🏆 Award</option>
+            <option value="boxes">📦 Boxes</option>
+            <option value="calendar">📅 Calendar</option>
+            <option value="chart">📊 Chart</option>
+            <option value="clock">⏰ Clock</option>
+            <option value="globe">🌍 Globe</option>
+          </select>
+        </div>
+      </div>
+    );
+  };
+
+  const renderParagraphSettings = () => {
+    const paragraphBlock = block as ParagraphBlock;
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-900 mb-2">Recommendation</label>
+        <div className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            checked={!!paragraphBlock.isRecommendation}
+            onChange={e => onTextChange?.(fieldPath('isRecommendation'), String(e.target.checked))}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <span className="text-sm text-gray-700">Mark as recommendation (adds red border)</span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderListSettings = () => {
+    const listBlock = block as BulletListBlock;
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-900 mb-2">List Icon</label>
+        <select
+          value={listBlock.iconName || ''}
+          onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+        >
+          <option value="">Default bullet</option>
+          <option value="none">No icon</option>
+          <option value="info">ℹ️ Info</option>
+          <option value="goal">🎯 Goal</option>
+          <option value="star">⭐ Star</option>
+          <option value="apple">🍎 Apple</option>
+          <option value="award">🏆 Award</option>
+          <option value="boxes">📦 Boxes</option>
+          <option value="calendar">📅 Calendar</option>
+          <option value="chart">📊 Chart</option>
+          <option value="clock">⏰ Clock</option>
+          <option value="globe">🌍 Globe</option>
+        </select>
+      </div>
+    );
+  };
+
+  const renderAlertSettings = () => {
+    const alertBlock = block as AlertBlock;
+    return (
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">Alert Type</label>
+          <select
+            value={alertBlock.alertType}
+            onChange={e => onTextChange?.(fieldPath('alertType'), e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="info">ℹ️ Info</option>
+            <option value="success">✅ Success</option>
+            <option value="warning">⚠️ Warning</option>
+            <option value="danger">❌ Danger</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">Custom Icon</label>
+          <select
+            value={alertBlock.iconName || ''}
+            onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="">Use default for alert type</option>
+            <option value="info">ℹ️ Info</option>
+            <option value="check">✅ Check</option>
+            <option value="alertTriangle">⚠️ Warning</option>
+            <option value="xCircle">❌ Error</option>
+            <option value="goal">🎯 Goal</option>
+            <option value="star">⭐ Star</option>
+            <option value="apple">🍎 Apple</option>
+            <option value="award">🏆 Award</option>
+            <option value="boxes">📦 Boxes</option>
+            <option value="calendar">📅 Calendar</option>
+            <option value="chart">📊 Chart</option>
+            <option value="clock">⏰ Clock</option>
+            <option value="globe">🌍 Globe</option>
+          </select>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Background Color</label>
+            <input
+              type="color"
+              value={alertBlock.backgroundColor || '#ffffff'}
+              onChange={e => onTextChange?.(fieldPath('backgroundColor'), e.target.value)}
+              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Border Color</label>
+            <input
+              type="color"
+              value={alertBlock.borderColor || '#000000'}
+              onChange={e => onTextChange?.(fieldPath('borderColor'), e.target.value)}
+              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Text Color</label>
+            <input
+              type="color"
+              value={alertBlock.textColor || '#000000'}
+              onChange={e => onTextChange?.(fieldPath('textColor'), e.target.value)}
+              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Icon Color</label>
+            <input
+              type="color"
+              value={alertBlock.iconColor || '#000000'}
+              onChange={e => onTextChange?.(fieldPath('iconColor'), e.target.value)}
+              className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const getBlockTitle = () => {
+    switch (block.type) {
+      case 'headline': return 'Headline Settings';
+      case 'paragraph': return 'Paragraph Settings';
+      case 'bullet_list': return 'Bullet List Settings';
+      case 'numbered_list': return 'Numbered List Settings';
+      case 'alert': return 'Alert Settings';
+      default: return 'Block Settings';
+    }
+  };
+
+  const getBlockIcon = () => {
+    switch (block.type) {
+      case 'headline': return <Type className="w-5 h-5" />;
+      case 'paragraph': return <Type className="w-5 h-5" />;
+      case 'bullet_list': return <List className="w-5 h-5" />;
+      case 'numbered_list': return <List className="w-5 h-5" />;
+      case 'alert': return <AlertCircle className="w-5 h-5" />;
+      default: return <Settings className="w-5 h-5" />;
+    }
+  };
+
+  const renderSettings = () => {
+    switch (block.type) {
+      case 'headline': return renderHeadlineSettings();
+      case 'paragraph': return renderParagraphSettings();
+      case 'bullet_list': return renderListSettings();
+      case 'numbered_list': return renderListSettings();
+      case 'alert': return renderAlertSettings();
+      default: return <p className="text-gray-500">No settings available for this block type.</p>;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            {getBlockIcon()}
+            <h2 className="text-lg font-semibold text-gray-900">{getBlockTitle()}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-6">
+          {renderSettings()}
+        </div>
+        
+        <div className="flex justify-end p-6 border-t border-gray-200">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Add a simple Switch component for better UX
+const Switch = ({ checked, onChange, label, help }: { checked: boolean, onChange: (v: boolean) => void, label: string, help?: string }) => (
+  <label className="flex items-center gap-1 mt-1 mb-1 cursor-pointer select-none text-xs">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={e => onChange(e.target.checked)}
+      className="form-checkbox h-3 w-3 text-green-500 border-gray-300 rounded focus:ring-0"
+      style={{ minWidth: 12, minHeight: 12 }}
+    />
+    <span className="font-medium text-gray-800 text-xs">{label}</span>
+    {help && <span className="text-[10px] text-gray-400 ml-1">{help}</span>}
+  </label>
+);
+
+// Update RenderBlock to use the new modal approach
 const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   const { 
     block, depth = 0, isFirstInBox, isLastInBox, 
@@ -195,6 +466,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe
   } = props;
+
+  const [showSettings, setShowSettings] = useState(false);
 
   const fieldPath = (fieldKey: string) => [...basePath, fieldKey];
   const listItemPath = (itemIndex: number, fieldKey?: string) => {
@@ -253,7 +526,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const styledText = parseAndStyleText(text);
 
       return (
-        <div className="w-full">
+        <div className="w-full group relative">
           <Tag
             className={finalClassName}
             style={{ backgroundColor: backgroundColor || 'transparent', color: headlineTextColor || undefined , padding: backgroundColor ? '0.4rem 0.6rem' : undefined, borderRadius: backgroundColor ? '0.25rem' : undefined }}
@@ -269,38 +542,25 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               />
             ) : ( styledText )}
           </Tag>
+          
+          {/* Modern Settings Button */}
           {isEditing && onTextChange && (
-            <div className="mt-2 mb-2">
-              <Switch
-                checked={!!isImportant}
-                onChange={v => onTextChange(fieldPath('isImportant'), String(v))}
-                label="Mark as Important Section"
-                help="Highlights this section visually. Use for key takeaways or goals."
-              />
-              <div className="mt-1 mb-1">
-                <label className="font-medium text-gray-800 text-xs">Icon</label>
-                <select
-                  value={iconName || ''}
-                  onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
-                  className="border rounded px-1 py-0.5 text-xs bg-white ml-1"
-                  style={{ minWidth: 80 }}
-                >
-                  <option value="">None</option>
-                  <option value="info">Info</option>
-                  <option value="goal">Goal</option>
-                  <option value="star">Star</option>
-                  <option value="apple">Apple</option>
-                  <option value="award">Award</option>
-                  <option value="boxes">Boxes</option>
-                  <option value="calendar">Calendar</option>
-                  <option value="chart">Chart</option>
-                  <option value="clock">Clock</option>
-                  <option value="globe">Globe</option>
-                </select>
-                <span className="text-[10px] text-gray-400 ml-1">Icon for headline</span>
-              </div>
-            </div>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
+              title="Block settings"
+            >
+              <Settings className="w-4 h-4 text-gray-600" />
+            </button>
           )}
+          
+          <BlockSettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            block={block}
+            onTextChange={onTextChange}
+            basePath={basePath}
+          />
         </div>
       );
     }
@@ -321,20 +581,29 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left`}>
+          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
               className={`${editingTextareaClass} ${isTopLevelParagraph ? 'w-full' : 'w-full'} text-[10px] leading-normal text-black text-left`} 
             />
-            <div className="mt-2 mb-2">
-              <Switch
-                checked={!!isRecommendation}
-                onChange={v => onTextChange(fieldPath('isRecommendation'), String(v))}
-                label="Recommendation Paragraph"
-                help="Visually marks this paragraph as a recommendation."
-              />
-            </div>
+            
+            {/* Modern Settings Button */}
+            <button
+              onClick={() => setShowSettings(true)}
+              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
+              title="Block settings"
+            >
+              <Settings className="w-4 h-4 text-gray-600" />
+            </button>
+            
+            <BlockSettingsModal
+              isOpen={showSettings}
+              onClose={() => setShowSettings(false)}
+              block={block}
+              onTextChange={onTextChange}
+              basePath={basePath}
+            />
           </div>
         );
       }
@@ -370,32 +639,18 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       }
 
       return (
-        <div className={containerClasses.trim()}>
-          {isEditing && onTextChange && block.type === 'bullet_list' && (
-            <div className="mt-1 mb-1">
-              <label className="font-medium text-gray-800 text-xs">List Icon</label>
-              <select
-                value={currentBlockIconName || ''}
-                onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
-                className="border rounded px-1 py-0.5 text-xs bg-white ml-1"
-                style={{ minWidth: 80 }}
-              >
-                <option value="">Default</option>
-                <option value="none">None</option>
-                <option value="info">Info</option>
-                <option value="goal">Goal</option>
-                <option value="star">Star</option>
-                <option value="apple">Apple</option>
-                <option value="award">Award</option>
-                <option value="boxes">Boxes</option>
-                <option value="calendar">Calendar</option>
-                <option value="chart">Chart</option>
-                <option value="clock">Clock</option>
-                <option value="globe">Globe</option>
-              </select>
-              <span className="text-[10px] text-gray-400 ml-1">Icon for list items</span>
-            </div>
+        <div className={`${containerClasses.trim()} group relative`}>
+          {/* Modern Settings Button */}
+          {isEditing && onTextChange && (
+            <button
+              onClick={() => setShowSettings(true)}
+              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
+              title="Block settings"
+            >
+              <Settings className="w-4 h-4 text-gray-600" />
+            </button>
           )}
+          
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
@@ -515,6 +770,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               );
             })}
           </ListTag>
+          
+          <BlockSettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            block={block}
+            onTextChange={onTextChange}
+            basePath={basePath}
+          />
         </div>
       );
     }
@@ -527,7 +790,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const AlertIconComponent = iconName ? iconMap[iconName] : Icon;
       
       return (
-        <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'}`} role="alert">
+        <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative`} role="alert">
           <div className="flex">
             <div className="py-1">
               <AlertIconComponent className={`h-4 w-4 ${iconColorClass} mr-2`} style={{ color: iconColor || undefined }} />
@@ -550,84 +813,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     className={`${editingTextareaClass} text-xs mb-2`}
                     placeholder="Alert text"
                   />
-                  <div className="mt-2 mb-1 p-2 bg-gray-50 border border-gray-200 rounded flex flex-wrap gap-2 items-center text-xs">
-                    <div className="flex flex-col gap-0.5 min-w-[90px]">
-                      <label className="font-medium text-gray-800 text-xs">Alert Type</label>
-                      <select
-                        value={alertType}
-                        onChange={e => onTextChange(fieldPath('alertType'), e.target.value)}
-                        className="border rounded px-1 py-0.5 text-xs bg-white"
-                        style={{ minWidth: 60 }}
-                      >
-                        <option value="info">Info</option>
-                        <option value="success">Success</option>
-                        <option value="warning">Warning</option>
-                        <option value="danger">Danger</option>
-                      </select>
-                      <span className="text-[10px] text-gray-400">Color & icon</span>
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-[90px]">
-                      <label className="font-medium text-gray-800 text-xs">Icon Name</label>
-                      <select
-                        value={iconName || ''}
-                        onChange={e => onTextChange(fieldPath('iconName'), e.target.value)}
-                        className="border rounded px-1 py-0.5 text-xs bg-white"
-                        style={{ minWidth: 80 }}
-                      >
-                        <option value="">Default</option>
-                        <option value="info">Info</option>
-                        <option value="check">Check</option>
-                        <option value="alertTriangle">Warning</option>
-                        <option value="xCircle">Error</option>
-                        <option value="goal">Goal</option>
-                        <option value="star">Star</option>
-                        <option value="apple">Apple</option>
-                        <option value="award">Award</option>
-                        <option value="boxes">Boxes</option>
-                        <option value="calendar">Calendar</option>
-                        <option value="chart">Chart</option>
-                        <option value="clock">Clock</option>
-                        <option value="globe">Globe</option>
-                      </select>
-                      <span className="text-[10px] text-gray-400">Custom icon</span>
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-[70px]">
-                      <label className="font-medium text-gray-800 text-xs">Bg</label>
-                      <input
-                        type="color"
-                        value={backgroundColor || ''}
-                        onChange={e => onTextChange(fieldPath('backgroundColor'), e.target.value)}
-                        className="w-5 h-5 p-0 border rounded"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-[70px]">
-                      <label className="font-medium text-gray-800 text-xs">Border</label>
-                      <input
-                        type="color"
-                        value={borderColor || ''}
-                        onChange={e => onTextChange(fieldPath('borderColor'), e.target.value)}
-                        className="w-5 h-5 p-0 border rounded"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-[70px]">
-                      <label className="font-medium text-gray-800 text-xs">Text</label>
-                      <input
-                        type="color"
-                        value={textColor || ''}
-                        onChange={e => onTextChange(fieldPath('textColor'), e.target.value)}
-                        className="w-5 h-5 p-0 border rounded"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-[70px]">
-                      <label className="font-medium text-gray-800 text-xs">Icon</label>
-                      <input
-                        type="color"
-                        value={iconColor || ''}
-                        onChange={e => onTextChange(fieldPath('iconColor'), e.target.value)}
-                        className="w-5 h-5 p-0 border rounded"
-                      />
-                    </div>
-                  </div>
                 </>
               ) : (
                 <>
@@ -637,6 +822,25 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               )}
             </div>
           </div>
+          
+          {/* Modern Settings Button */}
+          {isEditing && onTextChange && (
+            <button
+              onClick={() => setShowSettings(true)}
+              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
+              title="Block settings"
+            >
+              <Settings className="w-4 h-4 text-gray-600" />
+            </button>
+          )}
+          
+          <BlockSettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            block={block}
+            onTextChange={onTextChange}
+            basePath={basePath}
+          />
         </div>
       );
     }
@@ -713,21 +917,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return null;
   }
 };
-
-// Add a simple Switch component for better UX
-const Switch = ({ checked, onChange, label, help }: { checked: boolean, onChange: (v: boolean) => void, label: string, help?: string }) => (
-  <label className="flex items-center gap-1 mt-1 mb-1 cursor-pointer select-none text-xs">
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={e => onChange(e.target.checked)}
-      className="form-checkbox h-3 w-3 text-green-500 border-gray-300 rounded focus:ring-0"
-      style={{ minWidth: 12, minHeight: 12 }}
-    />
-    <span className="font-medium text-gray-800 text-xs">{label}</span>
-    {help && <span className="text-[10px] text-gray-400 ml-1">{help}</span>}
-  </label>
-);
 
 export interface TextPresentationDisplayProps {
   dataToDisplay: TextPresentationData | null;
