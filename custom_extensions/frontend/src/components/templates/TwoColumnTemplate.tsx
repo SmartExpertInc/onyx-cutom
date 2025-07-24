@@ -89,8 +89,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               fontFamily: currentTheme.fonts.titleFont,
               fontSize: '1.3rem',
               color: currentTheme.colors.titleColor,
-              margin: '16px 0 8px 0',
-              fontWeight: '700',
+              margin: '16px 0 16px 0',
               alignSelf: 'flex-start'
             }}
           >
@@ -109,7 +108,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
             {leftContent}
           </p>
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
           {/* Placeholder first */}
           <div style={placeholderStyles}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
@@ -130,7 +129,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               fontSize: '1.3rem',
               color: currentTheme.colors.titleColor,
               margin: '16px 0 8px 0',
-              fontWeight: '700',
               alignSelf: 'flex-start'
             }}
           >
