@@ -121,47 +121,38 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
 
   return (
     <div className="bullet-points-template" style={slideStyles}>
-      {/* Left: Placeholder */}
-      <div style={placeholderContainerStyles}>
-        <div style={placeholderStyles}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-            Image Placeholder
-          </div>
-          <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-            AI Prompt: "{displayPrompt}"
-          </div>
-          <div style={{ fontSize: '12px', color: '#868e96' }}>
-            320px × 320px
+      <h1 style={titleStyles}>{title}</h1>
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+        {/* Left: Placeholder */}
+        <div style={placeholderContainerStyles}>
+          <div style={placeholderStyles}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+              Image Placeholder
+            </div>
+            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
+              AI Prompt: "{displayPrompt}"
+            </div>
+            <div style={{ fontSize: '12px', color: '#868e96' }}>
+              320px × 320px
+            </div>
           </div>
         </div>
-      </div>
-      {/* Right: Bullets */}
-      <div style={bulletsContainerStyles}>
-        <h1 style={titleStyles}>{title}</h1>
-        <div style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '24px',
-          flexWrap: 'wrap',
-        }}>
-          {bullets.map((bullet, index) => (
-            <div key={index} style={bulletItemStyles}>
-              <span style={bulletIconStyles}>
-                {getBulletIcon(bulletStyle, index)}
-              </span>
-              <span
-                style={{
-                  fontFamily: currentTheme.fonts.contentFont,
-                  fontSize: currentTheme.fonts.contentSize,
-                  color: currentTheme.colors.contentColor,
-                }}
-              >
-                {bullet}
-              </span>
-            </div>
-          ))}
+        {/* Right: Bullets as list */}
+        <div style={bulletsContainerStyles}>
+          <ul style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0,
+            width: '100%'
+          }}>
+            {bullets.map((bullet: string, index: number) => (
+              <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
+                <span style={bulletIconStyles}>{getBulletIcon(bulletStyle, index)}</span>
+                <span style={{ fontFamily: currentTheme.fonts.contentFont, fontSize: currentTheme.fonts.contentSize, color: currentTheme.colors.contentColor }}>{bullet}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
