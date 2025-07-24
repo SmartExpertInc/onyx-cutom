@@ -1081,7 +1081,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   // Helper function to determine if a section should have a red stripe
   const shouldSectionHaveStripe = (sectionItems: Array<AnyContentBlock | MiniSection>): boolean => {
     // Don't apply stripe if section has less than 4 elements
-    if (sectionItems.length < 4) return false;
+    if (sectionItems.length < 4) {
+      return false;
+    }
     
     // Don't apply stripe if section contains alerts or tables
     const hasAlertsOrTables = sectionItems.some(item => {
@@ -1091,7 +1093,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       return item.type === 'alert' || item.type === 'table';
     });
     
-    if (hasAlertsOrTables) return false;
+    if (hasAlertsOrTables) {
+      return false;
+    }
     
     return true;
   };
