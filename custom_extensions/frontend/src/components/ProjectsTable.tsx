@@ -2215,7 +2215,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             // NEW: Check if product has explicit is_standalone field
                             const hasStandaloneFlag = (proj as any).is_standalone !== undefined && (proj as any).is_standalone !== null;
                             
-                            if (isQuiz) {
+                            // If product has explicit standalone flag, use it to determine visibility
+                            if (hasStandaloneFlag) {
+                                // For products with explicit standalone flag: show only if standalone=true
+                                if ((proj as any).is_standalone === false) {
+                                    belongsToOutline = true;
+                                    console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false)`);
+                                }
+                            } else if (isQuiz) {
                                 // NEW: Only apply legacy filtering to quizzes - show all One-pagers (text presentations, PDF lessons) by default
                                 // This ensures all One-pagers are visible on the main products page
                                 // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title")
@@ -2270,6 +2277,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         }
 
                         // Only include projects that don't belong to an outline (either legacy or new pattern)
+                        if (proj.designMicroproductType === "Text Presentation") {
+                            belongsToOutline = false;
+                        }
+                        
                         if (!belongsToOutline) {
                             filteredProjects.push(proj);
                             console.log(`✅ [FILTER] "${projectTitle}" (${proj.designMicroproductType}) included - standalone content`);
