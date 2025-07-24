@@ -248,14 +248,15 @@ const BlockSettingsModal = ({
         <div>
           <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
           <select
-            value={headlineBlock.level || 1}
-            onChange={e => onTextChange?.(fieldPath('level'), e.target.value)}
+            value={headlineBlock.fontSize || '10px'}
+            onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value={1}>Large (H1)</option>
-            <option value={2}>Medium (H2)</option>
-            <option value={3}>Small (H3)</option>
-            <option value={4}>Extra Small (H4)</option>
+            <option value="8px">Extra Small (8px)</option>
+            <option value="10px">Small (10px)</option>
+            <option value="12px">Medium (12px)</option>
+            <option value="14px">Large (14px)</option>
+            <option value="16px">Extra Large (16px)</option>
           </select>
         </div>
       </div>
@@ -590,16 +591,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       return (
         <div className="w-full group relative">
-          <Tag
-            className={finalClassName}
-            style={{ 
-              backgroundColor: backgroundColor || 'transparent', 
-              color: headlineTextColor || undefined, 
-              padding: backgroundColor ? '0.4rem 0.6rem' : undefined, 
-              borderRadius: backgroundColor ? '0.25rem' : undefined,
-              fontSize: fontSize || undefined
-            }}
-          >
+          <div className="pl-2.5 border-l-[3px] border-[#FF1414] py-1">
+            <Tag
+              className={finalClassName}
+              style={{ 
+                backgroundColor: backgroundColor || 'transparent', 
+                color: headlineTextColor || undefined, 
+                padding: backgroundColor ? '0.4rem 0.6rem' : undefined, 
+                borderRadius: backgroundColor ? '0.25rem' : undefined,
+                fontSize: fontSize || undefined
+              }}
+            >
             {IconComponent && <IconComponent className={`mr-1.5 shrink-0 ${THEME_COLORS.accentRed}`} />}
             {isEditing && onTextChange ? (
               <input 
@@ -610,7 +612,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 style={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', display: 'inline', width: 'auto', flexGrow: 1, textTransform: 'uppercase' }}
               />
             ) : ( styledText )}
-          </Tag>
+            </Tag>
+          </div>
           
           {/* Modern Settings Button */}
           {isEditing && onTextChange && (
@@ -644,13 +647,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       let recommendationClasses = "";
       if (isRecommendation && !suppressRecommendationStripe) {
         recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+      } else if (!suppressRecommendationStripe) {
+        // Add red stripe to all sections
+        recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
       const styledText = parseAndStyleText(text);
 
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
+          <div className={`${recommendationClasses} ${finalMb} text-left group relative`}>
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
@@ -705,6 +711,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let containerClasses = `flex flex-col ${finalMb} `;
       if (hasRecommendation) {
+        containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+      } else {
+        // Add red stripe to all list sections
         containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
 

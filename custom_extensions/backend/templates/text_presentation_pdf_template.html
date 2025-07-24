@@ -179,6 +179,8 @@
         .headline-block { 
             font-family: var(--font-primary), var(--font-emoji);
             display: flex; align-items: center; line-height: 1.5; max-width: 100%; text-transform: uppercase; letter-spacing: var(--letter-spacing-increased); text-align: left; 
+            border-left: 2px solid #FF1414;
+            padding-left: var(--space-md);
         }
         .headline-block .icon-svg { 
             margin-right: var(--space-sm); width: 1.0em; height: 1.0em; 
@@ -190,9 +192,30 @@
         .headline-block.h3 { font-size: var(--font-size-h3-box); font-weight: var(--font-weight-bold); color: var(--color-text-black); margin-top: 10px; margin-bottom: 6px; text-align: left; }
         .headline-block.h4 { font-size: var(--font-size-h4-box); font-weight: var(--font-weight-bold); color: var(--color-text-black); margin-top: 8px; margin-bottom: 4px; text-align: left; }
         
-        .paragraph-block { font-family: var(--font-primary), var(--font-emoji); font-size: var(--font-size-paragraph-small); line-height: 1.5; letter-spacing: var(--letter-spacing-increased); font-weight: var(--font-weight-normal); margin-bottom: var(--space-sm); color: var(--color-text-default); text-align: left; width: 100%; }
+        .paragraph-block { 
+            font-family: var(--font-primary), var(--font-emoji); 
+            font-size: var(--font-size-paragraph-small); 
+            line-height: 1.5; 
+            letter-spacing: var(--letter-spacing-increased); 
+            font-weight: var(--font-weight-normal); 
+            margin-bottom: var(--space-sm); 
+            color: var(--color-text-default); 
+            text-align: left; 
+            width: 100%; 
+            border-left: 2px solid #FF1414;
+            padding-left: var(--space-md);
+        }
 
-        .list-block-wrapper ul, .list-block-wrapper ol { padding-left: 0; list-style-type: none; margin-top: var(--space-xs); margin-bottom: var(--space-md); max-width: 100%; text-align: left; }
+        .list-block-wrapper ul, .list-block-wrapper ol { 
+            padding-left: 0; 
+            list-style-type: none; 
+            margin-top: var(--space-xs); 
+            margin-bottom: var(--space-md); 
+            max-width: 100%; 
+            text-align: left; 
+            border-left: 2px solid #FF1414;
+            padding-left: var(--space-md);
+        }
         .list-block-wrapper li { 
             margin-bottom: 2px; 
             font-family: var(--font-primary), var(--font-emoji);
