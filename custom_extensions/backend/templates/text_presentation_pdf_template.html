@@ -85,6 +85,7 @@
             padding: 0; 
             background-color: white; 
             min-height: 100vh; 
+            margin-top: 20px;
         }
         .content-wrapper { 
             background-color: white; 
@@ -330,8 +331,13 @@
             {% set final_icon_name = icon_name_str %}
 
             {% if default_icon_for_type == 'ul' or default_icon_for_type == 'ul-nested' %}
-                {% if icon_name_str == 'none' %}{% set final_icon_name = 'none' %}
-                {% else %}{% set final_icon_name = 'new-bullet' %}{% endif %}
+                {% if icon_name_str == 'none' %}
+                    {% set final_icon_name = 'none' %}
+                {% elif icon_name_str %}
+                    {% set final_icon_name = icon_name_str %}
+                {% else %}
+                    {% set final_icon_name = 'new-bullet' %}
+                {% endif %}
             {% elif not icon_name_str %}
                 {% if default_icon_for_type == 'alert-info' %}{% set final_icon_name = 'info' %} 
                 {% elif default_icon_for_type == 'alert-success' %}{% set final_icon_name = 'check' %} 
