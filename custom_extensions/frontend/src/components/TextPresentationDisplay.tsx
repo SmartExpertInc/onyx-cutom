@@ -635,10 +635,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const defaultMb = depth > 0 ? 'mb-1' : 'mb-2';
       const finalMb = isLastInBox ? 'mb-0' : defaultMb;
       
-      let recommendationClasses = "";
-      if (isRecommendation && !suppressRecommendationStripe) {
-        recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1 rounded-sm`;
-      }
+              let recommendationClasses = "";
+        if (isRecommendation && !suppressRecommendationStripe) {
+          recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+        }
       const styledText = parseAndStyleText(text);
 
       if (isEditing && onTextChange) {
@@ -1090,7 +1090,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
-                  <section key={index} className="mb-4 p-3 rounded-md text-left">
+                  <section key={index} className="mb-5 p-3 rounded-md text-left">
                     {!item._skipRenderHeadline && (
                       <RenderBlock
                         block={item.headline}
@@ -1106,7 +1106,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                           const originalMiniListIndex = findOriginalIndex(subItem.list);
                           return (
-                            <div key={subIndex} className="p-3 my-4 bg-white border-l-2 border-[#FF1414] text-left">
+                            <div key={subIndex} className="p-3 my-5 bg-white border-l-2 border-[#FF1414] text-left">
                               <RenderBlock
                                 block={subItem.headline}
                                 isMiniSectionHeadline={true}
@@ -1145,7 +1145,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
-                  <div key={index} className="p-3 my-4 bg-white border-l-2 border-[#FF1414] text-left">
+                  <div key={index} className="p-3 my-5 bg-white border-l-2 border-[#FF1414] text-left">
                     <RenderBlock
                       block={item.headline}
                       isMiniSectionHeadline={true}
