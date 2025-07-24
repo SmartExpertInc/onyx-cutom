@@ -323,6 +323,22 @@
         .headline-block, .alert-block, li, .paragraph-block { page-break-inside: avoid; }
         .headline-block.h2 { page-break-before: auto; page-break-after: avoid; }
         hr.content-section-divider { page-break-before: auto; page-break-after: avoid;}
+        
+        /* Prevent page breaks within logical sections */
+        .content-block-wrapper { page-break-inside: avoid; }
+        .list-block-wrapper { page-break-inside: avoid; }
+        .mini-section-box-wrapper { page-break-inside: avoid; }
+        .mini-section-box { page-break-inside: avoid; }
+        
+        /* Group related content blocks to prevent awkward breaks */
+        .content-block-wrapper.type-headline + .content-block-wrapper { page-break-inside: avoid; }
+        .content-block-wrapper.type-headline + .content-block-wrapper + .content-block-wrapper { page-break-inside: avoid; }
+        
+        /* Ensure mini-sections stay together */
+        .mini-section-box > * { page-break-inside: avoid; }
+        
+        /* Content section groups prevent page breaks within logical sections */
+        .content-section-group { page-break-inside: avoid; }
     </style>
 </head>
 <body>
@@ -542,6 +558,8 @@
         {% endif %}
 
         {% set next_block_in_box_content = [false] %}
+        {% set current_section_blocks = [] %}
+        
         {% for loop_index in range(blocks_to_render | length) %}
             {% set current_block_item = blocks_to_render[loop_index] %}
             {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
@@ -561,8 +579,43 @@
                             {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(true) %}
                         {% endif %}
                     </div> </div>
-                {% else %} 
-                    {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                {% else %}
+                    {% set is_headline = current_block_item is mapping and current_block_item.get('type') == 'headline' %}
+                    {% set is_section_break = current_block_item is mapping and current_block_item.get('type') == 'section_break' %}
+                    
+                    {% if is_headline and current_section_blocks %}
+                        {# Render accumulated section blocks #}
+                        <div class="content-section-group" style="page-break-inside: avoid;">
+                            {% for block in current_section_blocks %}
+                                {{ render_single_block_recursive_macro(block, 0) }}
+                            {% endfor %}
+                        </div>
+                        {% set current_section_blocks = [] %}
+                    {% endif %}
+                    
+                    {% if is_section_break %}
+                        {# Render accumulated section blocks before section break #}
+                        {% if current_section_blocks %}
+                            <div class="content-section-group" style="page-break-inside: avoid;">
+                                {% for block in current_section_blocks %}
+                                    {{ render_single_block_recursive_macro(block, 0) }}
+                                {% endfor %}
+                            </div>
+                            {% set current_section_blocks = [] %}
+                        {% endif %}
+                        {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                    {% else %}
+                        {% set _ = current_section_blocks.append(current_block_item) %}
+                    {% endif %}
+                    
+                    {# Render final section if this is the last block #}
+                    {% if is_last_block_overall and current_section_blocks %}
+                        <div class="content-section-group" style="page-break-inside: avoid;">
+                            {% for block in current_section_blocks %}
+                                {{ render_single_block_recursive_macro(block, 0) }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 {% endif %}
             {% endif %}
 
