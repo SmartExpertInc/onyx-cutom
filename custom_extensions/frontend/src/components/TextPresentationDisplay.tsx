@@ -940,7 +940,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 {headers.map((header: string, idx: number) => (
                   <th
                     key={idx}
-                    className="px-3 py-2 text-left font-bold border-b border-gray-300 bg-[#232B3A] text-white"
+                    className="px-9 py-6 text-left font-bold border-b border-gray-300 bg-[#232B3A] text-white"
                     style={{ fontWeight: 700, fontSize: '11px', letterSpacing: 0.2, borderTopLeftRadius: idx === 0 ? 8 : 0, borderTopRightRadius: idx === headers.length - 1 ? 8 : 0 }}
                   >
                     {isEditing && onTextChange ? (
@@ -964,7 +964,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   {row.map((cell: string, cIdx: number) => (
                     <td
                       key={cIdx}
-                      className="border-b border-gray-200 px-3 py-2 align-top text-black text-left"
+                      className="border-b border-gray-200 px-9 py-6 align-top text-black text-left"
                       style={{ fontSize: '11px', minWidth: 60 }}
                     >
                       {isEditing && onTextChange ? (
