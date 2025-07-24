@@ -91,10 +91,9 @@
             padding: 0; 
             background-color: white; 
             min-height: 100vh; 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
+        
+        /* Vertical centering for PDF content */
         .content-wrapper { 
             background-color: white; 
             border-radius: 8px; 
@@ -102,6 +101,9 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
             max-width: 100%; 
             margin: 0 auto; 
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
         }
         
         /* Dynamic spacing classes for page optimization */
