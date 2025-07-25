@@ -56,10 +56,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     display: 'flex',
     alignItems: 'center',
     flexGrow: 1,
+    position: 'relative',
   };
 
   const pyramidContainerStyles: React.CSSProperties = {
-    flex: '0 0 40%',
+    flex: '0 0 45%',
     position: 'relative',
     height: '100%',
     display: 'flex',
@@ -68,22 +69,31 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const itemsContainerStyles: React.CSSProperties = {
-    flex: '1 1 60%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    height: '350px',
-    gap: '32px'
+    flex: '1 1 55%',
+    position: 'relative',
+    height: '400px', // Explicit height for positioning context
+  };
+
+  const itemWrapperStyles = (level: number): React.CSSProperties => {
+    const topPositions = ['16.7%', '50%', '83.3%'];
+    return {
+      position: 'absolute',
+      width: '100%',
+      top: topPositions[level],
+      transform: 'translateY(-50%)',
+    };
   };
   
-  const itemStyles: React.CSSProperties = {
-    paddingBottom: '32px',
-    borderBottom: `1px solid rgba(255, 255, 255, 0.2)`,
-  };
-  
-  const lastItemStyles: React.CSSProperties = {
-     paddingBottom: '32px',
-     borderBottom: 'none',
+  const separatorLineStyles = (level: number): React.CSSProperties => {
+      const topPositions = ['33.3%', '66.6%'];
+      return {
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: topPositions[level],
+          height: '1px',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      }
   };
 
   const itemHeadingStyles: React.CSSProperties = {
@@ -98,22 +108,24 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     fontSize: currentTheme.fonts.contentSize,
   };
 
-  const PyramidSVG = () => (
-    React.createElement('svg', { width: "300", height: "350", viewBox: "0 0 100 115" },
-      React.createElement('defs', null,
-        React.createElement('linearGradient', { id: "pyramid-gradient-new", x1: "0%", y1: "0%", x2: "0%", y2: "100%" },
-          React.createElement('stop', { offset: "0%", style: { stopColor: 'rgba(255, 255, 255, 0.2)' } }),
-          React.createElement('stop', { offset: "100%", style: { stopColor: 'rgba(255, 255, 255, 0.05)' } })
-        )
-      ),
-      React.createElement('path', { d: "M 50,0 L 0,115 L 100,115 Z", fill: "url(#pyramid-gradient-new)" }),
-      React.createElement('line', { x1: "17", y1: "38.3", x2: "83", y2: "38.3", stroke: "rgba(255,255,255,0.5)", strokeWidth: "0.5" }),
-      React.createElement('line', { x1: "33", y1: "76.6", x2: "67", y2: "76.6", stroke: "rgba(255,255,255,0.5)", strokeWidth: "0.5" }),
-      React.createElement('text', { x: "50", y: "25", textAnchor: "middle", fill: "#fff", fontSize: "8", fontWeight: "bold" }, "1"),
-      React.createElement('text', { x: "50", y: "60", textAnchor: "middle", fill: "#fff", fontSize: "8", fontWeight: "bold" }, "2"),
-      React.createElement('text', { x: "50", y: "98", textAnchor: "middle", fill: "#fff", fontSize: "8", fontWeight: "bold" }, "3")
-    )
-  );
+  const PyramidSVG = () => {
+    const pyramidFill = "rgba(255, 255, 255, 0.1)";
+    const textFill = "rgba(255, 255, 255, 0.9)";
+    
+    return React.createElement('svg', { width: "350", height: "400", viewBox: "0 0 200 180" },
+      // Segment 1 (Top Triangle)
+      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill }),
+      React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
+
+      // Segment 2 (Middle Trapezoid)
+      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill }),
+      React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
+
+      // Segment 3 (Bottom Trapezoid)
+      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill }),
+      React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
+    );
+  };
 
   return (
     <div className="pyramid-template" style={slideStyles}>
@@ -124,25 +136,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           <PyramidSVG />
         </div>
         <div style={itemsContainerStyles}>
-          {Array.isArray(items) && items.length >= 3 ? (
-            items.slice(0, 3).map((item, index) => (
-              <div key={index} style={index === 2 ? lastItemStyles : itemStyles}>
-                <div style={itemHeadingStyles}>{item.heading || 'Heading'}</div>
-                <div style={itemDescriptionStyles}>{item.description || 'Description'}</div>
-              </div>
-            ))
-          ) : (
-            <div style={{
-              color: '#ff6b6b',
-              fontWeight: 600,
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              Error: This slide requires exactly 3 items with "heading" and "description" fields.
-              {!Array.isArray(items) && <div>Found: {typeof items}</div>}
-              {Array.isArray(items) && <div>Found {items.length} items (need 3)</div>}
+          {Array.isArray(items) && items.slice(0, 3).map((item, index) => (
+            <div key={index} style={itemWrapperStyles(index)}>
+              <div style={itemHeadingStyles}>{item.heading || 'Heading'}</div>
+              <div style={itemDescriptionStyles}>{item.description || 'Description'}</div>
             </div>
-          )}
+          ))}
+          <div style={separatorLineStyles(0)}></div>
+          <div style={separatorLineStyles(1)}></div>
         </div>
       </div>
     </div>
