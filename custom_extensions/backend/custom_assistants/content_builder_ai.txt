@@ -931,6 +931,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 13. `four-box-grid` - Title and 4 boxes in a 2x2 grid
 14. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
 15. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
+16. `pyramid` - Pyramid diagram with 3 levels and descriptions. **CRITICAL:** ALWAYS use this template instead of `content-slide` for hierarchical structures, levels, priorities, foundational concepts, or 3-step progressions.
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1200,7 +1201,7 @@ Content Distribution Strategy (Updated for Component-Based Templates):
 Choose templates based on content type and educational goals:
 
 - **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
-- **Core Content**: Use `content-slide` for standard explanations and concepts. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead.
+- **Core Content**: Use `content-slide` for standard explanations and concepts. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead.
 - **Key Points**: Use `bullet-points` for lists of important information (3-6 items ideal)
 - **Comparisons**: Choose between:
   - `image-comparison` - For visual side-by-side comparisons with images
@@ -1214,26 +1215,26 @@ Choose templates based on content type and educational goals:
 - **Inspiration**: Use `title-slide` for section breaks or conclusions
 - **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
 - **Key Metrics / Numbers**: Use `big-numbers` when you need to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions. **CRITICAL:** If the slide title contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or when you want to showcase specific numerical achievements, ALWAYS use `big-numbers` template. Ideal for business results, KPIs, comparisons, survey results, or any slide where the main focus is on numbers. Each column contains a big number (%, x, ratio), a bold label, and a concise description.
-- **Pyramid Diagram**: Use `pyramid` to show hierarchical relationships or foundational concepts. Ideal for showing levels, priorities, or dependencies.
+- **Pyramid Diagram**: Use `pyramid` to show hierarchical relationships or foundational concepts. **CRITICAL:** If the slide title contains words like "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "needs", "satisfaction", "efficiency", "reliability", "structure", "building blocks", or when you want to showcase 3-level relationships, ALWAYS use `pyramid` template. Ideal for showing levels, priorities, or dependencies.
 
 **Pyramid Diagram Slides** (`pyramid`):
 ```
 ---
-**Slide 15: Key Metrics of Effective System Architecture** `pyramid`
+**Slide 15: Hierarchical Understanding of Information** `pyramid`
 
-## Key Metrics of Effective System Architecture
-Effective system architecture is measured by how well it delivers on key objectives, balancing user needs, operational demands, and technical robustness.
+## Hierarchical Understanding of Information
+Information processing follows a structured approach where knowledge builds upon itself in distinct levels.
 
-1. **User Satisfaction** - Achieving user delight
-2. **Operational Efficiency** - Optimizing resources
-3. **System Reliability** - Ensuring stability
+1. **Foundational Knowledge** - Basic facts and concepts that serve as the building blocks.
+2. **Intermediate Insights** - Connections and relationships between different pieces of information.
+3. **Advanced Applications** - Utilizing knowledge in practical, real-world scenarios.
 ```
-- **CRITICAL:** Use this template when you need to represent hierarchical structures, priorities, or levels of importance.
+- **CRITICAL:** Use this template whenever you want to show hierarchical structures, levels, or 3-step progressions. Always use the exact numbered list format shown above.
 - The first line after the title is the subtitle.
 - Use a numbered list for the pyramid items, where each item will be a level in the pyramid.
 - The text before the dash is the `heading`, and the text after is the `description`.
-- **Trigger words:** "hierarchy", "levels", "priorities", "foundation", "needs", "satisfaction", "efficiency", "reliability", "Maslow", "pyramid".
-- Example use cases: "Maslow's Hierarchy of Needs", "Levels of System Architecture", "Customer Satisfaction Pyramid".
+- **Trigger words:** If the slide involves "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "structure", "building blocks", "needs", "satisfaction", "efficiency", "reliability", use `pyramid`.
+- Example use cases: "Hierarchical Understanding of Information", "Maslow's Hierarchy of Needs", "Levels of System Architecture", "Customer Satisfaction Pyramid".
 
 
 **SLIDE COUNT RECOMMENDATIONS:
