@@ -36,7 +36,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       titleFont: 'Kanit, sans-serif',
       contentFont: 'Martel Sans, sans-serif',
       titleSize: '45px',
-      contentSize: '16px'
+      contentSize: '18px'
     }
   },
   

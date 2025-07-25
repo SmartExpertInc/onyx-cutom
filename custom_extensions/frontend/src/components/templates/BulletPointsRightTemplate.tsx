@@ -30,7 +30,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    padding: '80px',
+    padding: '60px',
     position: 'relative',
     fontFamily: currentTheme.fonts.contentFont
   };
@@ -57,7 +57,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 0
+    minWidth: 0,
+    paddingRight: '20px'
   };
 
   const titleStyles: React.CSSProperties = {
@@ -69,8 +70,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.3rem',
-    fontWeight: 500,
+    fontSize: currentTheme.fonts.contentSize,
     color: currentTheme.colors.contentColor,
     marginBottom: '28px',
     fontFamily: currentTheme.fonts.contentFont
@@ -80,7 +80,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
     color: currentTheme.colors.accentColor,
     fontWeight: 600,
     minWidth: '20px',
-    fontSize: bulletStyle === 'number' ? '1.1rem' : '1.2rem',
+    fontSize: bulletStyle === 'number' ? '1.6rem' : '1.8rem',
     fontFamily: currentTheme.fonts.titleFont
   };
 
@@ -135,7 +135,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
             {bullets.map((bullet: string, index: number) => (
               <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
                 {React.createElement('span', { style: bulletIconStyles }, getBulletIcon(bulletStyle, index))}
-                {React.createElement('span', { style: { fontFamily: currentTheme.fonts.contentFont, fontSize: currentTheme.fonts.contentSize, color: currentTheme.colors.contentColor } }, bullet)}
+                {React.createElement('span', { style: {paddingTop: '10px', fontFamily: currentTheme.fonts.contentFont, fontSize: currentTheme.fonts.contentSize, color: currentTheme.colors.contentColor } }, bullet)}
               </li>
             ))}
           </ul>
