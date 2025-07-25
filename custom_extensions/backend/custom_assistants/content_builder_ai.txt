@@ -928,6 +928,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 10. `process-steps` - Numbered process or workflow steps
 11. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
 12. `big-image-top` - Large image on top, title and content below
+13. `four-box-grid` - Title and 4 boxes in a 2x2 grid
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1129,6 +1130,26 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 - Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
 ```
 
+**Four Box Grid Slides** (`four-box-grid`):
+```
+---
+**Slide 13: [Grid Topic]** `four-box-grid`
+
+## [Main Title]
+
+[2x2 grid of 4 boxes, each with heading and description]
+
+- Box 1 Heading: Description for box 1.
+- Box 2 Heading: Description for box 2.
+- Box 3 Heading: Description for box 3.
+- Box 4 Heading: Description for box 4.
+```
+- Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
+- Each box should have a short heading and a concise description.
+- Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
+- Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
+```
+
 Content Distribution Strategy (Updated for Component-Based Templates):
 
 **STRATEGIC TEMPLATE SELECTION:**
@@ -1145,6 +1166,7 @@ Choose templates based on content type and educational goals:
 - **Workflows**: Use `process-steps` for sequential processes and procedures
 - **Visual Focus**: Use `big-image-left` when image is the primary focus
 - **Visual Introduction with Text Below**: Use `big-image-top` when you want a large visual at the top to set context, followed by explanatory content below (alternative to big-image-left for variety)
+- **Grid of Key Points/Benefits**: Use `four-box-grid` when you need to present 4 key points, features, or benefits in a visually organized 2x2 grid. Each box should have a short heading and a concise description. Ideal for grouped benefits, feature highlights, or comparing four aspects.
 - **Inspiration**: Use `title-slide` for section breaks or conclusions
 - **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
 

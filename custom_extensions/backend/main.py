@@ -3942,7 +3942,18 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageSize": "large"
             }
             ``` 
-            
+              13. **`four-box-grid`** - Title and 4 boxes in a 2x2 grid:
+            ```json
+            "props": {
+              "title": "Main Title",
+              "boxes": [
+                { "heading": "Box 1", "text": "Description for box 1." },
+                { "heading": "Box 2", "text": "Description for box 2." },
+                { "heading": "Box 3", "text": "Description for box 3." },
+                { "heading": "Box 4", "text": "Description for box 4." }
+              ]
+            }
+            ``` 
 
             **Enhanced Slide Parsing Rules:**
             * Each slide should be separated by `---` in the input markdown
@@ -3983,6 +3994,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - The image should be relevant and engaging, setting the context for the slide.
             - Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
             - Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
+
+            **Special Instructions for `four-box-grid`:**
+            - Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
+            - Each box should have a short heading and a concise description.
+            - Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
+            - Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

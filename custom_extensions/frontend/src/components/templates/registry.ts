@@ -15,6 +15,7 @@ import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
 import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
 import { ImageComparisonTemplate } from './ImageComparisonTemplate';
 import { BigImageTopTemplate } from './BigImageTopTemplate';
+import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -939,6 +940,35 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' }
+    }
+  },
+
+  'four-box-grid': {
+    id: 'four-box-grid',
+    name: 'Four Box Grid',
+    description: 'Title and 4 boxes in a 2x2 grid',
+    category: 'layout',
+    icon: '🟪',
+    component: FourBoxGridTemplate,
+    defaultProps: {
+      title: 'Main Title',
+      boxes: [
+        { heading: 'Box 1', text: 'Description for box 1.' },
+        { heading: 'Box 2', text: 'Description for box 2.' },
+        { heading: 'Box 3', text: 'Description for box 3.' },
+        { heading: 'Box 4', text: 'Description for box 4.' }
+      ]
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      boxes: {
+        type: 'array',
+        label: 'Boxes',
+        description: 'Array of 4 boxes',
+        required: true,
+        // arrayItemType: { type: 'object', label: 'Box', description: 'Box with heading and text', required: true }
+        // Якщо потрібна підтримка object, додати окрему схему для box
+      }
     }
   }
 };

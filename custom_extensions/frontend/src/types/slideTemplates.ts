@@ -1,6 +1,7 @@
 // custom_extensions/frontend/src/types/slideTemplates.ts
 
 import React from 'react';
+import { SlideTheme } from '@/types/slideThemes';
 
 // --- Base Template System Types ---
 
@@ -227,6 +228,16 @@ export interface ImageComparisonProps extends BaseTemplateProps {
   imageBorderColor?: string;
 }
 
+export interface FourBoxGridProps {
+  slideId: string;
+  title: string;
+  boxes: Array<{
+    heading: string;
+    text: string;
+  }>;
+  theme?: SlideTheme;
+}
+
 // --- Migration and Compatibility ---
 
 export interface LegacySlide {
@@ -267,7 +278,8 @@ export type TemplateId =
   | 'process-steps'
   | 'challenges-solutions'
   | 'hero-title-slide'
-  | 'image-comparison';
+  | 'image-comparison'
+  | 'four-box-grid';
 
 export interface TemplatePreview {
   templateId: string;

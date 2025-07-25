@@ -1,0 +1,93 @@
+import React from 'react';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+
+export interface FourBoxGridProps {
+  slideId: string;
+  title: string;
+  boxes: Array<{
+    heading: string;
+    text: string;
+  }>;
+  theme?: SlideTheme;
+}
+
+export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
+  slideId,
+  title,
+  boxes,
+  theme
+}) => {
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    minHeight: '600px',
+    backgroundColor: currentTheme.colors.backgroundColor,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    padding: '64px',
+    fontFamily: currentTheme.fonts.contentFont
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
+    color: currentTheme.colors.titleColor,
+    textAlign: 'left',
+    marginBottom: '40px',
+    fontWeight: 700
+  };
+
+  const gridStyles: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr 1fr',
+    gap: '24px',
+    width: '100%',
+    flex: 1
+  };
+
+  const boxStyles: React.CSSProperties = {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: '8px',
+    padding: '32px',
+    color: currentTheme.colors.contentColor,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    boxShadow: '0 1px 0 0 #393963',
+    border: '1px solid #393963',
+    minHeight: '160px'
+  };
+
+  const headingStyles: React.CSSProperties = {
+    fontSize: '1.5rem',
+    fontWeight: 600,
+    color: '#fff',
+    marginBottom: '12px',
+    fontFamily: currentTheme.fonts.titleFont
+  };
+
+  const textStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.contentSize,
+    color: currentTheme.colors.contentColor,
+    fontFamily: currentTheme.fonts.contentFont
+  };
+
+  return (
+    <div className="four-box-grid-template" style={slideStyles}>
+      <h1 style={titleStyles}>{title}</h1>
+      <div style={gridStyles}>
+        {boxes.slice(0, 4).map((box, idx) => (
+          <div key={idx} style={boxStyles}>
+            <div style={headingStyles}>{box.heading}</div>
+            <div style={textStyles}>{box.text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default FourBoxGridTemplate; 

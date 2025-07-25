@@ -71,7 +71,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
 
   const contentContainerStyles: React.CSSProperties = {
     width: '100%',
-    padding: '60px',
+    padding: '60px 60px 60px 60px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
