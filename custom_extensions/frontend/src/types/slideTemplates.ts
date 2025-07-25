@@ -298,7 +298,7 @@ export interface SlideEditor {
 
 // --- Utility Types ---
 
-export type TemplateId =
+export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
   | 'big-image-left'

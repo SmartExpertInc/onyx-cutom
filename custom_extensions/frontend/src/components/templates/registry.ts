@@ -256,9 +256,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'List of bullet point items',
         required: true,
         arrayItemType: {
-          type: 'text',
+        type: 'text',
           label: 'Bullet Point',
-          maxLength: 200
+        maxLength: 200
         }
       },
       maxColumns: {
