@@ -38,8 +38,9 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: '56px',
+    width: '100%',
   };
 
   const gridStyles: React.CSSProperties = {
@@ -61,16 +62,14 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   const valueStyles: React.CSSProperties = {
     fontSize: '4.5rem',
-    fontWeight: 700,
-    color: titleColor,
+    color: contentColor,
     marginBottom: '16px',
     fontFamily: currentTheme.fonts.titleFont,
   };
 
   const labelStyles: React.CSSProperties = {
     fontSize: '1.4rem',
-    fontWeight: 600,
-    color: titleColor,
+    color: contentColor,
     marginBottom: '10px',
     fontFamily: currentTheme.fonts.titleFont,
   };
