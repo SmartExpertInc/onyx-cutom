@@ -573,7 +573,7 @@ const PdfLessonDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjec
       {parentProjectName && (
           <div className="pl-2.5 border-l-[3px] border-[#FF1414] py-1 mb-2">
               <span className="uppercase text-lg sm:text-xl font-medium text-black">
-                  <span style={{ color: '#FF1414' }}>{t.common.course}:</span> {parentProjectName}
+                  <span style={{ color: '#FF1414' }}>{t('common.course', 'COURSE')}:</span> {parentProjectName}
               </span>
           </div>
       )}
@@ -589,7 +589,7 @@ const PdfLessonDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjec
             />
           ) : (
             <h1 className={`uppercase text-2xl sm:text-3xl font-medium ${THEME_COLORS.headingText} mb-1.5`}>
-              {lessonNumber && <span style={{ color: '#FF1414' }}>{t.common.lesson} №{lessonNumber}:</span>} {styledLessonTitle}
+              {lessonNumber && <span style={{ color: '#FF1414' }}>{t('common.lesson', 'LESSON')} №{lessonNumber}:</span>} {styledLessonTitle}
             </h1>
           )}
         </div>

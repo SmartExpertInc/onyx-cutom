@@ -243,7 +243,6 @@ export const ru = {
     home: "Главная",
     pasteInText: "Вставить текст",
     pasteInTextDescription: "Создать из заметок, плана или существующего контента",
-    generate: "Генерировать",
     generateDescription: "Создать из однострочного запроса за несколько секунд",
     importFileOrUrl: "Импортировать файл или URL",
     importFileOrUrlDescription: "Улучшить существующие документы, презентации или веб-страницы",
@@ -323,6 +322,50 @@ export const ru = {
       errorMessage: 'Ошибка',
       anonymous: 'Анонимный',
       noErrorMessage: 'Нет сообщения об ошибке'
+    },
+    // Project View Page
+    projectView: {
+      loadingProjectDetails: "Загрузка деталей проекта...",
+      errorLoadingProject: "Ошибка: {error}",
+      projectNotFound: "Проект не найден или данные недоступны.",
+      back: "Назад",
+      openProducts: "Открыть продукты",
+      downloadPdf: "Скачать PDF",
+      smartEdit: "Умное редактирование",
+      editContent: "Редактировать контент",
+      saveContent: "Сохранить контент",
+      saving: "Сохранение...",
+      columns: "Столбцы",
+      moveToTrash: "Переместить в корзину",
+      visibleColumns: "Видимые столбцы",
+      assessmentType: "Тип оценки",
+      contentVolume: "Объем контента",
+      source: "Источник",
+      estCreationTime: "Оц. время создания",
+      estCompletionTime: "Оц. время завершения",
+      qualityTier: "Уровень качества",
+      loadingContentDisplay: "Загрузка отображения контента...",
+      contentDetails: "Детали контента",
+      utilizesDesignComponent: "Этот экземпляр проекта использует компонент дизайна:",
+      unknownComponent: "Неизвестно",
+      specificUIForDirectViewing: "Специальный интерфейс для прямого просмотра или редактирования этого типа компонента может быть еще не полностью реализован на этой странице.",
+      editGeneralDetails: "Обычно вы можете редактировать общие детали проекта (например, имя или шаблон дизайна) через основную страницу редактирования проекта.",
+      toggleRawContentPreview: "Переключить предварительный просмотр исходного содержимого",
+      noSlideDeckData: "Данные слайд-дека недоступны",
+      projectDataNotLoaded: "Данные проекта еще не загружены.",
+      contentEditingNotSupported: "Редактирование контента в настоящее время поддерживается для типов {types} на этой странице.",
+      projectDataOrIdNotAvailable: "Данные проекта или ID недоступны для скачивания.",
+      errorProjectIdOrDataMissing: "Ошибка: ID проекта или данные отсутствуют.",
+      errorProjectInstanceDataNotLoaded: "Ошибка: Данные экземпляра проекта не загружены.",
+      errorCannotSaveComponentType: "Ошибка: Не удается сохранить. Редактирование контента для этого типа компонента не поддерживается здесь.",
+      contentSavedSuccessfully: "Контент успешно сохранен!",
+      saveFailed: "Сохранение не удалось: {error}",
+      errorProjectIdOrEditableDataMissing: "ID проекта или редактируемые данные отсутствуют.",
+      errorProjectInstanceDataNotLoadedForSave: "Данные экземпляра проекта не загружены.",
+      errorContentEditingNotSupportedForSave: "Редактирование контента не поддерживается для этого типа компонента на этой странице.",
+      errorFailedToSaveModuleTierSetting: "Не удалось сохранить настройку уровня модуля",
+      errorFailedToSaveLessonTierSetting: "Не удалось сохранить настройку уровня урока",
+      errorFailedToMoveToTrash: "Не удалось переместить в корзину"
     },
     // Pipelines page
     pipelines: {
@@ -407,8 +450,7 @@ export const ru = {
       createFolder: "Создать папку",
       select: "Выбрать",
       selected: "Выбрано",
-      file: "файл",
-      files: "файлов"
+      file: "файл"
     },
     // Course Outline Page
     courseOutline: {

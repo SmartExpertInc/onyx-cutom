@@ -244,7 +244,6 @@ export const uk = {
     home: "Головна",
     pasteInText: "Вставити текст",
     pasteInTextDescription: "Створити з нотаток, плану або існуючого контенту",
-    generate: "Генерувати",
     generateDescription: "Створити з однострочного запиту за кілька секунд",
     importFileOrUrl: "Імпортувати файл або URL",
     importFileOrUrlDescription: "Покращити існуючі документи, презентації або веб-сторінки",
@@ -324,6 +323,50 @@ export const uk = {
       errorMessage: 'Помилка',
       anonymous: 'Анонімний',
       noErrorMessage: 'Немає повідомлення про помилку'
+    },
+    // Project View Page
+    projectView: {
+      loadingProjectDetails: "Завантаження деталей проекту...",
+      errorLoadingProject: "Помилка: {error}",
+      projectNotFound: "Проект не знайдено або дані недоступні.",
+      back: "Назад",
+      openProducts: "Відкрити продукти",
+      downloadPdf: "Завантажити PDF",
+      smartEdit: "Розумне редагування",
+      editContent: "Редагувати контент",
+      saveContent: "Зберегти контент",
+      saving: "Збереження...",
+      columns: "Стовпці",
+      moveToTrash: "Перемістити в кошик",
+      visibleColumns: "Видимі стовпці",
+      assessmentType: "Тип оцінки",
+      contentVolume: "Обсяг контенту",
+      source: "Джерело",
+      estCreationTime: "Оц. час створення",
+      estCompletionTime: "Оц. час завершення",
+      qualityTier: "Рівень якості",
+      loadingContentDisplay: "Завантаження відображення контенту...",
+      contentDetails: "Деталі контенту",
+      utilizesDesignComponent: "Цей екземпляр проекту використовує компонент дизайну:",
+      unknownComponent: "Невідомо",
+      specificUIForDirectViewing: "Спеціальний інтерфейс для прямого перегляду або редагування цього типу компонента може бути ще не повністю реалізований на цій сторінці.",
+      editGeneralDetails: "Зазвичай ви можете редагувати загальні деталі проекту (наприклад, ім'я або шаблон дизайну) через основну сторінку редагування проекту.",
+      toggleRawContentPreview: "Переключити попередній перегляд вихідного вмісту",
+      noSlideDeckData: "Дані слайд-деку недоступні",
+      projectDataNotLoaded: "Дані проекту ще не завантажені.",
+      contentEditingNotSupported: "Редагування контенту в даний час підтримується для типів {types} на цій сторінці.",
+      projectDataOrIdNotAvailable: "Дані проекту або ID недоступні для завантаження.",
+      errorProjectIdOrDataMissing: "Помилка: ID проекту або дані відсутні.",
+      errorProjectInstanceDataNotLoaded: "Помилка: Дані екземпляра проекту не завантажені.",
+      errorCannotSaveComponentType: "Помилка: Не вдається зберегти. Редагування контенту для цього типу компонента не підтримується тут.",
+      contentSavedSuccessfully: "Контент успішно збережено!",
+      saveFailed: "Збереження не вдалося: {error}",
+      errorProjectIdOrEditableDataMissing: "ID проекту або редаговані дані відсутні.",
+      errorProjectInstanceDataNotLoadedForSave: "Дані екземпляра проекту не завантажені.",
+      errorContentEditingNotSupportedForSave: "Редагування контенту не підтримується для цього типу компонента на цій сторінці.",
+      errorFailedToSaveModuleTierSetting: "Не вдалося зберегти налаштування рівня модуля",
+      errorFailedToSaveLessonTierSetting: "Не вдалося зберегти налаштування рівня уроку",
+      errorFailedToMoveToTrash: "Не вдалося перемістити в кошик"
     },
     // Pipelines page
     pipelines: {
@@ -408,8 +451,7 @@ export const uk = {
       createFolder: "Створити папку",
       select: "Вибрати",
       selected: "Вибрано",
-      file: "файл",
-      files: "файлів"
+      file: "файл"
     },
     // Course Outline Page
     courseOutline: {

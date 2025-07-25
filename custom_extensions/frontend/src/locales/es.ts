@@ -243,7 +243,6 @@ export const es = {
     home: "Inicio",
     pasteInText: "Pegar texto",
     pasteInTextDescription: "Crear desde notas, un esquema o contenido existente",
-    generate: "Generar",
     generateDescription: "Crear desde un prompt de una línea en segundos",
     importFileOrUrl: "Importar archivo o URL",
     importFileOrUrlDescription: "Mejorar documentos, presentaciones o páginas web existentes",
@@ -323,6 +322,50 @@ export const es = {
       errorMessage: 'Error',
       anonymous: 'Anónimo',
       noErrorMessage: 'Sin mensaje de error'
+    },
+    // Project View Page
+    projectView: {
+      loadingProjectDetails: "Cargando detalles del proyecto...",
+      errorLoadingProject: "Error: {error}",
+      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
+      back: "Atrás",
+      openProducts: "Abrir productos",
+      downloadPdf: "Descargar PDF",
+      smartEdit: "Edición inteligente",
+      editContent: "Editar contenido",
+      saveContent: "Guardar contenido",
+      saving: "Guardando...",
+      columns: "Columnas",
+      moveToTrash: "Mover a papelera",
+      visibleColumns: "Columnas visibles",
+      assessmentType: "Tipo de evaluación",
+      contentVolume: "Volumen de contenido",
+      source: "Fuente",
+      estCreationTime: "Tiempo est. de creación",
+      estCompletionTime: "Tiempo est. de finalización",
+      qualityTier: "Nivel de calidad",
+      loadingContentDisplay: "Cargando visualización de contenido...",
+      contentDetails: "Detalles del contenido",
+      utilizesDesignComponent: "Esta instancia del proyecto utiliza el componente de diseño:",
+      unknownComponent: "Desconocido",
+      specificUIForDirectViewing: "Una interfaz específica para ver o editar directamente este tipo de componente podría no estar completamente implementada en esta página.",
+      editGeneralDetails: "Normalmente puedes editar los detalles generales del proyecto (como nombre o plantilla de diseño) a través de la página principal de edición del proyecto.",
+      toggleRawContentPreview: "Alternar vista previa de contenido sin procesar",
+      noSlideDeckData: "No hay datos de presentación disponibles",
+      projectDataNotLoaded: "Los datos del proyecto aún no se han cargado.",
+      contentEditingNotSupported: "La edición de contenido actualmente es compatible con tipos {types} en esta página.",
+      projectDataOrIdNotAvailable: "Los datos del proyecto o ID no están disponibles para descargar.",
+      errorProjectIdOrDataMissing: "Error: ID del proyecto o datos faltantes.",
+      errorProjectInstanceDataNotLoaded: "Error: Los datos de la instancia del proyecto no se han cargado.",
+      errorCannotSaveComponentType: "Error: No se puede guardar. La edición de contenido para este tipo de componente no es compatible aquí.",
+      contentSavedSuccessfully: "¡Contenido guardado exitosamente!",
+      saveFailed: "Error al guardar: {error}",
+      errorProjectIdOrEditableDataMissing: "ID del proyecto o datos editables faltantes.",
+      errorProjectInstanceDataNotLoadedForSave: "Los datos de la instancia del proyecto no se han cargado.",
+      errorContentEditingNotSupportedForSave: "La edición de contenido no es compatible para este tipo de componente en esta página.",
+      errorFailedToSaveModuleTierSetting: "Error al guardar la configuración del nivel del módulo",
+      errorFailedToSaveLessonTierSetting: "Error al guardar la configuración del nivel de la lección",
+      errorFailedToMoveToTrash: "No se pudo mover a la papelera"
     },
     // Pipelines page
     pipelines: {
@@ -407,8 +450,7 @@ export const es = {
       createFolder: "Crear carpeta",
       select: "Seleccionar",
       selected: "Seleccionado",
-      file: "archivo",
-      files: "archivos"
+      file: "archivo"
     },
     // Course Outline Page
     courseOutline: {

@@ -129,13 +129,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         </div>
         {isEditing ? (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t.quiz.explanation}</label>
+            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
             <input
               type="text"
               value={question.explanation || ''}
               onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
               className="w-full p-2 border rounded text-black"
-              placeholder={t.quiz.explanation}
+              placeholder={t('quiz.explanation', 'Explanation')}
             />
           </div>
         ) : question.explanation && (
@@ -193,13 +193,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         </div>
         {isEditing ? (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t.quiz.explanation}</label>
+            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
             <input
               type="text"
               value={question.explanation || ''}
               onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
               className="w-full p-2 border rounded text-black"
-              placeholder={t.quiz.explanation}
+              placeholder={t('quiz.explanation', 'Explanation')}
             />
           </div>
         ) : question.explanation && (
@@ -230,47 +230,105 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       <div className="mt-4">
         {isEditing ? (
           <>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium mb-2 text-black">{t.quiz.prompts}</h4>
-                {question.prompts.map((prompt) => (
-                  <div key={prompt.id} className="mb-2">
-                    <input
-                      type="text"
-                      value={prompt.text}
-                      onChange={(e) => handleTextChange(['questions', index, 'prompts', question.prompts.findIndex(p => p.id === prompt.id), 'text'], e.target.value)}
-                      className="w-full p-2 border rounded text-black"
-                    />
+            <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+            <div className="space-y-2">
+              {question.prompts.map((prompt, promptIndex) => (
+                <div key={prompt.id} className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <div className="w-4 h-4 rounded border border-gray-300" />
                   </div>
-                ))}
-              </div>
-              <div>
-                <h4 className="font-medium mb-2 text-black">{t.quiz.options}</h4>
-                {question.options.map((option) => (
-                  <div key={option.id} className="mb-2">
-                    <input
-                      type="text"
-                      value={option.text}
-                      onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                      className="w-full p-2 border rounded text-black"
-                    />
+                  <div className="ml-3 flex-1">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={prompt.text}
+                        onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                        className="w-full p-2 border rounded text-black"
+                      />
+                    ) : (
+                      <span className="text-black">{prompt.text}</span>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-            <div className="mt-4">
-              <h4 className="font-medium mb-2 text-black">{t.quiz.correctMatches}</h4>
+            <h4 className="font-medium mb-2 text-black">{t('quiz.options', 'Options')}</h4>
+            <div className="space-y-2">
+              {question.options.map((option, optionIndex) => (
+                <div key={option.id} className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <div className="w-4 h-4 rounded border border-gray-300" />
+                  </div>
+                  <div className="ml-3 flex-1">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={option.text}
+                        onChange={(e) => handleTextChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
+                        className="w-full p-2 border rounded text-black"
+                      />
+                    ) : (
+                      <span className="text-black">{option.text}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <div className="space-y-2">
               {question.prompts.map((prompt) => (
-                <div key={prompt.id} className="grid grid-cols-2 gap-4 mb-2 items-center">
+                <div key={prompt.id} className="flex items-center space-x-2">
                   <span className="text-black">{prompt.text}</span>
+                  <span className="text-black">→</span>
                   <select
                     value={question.correct_matches[prompt.id] || ''}
                     onChange={(e) => handleMatchChange(prompt.id, e.target.value)}
-                    className="w-full p-2 border rounded text-black bg-white"
+                    className="p-2 border rounded text-black"
                   >
-                    <option value="" disabled>{t.quiz.selectOption}</option>
-                    {question.options.map(opt => (
-                      <option key={opt.id} value={opt.id}>{opt.text}</option>
+                    <option value="" disabled>{t('quiz.selectOption', 'Select an option')}</option>
+                    {question.options.map((option) => (
+                      <option key={option.id} value={option.id}>{option.text}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+            <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+            <div className="space-y-2">
+              {question.prompts.map((prompt, promptIndex) => (
+                <div key={prompt.id} className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <div className="w-4 h-4 rounded border border-gray-300" />
+                  </div>
+                  <div className="ml-3 flex-1">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={prompt.text}
+                        onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                        className="w-full p-2 border rounded text-black"
+                      />
+                    ) : (
+                      <span className="text-black">{prompt.text}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <div className="space-y-2">
+              {question.prompts.map((prompt) => (
+                <div key={prompt.id} className="flex items-center space-x-2">
+                  <span className="text-black">{prompt.text}</span>
+                  <span className="text-black">→</span>
+                  <select
+                    value={question.correct_matches[prompt.id] || ''}
+                    onChange={(e) => handleMatchChange(prompt.id, e.target.value)}
+                    className="p-2 border rounded text-black"
+                  >
+                    <option value="" disabled>{t('quiz.selectOption', 'Select an option')}</option>
+                    {question.options.map((option) => (
+                      <option key={option.id} value={option.id}>{option.text}</option>
                     ))}
                   </select>
                 </div>
@@ -280,7 +338,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         ) : (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium mb-2 text-black">{t.quiz.prompts}</h4>
+              <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
               {question.prompts.map((prompt) => (
                 <div key={prompt.id} className="mb-2 flex items-center">
                   <span className="text-black flex-1">{prompt.text}</span>
@@ -288,7 +346,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               ))}
             </div>
             <div>
-              <h4 className="font-medium mb-2 text-black">{t.quiz.correctMatches}</h4>
+              <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
               {question.prompts.map((prompt) => {
                 const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
                 return (
@@ -302,13 +360,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         )}
         {isEditing ? (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t.quiz.explanation}</label>
+            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
             <input
               type="text"
               value={question.explanation || ''}
               onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
               className="w-full p-2 border rounded text-black"
-              placeholder={t.quiz.explanation}
+              placeholder={t('quiz.explanation', 'Explanation')}
             />
           </div>
         ) : question.explanation && (
@@ -394,7 +452,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
         return (
           <div className="mt-4">
-            <h4 className="font-medium mb-2 text-black">{t.quiz.itemsToSort}</h4>
+            <h4 className="font-medium mb-2 text-black">{t('quiz.itemsToSort', 'Items to Sort')}</h4>
             <div className="space-y-2">
               {sortedItems.map((itemId, orderIndex) => {
                 const item = question.items_to_sort.find(i => i.id === itemId);
@@ -424,16 +482,16 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 );
               })}
             </div>
-            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#FF1414]">{t.quiz.addItem}</button>
+            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#FF1414]">{t('quiz.addItem', 'Add Item')}</button>
 
              <div className="mt-4">
-                <label className="block text-sm font-medium text-black mb-1">{t.quiz.explanation}</label>
+                <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
                 <input
                   type="text"
                   value={question.explanation || ''}
                   onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
                   className="w-full p-2 border rounded text-black"
-                  placeholder={t.quiz.explanation}
+                  placeholder={t('quiz.explanation', 'Explanation')}
                 />
               </div>
           </div>
@@ -474,7 +532,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     return (
       <div className="mt-4">
         <div className="space-y-2">
-          <h4 className="font-medium text-black">{t.quiz.acceptableAnswers}:</h4>
+          <h4 className="font-medium text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
           {question.acceptable_answers.map((answer, answerIndex) => (
             <div key={answerIndex}>
               {isEditing ? (
@@ -492,13 +550,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         </div>
         {isEditing ? (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-1">{t.quiz.explanation}</label>
+            <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
             <input
               type="text"
               value={question.explanation || ''}
               onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
               className="w-full p-2 border rounded text-black"
-              placeholder={t.quiz.explanation}
+              placeholder={t('quiz.explanation', 'Explanation')}
             />
           </div>
         ) : question.explanation && (
@@ -547,7 +605,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       {parentProjectName && (
         <div style={{ borderLeft: '3px solid #FF1414', paddingLeft: '10px', marginBottom: '8px' }}>
           <h2 style={{ textTransform: 'uppercase', fontSize: '1.125rem', fontWeight: 500, color: 'black', margin: 0 }}>
-            <span style={{ color: '#FF1414' }}>{t.common.course}:</span> {parentProjectName}
+            <span style={{ color: '#FF1414' }}>{t('common.course', 'COURSE')}:</span> {parentProjectName}
           </h2>
         </div>
       )}
@@ -558,12 +616,12 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             value={dataToDisplay.quizTitle}
             onChange={(e) => handleTextChange(['quizTitle'], e.target.value)}
             className="w-full p-2 border rounded text-2xl font-bold mb-2 text-black"
-            placeholder={t.quiz.quizTitle}
+            placeholder={t('quiz.quizTitle', 'Quiz Title')}
           />
         ) : (
           <h1 className="font-bold text-black mb-2" style={{ fontSize: '1.875rem', lineHeight: '2.25rem' }}>
-            {lessonNumber && <span style={{ color: '#FF1414' }}>{t.common.lesson} №{lessonNumber}: </span>}
-            {dataToDisplay.quizTitle || t.quiz.quizTitle}
+            {lessonNumber && <span style={{ color: '#FF1414' }}>{t('common.lesson', 'LESSON')} №{lessonNumber}: </span>}
+            {dataToDisplay.quizTitle || t('quiz.quizTitle', 'Quiz Title')}
           </h1>
         )}
       </div>

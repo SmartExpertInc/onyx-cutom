@@ -280,7 +280,6 @@ export const en = {
     home: "Home",
     pasteInText: "Paste in text",
     pasteInTextDescription: "Create from notes, an outline, or existing content",
-    generate: "Generate",
     generateDescription: "Create from a one-line prompt in a few seconds",
     importFileOrUrl: "Import file or URL",
     importFileOrUrlDescription: "Enhance existing docs, presentations, or webpages",
@@ -328,7 +327,10 @@ export const en = {
       qualityTier: "Quality Tier",
       loadingContentDisplay: "Loading content display...",
       contentDetails: "Content Details",
-      componentNotImplemented: "A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page. You can typically edit the project's general details (like name or design template) via the main project editing page.",
+      utilizesDesignComponent: "This project instance utilizes the design component:",
+      unknownComponent: "Unknown",
+      specificUIForDirectViewing: "A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.",
+      editGeneralDetails: "You can typically edit the project's general details (like name or design template) via the main project editing page.",
       toggleRawContentPreview: "Toggle Raw Content Preview",
       noSlideDeckData: "No slide deck data available",
       projectDataNotLoaded: "Project data not loaded yet.",
@@ -470,8 +472,7 @@ export const en = {
       createFolder: "Create Folder",
       select: "Select",
       selected: "Selected",
-      file: "file",
-      files: "files"
+      file: "file"
     },
     // Course Outline Page
     courseOutline: {

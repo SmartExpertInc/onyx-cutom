@@ -49,29 +49,7 @@ const slugify = (text: string | null | undefined): string => {
     .replace(/--+/g, '-');
 }
 
-const DefaultDisplayComponent = ({ instanceData }: { instanceData: ProjectInstanceDetail | null }) => (
-  <div className="p-6 border rounded-lg bg-gray-50 shadow-md">
-    <div className="flex items-center text-blue-600 mb-3">
-        <Info size={24} className="mr-3" />
-        <h2 className="text-2xl font-semibold">{instanceData?.name || t('projectView.contentDetails', 'Content Details')}</h2>
-    </div>
-    <p className="text-gray-700 mb-2">
-      {t('projectView.utilizesDesignComponent', 'This project instance utilizes the design component:')} <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || t('projectView.unknownComponent', 'Unknown')}&quot;</strong>.
-    </p>
-    <p className="text-gray-600 mb-4">
-      {t('projectView.specificUIForDirectViewing', 'A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.')}
-      {t('projectView.editGeneralDetails', 'You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.')}
-    </p>
-    <details className="group text-sm">
-        <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
-            {t('projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
-        </summary>
-        <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
-            {JSON.stringify(instanceData?.details, null, 2)}
-        </pre>
-    </details>
-  </div>
-);
+
 
 
 export default function ProjectInstanceViewPage() {
@@ -170,7 +148,7 @@ export default function ProjectInstanceViewPage() {
 
       if (!instanceRes.ok) {
         const errorText = await instanceRes.text();
-        let errorDetail = t('projectView.httpErrorFetchingProjectInstance', 'HTTP error {status} fetching project instance (ID: {id})', { status: instanceRes.status, id: currentProjectIdStr });
+        let errorDetail = `HTTP error ${instanceRes.status} fetching project instance (ID: ${currentProjectIdStr})`;
         try { const errorJson = JSON.parse(errorText); errorDetail = errorJson.detail || errorDetail; }
         catch { errorDetail = `${errorDetail} - ${errorText.substring(0, 150)}`; }
         throw new Error(errorDetail);
@@ -413,7 +391,7 @@ export default function ProjectInstanceViewPage() {
       });
       if (!response.ok) {
         const errorDataText = await response.text();
-        let errorDetail = t('projectView.httpErrorSaving', 'HTTP error {status}', { status: response.status });
+        let errorDetail = `HTTP error ${response.status}`;
         try { 
           const errorJson = JSON.parse(errorDataText); 
           if (errorJson.detail) {
@@ -665,8 +643,8 @@ export default function ProjectInstanceViewPage() {
         body: JSON.stringify({ project_ids: [projectInstanceData.project_id], scope: 'self' })
       });
       if (!resp.ok) {
-        const t = await resp.text();
-        throw new Error(`${t('projectView.failedToMoveToTrash', 'Failed to move to trash')}: ${resp.status} ${t.slice(0,200)}`);
+        const responseText = await resp.text();
+        throw new Error(`${t('projectView.failedToMoveToTrash', 'Failed to move to trash')}: ${resp.status} ${responseText.slice(0,200)}`);
       }
       // redirect to products
       router.push('/projects');
@@ -686,6 +664,30 @@ export default function ProjectInstanceViewPage() {
     if (!projectInstanceData) {
       return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">{t('projectView.projectNotFound', 'Project not found or data unavailable.')}</div></div>;
   }
+
+  const DefaultDisplayComponent = ({ instanceData, t }: { instanceData: ProjectInstanceDetail | null; t: (key: string, fallback?: string) => string }) => (
+    <div className="p-6 border rounded-lg bg-gray-50 shadow-md">
+      <div className="flex items-center text-blue-600 mb-3">
+          <Info size={24} className="mr-3" />
+          <h2 className="text-2xl font-semibold">{instanceData?.name || t('projectView.contentDetails', 'Content Details')}</h2>
+      </div>
+      <p className="text-gray-700 mb-2">
+        {t('projectView.utilizesDesignComponent', 'This project instance utilizes the design component:')} <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || t('projectView.unknownComponent', 'Unknown')}&quot;</strong>.
+      </p>
+      <p className="text-gray-600 mb-4">
+        {t('projectView.specificUIForDirectViewing', 'A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.')}
+        {t('projectView.editGeneralDetails', 'You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.')}
+      </p>
+      <details className="group text-sm">
+          <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
+              {t('projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
+          </summary>
+          <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
+              {JSON.stringify(instanceData?.details, null, 2)}
+          </pre>
+      </details>
+    </div>
+  );
 
   const displayContent = () => {
     if (!projectInstanceData || pageState !== 'success') {
@@ -793,7 +795,7 @@ export default function ProjectInstanceViewPage() {
           />
         );
       default:
-        return <DefaultDisplayComponent instanceData={projectInstanceData} />;
+        return <DefaultDisplayComponent instanceData={projectInstanceData} t={t} />;
     }
   };
 
