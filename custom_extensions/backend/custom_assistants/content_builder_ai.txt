@@ -1166,7 +1166,8 @@ Box 4: [Heading] - [Description text]
 3. [Heading 3] - [Description 3]
 4. [Heading 4] - [Description 4]
 ```
-- Use this template for slides that need to show a process, history, or evolution in 4 key steps.
+- Use this template for slides that need to show a process, history, or evolution in **exactly 4 key steps**.
+- **CRITICAL:** Always generate exactly 4 steps for the timeline (no more, no less). If the process has fewer or more steps, group or summarize to fit 4.
 - Each step should have a short heading and a concise description.
 - The timeline line and numbers are rendered automatically; just provide the steps array.
 - Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
