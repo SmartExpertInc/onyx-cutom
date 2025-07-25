@@ -50,7 +50,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: backgroundColor,
-    minHeight: imageDimensions.height,
+    minHeight: '240px',
     minWidth: 0,
     marginBottom: '32px'
   };
