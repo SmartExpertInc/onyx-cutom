@@ -4,9 +4,9 @@ export const uk = {
     lesson: "УРОК",
     save: "Зберегти",
     saving: "Збереження...",
-    confirmCancelEdit: "Ви впевнені, що хочете скасувати? Будь-які незбережені зміни буде втрачено.",
+    confirmCancelEdit: "Ви впевнені, що хочете скасувати? Всі незбережені зміни будуть втрачені.",
     errorDetails: "Деталі:",
-    sourceChatTooltip: "Перейти до чату, де було створено цей вміст",
+    sourceChatTooltip: "Перейти до чату, де був створений цей контент",
     sourceChat: "Вихідний чат",
     cancelEdit: "Скасувати",
     edit: "Редагувати",
@@ -26,32 +26,32 @@ export const uk = {
     timeUnitGeneralPlural: "год",
     updateError: "Помилка оновлення імені: {error}",
     errorLoadingProjectTitle: "Помилка завантаження проекту",
-    errorLoadingProjectMessage: "Виникла проблема під час отримання даних проекту. Будь ласка, спробуйте ще раз пізніше.",
+    errorLoadingProjectMessage: "Виникла проблема при отриманні даних проекту. Будь ласка, спробуйте пізніше.",
     returnToProjects: "Повернутися до списку проектів",
     projectNotFoundTitle: "Проект не знайдено",
-    projectNotFoundMessage: "Проект, який ви шукаєте, не знайдено, або у вас немає дозволу на його перегляд.",
-    allProjects: "Усі проекти",
+    projectNotFoundMessage: "Проект, який ви шукаєте, не знайдено або у вас немає прав на його перегляд.",
+    allProjects: "Всі проекти",
     loadingProject: "Завантаження проекту..."
   },
   qualityTiers: {
     basic: "Базовий",
-    interactive: "Інтерактивний", 
+    interactive: "Інтерактивний",
     advanced: "Поглиблений",
     immersive: "Іммерсивний"
   },
   videoLesson: {
     slide: "Слайд",
-    displayedTextLabel: "Текст, що відображається",
+    displayedTextLabel: "Відображуваний текст",
     displayingImageLabel: "Зображення (опис)",
     displayedVideoLabel: "Відео (опис)",
-    voiceoverTextLabel: "Текст озвучення",
+    voiceoverTextLabel: "Текст озвучування",
     noSlides: "Слайди не знайдено.",
     editMainTitlePlaceholder: "Заголовок відео-уроку",
     editSlideTitlePlaceholder: "Заголовок слайду",
     editTextPlaceholder: "Коротке речення для слайду...",
-    editImageDescPlaceholder: "Стислий опис зображення...",
-    editVideoDescPlaceholder: "Стислий опис відео/анімації...",
-    editVoiceoverPlaceholder: "Текст озвучення (до 3 речень)...",
+    editImageDescPlaceholder: "Короткий опис зображення...",
+    editVideoDescPlaceholder: "Короткий опис відео/анімації...",
+    editVoiceoverPlaceholder: "Текст озвучування (до 3 речень)...",
     emptyContent: "...",
   },
   quiz: {
@@ -67,7 +67,7 @@ export const uk = {
     explanation: "Пояснення",
     selectOption: "Виберіть варіант",
     multipleChoice: "Одна правильна відповідь",
-    multiSelect: "Декілька правильних відповідей",
+    multiSelect: "Кілька правильних відповідей",
     matching: "Відповідність",
     sorting: "Сортування",
     openAnswer: "Вільна відповідь",
@@ -81,7 +81,7 @@ export const uk = {
       lessonPresentation: "Презентація уроку",
       videoLessonScript: "Сценарій відео-уроку",
       videoLesson: "Відео-урок",
-      comingSoon: "Скоро!",
+      comingSoon: "Незабаром!",
       errorNoSessionId: "Помилка: ID сесії чату недоступний. Неможливо створити урок."
     },
     createTest: {
@@ -95,6 +95,47 @@ export const uk = {
       lessonTypes: "Типи уроків",
       assessmentTypes: "Типи оцінювання",
       createNewLesson: "Створити новий урок"
+    },
+    folderSettings: {
+      title: "Налаштування папки",
+      subtitle: "Налаштування якості виробництва для",
+      basic: "Базовий",
+      basicDescription: "Простий контент електронного навчання з основними функціями для простих потреб у навчанні",
+      interactive: "Інтерактивний",
+      interactiveDescription: "Захоплюючий контент з інтерактивними елементами для кращого залучення та запам'ятовування",
+      advanced: "Поглиблений",
+      advancedDescription: "Складні навчальні процеси з персоналізованим контентом та поглибленою інтерактивністю",
+      immersive: "Іммерсивний",
+      immersiveDescription: "Преміальні навчальні процеси з передовими технологіями для максимального залучення",
+      features: "Функції",
+      hoursRange: "Діапазон годин",
+      customRate: "Користувацька ставка",
+      example: "Приклад",
+      cancel: "Скасувати",
+      saveChanges: "Зберегти зміни",
+      saving: "Збереження..."
+    },
+    projectSettings: {
+      title: "Налаштування курсу",
+      subtitle: "Налаштування якості виробництва для"
+    },
+    clientName: {
+      title: "Експорт у PDF",
+      subtitle: "Створити професійний PDF звіт",
+      clientNameLabel: "Ім'я клієнта (необов'язково)",
+      clientNamePlaceholder: "Введіть ім'я клієнта...",
+      selectFoldersProducts: "Вибрати папки та продукти",
+      folders: "Папки",
+      unassignedProducts: "Непрізначені продукти",
+      selected: "вибрано",
+      skip: "Пропустити",
+      generate: "Створити PDF",
+      generating: "Створення..."
+    },
+    folderExport: {
+      title: "Створення PDF",
+      subtitle: "Створення PDF експорту для папки",
+      description: "Це може зайняти кілька хвилин залежно від кількості файлів..."
     }
   },
   projects: {
@@ -195,6 +236,38 @@ export const uk = {
     english: "Англійська",
     ukrainian: "Українська",
     spanish: "Іспанська",
-    russian: "Російська"
+    russian: "Російська",
+
+    // Create page
+    createWithAI: "Створити з ШІ",
+    howToGetStarted: "Як би ви хотіли почати?",
+    home: "Головна",
+    pasteInText: "Вставити текст",
+    pasteInTextDescription: "Створити з нотаток, плану або існуючого контенту",
+    generate: "Генерувати",
+    generateDescription: "Створити з однострочного запиту за кілька секунд",
+    importFileOrUrl: "Імпортувати файл або URL",
+    importFileOrUrlDescription: "Покращити існуючі документи, презентації або веб-сторінки",
+    popular: "ПОПУЛЯРНО",
+
+    // Projects table toolbar
+    createNew: "Створити нове",
+    import: "Імпорт",
+    showColumns: "Показати стовпці",
+    numberOfLessonsShort: "Кількість уроків",
+    estCreationTimeShort: "Оц. час створення",
+    estCompletionTimeShort: "Оц. час завершення",
+
+    // Filters
+    recentlyViewed: "Нещодавно переглянуті",
+    favorites: "Обране",
+
+    // Authentication
+    checkingAuthentication: "Перевірка аутентифікації...",
+
+    // Block settings
+    blockSettings: "Налаштування блоку",
+    noSettingsAvailable: "Для цього типу блоку налаштування недоступні.",
+    close: "Закрити"
   }
 }; 

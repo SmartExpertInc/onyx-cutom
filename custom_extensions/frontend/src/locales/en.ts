@@ -102,6 +102,47 @@ export const en = {
       lessonTypes: "Lesson Types",
       assessmentTypes: "Assessment Types",
       createNewLesson: "Create New Lesson"
+    },
+    folderSettings: {
+      title: "Folder Settings",
+      subtitle: "Configure production quality for",
+      basic: "Basic",
+      basicDescription: "Simple e-learning content with essential features for straightforward training needs",
+      interactive: "Interactive",
+      interactiveDescription: "Engaging content with interactive elements for better learner engagement and retention",
+      advanced: "Advanced",
+      advancedDescription: "Sophisticated learning experiences with personalized content and advanced interactivity",
+      immersive: "Immersive",
+      immersiveDescription: "Premium learning experiences with cutting-edge technology for maximum engagement",
+      features: "Features",
+      hoursRange: "Hours Range",
+      customRate: "Custom Rate",
+      example: "Example",
+      cancel: "Cancel",
+      saveChanges: "Save Changes",
+      saving: "Saving..."
+    },
+    projectSettings: {
+      title: "Course Settings",
+      subtitle: "Configure production quality for"
+    },
+    clientName: {
+      title: "Export to PDF",
+      subtitle: "Generate a professional PDF report",
+      clientNameLabel: "Client Name (Optional)",
+      clientNamePlaceholder: "Enter client name...",
+      selectFoldersProducts: "Select Folders & Products",
+      folders: "Folders",
+      unassignedProducts: "Unassigned Products",
+      selected: "selected",
+      skip: "Skip",
+      generate: "Generate PDF",
+      generating: "Generating..."
+    },
+    folderExport: {
+      title: "Generating PDF",
+      subtitle: "Creating PDF export for folder",
+      description: "This may take a few moments depending on the number of files..."
     }
   },
   projects: {
@@ -209,6 +250,38 @@ export const en = {
     english: "English",
     ukrainian: "Ukrainian", 
     spanish: "Spanish",
-    russian: "Russian"
+    russian: "Russian",
+
+    // Create page
+    createWithAI: "Create with AI",
+    howToGetStarted: "How would you like to get started?",
+    home: "Home",
+    pasteInText: "Paste in text",
+    pasteInTextDescription: "Create from notes, an outline, or existing content",
+    generate: "Generate",
+    generateDescription: "Create from a one-line prompt in a few seconds",
+    importFileOrUrl: "Import file or URL",
+    importFileOrUrlDescription: "Enhance existing docs, presentations, or webpages",
+    popular: "POPULAR",
+
+    // Projects table toolbar
+    createNew: "Create new",
+    import: "Import",
+    showColumns: "Show columns",
+    numberOfLessonsShort: "Number of lessons",
+    estCreationTimeShort: "Est. creation time",
+    estCompletionTimeShort: "Est. completion time",
+
+    // Filters
+    recentlyViewed: "Recently viewed",
+    favorites: "Favorites",
+
+    // Authentication
+    checkingAuthentication: "Checking authentication...",
+
+    // Block settings
+    blockSettings: "Block Settings",
+    noSettingsAvailable: "No settings available for this block type.",
+    close: "Close"
   }
 }; 

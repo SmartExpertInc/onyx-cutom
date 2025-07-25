@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface FolderSettingsModalProps {
   open: boolean;
@@ -34,12 +35,13 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguage();
 
   const qualityTiers: QualityTier[] = [
     {
       id: 'basic',
-      name: 'Basic',
-      description: 'Simple e-learning content with essential features for straightforward training needs',
+      name: t('modals.folderSettings.basic', 'Basic'),
+      description: t('modals.folderSettings.basicDescription', 'Simple e-learning content with essential features for straightforward training needs'),
       icon: <BookOpen size={20} className="text-green-500" />,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
@@ -50,8 +52,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     },
     {
       id: 'interactive',
-      name: 'Interactive',
-      description: 'Engaging content with interactive elements for better learner engagement and retention',
+      name: t('modals.folderSettings.interactive', 'Interactive'),
+      description: t('modals.folderSettings.interactiveDescription', 'Engaging content with interactive elements for better learner engagement and retention'),
       icon: <Zap size={20} className="text-orange-500" />,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -62,8 +64,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     },
     {
       id: 'advanced',
-      name: 'Advanced',
-      description: 'Sophisticated learning experiences with personalized content and advanced interactivity',
+      name: t('modals.folderSettings.advanced', 'Advanced'),
+      description: t('modals.folderSettings.advancedDescription', 'Sophisticated learning experiences with personalized content and advanced interactivity'),
       icon: <Award size={20} className="text-purple-500" />,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
@@ -74,8 +76,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     },
     {
       id: 'immersive',
-      name: 'Immersive',
-      description: 'Premium learning experiences with cutting-edge technology for maximum engagement',
+      name: t('modals.folderSettings.immersive', 'Immersive'),
+      description: t('modals.folderSettings.immersiveDescription', 'Premium learning experiences with cutting-edge technology for maximum engagement'),
       icon: <Crown size={20} className="text-blue-500" />,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -85,6 +87,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       defaultHours: 700
     }
   ];
+
+
 
   // Update custom rate when tier changes
   React.useEffect(() => {
@@ -156,8 +160,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
         
         {/* Header - Fixed */}
         <div className="mb-6 text-center flex-shrink-0">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Folder Settings</h2>
-          <p className="text-gray-600">Configure production quality for <span className="font-semibold text-blue-600">{folderName}</span></p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('modals.folderSettings.title', 'Folder Settings')}</h2>
+          <p className="text-gray-600">{t('modals.folderSettings.subtitle', 'Configure production quality for')} <span className="font-semibold text-blue-600">{folderName}</span></p>
         </div>
 
         {/* Scrollable Content */}

@@ -4,6 +4,7 @@ import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -132,6 +133,8 @@ function CreatePageHandler() {
 }
 
 export default function DataSourceLanding() {
+  const { t } = useLanguage();
+
   return (
     <>
       <Suspense fallback={null}>
@@ -151,36 +154,36 @@ export default function DataSourceLanding() {
       >
         {/* Home icon */}
         <HomeIcon size={14} className="-ml-0.5" />
-        Home
+        {t('interface.home', 'Home')}
       </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
         {/* Headings */}
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">Create with AI</h1>
-          <p className="text-base sm:text-lg text-gray-600">How would you like to get started?</p>
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">{t('interface.createWithAI', 'Create with AI')}</h1>
+          <p className="text-base sm:text-lg text-gray-600">{t('interface.howToGetStarted', 'How would you like to get started?')}</p>
         </div>
 
         {/* Option cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
           <OptionCard
             Icon={FileText}
-            title="Paste in text"
-            description="Create from notes, an outline, or existing content"
+            title={t('interface.pasteInText', 'Paste in text')}
+            description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
             href="/create/paste-text"
           />
           <OptionCard
             Icon={Sparkles}
-            title="Generate"
-            description="Create from a one-line prompt in a few seconds"
+            title={t('interface.generate', 'Generate')}
+            description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
-            pillLabel="POPULAR"
+            pillLabel={t('interface.popular', 'POPULAR')}
           />
           <OptionCard
             Icon={UploadCloud}
-            title="Import file or URL"
-            description="Enhance existing docs, presentations, or webpages"
+            title={t('interface.importFileOrUrl', 'Import file or URL')}
+            description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
           />
         </div>

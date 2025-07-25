@@ -95,6 +95,47 @@ export const ru = {
       lessonTypes: "Типы уроков",
       assessmentTypes: "Типы оценивания",
       createNewLesson: "Создать новый урок"
+    },
+    folderSettings: {
+      title: "Настройки папки",
+      subtitle: "Настройка качества производства для",
+      basic: "Базовый",
+      basicDescription: "Простой контент электронного обучения с основными функциями для простых потребностей в обучении",
+      interactive: "Интерактивный",
+      interactiveDescription: "Увлекательный контент с интерактивными элементами для лучшего вовлечения и запоминания",
+      advanced: "Продвинутый",
+      advancedDescription: "Сложные учебные процессы с персонализированным контентом и продвинутой интерактивностью",
+      immersive: "Иммерсивный",
+      immersiveDescription: "Премиальные учебные процессы с передовыми технологиями для максимального вовлечения",
+      features: "Функции",
+      hoursRange: "Диапазон часов",
+      customRate: "Пользовательская ставка",
+      example: "Пример",
+      cancel: "Отмена",
+      saveChanges: "Сохранить изменения",
+      saving: "Сохранение..."
+    },
+    projectSettings: {
+      title: "Настройки курса",
+      subtitle: "Настройка качества производства для"
+    },
+    clientName: {
+      title: "Экспорт в PDF",
+      subtitle: "Создать профессиональный PDF отчет",
+      clientNameLabel: "Имя клиента (необязательно)",
+      clientNamePlaceholder: "Введите имя клиента...",
+      selectFoldersProducts: "Выбрать папки и продукты",
+      folders: "Папки",
+      unassignedProducts: "Неприсвоенные продукты",
+      selected: "выбрано",
+      skip: "Пропустить",
+      generate: "Создать PDF",
+      generating: "Создание..."
+    },
+    folderExport: {
+      title: "Создание PDF",
+      subtitle: "Создание PDF экспорта для папки",
+      description: "Это может занять несколько минут в зависимости от количества файлов..."
     }
   },
   projects: {
@@ -194,6 +235,38 @@ export const ru = {
     english: "Английский",
     ukrainian: "Украинский",
     spanish: "Испанский",
-    russian: "Русский"
+    russian: "Русский",
+
+    // Create page
+    createWithAI: "Создать с ИИ",
+    howToGetStarted: "Как бы вы хотели начать?",
+    home: "Главная",
+    pasteInText: "Вставить текст",
+    pasteInTextDescription: "Создать из заметок, плана или существующего контента",
+    generate: "Генерировать",
+    generateDescription: "Создать из однострочного запроса за несколько секунд",
+    importFileOrUrl: "Импортировать файл или URL",
+    importFileOrUrlDescription: "Улучшить существующие документы, презентации или веб-страницы",
+    popular: "ПОПУЛЯРНО",
+
+    // Projects table toolbar
+    createNew: "Создать новое",
+    import: "Импорт",
+    showColumns: "Показать столбцы",
+    numberOfLessonsShort: "Количество уроков",
+    estCreationTimeShort: "Оц. время создания",
+    estCompletionTimeShort: "Оц. время завершения",
+
+    // Filters
+    recentlyViewed: "Недавно просмотренные",
+    favorites: "Избранное",
+
+    // Authentication
+    checkingAuthentication: "Проверка аутентификации...",
+
+    // Block settings
+    blockSettings: "Настройки блока",
+    noSettingsAvailable: "Для этого типа блока настройки недоступны.",
+    close: "Закрыть"
   }
 }; 

@@ -518,6 +518,7 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
 const ProjectsPageInner: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
@@ -735,7 +736,7 @@ const ProjectsPageInner: React.FC = () => {
       <div className="bg-[#F7F7F7] min-h-screen font-sans flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-gray-600">{t('interface.checkingAuthentication', 'Checking authentication...')}</p>
         </div>
       </div>
     );

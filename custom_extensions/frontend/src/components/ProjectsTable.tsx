@@ -37,24 +37,27 @@ import {
 } from 'lucide-react';
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Loading Modal Component for Folder Export
 const FolderExportLoadingModal: React.FC<{
   isOpen: boolean;
   folderName: string;
 }> = ({ isOpen, folderName }) => {
+  const { t } = useLanguage();
+  
   if (!isOpen) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Generating PDF</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('modals.folderExport.title', 'Generating PDF')}</h3>
         <p className="text-gray-600 text-center mb-4">
-          Creating PDF export for folder <span className="font-semibold text-blue-600">"{folderName}"</span>
+          {t('modals.folderExport.subtitle', 'Creating PDF export for folder')} <span className="font-semibold text-blue-600">"{folderName}"</span>
         </p>
         <p className="text-sm text-gray-500 text-center">
-          This may take a few moments depending on the number of files...
+          {t('modals.folderExport.description', 'This may take a few moments depending on the number of files...')}
         </p>
       </div>
     </div>,
@@ -2060,6 +2063,7 @@ const FolderRowMenu: React.FC<{
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folderId = null }) => {
     const router = useRouter();
+    const { t } = useLanguage();
     const [projects, setProjects] = useState<Project[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [loading, setLoading] = useState(true);
@@ -3033,12 +3037,12 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         target.style.transform = 'rotate(0deg)';
     }, []);
 
-    const filters = ['All', 'Recently viewed', 'Created by you', 'Favorites'];
+    const filters = [t('interface.all', 'All'), t('interface.recentlyViewed', 'Recently viewed'), t('interface.createdByYou', 'Created by you'), t('interface.favorites', 'Favorites')];
     const filterIcons: Record<string, LucideIcon> = {
-        'All': Home,
-        'Recently viewed': Clock,
-        'Created by you': User,
-        'Favorites': Star,
+        [t('interface.all', 'All')]: Home,
+        [t('interface.recentlyViewed', 'Recently viewed')]: Clock,
+        [t('interface.createdByYou', 'Created by you')]: User,
+        [t('interface.favorites', 'Favorites')]: Star,
     };
 
     // Add PDF download function
@@ -3121,7 +3125,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg"
                         >
                             <Plus size={16} className="text-white" />
-                            Create new
+                            {t('interface.createNew', 'Create new')}
                             <span
                                 className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide"
                             >
@@ -3132,7 +3136,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     <button
                         className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm"
                     >
-                        Import
+                        {t('interface.import', 'Import')}
                         <ChevronsUpDown size={16} className="text-gray-500" />
                     </button>
                 </div>
@@ -3159,7 +3163,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 <div className="flex items-center gap-4">
                     <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700">
                         <ArrowUpDown size={16} className="text-gray-800" />
-                        Sort
+                        {t('interface.sort', 'Sort')}
                     </button>
                     
                     {/* Columns Dropdown */}
@@ -3169,21 +3173,21 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700"
                         >
                             <List size={16} className="text-gray-800" />
-                            Columns
+                            {t('interface.columns', 'Columns')}
                             <ChevronDown size={14} className="text-gray-600" />
                         </button>
                         
                         {showColumnsDropdown && (
                             <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                                 <div className="p-2">
-                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Show columns</div>
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">{t('interface.showColumns', 'Show columns')}</div>
                                     {[
-                                        { key: 'title', label: 'Title' },
-                                        { key: 'created', label: 'Created' },
-                                        { key: 'creator', label: 'Creator' },
-                                        { key: 'numberOfLessons', label: 'Number of lessons' },
-                                        { key: 'estCreationTime', label: 'Est. creation time' },
-                                        { key: 'estCompletionTime', label: 'Est. completion time' }
+                                        { key: 'title', label: t('interface.title', 'Title') },
+                                        { key: 'created', label: t('interface.created', 'Created') },
+                                        { key: 'creator', label: t('interface.creator', 'Creator') },
+                                        { key: 'numberOfLessons', label: t('interface.numberOfLessonsShort', 'Number of lessons') },
+                                        { key: 'estCreationTime', label: t('interface.estCreationTimeShort', 'Est. creation time') },
+                                        { key: 'estCompletionTime', label: t('interface.estCompletionTimeShort', 'Est. completion time') }
                                     ].map((column) => (
                                         <label key={column.key} className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer">
                                             {columnVisibility[column.key as keyof ColumnVisibility] ? (
@@ -3277,7 +3281,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.title}%` }}
                                         >
-                                            Title
+                                            {t('interface.title', 'Title')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'title')}
@@ -3289,7 +3293,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.created}%` }}
                                         >
-                                            Created
+                                            {t('interface.created', 'Created')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'created')}
@@ -3301,7 +3305,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.creator}%` }}
                                         >
-                                            Creator
+                                            {t('interface.creator', 'Creator')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'creator')}
@@ -3313,7 +3317,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.numberOfLessons}%` }}
                                         >
-                                            Number of lessons
+                                            {t('interface.numberOfLessons', 'Number of Lessons')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'numberOfLessons')}
@@ -3325,7 +3329,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.estCreationTime}%` }}
                                         >
-                                            Est. creation time
+                                            {t('interface.estCreationTime', 'Est. Creation Time')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCreationTime')}
@@ -3337,14 +3341,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.estCompletionTime}%` }}
                                         >
-                                            Est. completion time
+                                            {t('interface.estCompletionTime', 'Est. Completion Time')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
                                             />
                                         </th>
                                     )}
-                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '80px' }}>Actions</th>
+                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '80px' }}>{t('interface.actions', 'Actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
@@ -3633,7 +3637,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     </div>
                 )
             ) : (
-                <div className="text-center p-8 text-gray-500">No projects found.</div>
+                <div className="text-center p-8 text-gray-500">{t('interface.noProjectsFound', 'No projects found.')}</div>
             )}
             
             {/* Client Name Modal */}
