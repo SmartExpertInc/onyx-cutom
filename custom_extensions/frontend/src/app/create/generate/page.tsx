@@ -264,6 +264,8 @@ function GenerateProductPicker() {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else if (product === 'quiz' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+    } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
+      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else {
       // Try to get from sessionStorage
       try {
@@ -289,6 +291,10 @@ function GenerateProductPicker() {
         setUseExistingQuizOutline(true);
         
         // Store quiz context for pre-selecting dropdowns after outlines are loaded
+        sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
+      } else if (lessonContext.product === 'text-presentation') {
+        setActiveProduct("One-Pager");
+        setUseExistingTextOutline(true);
         sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
       } else {
         setActiveProduct("Presentation");
