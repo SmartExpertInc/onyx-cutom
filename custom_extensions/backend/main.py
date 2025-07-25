@@ -7612,6 +7612,10 @@ async def generate_and_finalize_course_outline_for_position(
                         "mainTitle": content.get("mainTitle") or f"Онбординг: {position['Позиция']}",
                         "detectedLanguage": content.get("detectedLanguage") or language
                     }
+                    
+                    # Log the content being updated for debugging
+                    logger.info(f"Updating project {project_db_candidate.id} with content: {json.dumps(updated_content, ensure_ascii=False)[:500]}...")
+                    
                     await conn.execute(
                         """
                         UPDATE projects
@@ -7620,9 +7624,20 @@ async def generate_and_finalize_course_outline_for_position(
                         """,
                         json.dumps(updated_content), project_db_candidate.id
                     )
+                    
+                    # Verify the update was successful
+                    result = await conn.fetchrow(
+                        "SELECT microproduct_content FROM projects WHERE id = $1",
+                        project_db_candidate.id
+                    )
+                    if result:
+                        logger.info(f"Successfully updated project {project_db_candidate.id} with {len(updated_sections)} sections and {sum(len(s.get('lessons', [])) for s in updated_sections)} total lessons")
+                    else:
+                        logger.error(f"Failed to verify update for project {project_db_candidate.id}")
+                        
                     logger.info(f"Recalculated module total hours for project {project_db_candidate.id}")
     except Exception as e:
-        logger.warning(f"Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+        logger.error(f"Failed to recalculate module total hours for project {project_db_candidate.id}: {e}", exc_info=True)
 
 
     return project_db_candidate
