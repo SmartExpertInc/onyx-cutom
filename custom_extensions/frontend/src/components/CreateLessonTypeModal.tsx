@@ -35,7 +35,8 @@ const lessonTypes = [
     name: "videoLesson", 
     icon: <Film className="w-6 h-6" />, 
     disabled: true,
-    tooltipKey: "comingSoon"
+    tooltipKey: "comingSoon",
+    soon: true
   },
 ];
 
@@ -156,8 +157,13 @@ export const CreateLessonTypeModal = ({
                 <div className="w-1/4 flex justify-center items-center">
                     {type.icon}
                 </div>
-                <div className="w-3/4 text-left">
+                <div className="w-3/4 text-left flex items-center gap-2">
                     {type.name === "quiz" ? "Quiz" : localized[type.name as keyof typeof localized]}
+                    {(type as any).soon && (
+                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
+                        Soon
+                      </span>
+                    )}
                 </div>
             </StyledButton>
           ))}

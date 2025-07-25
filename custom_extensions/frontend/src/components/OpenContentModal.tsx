@@ -95,19 +95,24 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
           {/* Video Lesson */}
           {hasVideoLesson && videoLessonId && (
             <button
-              onClick={() => handleOpenContent('videoLesson', videoLessonId)}
-              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              disabled={true}
+              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed text-left"
             >
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Video size={20} className="text-purple-600" />
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Video size={20} className="text-gray-400" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Video Lesson</h3>
-                  <p className="text-sm text-gray-600">Open the video lesson</p>
+                  <h3 className="font-medium flex items-center gap-2">
+                    Video Lesson
+                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
+                      Soon
+                    </span>
+                  </h3>
+                  <p className="text-sm text-gray-400">Video lessons coming soon</p>
                 </div>
               </div>
-              <ExternalLink size={16} className="text-gray-400" />
+              <ExternalLink size={16} className="text-gray-300" />
             </button>
           )}
 
