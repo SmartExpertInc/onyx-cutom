@@ -263,6 +263,8 @@ function GenerateProductPicker() {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+    } else if (product === 'one-pager' && lessonType && lessonTitle && moduleName && lessonNumber) {
+      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else {
       // Try to get from sessionStorage
       try {
