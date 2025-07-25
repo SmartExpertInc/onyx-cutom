@@ -1019,11 +1019,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
     propSchema: {
       title: { type: 'text', label: 'Title' },
-      items: { type: 'array', label: 'Big Numbers', arrayItemType: { type: 'object', fields: {
-        value: { type: 'text', label: 'Value' },
-        label: { type: 'text', label: 'Label' },
-        description: { type: 'text', label: 'Description' },
-      } } },
+      items: { type: 'array', label: 'Big Numbers' },
     },
   }
 };
