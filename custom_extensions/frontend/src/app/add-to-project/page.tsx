@@ -4,6 +4,7 @@
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { DesignTemplateResponse } from '@/types/designTemplates';
+import { useLanguage } from '../../contexts/LanguageContext';
 // import { ProjectApiResponse } from '@/types/projectSpecificTypes'; // Not strictly needed if only fetching names as string[]
 
 const CUSTOM_API_BASE_URL = '/api/custom-projects-backend';
@@ -21,6 +22,7 @@ const getFullImagePath = (imagePath?: string | null) => {
 };
 
 const AddToProjectPageComponent = () => {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -224,17 +226,17 @@ const AddToProjectPageComponent = () => {
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
       <div className="max-w-6xl mx-auto bg-white p-6 md:p-10 shadow-xl rounded-xl border border-gray-200">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Create New Product Instance</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-800">{t('interface.addToProject.title', 'Create New Product Instance')}</h1>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-            <strong className="font-bold">Error: </strong>
+            <strong className="font-bold">{t('interface.addToProject.error', 'Error')}: </strong>
             <span className="block sm:inline">{error}</span>
           </div>
         )}
 
         <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">1. Select Product Type</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">{t('interface.addToProject.selectProductType', '1. Select Product Type')}</h2>
           {isLoadingTemplates ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1,2,3].map(i => (
@@ -242,7 +244,7 @@ const AddToProjectPageComponent = () => {
               ))}
             </div>
           ) : designTemplates.length === 0 ? (
-            <p className="text-gray-500">No product types available. Please add some design templates in the admin panel.</p>
+            <p className="text-gray-500">{t('interface.addToProject.noProductTypes', 'No product types available. Please add some design templates in the admin panel.')}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {designTemplates.map(template => (
@@ -291,11 +293,11 @@ const AddToProjectPageComponent = () => {
 
         {selectedDesignTemplateId && (
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">2. Configure Project</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-700">{t('interface.addToProject.configureProject', '2. Configure Project')}</h2>
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 space-y-4">
               <div>
                 <label htmlFor="projectSelection" className="block text-sm font-medium text-gray-700 mb-1">
-                  Add to Project:
+                  {t('interface.addToProject.addToProject', 'Add to Project:')}
                 </label>
                 <select
                   id="projectSelection"
@@ -309,22 +311,22 @@ const AddToProjectPageComponent = () => {
                   className="block w-full p-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900"
                   disabled={isLoadingProjectNames}
                 >
-                  <option value="">-- Select or Create Project --</option>
+                  <option value="">{t('interface.addToProject.selectOrCreateProject', '-- Select or Create Project --')}</option>
                   {isLoadingProjectNames ? (
-                    <option disabled>Loading projects...</option>
+                    <option disabled>{t('interface.addToProject.loadingProjects', 'Loading projects...')}</option>
                   ) : (
                     existingProjectNames.map(name => (
                       <option key={name} value={name}>{name}</option>
                     ))
                   )}
-                  <option value="CREATE_NEW_PROJECT">--- Create New Project ---</option>
+                  <option value="CREATE_NEW_PROJECT">{t('interface.addToProject.createNewProject', '--- Create New Project ---')}</option>
                 </select>
               </div>
 
               {selectedProjectOption === "CREATE_NEW_PROJECT" && (
                 <div>
                   <label htmlFor="newProjectName" className="block text-sm font-medium text-gray-700 mb-1">
-                    New Project Name:
+                    {t('interface.addToProject.newProjectName', 'New Project Name:')}
                   </label>
                   <input
                     type="text"
@@ -332,7 +334,7 @@ const AddToProjectPageComponent = () => {
                     value={newProjectNameInput}
                     onChange={(e) => setNewProjectNameInput(e.target.value)}
                     className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
-                    placeholder="Enter name for the new project"
+                    placeholder={t('interface.addToProject.enterNewProjectName', 'Enter name for the new project')}
                   />
                 </div>
               )}
@@ -343,7 +345,7 @@ const AddToProjectPageComponent = () => {
                   onClick={() => setIsAdvancedSectionOpen(!isAdvancedSectionOpen)}
                   className="flex justify-between items-center w-full text-sm font-medium text-blue-600 hover:text-blue-700 focus:outline-none"
                 >
-                  <span>Advanced Options</span>
+                  <span>{t('interface.addToProject.advancedOptions', 'Advanced Options')}</span>
                   <svg
                     className={`w-5 h-5 transform transition-transform duration-200 ${
                       isAdvancedSectionOpen ? 'rotate-180' : ''
@@ -359,7 +361,7 @@ const AddToProjectPageComponent = () => {
                 {isAdvancedSectionOpen && (
                   <div className="mt-3 p-4 bg-white border rounded-md shadow-sm">
                     <label htmlFor="instanceNameInput" className="block text-sm font-medium text-gray-700 mb-1">
-                      Instance Name (Optional):
+                      {t('interface.addToProject.instanceName', 'Instance Name (Optional):')}
                     </label>
                     <input
                       type="text"
@@ -367,10 +369,10 @@ const AddToProjectPageComponent = () => {
                       value={instanceNameInput} // Value is now managed by state, including auto-fill
                       onChange={(e) => setInstanceNameInput(e.target.value)}
                       className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
-                      placeholder={`Defaults to "${selectedTemplate?.template_name || 'Product Name'}" or AI response title`}
+                      placeholder={t('interface.addToProject.instanceNamePlaceholder', 'Defaults to "{name}" or AI response title').replace('{name}', selectedTemplate?.template_name || 'Product Name')}
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      If left blank, the Product's name (or AI title) will be used.
+                      {t('interface.addToProject.instanceNameHelp', 'If left blank, the Product\'s name (or AI title) will be used.')}
                     </p>
                   </div>
                 )}
@@ -392,9 +394,9 @@ const AddToProjectPageComponent = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Creating...
+                  {t('interface.addToProject.creating', 'Creating...')}
                 </div>
-              ) : 'Create Product Instance'}
+              ) : t('interface.addToProject.createProductInstance', 'Create Product Instance')}
             </button>
           </div>
         )}
@@ -404,8 +406,9 @@ const AddToProjectPageComponent = () => {
 };
 
 export default function AddToProjectPage() {
+  const { t } = useLanguage();
   return (
-    <Suspense fallback={<div className="p-8 text-center font-['Inter',_sans-serif] text-lg">Loading page details...</div>}>
+    <Suspense fallback={<div className="p-8 text-center font-['Inter',_sans-serif] text-lg">{t('interface.addToProject.loadingPageDetails', 'Loading page details...')}</div>}>
       <AddToProjectPageComponent />
     </Suspense>
   );

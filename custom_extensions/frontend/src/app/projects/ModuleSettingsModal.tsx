@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Settings, Clock, Calculator, Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ModuleSettingsModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export default function ModuleSettingsModal({
   currentQualityTier,
   onSave
 }: ModuleSettingsModalProps) {
+  const { t } = useLanguage();
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(currentCustomRate || 200);
   const [saving, setSaving] = useState(false);
@@ -124,7 +126,7 @@ export default function ModuleSettingsModal({
       onClose();
     } catch (error) {
       console.error('Error saving module settings:', error);
-      alert('Failed to save module tier setting');
+      alert(t('modals.moduleSettings.failedToSave', 'Failed to save module tier setting'));
     } finally {
       setSaving(false);
     }
@@ -146,8 +148,8 @@ export default function ModuleSettingsModal({
         
         {/* Header - Fixed */}
         <div className="mb-6 text-center flex-shrink-0">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Module Settings</h2>
-          <p className="text-gray-600">Configure production quality for <span className="font-semibold text-blue-600">{moduleTitle}</span></p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('modals.moduleSettings.title', 'Module Settings')}</h2>
+          <p className="text-gray-600">{t('modals.moduleSettings.subtitle', 'Configure production quality for')} <span className="font-semibold text-blue-600">{moduleTitle}</span></p>
         </div>
 
         {/* Scrollable Content */}
@@ -160,13 +162,13 @@ export default function ModuleSettingsModal({
               <div className="bg-gray-50 border-b border-gray-200">
                 <div className="grid grid-cols-12 gap-4 px-6 py-3">
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">Tier</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.moduleSettings.tier', 'Tier')}</h4>
                   </div>
                   <div className="col-span-6">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">Content Examples</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.moduleSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">Hours Range</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.moduleSettings.hoursRange', 'Hours Range')}</h4>
                   </div>
                 </div>
               </div>
@@ -249,7 +251,7 @@ export default function ModuleSettingsModal({
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">Example:</span> 1h = {customRate}h</p>
+                              <p><span className="font-medium">{t('modals.moduleSettings.example', 'Example')}:</span> 1h = {customRate}h</p>
                             </div>
                           </div>
                         ) : (
@@ -271,7 +273,7 @@ export default function ModuleSettingsModal({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
             <div className="text-sm text-blue-700">
               <Calculator className="inline mr-1" size={14} />
-              Module quality tier set to <span className="font-semibold">{selectedTierData?.name}</span> ({customRate}h per completion hour)
+              {t('modals.moduleSettings.moduleQualityTier', 'Module quality tier set to')} <span className="font-semibold">{selectedTierData?.name}</span> ({customRate}h {t('modals.moduleSettings.perCompletionHour', 'per completion hour')})
             </div>
           </div>
         </div>
@@ -283,7 +285,7 @@ export default function ModuleSettingsModal({
             onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
             disabled={saving}
           >
-            Cancel
+            {t('modals.moduleSettings.cancel', 'Cancel')}
           </button>
           <button
             className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
@@ -297,10 +299,10 @@ export default function ModuleSettingsModal({
             {saving ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Saving...
+                {t('modals.moduleSettings.saving', 'Saving...')}
               </div>
             ) : (
-              'Save Changes'
+              t('modals.moduleSettings.saveChanges', 'Save Changes')
             )}
           </button>
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Settings, Clock, Calculator, Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface LessonSettingsModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export default function LessonSettingsModal({
   completionTime,
   onSave
 }: LessonSettingsModalProps) {
+  const { t } = useLanguage();
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(currentCustomRate || 200);
   const [saving, setSaving] = useState(false);
@@ -122,11 +124,11 @@ export default function LessonSettingsModal({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave(customRate, qualityTier);
+      onSave(customRate, qualityTier);
       onClose();
     } catch (error) {
       console.error('Error saving lesson settings:', error);
-      alert('Failed to save lesson tier setting');
+      alert(t('modals.lessonSettings.failedToSave', 'Failed to save lesson tier setting'));
     } finally {
       setSaving(false);
     }
@@ -151,8 +153,8 @@ export default function LessonSettingsModal({
         
         {/* Header - Fixed */}
         <div className="mb-6 text-center flex-shrink-0">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Lesson Settings</h2>
-          <p className="text-gray-600">Configure production quality for <span className="font-semibold text-blue-600">{lessonTitle}</span></p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('modals.lessonSettings.title', 'Lesson Settings')}</h2>
+          <p className="text-gray-600">{t('modals.lessonSettings.subtitle', 'Configure production quality for')} <span className="font-semibold text-blue-600">{lessonTitle}</span></p>
         </div>
 
         {/* Scrollable Content */}
@@ -165,13 +167,13 @@ export default function LessonSettingsModal({
               <div className="bg-gray-50 border-b border-gray-200">
                 <div className="grid grid-cols-12 gap-4 px-6 py-3">
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">Tier</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.tier', 'Tier')}</h4>
                   </div>
                   <div className="col-span-6">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">Content Examples</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">Hours Range</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.hoursRange', 'Hours Range')}</h4>
                   </div>
                 </div>
               </div>
@@ -254,7 +256,7 @@ export default function LessonSettingsModal({
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">Example:</span> 1h = {customRate}h</p>
+                              <p><span className="font-medium">{t('modals.lessonSettings.example', 'Example')}:</span> 1h = {customRate}h</p>
                             </div>
                           </div>
                         ) : (
@@ -272,11 +274,11 @@ export default function LessonSettingsModal({
             </div>
           </div>
 
-          {/* Creation Time Preview */}
+          {/* Lesson Info Preview */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
             <div className="text-sm text-blue-700">
               <Calculator className="inline mr-1" size={14} />
-              {completionTime} × {customRate} = {creationHours}h
+              {t('modals.lessonSettings.lessonQualityTier', 'Lesson quality tier set to')} <span className="font-semibold">{selectedTierData?.name}</span> ({customRate}h {t('modals.lessonSettings.perCompletionHour', 'per completion hour')})
             </div>
           </div>
         </div>
@@ -288,7 +290,7 @@ export default function LessonSettingsModal({
             onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
             disabled={saving}
           >
-            Cancel
+            {t('modals.lessonSettings.cancel', 'Cancel')}
           </button>
           <button
             className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
@@ -302,10 +304,10 @@ export default function LessonSettingsModal({
             {saving ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Saving...
+                {t('modals.lessonSettings.saving', 'Saving...')}
               </div>
             ) : (
-              'Save Changes'
+              t('modals.lessonSettings.saveChanges', 'Save Changes')
             )}
           </button>
         </div>
