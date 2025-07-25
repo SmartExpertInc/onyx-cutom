@@ -22,7 +22,7 @@ import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '../../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
 
