@@ -1137,14 +1137,15 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 
 ## [Main Title]
 
-[2x2 grid of 4 boxes, each with heading and description]
+Box 1: [Heading] - [Description text]
+Box 2: [Heading] - [Description text]  
+Box 3: [Heading] - [Description text]
+Box 4: [Heading] - [Description text]
 
-- Box 1 Heading: Description for box 1.
-- Box 2 Heading: Description for box 2.
-- Box 3 Heading: Description for box 3.
-- Box 4 Heading: Description for box 4.
+[NO IMAGE PLACEHOLDERS - this template creates visual grid internally]
 ```
 - Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
+- **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
 - Each box should have a short heading and a concise description.
 - Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
 - Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".

@@ -79,12 +79,26 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     <div className="four-box-grid-template" style={slideStyles}>
       <h1 style={titleStyles}>{title}</h1>
       <div style={gridStyles}>
-        {boxes.slice(0, 4).map((box, idx) => (
-          <div key={idx} style={boxStyles}>
-            <div style={headingStyles}>{box.heading}</div>
-            <div style={textStyles}>{box.text}</div>
+        {Array.isArray(boxes) && boxes.length >= 4 ? (
+          boxes.slice(0, 4).map((box: any, idx: number) => (
+            <div key={idx} style={boxStyles}>
+              <div style={headingStyles}>{box.heading || 'Heading'}</div>
+              <div style={textStyles}>{box.text || 'Description'}</div>
+            </div>
+          ))
+        ) : (
+          <div style={{ 
+            color: '#ff6b6b', 
+            fontWeight: 600, 
+            padding: '20px', 
+            textAlign: 'center',
+            gridColumn: '1 / -1'
+          }}>
+            Error: This slide requires exactly 4 boxes with "heading" and "text" fields.
+            {!Array.isArray(boxes) && <div>Found: {typeof boxes}</div>}
+            {Array.isArray(boxes) && <div>Found {boxes.length} boxes (need 4)</div>}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
