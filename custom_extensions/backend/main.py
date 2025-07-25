@@ -7550,94 +7550,107 @@ async def generate_and_finalize_course_outline_for_position(
         pool=pool
     )
 
-    try:
+    ptheme = "Default"
+
+    content_valid = False
+    if project_db_candidate.microproduct_content:
+        if hasattr(project_db_candidate.microproduct_content, "sections"):
+            sections = getattr(project_db_candidate.microproduct_content, "sections", [])
+            content_valid = len(sections) > 0
+            logger.info(f"Direct parser path: Found {len(sections)} sections in parsed content")
+        else:
+            logger.warning(f"Direct parser path: Content does not have sections attribute")
+    else:
+        logger.warning(f"Direct parser path: microproduct_content is None")
+
+    # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+    if ptheme and content_valid:
         async with pool.acquire() as conn:
-            # Convert Pydantic model to dictionary for processing
-            content = project_db_candidate.microproduct_content.model_dump(mode='json', exclude_none=True) if project_db_candidate.microproduct_content else {}
-            
-            if isinstance(content, dict) and content.get("sections"):
-                sections = content["sections"]
-                updated_sections = []
-                
-                for section in sections:
-                    if isinstance(section, dict) and section.get("lessons"):
-                        # Ensure each lesson has proper hours value and completionTime (default to 1 hour and 5m if missing)
-                        updated_lessons = []
-                        for lesson in section["lessons"]:
-                            if isinstance(lesson, dict):
-                                # Set default hours if missing or zero
-                                if lesson.get("hours", 0) == 0:
-                                    lesson["hours"] = 1
-                                # Set default completionTime if missing
-                                if not lesson.get("completionTime"):
-                                    lesson["completionTime"] = "5m"
-                                # Ensure all required lesson fields are present
-                                lesson.setdefault("check", {"type": "none", "text": ""})
-                                lesson.setdefault("contentAvailable", {"type": "yes", "text": "100%"})
-                                lesson.setdefault("source", "Create from scratch")
-                                updated_lessons.append(lesson)
-                            else:
-                                # If lesson is just a string, convert to proper structure
-                                updated_lessons.append({
-                                    "title": str(lesson),
-                                    "check": {"type": "none", "text": ""},
-                                    "contentAvailable": {"type": "yes", "text": "100%"},
-                                    "source": "Create from scratch",
-                                    "hours": 1,
-                                    "completionTime": "5m"
-                                })
-                        
-                        # Calculate total hours from lesson hours
-                        total_hours = sum(lesson.get("hours", 0) for lesson in updated_lessons)
-                        
-                        # Update section with calculated total hours and set autoCalculateHours to true
-                        updated_section = {
-                            **section,
-                            "lessons": updated_lessons,
-                            "totalHours": total_hours,
-                            "autoCalculateHours": True
-                        }
-                        # Ensure section has proper ID if missing
-                        if not updated_section.get("id"):
-                            updated_section["id"] = f"№{len(updated_sections) + 1}"
-                        updated_sections.append(updated_section)
-                    else:
-                        updated_sections.append(section)
-                
-                # Update the project with recalculated totals and ensure mainTitle and detectedLanguage
-                if updated_sections:
-                    updated_content = {
-                        **content, 
-                        "sections": updated_sections,
-                        "mainTitle": content.get("mainTitle") or f"Онбординг: {position['Позиция']}",
-                        "detectedLanguage": content.get("detectedLanguage") or language
-                    }
+            design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
+            if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                await conn.execute(
+                    """
+                    UPDATE projects
+                    SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                    WHERE id = $2
+                    """,
+                    ptheme, project_db_candidate.id
+                )
+                row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
+                if row_patch and row_patch["microproduct_content"] is not None:
+                    project_db_candidate.microproduct_content = row_patch["microproduct_content"]
+
+    # --- Recalculate module total hours after creation ---
+    if content_valid and project_db_candidate.microproduct_content:
+        try:
+            async with pool.acquire() as conn:
+                content = project_db_candidate.microproduct_content
+                if isinstance(content, dict) and content.get("sections"):
+                    sections = content["sections"]
+                    updated_sections = []
                     
-                    # Log the content being updated for debugging
-                    logger.info(f"Updating project {project_db_candidate.id} with content: {json.dumps(updated_content, ensure_ascii=False)[:500]}...")
+                    for section in sections:
+                        if isinstance(section, dict) and section.get("lessons"):
+                            # Calculate total hours from lesson hours
+                            total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
+                            # Update section with calculated total hours and set autoCalculateHours to true
+                            updated_section = {
+                                **section,
+                                "totalHours": total_hours,
+                                "autoCalculateHours": True
+                            }
+                            updated_sections.append(updated_section)
+                        else:
+                            updated_sections.append(section)
                     
-                    await conn.execute(
-                        """
-                        UPDATE projects
-                        SET microproduct_content = $1::jsonb
-                        WHERE id = $2
-                        """,
-                        json.dumps(updated_content), project_db_candidate.id
-                    )
-                    
-                    # Verify the update was successful
-                    result = await conn.fetchrow(
-                        "SELECT microproduct_content FROM projects WHERE id = $1",
-                        project_db_candidate.id
-                    )
-                    if result:
-                        logger.info(f"Successfully updated project {project_db_candidate.id} with {len(updated_sections)} sections and {sum(len(s.get('lessons', [])) for s in updated_sections)} total lessons")
-                    else:
-                        logger.error(f"Failed to verify update for project {project_db_candidate.id}")
-                        
-                    logger.info(f"Recalculated module total hours for project {project_db_candidate.id}")
-    except Exception as e:
-        logger.error(f"Failed to recalculate module total hours for project {project_db_candidate.id}: {e}", exc_info=True)
+                    # Update the project with recalculated totals
+                    if updated_sections:
+                        updated_content = {**content, "sections": updated_sections}
+                        await conn.execute(
+                            """
+                            UPDATE projects
+                            SET microproduct_content = $1::jsonb
+                            WHERE id = $2
+                            """,
+                            json.dumps(updated_content), project_db_candidate.id
+                        )
+                        logger.info(f"Direct parser path: Recalculated module total hours for project {project_db_candidate.id}")
+        except Exception as e:
+            logger.warning(f"Direct parser path: Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+
+    # Success when we have valid parsed content
+    if content_valid:
+        logger.info(f"Direct parser path successful for project {direct_path_project_id}")
+        return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
+    else:
+        # Direct parser path validation failed - clean up the created project and fall back to assistant
+        logger.warning(f"Direct parser path validation failed for project {direct_path_project_id} - LLM parsing likely failed")
+        logger.warning(f"Content details: {project_db_candidate.microproduct_content}")
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+            logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
+        except Exception as cleanup_e:
+            logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+        
+        # Fall back to assistant path
+        logger.info("Falling back to assistant + parser path due to direct parser failure")
+        use_direct_parser = False
+        use_assistant_then_parser = True
+        
+except Exception as direct_e:
+    # Clean up any project created during direct parser path failure
+    if direct_path_project_id:
+        logger.warning(f"Direct parser path failed with project {direct_path_project_id}, attempting cleanup...")
+        try:
+            onyx_user_id = await get_current_onyx_user_id(request)
+            async with pool.acquire() as conn:
+                await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+            logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
+        except Exception as cleanup_e:
+            logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+    
+    logger.error(f"Direct parser path failed with error: {direct_e}")
 
 
     return project_db_candidate
@@ -7807,6 +7820,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     logger.warning(f"Direct parser path: Content does not have sections attribute")
             else:
                 logger.warning(f"Direct parser path: microproduct_content is None")
+
+            print("Theme: ", payload.theme)
 
             # --- Patch theme into DB if provided (only for TrainingPlan components) ---
             if payload.theme and content_valid:
