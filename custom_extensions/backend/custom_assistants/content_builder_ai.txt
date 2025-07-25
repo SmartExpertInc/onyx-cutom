@@ -927,6 +927,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 9. `challenges-solutions` - Problems vs solutions with visual indicators
 10. `process-steps` - Numbered process or workflow steps
 11. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
+12. `big-image-top` - Large image on top, title and content below
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1111,6 +1112,22 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 -Example use cases: "Key Security Principles", "Main Benefits", "Summary of Recommendations".
 ```
 
+**Big Image Top Slides** (`big-image-top`):
+```
+---
+**Slide X: [Visual Topic]** `big-image-top`
+
+## [Main Title]
+
+[Subtitle or content goes here]
+
+[IMAGE_PLACEHOLDER: LARGE | TOP | Relevant visual for the topic]
+```
+- Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
+- The image should be relevant and engaging, setting the context for the slide.
+- Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
+- Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
+```
 
 Content Distribution Strategy (Updated for Component-Based Templates):
 

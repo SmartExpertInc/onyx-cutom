@@ -3931,7 +3931,17 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageAlt": "Illustration for bullet points"
             }
             ```
-
+             12. **`big-image-top`** - Large image on top, title and content below:
+            ```json
+            "props": {
+              "title": "Main Title",
+              "subtitle": "Subtitle or content goes here",
+              "imageUrl": "https://via.placeholder.com/700x350?text=Your+Image",
+              "imageAlt": "Descriptive alt text",
+              "imagePrompt": "A high-quality illustration for the topic",
+              "imageSize": "large"
+            }
+            ``` 
             
 
             **Enhanced Slide Parsing Rules:**
@@ -3967,6 +3977,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Always include a meaningful `imagePrompt` for AI image generation that describes the overall topic of the bullet points
             - `imageAlt` should be a short description of the illustration
             - The image should visually represent the bullet points as a group (not individual bullets)
+
+            **Special Instructions for `big-image-top`:**
+            - Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
+            - The image should be relevant and engaging, setting the context for the slide.
+            - Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
+            - Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

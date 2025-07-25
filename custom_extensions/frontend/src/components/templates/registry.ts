@@ -14,6 +14,7 @@ import { ProcessStepsTemplate } from './ProcessStepsTemplate';
 import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
 import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
 import { ImageComparisonTemplate } from './ImageComparisonTemplate';
+import { BigImageTopTemplate } from './BigImageTopTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -907,6 +908,37 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'Колір рамки навколо зображень',
         default: '#e2e8f0'
       }
+    }
+  },
+
+  'big-image-top': {
+    id: 'big-image-top',
+    name: 'Big Image Top',
+    description: 'Large image on top, title and content below',
+    category: 'media',
+    icon: '🖼️',
+    component: BigImageTopTemplate,
+    defaultProps: {
+      title: 'Main Title',
+      subtitle: 'Subtitle or content goes here',
+      imageUrl: '',
+      imageAlt: '',
+      imagePrompt: '',
+      imageSize: 'large',
+      backgroundColor: '#261c4e',
+      titleColor: '#ffffff',
+      contentColor: '#d9e1ff'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'richtext', label: 'Subtitle/Content', required: false },
+      imageUrl: { type: 'image', label: 'Image URL', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageSize: { type: 'select', label: 'Image Size', options: [ { value: 'small', label: 'Small' }, { value: 'medium', label: 'Medium' }, { value: 'large', label: 'Large' } ], default: 'large' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' }
     }
   }
 };

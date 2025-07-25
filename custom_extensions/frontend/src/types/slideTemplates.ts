@@ -105,6 +105,8 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
 }
 
+export interface BigImageTopProps extends BigImageLeftProps {}
+
 export interface QuoteCenterProps extends BaseTemplateProps {
   quote: string;
   author?: string;
@@ -256,6 +258,7 @@ export type TemplateId =
   | 'title-slide'
   | 'content-slide'
   | 'big-image-left'
+  | 'big-image-top'
   | 'quote-center'
   | 'bullet-points'
   | 'bullet-points-right'
