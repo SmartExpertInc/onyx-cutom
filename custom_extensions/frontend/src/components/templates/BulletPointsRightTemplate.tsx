@@ -132,12 +132,27 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
             margin: 0,
             width: '100%'
           }}>
-            {bullets.map((bullet: string, index: number) => (
-              <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
-                {React.createElement('span', { style: bulletIconStyles }, getBulletIcon(bulletStyle, index))}
-                {React.createElement('span', { style: {paddingTop: '10px', fontFamily: currentTheme.fonts.contentFont, fontSize: currentTheme.fonts.contentSize, color: currentTheme.colors.contentColor } }, bullet)}
-              </li>
-            ))}
+            {bullets.map((bullet: string, index: number) => {
+              const colonIdx = bullet.indexOf(':');
+              let before = bullet;
+              let after = '';
+              if (colonIdx !== -1) {
+                before = bullet.slice(0, colonIdx + 1);
+                after = bullet.slice(colonIdx + 1);
+              }
+              return (
+                <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
+                  {React.createElement('span', { style: bulletIconStyles }, getBulletIcon(bulletStyle, index))}
+                  {React.createElement(
+                    'span',
+                    { style: { fontFamily: currentTheme.fonts.contentFont, fontSize: currentTheme.fonts.contentSize, color: currentTheme.colors.contentColor, paddingTop: '10px' } },
+                    colonIdx !== -1
+                      ? [React.createElement('strong', { key: 'b' }, before), after]
+                      : bullet
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
         {/* Right: Placeholder */}
