@@ -61,17 +61,18 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const pyramidContainerStyles: React.CSSProperties = {
     flex: '0 0 45%',
-    position: 'relative',
-    height: '100%',
     display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
+    height: '400px',
+    gap: '16px',
   };
 
   const itemsContainerStyles: React.CSSProperties = {
     flex: '1 1 55%',
-    position: 'relative',//12213
-    height: '400px', // Explicit height for positioning context
+    position: 'relative',
+    height: '400px',
   };
 
   const itemWrapperStyles = (level: number): React.CSSProperties => {
@@ -83,17 +84,17 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       transform: 'translateY(-50%)',
     };
   };
-  
+
   const separatorLineStyles = (level: number): React.CSSProperties => {
-      const topPositions = ['33.3%', '66.6%'];
-      return {
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: topPositions[level],
-          height: '1px',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      }
+    const topPositions = ['33.3%', '66.6%'];
+    return {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: topPositions[level],
+      height: '1px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    };
   };
 
   const itemHeadingStyles: React.CSSProperties = {
@@ -108,24 +109,25 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     fontSize: currentTheme.fonts.contentSize,
   };
 
-  const PyramidSVG = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
-    
-    return React.createElement('svg', { width: "350", height: "400", viewBox: "0 0 200 180" },
-      // Segment 1 (Top Triangle)
-      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill }),
-      React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
-
-      // Segment 2 (Middle Trapezoid)
-      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill }),
-      React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
-
-      // Segment 3 (Bottom Trapezoid)
-      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill }),
-      React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
-    );
-  };
+  // SVG segments as separate components
+  const TopTriangle = () => (
+    React.createElement('svg', { width: '200', height: '70', viewBox: '0 0 200 70' },
+      React.createElement('polygon', { points: '100,0 33.33,70 166.67,70', fill: 'rgba(255,255,255,0.10)' }),
+      React.createElement('text', { x: '100', y: '40', textAnchor: 'middle', fill: '#fff', fontSize: '18', fontWeight: 'bold' }, '1')
+    )
+  );
+  const MiddleTrapezoid = () => (
+    React.createElement('svg', { width: '200', height: '70', viewBox: '0 0 200 70' },
+      React.createElement('polygon', { points: '33.33,0 0,70 200,70 166.67,0', fill: 'rgba(255,255,255,0.10)' }),
+      React.createElement('text', { x: '100', y: '45', textAnchor: 'middle', fill: '#fff', fontSize: '18', fontWeight: 'bold' }, '2')
+    )
+  );
+  const BottomTrapezoid = () => (
+    React.createElement('svg', { width: '200', height: '70', viewBox: '0 0 200 70' },
+      React.createElement('polygon', { points: '0,0 200,0 166.67,70 33.33,70', fill: 'rgba(255,255,255,0.10)' }),
+      React.createElement('text', { x: '100', y: '50', textAnchor: 'middle', fill: '#fff', fontSize: '18', fontWeight: 'bold' }, '3')
+    )
+  );
 
   return (
     <div className="pyramid-template" style={slideStyles}>
@@ -133,7 +135,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       {subtitle && <p style={subtitleStyles}>{subtitle}</p>}
       <div style={mainContentStyles}>
         <div style={pyramidContainerStyles}>
-          <PyramidSVG />
+          <TopTriangle />
+          <MiddleTrapezoid />
+          <BottomTrapezoid />
         </div>
         <div style={itemsContainerStyles}>
           {Array.isArray(items) && items.slice(0, 3).map((item, index) => (
