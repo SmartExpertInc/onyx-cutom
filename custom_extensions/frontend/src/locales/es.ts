@@ -115,5 +115,97 @@ export const es = {
     projectNotFoundMessage: "El proyecto que buscas no se pudo encontrar o no tienes permiso para verlo.",
     allProjects: "Todos los proyectos",
     loadingProject: "Cargando proyecto..."
+  },
+  // New translations for the projects page interface
+  interface: {
+    // Header
+    products: "Productos",
+    trash: "Papelera",
+    getUnlimitedAI: "Obtener IA ilimitada",
+    credits: "créditos",
+    loading: "Cargando...",
+    
+    // Sidebar
+    jumpTo: "Ir a",
+    keyboardShortcut: "⌘+K",
+    sharedWithYou: "Compartido contigo",
+    folders: "Carpetas",
+    createOrJoinFolder: "Crear o unirse a una carpeta",
+    organizeProducts: "Organiza tus productos por tema y compártelos con tu equipo",
+    templates: "Plantillas",
+    themes: "Temas",
+    
+    // Main content
+    all: "Todos",
+    trainingPlans: "Planes de entrenamiento",
+    pdfLessons: "Lecciones PDF",
+    videoLessons: "Lecciones de video",
+    textPresentations: "Presentaciones de texto",
+    quizzes: "Cuestionarios",
+    sort: "Ordenar",
+    columns: "Columnas",
+    grid: "Cuadrícula",
+    list: "Lista",
+    noProjectsFound: "No se encontraron productos.",
+    
+    // Table headers
+    title: "Título",
+    created: "Creado",
+    creator: "Creador",
+    numberOfLessons: "Número de lecciones",
+    estCreationTime: "Tiempo est. creación",
+    estCompletionTime: "Tiempo est. finalización",
+    actions: "Acciones",
+    
+    // Project actions
+    rename: "Renombrar",
+    duplicate: "Duplicar",
+    share: "Compartir",
+    export: "Exportar",
+    delete: "Eliminar",
+    deleting: "Eliminando...",
+    restore: "Restaurar",
+    deletePermanently: "Eliminar permanentemente",
+    moveToFolder: "Mover a carpeta",
+    settings: "Configuración",
+    
+    // Folder actions
+    folderSettings: "Configuración de carpeta",
+    deleteFolder: "Eliminar carpeta",
+    moveFolder: "Mover carpeta",
+    
+    // Modals
+    createFolder: "Crear o unirse a una carpeta",
+    createFolderDescription: "Puedes unirte a una carpeta para hacer seguimiento de lo que está trabajando la gente.",
+    findOrCreateFolder: "Buscar o crear una nueva carpeta",
+    createFolderButton: "Crear carpeta",
+    createAtTopLevel: "Crear en el nivel superior (sin carpeta padre)",
+    allFolders: "Todas las carpetas",
+    noFoldersFound: "No se encontraron carpetas.",
+    done: "Listo",
+    
+    // Quality tiers
+    basic: "Básico",
+    interactive: "Interactivo",
+    advanced: "Avanzado",
+    immersive: "Inmersivo",
+    
+    // Time units
+    hours: "h",
+    minutes: "min",
+    
+    // Status
+    private: "Privado",
+    createdByYou: "Creado por ti",
+    
+    // Help button
+    help: "Ayuda",
+    
+    // Language selector
+    language: "Idioma",
+    english: "Inglés",
+    ukrainian: "Ucraniano",
+    spanish: "Español",
+    russian: "Ruso"
   }
 }; 

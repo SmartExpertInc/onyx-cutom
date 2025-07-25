@@ -410,58 +410,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
-    // Log the actual structure of the first few microproducts to understand field names
-    console.log(`🔍 [QUIZ_DISCOVERY] Sample microproduct structure (first 3 items):`);
-    allUserMicroproducts.slice(0, 3).forEach((mp, index) => {
-      console.log(`  Item ${index + 1}:`, {
-        id: mp.id,
-        projectName: mp.projectName,
-        microProductName: mp.microProductName,
-        // Log all possible field names
-        product_type: (mp as any).product_type,
-        productType: (mp as any).productType,
-        microproduct_type: (mp as any).microproduct_type,
-        microProductType: (mp as any).microProductType,
-        design_microproduct_type: (mp as any).design_microproduct_type,
-        design_product_type: (mp as any).design_product_type,
-        // Log all keys to see what's actually available
-        allKeys: Object.keys(mp),
-        allValues: Object.values(mp)
-      });
-    });
-    
-    // Log all product types for debugging
-    const productTypes = new Set();
-    const microproductTypes = new Set();
-    
-    allUserMicroproducts.forEach((mp, index) => {
-      const mpProductType = (mp as any).product_type || (mp as any).productType;
-      const mpMicroproductType = (mp as any).microproduct_type || (mp as any).microProductType;
-      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
-      
-      if (mpProductType) productTypes.add(mpProductType);
-      if (mpMicroproductType) microproductTypes.add(mpMicroproductType);
-      if (mpDesignMicroproductType) microproductTypes.add(mpDesignMicroproductType);
-      
-      // Log any item that might be a quiz (checking various possible names)
-      const possibleQuizNames = ['quiz', 'Quiz', 'QUIZ', 'test', 'Test', 'TEST', 'QuizDisplay'];
-      if (possibleQuizNames.includes(mpProductType) || possibleQuizNames.includes(mpMicroproductType) || possibleQuizNames.includes(mpDesignMicroproductType)) {
-        console.log(`🔍 [QUIZ_DISCOVERY] Potential quiz found at index ${index}:`, {
-          id: mp.id,
-          projectName: mp.projectName,
-          microProductName: mp.microProductName,
-          productType: mpProductType,
-          microproductType: mpMicroproductType,
-          designMicroproductType: mpDesignMicroproductType,
-          designProductType: (mp as any).design_product_type
-        });
-      }
-    });
-    
-    console.log(`🔍 [QUIZ_DISCOVERY] All product types found:`, Array.from(productTypes));
-    console.log(`🔍 [QUIZ_DISCOVERY] All microproduct types found:`, Array.from(microproductTypes));
-    
-    // Log all quizzes for debugging
+    // Find all quizzes first
     const allQuizzes = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
       return mpDesignMicroproductType === "QuizDisplay";
@@ -473,57 +422,96 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         id: quiz.id,
         projectName: quiz.projectName,
         microProductName: quiz.microProductName,
-        designMicroproductType: (quiz as any).design_microproduct_type
+        designMicroproductType: (quiz as any).design_microproduct_type,
+        sourceChatSessionId: (quiz as any).source_chat_session_id
       });
     });
 
-    const found = allUserMicroproducts.find(
-      (mp) => {
+    // Try multiple matching strategies in order of reliability
+    let found = null;
+
+    // Strategy 1: Exact project name match (most reliable)
+    found = allQuizzes.find(mp => {
+      const mpProjectName = mp.projectName?.trim();
+      const expectedProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const isMatch = mpProjectName === expectedProjectName;
+      console.log(`🔍 [QUIZ_DISCOVERY] Strategy 1 (Exact): "${mpProjectName}" === "${expectedProjectName}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [QUIZ_DISCOVERY] Found quiz using Strategy 1 (Exact):`, found.projectName);
+      return found;
+    }
+
+    // Strategy 2: Project name contains lesson title
+    found = allQuizzes.find(mp => {
+      const mpProjectName = mp.projectName?.trim();
+      const isMatch = mpProjectName && mpProjectName.includes(trimmedTitleToMatch);
+      console.log(`🔍 [QUIZ_DISCOVERY] Strategy 2 (Contains): "${mpProjectName}" contains "${trimmedTitleToMatch}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [QUIZ_DISCOVERY] Found quiz using Strategy 2 (Contains):`, found.projectName);
+      return found;
+    }
+
+    // Strategy 3: Microproduct name matches lesson title
+    found = allQuizzes.find(mp => {
+      const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
+      const isMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+      console.log(`🔍 [QUIZ_DISCOVERY] Strategy 3 (MicroName): "${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [QUIZ_DISCOVERY] Found quiz using Strategy 3 (MicroName):`, found.projectName);
+      return found;
+    }
+
+    // Strategy 4: Legacy patterns for backward compatibility
+    const legacyPatterns = [
+      `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`,
+      `${trimmedParentProjectName}: Quiz - ${trimmedTitleToMatch}`,
+      `Quiz - ${trimmedTitleToMatch}`,
+      trimmedTitleToMatch
+    ];
+
+    for (const pattern of legacyPatterns) {
+      found = allQuizzes.find(mp => {
         const mpProjectName = mp.projectName?.trim();
-        const mpDesignMicroproductType = (mp as any).design_microproduct_type;
-        const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
-        
-        // Only process if it's a quiz using the correct field name
-        if (mpDesignMicroproductType !== "QuizDisplay") {
-          return false;
-        }
-        
-        console.log(`🔍 [QUIZ_DISCOVERY] Checking quiz: "${mpProjectName}"`);
-        
-        // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
-        const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
-        const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
-        console.log(`  Method 1 (Legacy): projectName="${mpProjectName}" === "${trimmedParentProjectName}" = ${legacyProjectMatch}`);
-        console.log(`  Method 1 (Legacy): microProductName="${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${legacyNameMatch}`);
-        
-        // Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
-        const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const newPatternMatch = mpProjectName === expectedNewProjectName;
-        console.log(`  Method 2 (New): projectName="${mpProjectName}" === "${expectedNewProjectName}" = ${newPatternMatch}`);
-        
-        // Method 3: Legacy "Quiz -" pattern for backward compatibility
-        const legacyQuizPattern = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const legacyQuizPatternMatch = mpProjectName === legacyQuizPattern;
-        console.log(`  Method 3 (Legacy Quiz): projectName="${mpProjectName}" === "${legacyQuizPattern}" = ${legacyQuizPatternMatch}`);
-        
-        // Method 4: Simple pattern - project name is just the lesson title
-        const simplePatternMatch = mpProjectName === trimmedTitleToMatch;
-        console.log(`  Method 4 (Simple): projectName="${mpProjectName}" === "${trimmedTitleToMatch}" = ${simplePatternMatch}`);
-        
-        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || legacyQuizPatternMatch || simplePatternMatch;
-        console.log(`  🎯 [QUIZ_DISCOVERY] Quiz "${mpProjectName}" MATCH: ${isMatch}`);
-        
+        const isMatch = mpProjectName === pattern;
+        console.log(`🔍 [QUIZ_DISCOVERY] Strategy 4 (Legacy): "${mpProjectName}" === "${pattern}" = ${isMatch}`);
         return isMatch;
+      });
+
+      if (found) {
+        console.log(`✅ [QUIZ_DISCOVERY] Found quiz using Strategy 4 (Legacy):`, found.projectName);
+        return found;
       }
-    );
-    
-    console.log(`🔍 [QUIZ_DISCOVERY] Final result:`, found ? {
-      id: found.id,
-      projectName: found.projectName,
-      microProductName: found.microProductName
-    } : 'No quiz found');
-    
-    return found;
+    }
+
+    // Strategy 5: Content-based matching (look at quiz content for lesson references)
+    found = allQuizzes.find(mp => {
+      const content = (mp as any).microproduct_content;
+      if (!content) return false;
+      
+      // Check if the quiz content contains references to the lesson title
+      const contentStr = JSON.stringify(content).toLowerCase();
+      const lessonTitleLower = trimmedTitleToMatch.toLowerCase();
+      const isMatch = contentStr.includes(lessonTitleLower);
+      console.log(`🔍 [QUIZ_DISCOVERY] Strategy 5 (Content): content contains "${lessonTitleLower}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [QUIZ_DISCOVERY] Found quiz using Strategy 5 (Content):`, found.projectName);
+      return found;
+    }
+
+    console.log(`❌ [QUIZ_DISCOVERY] No quiz found for lesson: "${trimmedTitleToMatch}"`);
+    return undefined;
   };
 
   // Function to find existing video lesson (placeholder for future implementation)
@@ -553,55 +541,111 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [ONE_PAGER_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
     console.log(`🔍 [ONE_PAGER_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
-    // Find one-pagers by component type
-    const found = allUserMicroproducts.find(
-      (mp) => {
+    // Find all one-pagers first
+    const allOnePagers = allUserMicroproducts.filter(mp => {
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      return mpDesignMicroproductType === "TextPresentationDisplay";
+    });
+    
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] Found ${allOnePagers.length} one-pagers in allUserMicroproducts:`);
+    allOnePagers.forEach((onePager, index) => {
+      console.log(`  One-Pager ${index + 1}:`, {
+        id: onePager.id,
+        projectName: onePager.projectName,
+        microProductName: onePager.microProductName,
+        designMicroproductType: (onePager as any).design_microproduct_type,
+        sourceChatSessionId: (onePager as any).source_chat_session_id
+      });
+    });
+
+    // Try multiple matching strategies in order of reliability
+    let found = null;
+
+    // Strategy 1: Exact project name match (most reliable)
+    found = allOnePagers.find(mp => {
+      const mpProjectName = mp.projectName?.trim();
+      const expectedProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const isMatch = mpProjectName === expectedProjectName;
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] Strategy 1 (Exact): "${mpProjectName}" === "${expectedProjectName}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [ONE_PAGER_DISCOVERY] Found one-pager using Strategy 1 (Exact):`, found.projectName);
+      return found;
+    }
+
+    // Strategy 2: Project name contains lesson title
+    found = allOnePagers.find(mp => {
+      const mpProjectName = mp.projectName?.trim();
+      const isMatch = mpProjectName && mpProjectName.includes(trimmedTitleToMatch);
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] Strategy 2 (Contains): "${mpProjectName}" contains "${trimmedTitleToMatch}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [ONE_PAGER_DISCOVERY] Found one-pager using Strategy 2 (Contains):`, found.projectName);
+      return found;
+    }
+
+    // Strategy 3: Microproduct name matches lesson title
+    found = allOnePagers.find(mp => {
+      const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
+      const isMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] Strategy 3 (MicroName): "${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [ONE_PAGER_DISCOVERY] Found one-pager using Strategy 3 (MicroName):`, found.projectName);
+      return found;
+    }
+
+    // Strategy 4: Legacy patterns for backward compatibility
+    const legacyPatterns = [
+      `Text Presentation - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`,
+      `One-Pager - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`,
+      `${trimmedParentProjectName}: Text Presentation - ${trimmedTitleToMatch}`,
+      `${trimmedParentProjectName}: One-Pager - ${trimmedTitleToMatch}`,
+      `Text Presentation - ${trimmedTitleToMatch}`,
+      `One-Pager - ${trimmedTitleToMatch}`,
+      trimmedTitleToMatch
+    ];
+
+    for (const pattern of legacyPatterns) {
+      found = allOnePagers.find(mp => {
         const mpProjectName = mp.projectName?.trim();
-        const mpDesignMicroproductType = (mp as any).design_microproduct_type;
-        const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
-        
-        // Only process if it's a text presentation (one-pager)
-        if (mpDesignMicroproductType !== "TextPresentationDisplay") {
-          return false;
-        }
-        
-        console.log(`🔍 [ONE_PAGER_DISCOVERY] Checking one-pager: "${mpProjectName}"`);
-        
-        // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
-        const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
-        const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
-        console.log(`  Method 1 (Legacy): projectName="${mpProjectName}" === "${trimmedParentProjectName}" = ${legacyProjectMatch}`);
-        console.log(`  Method 1 (Legacy): microProductName="${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${legacyNameMatch}`);
-        
-        // Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
-        const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const newPatternMatch = mpProjectName === expectedNewProjectName;
-        console.log(`  Method 2 (New): projectName="${mpProjectName}" === "${expectedNewProjectName}" = ${newPatternMatch}`);
-        
-        // Method 3: Legacy "Text Presentation -" pattern for backward compatibility
-        const legacyTextPresentationPattern = `Text Presentation - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const legacyTextPresentationPatternMatch = mpProjectName === legacyTextPresentationPattern;
-        console.log(`  Method 3 (Legacy Text Presentation): projectName="${mpProjectName}" === "${legacyTextPresentationPattern}" = ${legacyTextPresentationPatternMatch}`);
-        
-        // Method 4: Legacy "One-Pager -" pattern for backward compatibility
-        const legacyOnePagerPattern = `One-Pager - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const legacyOnePagerPatternMatch = mpProjectName === legacyOnePagerPattern;
-        console.log(`  Method 4 (Legacy One-Pager): projectName="${mpProjectName}" === "${legacyOnePagerPattern}" = ${legacyOnePagerPatternMatch}`);
-        
-        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || legacyTextPresentationPatternMatch || legacyOnePagerPatternMatch;
-        console.log(`  🎯 [ONE_PAGER_DISCOVERY] One-Pager "${mpProjectName}" MATCH: ${isMatch}`);
-        
+        const isMatch = mpProjectName === pattern;
+        console.log(`🔍 [ONE_PAGER_DISCOVERY] Strategy 4 (Legacy): "${mpProjectName}" === "${pattern}" = ${isMatch}`);
         return isMatch;
+      });
+
+      if (found) {
+        console.log(`✅ [ONE_PAGER_DISCOVERY] Found one-pager using Strategy 4 (Legacy):`, found.projectName);
+        return found;
       }
-    );
-    
-    console.log(`🔍 [ONE_PAGER_DISCOVERY] Final result:`, found ? {
-      id: found.id,
-      projectName: found.projectName,
-      microProductName: found.microProductName
-    } : 'No one-pager found');
-    
-    return found;
+    }
+
+    // Strategy 5: Content-based matching (look at one-pager content for lesson references)
+    found = allOnePagers.find(mp => {
+      const content = (mp as any).microproduct_content;
+      if (!content) return false;
+      
+      // Check if the one-pager content contains references to the lesson title
+      const contentStr = JSON.stringify(content).toLowerCase();
+      const lessonTitleLower = trimmedTitleToMatch.toLowerCase();
+      const isMatch = contentStr.includes(lessonTitleLower);
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] Strategy 5 (Content): content contains "${lessonTitleLower}" = ${isMatch}`);
+      return isMatch;
+    });
+
+    if (found) {
+      console.log(`✅ [ONE_PAGER_DISCOVERY] Found one-pager using Strategy 5 (Content):`, found.projectName);
+      return found;
+    }
+
+    console.log(`❌ [ONE_PAGER_DISCOVERY] No one-pager found for lesson: "${trimmedTitleToMatch}"`);
+    return undefined;
   };
 
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {

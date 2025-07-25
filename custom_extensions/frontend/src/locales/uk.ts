@@ -104,5 +104,97 @@ export const uk = {
     confirmDelete: "Ви впевнені, що хочете видалити {count} вибраних продуктів?",
     deleteError: "Помилка видалення продуктів: {error}",
     updateError: "Помилка оновлення імені: {error}"
+  },
+  // New translations for the projects page interface
+  interface: {
+    // Header
+    products: "Продукти",
+    trash: "Кошик",
+    getUnlimitedAI: "Отримати необмежений ШІ",
+    credits: "кредитів",
+    loading: "Завантаження...",
+    
+    // Sidebar
+    jumpTo: "Перейти до",
+    keyboardShortcut: "⌘+K",
+    sharedWithYou: "Поділилися з вами",
+    folders: "Папки",
+    createOrJoinFolder: "Створити або приєднатися до папки",
+    organizeProducts: "Організуйте свої продукти за темами та діліться ними з командою",
+    templates: "Шаблони",
+    themes: "Теми",
+    
+    // Main content
+    all: "Всі",
+    trainingPlans: "Плани навчання",
+    pdfLessons: "PDF уроки",
+    videoLessons: "Відео уроки",
+    textPresentations: "Текстові презентації",
+    quizzes: "Тести",
+    sort: "Сортування",
+    columns: "Стовпці",
+    grid: "Сітка",
+    list: "Список",
+    noProjectsFound: "Продукти не знайдено.",
+    
+    // Table headers
+    title: "Назва",
+    created: "Створено",
+    creator: "Створив",
+    numberOfLessons: "Кількість уроків",
+    estCreationTime: "Оц. час створення",
+    estCompletionTime: "Оц. час завершення",
+    actions: "Дії",
+    
+    // Project actions
+    rename: "Перейменувати",
+    duplicate: "Дублювати",
+    share: "Поділитися",
+    export: "Експорт",
+    delete: "Видалити",
+    deleting: "Видалення...",
+    restore: "Відновити",
+    deletePermanently: "Видалити назавжди",
+    moveToFolder: "Перемістити в папку",
+    settings: "Налаштування",
+    
+    // Folder actions
+    folderSettings: "Налаштування папки",
+    deleteFolder: "Видалити папку",
+    moveFolder: "Перемістити папку",
+    
+    // Modals
+    createFolder: "Створити або приєднатися до папки",
+    createFolderDescription: "Ви можете приєднатися до папки, щоб відстежувати, над чим працюють люди.",
+    findOrCreateFolder: "Знайти або створити нову папку",
+    createFolderButton: "Створити папку",
+    createAtTopLevel: "Створити на верхньому рівні (без батьківської папки)",
+    allFolders: "Всі папки",
+    noFoldersFound: "Папки не знайдено.",
+    done: "Готово",
+    
+    // Quality tiers
+    basic: "Базовий",
+    interactive: "Інтерактивний",
+    advanced: "Поглиблений",
+    immersive: "Іммерсивний",
+    
+    // Time units
+    hours: "год",
+    minutes: "хв",
+    
+    // Status
+    private: "Приватний",
+    createdByYou: "Створено вами",
+    
+    // Help button
+    help: "Допомога",
+    
+    // Language selector
+    language: "Мова",
+    english: "Англійська",
+    ukrainian: "Українська",
+    spanish: "Іспанська",
+    russian: "Російська"
   }
 }; 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface FolderModalProps {
   open: boolean;
@@ -14,6 +15,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
   const [search, setSearch] = useState('');
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
   const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null);
+  const { t } = useLanguage();
 
   // Fetch all projects for folder content move
   const [allProjects, setAllProjects] = useState<any[]>([]);
@@ -117,13 +119,13 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
         <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}>&times;</button>
-        <h2 className="text-2xl font-bold mb-2 text-black">Create or join a folder</h2>
-        <p className="text-gray-600 mb-4">You can join a folder to keep track of what folks are working on.</p>
+        <h2 className="text-2xl font-bold mb-2 text-black">{t('interface.createFolder', 'Create or join a folder')}</h2>
+        <p className="text-gray-600 mb-4">{t('interface.createFolderDescription', 'You can join a folder to keep track of what folks are working on.')}</p>
         <div className="flex flex-col mb-4 gap-2">
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Find or create a new folder"
+              placeholder={t('interface.findOrCreateFolder', 'Find or create a new folder')}
               className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               value={folderName}
               onChange={e => { setFolderName(e.target.value); setSearch(e.target.value); }}
@@ -134,7 +136,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
               onClick={handleCreate}
               disabled={creating || !folderName.trim()}
             >
-              Create folder
+              {t('interface.createFolderButton', 'Create folder')}
             </button>
           </div>
           {existingFolders.length > 0 && (
@@ -144,7 +146,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 value={selectedParentId || ''}
                 onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
               >
-                <option value="">Create at top level (no parent folder)</option>
+                <option value="">{t('interface.createAtTopLevel', 'Create at top level (no parent folder)')}</option>
                 {existingFolders.map(folder => (
                   <option key={folder.id} value={folder.id}>
                     {folder.name}
@@ -156,9 +158,9 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         </div>
         {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
         <div className="mb-4">
-          <div className="text-xs text-gray-500 mb-2">All folders</div>
+          <div className="text-xs text-gray-500 mb-2">{t('interface.allFolders', 'All folders')}</div>
           <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-            {filteredFolders.length === 0 && <div className="text-gray-400 text-sm">No folders found.</div>}
+            {filteredFolders.length === 0 && <div className="text-gray-400 text-sm">{t('interface.noFoldersFound', 'No folders found.')}</div>}
             {filteredFolders.map(folder => (
               <div key={folder.id} className="flex items-center justify-between gap-2 px-2 py-2 rounded border border-gray-200">
                 <div className="flex items-center gap-2">
@@ -170,14 +172,14 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                   disabled={deletingFolderId === folder.id}
                   onClick={() => handleDeleteFolder(folder.id)}
                 >
-                  {deletingFolderId === folder.id ? 'Deleting...' : 'Delete'}
+                  {deletingFolderId === folder.id ? t('interface.deleting', 'Deleting...') : t('interface.delete', 'Delete')}
                 </button>
               </div>
             ))}
           </div>
         </div>
         <div className="flex justify-end">
-          <button className="px-5 py-2 bg-blue-700 text-white rounded-full font-semibold" onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}>Done</button>
+          <button className="px-5 py-2 bg-blue-700 text-white rounded-full font-semibold" onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}>{t('interface.done', 'Done')}</button>
         </div>
       </div>
     </div>

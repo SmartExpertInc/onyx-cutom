@@ -118,5 +118,97 @@ export const en = {
     projectNotFoundMessage: "The project you are looking for could not be found or you may not have permission to view it.",
     allProjects: "All Projects",
     loadingProject: "Loading Project..."
+  },
+  // New translations for the projects page interface
+  interface: {
+    // Header
+    products: "Products",
+    trash: "Trash",
+    getUnlimitedAI: "Get unlimited AI",
+    credits: "credits",
+    loading: "Loading...",
+    
+    // Sidebar
+    jumpTo: "Jump to",
+    keyboardShortcut: "⌘+K",
+    sharedWithYou: "Shared with you",
+    folders: "Folders",
+    createOrJoinFolder: "Create or join a folder",
+    organizeProducts: "Organize your products by topic and share them with your team",
+    templates: "Templates",
+    themes: "Themes",
+    
+    // Main content
+    all: "All",
+    trainingPlans: "Training Plans",
+    pdfLessons: "PDF Lessons",
+    videoLessons: "Video Lessons",
+    textPresentations: "Text Presentations",
+    quizzes: "Quizzes",
+    sort: "Sort",
+    columns: "Columns",
+    grid: "Grid",
+    list: "List",
+    noProjectsFound: "No projects found.",
+    
+    // Table headers
+    title: "Title",
+    created: "Created",
+    creator: "Creator",
+    numberOfLessons: "Number of Lessons",
+    estCreationTime: "Est. Creation Time",
+    estCompletionTime: "Est. Completion Time",
+    actions: "Actions",
+    
+    // Project actions
+    rename: "Rename",
+    duplicate: "Duplicate",
+    share: "Share",
+    export: "Export",
+    delete: "Delete",
+    deleting: "Deleting...",
+    restore: "Restore",
+    deletePermanently: "Delete Permanently",
+    moveToFolder: "Move to Folder",
+    settings: "Settings",
+    
+    // Folder actions
+    folderSettings: "Folder Settings",
+    deleteFolder: "Delete Folder",
+    moveFolder: "Move Folder",
+    
+    // Modals
+    createFolder: "Create or join a folder",
+    createFolderDescription: "You can join a folder to keep track of what folks are working on.",
+    findOrCreateFolder: "Find or create a new folder",
+    createFolderButton: "Create folder",
+    createAtTopLevel: "Create at top level (no parent folder)",
+    allFolders: "All folders",
+    noFoldersFound: "No folders found.",
+    done: "Done",
+    
+    // Quality tiers
+    basic: "Basic",
+    interactive: "Interactive", 
+    advanced: "Advanced",
+    immersive: "Immersive",
+    
+    // Time units
+    hours: "h",
+    minutes: "min",
+    
+    // Status
+    private: "Private",
+    createdByYou: "Created by you",
+    
+    // Help button
+    help: "Help",
+    
+    // Language selector
+    language: "Language",
+    english: "English",
+    ukrainian: "Ukrainian", 
+    spanish: "Spanish",
+    russian: "Russian"
   }
 }; 

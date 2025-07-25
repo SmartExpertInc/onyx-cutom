@@ -1,6 +1,7 @@
 // custom_extensions/frontend/src/app/layout.tsx
 import './globals.css'; // Your global styles and Tailwind imports
 import React from 'react';
+import { LanguageProvider } from '../contexts/LanguageContext';
 
 export const metadata = {
   title: 'Content Builder AI',
@@ -15,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full font-sans">
       <body className="h-full bg-app-gradient">
-        {/* If you have an intermediate div, make it h-full too if it's the main content wrapper */}
-        {/* For example: <div className="flex flex-col min-h-screen"> OR just directly children */}
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

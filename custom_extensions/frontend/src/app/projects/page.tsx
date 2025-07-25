@@ -26,6 +26,8 @@ import {
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
+import LanguageDropdown from '../../components/LanguageDropdown';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -337,6 +339,7 @@ const FolderItem: React.FC<{
 
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
+  const { t } = useLanguage();
 
   // Check if any modal is open
   const isModalOpen = getModalState();
@@ -399,10 +402,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
-          placeholder="Jump to"
+          placeholder={t('interface.jumpTo', 'Jump to')}
           className="w-full bg-gray-100 rounded-md pl-8 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">⌘+K</div>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">{t('interface.keyboardShortcut', '⌘+K')}</div>
       </div>
       <nav className="flex flex-col gap-1">
         <Link 
@@ -411,22 +414,22 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
-          <span>Products</span>
+          <span>{t('interface.products', 'Products')}</span>
         </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Users size={18} />
-          <span>Shared with you</span>
+          <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
         </Link>
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
-          <span>Folders</span>
+          <span>{t('interface.folders', 'Folders')}</span>
           <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
         {folders.length === 0 ? (
           <div className="bg-gray-100 p-4 rounded-lg text-center">
-            <p className="mb-2 text-gray-700">Organize your products by topic and share them with your team</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>Create or join a folder</button>
+            <p className="mb-2 text-gray-700">{t('interface.organizeProducts', 'Organize your products by topic and share them with your team')}</p>
+            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>{t('interface.createOrJoinFolder', 'Create or join a folder')}</button>
           </div>
         ) : (
           <div className="flex flex-col gap-1">
@@ -451,15 +454,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />
-          <span>Templates</span>
+          <span>{t('interface.templates', 'Templates')}</span>
         </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Palette size={18} />
-          <span>Themes</span>
+          <span>{t('interface.themes', 'Themes')}</span>
         </Link>
         <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
-          <span>Trash</span>
+          <span>{t('interface.trash', 'Trash')}</span>
         </Link>
       </nav>
     </aside>
@@ -468,6 +471,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
 const Header = ({ isTrash }: { isTrash: boolean }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
+  const { t } = useLanguage();
   
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -493,16 +497,17 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
 
   return (
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? 'Trash' : 'Products'}</h1>
+      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? t('interface.trash', 'Trash') : t('interface.products', 'Products')}</h1>
       <div className="flex items-center gap-4">
         <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
           <Sparkles size={16} className="text-yellow-500" />
-          Get unlimited AI
+          {t('interface.getUnlimitedAI', 'Get unlimited AI')}
         </Link>
         <span className="text-sm font-semibold text-gray-800">
-          {userCredits !== null ? `${userCredits} credits` : 'Loading...'}
+          {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
         </span>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
+        <LanguageDropdown />
         <UserDropdown />
       </div>
     </header>
