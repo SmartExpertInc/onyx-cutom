@@ -35,8 +35,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     fontFamily: currentTheme.fonts.titleFont,
     color: currentTheme.colors.titleColor,
     textAlign: 'left',
-    marginBottom: '40px',
-    fontWeight: 700
+    marginBottom: '40px'
   };
 
   const gridStyles: React.CSSProperties = {
@@ -51,7 +50,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   const boxStyles: React.CSSProperties = {
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: '8px',
-    padding: '32px',
+    padding: '20px',
     color: currentTheme.colors.contentColor,
     display: 'flex',
     flexDirection: 'column',
@@ -63,8 +62,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
 
   const headingStyles: React.CSSProperties = {
     fontSize: '1.5rem',
-    fontWeight: 600,
-    color: '#fff',
+    color: currentTheme.colors.contentColor,
     marginBottom: '12px',
     fontFamily: currentTheme.fonts.titleFont
   };
