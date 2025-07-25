@@ -17,6 +17,7 @@ import { ImageComparisonTemplate } from './ImageComparisonTemplate';
 import { BigImageTopTemplate } from './BigImageTopTemplate';
 import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 import { TimelineTemplate } from './TimelineTemplate';
+import { BigNumbersTemplate } from './BigNumbersTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -999,6 +1000,31 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         // arrayItemType: { type: 'object', label: 'Step', description: 'Step with heading and description', required: true }
       }
     }
+  },
+
+  'big-numbers': {
+    id: 'big-numbers',
+    name: 'Big Numbers',
+    description: 'Three-column layout for highlighting key metrics or statistics with big numbers, labels, and descriptions.',
+    category: 'content',
+    icon: 'bar_chart',
+    component: BigNumbersTemplate,
+    defaultProps: {
+      title: 'Key Metrics',
+      items: [
+        { value: '25%', label: 'Reduced Costs', description: 'Efficient architecture can decrease development and maintenance expenses by up to 25%.' },
+        { value: '3x', label: 'Faster Time-to-Market', description: 'Well-defined architectures accelerate feature deployment, bringing products to market 3 times faster.' },
+        { value: '50%', label: 'Improved Stability', description: 'Robust designs lead to a 50% reduction in critical system outages and performance issues.' },
+      ],
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title' },
+      items: { type: 'array', label: 'Big Numbers', arrayItemType: { type: 'object', fields: {
+        value: { type: 'text', label: 'Value' },
+        label: { type: 'text', label: 'Label' },
+        description: { type: 'text', label: 'Description' },
+      } } },
+    },
   }
 };
 

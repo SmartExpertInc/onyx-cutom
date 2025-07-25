@@ -250,6 +250,19 @@ export interface TimelineTemplateProps {
   theme?: SlideTheme;
 }
 
+export interface BigNumberItem {
+  value: string;
+  label: string;
+  description: string;
+}
+
+export interface BigNumbersTemplateProps {
+  slideId: string;
+  title: string;
+  items: BigNumberItem[];
+  theme?: SlideTheme;
+}
+
 // --- Migration and Compatibility ---
 
 export interface LegacySlide {
@@ -277,7 +290,7 @@ export interface SlideEditor {
 
 // --- Utility Types ---
 
-export type TemplateId = 
+export type TemplateId =
   | 'title-slide'
   | 'content-slide'
   | 'big-image-left'
@@ -292,7 +305,8 @@ export type TemplateId =
   | 'hero-title-slide'
   | 'image-comparison'
   | 'four-box-grid'
-  | 'timeline';
+  | 'timeline'
+  | 'big-numbers';
 
 export interface TemplatePreview {
   templateId: string;
