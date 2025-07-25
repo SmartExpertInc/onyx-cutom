@@ -322,14 +322,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const [openOrCreateModalState, setOpenOrCreateModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
-    hasLesson: boolean; hasQuiz: boolean;
-  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
+    hasLesson: boolean; hasQuiz: boolean; hasOnePager: boolean;
+  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false });
 
   const [openContentModalState, setOpenContentModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
-    hasLesson: boolean; hasVideoLesson: boolean; hasQuiz: boolean;
-    lessonId?: number; videoLessonId?: number; quizId?: number; parentProjectName?: string;
-  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false });
+    hasLesson: boolean; hasVideoLesson: boolean; hasQuiz: boolean; hasOnePager: boolean;
+    lessonId?: number; videoLessonId?: number; quizId?: number; onePagerId?: number; parentProjectName?: string;
+  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false, hasOnePager: false });
 
   const [lessonSettingsModalState, setLessonSettingsModalState] = useState<{
     isOpen: boolean; lessonTitle: string; sectionIndex: number; lessonIndex: number;
@@ -532,6 +532,77 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return undefined;
   };
 
+  // Function to find existing one-pager for a given lesson title
+  const findExistingOnePager = (lessonTitle: string): ProjectListItem | undefined => {
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] Starting one-pager discovery for lesson: "${lessonTitle}"`);
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] Parent project name: "${parentProjectName}"`);
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] All user microproducts count: ${allUserMicroproducts?.length || 0}`);
+    
+    if (!allUserMicroproducts || !parentProjectName || !lessonTitle) {
+      console.log(`❌ [ONE_PAGER_DISCOVERY] Missing required data:`, {
+        hasAllUserMicroproducts: !!allUserMicroproducts,
+        hasParentProjectName: !!parentProjectName,
+        hasLessonTitle: !!lessonTitle
+      });
+      return undefined;
+    }
+
+    const trimmedTitleToMatch = lessonTitle.trim();
+    const trimmedParentProjectName = parentProjectName.trim();
+    
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
+
+    // Find one-pagers by component type
+    const found = allUserMicroproducts.find(
+      (mp) => {
+        const mpProjectName = mp.projectName?.trim();
+        const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+        const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
+        
+        // Only process if it's a text presentation (one-pager)
+        if (mpDesignMicroproductType !== "TextPresentationDisplay") {
+          return false;
+        }
+        
+        console.log(`🔍 [ONE_PAGER_DISCOVERY] Checking one-pager: "${mpProjectName}"`);
+        
+        // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+        const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
+        const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+        console.log(`  Method 1 (Legacy): projectName="${mpProjectName}" === "${trimmedParentProjectName}" = ${legacyProjectMatch}`);
+        console.log(`  Method 1 (Legacy): microProductName="${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${legacyNameMatch}`);
+        
+        // Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+        const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const newPatternMatch = mpProjectName === expectedNewProjectName;
+        console.log(`  Method 2 (New): projectName="${mpProjectName}" === "${expectedNewProjectName}" = ${newPatternMatch}`);
+        
+        // Method 3: Alternative new pattern - project name follows "One-Pager - Outline Name: Lesson Title" pattern
+        const alternativeNewProjectName = `One-Pager - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const alternativePatternMatch = mpProjectName === alternativeNewProjectName;
+        console.log(`  Method 3 (Alternative): projectName="${mpProjectName}" === "${alternativeNewProjectName}" = ${alternativePatternMatch}`);
+        
+        // Method 4: Simple pattern - project name is just the lesson title
+        const simplePatternMatch = mpProjectName === trimmedTitleToMatch;
+        console.log(`  Method 4 (Simple): projectName="${mpProjectName}" === "${trimmedTitleToMatch}" = ${simplePatternMatch}`);
+        
+        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch || simplePatternMatch;
+        console.log(`  🎯 [ONE_PAGER_DISCOVERY] One-Pager "${mpProjectName}" MATCH: ${isMatch}`);
+        
+        return isMatch;
+      }
+    );
+    
+    console.log(`🔍 [ONE_PAGER_DISCOVERY] Final result:`, found ? {
+      id: found.id,
+      projectName: found.projectName,
+      microProductName: found.microProductName
+    } : 'No one-pager found');
+    
+    return found;
+  };
+
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
     const lessonTitle = lesson.title;
     
@@ -562,18 +633,27 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       microProductName: existingVideoLesson.microProductName
     } : 'None');
     
+    const existingOnePager = findExistingOnePager(lessonTitle);
+    console.log(`🔍 [LESSON_CLICK] Existing one-pager found:`, existingOnePager ? {
+      id: existingOnePager.id,
+      projectName: existingOnePager.projectName,
+      microProductName: existingOnePager.microProductName
+    } : 'None');
+    
     const hasLesson = !!existingLesson;
     const hasQuiz = !!existingQuiz;
     const hasVideoLesson = !!existingVideoLesson;
+    const hasOnePager = !!existingOnePager;
     
     console.log(`🔍 [LESSON_CLICK] Content summary:`, {
       hasLesson,
       hasQuiz,
-      hasVideoLesson
+      hasVideoLesson,
+      hasOnePager
     });
     
     // Scenario 1: No content exists - show create modal
-    if (!hasLesson && !hasQuiz && !hasVideoLesson) {
+    if (!hasLesson && !hasQuiz && !hasVideoLesson && !hasOnePager) {
       setContentModalState({ 
         isOpen: true, 
         lessonTitle, 
@@ -581,19 +661,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         lessonNumber 
       });
     }
-    // Scenario 2: Only lesson exists (no quiz/video lesson) - show open or create modal
-    else if (hasLesson && !hasQuiz && !hasVideoLesson) {
+    // Scenario 2: Only lesson exists (no quiz/video lesson/one-pager) - show open or create modal
+    else if (hasLesson && !hasQuiz && !hasVideoLesson && !hasOnePager) {
       setOpenOrCreateModalState({ 
         isOpen: true, 
         lessonTitle, 
         moduleName, 
         lessonNumber,
         hasLesson,
-        hasQuiz
+        hasQuiz,
+        hasOnePager
       });
     }
-    // Scenario 3: Both lesson and quiz exist (or lesson+quiz+video) - show open modal
-    else if (hasLesson && hasQuiz) {
+    // Scenario 3: Multiple content types exist - show open modal
+    else if ((hasLesson && hasQuiz) || (hasLesson && hasOnePager) || (hasQuiz && hasOnePager) || (hasLesson && hasQuiz && hasOnePager)) {
       setOpenContentModalState({
         isOpen: true,
         lessonTitle,
@@ -602,13 +683,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasLesson,
         hasQuiz,
         hasVideoLesson,
+        hasOnePager,
         lessonId: existingLesson?.id,
         quizId: existingQuiz?.id,
         videoLessonId: existingVideoLesson?.id,
+        onePagerId: existingOnePager?.id,
         parentProjectName
       });
     }
-    // Scenario 4: Only quiz or only video lesson exists (no lesson) - fallback to open or create modal
+    // Scenario 4: Only one content type exists (quiz, video lesson, or one-pager) - fallback to open or create modal
     else {
       setOpenOrCreateModalState({ 
         isOpen: true, 
@@ -616,18 +699,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         moduleName, 
         lessonNumber,
         hasLesson,
-        hasQuiz
+        hasQuiz,
+        hasOnePager
       });
     }
   };
 
   const handleOpenOrCreateOpen = () => {
-    const { lessonTitle, moduleName, lessonNumber, hasLesson, hasQuiz } = openOrCreateModalState;
+    const { lessonTitle, moduleName, lessonNumber, hasLesson, hasQuiz, hasOnePager } = openOrCreateModalState;
     
     // Check what content exists
     const existingLesson = findExistingLesson(lessonTitle);
     const existingQuiz = findExistingQuiz(lessonTitle);
     const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    const existingOnePager = findExistingOnePager(lessonTitle);
     
     setOpenContentModalState({
       isOpen: true,
@@ -637,13 +722,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       hasLesson: !!existingLesson,
       hasVideoLesson: !!existingVideoLesson,
       hasQuiz: !!existingQuiz,
+      hasOnePager: !!existingOnePager,
       lessonId: existingLesson?.id,
       videoLessonId: existingVideoLesson?.id,
       quizId: existingQuiz?.id,
+      onePagerId: existingOnePager?.id,
       parentProjectName
     });
     
-    setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
+    setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false });
   };
 
   const handleOpenOrCreateCreate = () => {
@@ -656,7 +743,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       lessonNumber 
     });
     
-    setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false });
+    setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false });
   };
 
   // Handle opening lesson settings modal
@@ -1008,31 +1095,35 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         sourceChatSessionId={sourceChatSessionId}
         hasLesson={!!findExistingLesson(contentModalState.lessonTitle)}
         hasQuiz={!!findExistingQuiz(contentModalState.lessonTitle)}
+        hasOnePager={!!findExistingOnePager(contentModalState.lessonTitle)}
         parentProjectName={parentProjectName}
       />
       <OpenOrCreateModal
         isOpen={openOrCreateModalState.isOpen}
-        onClose={() => setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false })}
+        onClose={() => setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false })}
         lessonTitle={openOrCreateModalState.lessonTitle}
         moduleName={openOrCreateModalState.moduleName}
         lessonNumber={openOrCreateModalState.lessonNumber}
         hasLesson={openOrCreateModalState.hasLesson}
         hasQuiz={openOrCreateModalState.hasQuiz}
+        hasOnePager={openOrCreateModalState.hasOnePager}
         onOpen={handleOpenOrCreateOpen}
         onCreate={handleOpenOrCreateCreate}
       />
       <OpenContentModal
         isOpen={openContentModalState.isOpen}
-        onClose={() => setOpenContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false, lessonId: undefined, videoLessonId: undefined, quizId: undefined })}
+        onClose={() => setOpenContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasVideoLesson: false, hasQuiz: false, hasOnePager: false, lessonId: undefined, videoLessonId: undefined, quizId: undefined, onePagerId: undefined })}
         lessonTitle={openContentModalState.lessonTitle}
         moduleName={openContentModalState.moduleName}
         lessonNumber={openContentModalState.lessonNumber}
         hasLesson={openContentModalState.hasLesson}
         hasVideoLesson={openContentModalState.hasVideoLesson}
         hasQuiz={openContentModalState.hasQuiz}
+        hasOnePager={openContentModalState.hasOnePager}
         lessonId={openContentModalState.lessonId}
         videoLessonId={openContentModalState.videoLessonId}
         quizId={openContentModalState.quizId}
+        onePagerId={openContentModalState.onePagerId}
         parentProjectName={openContentModalState.parentProjectName || parentProjectName}
       />
       <LessonSettingsModal

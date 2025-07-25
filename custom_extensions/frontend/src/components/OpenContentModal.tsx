@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, HelpCircle, X, ExternalLink } from 'lucide-react';
+import { BookText, Video, HelpCircle, X, ExternalLink, FileText } from 'lucide-react';
 
 interface OpenContentModalProps {
   isOpen: boolean;
@@ -12,9 +12,11 @@ interface OpenContentModalProps {
   hasLesson: boolean;
   hasVideoLesson: boolean;
   hasQuiz: boolean;
+  hasOnePager: boolean;
   lessonId?: number;
   videoLessonId?: number;
   quizId?: number;
+  onePagerId?: number;
   parentProjectName?: string;
 }
 
@@ -27,14 +29,16 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
   hasLesson,
   hasVideoLesson,
   hasQuiz,
+  hasOnePager,
   lessonId,
   videoLessonId,
   quizId,
+  onePagerId,
   parentProjectName,
 }) => {
   if (!isOpen) return null;
 
-  const handleOpenContent = (type: 'lesson' | 'videoLesson' | 'quiz', id?: number) => {
+  const handleOpenContent = (type: 'lesson' | 'videoLesson' | 'quiz' | 'onePager', id?: number) => {
     if (id) {
       // Redirect to the lesson's view page using only the lesson ID
       // Include the /custom-projects-ui prefix for proper routing
@@ -126,8 +130,27 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
             </button>
           )}
 
+          {/* One-Pager */}
+          {hasOnePager && onePagerId && (
+            <button
+              onClick={() => handleOpenContent('onePager', onePagerId)}
+              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <FileText size={20} className="text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">One-Pager</h3>
+                  <p className="text-sm text-gray-600">Open the one-pager</p>
+                </div>
+              </div>
+              <ExternalLink size={16} className="text-gray-400" />
+            </button>
+          )}
+
           {/* If no content is available */}
-          {!hasLesson && !hasVideoLesson && !hasQuiz && (
+          {!hasLesson && !hasVideoLesson && !hasQuiz && !hasOnePager && (
             <div className="text-center py-8 text-gray-500">
               <p>No content available to open.</p>
             </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, X, HelpCircle } from 'lucide-react';
+import { BookText, Video, Film, X, HelpCircle, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface CreateContentTypeModalProps {
@@ -14,6 +14,7 @@ interface CreateContentTypeModalProps {
   detectedLanguage?: 'en' | 'ru' | 'uk';
   hasLesson?: boolean;
   hasQuiz?: boolean;
+  hasOnePager?: boolean;
   parentProjectName?: string; // Add outline name for quiz creation
 }
 
@@ -28,6 +29,16 @@ const lessonTypes = [
     name: "videoLesson", 
     icon: <Video className="w-6 h-6" />, 
     label: "Video Lesson",
+    disabled: true,
+    soon: true
+  },
+];
+
+const onePagerTypes = [
+  { 
+    name: "textPresentation", 
+    icon: <FileText className="w-6 h-6" />, 
+    label: "One-Pager",
     disabled: false 
   },
 ];
@@ -51,6 +62,7 @@ export const CreateContentTypeModal = ({
   detectedLanguage = 'en',
   hasLesson = false,
   hasQuiz = false,
+  hasOnePager = false,
   parentProjectName
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
@@ -58,7 +70,12 @@ export const CreateContentTypeModal = ({
   // Update disabled states based on what already exists
   const updatedLessonTypes = lessonTypes.map(type => ({
     ...type,
-    disabled: hasLesson
+    disabled: hasLesson || type.disabled
+  }));
+
+  const updatedOnePagerTypes = onePagerTypes.map(type => ({
+    ...type,
+    disabled: hasOnePager
   }));
 
   const updatedQuizTypes = quizTypes.map(type => ({
@@ -99,6 +116,25 @@ export const CreateContentTypeModal = ({
     onClose();
   };
 
+  const handleOnePagerCreate = (onePagerType: string) => {
+    // Redirect to create page with pre-selected product and context
+    const params = new URLSearchParams({
+      product: 'text-presentation',
+      lessonType: onePagerType,
+      lessonTitle: lessonTitle,
+      moduleName: moduleName,
+      lessonNumber: String(lessonNumber)
+    });
+    
+    // Add course name (outline name) for proper one-pager naming
+    if (parentProjectName) {
+      params.set('courseName', parentProjectName);
+    }
+    
+    router.push(`/create?${params.toString()}`);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -124,7 +160,7 @@ export const CreateContentTypeModal = ({
           Module: {moduleName} • Lesson {lessonNumber}
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Lesson Types */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
@@ -157,11 +193,64 @@ export const CreateContentTypeModal = ({
                       })}
                     </div>
                     <div>
-                      <h4 className="font-medium">{type.label}</h4>
+                      <h4 className="font-medium flex items-center gap-2">
+                        {type.label}
+                        {type.soon && (
+                          <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
+                            Soon
+                          </span>
+                        )}
+                      </h4>
                       <p className="text-sm text-gray-600">
                         {type.name === "lessonPresentation" 
                           ? "Create a slide-based lesson" 
                           : "Create a video lesson with narration"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* One-Pager Types */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-purple-600" />
+              One-Pager
+              {hasOnePager && (
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                  Already created
+                </span>
+              )}
+            </h3>
+            <div className="space-y-3">
+              {updatedOnePagerTypes.map((type) => (
+                <button
+                  key={type.name}
+                  onClick={() => !type.disabled && handleOnePagerCreate(type.name)}
+                  disabled={type.disabled}
+                  className={`w-full flex items-center justify-between p-4 border rounded-lg transition-colors text-left ${
+                    type.disabled
+                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      : 'border-gray-200 hover:bg-gray-50 hover:border-purple-300 text-gray-900'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${
+                      type.disabled ? 'bg-gray-100' : 'bg-purple-100'
+                    }`}>
+                      {React.cloneElement(type.icon, { 
+                        className: `w-5 h-5 ${type.disabled ? 'text-gray-400' : 'text-purple-600'}` 
+                      })}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{type.label}</h4>
+                      <p className="text-sm text-gray-600">
+                        {type.name === "textPresentation" 
+                          ? "Create a text-based one-pager" 
+                          : "Create a one-pager with various content types"
                         }
                       </p>
                     </div>

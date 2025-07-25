@@ -11,6 +11,7 @@ interface OpenOrCreateModalProps {
   lessonNumber: number;
   hasLesson: boolean;
   hasQuiz: boolean;
+  hasOnePager: boolean;
   onOpen: () => void;
   onCreate: () => void;
 }
@@ -23,6 +24,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
   lessonNumber,
   hasLesson,
   hasQuiz,
+  hasOnePager,
   onOpen,
   onCreate,
 }) => {
@@ -53,7 +55,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
 
         <div className="space-y-3">
           {/* Open existing content */}
-          {(hasLesson || hasQuiz) && (
+          {(hasLesson || hasQuiz || hasOnePager) && (
             <button
               onClick={onOpen}
               className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
@@ -65,11 +67,19 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                 <div>
                   <h3 className="font-medium text-gray-900">Open Existing</h3>
                   <p className="text-sm text-gray-600">
-                    {hasLesson && hasQuiz 
-                      ? "Open lesson or quiz" 
+                    {hasLesson && hasQuiz && hasOnePager
+                      ? "Open lesson, quiz, or one-pager" 
+                      : hasLesson && hasQuiz
+                      ? "Open lesson or quiz"
+                      : hasLesson && hasOnePager
+                      ? "Open lesson or one-pager"
+                      : hasQuiz && hasOnePager
+                      ? "Open quiz or one-pager"
                       : hasLesson 
                       ? "Open lesson" 
-                      : "Open quiz"
+                      : hasQuiz
+                      ? "Open quiz"
+                      : "Open one-pager"
                     }
                   </p>
                 </div>
@@ -89,13 +99,21 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
               <div>
                 <h3 className="font-medium text-gray-900">Create New</h3>
                 <p className="text-sm text-gray-600">
-                  {hasLesson && hasQuiz 
-                    ? "Create lesson or quiz" 
+                  {hasLesson && hasQuiz && hasOnePager
+                    ? "Create lesson, quiz, or one-pager" 
+                    : hasLesson && hasQuiz
+                    ? "Create lesson or quiz"
+                    : hasLesson && hasOnePager
+                    ? "Create lesson or one-pager"
+                    : hasQuiz && hasOnePager
+                    ? "Create quiz or one-pager"
                     : hasLesson 
-                    ? "Create quiz" 
+                    ? "Create quiz or one-pager" 
                     : hasQuiz 
-                    ? "Create lesson" 
-                    : "Create lesson or quiz"
+                    ? "Create lesson or one-pager" 
+                    : hasOnePager
+                    ? "Create lesson or quiz"
+                    : "Create lesson, quiz, or one-pager"
                   }
                 </p>
               </div>
