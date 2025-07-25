@@ -7571,6 +7571,10 @@ async def generate_and_finalize_course_outline_for_position(
                                 # Set default completionTime if missing
                                 if not lesson.get("completionTime"):
                                     lesson["completionTime"] = "5m"
+                                # Ensure all required lesson fields are present
+                                lesson.setdefault("check", {"type": "none", "text": ""})
+                                lesson.setdefault("contentAvailable", {"type": "yes", "text": "100%"})
+                                lesson.setdefault("source", "Create from scratch")
                                 updated_lessons.append(lesson)
                             else:
                                 # If lesson is just a string, convert to proper structure
@@ -7593,13 +7597,21 @@ async def generate_and_finalize_course_outline_for_position(
                             "totalHours": total_hours,
                             "autoCalculateHours": True
                         }
+                        # Ensure section has proper ID if missing
+                        if not updated_section.get("id"):
+                            updated_section["id"] = f"№{len(updated_sections) + 1}"
                         updated_sections.append(updated_section)
                     else:
                         updated_sections.append(section)
                 
-                # Update the project with recalculated totals
+                # Update the project with recalculated totals and ensure mainTitle and detectedLanguage
                 if updated_sections:
-                    updated_content = {**content, "sections": updated_sections}
+                    updated_content = {
+                        **content, 
+                        "sections": updated_sections,
+                        "mainTitle": content.get("mainTitle") or f"Онбординг: {position['Позиция']}",
+                        "detectedLanguage": content.get("detectedLanguage") or language
+                    }
                     await conn.execute(
                         """
                         UPDATE projects
