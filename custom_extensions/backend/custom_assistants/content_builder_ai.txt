@@ -1080,9 +1080,37 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 
 [IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Background visual]
 
+
+
 - Use for section breaks or conclusions
 - Simple text-focused design
 ```
+
+**Bullet Points Right Slides** (`bullet-points-right`):
+```
+---
+**Slide 11: [Key Points Topic]** `bullet-points-right`
+
+## [Main Title]
+
+[Subtitle or context before the list]
+
+* [First key point]
+* [Second key point]
+* [Third key point]
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
+
+-Use this template when you want to provide a short context, summary, or explanation (subtitle) before presenting a list of key points.
+-Choose bullet-points-right instead of bullet-points if the slide needs a subtitle or introductory sentence above the bullet list.
+-The subtitle should be 1-2 sentences and give context or highlight the importance of the following points.
+-Bullet points should be concise, actionable, and directly related to the subtitle/context.
+-The image placeholder is always on the right and should visually represent the overall topic of the bullet points (not individual bullets).
+-Ideal for: summarizing main takeaways, listing security principles, highlighting grouped recommendations, or when you want to draw attention to the context before the list.
+-Avoid using this template for long paragraphs or when a visual is not needed.
+-Example use cases: "Key Security Principles", "Main Benefits", "Summary of Recommendations".
+```
+
 
 Content Distribution Strategy (Updated for Component-Based Templates):
 
@@ -1100,6 +1128,7 @@ Choose templates based on content type and educational goals:
 - **Workflows**: Use `process-steps` for sequential processes and procedures
 - **Visual Focus**: Use `big-image-left` when image is the primary focus
 - **Inspiration**: Use `title-slide` for section breaks or conclusions
+- **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
 
 **SLIDE COUNT RECOMMENDATIONS:**
 - **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 content slides + title conclusion

@@ -279,55 +279,7 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
-{
-  "lessonTitle": "Example Slide Deck Lesson",
-  "slides": [
-    {
-      "slideId": "slide_1_intro",
-      "slideNumber": 1,
-      "slideTitle": "Introduction",
-      "templateId": "big-image-left",
-      "props": {
-        "title": "Welcome to the Lesson",
-        "subtitle": "This slide introduces the main topic and provides an overview of what we'll cover",
-        "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-        "imageAlt": "Lesson introduction visual",
-        "imagePrompt": "A professional educational setting that represents the lesson topic",
-        "imageSize": "large"
-        }
-    },
-    {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
-      "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
-        }
-    },
-    {
-      "slideId": "slide_3_process",
-      "slideNumber": 3,
-      "slideTitle": "Step-by-Step Process",
-      "templateId": "process-steps",
-      "props": {
-        "title": "Implementation Steps",
-        "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture", 
-          "Implement core functionality",
-          "Test and validate results"
-      ]
-        }
-    }
-  ],
-  "currentSlideId": "slide_1_intro",
-  "detectedLanguage": "en"
-}
-"""
+
 
 async def get_db_pool():
     if DB_POOL is None:
