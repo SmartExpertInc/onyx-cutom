@@ -1152,12 +1152,12 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
 DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 {
   "lessonTitle": "Example PDF Lesson with Nested Lists",
-  "contentBlocks": [
+      "contentBlocks": [
     { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
     { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
-    {
-      "type": "bullet_list",
-      "items": [
+        {
+          "type": "bullet_list",
+          "items": [
         "Top level item 1, demonstrating a simple string item.",
         {
           "type": "bullet_list",
@@ -2243,12 +2243,12 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
 DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 {
   "lessonTitle": "Example PDF Lesson with Nested Lists",
-  "contentBlocks": [
+      "contentBlocks": [
     { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
     { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
-    {
-      "type": "bullet_list",
-      "items": [
+        {
+          "type": "bullet_list",
+          "items": [
         "Top level item 1, demonstrating a simple string item.",
         {
           "type": "bullet_list",
@@ -4261,7 +4261,7 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
 DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 {
   "lessonTitle": "Example PDF Lesson with Nested Lists",
-  "contentBlocks": [
+      "contentBlocks": [
     { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
     { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
     {
@@ -4274,9 +4274,9 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
           "items": [
             "Nested item A: This is a sub-item.",
             "Nested item B: Another sub-item to show structure.",
-            {
-              "type": "numbered_list",
-              "items": [
+        {
+          "type": "numbered_list",
+          "items": [
                 "Further nested numbered item 1.",
                 "Further nested numbered item 2."
               ]
@@ -5188,12 +5188,12 @@ DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM = """
 DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 {
   "lessonTitle": "Example PDF Lesson with Nested Lists",
-  "contentBlocks": [
+      "contentBlocks": [
     { "type": "headline", "level": 1, "text": "Main Title of the Lesson" },
     { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
-    {
-      "type": "bullet_list",
-      "items": [
+        {
+          "type": "bullet_list",
+          "items": [
         "Top level item 1, demonstrating a simple string item.",
         {
           "type": "bullet_list",
@@ -10020,6 +10020,20 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               ]
             }
             ``` 
+          
+            15. **`big-numbers`** - Three-column layout for highlighting key metrics/statistics:
+            ```json
+            "props": {
+              "title": "Key Metrics of Effective System Architecture",
+              "items": [
+                { "value": "25%", "label": "Reduced Costs", "description": "Efficient architecture can decrease development and maintenance expenses by up to 25%." },
+                { "value": "3x", "label": "Faster Time-to-Market", "description": "Well-defined architectures accelerate feature deployment, bringing products to market 3 times faster." },
+                { "value": "50%", "label": "Improved Stability", "description": "Robust designs lead to a 50% reduction in critical system outages and performance issues." }
+              ]
+            }
+            ``` 
+            
+
 
             **Enhanced Slide Parsing Rules:**
             * Each slide should be separated by `---` in the input markdown
@@ -10074,6 +10088,21 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Each step should have a short heading and a concise description.
             - The timeline line and numbers are rendered automatically; just provide the steps array.
             - Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
+
+            **Special Instructions for `big-numbers`:**
+            - Use this template to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions.
+            - Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
+            - Example use cases: "Key Metrics of Effective System Architecture", "Business Impact", "Performance Benchmarks".
+            - **CRITICAL PARSING:** When parsing markdown for big-numbers, look for markdown table format like:
+              ```
+              | 25% | 3x | 50% |
+              |:----:|:---:|:---:|
+              | **Increased Revenue** | **Faster Customer Acquisition** | **Higher Market Share** |
+              | Our revenue has increased by 25% this year. | We have tripled our customer acquisition rate. | Our market share has grown by 50% in the last quarter. |
+              ```
+              Convert this to the items array format: [{"value": "25%", "label": "Increased Revenue", "description": "Our revenue has increased by 25% this year."}].
+            - Do NOT use the standard content parsing for big-numbers. Always extract items from the table format.
+            - First row contains values, second row contains labels (remove ** formatting), third row contains descriptions.
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

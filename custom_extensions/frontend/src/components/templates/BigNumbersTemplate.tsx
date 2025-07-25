@@ -86,13 +86,27 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     <div className="big-numbers-template" style={slideStyles}>
       <h1 style={titleStyles}>{title}</h1>
       <div style={gridStyles}>
-        {(items as BigNumberItem[]).slice(0, 3).map((item: BigNumberItem, idx: number) => (
-          <div key={idx} style={itemStyles}>
-            <div style={valueStyles}>{item.value}</div>
-            <div style={labelStyles}>{item.label}</div>
-            <div style={descriptionStyles}>{item.description}</div>
+        {Array.isArray(items) && items.length >= 3 ? (
+          items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
+            <div key={idx} style={itemStyles}>
+              <div style={valueStyles}>{item.value || 'N/A'}</div>
+              <div style={labelStyles}>{item.label || 'Label'}</div>
+              <div style={descriptionStyles}>{item.description || 'Description'}</div>
+            </div>
+          ))
+        ) : (
+          <div style={{
+            color: '#ff6b6b',
+            fontWeight: 600,
+            padding: '20px',
+            textAlign: 'center',
+            gridColumn: '1 / -1'
+          }}>
+            Error: This slide requires exactly 3 items with "value", "label", and "description" fields.
+            {!Array.isArray(items) && <div>Found: {typeof items}</div>}
+            {Array.isArray(items) && <div>Found {items.length} items (need 3)</div>}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

@@ -142,7 +142,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           theme: deckWithTheme.theme,
           themeColors: currentTheme.colors,
           templates: deck.slides.map((s: any) => s.templateId)
-        });
+          });
         
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
