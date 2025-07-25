@@ -197,187 +197,479 @@ export default function AiAuditQuestionnaire() {
   }, [latestProgress, router]);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-[#F7F7F7] font-sans">
-      <div className="w-full max-w-5xl flex flex-row bg-white rounded-2xl shadow-2xl mt-16 border border-gray-100 overflow-hidden">
-        {/* Left info column */}
-        <div className="w-1/2 bg-gradient-to-b from-blue-50 via-white to-blue-100 px-10 py-12 flex flex-col border-r border-gray-200">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#3b82f6" opacity="0.1"/><path d="M12 8v4l3 2" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            AI-Audit Overview
-          </h2>
-          {leftInfo.map((item, idx) => (
-            <div key={item.title} className={idx !== 0 ? "mt-7" : ""}>
-              <div className="text-lg font-semibold text-blue-800 mb-1">{item.title}</div>
-              <div className="text-gray-700 text-base whitespace-pre-line leading-relaxed">{item.desc}</div>
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+      
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-6xl flex flex-col lg:flex-row bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          {/* Left info column */}
+          <div className="lg:w-2/5 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-8 py-12 lg:py-16 flex flex-col relative overflow-hidden">
+            {/* Decorative background pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
             </div>
-          ))}
-        </div>
-        {/* Right form column */}
-        <div className="w-1/2 p-10 flex flex-col justify-center">
-          <h1 className="text-3xl font-bold mb-6 text-center text-blue-900">AI Audit Questionnaire</h1>
-          {progressMessages.length > 0 && (
-            <div className="mb-4">
-              {progressMessages.map((msg, i) => (
-                <div key={i} className="text-blue-700 text-sm mb-1">{msg}</div>
+            
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <svg width="32" height="32" fill="none" viewBox="0 0 24 24" className="text-white">
+                    <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.2"/>
+                    <path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                AI-Audit Overview
+              </h2>
+              
+              {leftInfo.map((item, idx) => (
+                <div key={item.title} className={`${idx !== 0 ? "mt-8" : ""} group`}>
+                  <div className="text-xl font-semibold text-white mb-3 group-hover:text-blue-100 transition-colors">
+                    {item.title}
+                  </div>
+                  <div className="text-blue-100 text-base leading-relaxed whitespace-pre-line">
+                    {item.desc}
+                  </div>
+                </div>
               ))}
-            </div>
-          )}
-          {loading && <LoadingSpinner text={latestProgress || "Generating..."} />}
-          {!loading && (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-7">
-              <div>
-                <label className="block font-medium mb-1 text-black">Company name</label>
-                <input
-                  type="text"
-                  className={`w-full px-4 py-2 rounded border ${touched.companyName && !companyName.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
-                  value={companyName}
-                  onChange={e => setCompanyName(e.target.value)}
-                  onBlur={() => setTouched((t:any) => ({ ...t, companyName: true }))}
-                  required
-                />
-                {touched.companyName && !companyName.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">What does the company do?</label>
-                <input
-                  type="text"
-                  className={`w-full px-4 py-2 rounded border ${touched.companyDesc && !companyDesc.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
-                  value={companyDesc}
-                  onChange={e => setCompanyDesc(e.target.value)}
-                  onBlur={() => setTouched((t:any) => ({ ...t, companyDesc: true }))}
-                  required
-                />
-                {touched.companyDesc && !companyDesc.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">Company website</label>
-                <input
-                  type="url"
-                  className={`w-full px-4 py-2 rounded border ${touched.companyWebsite && !companyWebsite.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
-                  value={companyWebsite}
-                  onChange={e => setCompanyWebsite(e.target.value)}
-                  onBlur={() => setTouched((t:any) => ({ ...t, companyWebsite: true }))}
-                  required
-                  placeholder="https://example.com"
-                />
-                {touched.companyWebsite && !companyWebsite.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">Number of employees</label>
-                <input
-                  type="number"
-                  min={1}
-                  className={`w-full px-4 py-2 rounded border ${touched.employees && !employees ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
-                  value={employees}
-                  onChange={e => setEmployees(e.target.value)}
-                  onBlur={() => setTouched((t:any) => ({ ...t, employees: true }))}
-                  required
-                />
-                {touched.employees && !employees && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">Do you have franchisees or are you planning to open new locations?</label>
-                <select
-                  className={`w-full px-4 py-2 rounded border ${touched.franchise && !franchise ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black`}
-                  value={franchise}
-                  onChange={e => setFranchise(e.target.value)}
-                  onBlur={() => setTouched((t:any) => ({ ...t, franchise: true }))}
-                  required
-                >
-                  <option value="" className="text-black">Select...</option>
-                  <option value="Yes" className="text-black">Yes</option>
-                  <option value="No" className="text-black">No</option>
-                </select>
-                {touched.franchise && !franchise && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">What are the main problems with onboarding new employees?</label>
-                <input
-                  type="text"
-                  className={`w-full px-4 py-2 rounded border ${touched.onboardingProblems && !onboardingProblems.trim() ? 'border-red-400' : 'border-gray-300'} focus:border-blue-400 text-black placeholder-black`}
-                  value={onboardingProblems}
-                  onChange={e => setOnboardingProblems(e.target.value)}
-                  onBlur={() => setTouched((t:any) => ({ ...t, onboardingProblems: true }))}
-                  required
-                />
-                {touched.onboardingProblems && !onboardingProblems.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">What documents do you already have?</label>
-                <div className={`w-full px-4 py-2 rounded border ${touched.documents && documents.length === 0 ? 'border-red-400' : 'border-gray-300'} focus-within:border-blue-400 bg-white`}>
-                  {documentOptions.map(opt => (
-                    <label key={opt} className="flex items-center gap-2 text-black">
-                      <input
-                        type="checkbox"
-                        checked={documents.includes(opt)}
-                        onChange={() => handleCheckbox(documents, setDocuments, opt)}
-                        className="accent-blue-600"
-                      />
-                      {opt}
-                    </label>
-                  ))}
-                  {documents.includes("Other") && (
-                    <input
-                      type="text"
-                      className="mt-2 w-full px-2 py-1 rounded border border-gray-300 focus:border-blue-400 text-black placeholder-black"
-                      placeholder="Please specify"
-                      value={documentsOther}
-                      onChange={e => setDocumentsOther(e.target.value)}
-                      required
-                    />
-                  )}
+              
+              {/* Progress indicator */}
+              <div className="mt-12 p-4 bg-white/10 rounded-xl border border-white/20">
+                <div className="flex items-center gap-3 text-white">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium">AI-Powered Analysis</span>
                 </div>
-                {touched.documents && documents.length === 0 && <div className="text-red-500 text-xs mt-1">Required</div>}
-                {documents.includes("Other") && touched.documentsOther && !documentsOther.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
+                <p className="text-blue-100 text-sm mt-2">
+                  Our advanced AI will analyze your responses and generate personalized recommendations.
+                </p>
               </div>
-              <div>
-                <label className="block font-medium mb-1 text-black">What is your main priority right now?</label>
-                <div className={`w-full px-4 py-2 rounded border ${touched.priorities && priorities.length === 0 ? 'border-red-400' : 'border-gray-300'} focus-within:border-blue-400 bg-white`}>
-                  {priorityOptions.map(opt => (
-                    <label key={opt} className="flex items-center gap-2 text-black">
-                      <input
-                        type="checkbox"
-                        checked={priorities.includes(opt)}
-                        onChange={() => handleCheckbox(priorities, setPriorities, opt)}
-                        className="accent-blue-600"
-                      />
-                      {opt}
-                    </label>
-                  ))}
-                  {priorities.includes("Other") && (
-                    <input
-                      type="text"
-                      className="mt-2 w-full px-2 py-1 rounded border border-gray-300 focus:border-blue-400 text-black placeholder-black"
-                      placeholder="Please specify"
-                      value={priorityOther}
-                      onChange={e => setPriorityOther(e.target.value)}
-                      required
-                    />
-                  )}
-                </div>
-                {touched.priorities && priorities.length === 0 && <div className="text-red-500 text-xs mt-1">Required</div>}
-                {priorities.includes("Other") && touched.priorityOther && !priorityOther.trim() && <div className="text-red-500 text-xs mt-1">Required</div>}
-              </div>
-              {/* Example section divider: */}
-              <div className="h-px bg-gray-200 my-2" />
-              <button
-                type="submit"
-                className="mt-6 px-10 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold shadow-lg transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                disabled={loading}
-              >
-                Generate Audit
-              </button>
-              {error && <div className="text-red-600 text-base mt-2 text-center">{error}</div>}
-            </form>
-          )}
-          {generationDone && (
-            <div className="mt-6 text-center">
-              <LoadingSpinner text="Finalizing..." />
-              <p className="text-blue-700 text-sm mt-2">Your AI Audit is being generated. This might take a few minutes.</p>
             </div>
-          )}
+          </div>
+          
+          {/* Right form column */}
+          <div className="lg:w-3/5 p-8 lg:p-12 flex flex-col justify-center bg-white/90 backdrop-blur-sm">
+            <div className="max-w-2xl mx-auto w-full">
+              <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  AI Audit Questionnaire
+                </h1>
+                <p className="text-gray-600 text-lg">
+                  Help us understand your company to generate the perfect onboarding audit
+                </p>
+              </div>
+              
+              {progressMessages.length > 0 && (
+                <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  {progressMessages.map((msg, i) => (
+                    <div key={i} className="text-blue-700 text-sm mb-1 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      {msg}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {loading && <LoadingSpinner text={latestProgress || "Generating..."} />}
+              
+              {!loading && (
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  {/* Company Information Section */}
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                      Company Information
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block font-semibold mb-2 text-gray-700">Company name</label>
+                        <input
+                          type="text"
+                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                            touched.companyName && !companyName.trim() 
+                              ? 'border-red-400 bg-red-50' 
+                              : 'border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50'
+                          } focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400`}
+                          value={companyName}
+                          onChange={e => setCompanyName(e.target.value)}
+                          onBlur={() => setTouched((t:any) => ({ ...t, companyName: true }))}
+                          placeholder="Enter your company name"
+                          required
+                        />
+                        {touched.companyName && !companyName.trim() && (
+                          <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Company name is required
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label className="block font-semibold mb-2 text-gray-700">Number of employees</label>
+                        <input
+                          type="number"
+                          min={1}
+                          className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                            touched.employees && !employees 
+                              ? 'border-red-400 bg-red-50' 
+                              : 'border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50'
+                          } focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400`}
+                          value={employees}
+                          onChange={e => setEmployees(e.target.value)}
+                          onBlur={() => setTouched((t:any) => ({ ...t, employees: true }))}
+                          placeholder="e.g., 50"
+                          required
+                        />
+                        {touched.employees && !employees && (
+                          <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Number of employees is required
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block font-semibold mb-2 text-gray-700">What does the company do?</label>
+                      <input
+                        type="text"
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                          touched.companyDesc && !companyDesc.trim() 
+                            ? 'border-red-400 bg-red-50' 
+                            : 'border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50'
+                        } focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400`}
+                        value={companyDesc}
+                        onChange={e => setCompanyDesc(e.target.value)}
+                        onBlur={() => setTouched((t:any) => ({ ...t, companyDesc: true }))}
+                        placeholder="Brief description of your business"
+                        required
+                      />
+                      {touched.companyDesc && !companyDesc.trim() && (
+                        <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Company description is required
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block font-semibold mb-2 text-gray-700">Company website</label>
+                      <input
+                        type="url"
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                          touched.companyWebsite && !companyWebsite.trim() 
+                            ? 'border-red-400 bg-red-50' 
+                            : 'border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50'
+                        } focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400`}
+                        value={companyWebsite}
+                        onChange={e => setCompanyWebsite(e.target.value)}
+                        onBlur={() => setTouched((t:any) => ({ ...t, companyWebsite: true }))}
+                        placeholder="https://example.com"
+                        required
+                      />
+                      {touched.companyWebsite && !companyWebsite.trim() && (
+                        <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Company website is required
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Business Details Section */}
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                      Business Details
+                    </h3>
+                    
+                    <div>
+                      <label className="block font-semibold mb-2 text-gray-700">
+                        Do you have franchisees or are you planning to open new locations?
+                      </label>
+                      <select
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                          touched.franchise && !franchise 
+                            ? 'border-red-400 bg-red-50' 
+                            : 'border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50'
+                        } focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800`}
+                        value={franchise}
+                        onChange={e => setFranchise(e.target.value)}
+                        onBlur={() => setTouched((t:any) => ({ ...t, franchise: true }))}
+                        required
+                      >
+                        <option value="" className="text-gray-400">Select an option...</option>
+                        <option value="Yes" className="text-gray-800">Yes</option>
+                        <option value="No" className="text-gray-800">No</option>
+                      </select>
+                      {touched.franchise && !franchise && (
+                        <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Please select an option
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block font-semibold mb-2 text-gray-700">
+                        What are the main problems with onboarding new employees?
+                      </label>
+                      <textarea
+                        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                          touched.onboardingProblems && !onboardingProblems.trim() 
+                            ? 'border-red-400 bg-red-50' 
+                            : 'border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50'
+                        } focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400 resize-none`}
+                        value={onboardingProblems}
+                        onChange={e => setOnboardingProblems(e.target.value)}
+                        onBlur={() => setTouched((t:any) => ({ ...t, onboardingProblems: true }))}
+                        placeholder="Describe the main challenges you face..."
+                        rows={3}
+                        required
+                      />
+                      {touched.onboardingProblems && !onboardingProblems.trim() && (
+                        <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Please describe your onboarding problems
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Documents Section */}
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                      Current Documentation
+                    </h3>
+                    
+                    <div>
+                      <label className="block font-semibold mb-3 text-gray-700">
+                        What documents do you already have?
+                      </label>
+                      <div className={`space-y-3 p-4 rounded-xl border-2 transition-all duration-200 ${
+                        touched.documents && documents.length === 0 
+                          ? 'border-red-400 bg-red-50' 
+                          : 'border-gray-200 bg-gray-50 hover:border-blue-300 focus-within:border-blue-500 focus-within:bg-blue-50'
+                      }`}>
+                        {documentOptions.map(opt => (
+                          <label key={opt} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 transition-colors cursor-pointer group">
+                            <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={documents.includes(opt)}
+                                onChange={() => handleCheckbox(documents, setDocuments, opt)}
+                                className="sr-only"
+                              />
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                                documents.includes(opt)
+                                  ? 'bg-blue-600 border-blue-600'
+                                  : 'border-gray-300 group-hover:border-blue-400'
+                              }`}>
+                                {documents.includes(opt) && (
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-gray-700 font-medium">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                      
+                      {documents.includes("Other") && (
+                        <div className="mt-4">
+                          <input
+                            type="text"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
+                            placeholder="Please specify other documents..."
+                            value={documentsOther}
+                            onChange={e => setDocumentsOther(e.target.value)}
+                            required
+                          />
+                        </div>
+                      )}
+                      
+                      {touched.documents && documents.length === 0 && (
+                        <div className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Please select at least one document type
+                        </div>
+                      )}
+                      {documents.includes("Other") && touched.documentsOther && !documentsOther.trim() && (
+                        <div className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Please specify other documents
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Priorities Section */}
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                      Your Priorities
+                    </h3>
+                    
+                    <div>
+                      <label className="block font-semibold mb-3 text-gray-700">
+                        What is your main priority right now?
+                      </label>
+                      <div className={`space-y-3 p-4 rounded-xl border-2 transition-all duration-200 ${
+                        touched.priorities && priorities.length === 0 
+                          ? 'border-red-400 bg-red-50' 
+                          : 'border-gray-200 bg-gray-50 hover:border-blue-300 focus-within:border-blue-500 focus-within:bg-blue-50'
+                      }`}>
+                        {priorityOptions.map(opt => (
+                          <label key={opt} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 transition-colors cursor-pointer group">
+                            <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={priorities.includes(opt)}
+                                onChange={() => handleCheckbox(priorities, setPriorities, opt)}
+                                className="sr-only"
+                              />
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                                priorities.includes(opt)
+                                  ? 'bg-blue-600 border-blue-600'
+                                  : 'border-gray-300 group-hover:border-blue-400'
+                              }`}>
+                                {priorities.includes(opt) && (
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-gray-700 font-medium">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                      
+                      {priorities.includes("Other") && (
+                        <div className="mt-4">
+                          <input
+                            type="text"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
+                            placeholder="Please specify other priority..."
+                            value={priorityOther}
+                            onChange={e => setPriorityOther(e.target.value)}
+                            required
+                          />
+                        </div>
+                      )}
+                      
+                      {touched.priorities && priorities.length === 0 && (
+                        <div className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Please select at least one priority
+                        </div>
+                      )}
+                      {priorities.includes("Other") && touched.priorityOther && !priorityOther.trim() && (
+                        <div className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Please specify other priority
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Submit Button */}
+                  <div className="pt-6">
+                    <button
+                      type="submit"
+                      className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Generating Audit...
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-3">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          Generate AI Audit
+                        </div>
+                      )}
+                    </button>
+                    
+                    {error && (
+                      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {error}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </form>
+              )}
+              
+              {generationDone && (
+                <div className="mt-8 text-center p-6 bg-green-50 border border-green-200 rounded-xl">
+                  <LoadingSpinner text="Finalizing..." />
+                  <p className="text-green-700 text-sm mt-3">
+                    Your AI Audit is being generated. This might take a few minutes.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
+      
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes blob {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </main>
   );
 } 
