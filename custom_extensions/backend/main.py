@@ -7550,7 +7550,9 @@ async def generate_and_finalize_course_outline_for_position(
         pool=pool
     )
 
-    ptheme = "Default"
+    direct_path_project_id = project_db_candidate.id
+
+    ptheme = "cherry"
 
     content_valid = False
     if project_db_candidate.microproduct_content:
