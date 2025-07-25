@@ -70,7 +70,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const itemsContainerStyles: React.CSSProperties = {
     flex: '1 1 55%',
-    position: 'relative',
+    position: 'relative',//12213
     height: '400px', // Explicit height for positioning context
   };
 
