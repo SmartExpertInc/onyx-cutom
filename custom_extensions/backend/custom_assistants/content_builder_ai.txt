@@ -929,6 +929,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 11. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
 12. `big-image-top` - Large image on top, title and content below
 13. `four-box-grid` - Title and 4 boxes in a 2x2 grid
+14. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1149,6 +1150,26 @@ Box 4: [Heading] - [Description text]
 - Each box should have a short heading and a concise description.
 - Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
 - Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
+```
+
+**Timeline Slides** (`timeline`):
+```
+---
+**Slide 14: [Timeline Topic]** `timeline`
+
+## [Main Title]
+
+[Horizontal timeline with 4 steps. Each step has a number, heading, and description. Text blocks are placed above and below the line in a chessboard pattern.]
+
+1. [Heading 1] - [Description 1]
+2. [Heading 2] - [Description 2]
+3. [Heading 3] - [Description 3]
+4. [Heading 4] - [Description 4]
+```
+- Use this template for slides that need to show a process, history, or evolution in 4 key steps.
+- Each step should have a short heading and a concise description.
+- The timeline line and numbers are rendered automatically; just provide the steps array.
+- Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
 ```
 
 Content Distribution Strategy (Updated for Component-Based Templates):

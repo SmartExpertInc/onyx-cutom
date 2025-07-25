@@ -16,6 +16,7 @@ import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
 import { ImageComparisonTemplate } from './ImageComparisonTemplate';
 import { BigImageTopTemplate } from './BigImageTopTemplate';
 import { FourBoxGridTemplate } from './FourBoxGridTemplate';
+import { TimelineTemplate } from './TimelineTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -968,6 +969,34 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         required: true,
         // arrayItemType: { type: 'object', label: 'Box', description: 'Box with heading and text', required: true }
         // Якщо потрібна підтримка object, додати окрему схему для box
+      }
+    }
+  },
+
+  'timeline': {
+    id: 'timeline',
+    name: 'Timeline',
+    description: 'Horizontal timeline with 4 steps and alternating text blocks',
+    category: 'layout',
+    icon: '⏳',
+    component: TimelineTemplate,
+    defaultProps: {
+      title: 'History and Evolution',
+      steps: [
+        { heading: 'Hip-Hop Influence', description: 'Deeply intertwined with hip-hop culture, early street art was a raw, authentic voice of the streets.' },
+        { heading: '1960s NYC Graffiti', description: 'Street art\'s roots trace back to graffiti tagging in New York City, an underground movement defining urban identity.' },
+        { heading: 'Transition to Commissioned Works', description: 'From illicit markings to celebrated public art, its evolution saw a shift towards acceptance and commissioned projects.' },
+        { heading: 'Pioneers Emerge', description: 'Artists like Basquiat, Haring, and Banksy transformed the landscape, bringing street art into mainstream consciousness.' }
+      ]
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      steps: {
+        type: 'array',
+        label: 'Steps',
+        description: 'Array of 4 timeline steps',
+        required: true,
+        // arrayItemType: { type: 'object', label: 'Step', description: 'Step with heading and description', required: true }
       }
     }
   }

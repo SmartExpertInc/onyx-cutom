@@ -238,6 +238,18 @@ export interface FourBoxGridProps {
   theme?: SlideTheme;
 }
 
+export interface TimelineStep {
+  heading: string;
+  description: string;
+}
+
+export interface TimelineTemplateProps {
+  slideId: string;
+  title: string;
+  steps: TimelineStep[];
+  theme?: SlideTheme;
+}
+
 // --- Migration and Compatibility ---
 
 export interface LegacySlide {
@@ -279,7 +291,8 @@ export type TemplateId =
   | 'challenges-solutions'
   | 'hero-title-slide'
   | 'image-comparison'
-  | 'four-box-grid';
+  | 'four-box-grid'
+  | 'timeline';
 
 export interface TemplatePreview {
   templateId: string;
