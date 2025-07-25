@@ -56,7 +56,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     display: 'flex',
     alignItems: 'center',
     flexGrow: 1,
-    gap: '48px',
+    gap: '24px',
   };
 
   const pyramidContainerStyles: React.CSSProperties = {
