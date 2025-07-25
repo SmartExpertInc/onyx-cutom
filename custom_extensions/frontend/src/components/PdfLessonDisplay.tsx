@@ -13,6 +13,7 @@ import {
   ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle,
 } from 'lucide-react';
 import { locales } from '@/locales';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -505,8 +506,7 @@ export interface PdfLessonDisplayProps {
 }
 
 const PdfLessonDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber }: PdfLessonDisplayProps): React.JSX.Element | null => {
-  const lang = dataToDisplay?.detectedLanguage || 'en';
-  const t = locales[lang as keyof typeof locales];
+  const { t } = useLanguage();
 
   if (!dataToDisplay) {
     return <div className="p-6 text-center text-gray-500 text-xs">No lesson content available to display.</div>;

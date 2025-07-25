@@ -11,6 +11,7 @@ import {
   Settings, X, Palette, Type, List, AlertCircle
 } from 'lucide-react';
 import { locales } from '@/locales';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -1024,9 +1025,10 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const searchParams = useSearchParams();
   const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
   const locale = locales[lang as keyof typeof locales] || locales.en;
+  const { t } = useLanguage();
 
   if (!dataToDisplay) {
-    return <div className="p-6 text-center text-gray-500 text-xs">No text content available to display.</div>;
+    return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
   }
   
   const renderableItems: RenderableItem[] = [];

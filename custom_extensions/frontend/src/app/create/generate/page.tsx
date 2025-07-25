@@ -5,6 +5,7 @@ import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -116,6 +117,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
 );
 
 function GenerateProductPicker() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
@@ -867,14 +869,14 @@ function GenerateProductPicker() {
           href="/create"
           className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">Generate</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">{t('interface.generate.title', 'Generate')}</h1>
         <p className="text-center text-gray-600 text-lg -mt-1">
-          {isFromFiles ? "Create content from your selected files" : 
-           isFromText ? "Create content from your text" : 
-           "What would you like to create today?"}
+          {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
+           isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+           t('interface.generate.subtitle', 'What would you like to create today?')}
         </p>
 
         {/* File context indicator */}
@@ -882,17 +884,17 @@ function GenerateProductPicker() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
-              Creating from files
+              {t('interface.generate.creatingFromFiles', 'Creating from files')}
             </div>
             <div className="text-sm text-blue-700">
               {folderIds.length > 0 && (
-                <p>{folderIds.length} folder{folderIds.length !== 1 ? 's' : ''} selected</p>
+                <p>{folderIds.length} {folderIds.length !== 1 ? t('interface.generate.foldersSelectedPlural', 'folders selected') : t('interface.generate.foldersSelected', 'folder selected')}</p>
               )}
               {fileIds.length > 0 && (
-                <p>{fileIds.length} file{fileIds.length !== 1 ? 's' : ''} selected</p>
+                <p>{fileIds.length} {fileIds.length !== 1 ? t('interface.generate.filesSelectedPlural', 'files selected') : t('interface.generate.filesSelected', 'file selected')}</p>
               )}
               <p className="mt-1 text-blue-600">
-                The AI will use your selected documents as source material to create educational content.
+                {t('interface.generate.aiWillUseDocuments', 'The AI will use your selected documents as source material to create educational content.')}
               </p>
             </div>
           </div>
@@ -903,16 +905,16 @@ function GenerateProductPicker() {
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
             <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
-              Creating from text
+              {t('interface.generate.creatingFromText', 'Creating from text')}
             </div>
             <div className="text-sm text-green-700">
               <p className="font-medium">
-                Mode: {textMode === 'context' ? 'Using as context' : 'Using as base structure'}
+                {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
               <p className="mt-1 text-green-600">
                 {textMode === 'context' 
-                  ? "The AI will use your text as reference material and context to create new educational content."
-                  : "The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product."}
+                  ? t('interface.generate.aiWillUseTextAsContext', 'The AI will use your text as reference material and context to create new educational content.')
+                  : t('interface.generate.aiWillBuildUponText', 'The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.')}
               </p>
               {userText && (
                 <p className="mt-2 text-xs text-green-600 bg-green-100 p-2 rounded max-h-20 overflow-y-auto">
@@ -926,26 +928,26 @@ function GenerateProductPicker() {
         {/* Tab selector */}
         <div className="flex justify-center gap-4 mb-4">
           <TabButton
-            label="Course Outline"
+            label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
-          <TabButton label="Video Lesson" Icon={VideoScriptIcon} />
+          <TabButton label={t('interface.generate.videoLesson', 'Video Lesson')} Icon={VideoScriptIcon} />
           <TabButton 
-            label="Quiz" 
+            label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon} 
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
           />
           <TabButton
-            label="Presentation"
+            label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
           />
           <TabButton
-            label="One-Pager"
+            label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
@@ -961,7 +963,7 @@ function GenerateProductPicker() {
               className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
               {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                <option key={n} value={n}>{n} Modules</option>
+                <option key={n} value={n}>{n} {t('interface.generate.modules', 'Modules')}</option>
               ))}
             </select>
             <select
@@ -970,7 +972,7 @@ function GenerateProductPicker() {
               className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
               {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-                <option key={rng} value={rng}>{rng} per module</option>
+                <option key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</option>
               ))}
             </select>
             <select
@@ -978,10 +980,10 @@ function GenerateProductPicker() {
               onChange={(e) => setLanguage(e.target.value)}
               className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
             >
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
+              <option value="en">{t('interface.english', 'English')}</option>
+              <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+              <option value="es">{t('interface.spanish', 'Spanish')}</option>
+              <option value="ru">{t('interface.russian', 'Russian')}</option>
             </select>
           </div>
         )}
@@ -991,19 +993,19 @@ function GenerateProductPicker() {
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">Do you want to create a presentation from an existing Course Outline?</p>
+                <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setUseExistingOutline(true)}
                     className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
                   >
-                    Yes, content for the presentation from the outline
+                    {t('interface.generate.yesContentFromOutline', 'Yes, content for the presentation from the outline')}
                   </button>
                   <button
                     onClick={() => setUseExistingOutline(false)}
                     className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
                   >
-                    No, I want standalone presentation
+                    {t('interface.generate.noStandalone', 'No, I want standalone presentation')}
                   </button>
                 </div>
               </div>
@@ -1142,19 +1144,19 @@ function GenerateProductPicker() {
             {/* Step 1: Choose source */}
             {useExistingQuizOutline === null && (
               <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">Do you want to create a quiz from an existing Course Outline?</p>
+                <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setUseExistingQuizOutline(true)}
                     className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
                   >
-                    Yes, content for the quiz from the outline
+                    {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
                   </button>
                   <button
                     onClick={() => setUseExistingQuizOutline(false)}
                     className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
                   >
-                    No, I want standalone quiz
+                    {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
                   </button>
                 </div>
               </div>
@@ -1179,7 +1181,7 @@ function GenerateProductPicker() {
                       }}
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="">Select Outline</option>
+                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
                       {quizOutlines.map((outline) => (
                         <option key={outline.id} value={outline.id}>
                           {outline.name}
@@ -1199,7 +1201,7 @@ function GenerateProductPicker() {
                         }}
                         className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Module</option>
+                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
                         {quizModulesForOutline.map((m, idx) => (
                           <option key={idx} value={idx}>{m.name}</option>
                         ))}
@@ -1213,7 +1215,7 @@ function GenerateProductPicker() {
                         onChange={(e) => setSelectedQuizLesson(e.target.value)}
                         className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Lesson</option>
+                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
                         {quizLessonsForModule.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
@@ -1228,10 +1230,10 @@ function GenerateProductPicker() {
                           onChange={(e) => setQuizLanguage(e.target.value)}
                           className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
+                          <option value="en">{t('interface.english', 'English')}</option>
+                          <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                          <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                          <option value="ru">{t('interface.russian', 'Russian')}</option>
                         </select>
                         <div className="relative question-types-dropdown">
                           <button
@@ -1241,21 +1243,21 @@ function GenerateProductPicker() {
                           >
                             <span>
                               {selectedQuestionTypes.length === 0
-                                ? "Select Question Types"
+                                ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                                 : selectedQuestionTypes.length === 1
                                 ? selectedQuestionTypes[0]
-                                : `${selectedQuestionTypes.length} types selected`}
+                                : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                             </span>
                             <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
                           </button>
                           {showQuestionTypesDropdown && (
                             <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                                                         {[
-                            { value: "multiple-choice", label: "Multiple Choice" },
-                            { value: "multi-select", label: "Multiple Select" },
-                            { value: "matching", label: "Matching" },
-                            { value: "sorting", label: "Sorting" },
-                            { value: "open-answer", label: "Open Answer" }
+                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
+                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                           ].map((type) => (
                                 <label
                                   key={type.value}
@@ -1387,19 +1389,19 @@ function GenerateProductPicker() {
             {/* Step 1: Choose source */}
             {useExistingTextOutline === null && (
               <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">Do you want to create a one-pager from an existing Course Outline?</p>
+                <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setUseExistingTextOutline(true)}
                     className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
                   >
-                    Yes, content for the one-pager from the outline
+                    {t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}
                   </button>
                   <button
                     onClick={() => setUseExistingTextOutline(false)}
                     className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
                   >
-                    No, I want standalone one-pager
+                    {t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}
                   </button>
                 </div>
               </div>
@@ -1424,7 +1426,7 @@ function GenerateProductPicker() {
                       }}
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="">Select Outline</option>
+                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
                       {textOutlines.map((o) => (
                         <option key={o.id} value={o.id}>{o.name}</option>
                       ))}
@@ -1442,7 +1444,7 @@ function GenerateProductPicker() {
                         }}
                         className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Module</option>
+                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
                         {textModulesForOutline.map((m, idx) => (
                           <option key={idx} value={idx}>{m.name}</option>
                         ))}
@@ -1456,7 +1458,7 @@ function GenerateProductPicker() {
                         onChange={(e) => setSelectedTextLesson(e.target.value)}
                         className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Lesson</option>
+                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
                         {textLessonsForModule.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
@@ -1471,10 +1473,10 @@ function GenerateProductPicker() {
                           onChange={(e) => setTextLanguage(e.target.value)}
                           className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
+                          <option value="en">{t('interface.english', 'English')}</option>
+                          <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                          <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                          <option value="ru">{t('interface.russian', 'Russian')}</option>
                         </select>
                         <select
                           value={textLength}
@@ -1626,7 +1628,7 @@ function GenerateProductPicker() {
               ref={promptRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe what you'd like to make"
+              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={3}
@@ -1641,7 +1643,7 @@ function GenerateProductPicker() {
                   <div className="flex-1 border-t border-blue-100"></div>
                 </div>
                 <span className="relative z-10 bg-transparent px-4 text-lg font-semibold text-blue-900 text-center" style={{ letterSpacing: 0 }}>
-                  Example prompts
+                  {t('interface.generate.examplePrompts', 'Example prompts')}
                 </span>
               </div>
               <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
@@ -1666,7 +1668,7 @@ function GenerateProductPicker() {
                   onClick={shuffleExamples}
                   className="flex items-center gap-2 px-6 py-2 rounded-full bg-white shadow text-base font-medium text-blue-900 border border-blue-100 hover:bg-blue-50 transition-colors cursor-pointer"
                 >
-                  <Shuffle size={18} /> Shuffle
+                  <Shuffle size={18} /> {t('interface.generate.shuffleExamples', 'Shuffle')}
                 </button>
               </div>
             </div>
@@ -1704,7 +1706,10 @@ function GenerateProductPicker() {
               style={{ minWidth: 240 }}
             >
               <Sparkles size={20} />
-              Generate {activeProduct}
+              {activeProduct === "Course Outline" && t('interface.generate.generateCourseOutline', 'Generate Course Outline')}
+              {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
+              {activeProduct === "Quiz" && t('interface.generate.generateQuiz', 'Generate Quiz')}
+              {activeProduct === "One-Pager" && t('interface.generate.generateOnePager', 'Generate One-Pager')}
             </button>
           </div>
         )}
@@ -1714,8 +1719,10 @@ function GenerateProductPicker() {
 }
 
 export default function GeneratePage() {
+  const { t } = useLanguage();
+  
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>{t('interface.generate.loading', 'Loading...')}</div>}>
       <GenerateProductPicker />
     </Suspense>
   );

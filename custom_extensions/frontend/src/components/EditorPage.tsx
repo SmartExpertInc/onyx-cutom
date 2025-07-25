@@ -27,6 +27,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import './EditorPage.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -49,11 +50,13 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  const { t } = useLanguage();
+
   // Fetch slide deck data and parent project information
   useEffect(() => {
     const fetchSlideData = async () => {
       if (!projectId) {
-        setError("No project ID provided");
+        setError(t('editorPage.noProjectIdError', 'No project ID provided'));
         setLoading(false);
         return;
       }
@@ -81,14 +84,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         ]);
 
         if (!instanceRes.ok) {
-          throw new Error(`Failed to fetch project data: ${instanceRes.status}`);
+          throw new Error(t('editorPage.fetchProjectDataError', `Failed to fetch project data: ${instanceRes.status}`));
         }
 
         const projectData = await instanceRes.json();
         
         // Check if this is a slide deck project
         if (projectData.component_name !== 'SlideDeckDisplay') {
-          throw new Error("This project is not a slide deck");
+          throw new Error(t('editorPage.notSlideDeckError', 'This project is not a slide deck'));
         }
 
         if (projectData.details) {
@@ -96,7 +99,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           setSlideDeckData(data);
           setEditingSlideDeckData(JSON.parse(JSON.stringify(data))); // Deep copy for editing
         } else {
-          throw new Error("No slide deck data found");
+          throw new Error(t('editorPage.noSlideDeckDataError', 'No slide deck data found'));
         }
 
         // Handle projects list for breadcrumb navigation
@@ -139,7 +142,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         }
       } catch (err: any) {
         console.error("Error fetching slide data:", err);
-        setError(err.message || "Failed to load slide data");
+        setError(err.message || t('editorPage.loadSlideDataError', 'Failed to load slide data'));
       } finally {
         setLoading(false);
       }
@@ -653,7 +656,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     return (
       <div className="editor-page">
         <div className="loading-container">
-          <div className="p-8 text-center text-gray-500">Loading slide deck...</div>
+          <div className="p-8 text-center text-gray-500">{t('editorPage.loadingSlideDeck', 'Loading slide deck...')}</div>
         </div>
       </div>
     );
@@ -663,7 +666,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     return (
       <div className="editor-page">
         <div className="error-container">
-          <div className="p-8 text-center text-red-500">Error: {error}</div>
+          <div className="p-8 text-center text-red-500">{t('editorPage.error', 'Error:') + ' ' + error}</div>
         </div>
       </div>
     );
@@ -673,7 +676,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     return (
       <div className="editor-page">
         <div className="no-slides-container">
-          <div className="p-8 text-center text-gray-500">No slides found</div>
+          <div className="p-8 text-center text-gray-500">{t('editorPage.noSlidesFound', 'No slides found')}</div>
         </div>
       </div>
     );
@@ -713,19 +716,19 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             <span className="button-icon">
               <Palette size={16} />
             </span>
-            Theme
+            {t('editorPage.theme', 'Theme')}
           </button>
           <button className="nav-button share-button">
             <span className="button-icon">
               <Share2 size={16} />
             </span>
-            Share
+            {t('editorPage.share', 'Share')}
           </button>
           <button className="nav-button present-button">
             <span className="button-icon">
               <Play size={16} />
             </span>
-            Present
+            {t('editorPage.present', 'Present')}
             <span className="dropdown-arrow">▼</span>
           </button>
           <button 
@@ -735,7 +738,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
             <span className="button-icon">
               <Trash2 size={16} />
             </span>
-            Delete
+            {t('editorPage.delete', 'Delete')}
           </button>
           <button className="nav-button more-button">
             <MoreHorizontal size={16} />
@@ -752,24 +755,24 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
           <div className="delete-confirmation-popup">
             <div className="delete-confirmation-header">
               <AlertTriangle size={24} className="warning-icon" />
-              <h3>Delete Lesson</h3>
+              <h3>{t('editorPage.deleteLesson', 'Delete Lesson')}</h3>
             </div>
             <div className="delete-confirmation-content">
-              <p>Are you sure you want to delete this lesson?</p>
-              <p className="warning-text">This action cannot be undone.</p>
+              <p>{t('editorPage.deleteLessonConfirmation', 'Are you sure you want to delete this lesson?')}</p>
+              <p className="warning-text">{t('editorPage.deleteLessonWarning', 'This action cannot be undone.')}</p>
             </div>
             <div className="delete-confirmation-actions">
               <button 
                 className="cancel-button"
                 onClick={() => setShowDeleteConfirmation(false)}
               >
-                Cancel
+                {t('editorPage.cancel', 'Cancel')}
               </button>
               <button 
                 className="delete-confirm-button"
                 onClick={handleDeleteLesson}
               >
-                Delete
+                {t('editorPage.deleteConfirm', 'Delete')}
               </button>
             </div>
           </div>
@@ -800,7 +803,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
               <span className="plus-icon">
                 <Plus size={16} />
               </span>
-              New
+              {t('editorPage.newSlide', 'New')}
               <span className="dropdown-arrow">▼</span>
             </button>
 

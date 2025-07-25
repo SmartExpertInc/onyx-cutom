@@ -22,6 +22,7 @@ import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
 
@@ -52,18 +53,18 @@ const DefaultDisplayComponent = ({ instanceData }: { instanceData: ProjectInstan
   <div className="p-6 border rounded-lg bg-gray-50 shadow-md">
     <div className="flex items-center text-blue-600 mb-3">
         <Info size={24} className="mr-3" />
-        <h2 className="text-2xl font-semibold">{instanceData?.name || 'Content Details'}</h2>
+        <h2 className="text-2xl font-semibold">{instanceData?.name || t('projectView.contentDetails', 'Content Details')}</h2>
     </div>
     <p className="text-gray-700 mb-2">
-      This project instance utilizes the design component: <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || 'Unknown'}&quot;</strong>.
+      {t('projectView.utilizesDesignComponent', 'This project instance utilizes the design component:')} <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || t('projectView.unknownComponent', 'Unknown')}&quot;</strong>.
     </p>
     <p className="text-gray-600 mb-4">
-      A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.
-      You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.
+      {t('projectView.specificUIForDirectViewing', 'A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.')}
+      {t('projectView.editGeneralDetails', 'You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.')}
     </p>
     <details className="group text-sm">
         <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
-            Toggle Raw Content Preview
+            {t('projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
         </summary>
         <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
             {JSON.stringify(instanceData?.details, null, 2)}
@@ -78,6 +79,7 @@ export default function ProjectInstanceViewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { projectId } = params || {};
+  const { t } = useLanguage();
 
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
@@ -147,7 +149,7 @@ export default function ProjectInstanceViewPage() {
 
     const currentProjectIdNum = parseInt(currentProjectIdStr, 10);
     if (isNaN(currentProjectIdNum)) {
-      setErrorMessage("Invalid Project ID format.");
+      setErrorMessage(t('projectView.invalidProjectIdFormat', 'Invalid Project ID format.'));
       setPageState('error');
       return;
     }
@@ -168,7 +170,7 @@ export default function ProjectInstanceViewPage() {
 
       if (!instanceRes.ok) {
         const errorText = await instanceRes.text();
-        let errorDetail = `HTTP error ${instanceRes.status} fetching project instance (ID: ${currentProjectIdStr})`;
+        let errorDetail = t('projectView.httpErrorFetchingProjectInstance', 'HTTP error {status} fetching project instance (ID: {id})', { status: instanceRes.status, id: currentProjectIdStr });
         try { const errorJson = JSON.parse(errorText); errorDetail = errorJson.detail || errorDetail; }
         catch { errorDetail = `${errorDetail} - ${errorText.substring(0, 150)}`; }
         throw new Error(errorDetail);
@@ -186,7 +188,7 @@ export default function ProjectInstanceViewPage() {
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
       } else {
-          console.warn("Could not fetch full projects list to determine parent project name.");
+          console.warn(t('projectView.couldNotFetchFullProjectsList', 'Could not fetch full projects list to determine parent project name.'));
       }
 
       if (instanceData.details) {
@@ -219,17 +221,17 @@ export default function ProjectInstanceViewPage() {
       } else {
         const lang = instanceData.detectedLanguage || 'en'; 
         if (instanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-          setEditableData({ mainTitle: instanceData.name || "New Training Plan", sections: [], detectedLanguage: lang });
+          setEditableData({ mainTitle: instanceData.name || t('projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
-          setEditableData({ lessonTitle: instanceData.name || "New PDF Lesson", contentBlocks: [], detectedLanguage: lang });
+          setEditableData({ lessonTitle: instanceData.name || t('projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
-          setEditableData({ lessonTitle: instanceData.name || "New Slide Deck", slides: [], detectedLanguage: lang });
+          setEditableData({ lessonTitle: instanceData.name || t('projectView.newSlideDeckTitle', 'New Slide Deck'), slides: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
-          setEditableData({ mainPresentationTitle: instanceData.name || "New Video Lesson", slides: [], detectedLanguage: lang });
+          setEditableData({ mainPresentationTitle: instanceData.name || t('projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
-          setEditableData({ quizTitle: instanceData.name || "New Quiz", questions: [], detectedLanguage: lang });
+          setEditableData({ quizTitle: instanceData.name || t('projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
-          setEditableData({ textTitle: instanceData.name || "New Text Presentation", contentBlocks: [], detectedLanguage: lang });
+          setEditableData({ textTitle: instanceData.name || t('projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
         } else {
           setEditableData(null);
         }
@@ -237,7 +239,7 @@ export default function ProjectInstanceViewPage() {
       setPageState(instanceData ? 'success' : 'nodata');
     } catch (err: any) {
       console.error("Fetch Page Data Error:", err);
-      setErrorMessage(err.message || "An unknown error occurred while fetching project data.");
+      setErrorMessage(err.message || t('projectView.unknownErrorOccurred', 'An unknown error occurred while fetching project data.'));
       setPageState('error');
     }
   }, []);
@@ -252,7 +254,7 @@ export default function ProjectInstanceViewPage() {
         fetchPageData(projectId);
       }
     } else if (params && Object.keys(params).length > 0 && !projectId) {
-      setErrorMessage("Project ID is missing in URL.");
+      setErrorMessage(t('projectView.projectIdMissing', 'Project ID is missing in URL.'));
       setPageState('error');
     }
   }, [projectId, params, fetchPageData, pageState, projectInstanceData]);
@@ -372,13 +374,13 @@ export default function ProjectInstanceViewPage() {
 
   const handleSave = async () => {
     if (!projectId || !editableData) {
-      setSaveError("Project ID or editable data is missing.");
-      alert("Error: Project ID or data is missing.");
+      setSaveError(t('projectView.projectIdOrEditableDataMissing', 'Project ID or editable data is missing.'));
+      alert(t('projectView.errorProjectIdOrDataMissing', 'Error: Project ID or data is missing.'));
       return;
     }
     if (!projectInstanceData) {
-      setSaveError("Project instance data not loaded.");
-      alert("Error: Project instance data not loaded.");
+      setSaveError(t('projectView.projectInstanceDataNotLoaded', 'Project instance data not loaded.'));
+      alert(t('projectView.errorProjectInstanceDataNotLoaded', 'Error: Project instance data not loaded.'));
       return;
     }
     const editableComponentTypes = [
@@ -390,8 +392,8 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_TEXT_PRESENTATION,
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
-      setSaveError("Content editing is not supported for this component type on this page.");
-      alert("Error: Cannot save. Content editing for this component type is not supported here.");
+      setSaveError(t('projectView.contentEditingNotSupported', 'Content editing is not supported for this component type on this page.'));
+      alert(t('projectView.errorCannotSave', 'Error: Cannot save. Content editing for this component type is not supported here.'));
       return;
     }
 
@@ -411,7 +413,7 @@ export default function ProjectInstanceViewPage() {
       });
       if (!response.ok) {
         const errorDataText = await response.text();
-        let errorDetail = `HTTP error ${response.status}`;
+        let errorDetail = t('projectView.httpErrorSaving', 'HTTP error {status}', { status: response.status });
         try { 
           const errorJson = JSON.parse(errorDataText); 
           if (errorJson.detail) {
@@ -420,9 +422,9 @@ export default function ProjectInstanceViewPage() {
               // Format validation errors nicely
               const validationErrors = errorJson.detail.map((err: any) => {
                 const location = err.loc ? err.loc.join('.') : 'unknown';
-                return `${location}: ${err.msg || 'Validation error'}`;
+                return `${location}: ${err.msg || t('projectView.validationError', 'Validation error')}`;
               }).join('; ');
-              errorDetail = `Validation errors: ${validationErrors}`;
+              errorDetail = `${t('projectView.validationErrors', 'Validation errors')}: ${validationErrors}`;
             } else {
               errorDetail = errorJson.detail;
             }
@@ -433,10 +435,10 @@ export default function ProjectInstanceViewPage() {
       }
       setIsEditing(false);
       await fetchPageData(projectId);
-      alert("Content saved successfully!");
+      alert(t('projectView.contentSavedSuccessfully', 'Content saved successfully!'));
     } catch (err: any) {
-      setSaveError(err.message || "Could not save data.");
-      alert(`Save failed: ${err.message}`);
+      setSaveError(err.message || t('projectView.couldNotSaveData', 'Could not save data.'));
+      alert(`${t('projectView.saveFailed', 'Save failed')}: ${err.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -570,7 +572,7 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handleToggleEdit = () => {
-    if (!projectInstanceData) { alert("Project data not loaded yet."); return; }
+    if (!projectInstanceData) { alert(t('projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }
     const editableComponentTypes = [
       COMPONENT_NAME_PDF_LESSON,
       COMPONENT_NAME_TRAINING_PLAN,
@@ -580,7 +582,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_TEXT_PRESENTATION,
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
-      alert(`Content editing is currently supported for ${editableComponentTypes.join(', ')} types on this page.`);
+      alert(`${t('projectView.contentEditingSupported', 'Content editing is currently supported for')} ${editableComponentTypes.join(', ')} ${t('projectView.typesOnThisPage', 'types on this page.')}`);
       return;
     }
 
@@ -592,15 +594,15 @@ export default function ProjectInstanceViewPage() {
         setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
       } else { 
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-          setEditableData({ mainTitle: projectInstanceData.name || "New Training Plan", sections: [], detectedLanguage: lang });
+          setEditableData({ mainTitle: projectInstanceData.name || t('projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
-          setEditableData({ lessonTitle: projectInstanceData.name || "New PDF Lesson", contentBlocks: [], detectedLanguage: lang });
+          setEditableData({ lessonTitle: projectInstanceData.name || t('projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
-          setEditableData({ textTitle: projectInstanceData.name || "New Text Presentation", contentBlocks: [], detectedLanguage: lang });
+          setEditableData({ textTitle: projectInstanceData.name || t('projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
-          setEditableData({ mainPresentationTitle: projectInstanceData.name || "New Video Lesson", slides: [], detectedLanguage: lang });
+          setEditableData({ mainPresentationTitle: projectInstanceData.name || t('projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_QUIZ) {
-          setEditableData({ quizTitle: projectInstanceData.name || "New Quiz", questions: [], detectedLanguage: lang });
+          setEditableData({ quizTitle: projectInstanceData.name || t('projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
         } else {
           setEditableData(null);
         }
@@ -611,7 +613,7 @@ export default function ProjectInstanceViewPage() {
 
   const handlePdfDownload = () => {
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
-        alert("Project data or ID is not available for download.");
+        alert(t('projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
         return;
     }
     const nameForSlug = projectInstanceData.name || 'document';
@@ -664,25 +666,25 @@ export default function ProjectInstanceViewPage() {
       });
       if (!resp.ok) {
         const t = await resp.text();
-        throw new Error(`Failed to move to trash: ${resp.status} ${t.slice(0,200)}`);
+        throw new Error(`${t('projectView.failedToMoveToTrash', 'Failed to move to trash')}: ${resp.status} ${t.slice(0,200)}`);
       }
       // redirect to products
       router.push('/projects');
     } catch (e:any) {
-      alert(e.message || 'Could not move to trash');
+      alert(e.message || t('projectView.couldNotMoveToTrash', 'Could not move to trash'));
     }
   };
 
 
 
   if (pageState === 'initial_loading' || pageState === 'fetching') {
-    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">Loading project details...</div></div>;
+    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">{t('projectView.loadingProject', 'Loading project details...')}</div></div>;
   }
   if (pageState === 'error') {
-    return <div className="flex items-center justify-center min-h-screen bg-red-50"><div className="p-8 text-center text-red-700 text-lg">Error: {errorMessage || "Failed to load project data."}</div></div>;
+    return <div className="flex items-center justify-center min-h-screen bg-red-50"><div className="p-8 text-center text-red-700 text-lg">{t('projectView.errorLoadingProject', 'Error: Failed to load project data.')}</div></div>;
   }
     if (!projectInstanceData) {
-      return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">Project not found or data unavailable.</div></div>;
+      return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">{t('projectView.projectNotFound', 'Project not found or data unavailable.')}</div></div>;
   }
 
   const displayContent = () => {
@@ -742,7 +744,7 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_SLIDE_DECK:
         const slideDeckData = editableData as SlideDeckData | null;
         if (!slideDeckData) {
-          return <div className="p-6 text-center text-gray-500">No slide deck data available</div>;
+          return <div className="p-6 text-center text-gray-500">{t('projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
         // For slide decks, use the full editor page layout instead of the standard project view
         return (
@@ -795,7 +797,7 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-  const displayName = projectInstanceData?.name || `Project ${projectId}`;
+  const displayName = projectInstanceData?.name || `${t('projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
                           [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
@@ -810,7 +812,7 @@ export default function ProjectInstanceViewPage() {
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} className="mr-2" />
-              Back
+              {t('projectView.backButton', 'Back')}
             </button>
             
             <Link
@@ -818,7 +820,7 @@ export default function ProjectInstanceViewPage() {
                 className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors"
                 >
                 <FolderOpen size={16} className="mr-2" />
-                Open Products
+                {t('projectView.openProducts', 'Open Products')}
             </Link>
           </div>
 
@@ -828,9 +830,9 @@ export default function ProjectInstanceViewPage() {
                     onClick={handlePdfDownload}
                     disabled={isSaving}
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title="Download content as PDF"
+                    title={t('projectView.downloadPDF', 'Download content as PDF')}
                   >
-                   <ArrowDownToLine size={16} className="mr-2" /> Download PDF
+                   <ArrowDownToLine size={16} className="mr-2" /> {t('projectView.downloadPDF', 'Download PDF')}
                   </button>
             )}
             {/* Smart Edit button for Training Plans */}
@@ -838,9 +840,9 @@ export default function ProjectInstanceViewPage() {
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
                 className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center"
-                title="Smart edit with AI"
+                title={t('projectView.smartEdit', 'Smart edit with AI')}
               >
-                <Sparkles size={16} className="mr-2" /> Smart Edit
+                <Sparkles size={16} className="mr-2" /> {t('projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
             {/* Edit mode toggle for other content types */}
@@ -850,12 +852,12 @@ export default function ProjectInstanceViewPage() {
                 disabled={isSaving}
                 className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center
                                 ${isEditing ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500'}`}
-                title={isEditing ? "Save current changes" : "Edit content"}
+                title={isEditing ? t('projectView.saveContent', 'Save current changes') : t('projectView.editContent', 'Edit content')}
               >
                 {isEditing ? (
-                  <> <Save size={16} className="mr-2" /> {isSaving ? 'Saving...' : 'Save Content'} </>
+                  <> <Save size={16} className="mr-2" /> {isSaving ? t('projectView.saving', 'Saving...') : t('projectView.saveContent', 'Save Content')} </>
                 ) : (
-                  <> <Edit size={16} className="mr-2" /> Edit Content </>
+                  <> <Edit size={16} className="mr-2" /> {t('projectView.editContent', 'Edit Content')} </>
                 )}
               </button>
             )}
@@ -865,16 +867,16 @@ export default function ProjectInstanceViewPage() {
                 <button
                   onClick={() => setShowColumnDropdown(!showColumnDropdown)}
                   className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
-                  title="Configure visible columns"
+                  title={t('projectView.configureVisibleColumns', 'Configure visible columns')}
                 >
                   <Info size={16} className="mr-2" />
-                  Columns
+                  {t('projectView.columns', 'Columns')}
                   <ChevronDown size={16} className="ml-1" />
                 </button>
                 
                 {showColumnDropdown && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Visible Columns</h3>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('projectView.visibleColumns', 'Visible Columns')}</h3>
                     <div className="space-y-2">
                       <label className="flex items-center">
                         <input
@@ -883,7 +885,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Assessment Type</span>
+                        <span className="text-sm text-gray-700">{t('projectView.assessmentType', 'Assessment Type')}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -892,7 +894,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Content Volume</span>
+                        <span className="text-sm text-gray-700">{t('projectView.contentVolume', 'Content Volume')}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -901,7 +903,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Source</span>
+                        <span className="text-sm text-gray-700">{t('projectView.source', 'Source')}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -910,7 +912,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Est. Creation Time</span>
+                        <span className="text-sm text-gray-700">{t('projectView.estCreationTime', 'Est. Creation Time')}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -919,7 +921,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Est. Completion Time</span>
+                        <span className="text-sm text-gray-700">{t('projectView.estCompletionTime', 'Est. Completion Time')}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -928,7 +930,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Quality Tier</span>
+                        <span className="text-sm text-gray-700">{t('projectView.qualityTier', 'Quality Tier')}</span>
                       </label>
                     </div>
                   </div>
@@ -940,9 +942,9 @@ export default function ProjectInstanceViewPage() {
               <button
                 onClick={handleMoveToTrash}
                 className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
-                title="Move this product to Trash"
+                title={t('projectView.moveToTrash', 'Move this product to Trash')}
               >
-                <Trash2 size={16} className="mr-2" /> Move to Trash
+                <Trash2 size={16} className="mr-2" /> {t('projectView.moveToTrash', 'Move to Trash')}
               </button>
             )}
           </div>
@@ -956,7 +958,7 @@ export default function ProjectInstanceViewPage() {
         }
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
-            <Suspense fallback={<div className="py-10 text-center text-gray-500">Loading content display...</div>}>
+            <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
               {displayContent()}
             </Suspense>
         </div>

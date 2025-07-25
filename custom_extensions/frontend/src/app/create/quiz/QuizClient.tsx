@@ -5,28 +5,33 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
 // Loading animation component
-const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
-  <div className="flex flex-col items-center mt-4" aria-label="Loading">
-    <div className="flex gap-1 mb-2">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
-          style={{ animationDelay: `${i * 0.2}s` }}
-        />
-      ))}
+const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="flex flex-col items-center mt-4" aria-label="Loading">
+      <div className="flex gap-1 mb-2">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
+            style={{ animationDelay: `${i * 0.2}s` }}
+          />
+        ))}
+      </div>
+      {message && (
+        <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || t('interface.generate.loading', 'Generating...')}</p>
+      )}
     </div>
-    {message && (
-      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || "Generating..."}</p>
-    )}
-  </div>
-);
+  );
+};
 
 export default function QuizClient() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -586,29 +591,29 @@ export default function QuizClient() {
           href="/create/generate"
           className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
+        <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Step-by-step process */}
         <div className="flex flex-col items-center gap-4 mb-4">
           {/* Step 1: Choose source */}
           {useExistingOutline === null && (
             <div className="flex flex-col items-center gap-3">
-              <p className="text-lg font-medium text-gray-700">Do you want to create a quiz from an existing Course Outline?</p>
+              <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setUseExistingOutline(true)}
                   className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
                 >
-                  Yes, quiz for the lesson from the outline
+                  {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
                 </button>
                 <button
                   onClick={() => setUseExistingOutline(false)}
                   className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
-                  No, I want standalone quiz
+                  {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
                 </button>
               </div>
             </div>
@@ -634,7 +639,7 @@ export default function QuizClient() {
                       }}
                       className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="">Select Outline</option>
+                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
                       {outlines.map((o) => (
                         <option key={o.id} value={o.id}>{o.name}</option>
                       ))}
@@ -656,7 +661,7 @@ export default function QuizClient() {
                         disabled={modulesForOutline.length === 0}
                         className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Module</option>
+                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
                         {modulesForOutline.map((m, idx) => (
                           <option key={idx} value={idx}>{m.name}</option>
                         ))}
@@ -673,7 +678,7 @@ export default function QuizClient() {
                         onChange={(e) => setSelectedLesson(e.target.value)}
                         className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Lesson</option>
+                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
                         {lessonsForModule.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
@@ -691,10 +696,10 @@ export default function QuizClient() {
                           onChange={(e) => setSelectedLanguage(e.target.value)}
                           className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
+                          <option value="en">{t('interface.english', 'English')}</option>
+                          <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                          <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                          <option value="ru">{t('interface.russian', 'Russian')}</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
@@ -705,21 +710,21 @@ export default function QuizClient() {
                         >
                           <span>
                             {selectedQuestionTypes.length === 0
-                              ? "Select Question Types"
+                              ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                               : selectedQuestionTypes.length === 1
                               ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                              : `${selectedQuestionTypes.length} types selected`}
+                              : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                           </span>
                           <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
                         </button>
                         {showQuestionTypesDropdown && (
                           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
                             {[
-                              { value: "multiple-choice", label: "Multiple Choice" },
-                              { value: "multi-select", label: "Multi-Select" },
-                              { value: "matching", label: "Matching" },
-                              { value: "sorting", label: "Sorting" },
-                              { value: "open-answer", label: "Open Answer" }
+                              { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                              { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                              { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                              { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                              { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                             ].map((type) => (
                               <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
                                 <input
@@ -747,7 +752,7 @@ export default function QuizClient() {
                           className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
                           {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                            <option key={n} value={n}>{n} questions</option>
+                            <option key={n} value={n}>{n} {t('interface.generate.questions', 'questions')}</option>
                           ))}
                         </select>
                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
@@ -766,10 +771,10 @@ export default function QuizClient() {
                       onChange={(e) => setSelectedLanguage(e.target.value)}
                       className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="en">English</option>
-                      <option value="uk">Ukrainian</option>
-                      <option value="es">Spanish</option>
-                      <option value="ru">Russian</option>
+                      <option value="en">{t('interface.english', 'English')}</option>
+                      <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                      <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                      <option value="ru">{t('interface.russian', 'Russian')}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
@@ -780,21 +785,21 @@ export default function QuizClient() {
                     >
                       <span>
                         {selectedQuestionTypes.length === 0
-                          ? "Select Question Types"
+                          ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                           : selectedQuestionTypes.length === 1
                           ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                          : `${selectedQuestionTypes.length} types selected`}
+                          : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                       </span>
                       <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
                     </button>
                     {showQuestionTypesDropdown && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
                         {[
-                          { value: "multiple-choice", label: "Multiple Choice" },
-                          { value: "multi-select", label: "Multi-Select" },
-                          { value: "matching", label: "Matching" },
-                          { value: "sorting", label: "Sorting" },
-                          { value: "open-answer", label: "Open Answer" }
+                          { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                          { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                          { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                          { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                          { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                         ].map((type) => (
                           <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
                             <input
@@ -822,7 +827,7 @@ export default function QuizClient() {
                       className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
                       {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                        <option key={n} value={n}>{n} questions</option>
+                        <option key={n} value={n}>{n} {t('interface.generate.questions', 'questions')}</option>
                       ))}
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
@@ -841,7 +846,7 @@ export default function QuizClient() {
                 }}
                 className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
             >
-                ← Back
+                {t('interface.generate.backButton', '← Back')}
             </button>
           </div>
         )}
@@ -856,22 +861,22 @@ export default function QuizClient() {
               sp.set("prompt", e.target.value);
               router.replace(`?${sp.toString()}`, { scroll: false });
             }}
-            placeholder="Describe what you'd like to make"
+            placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
             rows={1}
             className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
           />
         )}
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">Quiz Content</h2>
+          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.quiz', 'Quiz')} {t('interface.generate.content', 'Content')}</h2>
           {loading && (
-            <LoadingAnimation message="Generating Quiz..." />
+            <LoadingAnimation message={t('interface.generate.generatingQuiz', 'Generating Quiz...')} />
           )}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
               <XCircle className="h-5 w-5" />
-              Error
+              {t('interface.error', 'Error')}
             </div>
             <div className="text-sm text-red-700 mb-4">
               <p>{error}</p>
@@ -884,7 +889,7 @@ export default function QuizClient() {
               }}
               className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
             >
-              Retry Generation
+              {t('interface.generate.retryGeneration', 'Retry Generation')}
             </button>
           </div>
         )}
@@ -897,14 +902,14 @@ export default function QuizClient() {
             >
               {loadingEdit && (
                 <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
-                  <LoadingAnimation message="Applying edit..." />
+                  <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
               <textarea
                 ref={textareaRef}
                 value={quizData}
                 onChange={(e) => setQuizData(e.target.value)}
-                placeholder="Quiz content will appear here..."
+                placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
                 className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
                 disabled={loadingEdit}
               />
@@ -920,7 +925,7 @@ export default function QuizClient() {
                 <textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder="Describe what you'd like to improve..."
+                  placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
                   className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
                 />
 
@@ -947,7 +952,7 @@ export default function QuizClient() {
                     onClick={handleApplyQuizEdit}
                     className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
                   >
-                    {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
+                    {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
                   </button>
                 </div>
               </div>
@@ -958,7 +963,7 @@ export default function QuizClient() {
                 onClick={() => setShowAdvanced((prev) => !prev)}
                 className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
               >
-                Advanced Mode
+                {t('interface.generate.advancedMode', 'Advanced Mode')}
                 <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
               </button>
             </div>
@@ -969,15 +974,15 @@ export default function QuizClient() {
           <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <h2 className="text-xl font-semibold text-[#20355D]">Themes</h2>
-                <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+                <h2 className="text-xl font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
               </div>
               <button
                 type="button"
                 className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
               >
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                <span>View more</span>
+                <span>{t('interface.generate.viewMore', 'View more')}</span>
               </button>
             </div>
 
@@ -1013,12 +1018,12 @@ export default function QuizClient() {
             <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
               {/* Quiz creation costs 5 credits */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>5 credits</span>
+              <span>5 {t('interface.credits', 'credits')}</span>
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">
                 {/* This can be word count or removed */}
-                {quizData.split(/\s+/).length} words
+                {quizData.split(/\s+/).length} {t('interface.generate.words', 'words')}
               </span>
                 <button
                 type="button"
@@ -1029,12 +1034,12 @@ export default function QuizClient() {
                   {isCreatingFinal ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Creating Quiz...
+                      {t('interface.generate.creatingQuiz', 'Creating Quiz...')}
                     </>
                   ) : (
                     <>
                     <Sparkles size={18} />
-                    <span className="select-none font-semibold">Generate</span>
+                    <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
                     </>
                   )}
                 </button>
@@ -1053,7 +1058,7 @@ export default function QuizClient() {
     `}</style>
     {isCreatingFinal && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing quiz..." />
+        <LoadingAnimation message={t('interface.generate.finalizingQuiz', 'Finalizing quiz...')} />
       </div>
     )}
     </>

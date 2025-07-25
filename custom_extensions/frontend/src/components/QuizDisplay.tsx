@@ -8,6 +8,7 @@ import {
 } from '@/types/quizTypes';
 import { CheckCircle, XCircle, Info, ArrowRight } from 'lucide-react';
 import { locales } from '@/locales';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const THEME_COLORS = {
   primaryText: 'text-[#4B4B4B]',
@@ -40,8 +41,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const searchParams = useSearchParams();
-  const lang = dataToDisplay?.detectedLanguage || 'en';
-  const t = locales[lang as keyof typeof locales];
+  const { t } = useLanguage();
 
   if (!dataToDisplay || !dataToDisplay.questions) {
     return null;
@@ -245,7 +245,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 ))}
               </div>
               <div>
-                <h4 className="font-medium mb-2 text-black">{(t.quiz as any).options || 'Options'}</h4>
+                <h4 className="font-medium mb-2 text-black">{t.quiz.options}</h4>
                 {question.options.map((option) => (
                   <div key={option.id} className="mb-2">
                     <input
@@ -394,7 +394,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
         return (
           <div className="mt-4">
-            <h4 className="font-medium mb-2 text-black">{(t.quiz as any).itemsToSort || 'Items to sort (in correct order)'}</h4>
+            <h4 className="font-medium mb-2 text-black">{t.quiz.itemsToSort}</h4>
             <div className="space-y-2">
               {sortedItems.map((itemId, orderIndex) => {
                 const item = question.items_to_sort.find(i => i.id === itemId);
@@ -424,7 +424,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 );
               })}
             </div>
-            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#FF1414]">{(t.quiz as any).addItem || 'Add Item'}</button>
+            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#FF1414]">{t.quiz.addItem}</button>
 
              <div className="mt-4">
                 <label className="block text-sm font-medium text-black mb-1">{t.quiz.explanation}</label>

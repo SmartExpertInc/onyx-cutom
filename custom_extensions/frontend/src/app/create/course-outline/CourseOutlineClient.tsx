@@ -8,6 +8,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -21,22 +22,26 @@ interface ModulePreview {
 
 // Simple bouncing dots loading animation (optionally with a status line)
 type LoadingProps = { message?: string };
-const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => (
-  <div className="flex flex-col items-center mt-4" aria-label="Loading">
-    <div className="flex gap-1 mb-2">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
-          style={{ animationDelay: `${i * 0.2}s` }}
-        />
-      ))}
+const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
+  const { t } = useLanguage();
+  
+  return (
+    <div className="flex flex-col items-center mt-4" aria-label="Loading">
+      <div className="flex gap-1 mb-2">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="inline-block w-3 h-3 bg-[#0066FF] rounded-full animate-bounce"
+            style={{ animationDelay: `${i * 0.2}s` }}
+          />
+        ))}
+      </div>
+      {message && (
+        <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message}</p>
+      )}
     </div>
-    {message && (
-      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message}</p>
-    )}
-  </div>
-);
+  );
+};
 
 // Helper to retry fetch up to 2 times on 504 Gateway Timeout
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
@@ -190,6 +195,7 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 
 export default function CourseOutlineClient() {
+  const { t } = useLanguage();
   const params = useSearchParams();
   const [prompt, setPrompt] = useState(params?.get("prompt") || "");
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
@@ -1211,16 +1217,16 @@ export default function CourseOutlineClient() {
               onClick={() => setShowFilters((prev) => !prev)}
               className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
             >
-              Additional Info <ChevronDown size={14} />
+              {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
             </button>
 
             {showFilters && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
                 {[
-                  { key: "knowledgeCheck", label: "Assessment Type" },
-                  { key: "contentAvailability", label: "Content Volume" },
-                  { key: "informationSource", label: "Source" },
-                  { key: "time", label: "Production Hours" },
+                  { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
+                  { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
+                  { key: "informationSource", label: t('interface.courseOutline.source', 'Source') },
+                  { key: "time", label: t('interface.courseOutline.productionHours', 'Production Hours') },
                 ].map(({ key, label }) => (
                   // @ts-ignore dynamic key
                   <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
@@ -1248,7 +1254,7 @@ export default function CourseOutlineClient() {
             ref={promptRef}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe what you'd like to make"
+            placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
             rows={1}
             className="flex-1 border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
           />
@@ -1262,18 +1268,18 @@ export default function CourseOutlineClient() {
               className="px-4 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap min-h-[56px]"
             >
               <Sparkles size={16} />
-              <span>Regenerate</span>
+              <span>{t('interface.courseOutline.regenerate', 'Regenerate')}</span>
             </button>
           )}
         </div>
 
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-[#20355D]">Modules & Lessons</h2>
+            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.courseOutline.modulesAndLessons', 'Modules & Lessons')}</h2>
             {hasUserEdits && (
               <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                 <span>✓</span>
-                <span>Edits protected</span>
+                <span>{t('interface.courseOutline.editsProtected', 'Edits protected')}</span>
               </div>
             )}
           </div>
@@ -1286,7 +1292,7 @@ export default function CourseOutlineClient() {
             >
               {loadingPreview && (
                 <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
-                  <LoadingAnimation message="Applying edit..." />
+                  <LoadingAnimation message={t('interface.courseOutline.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
               {preview.map((mod: ModulePreview, modIdx: number) => (
@@ -1305,7 +1311,7 @@ export default function CourseOutlineClient() {
                       onChange={(e) => handleModuleChange(modIdx, e.target.value)}
                       data-modtitle={modIdx}
                       className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                      placeholder={`Module ${modIdx + 1} title`}
+                      placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
                     />
 
                     {/* Lessons list */}
@@ -1332,7 +1338,7 @@ export default function CourseOutlineClient() {
                                data-mod={modIdx}
                                data-les={lessonIdx}
                                className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
-                               placeholder={`Lesson ${lessonIdx + 1}`}
+                               placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                              />
                            </li>
                          );
@@ -1348,14 +1354,14 @@ export default function CourseOutlineClient() {
                 className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
               >
                 <Plus size={18} />
-                <span>Add Module</span>
+                <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
               </button>
               {/* Status row – identical style mock */}
               <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
-                <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} lessons total</span>
+                <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
                 <div className="flex-1 flex justify-center">
                   <span className="flex items-center gap-1 select-none">
-                    Press <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> to split lessons
+                    {t('interface.courseOutline.pressEnterToSplit', 'Press')} <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> {t('interface.courseOutline.toSplitLessons', 'to split lessons')}
                   </span>
                 </div>
                 <span className="flex items-center gap-1">
@@ -1381,7 +1387,7 @@ export default function CourseOutlineClient() {
                 <textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder="Describe what you'd like to improve..."
+                  placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
                   className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
                 />
 
@@ -1498,9 +1504,9 @@ export default function CourseOutlineClient() {
                   <label className="text-sm font-medium text-gray-800 select-none">Amount of text per card</label>
                   <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
                     {[
-                      { id: "brief", label: "Brief", icon: <AlignLeft size={14} /> },
-                      { id: "medium", label: "Medium", icon: <AlignCenter size={14} /> },
-                      { id: "detailed", label: "Detailed", icon: <AlignRight size={14} /> },
+                      { id: "brief", label: t('interface.courseOutline.brief', 'Brief'), icon: <AlignLeft size={14} /> },
+                      { id: "medium", label: t('interface.courseOutline.medium', 'Medium'), icon: <AlignCenter size={14} /> },
+                      { id: "detailed", label: t('interface.courseOutline.detailed', 'Detailed'), icon: <AlignRight size={14} /> },
                     ].map((opt) => (
                       <button
                         key={opt.id}
@@ -1519,16 +1525,16 @@ export default function CourseOutlineClient() {
 
                 {/* Image source */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">Image source</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.imageSource', 'Image source')}</label>
                   <div className="relative w-full">
                     <select
                       value={imageSource}
                       onChange={(e) => setImageSource(e.target.value)}
                       className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                     >
-                      <option value="ai">AI images</option>
-                      <option value="stock">Stock images</option>
-                      <option value="none">No images</option>
+                      <option value="ai">{t('interface.courseOutline.aiImages', 'AI images')}</option>
+                      <option value="stock">{t('interface.courseOutline.stockImages', 'Stock images')}</option>
+                      <option value="none">{t('interface.courseOutline.noImages', 'No images')}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
@@ -1536,16 +1542,16 @@ export default function CourseOutlineClient() {
 
                 {/* AI image model */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">AI image model</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.aiImageModel', 'AI image model')}</label>
                   <div className="relative w-full">
                     <select
                       value={aiModel}
                       onChange={(e) => setAiModel(e.target.value)}
                       className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
                     >
-                      <option value="flux-fast">Flux Kontext Fast</option>
-                      <option value="flux-quality">Flux Kontext HQ</option>
-                      <option value="stable">Stable Diffusion 2.1</option>
+                      <option value="flux-fast">{t('interface.courseOutline.fluxKontextFast', 'Flux Kontext Fast')}</option>
+                      <option value="flux-quality">{t('interface.courseOutline.fluxKontextHQ', 'Flux Kontext HQ')}</option>
+                      <option value="stable">{t('interface.courseOutline.stableDiffusion', 'Stable Diffusion 2.1')}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
@@ -1565,13 +1571,13 @@ export default function CourseOutlineClient() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>{creditsRequired} credits</span>
+            <span>{creditsRequired} {t('interface.courseOutline.credits', 'credits')}</span>
           </div>
 
           {/* Lessons total + generate */}
           <div className="flex items-center gap-[7.5rem]">
             <span className="text-lg text-gray-700 font-medium select-none">
-              {lessonsTotal} lessons total
+              {lessonsTotal} {t('interface.courseOutline.lessonsTotal', 'lessons total')}
             </span>
             <div className="flex items-center gap-3">
               <button
@@ -1581,7 +1587,7 @@ export default function CourseOutlineClient() {
                 disabled={loading || isGenerating}
               >
                 <Sparkles size={18} />
-                <span className="select-none font-semibold">Generate</span>
+                <span className="select-none font-semibold">{t('interface.courseOutline.generate', 'Generate')}</span>
               </button>
             </div>
       </div>
@@ -1591,7 +1597,7 @@ export default function CourseOutlineClient() {
             type="button"
             disabled
             className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
-            aria-label="Help (coming soon)"
+            aria-label={t('interface.courseOutline.helpComingSoon', 'Help (coming soon)')}
           >
             ?
           </button>
@@ -1616,7 +1622,7 @@ export default function CourseOutlineClient() {
     `}</style>
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing product..." />
+        <LoadingAnimation message={t('interface.courseOutline.finalizingProduct', 'Finalizing product...')} />
       </div>
     )}
     </>

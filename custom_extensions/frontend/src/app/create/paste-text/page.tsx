@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Home as HomeIcon, ChevronRight, FileText, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 export default function PasteTextPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [text, setText] = useState("");
   const [mode, setMode] = useState<"context" | "base" | null>(null);
   
@@ -19,13 +21,13 @@ export default function PasteTextPage() {
     if (length > LARGE_TEXT_THRESHOLD) {
       return {
         type: "warning",
-        message: "Text is very large and will be processed as a file. This may take a while.",
+        message: t('interface.pasteText.textVeryLarge', 'Text is very large and will be processed as a file. This may take a while.'),
         color: "text-orange-600"
       };
     } else if (length > TEXT_SIZE_THRESHOLD) {
       return {
         type: "info",
-        message: "Text is large and will be compressed for optimal processing.",
+        message: t('interface.pasteText.textLarge', 'Text is large and will be compressed for optimal processing.'),
         color: "text-blue-600"
       };
     }
@@ -91,19 +93,19 @@ export default function PasteTextPage() {
           href="/create"
           className="hover:text-gray-900 transition-colors"
         >
-          Create
+          {t('interface.createWithAI', 'Create')}
         </Link>
         <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-        <span className="text-gray-900 font-medium">Paste Text</span>
+        <span className="text-gray-900 font-medium">{t('interface.pasteText.title', 'Paste Text')}</span>
       </nav>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
         {/* Headings */}
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">Paste Your Text</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">{t('interface.pasteText.title', 'Paste Your Text')}</h1>
           <p className="text-base sm:text-lg text-gray-600">
-            Enter or paste your text content below and choose how you'd like to use it
+            {t('interface.pasteText.subtitle', 'Enter or paste your text content below and choose how you\'d like to use it')}
           </p>
         </div>
 
@@ -112,12 +114,12 @@ export default function PasteTextPage() {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Paste your text, notes, outline, or any content you'd like to work with..."
+            placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
             className="w-full h-96 p-6 rounded-xl border border-gray-300 bg-white shadow-sm text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-base leading-relaxed"
           />
           <div className="mt-2 flex justify-between items-center">
             <div className="text-sm text-gray-500">
-              {text.length} characters
+              {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
             </div>
             {warning && (
               <div className={`text-sm font-medium ${warning.color} flex items-center gap-1`}>
@@ -131,7 +133,7 @@ export default function PasteTextPage() {
         {/* Mode selection */}
         <div className="w-full max-w-2xl">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-            How would you like to use this text?
+            {t('interface.pasteText.howToUseText', 'How would you like to use this text?')}
           </h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -151,10 +153,9 @@ export default function PasteTextPage() {
                   <FileText size={24} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Use as Context</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsContext', 'Use as Context')}</h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    The AI will use your text as reference material and context to create new educational content. 
-                    Best for notes, research, or background information.
+                    {t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
                   </p>
                 </div>
               </div>
@@ -176,10 +177,9 @@ export default function PasteTextPage() {
                   <Sparkles size={24} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Use as Base</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsBase', 'Use as Base')}</h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    The AI will enhance and format your existing text structure, preserving your content while 
-                    making it into a proper educational product. Best for drafts or existing outlines.
+                    {t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
                   </p>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function PasteTextPage() {
           className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center gap-2"
         >
           <Sparkles size={20} />
-          Continue to Generate
+          {t('interface.pasteText.continueToGenerate', 'Continue to Generate')}
         </button>
       </div>
     </main>
