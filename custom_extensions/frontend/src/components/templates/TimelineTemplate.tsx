@@ -48,7 +48,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'stretch',
     marginTop: '32px',
   };
 
@@ -62,28 +62,27 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     zIndex: 1,
     transform: 'translateY(-50%)',
     borderRadius: '2px',
+    pointerEvents: 'none',
   };
 
-  const stepWrapperStyles = (index: number): React.CSSProperties => ({
+  const stepWrapperStyles: React.CSSProperties = {
     position: 'relative',
     width: '25%',
+    height: '320px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'space-between',
     zIndex: 2,
-  });
+  };
 
-  const verticalLineStyles = (isTop: boolean): React.CSSProperties => ({
-    width: '2px',
-    height: '40px',
-    background: 'rgba(255,255,255,0.18)',
-    marginBottom: isTop ? '0' : '8px',
-    marginTop: isTop ? '8px' : '0',
-  });
-
-  const numberCircleStyles: React.CSSProperties = {
-    width: '44px',
-    height: '44px',
+  const absCircleStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '48px',
+    height: '48px',
     borderRadius: '50%',
     background: accentColor,
     color: '#fff',
@@ -97,15 +96,32 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     zIndex: 3,
   };
 
+  const absVertLineStyles = (isTop: boolean): React.CSSProperties => ({
+    position: 'absolute',
+    left: '50%',
+    width: '2px',
+    height: '48px',
+    background: 'rgba(255,255,255,0.18)',
+    zIndex: 2,
+    top: isTop ? undefined : '50%',
+    bottom: isTop ? '50%' : undefined,
+    transform: 'translateX(-50%)',
+  });
+
   const textBlockStyles = (isTop: boolean): React.CSSProperties => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: isTop ? '24px' : '0',
-    marginTop: isTop ? '0' : '24px',
+    marginBottom: isTop ? '0' : '0',
+    marginTop: isTop ? '0' : '0',
     minWidth: '180px',
     maxWidth: '220px',
     zIndex: 4,
+    position: 'absolute',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    top: isTop ? '0' : undefined,
+    bottom: isTop ? undefined : '0',
   });
 
   const headingStyles: React.CSSProperties = {
@@ -114,6 +130,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     fontWeight: 600,
     marginBottom: '8px',
     fontFamily: currentTheme.fonts.titleFont,
+    textAlign: 'center',
   };
 
   const descriptionStyles: React.CSSProperties = {
@@ -121,6 +138,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     color: contentColor,
     fontFamily: currentTheme.fonts.contentFont,
     lineHeight: 1.5,
+    textAlign: 'center',
   };
 
   return (
@@ -131,7 +149,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
         {steps.slice(0, 4).map((step: TimelineStep, index: number) => {
           const isTop = index % 2 === 0; // 0,2 - top; 1,3 - bottom
           return (
-            <div key={index} style={stepWrapperStyles(index)}>
+            <div key={index} style={stepWrapperStyles}>
               {/* Верхній текстовий блок (для парних) */}
               {isTop && (
                 <div style={textBlockStyles(true)}>
@@ -140,11 +158,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                 </div>
               )}
               {/* Вертикальна лінія */}
-              <div style={verticalLineStyles(isTop)}></div>
+              <div style={absVertLineStyles(isTop)}></div>
               {/* Коло з числом */}
-              <div style={numberCircleStyles}>{index + 1}</div>
-              {/* Вертикальна лінія */}
-              <div style={verticalLineStyles(!isTop)}></div>
+              <div style={absCircleStyles}>{index + 1}</div>
+              {/* Вертикальна лінія вниз (для нижніх) */}
+              <div style={absVertLineStyles(!isTop)}></div>
               {/* Нижній текстовий блок (для непарних) */}
               {!isTop && (
                 <div style={textBlockStyles(false)}>
