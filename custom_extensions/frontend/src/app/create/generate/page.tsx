@@ -112,7 +112,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
   </button>
 );
 
-function GenerateProductPicker() {
+function GenerateProductPickerContent() {
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
@@ -262,8 +262,6 @@ function GenerateProductPicker() {
     } else if (product === 'quiz' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
-      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
-    } else if (product === 'one-pager' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else {
       // Try to get from sessionStorage
@@ -1253,6 +1251,14 @@ function GenerateProductPicker() {
         )}
       </div>
     </main>
+  );
+}
+
+function GenerateProductPicker() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <GenerateProductPickerContent />
+    </Suspense>
   );
 }
 
