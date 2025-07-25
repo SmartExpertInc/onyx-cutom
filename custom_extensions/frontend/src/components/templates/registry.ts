@@ -7,6 +7,7 @@ import { TitleSlideTemplate } from './TitleSlideTemplate';
 import { ContentSlideTemplate } from './ContentSlideTemplate';
 import { BigImageLeftTemplate } from './BigImageLeftTemplate';
 import { BulletPointsTemplate } from './BulletPointsTemplate';
+import { BulletPointsRightTemplate } from './BulletPointsRightTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
 import { ComparisonSlideTemplate } from './ComparisonSlideTemplate';
 import { ProcessStepsTemplate } from './ProcessStepsTemplate';
@@ -264,6 +265,67 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
           { value: 3, label: '3 Columns' }
         ],
         default: 2
+      },
+      bulletStyle: {
+        type: 'select',
+        label: 'Bullet Style',
+        options: [
+          { value: 'dot', label: '• Dot' },
+          { value: 'arrow', label: '→ Arrow' },
+          { value: 'check', label: '✓ Check' },
+          { value: 'star', label: '★ Star' },
+          { value: 'number', label: '1. Number' }
+        ],
+        default: 'dot'
+      },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1a1a1a' },
+      bulletColor: { type: 'color', label: 'Bullet Color', default: '#333333' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false }
+    }
+  },
+
+  'bullet-points-right': {
+    id: 'bullet-points-right',
+    name: 'Bullet Points Right',
+    description: 'Title, subtitle, bullet points (зліва), placeholder (справа)',
+    category: 'content',
+    icon: '📋',
+    component: BulletPointsRightTemplate,
+    defaultProps: {
+      title: 'Key Points',
+      subtitle: 'Short intro or context before the list',
+      bullets: ['First point', 'Second point', 'Third point'],
+      maxColumns: 1,
+      bulletStyle: 'dot',
+      titleColor: '#1a1a1a',
+      bulletColor: '#333333',
+      backgroundColor: '#ffffff',
+      imagePrompt: 'A relevant illustration for the bullet points',
+      imageAlt: 'Description of the image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: false },
+      bullets: {
+        type: 'array',
+        label: 'Bullet Points',
+        description: 'List of bullet point items',
+        required: true,
+        arrayItemType: {
+          type: 'text',
+          label: 'Bullet Point',
+          maxLength: 200
+        }
+      },
+      maxColumns: {
+        type: 'select',
+        label: 'Columns',
+        options: [
+          { value: 1, label: '1 Column' }
+        ],
+        default: 1
       },
       bulletStyle: {
         type: 'select',

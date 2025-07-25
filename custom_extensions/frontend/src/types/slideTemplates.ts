@@ -127,6 +127,10 @@ export interface BulletPointsProps extends BaseTemplateProps {
   imageAlt?: string;
 }
 
+export interface BulletPointsRightProps extends BulletPointsProps {
+  subtitle?: string;
+}
+
 export interface TwoColumnProps extends BaseTemplateProps {
   title: string;
   leftTitle: string;
@@ -254,6 +258,7 @@ export type TemplateId =
   | 'big-image-left'
   | 'quote-center'
   | 'bullet-points'
+  | 'bullet-points-right'
   | 'two-column'
   | 'comparison-slide'
   | 'process-steps'

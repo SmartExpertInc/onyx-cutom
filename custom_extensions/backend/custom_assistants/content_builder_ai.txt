@@ -926,6 +926,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 8. `comparison-slide` - Before/after or side-by-side comparison layout
 9. `challenges-solutions` - Problems vs solutions with visual indicators
 10. `process-steps` - Numbered process or workflow steps
+11. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
 
 **Big Image Left Slides** (`big-image-left`):
 ```

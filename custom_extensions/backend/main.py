@@ -3963,6 +3963,22 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageSize": "large"
             }
             ```
+            11. **`bullet-points-right`** - Title, subtitle, bullet points (left), placeholder (right):
+           ```json
+           "props": {
+              "title": "Key Points",
+              "subtitle": "Short intro or context before the list",
+              "bullets": [
+                "First important point",
+                "Second key insight",
+                "Third critical element"
+              ],
+              "maxColumns": 1,
+              "bulletStyle": "dot",
+              "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
+              "imageAlt": "Illustration for bullet points"
+            }
+            ```
 
             
 
