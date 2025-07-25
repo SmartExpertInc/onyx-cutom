@@ -250,6 +250,14 @@ export interface TimelineTemplateProps {
   theme?: SlideTheme;
 }
 
+export interface PyramidTemplateProps {
+  slideId: string;
+  title: string;
+  subtitle: string;
+  items: { heading: string; description: string }[];
+  theme?: SlideTheme;
+}
+
 export interface BigNumberItem {
   value: string;
   label: string;
@@ -306,7 +314,8 @@ export type TemplateId =
   | 'image-comparison'
   | 'four-box-grid'
   | 'timeline'
-  | 'big-numbers';
+  | 'big-numbers'
+  | 'pyramid';
 
 export interface TemplatePreview {
   templateId: string;

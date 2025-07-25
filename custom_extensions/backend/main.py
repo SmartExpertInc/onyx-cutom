@@ -10033,6 +10033,22 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ``` 
             
+            16. **`pyramid`** - Pyramid diagram with 3 levels and descriptions:
+            ```json
+            "props": {
+              "title": "Key Metrics of Effective System Architecture",
+              "subtitle": "Effective system architecture is measured by how well it delivers on key objectives, balancing user needs, operational demands, and technical robustness.",
+              "items": [
+                { "heading": "User Satisfaction", "description": "Achieving user delight" },
+                { "heading": "Operational Efficiency", "description": "Optimizing resources" },
+                { "heading": "System Reliability", "description": "Ensuring stability" }
+              ]
+            }
+            ``` 
+            - Use this template to show hierarchical relationships or foundational concepts.
+            - Each level should have a heading and description.
+            - Example use cases: "Maslow's Hierarchy of Needs", "System Architecture Levels", "Customer Satisfaction Pyramid".
+            
 
 
             **Enhanced Slide Parsing Rules:**
@@ -10103,6 +10119,20 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               Convert this to the items array format: [{"value": "25%", "label": "Increased Revenue", "description": "Our revenue has increased by 25% this year."}].
             - Do NOT use the standard content parsing for big-numbers. Always extract items from the table format.
             - First row contains values, second row contains labels (remove ** formatting), third row contains descriptions.
+
+            **Special Instructions for `pyramid`:**
+            - Use this template to show hierarchical relationships or foundational concepts with exactly 3 levels.
+            - Each level should have a heading and description.
+            - **CRITICAL PARSING:** When parsing markdown for pyramid, look for numbered list format like:
+              ```
+              1. **User Satisfaction** - Achieving user delight
+              2. **Operational Efficiency** - Optimizing resources
+              3. **System Reliability** - Ensuring stability
+              ```
+              Convert this to the items array format: [{"heading": "User Satisfaction", "description": "Achieving user delight"}].
+            - Do NOT use the standard content parsing for pyramid. Always extract items from the numbered list format.
+            - The text before the dash is the heading (remove ** formatting), the text after is the description.
+            - The first paragraph after the title becomes the subtitle.
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

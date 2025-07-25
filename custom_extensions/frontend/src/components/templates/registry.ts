@@ -18,6 +18,7 @@ import { BigImageTopTemplate } from './BigImageTopTemplate';
 import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 import { TimelineTemplate } from './TimelineTemplate';
 import { BigNumbersTemplate } from './BigNumbersTemplate';
+import { PyramidTemplate } from './PyramidTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1021,7 +1022,29 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: { type: 'text', label: 'Title' },
       items: { type: 'array', label: 'Big Numbers' },
     },
-  }
+  },
+  'pyramid': {
+    id: 'pyramid',
+    name: 'Pyramid',
+    description: 'Pyramid diagram with 3 levels and descriptions.',
+    category: 'layout',
+    icon: 'signal_cellular_alt',
+    component: PyramidTemplate,
+    defaultProps: {
+      title: 'Key Metrics of Effective System Architecture',
+      subtitle: 'Effective system architecture is measured by how well it delivers on key objectives, balancing user needs, operational demands, and technical robustness.',
+      items: [
+        { heading: 'User Satisfaction', description: 'Achieving user delight' },
+        { heading: 'Operational Efficiency', description: 'Optimizing resources' },
+        { heading: 'System Reliability', description: 'Ensuring stability' },
+      ],
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title' },
+      subtitle: { type: 'text', label: 'Subtitle' },
+      items: { type: 'array', label: 'Pyramid Items' },
+    },
+  },
 };
 
 // Utility functions for working with the registry
