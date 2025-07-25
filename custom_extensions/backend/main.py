@@ -11526,9 +11526,9 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             row = await conn.fetchrow(
                 insert_query,
                 onyx_user_id,
-                extracted_title,
+                final_project_name,  # Use final_project_name for project_name to match the expected pattern
                 "Quiz",  # product_type
-                "Quiz",  # microproduct_type
+                COMPONENT_NAME_QUIZ,  # microproduct_type - use the correct component name
                 final_project_name,  # microproduct_name
                 parsed_quiz.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
@@ -12326,9 +12326,9 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             row = await conn.fetchrow(
                 insert_query,
                 onyx_user_id,
-                course_name,
+                final_project_name,  # Use final_project_name for project_name to match the expected pattern
                 "Text Presentation",  # product_type
-                "Text Presentation",  # microproduct_type
+                COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
                 final_project_name,  # microproduct_name
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id

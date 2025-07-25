@@ -444,7 +444,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       if (mpDesignMicroproductType) microproductTypes.add(mpDesignMicroproductType);
       
       // Log any item that might be a quiz (checking various possible names)
-      const possibleQuizNames = ['quiz', 'Quiz', 'QUIZ', 'test', 'Test', 'TEST'];
+      const possibleQuizNames = ['quiz', 'Quiz', 'QUIZ', 'test', 'Test', 'TEST', 'QuizDisplay'];
       if (possibleQuizNames.includes(mpProductType) || possibleQuizNames.includes(mpMicroproductType) || possibleQuizNames.includes(mpDesignMicroproductType)) {
         console.log(`🔍 [QUIZ_DISCOVERY] Potential quiz found at index ${index}:`, {
           id: mp.id,
@@ -464,7 +464,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     // Log all quizzes for debugging
     const allQuizzes = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
-      return mpDesignMicroproductType === "Quiz";
+      return mpDesignMicroproductType === "QuizDisplay";
     });
     
     console.log(`🔍 [QUIZ_DISCOVERY] Found ${allQuizzes.length} quizzes in allUserMicroproducts:`);
@@ -484,7 +484,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
         
         // Only process if it's a quiz using the correct field name
-        if (mpDesignMicroproductType !== "Quiz") {
+        if (mpDesignMicroproductType !== "QuizDisplay") {
           return false;
         }
         
@@ -692,7 +692,25 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         parentProjectName
       });
     }
-    // Scenario 4: Only one content type exists (quiz, video lesson, or one-pager) - fallback to open or create modal
+    // Scenario 4: Only one content type exists (quiz, video lesson, or one-pager) - show open modal directly
+    else if (hasQuiz || hasOnePager || hasVideoLesson) {
+      setOpenContentModalState({
+        isOpen: true,
+        lessonTitle,
+        moduleName,
+        lessonNumber,
+        hasLesson,
+        hasQuiz,
+        hasVideoLesson,
+        hasOnePager,
+        lessonId: existingLesson?.id,
+        quizId: existingQuiz?.id,
+        videoLessonId: existingVideoLesson?.id,
+        onePagerId: existingOnePager?.id,
+        parentProjectName
+      });
+    }
+    // Scenario 5: Fallback - should not happen but just in case
     else {
       setOpenOrCreateModalState({ 
         isOpen: true, 
