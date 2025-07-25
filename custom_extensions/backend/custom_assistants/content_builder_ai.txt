@@ -1115,7 +1115,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Big Image Top Slides** (`big-image-top`):
 ```
 ---
-**Slide X: [Visual Topic]** `big-image-top`
+**Slide 12: [Visual Topic]** `big-image-top`
 
 ## [Main Title]
 
@@ -1144,6 +1144,7 @@ Choose templates based on content type and educational goals:
 - **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
 - **Workflows**: Use `process-steps` for sequential processes and procedures
 - **Visual Focus**: Use `big-image-left` when image is the primary focus
+- **Visual Introduction with Text Below**: Use `big-image-top` when you want a large visual at the top to set context, followed by explanatory content below (alternative to big-image-left for variety)
 - **Inspiration**: Use `title-slide` for section breaks or conclusions
 - **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
 
@@ -1155,8 +1156,9 @@ Choose templates based on content type and educational goals:
 **TEMPLATE VARIETY GUIDELINES:**
 - Use at least 4 different template types per presentation
 - Avoid using the same template more than 3 times consecutively
-- Balance text-heavy templates (content-slide, bullet-points) with visual templates (image-comparison, big-image-left)
+- Balance text-heavy templates (content-slide, bullet-points) with visual templates (image-comparison, big-image-left, big-image-top)
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
+- **For visual variety**: Alternate between `big-image-left` and `big-image-top` when you need multiple image-focused slides
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides
