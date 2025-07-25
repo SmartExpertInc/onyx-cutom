@@ -168,7 +168,16 @@ const findMicroproductByTitle = (
       const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
       const newPatternMatch = mpProjectName === expectedNewProjectName;
       
-      return (legacyProjectMatch && legacyNameMatch) || newPatternMatch;
+      // Method 3: Legacy patterns for backward compatibility
+      // Legacy Quiz pattern - "Quiz - Outline Name: Lesson Title"
+      const legacyQuizPattern = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const legacyQuizPatternMatch = mpProjectName === legacyQuizPattern;
+      
+      // Legacy Text Presentation pattern - "Text Presentation - Outline Name: Lesson Title"
+      const legacyTextPresentationPattern = `Text Presentation - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const legacyTextPresentationPatternMatch = mpProjectName === legacyTextPresentationPattern;
+      
+      return (legacyProjectMatch && legacyNameMatch) || newPatternMatch || legacyQuizPatternMatch || legacyTextPresentationPatternMatch;
     }
   );
 

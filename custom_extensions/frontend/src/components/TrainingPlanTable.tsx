@@ -496,21 +496,21 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         console.log(`  Method 1 (Legacy): projectName="${mpProjectName}" === "${trimmedParentProjectName}" = ${legacyProjectMatch}`);
         console.log(`  Method 1 (Legacy): microProductName="${mpMicroName?.trim()}" === "${trimmedTitleToMatch}" = ${legacyNameMatch}`);
         
-        // Method 2: New naming convention - project name follows "Quiz - Outline Name: Lesson Title" pattern
-        const expectedNewProjectName = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        // Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+        const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
         const newPatternMatch = mpProjectName === expectedNewProjectName;
         console.log(`  Method 2 (New): projectName="${mpProjectName}" === "${expectedNewProjectName}" = ${newPatternMatch}`);
         
-        // Method 3: Alternative new pattern - project name follows "Outline Name: Lesson Title" pattern (for quizzes)
-        const alternativeNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const alternativePatternMatch = mpProjectName === alternativeNewProjectName;
-        console.log(`  Method 3 (Alternative): projectName="${mpProjectName}" === "${alternativeNewProjectName}" = ${alternativePatternMatch}`);
+        // Method 3: Legacy "Quiz -" pattern for backward compatibility
+        const legacyQuizPattern = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const legacyQuizPatternMatch = mpProjectName === legacyQuizPattern;
+        console.log(`  Method 3 (Legacy Quiz): projectName="${mpProjectName}" === "${legacyQuizPattern}" = ${legacyQuizPatternMatch}`);
         
         // Method 4: Simple pattern - project name is just the lesson title
         const simplePatternMatch = mpProjectName === trimmedTitleToMatch;
         console.log(`  Method 4 (Simple): projectName="${mpProjectName}" === "${trimmedTitleToMatch}" = ${simplePatternMatch}`);
         
-        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch || simplePatternMatch;
+        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || legacyQuizPatternMatch || simplePatternMatch;
         console.log(`  🎯 [QUIZ_DISCOVERY] Quiz "${mpProjectName}" MATCH: ${isMatch}`);
         
         return isMatch;
@@ -578,16 +578,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const newPatternMatch = mpProjectName === expectedNewProjectName;
         console.log(`  Method 2 (New): projectName="${mpProjectName}" === "${expectedNewProjectName}" = ${newPatternMatch}`);
         
-        // Method 3: Alternative new pattern - project name follows "One-Pager - Outline Name: Lesson Title" pattern
-        const alternativeNewProjectName = `One-Pager - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
-        const alternativePatternMatch = mpProjectName === alternativeNewProjectName;
-        console.log(`  Method 3 (Alternative): projectName="${mpProjectName}" === "${alternativeNewProjectName}" = ${alternativePatternMatch}`);
+        // Method 3: Legacy "Text Presentation -" pattern for backward compatibility
+        const legacyTextPresentationPattern = `Text Presentation - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const legacyTextPresentationPatternMatch = mpProjectName === legacyTextPresentationPattern;
+        console.log(`  Method 3 (Legacy Text Presentation): projectName="${mpProjectName}" === "${legacyTextPresentationPattern}" = ${legacyTextPresentationPatternMatch}`);
         
-        // Method 4: Simple pattern - project name is just the lesson title
-        const simplePatternMatch = mpProjectName === trimmedTitleToMatch;
-        console.log(`  Method 4 (Simple): projectName="${mpProjectName}" === "${trimmedTitleToMatch}" = ${simplePatternMatch}`);
+        // Method 4: Legacy "One-Pager -" pattern for backward compatibility
+        const legacyOnePagerPattern = `One-Pager - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+        const legacyOnePagerPatternMatch = mpProjectName === legacyOnePagerPattern;
+        console.log(`  Method 4 (Legacy One-Pager): projectName="${mpProjectName}" === "${legacyOnePagerPattern}" = ${legacyOnePagerPatternMatch}`);
         
-        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || alternativePatternMatch || simplePatternMatch;
+        const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || legacyTextPresentationPatternMatch || legacyOnePagerPatternMatch;
         console.log(`  🎯 [ONE_PAGER_DISCOVERY] One-Pager "${mpProjectName}" MATCH: ${isMatch}`);
         
         return isMatch;

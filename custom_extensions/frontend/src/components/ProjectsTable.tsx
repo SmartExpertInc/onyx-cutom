@@ -2262,14 +2262,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             } else if (isQuiz) {
                                 // NEW: Only apply legacy filtering to quizzes - show all One-pagers (text presentations, PDF lessons) by default
                                 // This ensures all One-pagers are visible on the main products page
-                                // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title")
+                                // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title") - Legacy pattern
                                 if (projectTitle.includes(' - ') && projectTitle.includes(': ')) {
                                     const parts = projectTitle.split(' - ');
                                     if (parts.length >= 2) {
                                         const outlinePart = parts[1].split(': ')[0].trim();
                                         if (outlineNames.has(outlinePart)) {
                                             belongsToOutline = true;
-                                            console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 1: Content Type - Outline)`);
+                                            console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 1: Legacy Content Type - Outline)`);
                                         }
                                     }
                                 }

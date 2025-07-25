@@ -11381,9 +11381,9 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         # Create a consistent project name to prevent re-parsing issues
         if payload.courseName:
-            project_name = f"Quiz - {payload.courseName}: {payload.lesson or 'Standalone Quiz'}"
+            project_name = f"{payload.courseName}: {payload.lesson or 'Standalone Quiz'}"
         else:
-            project_name = f"Quiz - {payload.lesson or 'Standalone Quiz'}"
+            project_name = f"{payload.lesson or 'Standalone Quiz'}"
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -12137,9 +12137,9 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # Create a consistent project name to prevent re-parsing issues
         if payload.courseName:
-            project_name = f"Text Presentation - {payload.courseName}: {payload.lesson or 'Standalone Presentation'}"
+            project_name = f"{payload.courseName}: {payload.lesson or 'Standalone Presentation'}"
         else:
-            project_name = f"Text Presentation - {payload.lesson or 'Standalone Presentation'}"
+            project_name = f"{payload.lesson or 'Standalone Presentation'}"
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -12575,14 +12575,24 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                                 is_connected = True
                                 logger.info(f"Found connected product via new pattern: {project_name}")
                         
-                        # Method 3: Quiz pattern - "Quiz - Outline Name: Lesson Title"
+                        # Method 3: Legacy patterns for backward compatibility
+                        # Legacy Quiz pattern - "Quiz - Outline Name: Lesson Title"
                         elif project_name.startswith('Quiz - ') and ': ' in project_name:
                             quiz_part = project_name.replace('Quiz - ', '', 1)
                             if ': ' in quiz_part:
                                 outline_part = quiz_part.split(': ')[0].strip()
                                 if outline_part == original_outline_name:
                                     is_connected = True
-                                    logger.info(f"Found connected product via quiz pattern: {project_name}")
+                                    logger.info(f"Found connected product via legacy quiz pattern: {project_name}")
+                        
+                        # Legacy Text Presentation pattern - "Text Presentation - Outline Name: Lesson Title"
+                        elif project_name.startswith('Text Presentation - ') and ': ' in project_name:
+                            text_part = project_name.replace('Text Presentation - ', '', 1)
+                            if ': ' in text_part:
+                                outline_part = text_part.split(': ')[0].strip()
+                                if outline_part == original_outline_name:
+                                    is_connected = True
+                                    logger.info(f"Found connected product via legacy text presentation pattern: {project_name}")
                         
                         # Method 4: Alternative pattern - project name matches lesson title directly
                         # This is for cases where the lesson title became the project name
