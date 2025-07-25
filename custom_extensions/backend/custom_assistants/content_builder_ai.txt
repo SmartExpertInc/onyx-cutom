@@ -930,7 +930,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 12. `big-image-top` - Large image on top, title and content below
 13. `four-box-grid` - Title and 4 boxes in a 2x2 grid
 14. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
-15. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. Use for business results, KPIs, or any slide where numbers are the main focus.
+15. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1177,19 +1177,20 @@ Box 4: [Heading] - [Description text]
 **Big Numbers Slides** (`big-numbers`):
 ```
 ---
-**Slide 5: [Key Metrics Topic]** `big-numbers`
+**Slide 5: Key Financial Metrics** `big-numbers`
 
-## [Main Title]
+## Key Financial Metrics
 
 | 25% | 3x | 50% |
 |:----:|:---:|:---:|
-| **Reduced Costs** | **Faster Time-to-Market** | **Improved Stability** |
-| Efficient architecture can decrease development and maintenance expenses by up to 25%. | Well-defined architectures accelerate feature deployment, bringing products to market 3 times faster. | Robust designs lead to a 50% reduction in critical system outages and performance issues. |
+| **Profit Margin** | **Growth Rate** | **Customer Retention** |
+| The company has achieved a profit margin of 25%, indicating strong profitability. | Our growth rate has increased 3 times over the last five years, showcasing rapid expansion. | Customer retention stands at 50%, reflecting our commitment to customer satisfaction. |
 ```
-- Use this template to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions.
+- **CRITICAL:** Use this template whenever you want to highlight numerical data, statistics, or metrics. Always use the exact markdown table format shown above.
 - Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
+- **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or numerical achievements, use `big-numbers`.
 - Ideal for: business results, technical KPIs, feature comparisons, or any slide where numbers are the main focus.
-- Example use cases: "Key Metrics of Effective System Architecture", "Business Impact", "Performance Benchmarks".
+- Example use cases: "Key Financial Metrics", "Performance Benchmarks", "Business Impact", "Growth Statistics".
 
 
 
@@ -1199,7 +1200,7 @@ Content Distribution Strategy (Updated for Component-Based Templates):
 Choose templates based on content type and educational goals:
 
 - **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
-- **Core Content**: Use `content-slide` for standard explanations and concepts
+- **Core Content**: Use `content-slide` for standard explanations and concepts. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead.
 - **Key Points**: Use `bullet-points` for lists of important information (3-6 items ideal)
 - **Comparisons**: Choose between:
   - `image-comparison` - For visual side-by-side comparisons with images
@@ -1212,7 +1213,7 @@ Choose templates based on content type and educational goals:
 - **Grid of Key Points/Benefits**: Use `four-box-grid` when you need to present 4 key points, features, or benefits in a visually organized 2x2 grid. Each box should have a short heading and a concise description. Ideal for grouped benefits, feature highlights, or comparing four aspects.
 - **Inspiration**: Use `title-slide` for section breaks or conclusions
 - **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
-- **Key Metrics / Numbers**: Use `big-numbers` when you need to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions. Ideal for business results, KPIs, comparisons, survey results, or any slide where the main focus is on numbers. Each column contains a big number (%, x, ratio), a bold label, and a concise description.
+- **Key Metrics / Numbers**: Use `big-numbers` when you need to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions. **CRITICAL:** If the slide title contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or when you want to showcase specific numerical achievements, ALWAYS use `big-numbers` template. Ideal for business results, KPIs, comparisons, survey results, or any slide where the main focus is on numbers. Each column contains a big number (%, x, ratio), a bold label, and a concise description.
 
 **SLIDE COUNT RECOMMENDATIONS:**
 - **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 content slides + title conclusion
