@@ -38,7 +38,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     marginBottom: '80px',
-    textAlign: 'center',
+    textAlign: 'left',
   };
 
   const timelineContainerStyles: React.CSSProperties = {
@@ -78,10 +78,10 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     ),
   });
 
-  const numberCircleStyles: React.CSSProperties = {
+  const numberSquareStyles: React.CSSProperties = {
     width: '40px',
     height: '40px',
-    borderRadius: '50%',
+    borderRadius: '3px',
     background: accentColor,
     color: '#fff',
     display: 'flex',
@@ -135,7 +135,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                   <div style={descriptionStyles}>{step.description}</div>
                 </div>
                 <div style={{...verticalLineStyles, order: 2}} />
-                <div style={{...numberCircleStyles, order: isTop ? 3 : 1}}>
+                <div style={{...numberSquareStyles, order: isTop ? 3 : 1}}>
                   {index + 1}
                 </div>
               </div>
