@@ -28,7 +28,9 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+    paddingBottom: '50px'
   };
 
   const getImageDimensions = () => {
@@ -54,8 +56,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: imageDimensions.width,
-    height: imageDimensions.height,
+    width: '100%',
+    height: '240px',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
     borderRadius: '8px',
@@ -70,7 +72,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
 
   const contentContainerStyles: React.CSSProperties = {
     width: '100%',
-    padding: '0 40px 40px 40px',
+    padding: '60px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
