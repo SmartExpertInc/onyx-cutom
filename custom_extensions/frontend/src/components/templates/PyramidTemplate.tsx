@@ -159,4 +159,3 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 };
 
 export default PyramidTemplate; 
-export default PyramidTemplate; 
