@@ -64,7 +64,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '0px', // Remove gap between pyramid segments
+    gap: '10px', // Remove gap between pyramid segments
     justifyContent: 'center',
   };
 
@@ -79,19 +79,22 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const itemWrapperStyles = (level: number): React.CSSProperties => {
     const topPositions = ['16.7%', '50%', '83.3%'];
+    const leftOffsets = ['-250px', '-190px', '-120px'];
     return {
       position: 'absolute',
       width: '100%',
       top: topPositions[level],
+      left: leftOffsets[level],
       transform: 'translateY(-50%)',
     };
   };
   
   const separatorLineStyles = (level: number): React.CSSProperties => {
       const topPositions = ['33.3%', '66.6%'];
+      const leftOffsets = ['-250px', '-190px'];
       return {
           position: 'absolute',
-          left: 0,
+          left: leftOffsets[level],
           right: 0,
           top: topPositions[level],
           height: '1px',
@@ -117,7 +120,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
       // Segment 1 (Top Triangle)
-      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, stroke: "rgba(255,255,255,0.3)", strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
     );
   };
@@ -128,7 +131,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
       // Segment 2 (Middle Trapezoid)
-      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill, stroke: "rgba(255,255,255,0.3)", strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill,  strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
     );
   };
@@ -139,7 +142,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
       // Segment 3 (Bottom Trapezoid)
-      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, stroke: "rgba(255,255,255,0.3)", strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
     );
   };
