@@ -7637,20 +7637,6 @@ async def generate_and_finalize_course_outline_for_position(
         logger.info("Falling back to assistant + parser path due to direct parser failure")
         use_direct_parser = False
         use_assistant_then_parser = True
-        
-except Exception as direct_e:
-    # Clean up any project created during direct parser path failure
-    if direct_path_project_id:
-        logger.warning(f"Direct parser path failed with project {direct_path_project_id}, attempting cleanup...")
-        try:
-            onyx_user_id = await get_current_onyx_user_id(request)
-            async with pool.acquire() as conn:
-                await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
-            logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
-        except Exception as cleanup_e:
-            logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
-    
-    logger.error(f"Direct parser path failed with error: {direct_e}")
 
 
     return project_db_candidate
