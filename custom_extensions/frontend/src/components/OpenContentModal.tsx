@@ -48,52 +48,6 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
     onClose();
   };
 
-  const contentTypes = [
-    {
-      type: 'lesson' as const,
-      id: lessonId,
-      hasContent: hasLesson,
-      icon: <BookText className="w-6 h-6" />,
-      label: "Lesson Presentation",
-      description: "Open the lesson presentation",
-      color: "blue",
-      disabled: !hasLesson || !lessonId
-    },
-    {
-      type: 'videoLesson' as const,
-      id: videoLessonId,
-      hasContent: hasVideoLesson,
-      icon: <Video className="w-6 h-6" />,
-      label: "Video Lesson",
-      description: "Video lessons coming soon",
-      color: "orange",
-      disabled: true,
-      soon: true
-    },
-    {
-      type: 'quiz' as const,
-      id: quizId,
-      hasContent: hasQuiz,
-      icon: <HelpCircle className="w-6 h-6" />,
-      label: "Quiz",
-      description: "Open the quiz",
-      color: "green",
-      disabled: !hasQuiz || !quizId
-    },
-    {
-      type: 'onePager' as const,
-      id: onePagerId,
-      hasContent: hasOnePager,
-      icon: <FileText className="w-6 h-6" />,
-      label: "One-Pager",
-      description: "Open the one-pager",
-      color: "purple",
-      disabled: !hasOnePager || !onePagerId
-    }
-  ];
-
-  const availableContent = contentTypes.filter(content => content.hasContent && !content.disabled);
-
   return (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -103,15 +57,8 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
         className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-black mb-2">Open Content</h2>
-            <p className="text-black">
-              Module: <span className="font-medium">{moduleName}</span> • Lesson {lessonNumber}
-            </p>
-            <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
-          </div>
+          <h2 className="text-2xl font-bold text-black mb-2">Open Content</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
@@ -120,72 +67,106 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
           </button>
         </div>
         
-        {/* Content Types Grid */}
+        <p className="text-black mb-6">
+          <span className="font-semibold">Lesson:</span> {lessonTitle}<br />
+          <span className="font-semibold">Module:</span> {moduleName} • Lesson {lessonNumber}
+        </p>
+
         <div className="space-y-4">
-          {contentTypes.map((content) => {
-            const colorClasses = {
-              blue: 'border-blue-200 hover:border-blue-300 bg-blue-50 hover:bg-blue-100',
-              purple: 'border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100',
-              green: 'border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100',
-              orange: 'border-orange-200 bg-orange-50'
-            };
-            
-            const iconColorClasses = {
-              blue: 'text-blue-600 bg-blue-100',
-              purple: 'text-purple-600 bg-purple-100',
-              green: 'text-green-600 bg-green-100',
-              orange: 'text-orange-600 bg-orange-100'
-            };
-
-            const isDisabled = content.disabled;
-
-            return (
-              <button
-                key={content.type}
-                onClick={() => !isDisabled && handleOpenContent(content.type, content.id)}
-                disabled={isDisabled}
-                className={`w-full flex items-center p-6 border-2 rounded-xl transition-all duration-200 text-left ${
-                  isDisabled
-                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                    : `${colorClasses[content.color as keyof typeof colorClasses]} hover:shadow-md cursor-pointer`
-                }`}
-              >
-                <div className="flex items-center space-x-4 flex-1">
-                  <div className={`p-3 rounded-lg ${
-                    isDisabled ? 'bg-gray-100' : iconColorClasses[content.color as keyof typeof iconColorClasses]
-                  }`}>
-                    {React.cloneElement(content.icon, { 
-                      className: `w-6 h-6 ${isDisabled ? 'text-gray-400' : ''}` 
-                    })}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-lg font-semibold text-black">{content.label}</h3>
-                      {content.soon && (
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
-                          Soon
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-black">{content.description}</p>
-                  </div>
+          {/* Lesson Presentation */}
+          {hasLesson && lessonId && (
+            <button
+              onClick={() => handleOpenContent('lesson', lessonId)}
+              className="w-full flex items-center p-6 border-2 rounded-xl border-blue-200 hover:border-blue-300 bg-blue-50 hover:bg-blue-100 hover:shadow-md transition-all duration-200 text-left"
+            >
+              <div className="flex items-center space-x-4 flex-1">
+                <div className="p-3 rounded-lg text-blue-600 bg-blue-100">
+                  <BookText size={24} />
                 </div>
-                {!isDisabled && (
-                  <ExternalLink size={20} className="text-gray-400" />
-                )}
-              </button>
-            );
-          })}
-        </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-lg font-semibold text-black">Lesson</h3>
+                  </div>
+                  <p className="text-sm text-black">Open the lesson</p>
+                </div>
+              </div>
+              <ExternalLink size={20} className="text-gray-400" />
+            </button>
+          )}
 
-        {/* Footer */}
-        {availableContent.length === 0 && (
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-sm text-black text-center">
-              No content available to open for this lesson
-            </p>
-          </div>
-        )}
+          {/* Video Lesson */}
+          {hasVideoLesson && videoLessonId && (
+            <button
+              disabled={true}
+              className="w-full flex items-center p-6 border-2 rounded-xl border-orange-200 bg-orange-50 text-gray-400 cursor-not-allowed text-left"
+            >
+              <div className="flex items-center space-x-4 flex-1">
+                <div className="p-3 rounded-lg text-orange-600 bg-orange-100">
+                  <Video size={24} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-lg font-semibold text-black flex items-center gap-2">
+                      Video Lesson
+                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">Soon</span>
+                    </h3>
+                  </div>
+                  <p className="text-sm text-black">Video lessons coming soon</p>
+                </div>
+              </div>
+              <ExternalLink size={20} className="text-gray-300" />
+            </button>
+          )}
+
+          {/* Quiz */}
+          {hasQuiz && quizId && (
+            <button
+              onClick={() => handleOpenContent('quiz', quizId)}
+              className="w-full flex items-center p-6 border-2 rounded-xl border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100 hover:shadow-md transition-all duration-200 text-left"
+            >
+              <div className="flex items-center space-x-4 flex-1">
+                <div className="p-3 rounded-lg text-green-600 bg-green-100">
+                  <HelpCircle size={24} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-lg font-semibold text-black">Quiz</h3>
+                  </div>
+                  <p className="text-sm text-black">Open the quiz</p>
+                </div>
+              </div>
+              <ExternalLink size={20} className="text-gray-400" />
+            </button>
+          )}
+
+          {/* One-Pager */}
+          {hasOnePager && onePagerId && (
+            <button
+              onClick={() => handleOpenContent('onePager', onePagerId)}
+              className="w-full flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-md transition-all duration-200 text-left"
+            >
+              <div className="flex items-center space-x-4 flex-1">
+                <div className="p-3 rounded-lg text-purple-600 bg-purple-100">
+                  <FileText size={24} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-lg font-semibold text-black">One-Pager</h3>
+                  </div>
+                  <p className="text-sm text-black">Open the one-pager</p>
+                </div>
+              </div>
+              <ExternalLink size={20} className="text-gray-400" />
+            </button>
+          )}
+
+          {/* If no content is available */}
+          {!hasLesson && !hasVideoLesson && !hasQuiz && !hasOnePager && (
+            <div className="text-center py-8 text-black">
+              <p>No content available to open.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

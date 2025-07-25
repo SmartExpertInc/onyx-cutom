@@ -101,19 +101,7 @@ export const CreateContentTypeModal = ({
         break;
     }
 
-    // Store context in sessionStorage for the generate page to use
-    const contextData = {
-      product: product,
-      lessonType: lessonType,
-      lessonTitle: lessonTitle,
-      moduleName: moduleName,
-      lessonNumber: lessonNumber,
-      courseName: parentProjectName,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem('lessonContextData', JSON.stringify(contextData));
-
-    // Redirect to generate page with pre-selected product and context
+    // Redirect to generate page for one-pager, others to /create
     const params = new URLSearchParams({
       product: product,
       lessonType: lessonType,
@@ -121,13 +109,14 @@ export const CreateContentTypeModal = ({
       moduleName: moduleName,
       lessonNumber: String(lessonNumber)
     });
-    
-    // Add course name (outline name) for proper naming
     if (parentProjectName) {
       params.set('courseName', parentProjectName);
     }
-    
-    router.push(`/create/generate?${params.toString()}`);
+    if (product === 'text-presentation') {
+      router.push(`/create/generate?${params.toString()}`);
+    } else {
+      router.push(`/create?${params.toString()}`);
+    }
     onClose();
   };
 
