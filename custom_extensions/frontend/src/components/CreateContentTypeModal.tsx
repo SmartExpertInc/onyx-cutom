@@ -133,11 +133,11 @@ export const CreateContentTypeModal = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Content</h2>
-            <p className="text-gray-600">
+            <h2 className="text-2xl font-bold text-black mb-2">Create Content</h2>
+            <p className="text-black">
               Module: <span className="font-medium">{moduleName}</span> • Lesson {lessonNumber}
             </p>
-            <p className="text-lg font-semibold text-gray-800 mt-1">{lessonTitle}</p>
+            <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
           </div>
           <button
             onClick={onClose}
@@ -190,7 +190,7 @@ export const CreateContentTypeModal = ({
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-lg font-semibold">{type.label}</h3>
+                      <h3 className="text-lg font-semibold text-black">{type.label}</h3>
                       {type.soon && (
                         <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
                           Soon
@@ -202,7 +202,7 @@ export const CreateContentTypeModal = ({
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">{type.description}</p>
+                    <p className="text-sm text-black">{type.description}</p>
                   </div>
                 </div>
                 {!isDisabled && (
@@ -219,7 +219,7 @@ export const CreateContentTypeModal = ({
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-100">
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-black text-center">
             Choose the type of content you'd like to create for this lesson
           </p>
         </div>
