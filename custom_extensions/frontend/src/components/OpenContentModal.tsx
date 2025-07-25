@@ -48,119 +48,144 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
     onClose();
   };
 
+  const contentTypes = [
+    {
+      type: 'lesson' as const,
+      id: lessonId,
+      hasContent: hasLesson,
+      icon: <BookText className="w-6 h-6" />,
+      label: "Lesson Presentation",
+      description: "Open the lesson presentation",
+      color: "blue",
+      disabled: !hasLesson || !lessonId
+    },
+    {
+      type: 'videoLesson' as const,
+      id: videoLessonId,
+      hasContent: hasVideoLesson,
+      icon: <Video className="w-6 h-6" />,
+      label: "Video Lesson",
+      description: "Video lessons coming soon",
+      color: "orange",
+      disabled: true,
+      soon: true
+    },
+    {
+      type: 'quiz' as const,
+      id: quizId,
+      hasContent: hasQuiz,
+      icon: <HelpCircle className="w-6 h-6" />,
+      label: "Quiz",
+      description: "Open the quiz",
+      color: "green",
+      disabled: !hasQuiz || !quizId
+    },
+    {
+      type: 'onePager' as const,
+      id: onePagerId,
+      hasContent: hasOnePager,
+      icon: <FileText className="w-6 h-6" />,
+      label: "One-Pager",
+      description: "Open the one-pager",
+      color: "purple",
+      disabled: !hasOnePager || !onePagerId
+    }
+  ];
+
+  const availableContent = contentTypes.filter(content => content.hasContent && !content.disabled);
+
   return (
     <div 
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
+        className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Open Content</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-black mb-2">Open Content</h2>
+            <p className="text-black">
+              Module: <span className="font-medium">{moduleName}</span> • Lesson {lessonNumber}
+            </p>
+            <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
         
-        <p className="text-gray-600 mb-6">
-          Lesson: {lessonTitle}<br />
-          Module: {moduleName} • Lesson {lessonNumber}
-        </p>
+        {/* Content Types Grid */}
+        <div className="space-y-4">
+          {contentTypes.map((content) => {
+            const colorClasses = {
+              blue: 'border-blue-200 hover:border-blue-300 bg-blue-50 hover:bg-blue-100',
+              purple: 'border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100',
+              green: 'border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100',
+              orange: 'border-orange-200 bg-orange-50'
+            };
+            
+            const iconColorClasses = {
+              blue: 'text-blue-600 bg-blue-100',
+              purple: 'text-purple-600 bg-purple-100',
+              green: 'text-green-600 bg-green-100',
+              orange: 'text-orange-600 bg-orange-100'
+            };
 
-        <div className="space-y-3">
-          {/* Lesson Presentation */}
-          {hasLesson && lessonId && (
-            <button
-              onClick={() => handleOpenContent('lesson', lessonId)}
-              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <BookText size={20} className="text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Lesson</h3>
-                  <p className="text-sm text-gray-600">Open the lesson</p>
-                </div>
-              </div>
-              <ExternalLink size={16} className="text-gray-400" />
-            </button>
-          )}
+            const isDisabled = content.disabled;
 
-          {/* Video Lesson */}
-          {hasVideoLesson && videoLessonId && (
-            <button
-              disabled={true}
-              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Video size={20} className="text-gray-400" />
+            return (
+              <button
+                key={content.type}
+                onClick={() => !isDisabled && handleOpenContent(content.type, content.id)}
+                disabled={isDisabled}
+                className={`w-full flex items-center p-6 border-2 rounded-xl transition-all duration-200 text-left ${
+                  isDisabled
+                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                    : `${colorClasses[content.color as keyof typeof colorClasses]} hover:shadow-md cursor-pointer`
+                }`}
+              >
+                <div className="flex items-center space-x-4 flex-1">
+                  <div className={`p-3 rounded-lg ${
+                    isDisabled ? 'bg-gray-100' : iconColorClasses[content.color as keyof typeof iconColorClasses]
+                  }`}>
+                    {React.cloneElement(content.icon, { 
+                      className: `w-6 h-6 ${isDisabled ? 'text-gray-400' : ''}` 
+                    })}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-lg font-semibold text-black">{content.label}</h3>
+                      {content.soon && (
+                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
+                          Soon
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-black">{content.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium flex items-center gap-2">
-                    Video Lesson
-                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
-                      Soon
-                    </span>
-                  </h3>
-                  <p className="text-sm text-gray-400">Video lessons coming soon</p>
-                </div>
-              </div>
-              <ExternalLink size={16} className="text-gray-300" />
-            </button>
-          )}
-
-          {/* Quiz */}
-          {hasQuiz && quizId && (
-            <button
-              onClick={() => handleOpenContent('quiz', quizId)}
-              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <HelpCircle size={20} className="text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Quiz</h3>
-                  <p className="text-sm text-gray-600">Open the quiz</p>
-                </div>
-              </div>
-              <ExternalLink size={16} className="text-gray-400" />
-            </button>
-          )}
-
-          {/* One-Pager */}
-          {hasOnePager && onePagerId && (
-            <button
-              onClick={() => handleOpenContent('onePager', onePagerId)}
-              className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <FileText size={20} className="text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">One-Pager</h3>
-                  <p className="text-sm text-gray-600">Open the one-pager</p>
-                </div>
-              </div>
-              <ExternalLink size={16} className="text-gray-400" />
-            </button>
-          )}
-
-          {/* If no content is available */}
-          {!hasLesson && !hasVideoLesson && !hasQuiz && !hasOnePager && (
-            <div className="text-center py-8 text-gray-500">
-              <p>No content available to open.</p>
-            </div>
-          )}
+                {!isDisabled && (
+                  <ExternalLink size={20} className="text-gray-400" />
+                )}
+              </button>
+            );
+          })}
         </div>
+
+        {/* Footer */}
+        {availableContent.length === 0 && (
+          <div className="mt-8 pt-6 border-t border-gray-100">
+            <p className="text-sm text-black text-center">
+              No content available to open for this lesson
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
