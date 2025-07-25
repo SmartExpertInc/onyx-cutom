@@ -87,7 +87,6 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontWeight: 700,
     fontSize: '1.5rem',
   };
 
@@ -108,7 +107,6 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const headingStyles: React.CSSProperties = {
     fontSize: '1.2rem',
     color: titleColor,
-    fontWeight: 600,
     fontFamily: currentTheme.fonts.titleFont,
   };
 
