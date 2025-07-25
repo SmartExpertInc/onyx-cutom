@@ -115,7 +115,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     const pyramidFill = "rgba(255, 255, 255, 0.1)";
     const textFill = "rgba(255, 255, 255, 0.9)";
 
-    return React.createElement('svg', {  height: "60", width: "170", viewBox: "50 0 100 60" },
+    return React.createElement('svg', {  height: "120", width: "560", viewBox: "50 0 100 60" },
       // Segment 1 (Top Triangle)
       React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, stroke: "rgba(255,255,255,0.3)", strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
@@ -126,7 +126,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     const pyramidFill = "rgba(255, 255, 255, 0.1)";
     const textFill = "rgba(255, 255, 255, 0.9)";
 
-    return React.createElement('svg', { width: "341", height: "60", viewBox: "10 60 180 60" },
+    return React.createElement('svg', { width: "560", height: "120", viewBox: "10 60 180 60" },
       // Segment 2 (Middle Trapezoid)
       React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill, stroke: "rgba(255,255,255,0.3)", strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
@@ -137,7 +137,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     const pyramidFill = "rgba(255, 255, 255, 0.1)";
     const textFill = "rgba(255, 255, 255, 0.9)";
 
-    return React.createElement('svg', { width: "512", height: "60", viewBox: "-50 120 300 60" },
+    return React.createElement('svg', { width: "560", height: "120", viewBox: "-50 120 300 60" },
       // Segment 3 (Bottom Trapezoid)
       React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, stroke: "rgba(255,255,255,0.3)", strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
