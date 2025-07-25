@@ -55,7 +55,6 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     width: '90%',
     height: '2px',
     background: 'rgba(255,255,255,0.25)',
-    zIndex: 1,
   };
 
   const stepWrapperStyles: React.CSSProperties = {
@@ -74,8 +73,8 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     alignItems: 'center',
     gap: '10px',
     ...(isTop 
-        ? { bottom: 'calc(50% + 20px)' } 
-        : { top: 'calc(50% + 20px)' }
+        ? {bottom: 'calc(50% - 20px)'} 
+        : { top: 'calc(50% - 20px)' }
     ),
   });
 
