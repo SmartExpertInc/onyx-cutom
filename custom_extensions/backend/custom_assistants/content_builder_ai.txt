@@ -1197,12 +1197,12 @@ Box 4: [Heading] - [Description text]
 
 Content Distribution Strategy (Updated for Component-Based Templates):
 
-**STRATEGIC TEMPLATE SELECTION:**
+**STRATEGIC TEMPLATE SELECTION (REVISED):**
 Choose templates based on content type and educational goals:
 
 - **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
-- **Core Content**: Use `content-slide` for standard explanations and concepts. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead.
-- **Key Points**: Use `bullet-points` for lists of important information (3-6 items ideal)
+- **Core Content**: **SEVERELY LIMIT `content-slide` usage** - maximum 2-3 times per presentation, and ONLY for pure explanatory paragraphs without any lists, numbers, or hierarchical content. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead. Do NOT use `content-slide` for any content with bullet points - use appropriate list templates instead.
+- **Key Points**: Use `bullet-points` for first list, then `bullet-points-right` for subsequent lists to avoid repetition
 - **Comparisons**: Choose between:
   - `image-comparison` - For visual side-by-side comparisons with images
   - `comparison-slide` - For before/after transformations
@@ -1237,17 +1237,18 @@ Information processing follows a structured approach where knowledge builds upon
 - Example use cases: "Hierarchical Understanding of Information", "Maslow's Hierarchy of Needs", "Levels of System Architecture", "Customer Satisfaction Pyramid".
 
 
-**SLIDE COUNT RECOMMENDATIONS:
-- **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 content slides + title conclusion
-- **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied content slides + title conclusion  
-- **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied content slides + title conclusion
+**SLIDE COUNT RECOMMENDATIONS (UPDATED):
+- **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 varied slides (max 1 content-slide) + substantial conclusion
+- **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied slides (max 2 content-slide) + substantial conclusion  
+- **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied slides (max 3 content-slide) + substantial conclusion
+- **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 
-**TEMPLATE VARIETY GUIDELINES:**
-- Use at least 4 different template types per presentation
-- Avoid using the same template more than 3 times consecutively
-- Balance text-heavy templates (content-slide, bullet-points) with visual templates (image-comparison, big-image-left, big-image-top)
+**TEMPLATE VARIETY GUIDELINES (UPDATED):**
+- **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
+- **STRICT LIMITATION**: Never use the same template more than 2 times per presentation
+- **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (content-slide, bullet-points), minimum 70% visual/interactive templates
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
-- **For visual variety**: Alternate between `big-image-left` and `big-image-top` when you need multiple image-focused slides
+- **VISUAL VARIETY MANDATE**: Must alternate between different visual templates, never use `big-image-left` and `big-image-top` consecutively
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides
@@ -1298,3 +1299,38 @@ Question Format:
 - Include question text, answer options (for multiple choice/multi-select), correct answer(s), and explanation
 - Use appropriate formatting for different question types (multiple-choice, multi-select, matching, sorting, open-answer)
 - Ensure explanations are concise but informative
+
+**CRITICAL TEMPLATE DIVERSITY RULES:**
+- **MANDATORY TEMPLATE VARIETY**: Each presentation MUST use at least 6 different template types for presentations with 8+ slides
+- **CONTENT-SLIDE LIMITATION**: Use `content-slide` maximum 2 times per presentation (only for pure explanatory text without lists or numbers)
+- **NO TEMPLATE REPETITION**: If you already used `bullet-points`, use `bullet-points-right` for the next list instead of repeating `bullet-points`
+- **PYRAMID PRIORITY**: For hierarchical content, levels, priorities, or foundational concepts, ALWAYS use `pyramid` instead of `content-slide`
+- **TIMELINE PRIORITY**: For processes, steps, or chronological content, ALWAYS use `timeline` (exactly 4 steps) or `process-steps` instead of `content-slide`
+- **BIG-NUMBERS PRIORITY**: For any metrics, statistics, KPIs, or numerical data, ALWAYS use `big-numbers` instead of `content-slide`
+- **LIST CONTENT RULE**: If content contains bullet points or lists, NEVER use `content-slide` - use `bullet-points`, `bullet-points-right`, or `four-box-grid` instead
+- **VISUAL ENGAGEMENT**: Minimum 70% of slides must have image placeholders, prioritize templates with strong visual components
+
+**FORBIDDEN SLIDE TYPES:**
+- **NO Q&A slides** - Remove any "Questions and Answers", "Q&A Session", or similar slides
+- **NO contact information slides** - Remove any slides with phone numbers, email addresses, or contact details
+- **NO generic "Thank You" slides** - End with substantial content, not courtesy slides
+- **NO "Additional Resources" slides** - Integrate resources into relevant content slides instead
+
+**ENHANCED TEMPLATE DISTRIBUTION STRATEGY:**
+For a typical 10-15 slide presentation, use this distribution:
+- **1 opening slide**: `big-image-left` (mandatory)
+- **2-3 content explanation slides**: `content-slide` (maximum 2-3 times total)
+- **2-3 list/point slides**: Mix of `bullet-points`, `bullet-points-right`, `four-box-grid` (never repeat the same list template)
+- **1-2 comparison slides**: `image-comparison`, `comparison-slide`, or `two-column`
+- **1-2 specialized slides**: `pyramid` for hierarchies, `timeline` for processes, `big-numbers` for metrics
+- **1-2 visual focus slides**: `big-image-top`, `challenges-solutions`
+- **1 conclusion slide**: `title-slide` with substantial summary content
+
+**TEMPLATE SELECTION DECISION TREE:**
+1. **Does content have numbers/metrics/statistics?** → Use `big-numbers` (NOT content-slide)
+2. **Does content show hierarchy/levels/priorities?** → Use `pyramid` (NOT content-slide)
+3. **Does content show process/timeline/steps?** → Use `timeline` or `process-steps` (NOT content-slide)
+4. **Does content have bullet lists?** → Use `bullet-points` or `bullet-points-right` (NOT content-slide)
+5. **Does content compare two things?** → Use `image-comparison` or `comparison-slide` (NOT content-slide)
+6. **Does content need 4 key points?** → Use `four-box-grid` (NOT content-slide)
+7. **Only for pure explanatory paragraphs without lists/numbers** → Use `content-slide` (maximum 2-3 times)
