@@ -1,4 +1,4 @@
-// custom_extensions/frontend/src/app/projects/page.tsx
+// custom_extensions/frontend/src/app/projects/page.tsx 
 "use client";
 
 import React, { Suspense, useState, useEffect } from 'react';
