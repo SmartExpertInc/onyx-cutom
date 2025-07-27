@@ -74,6 +74,7 @@ const ClientNameModal: React.FC<{
   folderProjects: Record<number, Project[]>;
   unassignedProjects: Project[];
 }> = ({ isOpen, onClose, onConfirm, folders, folderProjects, unassignedProjects }) => {
+  const { t } = useLanguage();
   const [clientName, setClientName] = useState('');
   const [selectedFolders, setSelectedFolders] = useState<Set<number>>(new Set());
   const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
@@ -210,9 +211,9 @@ const ClientNameModal: React.FC<{
                             <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                           <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">{folder.name}</span>
-                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                            {folderProjects[folder.id]?.length || 0} items
-                          </span>
+                          <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? t('interface.item', 'item') : t('interface.items', 'items')}
+                            </span>
                         </div>
                       </label>
                       
@@ -610,6 +611,7 @@ const FolderRow: React.FC<{
     handleDeleteFolder,
     allFolders
 }) => {
+    const { t } = useLanguage();
 
     const hasChildren = folder.children && folder.children.length > 0;
     const isExpanded = expandedFolders.has(folder.id);
@@ -691,7 +693,7 @@ const FolderRow: React.FC<{
                             <Folder size={16} style={{ color: getFolderTierColor(folder, allFolders) }} className="mr-2" />
                             <span className="font-semibold text-blue-700 truncate max-w-[200px]" title={folder.name}>{folder.name}</span>
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? 'item' : 'items'}
+                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? t('interface.item', 'item') : t('interface.items', 'items')}
                             </span>
                         </span>
                     </td>

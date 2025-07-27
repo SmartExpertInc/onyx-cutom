@@ -207,6 +207,10 @@ export const ru = {
     // Status
     private: "Приватный",
     createdByYou: "Создано вами",
+    you: "Вы",
+    item: "элемент",
+    items: "элементов",
+    loadingProjects: "Загрузка проектов...",
     
     // Help button
     help: "Помощь",

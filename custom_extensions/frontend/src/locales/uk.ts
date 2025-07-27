@@ -208,6 +208,10 @@ export const uk = {
     // Status
     private: "Приватний",
     createdByYou: "Створено вами",
+    you: "Ви",
+    item: "елемент",
+    items: "елементів",
+    loadingProjects: "Завантаження проектів...",
     
     // Help button
     help: "Допомога",

@@ -215,6 +215,10 @@ export const es = {
     // Status
     private: "Privado",
     createdByYou: "Creado por ti",
+    you: "Tú",
+    item: "elemento",
+    items: "elementos",
+    loadingProjects: "Cargando proyectos...",
     
     // Help button
     help: "Ayuda",
