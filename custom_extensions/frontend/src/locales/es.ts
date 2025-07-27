@@ -378,9 +378,6 @@ export const es = {
       typesOnThisPage: "tipos en esta página.",
       projectDataOrIdNotAvailableForDownload: "Los datos del proyecto o ID no están disponibles para descargar.",
       failedToMoveToTrash: "No se pudo mover a la papelera",
-      loadingProject: "Cargando detalles del proyecto...",
-      errorLoadingProject: "Error: No se pudieron cargar los datos del proyecto.",
-      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
       project: "Proyecto",
       configureVisibleColumns: "Configurar columnas visibles",
       moveToTrashTooltip: "Mover este producto a la papelera"
