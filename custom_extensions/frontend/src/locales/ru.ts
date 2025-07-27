@@ -14,25 +14,6 @@ export const ru = {
     saveErrorTitle: "Ошибка сохранения:",
     rendering: "Отрисовка содержимого..."
   },
-  trainingPlan: {
-    moduleAndLessons: "Модуль и уроки",
-    knowledgeCheck: "Проверка знаний",
-    contentAvailability: "Наличие контента",
-    source: "Источник информации",
-    time: "Час",
-    qualityTier: "Уровень качества",
-    timeUnitSingular: "ч",
-    timeUnitDecimalPlural: "ч",
-    timeUnitGeneralPlural: "ч",
-    updateError: "Ошибка обновления имени: {error}",
-    errorLoadingProjectTitle: "Ошибка загрузки проекта",
-    errorLoadingProjectMessage: "Возникла проблема при получении данных проекта. Пожалуйста, повторите попытку позже.",
-    returnToProjects: "Вернуться к списку проектов",
-    projectNotFoundTitle: "Проект не найден",
-    projectNotFoundMessage: "Проект, который вы ищете, не найден или у вас нет прав на его просмотр.",
-    allProjects: "Все проекты",
-    loadingProject: "Загрузка проекта..."
-  },
   qualityTiers: {
     basic: "Базовый",
     interactive: "Интерактивный",

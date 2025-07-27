@@ -26,6 +26,41 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
 
+// Localization config for column labels based on product language
+const columnLabelLocalization = {
+  ru: {
+    assessmentType: "Тип оценки",
+    contentVolume: "Объем контента", 
+    source: "Источник",
+    estCreationTime: "Оц. время создания",
+    estCompletionTime: "Оц. время завершения",
+    qualityTier: "Уровень качества"
+  },
+  uk: {
+    assessmentType: "Тип оцінки",
+    contentVolume: "Обсяг контенту",
+    source: "Джерело", 
+    estCreationTime: "Оц. час створення",
+    estCompletionTime: "Оц. час завершення",
+    qualityTier: "Рівень якості"
+  },
+  es: {
+    assessmentType: "Tipo de evaluación",
+    contentVolume: "Volumen de contenido",
+    source: "Fuente",
+    estCreationTime: "Tiempo Est. Creación", 
+    estCompletionTime: "Tiempo Est. Finalización",
+    qualityTier: "Nivel de Calidad"
+  },
+  en: {
+    assessmentType: "Assessment Type",
+    contentVolume: "Content Volume",
+    source: "Source",
+    estCreationTime: "Est. Creation Time",
+    estCompletionTime: "Est. Completion Time", 
+    qualityTier: "Quality Tier"
+  }
+};
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -803,6 +838,10 @@ export default function ProjectInstanceViewPage() {
   const canEditContent = projectInstanceData &&
                           [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
+  // Determine product language for column labels
+  const productLanguage = (editableData as any)?.detectedLanguage || 'en';
+  const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
+
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
       <div className="max-w-7xl mx-auto">
@@ -887,7 +926,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{t('projectView.assessmentType', 'Assessment Type')}</span>
+                        <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -896,7 +935,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{t('projectView.contentVolume', 'Content Volume')}</span>
+                        <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -905,7 +944,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{t('projectView.source', 'Source')}</span>
+                        <span className="text-sm text-gray-700">{columnLabels.source}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -914,7 +953,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{t('projectView.estCreationTime', 'Est. Creation Time')}</span>
+                        <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -923,7 +962,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{t('projectView.estCompletionTime', 'Est. Completion Time')}</span>
+                        <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -932,7 +971,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{t('projectView.qualityTier', 'Quality Tier')}</span>
+                        <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
                       </label>
                     </div>
                   </div>

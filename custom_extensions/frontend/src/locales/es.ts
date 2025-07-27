@@ -14,17 +14,6 @@ export const es = {
     saveErrorTitle: "Error al guardar:",
     rendering: "Renderizando contenido..."
   },
-  trainingPlan: {
-    moduleAndLessons: "Módulo / Lección",
-    knowledgeCheck: "Verificación de conocimientos",
-    contentAvailability: "Disponibilidad de contenido",
-    source: "Fuente de información",
-    time: "Tiempo",
-    qualityTier: "Nivel de calidad",
-    timeUnitSingular: "h",
-    timeUnitDecimalPlural: "h",
-    timeUnitGeneralPlural: "h"
-  },
   qualityTiers: {
     basic: "Básico",
     interactive: "Interactivo",

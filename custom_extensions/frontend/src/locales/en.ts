@@ -14,17 +14,6 @@ export const en = {
     saveErrorTitle: "Save Error:",
     rendering: "Rendering content..."
   },
-  trainingPlan: {
-    moduleAndLessons: "Module / Lesson",
-    knowledgeCheck: "Knowledge Check",
-    contentAvailability: "Content Availability",
-    source: "Information Source",
-    time: "Time",
-    qualityTier: "Quality Tier",
-    timeUnitSingular: "h",
-    timeUnitDecimalPlural: "h",
-    timeUnitGeneralPlural: "h"
-  },
   qualityTiers: {
     basic: "Basic",
     interactive: "Interactive",
@@ -319,12 +308,6 @@ export const en = {
       columns: "Columns",
       moveToTrash: "Move to Trash",
       visibleColumns: "Visible Columns",
-      assessmentType: "Assessment Type",
-      contentVolume: "Content Volume",
-      source: "Source",
-      estCreationTime: "Est. Creation Time",
-      estCompletionTime: "Est. Completion Time",
-      qualityTier: "Quality Tier",
       loadingContentDisplay: "Loading content display...",
       contentDetails: "Content Details",
       utilizesDesignComponent: "This project instance utilizes the design component:",

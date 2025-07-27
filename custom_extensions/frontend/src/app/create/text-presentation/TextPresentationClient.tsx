@@ -429,13 +429,13 @@ export default function TextPresentationClient() {
     };
   }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
 
-  // Auto-scroll textarea as new content streams in
-  useEffect(() => {
-    if (textareaVisible && textareaRef.current) {
-      // Scroll to bottom to keep newest text in view
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-    }
-  }, [content, textareaVisible]);
+  // // Auto-scroll textarea as new content streams in
+  // useEffect(() => {
+  //   if (textareaVisible && textareaRef.current) {
+  //     // Scroll to bottom to keep newest text in view
+  //     textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+  //   }
+  // }, [content, textareaVisible]);
 
   // Click outside handler for styles dropdown
   useEffect(() => {

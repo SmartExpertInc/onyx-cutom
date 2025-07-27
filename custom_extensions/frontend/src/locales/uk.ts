@@ -14,25 +14,6 @@ export const uk = {
     saveErrorTitle: "Помилка збереження:",
     rendering: "Відображення вмісту..."
   },
-  trainingPlan: {
-    moduleAndLessons: "Модуль та уроки",
-    knowledgeCheck: "Перевірка знань",
-    contentAvailability: "Наявність контенту",
-    source: "Джерело інформації",
-    time: "Час",
-    qualityTier: "Рівень якості",
-    timeUnitSingular: "год",
-    timeUnitDecimalPlural: "год",
-    timeUnitGeneralPlural: "год",
-    updateError: "Помилка оновлення імені: {error}",
-    errorLoadingProjectTitle: "Помилка завантаження проекту",
-    errorLoadingProjectMessage: "Виникла проблема при отриманні даних проекту. Будь ласка, спробуйте пізніше.",
-    returnToProjects: "Повернутися до списку проектів",
-    projectNotFoundTitle: "Проект не знайдено",
-    projectNotFoundMessage: "Проект, який ви шукаєте, не знайдено або у вас немає прав на його перегляд.",
-    allProjects: "Всі проекти",
-    loadingProject: "Завантаження проекту..."
-  },
   qualityTiers: {
     basic: "Базовий",
     interactive: "Інтерактивний",

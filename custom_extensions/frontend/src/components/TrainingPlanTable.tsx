@@ -1241,20 +1241,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
             switch (col.key) {
               case 'module':
                 return (
-                  <div key={col.key} className={`pr-2 ${borderClasses}`}>{t('trainingPlanTable.module')}</div>
+                  <div key={col.key} className={`pr-2 ${borderClasses}`}>{localized.moduleAndLessons}</div>
                 );
               case 'knowledgeCheck':
-                return <div key={col.key} className={common}>{t('trainingPlanTable.knowledgeCheck')}</div>;
+                return <div key={col.key} className={common}>{localized.knowledgeCheck}</div>;
               case 'contentAvailability':
-                return <div key={col.key} className={common}>{t('trainingPlanTable.contentAvailability')}</div>;
+                return <div key={col.key} className={common}>{localized.contentAvailability}</div>;
               case 'informationSource':
-                return <div key={col.key} className={common}>{t('trainingPlanTable.source')}</div>;
+                return <div key={col.key} className={common}>{localized.source}</div>;
               case 'qualityTier':
-                return <div key={col.key} className={common}>{t('trainingPlanTable.qualityTier')}</div>;
+                return <div key={col.key} className={common}>{localized.qualityTier}</div>;
               case 'estCreationTime':
-                return <div key={col.key} className={common}>{t('trainingPlanTable.estCreationTime')}</div>;
+                return <div key={col.key} className={common}>{localized.estCreationTime}</div>;
               case 'estCompletionTime':
-                return <div key={col.key} className={common}>{t('trainingPlanTable.estCompletionTime')}</div>;
+                return <div key={col.key} className={common}>{localized.estCompletionTime}</div>;
               default:
                 return null;
             }
