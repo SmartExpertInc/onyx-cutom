@@ -94,7 +94,8 @@ export const uk = {
       example: "Приклад",
       cancel: "Скасувати",
       saveChanges: "Зберегти зміни",
-      saving: "Збереження..."
+      saving: "Збереження...",
+      failedToSave: "Не вдалося зберегти налаштування папки"
     },
     projectSettings: {
       title: "Налаштування курсу",
@@ -351,7 +352,31 @@ export const uk = {
       errorContentEditingNotSupportedForSave: "Редагування контенту не підтримується для цього типу компонента на цій сторінці.",
       errorFailedToSaveModuleTierSetting: "Не вдалося зберегти налаштування рівня модуля",
       errorFailedToSaveLessonTierSetting: "Не вдалося зберегти налаштування рівня уроку",
-      errorFailedToMoveToTrash: "Не вдалося перемістити в кошик"
+      // Additional missing translations
+      invalidProjectIdFormat: "Невірний формат ID проекту.",
+      couldNotFetchFullProjectsList: "Не вдалося отримати повний список проектів для визначення імені батьківського проекту.",
+      newTrainingPlanTitle: "Новий план навчання",
+      newPdfLessonTitle: "Новий PDF урок",
+      newSlideDeckTitle: "Новий слайд-дек",
+      newVideoLessonTitle: "Новий відео урок",
+      newQuizTitle: "Новий тест",
+      newTextPresentationTitle: "Нова текстова презентація",
+      unknownErrorOccurred: "Сталася невідома помилка при отриманні даних проекту.",
+      projectIdMissing: "ID проекту відсутній в URL.",
+      projectIdOrEditableDataMissing: "ID проекту або редаговані дані відсутні.",
+      validationError: "Помилка валідації",
+      validationErrors: "Помилки валідації",
+      couldNotSaveData: "Не вдалося зберегти дані.",
+      contentEditingSupported: "Редагування контенту в даний час підтримується для",
+      typesOnThisPage: "типів на цій сторінці.",
+      projectDataOrIdNotAvailableForDownload: "Дані проекту або ID недоступні для завантаження.",
+      failedToMoveToTrash: "Не вдалося перемістити в кошик",
+      loadingProject: "Завантаження деталей проекту...",
+      errorLoadingProject: "Помилка: Не вдалося завантажити дані проекту.",
+      projectNotFound: "Проект не знайдено або дані недоступні.",
+      project: "Проект",
+      configureVisibleColumns: "Налаштувати видимі стовпці",
+      moveToTrashTooltip: "Перемістити цей продукт в кошик"
     },
     // Pipelines page
     pipelines: {

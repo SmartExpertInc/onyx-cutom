@@ -136,10 +136,10 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
       window.location.reload();
       
       onClose();
-    } catch (error) {
-      console.error('Error saving folder settings:', error);
-      alert('Failed to save folder tier setting');
-    } finally {
+          } catch (error) {
+        console.error('Error saving folder settings:', error);
+        alert(t('modals.folderSettings.failedToSave', 'Failed to save folder tier setting'));
+      } finally {
       setSaving(false);
     }
   };
@@ -263,7 +263,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">Example:</span> 1h = {customRate}h</p>
+                              <p><span className="font-medium">{t('modals.folderSettings.example', 'Example')}:</span> 1h = {customRate}h</p>
                             </div>
                           </div>
                         ) : (
@@ -289,7 +289,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
             onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
             disabled={saving}
           >
-            Cancel
+            {t('modals.folderSettings.cancel', 'Cancel')}
           </button>
           <button
             className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
@@ -303,10 +303,10 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
             {saving ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Saving...
+                {t('modals.folderSettings.saving', 'Saving...')}
               </div>
             ) : (
-              'Save Changes'
+              t('modals.folderSettings.saveChanges', 'Save Changes')
             )}
           </button>
         </div>

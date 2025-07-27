@@ -983,7 +983,7 @@ export default function ProjectInstanceViewPage() {
               <button
                 onClick={handleMoveToTrash}
                 className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
-                title={t('projectView.moveToTrash', 'Move this product to Trash')}
+                title={t('projectView.moveToTrashTooltip', 'Move this product to Trash')}
               >
                 <Trash2 size={16} className="mr-2" /> {t('projectView.moveToTrash', 'Move to Trash')}
               </button>

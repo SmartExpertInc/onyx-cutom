@@ -94,7 +94,8 @@ export const ru = {
       example: "Пример",
       cancel: "Отмена",
       saveChanges: "Сохранить изменения",
-      saving: "Сохранение..."
+      saving: "Сохранение...",
+      failedToSave: "Не удалось сохранить настройки папки"
     },
     projectSettings: {
       title: "Настройки курса",
@@ -350,7 +351,27 @@ export const ru = {
       errorContentEditingNotSupportedForSave: "Редактирование контента не поддерживается для этого типа компонента на этой странице.",
       errorFailedToSaveModuleTierSetting: "Не удалось сохранить настройку уровня модуля",
       errorFailedToSaveLessonTierSetting: "Не удалось сохранить настройку уровня урока",
-      errorFailedToMoveToTrash: "Не удалось переместить в корзину"
+      // Additional missing translations
+      invalidProjectIdFormat: "Неверный формат ID проекта.",
+      couldNotFetchFullProjectsList: "Не удалось получить полный список проектов для определения имени родительского проекта.",
+      newTrainingPlanTitle: "Новый план обучения",
+      newPdfLessonTitle: "Новый PDF урок",
+      newSlideDeckTitle: "Новый слайд-дек",
+      newVideoLessonTitle: "Новый видео урок",
+      newQuizTitle: "Новый тест",
+      newTextPresentationTitle: "Новая текстовая презентация",
+      unknownErrorOccurred: "Произошла неизвестная ошибка при получении данных проекта.",
+      projectIdMissing: "ID проекта отсутствует в URL.",
+      validationError: "Ошибка валидации",
+      validationErrors: "Ошибки валидации",
+      couldNotSaveData: "Не удалось сохранить данные.",
+      contentEditingSupported: "Редактирование контента в настоящее время поддерживается для",
+      typesOnThisPage: "типов на этой странице.",
+      loadingProject: "Загрузка деталей проекта...",
+      projectNotFound: "Проект не найден или данные недоступны.",
+      project: "Проект",
+      configureVisibleColumns: "Настроить видимые колонки",
+      moveToTrashTooltip: "Переместить этот продукт в корзину"
     },
     // Pipelines page
     pipelines: {
@@ -552,8 +573,7 @@ export const ru = {
       noStandaloneQuiz: "Нет, я хочу отдельный тест",
       onePagerQuestion: "Хотите ли вы создать одностраничник из существующего плана курса?",
       yesContentForOnePager: "Да, контент для одностраничника из плана",
-      noStandaloneOnePager: "Нет, я хочу отдельный одностраничник",
-      backButton: "← Назад"
+            noStandaloneOnePager: "Нет, я хочу отдельный одностраничник"
     }
   }
 }; 

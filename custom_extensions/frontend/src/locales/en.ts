@@ -103,7 +103,8 @@ export const en = {
       example: "Example",
       cancel: "Cancel",
       saveChanges: "Save Changes",
-      saving: "Saving..."
+      saving: "Saving...",
+      failedToSave: "Failed to save folder tier setting"
     },
     projectSettings: {
       title: "Course Settings",
@@ -320,9 +321,7 @@ export const en = {
     // Project View Page
     projectView: {
       loadingProjectDetails: "Loading project details...",
-      errorLoadingProject: "Error: {error}",
-      projectNotFound: "Project not found or data unavailable.",
-      back: "Back",
+      backButton: "Back",
       openProducts: "Open Products",
       downloadPdf: "Download PDF",
       smartEdit: "Smart Edit",
@@ -353,7 +352,33 @@ export const en = {
       errorContentEditingNotSupportedForSave: "Content editing is not supported for this component type on this page.",
       errorFailedToSaveModuleTierSetting: "Failed to save module tier setting",
       errorFailedToSaveLessonTierSetting: "Failed to save lesson tier setting",
-      errorFailedToMoveToTrash: "Could not move to trash"
+      errorFailedToMoveToTrash: "Could not move to trash",
+      // New translations for missing strings
+      invalidProjectIdFormat: "Invalid Project ID format.",
+      couldNotFetchFullProjectsList: "Could not fetch full projects list to determine parent project name.",
+      newTrainingPlanTitle: "New Training Plan",
+      newPdfLessonTitle: "New PDF Lesson",
+      newSlideDeckTitle: "New Slide Deck",
+      newVideoLessonTitle: "New Video Lesson",
+      newQuizTitle: "New Quiz",
+      newTextPresentationTitle: "New Text Presentation",
+      unknownErrorOccurred: "An unknown error occurred while fetching project data.",
+      projectIdMissing: "Project ID is missing in URL.",
+      projectIdOrEditableDataMissing: "Project ID or editable data is missing.",
+      validationError: "Validation error",
+      validationErrors: "Validation errors",
+      couldNotSaveData: "Could not save data.",
+      contentEditingSupported: "Content editing is currently supported for",
+      typesOnThisPage: "types on this page.",
+      projectDataOrIdNotAvailableForDownload: "Project data or ID is not available for download.",
+      failedToMoveToTrash: "Failed to move to trash",
+      couldNotMoveToTrash: "Could not move to trash",
+      loadingProject: "Loading project details...",
+      errorLoadingProject: "Error: Failed to load project data.",
+      projectNotFound: "Project not found or data unavailable.",
+      project: "Project",
+      configureVisibleColumns: "Configure visible columns",
+      moveToTrashTooltip: "Move this product to Trash"
     }
   }
 }; 

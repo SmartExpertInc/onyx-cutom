@@ -94,7 +94,8 @@ export const es = {
       example: "Ejemplo",
       cancel: "Cancelar",
       saveChanges: "Guardar cambios",
-      saving: "Guardando..."
+      saving: "Guardando...",
+      failedToSave: "No se pudo guardar la configuración de la carpeta"
     },
     projectSettings: {
       title: "Configuración del curso",
@@ -358,7 +359,31 @@ export const es = {
       errorContentEditingNotSupportedForSave: "La edición de contenido no es compatible para este tipo de componente en esta página.",
       errorFailedToSaveModuleTierSetting: "Error al guardar la configuración del nivel del módulo",
       errorFailedToSaveLessonTierSetting: "Error al guardar la configuración del nivel de la lección",
-      errorFailedToMoveToTrash: "No se pudo mover a la papelera"
+      // Additional missing translations
+      invalidProjectIdFormat: "Formato de ID de proyecto inválido.",
+      couldNotFetchFullProjectsList: "No se pudo obtener la lista completa de proyectos para determinar el nombre del proyecto padre.",
+      newTrainingPlanTitle: "Nuevo plan de entrenamiento",
+      newPdfLessonTitle: "Nueva lección PDF",
+      newSlideDeckTitle: "Nueva presentación",
+      newVideoLessonTitle: "Nueva lección de video",
+      newQuizTitle: "Nuevo cuestionario",
+      newTextPresentationTitle: "Nueva presentación de texto",
+      unknownErrorOccurred: "Ocurrió un error desconocido al obtener los datos del proyecto.",
+      projectIdMissing: "ID del proyecto falta en la URL.",
+      projectIdOrEditableDataMissing: "ID del proyecto o datos editables faltantes.",
+      validationError: "Error de validación",
+      validationErrors: "Errores de validación",
+      couldNotSaveData: "No se pudieron guardar los datos.",
+      contentEditingSupported: "La edición de contenido actualmente es compatible con",
+      typesOnThisPage: "tipos en esta página.",
+      projectDataOrIdNotAvailableForDownload: "Los datos del proyecto o ID no están disponibles para descargar.",
+      failedToMoveToTrash: "No se pudo mover a la papelera",
+      loadingProject: "Cargando detalles del proyecto...",
+      errorLoadingProject: "Error: No se pudieron cargar los datos del proyecto.",
+      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
+      project: "Proyecto",
+      configureVisibleColumns: "Configurar columnas visibles",
+      moveToTrashTooltip: "Mover este producto a la papelera"
     },
     // Pipelines page
     pipelines: {
