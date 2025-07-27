@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FileResponse } from "../../../../components/documents/DocumentsContext";
+import { useLanguage } from "../../../../contexts/LanguageContext";
 
 interface CreateFromFolderContentProps {
   folderId: number;
@@ -27,6 +28,7 @@ interface FileItemProps {
 
 // Component for file status badge with spinner for indexing
 const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
+  const { t } = useLanguage();
   // Determine display status based on backend status
   const status = file.status?.toUpperCase();
   const isReady = status === 'INDEXED' || file.indexed === true;
@@ -45,15 +47,16 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
         <div className="w-3 h-3 border border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
       )}
       {isReady
-        ? 'Ready' 
+        ? t('actions.ready', 'Ready')
         : isFailed
-        ? 'Failed'
-        : 'Processing'}
+        ? t('actions.failed', 'Failed')
+        : t('actions.processing', 'Processing')}
     </span>
   );
 };
 
 const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect }) => {
+  const { t } = useLanguage();
   const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
     switch (ext) {
@@ -95,9 +98,9 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
             <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-              {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} tokens</span>}
+              {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} {t('actions.tokens', 'tokens')}</span>}
               <FileStatusBadge file={file} />
-              {isFileProcessing && <span className="text-xs text-gray-400">Please wait...</span>}
+              {isFileProcessing && <span className="text-xs text-gray-400">{t('actions.pleaseWait', 'Please wait...')}</span>}
             </div>
           </div>
         </div>
@@ -124,6 +127,7 @@ const UploadProgressDisplay: React.FC<{
   currentFileName: string;
   percentage: number;
 }> = ({ fileCount, completedCount, currentFileName, percentage }) => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-center gap-3">
@@ -134,12 +138,12 @@ const UploadProgressDisplay: React.FC<{
           </div>
         </div>
         <div className="text-left">
-          <p className="text-xl font-semibold text-gray-900">Processing Files</p>
+          <p className="text-xl font-semibold text-gray-900">{t('actions.processingFiles', 'Processing Files')}</p>
           <p className="text-sm text-gray-600">
-            Uploading & indexing: {currentFileName}
+            {t('actions.uploadingAndIndexing', 'Uploading & indexing: {fileName}').replace('{fileName}', currentFileName)}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            {completedCount} of {fileCount} files completed
+            {t('actions.filesCompleted', '{completed} of {total} files completed').replace('{completed}', completedCount.toString()).replace('{total}', fileCount.toString())}
           </p>
         </div>
       </div>
@@ -157,7 +161,7 @@ const UploadProgressDisplay: React.FC<{
       <div className="text-center">
         <span className="text-lg font-medium text-blue-600">{percentage}%</span>
         <p className="text-sm text-gray-600 mt-1">
-          {percentage === 100 ? 'Processing complete! Files are ready.' : 'Uploading and indexing documents...'}
+          {percentage === 100 ? t('actions.processingComplete', 'Processing complete! Files are ready.') : t('actions.uploadingAndIndexingDocuments', 'Uploading and indexing documents...')}
         </p>
       </div>
     </div>
@@ -177,6 +181,7 @@ const ALLOWED_FILE_TYPES = [
 
 const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folderId }) => {
   const router = useRouter();
+  const { t } = useLanguage();
   const { folders, files, isLoading, error, getFolderDetails, folderDetails, handleUpload, uploadProgress, setCurrentFolder } = useDocumentsContext();
   const [selectedFileIds, setSelectedFileIds] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -340,8 +345,8 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
         <div className="flex justify-center items-center flex-1">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
-            <p className="text-gray-700 font-semibold text-lg">Loading folder...</p>
-            <p className="text-gray-600 text-sm mt-2">Fetching your documents</p>
+            <p className="text-gray-700 font-semibold text-lg">{t('actions.loadingFolder', 'Loading folder...')}</p>
+            <p className="text-gray-600 text-sm mt-2">{t('actions.fetchingDocuments', 'Fetching your documents')}</p>
           </div>
         </div>
       </main>
@@ -371,7 +376,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
       <div className="min-h-screen bg-gradient-to-b from-orange-50 via-purple-50 to-blue-100">
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
-            <p className="text-gray-600 font-medium">Folder not found</p>
+            <p className="text-gray-600 font-medium">{t('actions.folderNotFound', 'Folder not found')}</p>
           </div>
         </div>
       </div>
@@ -437,7 +442,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
-              Back to Folders
+              {t('actions.backToFolders', 'Back to Folders')}
             </Link>
           </div>
         </div>
@@ -451,11 +456,11 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
               onClick={() => getFolderDetails(folderId)}
               className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
             >
-              Refresh
+              {t('actions.refresh', 'Refresh')}
             </button>
           </div>
           <p className="text-gray-600">
-            Select files to create educational content from your documents
+            {t('actions.selectFilesToCreate', 'Select files to create educational content from your documents')}
           </p>
         </div>
       </div>
@@ -485,19 +490,19 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             ) : (
               <>
                 <Upload className="h-10 w-10 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Documents</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('actions.uploadDocuments', 'Upload Documents')}</h3>
                 <p className="text-gray-600 mb-4">
-                  Drag and drop files here, or click to select files
+                  {t('actions.dragAndDropFiles', 'Drag and drop files here, or click to select files')}
                 </p>
                 <p className="text-xs text-gray-500 mb-4">
-                  Files will be automatically processed and indexed for content creation
+                  {t('actions.filesWillBeProcessed', 'Files will be automatically processed and indexed for content creation')}
                 </p>
                 <button
                   onClick={handleFileSelect}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
-                  Select Files
+                  {t('actions.selectFiles', 'Select Files')}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -517,12 +522,12 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
           <div className="p-6 border-b">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Files in this folder</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('actions.filesInThisFolder', 'Files in this folder')}</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  {folderFiles.length} total files, {readyFiles.length} ready for content creation
+                  {t('actions.totalFilesReady', '{total} total files, {ready} ready for content creation').replace('{total}', folderFiles.length.toString()).replace('{ready}', readyFiles.length.toString())}
                   {folderFiles.length > readyFiles.length && (
                     <span className="text-yellow-600 ml-1">
-                      ({folderFiles.length - readyFiles.length} still processing)
+                      {t('actions.stillProcessing', '({processing} still processing)').replace('{processing}', (folderFiles.length - readyFiles.length).toString())}
                     </span>
                   )}
                 </p>
@@ -533,13 +538,13 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                     onClick={handleSelectAll}
                     className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
                   >
-                    Select All
+                    {t('actions.selectAll', 'Select All')}
                   </button>
                   <button
                     onClick={handleDeselectAll}
                     className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
                   >
-                    Clear
+                    {t('actions.clear', 'Clear')}
                   </button>
                 </div>
               )}
@@ -550,8 +555,8 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             {folderFiles.length === 0 ? (
               <div className="text-center py-8">
                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No files in this folder yet</p>
-                <p className="text-sm text-gray-500 mt-1">Upload some documents to get started</p>
+                <p className="text-gray-600">{t('actions.noFilesInFolder', 'No files in this folder yet')}</p>
+                <p className="text-sm text-gray-500 mt-1">{t('actions.uploadSomeDocuments', 'Upload some documents to get started')}</p>
               </div>
             ) : (
               <div className="grid gap-4">
@@ -576,10 +581,10 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-gray-900">
-                  {selectedFileIds.length} file{selectedFileIds.length !== 1 ? 's' : ''} selected
+                  {t('actions.filesSelected', '{count} file{plural} selected').replace('{count}', selectedFileIds.length.toString()).replace('{plural}', selectedFileIds.length !== 1 ? 's' : '')}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Ready to create content from these documents
+                  {t('actions.readyToCreateContent', 'Ready to create content from these documents')}
                 </p>
               </div>
               <button
@@ -587,7 +592,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                 className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
               >
                 <Sparkles className="h-4 w-4" />
-                Create Content
+                {t('actions.createContent', 'Create Content')}
               </button>
             </div>
           </div>

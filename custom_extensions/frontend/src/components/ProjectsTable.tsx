@@ -1213,7 +1213,7 @@ const ProjectCard: React.FC<{
                         <div className="px-3 py-2 border-b border-gray-100">
                             <p className="font-semibold text-sm text-gray-900 truncate">{project.title}</p>
                             <p className="text-xs text-gray-500 mt-1">
-                                Created {formatDate(project.createdAt)}
+                                {t('actions.created', 'Created {date}').replace('{date}', formatDate(project.createdAt))}
                             </p>
                         </div>
                         {isTrashMode ? (
@@ -1222,7 +1222,7 @@ const ProjectCard: React.FC<{
                                     onClick={handleRestoreProject}
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <RefreshCw size={14} />
-                                    <span>Restore</span>
+                                    <span>{t('actions.restore', 'Restore')}</span>
                                 </button>
                                 <button
                                     onClick={(e) => {
@@ -1233,7 +1233,7 @@ const ProjectCard: React.FC<{
                                     }}
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
                                     <Trash2 size={14} />
-                                    <span>Delete permanently</span>
+                                    <span>{t('actions.deletePermanently', 'Delete permanently')}</span>
                                 </button>
                             </div>
                         ) : (
@@ -1241,7 +1241,7 @@ const ProjectCard: React.FC<{
                                 <div className="py-1">
                                     <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <Share2 size={16} className="text-gray-500" />
-                                        <span>Share...</span>
+                                        <span>{t('actions.share', 'Share...')}</span>
                                     </button>
                                     <button
                                         onClick={(e) => { 
@@ -1253,20 +1253,20 @@ const ProjectCard: React.FC<{
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                     >
                                         <PenLine size={16} className="text-gray-500"/>
-                                        <span>Rename...</span>
+                                        <span>{t('actions.rename', 'Rename...')}</span>
                                     </button>
                                     <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <Star size={16} className="text-gray-500"/>
-                                        <span>Add to favorites</span>
+                                        <span>{t('actions.addToFavorites', 'Add to favorites')}</span>
                                     </button>
                                     <button onClick={handleDuplicateProject}
                                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <Copy size={16} className="text-gray-500"/>
-                                        <span>Duplicate</span>
+                                        <span>{t('actions.duplicate', 'Duplicate')}</span>
                                     </button>
                                     <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                         <LinkIcon size={16} className="text-gray-500"/>
-                                        <span>Copy link</span>
+                                        <span>{t('actions.copyLink', 'Copy link')}</span>
                                     </button>
                                     {isOutline && (
                                         <button 
@@ -1279,7 +1279,7 @@ const ProjectCard: React.FC<{
                                             className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                         >
                                             <Settings size={16} className="text-gray-500"/>
-                                            <span>Settings</span>
+                                            <span>{t('actions.settings', 'Settings')}</span>
                                         </button>
                                     )}
                                     {folderId && (
@@ -1293,7 +1293,7 @@ const ProjectCard: React.FC<{
                                             className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md"
                                         >
                                             <FolderMinus size={16} className="text-orange-500"/>
-                                            <span>Remove from Folder</span>
+                                            <span>{t('actions.removeFromFolder', 'Remove from Folder')}</span>
                                         </button>
                                     )}
                                 </div>
@@ -1308,7 +1308,7 @@ const ProjectCard: React.FC<{
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                                     >
                                         <Trash2 size={14} />
-                                        <span>Send to trash</span>
+                                        <span>{t('actions.sendToTrash', 'Send to trash')}</span>
                                     </button>
                                 </div>
                             </>
@@ -1320,16 +1320,16 @@ const ProjectCard: React.FC<{
             {permanentDeleteConfirmOpen && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setPermanentDeleteConfirmOpen(false)}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-semibold text-lg mb-2 text-gray-900">Are you sure?</h4>
-                        <p className="text-sm text-gray-600 mb-4">This action is permanent and cannot be undone. The project will be deleted forever.</p>
+                        <h4 className="font-semibold text-lg mb-2 text-gray-900">{t('actions.areYouSure', 'Are you sure?')}</h4>
+                        <p className="text-sm text-gray-600 mb-4">{t('actions.actionPermanent', 'This action is permanent and cannot be undone. The project will be deleted forever.')}</p>
                         <div className="flex justify-center gap-4">
-                            <button onClick={() => setPermanentDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">Cancel</button>
+                            <button onClick={() => setPermanentDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">{t('actions.cancel', 'Cancel')}</button>
                             <button onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
                                 onDeletePermanently(project.id);
                                 setPermanentDeleteConfirmOpen(false);
-                            }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete Permanently</button>
+                            }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">{t('actions.deletePermanentlyButton', 'Delete Permanently')}</button>
                         </div>
                     </div>
                 </div>
@@ -1357,7 +1357,7 @@ const ProjectCard: React.FC<{
                     >
                         <AlertTriangle className="text-orange-500 flex-shrink-0" size={20} />
                         <p className="text-sm text-orange-900">
-                            Want to edit this? It's in the trash.&nbsp;
+                            {t('actions.wantToEditInTrash', 'Want to edit this? It\'s in the trash.')}&nbsp;
                             <button
                                 onClick={() => {
                                     onRestore(project.id);
@@ -1365,7 +1365,7 @@ const ProjectCard: React.FC<{
                                 }}
                                 className="font-semibold underline hover:text-orange-700"
                             >
-                                Restore it
+                                {t('actions.restoreIt', 'Restore it')}
                             </button>
                         </p>
                     </div>
