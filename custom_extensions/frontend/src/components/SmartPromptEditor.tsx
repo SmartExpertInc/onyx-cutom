@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, CheckCircle, RotateCcw } from "lucide-react";
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SmartPromptEditorProps {
   projectId: number;
@@ -22,6 +23,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
   currentLanguage,
   currentTheme,
 }) => {
+  const { t } = useLanguage();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
@@ -208,10 +210,10 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     return (
       <div className="w-full bg-white border border-gray-300 rounded-xl p-6 mb-4 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Review Changes</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-            Changes Preview
+            {t('actions.changesPreview', 'Changes Preview')}
           </div>
         </div>
         
@@ -231,7 +233,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             ) : (
               <CheckCircle size={16} />
             )}
-            {loadingConfirm ? "Saving..." : "Accept Changes"}
+            {loadingConfirm ? t('actions.saving', 'Saving...') : t('actions.acceptChanges', 'Accept Changes')}
           </button>
           
           <button
@@ -240,7 +242,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RotateCcw size={16} />
-            Revert Changes
+            {t('actions.revertChanges', 'Revert Changes')}
           </button>
         </div>
       </div>
@@ -256,7 +258,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             onClick={() => setShowAdvanced(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium"
           >
-            Smart Edit
+            {t('actions.smartEdit', 'Smart Edit')}
           </button>
         </div>
       )}
@@ -265,12 +267,12 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
       {showAdvanced && (
         <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Smart Edit</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
             <button
               onClick={() => setShowAdvanced(false)}
               className="text-gray-500 hover:text-gray-700 text-sm"
             >
-              ✕ Close
+              ✕ {t('actions.close', 'Close')}
             </button>
           </div>
           
@@ -312,7 +314,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
               {loadingEdit && (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
               )}
-              {loadingEdit ? "Applying..." : "Apply Edit"}
+              {loadingEdit ? t('actions.applying', 'Applying...') : t('actions.applyEdit', 'Apply Edit')}
             </button>
           </div>
         </div>

@@ -12,13 +12,49 @@ export const uk = {
     edit: "Редагувати",
     downloadPdf: "Завантажити PDF",
     saveErrorTitle: "Помилка збереження:",
-    rendering: "Відображення вмісту..."
+    rendering: "Рендеринг контенту..."
   },
   qualityTiers: {
     basic: "Базовий",
     interactive: "Інтерактивний",
-    advanced: "Поглиблений",
-    immersive: "Іммерсивний"
+    advanced: "Просунутий",
+    immersive: "Імерсивний"
+  },
+  // Action buttons and UI elements
+  actions: {
+    edit: "Редагувати",
+    save: "Зберегти",
+    saving: "Збереження...",
+    download: "Завантажити",
+    downloadPdf: "Завантажити PDF",
+    moveToTrash: "Перемістити в кошик",
+    delete: "Видалити",
+    deletePermanently: "Видалити назавжди",
+    restore: "Відновити",
+    cancel: "Скасувати",
+    close: "Закрити",
+    back: "Назад",
+    rename: "Перейменувати",
+    duplicate: "Дублювати",
+    copy: "Копіювати",
+    share: "Поділитися",
+    refresh: "Оновити",
+    settings: "Налаштування",
+    smartEdit: "Розумне редагування",
+    applyEdit: "Застосувати правку",
+    applying: "Застосування...",
+    acceptChanges: "Прийняти зміни",
+    revertChanges: "Скасувати зміни",
+    reviewChanges: "Перегляд змін",
+    changesPreview: "Попередній перегляд змін",
+    outlineOnly: "Тільки план",
+    moveAll: "Перемістити все",
+    newName: "Нова назва:",
+    generatingPdf: "Генерація PDF",
+    creatingPdfExport: "Створення експорту PDF для папки",
+    checkText: "Текст перевірки",
+    availabilityText: "Текст доступності",
+    no: "Ні"
   },
   videoLesson: {
     slide: "Слайд",

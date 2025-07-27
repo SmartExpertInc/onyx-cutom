@@ -52,9 +52,9 @@ const FolderExportLoadingModal: React.FC<{
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('modals.folderExport.title', 'Generating PDF')}</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
         <p className="text-gray-600 text-center mb-4">
-          {t('modals.folderExport.subtitle', 'Creating PDF export for folder')} <span className="font-semibold text-blue-600">"{folderName}"</span>
+          {t('actions.creatingPdfExport', 'Creating PDF export for folder')} <span className="font-semibold text-blue-600">"{folderName}"</span>
         </p>
         <p className="text-sm text-gray-500 text-center">
           {t('modals.folderExport.description', 'This may take a few moments depending on the number of files...')}
@@ -925,6 +925,7 @@ const ProjectCard: React.FC<{
     isTrashMode: boolean;
     folderId?: number | null;
 }> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId }) => {
+    const { t } = useLanguage();
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -1337,12 +1338,12 @@ const ProjectCard: React.FC<{
             {trashConfirmOpen && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => setTrashConfirmOpen(false)}>
                     <div className="bg-white rounded-lg shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-semibold text-lg mb-2 text-gray-900">Move to Trash</h4>
+                        <h4 className="font-semibold text-lg mb-2 text-gray-900">{t('actions.moveToTrash', 'Move to Trash')}</h4>
                         <p className="text-sm text-gray-600 mb-4">This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?</p>
                         <div className="flex justify-center gap-3">
-                            <button onClick={() => setTrashConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">Cancel</button>
-                            <button onClick={() => { onDelete(project.id, 'self'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">Outline Only</button>
-                            <button onClick={() => { onDelete(project.id, 'all'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Move All</button>
+                            <button onClick={() => setTrashConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">{t('actions.cancel', 'Cancel')}</button>
+                            <button onClick={() => { onDelete(project.id, 'self'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">{t('actions.outlineOnly', 'Outline Only')}</button>
+                            <button onClick={() => { onDelete(project.id, 'all'); setTrashConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">{t('actions.moveAll', 'Move All')}</button>
                         </div>
                     </div>
                 </div>
@@ -1375,10 +1376,10 @@ const ProjectCard: React.FC<{
             {renameModalOpen && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">{t('actions.rename', 'Rename')}</h4>
 
                         <div className="mb-6">
-                            <label htmlFor="newName" className="block text-sm font-medium text-gray-700 mb-1">New Name:</label>
+                            <label htmlFor="newName" className="block text-sm font-medium text-gray-700 mb-1">{t('actions.newName', 'New Name:')}</label>
                             <input
                                 id="newName"
                                 type="text"
@@ -1389,13 +1390,13 @@ const ProjectCard: React.FC<{
                         </div>
 
                         <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
-                                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
-                                disabled={isRenaming}
-                            >
-                                Cancel
-                            </button>
+                                                            <button
+                                    onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
+                                    className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                                    disabled={isRenaming}
+                                >
+                                    {t('actions.cancel', 'Cancel')}
+                                </button>
                             <button
                                 onClick={async () => {
                                     setIsRenaming(true);
@@ -1457,7 +1458,7 @@ const ProjectCard: React.FC<{
                                 className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
                                 disabled={isRenaming || !newName.trim()}
                             >
-                                {isRenaming ? 'Saving...' : 'Rename'}
+                                {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
                             </button>
                         </div>
                     </div>
@@ -1489,6 +1490,7 @@ const ProjectRowMenu: React.FC<{
     onDeletePermanently: (id: number) => void;
     folderId?: number | null;
 }> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId }) => {
+    const { t } = useLanguage();
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [renameModalOpen, setRenameModalOpen] = React.useState(false);
     const [isRenaming, setIsRenaming] = React.useState(false);
@@ -1833,7 +1835,7 @@ const ProjectRowMenu: React.FC<{
                                 className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
                                 disabled={isRenaming || !newName.trim()}
                             >
-                                {isRenaming ? 'Saving...' : 'Rename'}
+                                {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
                             </button>
                         </div>
                     </div>
