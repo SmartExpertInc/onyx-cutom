@@ -371,9 +371,6 @@ export const uk = {
       typesOnThisPage: "типів на цій сторінці.",
       projectDataOrIdNotAvailableForDownload: "Дані проекту або ID недоступні для завантаження.",
       failedToMoveToTrash: "Не вдалося перемістити в кошик",
-      loadingProject: "Завантаження деталей проекту...",
-      errorLoadingProject: "Помилка: Не вдалося завантажити дані проекту.",
-      projectNotFound: "Проект не знайдено або дані недоступні.",
       project: "Проект",
       configureVisibleColumns: "Налаштувати видимі стовпці",
       moveToTrashTooltip: "Перемістити цей продукт в кошик"

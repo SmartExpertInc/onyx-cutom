@@ -367,8 +367,6 @@ export const ru = {
       couldNotSaveData: "Не удалось сохранить данные.",
       contentEditingSupported: "Редактирование контента в настоящее время поддерживается для",
       typesOnThisPage: "типов на этой странице.",
-      loadingProject: "Загрузка деталей проекта...",
-      projectNotFound: "Проект не найден или данные недоступны.",
       project: "Проект",
       configureVisibleColumns: "Настроить видимые колонки",
       moveToTrashTooltip: "Переместить этот продукт в корзину"
