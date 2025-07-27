@@ -175,7 +175,7 @@ export default function DataSourceLanding() {
           />
           <OptionCard
             Icon={Sparkles}
-            title={t('interface.generate', 'Generate')}
+            title={t('interface.generate.title', 'Generate')}
             description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
             pillLabel={t('interface.popular', 'POPULAR')}

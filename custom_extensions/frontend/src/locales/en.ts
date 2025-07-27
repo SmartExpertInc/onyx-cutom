@@ -337,6 +337,7 @@ export const en = {
 
     // Generate page
     generate: {
+      title: "Generate",
       subtitle: "What would you like to create today?",
       subtitleFromFiles: "Create content from your selected files",
       subtitleFromText: "Create content from your text",
