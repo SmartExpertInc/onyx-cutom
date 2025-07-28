@@ -368,6 +368,13 @@ export const en = {
     ukrainian: "Ukrainian", 
     spanish: "Spanish",
     russian: "Russian",
+    
+    // Date formatting
+    today: "Today",
+    yesterday: "Yesterday",
+    daysAgo: "{days} days ago",
+    weeksAgo: "{weeks} weeks ago",
+    monthsAgo: "{months} months ago",
 
     // Create page
     createWithAI: "Create with AI",

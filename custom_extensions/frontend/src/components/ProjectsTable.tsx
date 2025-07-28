@@ -925,7 +925,7 @@ const ProjectCard: React.FC<{
     isTrashMode: boolean;
     folderId?: number | null;
 }> = ({ project, onDelete, onRestore, onDeletePermanently, isTrashMode, folderId }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [menuOpen, setMenuOpen] = useState(false);
     const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
     const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -1118,7 +1118,7 @@ const ProjectCard: React.FC<{
 
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
+        return new Date(dateString).toLocaleDateString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : language === 'ru' ? 'ru-RU' : 'uk-UA', options);
     }
     
     return (
@@ -1168,7 +1168,7 @@ const ProjectCard: React.FC<{
                         {project.isPrivate && (
                             <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
                                 <Lock size={12} />
-                                <span className="text-gray-700">Private</span>
+                                <span className="text-gray-700">{t('interface.private', 'Private')}</span>
                             </div>
                         )}
                     </div>
@@ -1178,7 +1178,7 @@ const ProjectCard: React.FC<{
                                 {project.createdBy.slice(0, 1).toUpperCase()}
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm font-medium text-gray-900">Created by you</span>
+                                <span className="text-sm font-medium text-gray-900">{t('interface.createdByYou', 'Created by you')}</span>
                                 <span className="text-xs text-gray-500">{formatDate(project.createdAt)}</span>
                             </div>
                         </div>
@@ -1490,7 +1490,7 @@ const ProjectRowMenu: React.FC<{
     onDeletePermanently: (id: number) => void;
     folderId?: number | null;
 }> = ({ project, formatDate, trashMode, onDelete, onRestore, onDeletePermanently, folderId }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [renameModalOpen, setRenameModalOpen] = React.useState(false);
     const [isRenaming, setIsRenaming] = React.useState(false);
@@ -2067,7 +2067,7 @@ const FolderRowMenu: React.FC<{
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folderId = null }) => {
     const router = useRouter();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [projects, setProjects] = useState<Project[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [loading, setLoading] = useState(true);
@@ -2577,12 +2577,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         const diffTime = Math.abs(now.getTime() - date.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays === 1) return 'Today';
-        if (diffDays === 2) return 'Yesterday';
-        if (diffDays <= 7) return `${diffDays - 1} days ago`;
-        if (diffDays <= 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-        if (diffDays <= 365) return `${Math.floor(diffDays / 30)} months ago`;
-        return date.toLocaleDateString();
+        if (diffDays === 1) return t('interface.today', 'Today');
+        if (diffDays === 2) return t('interface.yesterday', 'Yesterday');
+        if (diffDays <= 7) return t('interface.daysAgo', '{days} days ago').replace('{days}', (diffDays - 1).toString());
+        if (diffDays <= 30) return t('interface.weeksAgo', '{weeks} weeks ago').replace('{weeks}', Math.floor(diffDays / 7).toString());
+        if (diffDays <= 365) return t('interface.monthsAgo', '{months} months ago').replace('{months}', Math.floor(diffDays / 30).toString());
+        
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : language === 'ru' ? 'ru-RU' : 'uk-UA', options);
     };
 
     const handleDeleteProject = async (projectId: number, scope: 'self' | 'all' = 'self') => {

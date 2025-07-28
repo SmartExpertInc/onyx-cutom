@@ -324,6 +324,13 @@ export const uk = {
     ukrainian: "Українська",
     spanish: "Іспанська",
     russian: "Російська",
+    
+    // Date formatting
+    today: "Сьогодні",
+    yesterday: "Вчора",
+    daysAgo: "{days} днів тому",
+    weeksAgo: "{weeks} тижнів тому",
+    monthsAgo: "{months} місяців тому",
 
     // Create page
     createWithAI: "Створити з ШІ",
