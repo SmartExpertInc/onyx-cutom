@@ -669,7 +669,6 @@ export const ru = {
       paragraphs: "Параграфы",
       bulletLists: "Маркированные списки",
       numberedLists: "Нумерованные списки",
-      tables: "Таблицы",
       alerts: "Предупреждения",
       recommendations: "Рекомендации",
       sectionBreaks: "Разрывы разделов",

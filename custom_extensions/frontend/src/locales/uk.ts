@@ -673,7 +673,6 @@ export const uk = {
       paragraphs: "Параграфи",
       bulletLists: "Марковані списки",
       numberedLists: "Нумеровані списки",
-      tables: "Таблиці",
       alerts: "Попередження",
       recommendations: "Рекомендації",
       sectionBreaks: "Розриви розділів",
