@@ -494,6 +494,7 @@ export const en = {
       paragraphs: "Paragraphs",
       bulletLists: "Bullet Lists",
       numberedLists: "Numbered Lists",
+      tables: "Tables",
       alerts: "Alerts",
       recommendations: "Recommendations",
       sectionBreaks: "Section Breaks",

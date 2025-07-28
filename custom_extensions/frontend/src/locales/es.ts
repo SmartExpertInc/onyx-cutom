@@ -680,6 +680,7 @@ export const es = {
       paragraphs: "Párrafos",
       bulletLists: "Listas con viñetas",
       numberedLists: "Listas numeradas",
+      tables: "Tablas",
       alerts: "Alertas",
       recommendations: "Recomendaciones",
       sectionBreaks: "Saltos de sección",

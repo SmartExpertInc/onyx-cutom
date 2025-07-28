@@ -403,13 +403,13 @@ export default function TextPresentationClient() {
     };
   }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
 
-  // // Auto-scroll textarea as new content streams in
-  // useEffect(() => {
-  //   if (textareaVisible && textareaRef.current) {
-  //     // Scroll to bottom to keep newest text in view
-  //     textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-  //   }
-  // }, [content, textareaVisible]);
+  // Auto-scroll textarea as new content streams in
+  useEffect(() => {
+    if (textareaVisible && textareaRef.current) {
+      // Scroll to bottom to keep newest text in view
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+    }
+  }, [content, textareaVisible]);
 
   // Click outside handler for styles dropdown
   useEffect(() => {
@@ -920,15 +920,15 @@ export default function TextPresentationClient() {
           <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <h2 className="text-xl font-semibold text-[#20355D]">Themes</h2>
-                <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+                <h2 className="text-xl font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
               </div>
               <button
                 type="button"
                 className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
               >
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                <span>View more</span>
+                <span>{t('interface.generate.viewMore', 'View more')}</span>
               </button>
             </div>
             
@@ -958,12 +958,12 @@ export default function TextPresentationClient() {
 
               {/* Content section */}
               <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-[#20355D]">Content</h3>
+                <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
                 <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustTextAndImageStyles', 'Adjust text and image styles for your one-pager')}</p>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">Amount of text per card</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
                   <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
-                    {[{ id: "brief", label: "Brief", icon: <AlignLeft size={14} /> }, { id: "medium", label: "Medium", icon: <AlignCenter size={14} /> }, { id: "detailed", label: "Detailed", icon: <AlignRight size={14} /> }].map((opt) => (
+                    {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
                       <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
                         {opt.icon} {opt.label}
                       </button>
@@ -971,19 +971,19 @@ export default function TextPresentationClient() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">Image source</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.imageSource', 'Image source')}</label>
                   <div className="relative w-full">
                     <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="ai">AI images</option><option value="stock">Stock images</option><option value="none">No images</option>
+                      <option value="ai">{t('interface.courseOutline.aiImages', 'AI images')}</option><option value="stock">{t('interface.courseOutline.stockImages', 'Stock images')}</option><option value="none">{t('interface.courseOutline.noImages', 'No images')}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">AI image model</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.aiImageModel', 'AI image model')}</label>
                   <div className="relative w-full">
                     <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="flux-fast">Flux Kontext Fast</option><option value="flux-quality">Flux Kontext HQ</option><option value="stable">Stable Diffusion 2.1</option>
+                      <option value="flux-fast">{t('interface.courseOutline.fluxKontextFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.courseOutline.fluxKontextHQ', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.courseOutline.stableDiffusion', 'Stable Diffusion 2.1')}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
@@ -997,7 +997,7 @@ export default function TextPresentationClient() {
           <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
             <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>5 credits</span>
+              <span>5 {t('interface.courseOutline.credits', 'credits')}</span>
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">
