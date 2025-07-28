@@ -11522,8 +11522,9 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             else:
                 parsed_quiz.questions = valid_questions
         
-        # Use the parsed quiz title or fallback to the consistent project name
-        final_project_name = parsed_quiz.quizTitle or project_name
+        # Always use the consistent project name for database storage
+        # The quiz title from parsed_quiz.quizTitle is used for display purposes only
+        final_project_name = project_name
         
         logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
@@ -12338,8 +12339,9 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             else:
                 parsed_text_presentation.contentBlocks = valid_content_blocks
         
-        # Use the parsed text title or fallback to the consistent project name
-        final_project_name = parsed_text_presentation.textTitle or project_name
+        # Always use the consistent project name for database storage
+        # The text title from parsed_text_presentation.textTitle is used for display purposes only
+        final_project_name = project_name
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         

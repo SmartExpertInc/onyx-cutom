@@ -400,6 +400,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     if (allUserMicroproducts && allUserMicroproducts.length > 0) {
       const uniqueTypes = [...new Set(allUserMicroproducts.map(mp => (mp as any).design_microproduct_type).filter(Boolean))];
       console.log(`🔍 [QUIZ_DISCOVERY] All unique component types found:`, uniqueTypes);
+      
+      // Log all products with their details for debugging
+      console.log(`🔍 [QUIZ_DISCOVERY] All products details:`, allUserMicroproducts.map(mp => ({
+        id: mp.id,
+        projectName: mp.projectName,
+        microProductName: mp.microProductName,
+        designMicroproductType: (mp as any).design_microproduct_type,
+        isStandalone: (mp as any).is_standalone
+      })));
     }
     
     // Handle edge case where lesson title is empty or whitespace
@@ -553,6 +562,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     if (allUserMicroproducts && allUserMicroproducts.length > 0) {
       const uniqueTypes = [...new Set(allUserMicroproducts.map(mp => (mp as any).design_microproduct_type).filter(Boolean))];
       console.log(`🔍 [ONE_PAGER_DISCOVERY] All unique component types found:`, uniqueTypes);
+      
+      // Log all products with their details for debugging
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] All products details:`, allUserMicroproducts.map(mp => ({
+        id: mp.id,
+        projectName: mp.projectName,
+        microProductName: mp.microProductName,
+        designMicroproductType: (mp as any).design_microproduct_type,
+        isStandalone: (mp as any).is_standalone
+      })));
     }
     
     // Handle edge case where lesson title is empty or whitespace
@@ -788,22 +806,16 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         parentProjectName
       });
     }
-    // Scenario 4: Only one content type exists (quiz, video lesson, or one-pager) - show open modal directly
+    // Scenario 4: Only one content type exists (quiz, video lesson, or one-pager) - show open or create modal
     else if (hasQuiz || hasOnePager || hasVideoLesson) {
-      setOpenContentModalState({
-        isOpen: true,
-        lessonTitle,
-        moduleName,
+      setOpenOrCreateModalState({ 
+        isOpen: true, 
+        lessonTitle, 
+        moduleName, 
         lessonNumber,
         hasLesson,
         hasQuiz,
-        hasVideoLesson,
-        hasOnePager,
-        lessonId: existingLesson?.id,
-        quizId: existingQuiz?.id,
-        videoLessonId: existingVideoLesson?.id,
-        onePagerId: existingOnePager?.id,
-        parentProjectName
+        hasOnePager
       });
     }
     // Scenario 5: Fallback - should not happen but just in case
