@@ -636,6 +636,7 @@ export const es = {
       ukrainian: "Ucraniano",
       spanish: "Español",
       russian: "Ruso",
+
       aiWillUseTextAsContext: "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
       aiWillBuildUponText: "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
       courseOutline: "Plan del curso",

@@ -1179,7 +1179,7 @@ export default function CourseOutlineClient() {
               className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
             {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} Modules</option>
+              <option key={n} value={n}>{n} {t('interface.generate.modules', 'Modules')}</option>
             ))}
           </select>
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
@@ -1191,7 +1191,7 @@ export default function CourseOutlineClient() {
               className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
             {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-              <option key={rng} value={rng}>{rng} per module</option>
+              <option key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</option>
             ))}
           </select>
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
@@ -1202,10 +1202,10 @@ export default function CourseOutlineClient() {
             onChange={(e) => setLanguage(e.target.value)}
               className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
           >
-            <option value="en">English</option>
-            <option value="uk">Ukrainian</option>
-            <option value="es">Spanish</option>
-            <option value="ru">Russian</option>
+            <option value="en">{t('interface.generate.english', 'English')}</option>
+            <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+            <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+            <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
           </select>
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
           </div>

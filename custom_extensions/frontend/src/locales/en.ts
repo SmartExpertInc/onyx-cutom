@@ -481,7 +481,24 @@ export const en = {
       english: "English",
       ukrainian: "Ukrainian",
       spanish: "Spanish",
-      russian: "Russian"
+      russian: "Russian",
+      // Course outline dropdown options
+      perModule: "per module",
+      // One-pager dropdown options
+      short: "Short",
+      long: "Long",
+      selectStyles: "Select styles",
+      stylesSelected: "styles selected",
+      // Text style options
+      headlines: "Headlines",
+      paragraphs: "Paragraphs",
+      bulletLists: "Bullet Lists",
+      numberedLists: "Numbered Lists",
+      alerts: "Alerts",
+      recommendations: "Recommendations",
+      sectionBreaks: "Section Breaks",
+      icons: "Icons",
+      importantSections: "Important Sections"
     },
 
     // Course Outline specific translations

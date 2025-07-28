@@ -1483,9 +1483,9 @@ function GenerateProductPicker() {
                           onChange={(e) => setTextLength(e.target.value)}
                           className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="short">Short</option>
-                          <option value="medium">Medium</option>
-                          <option value="long">Long</option>
+                          <option value="short">{t('interface.generate.short', 'Short')}</option>
+                          <option value="medium">{t('interface.generate.medium', 'Medium')}</option>
+                          <option value="long">{t('interface.generate.long', 'Long')}</option>
                         </select>
                         <div className="relative text-styles-dropdown">
                           <button
@@ -1493,21 +1493,21 @@ function GenerateProductPicker() {
                             onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
                             className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                           >
-                            <span>{textStyles.length > 0 ? `${textStyles.length} styles selected` : 'Select styles'}</span>
+                            <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                             <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
                           </button>
                           {showTextStylesDropdown && (
                             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                               {[
-                                { value: "headlines", label: "Headlines" },
-                                { value: "paragraphs", label: "Paragraphs" },
-                                { value: "bullet_lists", label: "Bullet Lists" },
-                                { value: "numbered_lists", label: "Numbered Lists" },
-                                { value: "alerts", label: "Alerts" },
-                                { value: "recommendations", label: "Recommendations" },
-                                { value: "section_breaks", label: "Section Breaks" },
-                                { value: "icons", label: "Icons" },
-                                { value: "important_sections", label: "Important Sections" }
+                                { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
+                                { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
+                                { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
+                                { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
+                                { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
+                                { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
+                                { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
+                                { value: "icons", label: t('interface.generate.icons', 'Icons') },
+                                { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
                               ].map((option) => (
                                 <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
                                   <input
@@ -1541,19 +1541,19 @@ function GenerateProductPicker() {
                       onChange={(e) => setTextLanguage(e.target.value)}
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="en">English</option>
-                      <option value="uk">Ukrainian</option>
-                      <option value="es">Spanish</option>
-                      <option value="ru">Russian</option>
+                      <option value="en">{t('interface.generate.english', 'English')}</option>
+                      <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+                      <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+                      <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
                     </select>
                     <select
                       value={textLength}
                       onChange={(e) => setTextLength(e.target.value)}
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="short">Short</option>
-                      <option value="medium">Medium</option>
-                      <option value="long">Long</option>
+                      <option value="short">{t('interface.generate.short', 'Short')}</option>
+                      <option value="medium">{t('interface.generate.medium', 'Medium')}</option>
+                      <option value="long">{t('interface.generate.long', 'Long')}</option>
                     </select>
                     <div className="relative text-styles-dropdown">
                       <button
@@ -1561,7 +1561,7 @@ function GenerateProductPicker() {
                         onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
                         className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                       >
-                        <span>{textStyles.length > 0 ? `${textStyles.length} styles selected` : 'Select styles'}</span>
+                        <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                         <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
                       </button>
                       {showTextStylesDropdown && (
