@@ -12365,7 +12365,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 final_project_name,  # Use final_project_name for project_name to match the expected pattern
                 "Text Presentation",  # product_type
                 COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
-                final_project_name,  # microproduct_name
+                project_name,  # microproduct_name
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
