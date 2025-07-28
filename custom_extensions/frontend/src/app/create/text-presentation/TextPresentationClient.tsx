@@ -403,13 +403,7 @@ export default function TextPresentationClient() {
     };
   }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
 
-  // Auto-scroll textarea as new content streams in
-  useEffect(() => {
-    if (textareaVisible && textareaRef.current) {
-      // Scroll to bottom to keep newest text in view
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-    }
-  }, [content, textareaVisible]);
+  // Auto-scroll functionality removed to prevent teleportation to top
 
   // Click outside handler for styles dropdown
   useEffect(() => {
@@ -569,20 +563,20 @@ export default function TextPresentationClient() {
     { id: "vanilla", label: "Engenuity" },
   ];
   const styleOptions = [
-    { value: "professional", label: "Professional" },
-    { value: "casual", label: "Casual" },
-    { value: "bold", label: "Bold" },
-    { value: "italic", label: "Italic" },
-    { value: "underline", label: "Underline" },
-    { value: "strikethrough", label: "Strikethrough" },
-    { value: "code", label: "Code" },
-    { value: "quote", label: "Quote" },
-    { value: "bullet-list", label: "Bullet List" },
-    { value: "numbered-list", label: "Numbered List" },
-    { value: "check-list", label: "Check List" },
-    { value: "link", label: "Link" },
-    { value: "image", label: "Image" },
-    { value: "table", label: "Table" },
+    { value: "professional", label: t('interface.generate.professional', 'Professional') },
+    { value: "casual", label: t('interface.generate.casual', 'Casual') },
+    { value: "bold", label: t('interface.generate.bold', 'Bold') },
+    { value: "italic", label: t('interface.generate.italic', 'Italic') },
+    { value: "underline", label: t('interface.generate.underline', 'Underline') },
+    { value: "strikethrough", label: t('interface.generate.strikethrough', 'Strikethrough') },
+    { value: "code", label: t('interface.generate.code', 'Code') },
+    { value: "quote", label: t('interface.generate.quote', 'Quote') },
+    { value: "bullet-list", label: t('interface.generate.bulletLists', 'Bullet List') },
+    { value: "numbered-list", label: t('interface.generate.numberedLists', 'Numbered List') },
+    { value: "check-list", label: t('interface.generate.checkList', 'Check List') },
+    { value: "link", label: t('interface.generate.link', 'Link') },
+    { value: "image", label: t('interface.generate.image', 'Image') },
+    { value: "table", label: t('interface.generate.tables', 'Table') },
     { value: "heading-1", label: "Heading 1" },
     { value: "heading-2", label: "Heading 2" },
     { value: "heading-3", label: "Heading 3" },
@@ -646,9 +640,9 @@ export default function TextPresentationClient() {
     { value: "tiktok", label: "TikTok" },
   ];
   const lengthOptions = [
-    { value: "brief", label: "Brief" },
-    { value: "medium", label: "Medium" },
-    { value: "detailed", label: "Detailed" },
+    { value: "brief", label: t('interface.generate.brief', 'Brief') },
+    { value: "medium", label: t('interface.generate.medium', 'Medium') },
+    { value: "detailed", label: t('interface.generate.detailed', 'Detailed') },
   ];
 
   return (
@@ -781,10 +775,10 @@ export default function TextPresentationClient() {
                 <>
                   <div className="relative">
                     <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
+              <option value="en">{t('interface.generate.english', 'English')}</option>
+              <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+              <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+              <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
             </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
@@ -802,7 +796,7 @@ export default function TextPresentationClient() {
                       onClick={() => setShowStylesDropdown(!showStylesDropdown)}
                       className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                     >
-                      <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                      <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                       <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
                     </button>
                     {showStylesDropdown && (
@@ -836,7 +830,7 @@ export default function TextPresentationClient() {
                 setSelectedModuleIndex(null);
                 setLessonsForModule([]);
                 setSelectedLesson("");
-              }} className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100">← Back</button>
+              }} className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100">{t('interface.generate.backButton', '← Back')}</button>
           </div>
           )}
         </div>
