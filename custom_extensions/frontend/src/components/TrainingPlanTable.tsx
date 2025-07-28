@@ -225,8 +225,18 @@ const findMicroproductByTitle = (
       const mpProjectName = mp.projectName?.trim();
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
 
+      console.log(`🔍 [FIND_MICROPRODUCT] Checking product:`, {
+        id: mp.id,
+        projectName: mpProjectName,
+        microProductName: mpMicroName,
+        designMicroproductType: mpDesignMicroproductType,
+        excludeComponentTypes,
+        isExcluded: excludeComponentTypes.includes(mpDesignMicroproductType)
+      });
+
       // Skip if this component type should be excluded
       if (excludeComponentTypes.includes(mpDesignMicroproductType)) {
+        console.log(`❌ [FIND_MICROPRODUCT] Excluding product due to component type: ${mpDesignMicroproductType}`);
         return false;
       }
 
@@ -238,7 +248,22 @@ const findMicroproductByTitle = (
       const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
       const newPatternMatch = mpProjectName === expectedNewProjectName;
       
-      return (legacyProjectMatch && legacyNameMatch) || newPatternMatch;
+      const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch;
+      
+      if (isMatch) {
+        console.log(`✅ [FIND_MICROPRODUCT] Found matching product:`, {
+          id: mp.id,
+          projectName: mpProjectName,
+          microProductName: mpMicroName,
+          designMicroproductType: mpDesignMicroproductType,
+          legacyProjectMatch,
+          legacyNameMatch,
+          newPatternMatch,
+          expectedNewProjectName
+        });
+      }
+      
+      return isMatch;
     }
   );
 
@@ -386,8 +411,24 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
+    console.log(`🔍 [LESSON_DISCOVERY] Starting lesson discovery for lesson: "${lessonTitle}"`);
+    console.log(`🔍 [LESSON_DISCOVERY] Excluding component types: ["Quiz", "TextPresentationDisplay", "TextPresentation"]`);
+    
     // Find presentations/lessons but exclude quizzes and text presentations to avoid double-matching
-    return findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation"]);
+    const result = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation"]);
+    
+    if (result) {
+      console.log(`✅ [LESSON_DISCOVERY] Found lesson:`, {
+        id: result.id,
+        projectName: result.projectName,
+        microProductName: result.microProductName,
+        designMicroproductType: (result as any).design_microproduct_type
+      });
+    } else {
+      console.log(`❌ [LESSON_DISCOVERY] No lesson found for: "${lessonTitle}"`);
+    }
+    
+    return result;
   };
 
   // Function to find existing quiz for a given lesson title
@@ -605,7 +646,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         id: mp.id,
         projectName: mp.projectName,
         designMicroproductType: mpDesignMicroproductType,
-        isOnePager
+        isOnePager,
+        expectedTypes: ["TextPresentationDisplay", "TextPresentation", "textpresentation", "textpresentationdisplay"]
       });
       return isOnePager;
     });
@@ -620,6 +662,24 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         sourceChatSessionId: (onePager as any).source_chat_session_id
       });
     });
+    
+    if (allOnePagers.length === 0) {
+      console.log(`❌ [ONE_PAGER_DISCOVERY] No one-pagers found - checking if any products have text presentation related names`);
+      allUserMicroproducts.forEach((mp, index) => {
+        const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+        if (mpDesignMicroproductType && (
+          mpDesignMicroproductType.toLowerCase().includes('text') || 
+          mpDesignMicroproductType.toLowerCase().includes('presentation') ||
+          mpDesignMicroproductType.toLowerCase().includes('one')
+        )) {
+          console.log(`🔍 [ONE_PAGER_DISCOVERY] Potential one-pager candidate ${index + 1}:`, {
+            id: mp.id,
+            projectName: mp.projectName,
+            designMicroproductType: mpDesignMicroproductType
+          });
+        }
+      });
+    }
 
     // Try multiple matching strategies in order of reliability
     let found = null;
