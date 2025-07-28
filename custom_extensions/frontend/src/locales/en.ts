@@ -668,7 +668,14 @@ export const en = {
       projectNotFound: "Project not found or data unavailable.",
       project: "Project",
       configureVisibleColumns: "Configure visible columns",
-      moveToTrashTooltip: "Move this product to Trash"
+      moveToTrashTooltip: "Move this product to Trash",
+      // Column labels
+      assessmentType: "Assessment Type",
+      contentVolume: "Content Volume", 
+      source: "Source",
+      estCreationTime: "Est. Creation Time",
+      estCompletionTime: "Est. Completion Time",
+      qualityTier: "Quality Tier"
     }
   }
 }; 
