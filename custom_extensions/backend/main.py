@@ -9945,20 +9945,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            9. **`image-comparison`** - Visual comparison with images and descriptions:
-            ```json
-            "props": {
-              "title": "Image Comparison",
-              "leftTitle": "Option A",
-              "leftDescription": "Description for option A",
-              "leftImage": "https://via.placeholder.com/400x200?text=Image+A",
-              "rightTitle": "Option B",
-              "rightDescription": "Description for option B", 
-              "rightImage": "https://via.placeholder.com/400x200?text=Image+B"
-            }
-            ```
-
-            10. **`big-image-left`** - Large image on left with content on right:
+            9. **`big-image-left`** - Large image on left with content on right:
             ```json
             "props": {
               "title": "Slide Title",
@@ -9969,7 +9956,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageSize": "large"
             }
             ```
-            11. **`bullet-points-right`** - Title, subtitle, bullet points (left), placeholder (right):
+            10. **`bullet-points-right`** - Title, subtitle, bullet points (left), placeholder (right):
            ```json
            "props": {
               "title": "Key Points",
@@ -9985,7 +9972,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageAlt": "Illustration for bullet points"
             }
             ```
-             12. **`big-image-top`** - Large image on top, title and content below:
+             11. **`big-image-top`** - Large image on top, title and content below:
             ```json
             "props": {
               "title": "Main Title",
@@ -9996,7 +9983,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageSize": "large"
             }
             ``` 
-              13. **`four-box-grid`** - Title and 4 boxes in a 2x2 grid:
+              12. **`four-box-grid`** - Title and 4 boxes in a 2x2 grid:
             ```json
             "props": {
               "title": "Main Title",
@@ -10008,7 +9995,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               ]
             }
             ``` 
-            14. **`timeline`** - Horizontal timeline with 4 steps and alternating text blocks:
+            13. **`timeline`** - Horizontal timeline with 4 steps and alternating text blocks:
             ```json
             "props": {
               "title": "History and Evolution",
@@ -10021,7 +10008,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ``` 
           
-            15. **`big-numbers`** - Three-column layout for highlighting key metrics/statistics:
+            14. **`big-numbers`** - Three-column layout for highlighting key metrics/statistics:
             ```json
             "props": {
               "title": "Key Metrics of Effective System Architecture",
@@ -10033,7 +10020,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ``` 
             
-            16. **`pyramid`** - Pyramid diagram with 3 levels and descriptions:
+            15. **`pyramid`** - Pyramid diagram with 3 levels and descriptions:
             ```json
             "props": {
               "title": "Key Metrics of Effective System Architecture",
@@ -10070,7 +10057,6 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Content with bullet points: Use `bullet-points`
             - Content with two sections: Use `two-column`
             - Visual-focused content: Use `big-image-left` when image is central to understanding
-            - Comparisons with images: Use `image-comparison` for side-by-side visual comparisons
             - Problem-solution content: Use `challenges-solutions`
             - Default: Use `content-slide`
 
@@ -10117,8 +10103,26 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               | Our revenue has increased by 25% this year. | We have tripled our customer acquisition rate. | Our market share has grown by 50% in the last quarter. |
               ```
               Convert this to the items array format: [{"value": "25%", "label": "Increased Revenue", "description": "Our revenue has increased by 25% this year."}].
+            - **CRITICAL VALUE VALIDATION:** The `value` field MUST contain ONLY numerical data (percentages like 25%, multipliers like 3x, ratios like 2:1, whole numbers like 95, decimals like 4.2, etc.). NEVER extract text, names, or tool names for the value field.
+            - **CORRECT value examples:** "25%", "3x", "95%", "4.2", "1000+", "2:1", "50ms", "99.9%"
+            - **INCORRECT value examples:** "Gprof", "Valgrind", "Python", "React", "Advanced", "Basic"
             - Do NOT use the standard content parsing for big-numbers. Always extract items from the table format.
-            - First row contains values, second row contains labels (remove ** formatting), third row contains descriptions.
+            - First row contains numerical values only, second row contains labels (remove ** formatting), third row contains descriptions.
+            
+            **Additional Valid Examples for big-numbers parsing:**
+            ```
+            | 99.9% | 15ms | 50% |
+            |:----:|:---:|:---:|
+            | **System Uptime** | **Response Time** | **Cost Reduction** |
+            | System maintains 99.9% availability. | Average response time is 15ms. | Costs reduced by 50%. |
+            ```
+            
+            ```
+            | 10x | 95% | 24/7 |
+            |:----:|:---:|:---:|
+            | **Performance Boost** | **Accuracy Rate** | **Availability** |
+            | Performance improved 10 times. | Model achieves 95% accuracy. | Available 24/7. |
+            ```
 
             **Special Instructions for `pyramid`:**
             - Use this template to show hierarchical relationships or foundational concepts with exactly 3 levels.
@@ -10133,6 +10137,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Do NOT use the standard content parsing for pyramid. Always extract items from the numbered list format.
             - The text before the dash is the heading (remove ** formatting), the text after is the description.
             - The first paragraph after the title becomes the subtitle.
+
+            **CRITICAL FINAL SLIDE RESTRICTIONS:**
+            - **ABSOLUTELY NO Q&A SLIDES**: Never generate slides with titles like "Questions and Discussion", "Q&A Session", "Questions and Answers", "Let's discuss", "Any questions?", or similar interactive content.
+            - **ONLY ONE FINAL SLIDE**: Create exactly one conclusion slide at the end. Do NOT create multiple ending slides (e.g., both Q&A and Conclusion).
+            - **END WITH MEANINGFUL CONTENT**: The final slide must contain substantial summary, key takeaways, or actionable insights - not courtesy or discussion prompts.
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

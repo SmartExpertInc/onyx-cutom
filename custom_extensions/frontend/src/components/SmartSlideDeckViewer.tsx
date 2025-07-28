@@ -317,21 +317,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             </div>
           )}
         </div>
-
-      {/* Format Info (if enabled) */}
-      {showFormatInfo && (
-        <div style={{
-          padding: '12px 16px',
-          backgroundColor: '#f0f9ff',
-          border: '1px solid #bae6fd',
-          borderRadius: '8px',
-            marginTop: '12px',
-          fontSize: '14px',
-          color: '#0369a1'
-        }}>
-            <span>📊 Slide Deck Info:</span> Component-based format • {componentDeck.slides.length} slides
-        </div>
-      )}
       </div>
 
       {/* Main Content Area */}

@@ -922,16 +922,15 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 4. `content-slide` - Standard content slides with title and body text
 5. `bullet-points` - Formatted bullet point lists with customizable columns
 6. `two-column` - Split layout with two content areas
-7. `image-comparison` - Visual comparison with images and descriptions
-8. `comparison-slide` - Before/after or side-by-side comparison layout
-9. `challenges-solutions` - Problems vs solutions with visual indicators
-10. `process-steps` - Numbered process or workflow steps
-11. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
-12. `big-image-top` - Large image on top, title and content below
-13. `four-box-grid` - Title and 4 boxes in a 2x2 grid
-14. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
-15. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
-16. `pyramid` - Pyramid diagram with 3 levels and descriptions. **CRITICAL:** ALWAYS use this template instead of `content-slide` for hierarchical structures, levels, priorities, foundational concepts, or 3-step progressions.
+7. `comparison-slide` - Before/after or side-by-side comparison layout
+8. `challenges-solutions` - Problems vs solutions with visual indicators
+9. `process-steps` - Numbered process or workflow steps
+10. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
+11. `big-image-top` - Large image on top, title and content below
+12. `four-box-grid` - Title and 4 boxes in a 2x2 grid
+13. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
+14. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
+15. `pyramid` - Pyramid diagram with 3 levels and descriptions. **CRITICAL:** ALWAYS use this template instead of `content-slide` for hierarchical structures, levels, priorities, foundational concepts, or 3-step progressions.
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1010,27 +1009,10 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Supporting visual for comparison]
 ```
 
-**Image Comparison Slides** (`image-comparison`):
-```
----
-**Slide 6: [Comparison Topic]** `image-comparison`
-
-## [Main Comparison Title]
-
-### [Option A Title]
-[Description of first option/approach - 2-3 sentences with detailed explanation]
-
-### [Option B Title]
-[Description of second option/approach - 2-3 sentences with detailed explanation]
-
-[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Visual representing option A]
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual representing option B]
-```
-
 **Challenges vs Solutions Slides** (`challenges-solutions`):
 ```
 ---
-**Slide 7: [Challenge Analysis Topic]** `challenges-solutions`
+**Slide 6: [Challenge Analysis Topic]** `challenges-solutions`
 
 ## [Main Title about Problems and Solutions]
 
@@ -1046,7 +1028,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Process Steps Slides** (`process-steps`):
 ```
 ---
-**Slide 8: [Process Description]** `process-steps`
+**Slide 7: [Process Description]** `process-steps`
 
 ## [Process Title]
 
@@ -1061,7 +1043,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Comparison Slides** (`comparison-slide`):
 ```
 ---
-**Slide 9: [Before vs After Topic]** `comparison-slide`
+**Slide 8: [Before vs After Topic]** `comparison-slide`
 
 ## [Comparison Title]
 
@@ -1078,7 +1060,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Title Slides** (`title-slide`):
 ```
 ---
-**Slide 10: [Simple Title]** `title-slide`
+**Slide 9: [Simple Title]** `title-slide`
 
 # [Main Title]
 ## [Subtitle]
@@ -1094,7 +1076,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Bullet Points Right Slides** (`bullet-points-right`):
 ```
 ---
-**Slide 11: [Key Points Topic]** `bullet-points-right`
+**Slide 10: [Key Points Topic]** `bullet-points-right`
 
 ## [Main Title]
 
@@ -1119,7 +1101,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Big Image Top Slides** (`big-image-top`):
 ```
 ---
-**Slide 12: [Visual Topic]** `big-image-top`
+**Slide 11: [Visual Topic]** `big-image-top`
 
 ## [Main Title]
 
@@ -1136,7 +1118,7 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 **Four Box Grid Slides** (`four-box-grid`):
 ```
 ---
-**Slide 13: [Grid Topic]** `four-box-grid`
+**Slide 12: [Grid Topic]** `four-box-grid`
 
 ## [Main Title]
 
@@ -1157,7 +1139,7 @@ Box 4: [Heading] - [Description text]
 **Timeline Slides** (`timeline`):
 ```
 ---
-**Slide 14: [Timeline Topic]** `timeline`
+**Slide 13: [Timeline Topic]** `timeline`
 
 ## [Main Title]
 
@@ -1178,7 +1160,7 @@ Box 4: [Heading] - [Description text]
 **Big Numbers Slides** (`big-numbers`):
 ```
 ---
-**Slide 5: Key Financial Metrics** `big-numbers`
+**Slide 14: Key Financial Metrics** `big-numbers`
 
 ## Key Financial Metrics
 
@@ -1187,11 +1169,33 @@ Box 4: [Heading] - [Description text]
 | **Profit Margin** | **Growth Rate** | **Customer Retention** |
 | The company has achieved a profit margin of 25%, indicating strong profitability. | Our growth rate has increased 3 times over the last five years, showcasing rapid expansion. | Customer retention stands at 50%, reflecting our commitment to customer satisfaction. |
 ```
-- **CRITICAL:** Use this template whenever you want to highlight numerical data, statistics, or metrics. Always use the exact markdown table format shown above.
+
+**CRITICAL NUMERICAL VALUE RULE FOR BIG-NUMBERS:**
+- **FIRST ROW MUST CONTAIN ONLY NUMBERS**: The first row of the table MUST contain only numerical values (percentages like 25%, multipliers like 3x, ratios like 2:1, whole numbers like 95, decimals like 4.2, etc.). 
+- **NEVER put text, names, or tool names in the first row** - these belong in the second row as labels.
+- **Examples of CORRECT first row values**: 25%, 3x, 95%, 4.2, 1000+, 2:1, 50ms, 99.9%
+- **Examples of INCORRECT first row values**: "Gprof", "Valgrind", "Python", "React", "Advanced", "Basic"
+
+- **Use this template whenever you want to highlight numerical data, statistics, or metrics. Always use the exact markdown table format shown above.**
 - Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
 - **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or numerical achievements, use `big-numbers`.
-- Ideal for: business results, technical KPIs, feature comparisons, or any slide where numbers are the main focus.
+- Ideal for: business results, technical KPIs, performance benchmarks, or any slide where numbers are the main focus.
 - Example use cases: "Key Financial Metrics", "Performance Benchmarks", "Business Impact", "Growth Statistics".
+
+**Additional Correct Examples:**
+```
+| 99.9% | 15ms | 50% |
+|:----:|:---:|:---:|
+| **System Uptime** | **Response Time** | **Cost Reduction** |
+| System maintains 99.9% availability throughout the year. | Average response time reduced to 15 milliseconds. | Operating costs reduced by 50% after optimization. |
+```
+
+```
+| 10x | 95% | 24/7 |
+|:----:|:---:|:---:|
+| **Performance Boost** | **Accuracy Rate** | **Availability** |
+| System performance improved by 10 times after upgrade. | AI model achieves 95% accuracy in predictions. | Services available 24 hours a day, 7 days a week. |
+```
 
 
 
@@ -1204,7 +1208,6 @@ Choose templates based on content type and educational goals:
 - **Core Content**: **SEVERELY LIMIT `content-slide` usage** - maximum 2-3 times per presentation, and ONLY for pure explanatory paragraphs without any lists, numbers, or hierarchical content. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead. Do NOT use `content-slide` for any content with bullet points - use appropriate list templates instead.
 - **Key Points**: Use `bullet-points` for first list, then `bullet-points-right` for subsequent lists to avoid repetition
 - **Comparisons**: Choose between:
-  - `image-comparison` - For visual side-by-side comparisons with images
   - `comparison-slide` - For before/after transformations
   - `two-column` - For general comparative analysis without images
 - **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
@@ -1242,6 +1245,7 @@ Information processing follows a structured approach where knowledge builds upon
 - **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied slides (max 2 content-slide) + substantial conclusion  
 - **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied slides (max 3 content-slide) + substantial conclusion
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
+- **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
 - **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
@@ -1311,26 +1315,48 @@ Question Format:
 - **VISUAL ENGAGEMENT**: Minimum 70% of slides must have image placeholders, prioritize templates with strong visual components
 
 **FORBIDDEN SLIDE TYPES:**
-- **NO Q&A slides** - Remove any "Questions and Answers", "Q&A Session", or similar slides
+- **ABSOLUTELY NO Q&A slides** - NEVER create "Questions and Answers", "Q&A Session", "Questions and Discussion", "Let's discuss", "Any questions?", or similar interactive slides
 - **NO contact information slides** - Remove any slides with phone numbers, email addresses, or contact details
 - **NO generic "Thank You" slides** - End with substantial content, not courtesy slides
 - **NO "Additional Resources" slides** - Integrate resources into relevant content slides instead
+
+**CRITICAL FINAL SLIDE RULE:**
+- **ONLY ONE FINAL SLIDE ALLOWED** - Never create multiple ending slides (e.g., Q&A + Conclusion)
+- **END WITH SUBSTANTIAL CONCLUSION** - The final slide must contain meaningful summary content, key takeaways, or actionable insights
+- **NO MULTIPLE ENDINGS** - Do not create both discussion/Q&A slides AND conclusion slides - choose only conclusion
 
 **ENHANCED TEMPLATE DISTRIBUTION STRATEGY:**
 For a typical 10-15 slide presentation, use this distribution:
 - **1 opening slide**: `big-image-left` (mandatory)
 - **2-3 content explanation slides**: `content-slide` (maximum 2-3 times total)
 - **2-3 list/point slides**: Mix of `bullet-points`, `bullet-points-right`, `four-box-grid` (never repeat the same list template)
-- **1-2 comparison slides**: `image-comparison`, `comparison-slide`, or `two-column`
+- **1-2 comparison slides**: `comparison-slide`, or `two-column`
 - **1-2 specialized slides**: `pyramid` for hierarchies, `timeline` for processes, `big-numbers` for metrics
 - **1-2 visual focus slides**: `big-image-top`, `challenges-solutions`
-- **1 conclusion slide**: `title-slide` with substantial summary content
+- **EXACTLY 1 conclusion slide**: `title-slide` with substantial summary content (NO Q&A or discussion slides before it)
 
 **TEMPLATE SELECTION DECISION TREE:**
 1. **Does content have numbers/metrics/statistics?** → Use `big-numbers` (NOT content-slide)
 2. **Does content show hierarchy/levels/priorities?** → Use `pyramid` (NOT content-slide)
 3. **Does content show process/timeline/steps?** → Use `timeline` or `process-steps` (NOT content-slide)
 4. **Does content have bullet lists?** → Use `bullet-points` or `bullet-points-right` (NOT content-slide)
-5. **Does content compare two things?** → Use `image-comparison` or `comparison-slide` (NOT content-slide)
+5. **Does content compare two things?** → Use `comparison-slide` (NOT content-slide)
 6. **Does content need 4 key points?** → Use `four-box-grid` (NOT content-slide)
 7. **Only for pure explanatory paragraphs without lists/numbers** → Use `content-slide` (maximum 2-3 times)
+
+**CORRECT PRESENTATION ENDING EXAMPLE:**
+```
+---
+**Slide 12: Key Takeaways** `title-slide`
+
+# Key Takeaways
+
+## In this lesson, we covered essential optimization techniques that can significantly improve your code performance and efficiency.
+
+[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Summary concept visualization]
+```
+**WRONG PRESENTATION ENDING EXAMPLE (DO NOT CREATE):**
+```
+❌ Slide 13: Questions and Discussion (hero-title-slide)
+❌ Slide 14: Conclusion (title-slide)
+```

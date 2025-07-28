@@ -208,25 +208,6 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   subtitleSize?: 'small' | 'medium' | 'large';
 }
 
-export interface ImageComparisonProps extends BaseTemplateProps {
-  title: string;
-  leftTitle: string;
-  leftDescription: string;
-  leftImage: string;
-  leftImageAlt?: string;
-  rightTitle: string;
-  rightDescription: string;
-  rightImage: string;
-  rightImageAlt?: string;
-  backgroundColor?: string;
-  titleColor?: string;
-  subtitleColor?: string;
-  descriptionColor?: string;
-  columnGap?: 'small' | 'medium' | 'large';
-  imageHeight?: string;
-  showImageBorder?: boolean;
-  imageBorderColor?: string;
-}
 
 export interface FourBoxGridProps {
   slideId: string;
