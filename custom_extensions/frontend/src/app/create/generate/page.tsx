@@ -1077,10 +1077,10 @@ function GenerateProductPicker() {
                           onChange={(e) => setLanguage(e.target.value)}
                           className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
+                          <option value="en">{t('interface.generate.english', 'English')}</option>
+                          <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+                          <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+                          <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
                         </select>
                         <select
                           value={slidesCount}
@@ -1088,7 +1088,7 @@ function GenerateProductPicker() {
                           className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
                           {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                            <option key={n} value={n}>{n} slides</option>
+                            <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
                           ))}
                         </select>
                       </>
@@ -1104,10 +1104,10 @@ function GenerateProductPicker() {
                       onChange={(e) => setLanguage(e.target.value)}
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="en">English</option>
-                      <option value="uk">Ukrainian</option>
-                      <option value="es">Spanish</option>
-                      <option value="ru">Russian</option>
+                      <option value="en">{t('interface.generate.english', 'English')}</option>
+                      <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+                      <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+                      <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
                     </select>
                     <select
                       value={slidesCount}
@@ -1115,7 +1115,7 @@ function GenerateProductPicker() {
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
                       {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                        <option key={n} value={n}>{n} slides</option>
+                        <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
                       ))}
                     </select>
                   </>

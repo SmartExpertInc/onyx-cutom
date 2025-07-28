@@ -1422,26 +1422,26 @@ export default function CourseOutlineClient() {
               </div>
             )}
             <div className="w-full flex justify-center mt-2 mb-6">
-              <button
-                type="button"
-                onClick={() => setShowAdvanced((prev) => !prev)}
-                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
-              >
-                Advanced Mode
-                <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
-              </button>
+                              <button
+                  type="button"
+                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                >
+                  {t('interface.generate.advancedMode', 'Advanced Mode')}
+                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                </button>
             </div>
           </>
         )}
 
         {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-medium text-[#20355D]">Set up your Contentbuilder</h2>
+            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
             <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
             <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <h2 className="text-lg font-semibold text-[#20355D]">Themes</h2>
-                  <p className="mt-1 text-[#858587] font-medium text-sm">Use one of our popular themes below or browse others</p>
+                  <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                  <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
                 </div>
                 <button
                   type="button"
@@ -1465,7 +1465,7 @@ export default function CourseOutlineClient() {
                     <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
                     <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
                   </svg>
-                  <span>View more</span>
+                  <span>{t('interface.generate.viewMore', 'View more')}</span>
               </button>
             </div>
               {/* New themes grid */}
@@ -1496,12 +1496,12 @@ export default function CourseOutlineClient() {
 
               {/* Content section */}
               <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-[#20355D]">Content</h3>
-                <p className="text-sm text-[#858587] font-medium">Adjust text and image styles for your gamma</p>
+                <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
+                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.contentDescription', 'Adjust text and image styles for your gamma')}</p>
 
                 {/* Amount of text per card */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">Amount of text per card</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
                   <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
                     {[
                       { id: "brief", label: t('interface.courseOutline.brief', 'Brief'), icon: <AlignLeft size={14} /> },

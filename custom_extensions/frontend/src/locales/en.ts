@@ -474,7 +474,14 @@ export const en = {
       filesSelectedPlural: "files selected",
       creatingFromText: "Creating from text",
       modeUsingAsContext: "Mode: Using as context",
-      modeUsingAsBaseStructure: "Mode: Using as base structure"
+      modeUsingAsBaseStructure: "Mode: Using as base structure",
+      // Additional keys for themes and content sections
+      setupContentBuilder: "Set up your Contentbuilder",
+      // Language options
+      english: "English",
+      ukrainian: "Ukrainian",
+      spanish: "Spanish",
+      russian: "Russian"
     },
 
     // Course Outline specific translations
