@@ -70,15 +70,15 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                   </div>
                   <p className="text-sm text-black">
                     {hasLesson && hasQuiz && hasOnePager
-                      ? "Open lesson, quiz, or one-pager" 
+                      ? "Open presentation, quiz, or one-pager" 
                       : hasLesson && hasQuiz
-                      ? "Open lesson or quiz"
+                      ? "Open presentation or quiz"
                       : hasLesson && hasOnePager
-                      ? "Open lesson or one-pager"
+                      ? "Open presentation or one-pager"
                       : hasQuiz && hasOnePager
                       ? "Open quiz or one-pager"
                       : hasLesson 
-                      ? "Open lesson" 
+                      ? "Open presentation" 
                       : hasQuiz
                       ? "Open quiz"
                       : "Open one-pager"

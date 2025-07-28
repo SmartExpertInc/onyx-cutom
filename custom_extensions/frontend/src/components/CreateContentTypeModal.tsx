@@ -22,8 +22,8 @@ const contentTypes = [
   { 
     name: "lessonPresentation", 
     icon: <BookText className="w-6 h-6" />, 
-    label: "Lesson Presentation",
-    description: "Create a slide-based lesson with interactive content",
+    label: "Presentation",
+    description: "Create a slide-based presentation with interactive content",
     color: "blue",
     disabled: false 
   },

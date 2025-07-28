@@ -85,9 +85,9 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black">Lesson</h3>
+                    <h3 className="text-lg font-semibold text-black">Presentation</h3>
                   </div>
-                  <p className="text-sm text-black">Open the lesson</p>
+                  <p className="text-sm text-black">Open the presentation</p>
                 </div>
               </div>
               <ExternalLink size={20} className="text-gray-400" />

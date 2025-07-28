@@ -145,7 +145,7 @@ export const en = {
   modals: {
     createLesson: {
       title: "Create a Lesson",
-      lessonPresentation: "Lesson Presentation",
+      lessonPresentation: "Presentation",
       videoLessonScript: "Video Lesson Script",
       videoLesson: "Video Lesson",
       comingSoon: "Coming soon!",

@@ -386,8 +386,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
-    // Find presentations/lessons but exclude quizzes to avoid double-matching
-    return findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz"]);
+    // Find presentations/lessons but exclude quizzes and text presentations to avoid double-matching
+    return findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation"]);
   };
 
   // Function to find existing quiz for a given lesson title

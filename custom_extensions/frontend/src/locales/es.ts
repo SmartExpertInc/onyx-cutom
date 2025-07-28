@@ -136,7 +136,7 @@ export const es = {
   modals: {
     createLesson: {
       title: "Crear una lección",
-      lessonPresentation: "Presentación de la lección",
+      lessonPresentation: "Presentación",
       videoLessonScript: "Guión de lección de video",
       videoLesson: "Lección de video",
       comingSoon: "¡Próximamente!",

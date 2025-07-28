@@ -136,7 +136,7 @@ export const uk = {
   modals: {
     createLesson: {
       title: "Створити урок",
-      lessonPresentation: "Презентація уроку",
+      lessonPresentation: "Презентація",
       videoLessonScript: "Сценарій відео-уроку",
       videoLesson: "Відео-урок",
       comingSoon: "Незабаром!",
