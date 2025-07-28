@@ -989,9 +989,15 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 * [Second key point with detailed explanation]  
 * [Third key point with detailed explanation]
 * [Fourth key point with detailed explanation]
+* [Fifth key point with detailed explanation]
+* [Sixth key point with detailed explanation]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
 ```
+**BULLET POINTS GUIDELINES:**
+- Use 4-6 bullet points per slide for comprehensive coverage
+- Each bullet point should be informative and actionable
+- Keep individual points concise but meaningful
 
 **Two Column Layout Slides** (`two-column`):
 ```
@@ -1048,14 +1054,22 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 ## [Comparison Title]
 
 ### Before
-[Description of current/old situation - 2-3 sentences]
+- [Key characteristic 1 of old/current state]
+- [Key characteristic 2 of old/current state]  
+- [Key characteristic 3 of old/current state]
 
 ### After
-[Description of improved/new situation - 2-3 sentences]
+- [Key characteristic 1 of new/improved state]
+- [Key characteristic 2 of new/improved state]
+- [Key characteristic 3 of new/improved state]
 
 [IMAGE_PLACEHOLDER: MEDIUM | LEFT | Before state visual]
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | After state visual]
 ```
+**COMPARISON SLIDE FORMATTING:**
+- Use bullet points (with dashes) for each section to ensure proper line breaks
+- Each bullet point should highlight a key characteristic or difference
+- Maintain parallel structure between Before and After sections
 
 **Title Slides** (`title-slide`):
 ```
@@ -1085,13 +1099,15 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 * [First key point]
 * [Second key point]
 * [Third key point]
+* [Fourth key point]
+* [Fifth key point]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
 
 -Use this template when you want to provide a short context, summary, or explanation (subtitle) before presenting a list of key points.
 -Choose bullet-points-right instead of bullet-points if the slide needs a subtitle or introductory sentence above the bullet list.
 -The subtitle should be 1-2 sentences and give context or highlight the importance of the following points.
--Bullet points should be concise, actionable, and directly related to the subtitle/context.
+-Bullet points should be concise, actionable, and directly related to the subtitle/context. Use 4-5 bullet points for comprehensive coverage.
 -The image placeholder is always on the right and should visually represent the overall topic of the bullet points (not individual bullets).
 -Ideal for: summarizing main takeaways, listing security principles, highlighting grouped recommendations, or when you want to draw attention to the context before the list.
 -Avoid using this template for long paragraphs or when a visual is not needed.
@@ -1240,10 +1256,12 @@ Information processing follows a structured approach where knowledge builds upon
 - Example use cases: "Hierarchical Understanding of Information", "Maslow's Hierarchy of Needs", "Levels of System Architecture", "Customer Satisfaction Pyramid".
 
 
-**SLIDE COUNT RECOMMENDATIONS (UPDATED):
+**SLIDE COUNT REQUIREMENTS (MANDATORY):
+- **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
 - **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 varied slides (max 1 content-slide) + substantial conclusion
 - **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied slides (max 2 content-slide) + substantial conclusion  
 - **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied slides (max 3 content-slide) + substantial conclusion
+- **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 - **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
 
@@ -1329,7 +1347,7 @@ Question Format:
 - **NO contact information slides** - Remove any slides with phone numbers, email addresses, or contact details
 - **NO generic "Thank You" slides** - NEVER create "Thank You!", "Thanks!", "Thank you for your attention" or similar courtesy slides
 - **NO feedback request slides** - NEVER create "Feedback and Improvement", "Your feedback", "Please share your thoughts" or similar slides
-- **NO "Additional Resources" slides** - Integrate resources into relevant content slides instead
+- **NO "Additional Resources" slides** - NEVER create "Further Reading", "Additional Resources", "Recommended Reading", "Learn More", or similar resource slides - integrate resources into relevant content slides instead
 
 **ABSOLUTE FINAL SLIDE RESTRICTIONS:**
 - **EXACTLY ONE FINAL SLIDE MAXIMUM** - The presentation MUST end with only ONE slide

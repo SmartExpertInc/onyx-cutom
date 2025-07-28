@@ -9928,9 +9928,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             "props": {
               "title": "Comparison Analysis",
               "beforeTitle": "Before",
-              "beforeContent": "Current situation",
-              "afterTitle": "After",
-              "afterContent": "Improved situation"
+              "beforeContent": "- Key characteristic 1 of old/current state\n- Key characteristic 2 of old/current state\n- Key characteristic 3 of old/current state",
+              "afterTitle": "After", 
+              "afterContent": "- Key characteristic 1 of new/improved state\n- Key characteristic 2 of new/improved state\n- Key characteristic 3 of new/improved state"
             }
             ```
 
@@ -10070,6 +10070,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Always include a meaningful `imagePrompt` for AI image generation that describes the overall topic of the bullet points
             - `imageAlt` should be a short description of the illustration
             - The image should visually represent the bullet points as a group (not individual bullets)
+            - Generate 4-6 bullet points per slide for comprehensive coverage
+            - Each bullet point should be informative and actionable
 
             **Special Instructions for `big-image-top`:**
             - Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
@@ -10151,6 +10153,20 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - If creating slide with templateId "title-slide", check: have I already used "title-slide" 2 times? If YES, use different template.
             - If creating slide with templateId "content-slide", check: have I already used "content-slide" 2 times? If YES, use different template.
             - Same rule applies to ALL templates - maximum 2 uses per presentation.
+
+            **SLIDE COUNT REQUIREMENTS:**
+            - Generate EXACTLY the number of slides specified in the request (e.g., if 15 slides requested, create exactly 15 slides)
+            - Never generate fewer slides than requested - create meaningful educational content to reach target count
+            - Distribute content evenly across all requested slides with substantial information
+
+            **ADDITIONAL FORBIDDEN SLIDE TYPES:**
+            - NEVER create "Further Reading", "Additional Resources", "Recommended Reading", "Learn More" slides
+            - Integrate any additional resources into relevant content slides instead
+            
+            **ENHANCED CONTENT GUIDELINES:**
+            - For bullet-points templates: Use 4-6 bullet points per slide for comprehensive coverage
+            - For comparison-slide templates: Use bullet points with dashes for proper line formatting
+            - Each bullet point should be informative and actionable
 
             **ENDING VALIDATION RULES:**
             - If slide title contains: "Conclusion", "Summary", "Key Takeaways", "Wrap-up" - this MUST be the FINAL slide
