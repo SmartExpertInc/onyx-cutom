@@ -2227,6 +2227,7 @@ class ProjectCreateRequest(BaseModel):
     microProductName: Optional[str] = None
     aiResponse: str
     chatSessionId: Optional[uuid.UUID] = None
+    outlineId: Optional[int] = None  # Add outlineId for consistent naming
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -5112,7 +5113,8 @@ Return ONLY the JSON object.
 
         # Determine if this is a standalone product (default to True for general project creation)
         # For specific products like quizzes, this will be overridden in their dedicated endpoints
-        is_standalone_product = True
+        # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
+        is_standalone_product = project_data.outlineId is None
         
         insert_query = """
         INSERT INTO projects (
@@ -8643,7 +8645,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             design_template_id=slide_deck_template_id,
             microProductName=None,
             aiResponse=payload.aiResponse.strip(),
-            chatSessionId=payload.chatSessionId
+            chatSessionId=payload.chatSessionId,
+            outlineId=payload.outlineProjectId  # Pass outlineId for consistent naming
         )
         
         # Create project with proper error handling
@@ -11379,16 +11382,33 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         # Ensure quiz template exists
         template_id = await _ensure_quiz_template(pool)
         
-        # Create a consistent project name to prevent re-parsing issues
-        if payload.courseName:
-            project_name = f"{payload.courseName}: {payload.lesson or 'Standalone Quiz'}"
+        # CONSISTENT NAMING: Use the same pattern as lesson presentations
+        # Determine the project name - if connected to outline, use correct naming convention
+        project_name = payload.lesson.strip()
+        if payload.outlineId:
+            try:
+                # Fetch outline name from database
+                async with pool.acquire() as conn:
+                    outline_row = await conn.fetchrow(
+                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        payload.outlineId, onyx_user_id
+                    )
+                    if outline_row:
+                        outline_name = outline_row["project_name"]
+                        project_name = f"{outline_name}: {payload.lesson.strip()}"
+                        logger.info(f"[QUIZ_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                    else:
+                        logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+            except Exception as e:
+                logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
+                # Continue with plain lesson title if outline fetch fails
         else:
-            project_name = f"{payload.lesson or 'Standalone Quiz'}"
+            logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] lesson: {payload.lesson}")
-        logger.info(f"[QUIZ_FINALIZE_PARAMS] courseName: {payload.courseName}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] outlineId: {payload.outlineId}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
@@ -11541,7 +11561,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         created_project = ProjectDB(**dict(row))
         
-        logger.info(f"[QUIZ_FINALIZE_SUCCESS] Quiz finalization successful: project_id={created_project.id}, project_name={final_project_name}")
+        logger.info(f"[QUIZ_FINALIZE_SUCCESS] Quiz finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_quiz}")
         return {"id": created_project.id, "name": final_project_name}
         
     except Exception as e:
@@ -11747,6 +11767,7 @@ class TextPresentationWizardPreview(BaseModel):
 
 class TextPresentationWizardFinalize(BaseModel):
     aiResponse: str
+    outlineId: Optional[int] = None  # Add outlineId for consistent naming
     lesson: Optional[str] = None
     courseName: Optional[str] = None
     language: str = "en"
@@ -12135,16 +12156,33 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         template_id = await _ensure_text_presentation_template(pool)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
         
-        # Create a consistent project name to prevent re-parsing issues
-        if payload.courseName:
-            project_name = f"{payload.courseName}: {payload.lesson or 'Standalone Presentation'}"
+        # CONSISTENT NAMING: Use the same pattern as lesson presentations
+        # Determine the project name - if connected to outline, use correct naming convention
+        project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
+        if payload.outlineId:
+            try:
+                # Fetch outline name from database
+                async with pool.acquire() as conn:
+                    outline_row = await conn.fetchrow(
+                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        payload.outlineId, onyx_user_id
+                    )
+                    if outline_row:
+                        outline_name = outline_row["project_name"]
+                        project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
+                        logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                    else:
+                        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+            except Exception as e:
+                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
+                # Continue with plain lesson title if outline fetch fails
         else:
-            project_name = f"{payload.lesson or 'Standalone Presentation'}"
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] courseName: {payload.courseName}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] outlineId: {payload.outlineId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
@@ -12302,24 +12340,22 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # Use the parsed text title or fallback to the consistent project name
         final_project_name = parsed_text_presentation.textTitle or project_name
-
-        if payload.courseName:
-            course_name = payload.courseName
-        else:
-            course_name = f"{payload.lesson or 'Standalone One-Pager'}"
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
+        
+        # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
+        is_standalone_text_presentation = payload.outlineId is None
         
         # For text presentation components, we need to insert directly to avoid double parsing
         # since add_project_to_custom_db would call parse_ai_response_with_llm again
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
         """
         
         async with pool.acquire() as conn:
@@ -12332,7 +12368,8 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 final_project_name,  # microproduct_name
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
-                payload.chatSessionId  # source_chat_session_id
+                payload.chatSessionId,  # source_chat_session_id
+                is_standalone_text_presentation  # is_standalone - consistent with outline connection
             )
         
         if not row:
@@ -12340,7 +12377,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         created_project = ProjectDB(**dict(row))
         
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
         return {"id": created_project.id, "name": final_project_name}
         
     except Exception as e:

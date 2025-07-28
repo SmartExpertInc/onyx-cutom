@@ -467,6 +467,7 @@ export default function TextPresentationClient() {
         },
         body: JSON.stringify({
           aiResponse: content,
+          outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
           language: language,
