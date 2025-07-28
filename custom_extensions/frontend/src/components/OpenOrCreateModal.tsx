@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, ExternalLink, Play, Plus } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OpenOrCreateModalProps {
   isOpen: boolean;
@@ -28,6 +29,8 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
   onOpen,
   onCreate,
 }) => {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
@@ -40,7 +43,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-black mb-2">Lesson: {lessonTitle}</h2>
+          <h2 className="text-2xl font-bold text-black mb-2">{t('modals.openOrCreate.title')}: {lessonTitle}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
@@ -50,7 +53,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
         </div>
         
         <p className="text-black mb-6">
-          <span className="font-semibold">Module:</span> {moduleName} • Lesson {lessonNumber}
+          <span className="font-semibold">{t('modals.openOrCreate.module')}:</span> {moduleName} • {t('modals.openOrCreate.title')} {lessonNumber}
         </p>
 
         <div className="space-y-4">
@@ -66,22 +69,22 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black">Open Existing</h3>
+                    <h3 className="text-lg font-semibold text-black">{t('modals.openOrCreate.openExisting')}</h3>
                   </div>
                   <p className="text-sm text-black">
                     {hasLesson && hasQuiz && hasOnePager
-                      ? "Open presentation, quiz, or one-pager" 
+                      ? t('modals.openOrCreate.openAll')
                       : hasLesson && hasQuiz
-                      ? "Open presentation or quiz"
+                      ? t('modals.openOrCreate.openPresentationAndQuiz')
                       : hasLesson && hasOnePager
-                      ? "Open presentation or one-pager"
+                      ? t('modals.openOrCreate.openPresentationAndOnePager')
                       : hasQuiz && hasOnePager
-                      ? "Open quiz or one-pager"
+                      ? t('modals.openOrCreate.openQuizAndOnePager')
                       : hasLesson 
-                      ? "Open presentation" 
+                      ? t('modals.openOrCreate.openPresentation')
                       : hasQuiz
-                      ? "Open quiz"
-                      : "Open one-pager"
+                      ? t('modals.openOrCreate.openQuiz')
+                      : t('modals.openOrCreate.openOnePager')
                     }
                   </p>
                 </div>
@@ -100,25 +103,25 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                 <Plus size={24} />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-1">
-                  <h3 className="text-lg font-semibold text-black">Create New</h3>
-                </div>
+                                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-lg font-semibold text-black">{t('modals.openOrCreate.createNew')}</h3>
+                  </div>
                 <p className="text-sm text-black">
                   {hasLesson && hasQuiz && hasOnePager
-                    ? "Create lesson, quiz, or one-pager" 
+                    ? t('modals.openOrCreate.createAll')
                     : hasLesson && hasQuiz
-                    ? "Create lesson or quiz"
+                    ? t('modals.openOrCreate.createPresentationAndQuiz')
                     : hasLesson && hasOnePager
-                    ? "Create lesson or one-pager"
+                    ? t('modals.openOrCreate.createPresentationAndOnePager')
                     : hasQuiz && hasOnePager
-                    ? "Create quiz or one-pager"
+                    ? t('modals.openOrCreate.createQuizAndOnePager')
                     : hasLesson 
-                    ? "Create quiz or one-pager" 
+                    ? t('modals.openOrCreate.createQuizAndOnePager')
                     : hasQuiz 
-                    ? "Create lesson or one-pager" 
+                    ? t('modals.openOrCreate.createPresentationAndOnePager')
                     : hasOnePager
-                    ? "Create lesson or quiz"
-                    : "Create lesson, quiz, or one-pager"
+                    ? t('modals.openOrCreate.createPresentationAndQuiz')
+                    : t('modals.openOrCreate.createAll')
                   }
                 </p>
               </div>

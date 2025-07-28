@@ -3,6 +3,7 @@
 import React from 'react';
 import { BookText, Video, Film, X, HelpCircle, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CreateContentTypeModalProps {
   isOpen: boolean;
@@ -68,6 +69,7 @@ export const CreateContentTypeModal = ({
   parentProjectName
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
+  const { t } = useLanguage();
 
   // Update disabled states based on what already exists
   const updatedContentTypes = contentTypes.map(type => ({
@@ -134,9 +136,9 @@ export const CreateContentTypeModal = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-black mb-2">Create Content</h2>
+            <h2 className="text-2xl font-bold text-black mb-2">{t('modals.createContent.title')}</h2>
             <p className="text-black">
-              Module: <span className="font-medium">{moduleName}</span> • Lesson {lessonNumber}
+              {t('modals.openOrCreate.module')}: <span className="font-medium">{moduleName}</span> • {t('modals.openOrCreate.title')} {lessonNumber}
             </p>
             <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
           </div>
@@ -221,7 +223,7 @@ export const CreateContentTypeModal = ({
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-100">
           <p className="text-sm text-black text-center">
-            Choose the type of content you'd like to create for this lesson
+            {t('modals.createContent.chooseContentType')}
           </p>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { BookText, Video, HelpCircle, X, ExternalLink, FileText } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OpenContentModalProps {
   isOpen: boolean;
@@ -36,6 +37,8 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
   onePagerId,
   parentProjectName,
 }) => {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   const handleOpenContent = (type: 'lesson' | 'videoLesson' | 'quiz' | 'onePager', id?: number) => {
@@ -58,7 +61,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-black mb-2">Open Content</h2>
+          <h2 className="text-2xl font-bold text-black mb-2">{t('modals.openContent.title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
@@ -68,8 +71,8 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
         </div>
         
         <p className="text-black mb-6">
-          <span className="font-semibold">Lesson:</span> {lessonTitle}<br />
-          <span className="font-semibold">Module:</span> {moduleName} • Lesson {lessonNumber}
+          <span className="font-semibold">{t('modals.openContent.lesson')}:</span> {lessonTitle}<br />
+          <span className="font-semibold">{t('modals.openContent.module')}:</span> {moduleName} • {t('modals.openContent.lesson')} {lessonNumber}
         </p>
 
         <div className="space-y-4">
@@ -85,9 +88,9 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black">Presentation</h3>
+                    <h3 className="text-lg font-semibold text-black">{t('modals.openContent.presentation')}</h3>
                   </div>
-                  <p className="text-sm text-black">Open the presentation</p>
+                  <p className="text-sm text-black">{t('modals.openContent.openPresentation')}</p>
                 </div>
               </div>
               <ExternalLink size={20} className="text-gray-400" />
@@ -107,11 +110,11 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="text-lg font-semibold text-black flex items-center gap-2">
-                      Video Lesson
-                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">Soon</span>
+                      {t('modals.openContent.videoLesson')}
+                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">{t('modals.openContent.soon')}</span>
                     </h3>
                   </div>
-                  <p className="text-sm text-black">Video lessons coming soon</p>
+                  <p className="text-sm text-black">{t('modals.openContent.videoLessonSoon')}</p>
                 </div>
               </div>
               <ExternalLink size={20} className="text-gray-300" />
@@ -130,9 +133,9 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black">Quiz</h3>
+                    <h3 className="text-lg font-semibold text-black">{t('modals.openContent.quiz')}</h3>
                   </div>
-                  <p className="text-sm text-black">Open the quiz</p>
+                  <p className="text-sm text-black">{t('modals.openContent.openQuiz')}</p>
                 </div>
               </div>
               <ExternalLink size={20} className="text-gray-400" />
@@ -151,9 +154,9 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black">One-Pager</h3>
+                    <h3 className="text-lg font-semibold text-black">{t('modals.openContent.onePager')}</h3>
                   </div>
-                  <p className="text-sm text-black">Open the one-pager</p>
+                  <p className="text-sm text-black">{t('modals.openContent.openOnePager')}</p>
                 </div>
               </div>
               <ExternalLink size={20} className="text-gray-400" />
@@ -163,7 +166,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
           {/* If no content is available */}
           {!hasLesson && !hasVideoLesson && !hasQuiz && !hasOnePager && (
             <div className="text-center py-8 text-black">
-              <p>No content available to open.</p>
+              <p>{t('modals.openContent.noContentAvailable')}</p>
             </div>
           )}
         </div>
