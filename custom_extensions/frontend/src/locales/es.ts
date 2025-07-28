@@ -534,14 +534,7 @@ export const es = {
       failedToMoveToTrash: "No se pudo mover a la papelera",
       project: "Proyecto",
       configureVisibleColumns: "Configurar columnas visibles",
-      moveToTrashTooltip: "Mover este producto a la papelera",
-      // Additional missing translations
-      backButton: "Atrás",
-      loadingProject: "Cargando detalles del proyecto...",
-      errorLoadingProject: "Error: No se pudieron cargar los datos del proyecto.",
-      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
-      couldNotMoveToTrash: "No se pudo mover a la papelera",
-      errorFailedToMoveToTrash: "No se pudo mover a la papelera"
+      moveToTrashTooltip: "Mover este producto a la papelera"
     },
     // Pipelines page
     pipelines: {
