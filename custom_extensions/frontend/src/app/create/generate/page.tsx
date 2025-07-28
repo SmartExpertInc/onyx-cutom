@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
                           className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
                           {[5, 10, 15, 20, 25, 30].map((count) => (
-                            <option key={count} value={count}>{count} questions</option>
+                            <option key={count} value={count}>{count} {t('interface.generate.questions', 'questions')}</option>
                           ))}
                         </select>
                       </>
@@ -1303,10 +1303,10 @@ function GenerateProductPicker() {
                       onChange={(e) => setQuizLanguage(e.target.value)}
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="en">English</option>
-                      <option value="uk">Ukrainian</option>
-                      <option value="es">Spanish</option>
-                      <option value="ru">Russian</option>
+                      <option value="en">{t('interface.generate.english', 'English')}</option>
+                      <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+                      <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+                      <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
                     </select>
                     <div className="relative question-types-dropdown">
                       <button
@@ -1316,21 +1316,21 @@ function GenerateProductPicker() {
                       >
                         <span>
                           {selectedQuestionTypes.length === 0
-                            ? "Select Question Types"
+                            ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                             : selectedQuestionTypes.length === 1
                             ? selectedQuestionTypes[0]
-                            : `${selectedQuestionTypes.length} types selected`}
+                            : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                         </span>
                         <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
                       </button>
                       {showQuestionTypesDropdown && (
                         <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                           {[
-                            { value: "multiple-choice", label: "Multiple Choice" },
-                            { value: "multi-select", label: "Multiple Select" },
-                            { value: "matching", label: "Matching" },
-                            { value: "sorting", label: "Sorting" },
-                            { value: "open-answer", label: "Open Answer" }
+                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
+                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                           ].map((type) => (
                             <label
                               key={type.value}
@@ -1360,7 +1360,7 @@ function GenerateProductPicker() {
                       className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
                       {[5, 10, 15, 20, 25, 30].map((count) => (
-                        <option key={count} value={count}>{count} questions</option>
+                        <option key={count} value={count}>{count} {t('interface.generate.questions', 'questions')}</option>
                       ))}
                     </select>
                   </>
