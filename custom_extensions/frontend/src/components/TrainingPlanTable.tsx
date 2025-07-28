@@ -396,7 +396,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [QUIZ_DISCOVERY] Parent project name: "${parentProjectName}"`);
     console.log(`🔍 [QUIZ_DISCOVERY] All user microproducts count: ${allUserMicroproducts?.length || 0}`);
     
-    if (!allUserMicroproducts || !parentProjectName || !lessonTitle) {
+    // Debug: Log all unique component types found
+    if (allUserMicroproducts && allUserMicroproducts.length > 0) {
+      const uniqueTypes = [...new Set(allUserMicroproducts.map(mp => (mp as any).design_microproduct_type).filter(Boolean))];
+      console.log(`🔍 [QUIZ_DISCOVERY] All unique component types found:`, uniqueTypes);
+    }
+    
+    // Handle edge case where lesson title is empty or whitespace
+    if (!lessonTitle || !lessonTitle.trim()) {
+      console.log(`❌ [QUIZ_DISCOVERY] Lesson title is empty or whitespace: "${lessonTitle}"`);
+      return undefined;
+    }
+    
+    if (!allUserMicroproducts || !parentProjectName) {
       console.log(`❌ [QUIZ_DISCOVERY] Missing required data:`, {
         hasAllUserMicroproducts: !!allUserMicroproducts,
         hasParentProjectName: !!parentProjectName,
@@ -411,10 +423,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
     console.log(`🔍 [QUIZ_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
-    // Find all quizzes first
+    // Find all quizzes first - check multiple possible component types
     const allQuizzes = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
-      return mpDesignMicroproductType === "QuizDisplay";
+      const isQuiz = mpDesignMicroproductType === "QuizDisplay" || 
+                     mpDesignMicroproductType === "Quiz" ||
+                     mpDesignMicroproductType === "quiz" ||
+                     mpDesignMicroproductType?.toLowerCase() === "quizdisplay";
+      console.log(`🔍 [QUIZ_DISCOVERY] Checking product:`, {
+        id: mp.id,
+        projectName: mp.projectName,
+        designMicroproductType: mpDesignMicroproductType,
+        isQuiz
+      });
+      return isQuiz;
     });
     
     console.log(`🔍 [QUIZ_DISCOVERY] Found ${allQuizzes.length} quizzes in allUserMicroproducts:`);
@@ -527,7 +549,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [ONE_PAGER_DISCOVERY] Parent project name: "${parentProjectName}"`);
     console.log(`🔍 [ONE_PAGER_DISCOVERY] All user microproducts count: ${allUserMicroproducts?.length || 0}`);
     
-    if (!allUserMicroproducts || !parentProjectName || !lessonTitle) {
+    // Debug: Log all unique component types found
+    if (allUserMicroproducts && allUserMicroproducts.length > 0) {
+      const uniqueTypes = [...new Set(allUserMicroproducts.map(mp => (mp as any).design_microproduct_type).filter(Boolean))];
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] All unique component types found:`, uniqueTypes);
+    }
+    
+    // Handle edge case where lesson title is empty or whitespace
+    if (!lessonTitle || !lessonTitle.trim()) {
+      console.log(`❌ [ONE_PAGER_DISCOVERY] Lesson title is empty or whitespace: "${lessonTitle}"`);
+      return undefined;
+    }
+    
+    if (!allUserMicroproducts || !parentProjectName) {
       console.log(`❌ [ONE_PAGER_DISCOVERY] Missing required data:`, {
         hasAllUserMicroproducts: !!allUserMicroproducts,
         hasParentProjectName: !!parentProjectName,
@@ -542,10 +576,20 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [ONE_PAGER_DISCOVERY] Trimmed lesson title: "${trimmedTitleToMatch}"`);
     console.log(`🔍 [ONE_PAGER_DISCOVERY] Trimmed parent project name: "${trimmedParentProjectName}"`);
 
-    // Find all one-pagers first
+    // Find all one-pagers first - check multiple possible component types
     const allOnePagers = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
-      return mpDesignMicroproductType === "TextPresentationDisplay";
+      const isOnePager = mpDesignMicroproductType === "TextPresentationDisplay" || 
+                         mpDesignMicroproductType === "TextPresentation" ||
+                         mpDesignMicroproductType === "textpresentation" ||
+                         mpDesignMicroproductType?.toLowerCase() === "textpresentationdisplay";
+      console.log(`🔍 [ONE_PAGER_DISCOVERY] Checking product:`, {
+        id: mp.id,
+        projectName: mp.projectName,
+        designMicroproductType: mpDesignMicroproductType,
+        isOnePager
+      });
+      return isOnePager;
     });
     
     console.log(`🔍 [ONE_PAGER_DISCOVERY] Found ${allOnePagers.length} one-pagers in allUserMicroproducts:`);
@@ -652,7 +696,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
     const lessonTitle = lesson.title;
     
+    // Prevent processing lessons with empty titles
+    if (!lessonTitle || !lessonTitle.trim()) {
+      console.log(`❌ [LESSON_CLICK] Cannot process lesson with empty title: "${lessonTitle}"`);
+      return;
+    }
+    
     console.log(`🖱️ [LESSON_CLICK] Lesson clicked: "${lessonTitle}"`);
+    console.log(`🖱️ [LESSON_CLICK] Full lesson object:`, lesson);
     console.log(`🖱️ [LESSON_CLICK] Module: "${moduleName}", Number: ${lessonNumber}`);
     console.log(`🖱️ [LESSON_CLICK] Parent project name: "${parentProjectName}"`);
     
@@ -1377,8 +1428,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                           <button
                             onClick={() => handleLessonClick(lesson, section.title, currentLessonNumber)}
                             className="text-left text-gray-700 hover:text-blue-600 hover:underline focus:outline-none flex-1"
+                            disabled={!lesson.title || !lesson.title.trim()}
+                            title={!lesson.title || !lesson.title.trim() ? "Lesson title is empty" : ""}
                           >
-                            {lesson.title}
+                            {lesson.title || "Untitled Lesson"}
                           </button>
                           <button
                             onClick={() => onTextChange && startEditing('lessonTitle', sectionIdx, lessonIndex, ['sections', sectionIdx, 'lessons', lessonIndex, 'title'])}
