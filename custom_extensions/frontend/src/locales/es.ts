@@ -90,6 +90,7 @@ export const es = {
     wantToEditInTrash: "¿Quieres editar esto? Está en la papelera.",
     restoreIt: "Restaurarlo",
     created: "Creado {date}",
+    courseOutlineTrashMessage: "Este es un Esquema del Curso. ¿Quieres mover solo el esquema, o el esquema y todas sus lecciones?",
     tokens: "tokens",
     ready: "Listo",
     failed: "Falló",

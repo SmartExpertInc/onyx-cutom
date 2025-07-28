@@ -90,6 +90,7 @@ export const uk = {
     wantToEditInTrash: "Хочете відредагувати це? Це в кошику.",
     restoreIt: "Відновити",
     created: "Створено {date}",
+    courseOutlineTrashMessage: "Це План Курсу. Ви хочете перемістити тільки план або план і всі його уроки?",
     tokens: "токенів",
     ready: "Готово",
     failed: "Помилка",

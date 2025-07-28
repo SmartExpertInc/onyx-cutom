@@ -90,6 +90,7 @@ export const en = {
     wantToEditInTrash: "Want to edit this? It's in the trash.",
     restoreIt: "Restore it",
     created: "Created {date}",
+    courseOutlineTrashMessage: "This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?",
     tokens: "tokens",
     ready: "Ready",
     failed: "Failed",
