@@ -1168,7 +1168,7 @@ export default function CourseOutlineClient() {
         </Link>
 
         {/* Page title */}
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
+        <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center gap-2">

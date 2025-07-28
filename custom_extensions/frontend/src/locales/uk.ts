@@ -309,7 +309,7 @@ export const uk = {
     
     // Status
     private: "Приватний",
-    createdByYou: "Створено вами",
+    createdByYou: "Створено Вами",
     you: "Ви",
     item: "елемент",
     items: "елементів",
@@ -684,7 +684,58 @@ export const uk = {
       onePagerQuestion: "Чи хочете ви створити односторінку з існуючого плану курсу?",
       yesContentForOnePager: "Так, контент для односторінки з плану",
       noStandaloneOnePager: "Ні, я хочу окрему односторінку",
-      backButton: "← Назад"
+      backButton: "← Назад",
+      // Additional keys for preview pages
+      loading: "Генерування...",
+      lessonQuestion: "Чи хочете ви створити урок з існуючого плану курсу?",
+      yesContentForLesson: "Так, контент для уроку з плану",
+      noStandaloneLesson: "Ні, я хочу окремий урок",
+      generatingLessonContent: "Генерування контенту уроку...",
+      applyingEdit: "Застосування редагування...",
+      lessonContentPlaceholder: "Контент уроку з'явиться тут...",
+      describeImprovements: "Опишіть, що ви хочете покращити...",
+      applying: "Застосування...",
+      advancedMode: "Розширений режим",
+      themes: "Теми",
+      themesDescription: "Використовуйте одну з наших популярних тем або перегляньте інші",
+      viewMore: "Показати більше",
+      contentDescription: "Налаштуйте стилі тексту та зображень для вашого уроку",
+      amountOfTextPerCard: "Кількість тексту на картку",
+      generatingQuiz: "Генерування тесту...",
+      retryGeneration: "Повторити генерацію",
+      quizContentPlaceholder: "Контент тесту з'явиться тут...",
+      creatingQuiz: "Створення тесту...",
+      finalizingQuiz: "Завершення тесту...",
+      words: "слів"
+    },
+
+    // Course Outline specific translations
+    courseOutline: {
+      additionalInfo: "Додаткова інформація",
+      assessmentType: "Тип оцінки",
+      contentVolume: "Обсяг контенту",
+      source: "Джерело",
+      productionHours: "Години виробництва",
+      describeWhatToMake: "Опишіть, що ви хочете створити",
+      regenerate: "Перегенерувати",
+      modulesAndLessons: "Модулі та уроки",
+      editsProtected: "Редагування захищено",
+      applyingEdit: "Застосування редагування...",
+      moduleTitle: "Модуль",
+      title: "назва",
+      lessonTitle: "Урок",
+      addModule: "Додати модуль",
+      lessonsTotal: "уроків всього",
+      pressEnterToSplit: "Натисніть",
+      toSplitLessons: "щоб розділити уроки",
+      aiImageModel: "Модель ШІ зображення",
+      fluxKontextFast: "Flux Kontext Fast",
+      fluxKontextHQ: "Flux Kontext HQ",
+      stableDiffusion: "Stable Diffusion 2.1",
+      credits: "кредитів",
+      generate: "Генерувати",
+      helpComingSoon: "Допомога (скоро)",
+      finalizingProduct: "Завершення продукту..."
     },
     // Module and Lesson Settings Modals
     modals: {

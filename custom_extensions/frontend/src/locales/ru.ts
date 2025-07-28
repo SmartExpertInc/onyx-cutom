@@ -679,7 +679,56 @@ export const ru = {
       noStandaloneQuiz: "Нет, я хочу отдельный тест",
       onePagerQuestion: "Хотите ли вы создать одностраничник из существующего плана курса?",
       yesContentForOnePager: "Да, контент для одностраничника из плана",
-            noStandaloneOnePager: "Нет, я хочу отдельный одностраничник"
+            noStandaloneOnePager: "Нет, я хочу отдельный одностраничник",
+      backButton: "← Назад",
+      // Additional keys for preview pages
+      loading: "Генерация...",
+      lessonQuestion: "Хотите ли вы создать урок из существующего плана курса?",
+      yesContentForLesson: "Да, контент для урока из плана",
+      noStandaloneLesson: "Нет, я хочу отдельный урок",
+      generatingLessonContent: "Генерация контента урока...",
+      applyingEdit: "Применение редактирования...",
+      lessonContentPlaceholder: "Контент урока появится здесь...",
+      applying: "Применение...",
+      advancedMode: "Расширенный режим",
+      themes: "Темы",
+      themesDescription: "Используйте одну из наших популярных тем или просмотрите другие",
+      viewMore: "Показать больше",
+      contentDescription: "Настройте стили текста и изображений для вашего урока",
+      amountOfTextPerCard: "Количество текста на карточку",
+      generatingQuiz: "Генерация теста...",
+      retryGeneration: "Повторить генерацию",
+      quizContentPlaceholder: "Контент теста появится здесь...",
+      creatingQuiz: "Создание теста...",
+      finalizingQuiz: "Завершение теста...",
+      words: "слов"
+    },
+
+    // Course Outline specific translations
+    courseOutline: {
+      additionalInfo: "Дополнительная информация",
+      assessmentType: "Тип оценки",
+      contentVolume: "Объем контента",
+      source: "Источник",
+      productionHours: "Часы производства",
+      describeWhatToMake: "Опишите, что вы хотите создать",
+      modulesAndLessons: "Модули и уроки",
+      editsProtected: "Редактирование защищено",
+      applyingEdit: "Применение редактирования...",
+      moduleTitle: "Модуль",
+      title: "название",
+      lessonTitle: "Урок",
+      addModule: "Добавить модуль",
+      lessonsTotal: "уроков всего",
+      pressEnterToSplit: "Нажмите",
+      toSplitLessons: "чтобы разделить уроки",
+      aiImageModel: "Модель ИИ изображений",
+      fluxKontextFast: "Flux Kontext Fast",
+      fluxKontextHQ: "Flux Kontext HQ",
+      stableDiffusion: "Stable Diffusion 2.1",
+      credits: "кредитов",
+      helpComingSoon: "Помощь (скоро)",
+      finalizingProduct: "Завершение продукта..."
     }
   }
 }; 

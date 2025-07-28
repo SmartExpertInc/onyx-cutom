@@ -5,10 +5,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
-const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
+const LoadingAnimation: React.FC<{ message?: string; fallbackMessage?: string }> = ({ message, fallbackMessage }) => (
   <div className="flex flex-col items-center mt-4" aria-label="Loading">
     <div className="flex gap-1 mb-2">
       {[0, 1, 2].map((i) => (
@@ -20,7 +21,7 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => (
       ))}
     </div>
     {message && (
-      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || "Generating..."}</p>
+      <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || fallbackMessage || "Generating..."}</p>
     )}
   </div>
 );
@@ -54,6 +55,7 @@ const styleOptions = [
 ];
 
 export default function TextPresentationClient() {
+  const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
   
@@ -594,9 +596,9 @@ export default function TextPresentationClient() {
     <main className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)" }}>
       <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
         <Link href="/create/generate" className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20">
-          <ArrowLeft size={14} /> Back
+                      <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
         </Link>
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">Generate</h1>
+        <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
         <div className="flex flex-col items-center gap-4 mb-4">
           {/* Step 1: Choose source */}
           {useExistingOutline === null && (
@@ -780,7 +782,7 @@ export default function TextPresentationClient() {
         </div>
         {/* Prompt input for standalone one-pager */}
         {useExistingOutline === false && (
-          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe what you'd like to make" rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
+          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('interface.generate.promptPlaceholder', "Describe what you'd like to make")} rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
@@ -939,7 +941,7 @@ export default function TextPresentationClient() {
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">
-                {content.split(/\s+/).length} words
+                {content.split(/\s+/).length} {t('interface.generate.words', 'words')}
               </span>
               <button
                 type="button"
@@ -948,7 +950,7 @@ export default function TextPresentationClient() {
                 disabled={loading || isGenerating || isCreatingFinal}
               >
                 <Sparkles size={18} />
-                <span className="select-none font-semibold">Generate</span>
+                <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
               </button>
             </div>
             <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>

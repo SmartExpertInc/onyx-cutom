@@ -1199,7 +1199,7 @@ export default function LessonPresentationClient() {
                 disabled={loading || isGenerating}
               >
                 <Sparkles size={18} />
-                <span className="select-none font-semibold">Generate</span>
+                <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
               </button>
         </div>
             <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
