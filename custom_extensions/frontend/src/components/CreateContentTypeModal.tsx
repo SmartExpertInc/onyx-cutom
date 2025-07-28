@@ -19,7 +19,7 @@ interface CreateContentTypeModalProps {
   parentProjectName?: string; // Add outline name for quiz creation
 }
 
-const CreateContentTypeModal = ({ 
+export const CreateContentTypeModal = ({ 
   isOpen, 
   onClose, 
   lessonTitle, 
