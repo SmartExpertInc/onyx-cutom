@@ -169,6 +169,8 @@ export const es = {
       hoursRange: "Rango de horas",
       customRate: "Tasa personalizada",
       example: "Ejemplo",
+      tier: "Nivel",
+      contentExamples: "Ejemplos de Contenido",
       cancel: "Cancelar",
       saveChanges: "Guardar cambios",
       saving: "Guardando...",

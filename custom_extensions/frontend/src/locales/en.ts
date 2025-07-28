@@ -178,6 +178,8 @@ export const en = {
       hoursRange: "Hours Range",
       customRate: "Custom Rate",
       example: "Example",
+      tier: "Tier",
+      contentExamples: "Content Examples",
       cancel: "Cancel",
       saveChanges: "Save Changes",
       saving: "Saving...",

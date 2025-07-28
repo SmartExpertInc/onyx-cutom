@@ -169,6 +169,8 @@ export const uk = {
       hoursRange: "Діапазон годин",
       customRate: "Користувацька ставка",
       example: "Приклад",
+      tier: "Рівень",
+      contentExamples: "Приклади контенту",
       cancel: "Скасувати",
       saveChanges: "Зберегти зміни",
       saving: "Збереження...",

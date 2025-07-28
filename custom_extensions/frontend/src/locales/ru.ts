@@ -169,6 +169,8 @@ export const ru = {
       hoursRange: "Диапазон часов",
       customRate: "Пользовательская ставка",
       example: "Пример",
+      tier: "Уровень",
+      contentExamples: "Примеры контента",
       cancel: "Отмена",
       saveChanges: "Сохранить изменения",
       saving: "Сохранение...",
