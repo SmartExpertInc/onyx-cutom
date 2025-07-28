@@ -44,49 +44,71 @@ export default function LessonSettingsModal({
   const qualityTiers: QualityTier[] = [
     {
       id: 'basic',
-      name: 'Basic',
-      description: 'Simple e-learning content with essential features for straightforward training needs',
+      name: t('modals.folderSettings.basic', 'Basic'),
+      description: t('modals.folderSettings.basicDescription', 'Simple e-learning content with essential features for straightforward training needs'),
       icon: <BookOpen size={20} className="text-green-500" />,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
-      features: ['Slides', 'Text', 'Simple Tests', 'Non-interactive SCORM'],
+      features: [
+        t('modals.folderSettings.slides', 'Slides'),
+        t('modals.folderSettings.text', 'Text'),
+        t('modals.folderSettings.simpleTests', 'Simple Tests'),
+        t('modals.folderSettings.nonInteractiveScorm', 'Non-interactive SCORM')
+      ],
       hoursRange: { min: 10, max: 200 },
       defaultHours: 100
     },
     {
       id: 'interactive',
-      name: 'Interactive',
-      description: 'Engaging content with interactive elements for better learner engagement and retention',
+      name: t('modals.folderSettings.interactive', 'Interactive'),
+      description: t('modals.folderSettings.interactiveDescription', 'Engaging content with interactive elements for better learner engagement and retention'),
       icon: <Zap size={20} className="text-orange-500" />,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       borderColor: 'border-orange-200',
-      features: ['Animations', 'Clickable Blocks', 'Voiceover', 'Interactive SCORM', 'Mobile Support'],
+      features: [
+        t('modals.folderSettings.animations', 'Animations'),
+        t('modals.folderSettings.clickableBlocks', 'Clickable Blocks'),
+        t('modals.folderSettings.voiceover', 'Voiceover'),
+        t('modals.folderSettings.interactiveScorm', 'Interactive SCORM'),
+        t('modals.folderSettings.mobileSupport', 'Mobile Support')
+      ],
       hoursRange: { min: 100, max: 250 },
       defaultHours: 200
     },
     {
       id: 'advanced',
-      name: 'Advanced',
-      description: 'Sophisticated learning experiences with personalized content and advanced interactivity',
+      name: t('modals.folderSettings.advanced', 'Advanced'),
+      description: t('modals.folderSettings.advancedDescription', 'Sophisticated learning experiences with personalized content and advanced interactivity'),
       icon: <Award size={20} className="text-purple-500" />,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',
-      features: ['Scenarios', 'Simulations', 'Gamification', 'Adaptation to Roles', 'Multilingualism'],
+      features: [
+        t('modals.folderSettings.scenarios', 'Scenarios'),
+        t('modals.folderSettings.simulations', 'Simulations'),
+        t('modals.folderSettings.gamification', 'Gamification'),
+        t('modals.folderSettings.adaptationToRoles', 'Adaptation to Roles'),
+        t('modals.folderSettings.multilingualism', 'Multilingualism')
+      ],
       hoursRange: { min: 200, max: 400 },
       defaultHours: 300
     },
     {
       id: 'immersive',
-      name: 'Immersive',
-      description: 'Premium learning experiences with cutting-edge technology for maximum engagement',
+      name: t('modals.folderSettings.immersive', 'Immersive'),
+      description: t('modals.folderSettings.immersiveDescription', 'Premium learning experiences with cutting-edge technology for maximum engagement'),
       icon: <Crown size={20} className="text-blue-500" />,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
-      features: ['Videos with Actors', 'VR/AR', 'LMS-Integration', 'Personalized Courses and Simulations'],
+      features: [
+        t('modals.folderSettings.videosWithActors', 'Videos with Actors'),
+        t('modals.folderSettings.vrAr', 'VR/AR'),
+        t('modals.folderSettings.lmsIntegration', 'LMS-Integration'),
+        t('modals.folderSettings.personalizedCourses', 'Personalized Courses and Simulations')
+      ],
       hoursRange: { min: 400, max: 1000 },
       defaultHours: 700
     }
@@ -170,10 +192,10 @@ export default function LessonSettingsModal({
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.tier', 'Tier')}</h4>
                   </div>
                   <div className="col-span-6">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.contentExamples', 'Content Examples')}</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.hoursRange', 'Hours Range')}</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.hoursRange', 'Hours Range')}</h4>
                   </div>
                 </div>
               </div>
@@ -232,7 +254,7 @@ export default function LessonSettingsModal({
                             <div>
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-medium text-gray-700">
-                                  {customRate}h
+                                  {customRate}{t('modals.folderSettings.hours', 'h')}
                                 </span>
                               </div>
                               <div className="relative">
@@ -248,21 +270,21 @@ export default function LessonSettingsModal({
                                   }}
                                 />
                                 <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                  <span>{tier.hoursRange.min}h</span>
-                                  <span>{tier.hoursRange.max}h</span>
+                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
                                 </div>
                               </div>
                             </div>
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">{t('modals.lessonSettings.example', 'Example')}:</span> 1h = {customRate}h</p>
+                              <p><span className="font-medium">{t('modals.lessonSettings.example', 'Example')}:</span> 1{t('modals.folderSettings.hours', 'h')} = {customRate}{t('modals.folderSettings.hours', 'h')}</p>
                             </div>
                           </div>
                         ) : (
                           <div className="flex items-center">
                             <span className="text-sm font-medium text-gray-700">
-                              {tier.hoursRange.min}-{tier.hoursRange.max}h
+                              {tier.hoursRange.min}-{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}
                             </span>
                           </div>
                         )}
@@ -278,7 +300,7 @@ export default function LessonSettingsModal({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
             <div className="text-sm text-blue-700">
               <Calculator className="inline mr-1" size={14} />
-              {t('modals.lessonSettings.lessonQualityTier', 'Lesson quality tier set to')} <span className="font-semibold">{selectedTierData?.name}</span> ({customRate}h {t('modals.lessonSettings.perCompletionHour', 'per completion hour')})
+              {t('modals.lessonSettings.lessonQualityTier', 'Lesson quality tier set to')} <span className="font-semibold">{selectedTierData?.name}</span> ({customRate}{t('modals.folderSettings.hours', 'h')} {t('modals.lessonSettings.perCompletionHour', 'per completion hour')})
             </div>
           </div>
         </div>

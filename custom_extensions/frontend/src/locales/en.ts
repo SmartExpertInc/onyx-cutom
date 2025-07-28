@@ -181,13 +181,35 @@ export const en = {
       tier: "Tier",
       contentExamples: "Content Examples",
       cancel: "Cancel",
+      // Content features
+      slides: "Slides",
+      text: "Text",
+      simpleTests: "Simple Tests",
+      nonInteractiveScorm: "Non-interactive SCORM",
+      animations: "Animations",
+      clickableBlocks: "Clickable Blocks",
+      voiceover: "Voiceover",
+      interactiveScorm: "Interactive SCORM",
+      mobileSupport: "Mobile Support",
+      scenarios: "Scenarios",
+      simulations: "Simulations",
+      gamification: "Gamification",
+      adaptationToRoles: "Adaptation to Roles",
+      multilingualism: "Multilingualism",
+      videosWithActors: "Videos with Actors",
+      vrAr: "VR/AR",
+      lmsIntegration: "LMS-Integration",
+      personalizedCourses: "Personalized Courses and Simulations",
+      // Hours
+      hours: "h",
       saveChanges: "Save Changes",
       saving: "Saving...",
       failedToSave: "Failed to save folder tier setting"
     },
     projectSettings: {
       title: "Course Settings",
-      subtitle: "Configure production quality for"
+      subtitle: "Configure production quality for",
+      failedToSave: "Failed to save project tier setting"
     },
     clientName: {
       title: "Export to PDF",

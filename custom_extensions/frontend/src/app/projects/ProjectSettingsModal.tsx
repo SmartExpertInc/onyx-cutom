@@ -46,7 +46,12 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
-      features: ['Slides', 'Text', 'Simple Tests', 'Non-interactive SCORM'],
+      features: [
+        t('modals.folderSettings.slides', 'Slides'),
+        t('modals.folderSettings.text', 'Text'),
+        t('modals.folderSettings.simpleTests', 'Simple Tests'),
+        t('modals.folderSettings.nonInteractiveScorm', 'Non-interactive SCORM')
+      ],
       hoursRange: { min: 10, max: 200 },
       defaultHours: 100
     },
@@ -58,7 +63,13 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       borderColor: 'border-orange-200',
-      features: ['Animations', 'Clickable Blocks', 'Voiceover', 'Interactive SCORM', 'Mobile Support'],
+      features: [
+        t('modals.folderSettings.animations', 'Animations'),
+        t('modals.folderSettings.clickableBlocks', 'Clickable Blocks'),
+        t('modals.folderSettings.voiceover', 'Voiceover'),
+        t('modals.folderSettings.interactiveScorm', 'Interactive SCORM'),
+        t('modals.folderSettings.mobileSupport', 'Mobile Support')
+      ],
       hoursRange: { min: 100, max: 250 },
       defaultHours: 200
     },
@@ -70,7 +81,13 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',
-      features: ['Scenarios', 'Simulations', 'Gamification', 'Adaptation to Roles', 'Multilingualism'],
+      features: [
+        t('modals.folderSettings.scenarios', 'Scenarios'),
+        t('modals.folderSettings.simulations', 'Simulations'),
+        t('modals.folderSettings.gamification', 'Gamification'),
+        t('modals.folderSettings.adaptationToRoles', 'Adaptation to Roles'),
+        t('modals.folderSettings.multilingualism', 'Multilingualism')
+      ],
       hoursRange: { min: 200, max: 400 },
       defaultHours: 300
     },
@@ -82,7 +99,12 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
-      features: ['Videos with Actors', 'VR/AR', 'LMS-Integration', 'Personalized Courses and Simulations'],
+      features: [
+        t('modals.folderSettings.videosWithActors', 'Videos with Actors'),
+        t('modals.folderSettings.vrAr', 'VR/AR'),
+        t('modals.folderSettings.lmsIntegration', 'LMS-Integration'),
+        t('modals.folderSettings.personalizedCourses', 'Personalized Courses and Simulations')
+      ],
       hoursRange: { min: 400, max: 1000 },
       defaultHours: 700
     }
@@ -113,26 +135,30 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
     setSaving(true);
     try {
       const response = await fetch(`/api/custom-projects-backend/projects/${projectId}/tier`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           quality_tier: selectedTier,
           custom_rate: customRate
         })
       });
 
-      if (response.ok) {
-        if (onTierChange) {
-          onTierChange(selectedTier);
-        }
-        onClose();
-      } else {
-        console.error('Failed to update project tier');
+      if (!response.ok) {
+        throw new Error('Failed to save project tier');
       }
+      
+      if (onTierChange) {
+        onTierChange(selectedTier);
+      }
+      
+      // Refresh the page to update project colors
+      window.location.reload();
+      
+      onClose();
     } catch (error) {
-      console.error('Error updating project tier:', error);
+      console.error('Error saving project settings:', error);
+      alert(t('modals.projectSettings.failedToSave', 'Failed to save project tier setting'));
     } finally {
       setSaving(false);
     }
@@ -233,7 +259,7 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                             <div>
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-medium text-gray-700">
-                                  {customRate}h
+                                  {customRate}{t('modals.folderSettings.hours', 'h')}
                                 </span>
                               </div>
                               <div className="relative">
@@ -249,21 +275,21 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                                   }}
                                 />
                                 <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                  <span>{tier.hoursRange.min}h</span>
-                                  <span>{tier.hoursRange.max}h</span>
+                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
                                 </div>
                               </div>
                             </div>
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
-                              <p><span className="font-medium">{t('modals.folderSettings.example', 'Example')}:</span> 1h = {customRate}h</p>
+                              <p><span className="font-medium">{t('modals.folderSettings.example', 'Example')}:</span> 1{t('modals.folderSettings.hours', 'h')} = {customRate}{t('modals.folderSettings.hours', 'h')}</p>
                             </div>
                           </div>
                         ) : (
                           <div className="flex items-center">
                             <span className="text-sm font-medium text-gray-700">
-                              {tier.hoursRange.min}-{tier.hoursRange.max}h
+                              {tier.hoursRange.min}-{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}
                             </span>
                           </div>
                         )}

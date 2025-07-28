@@ -172,13 +172,35 @@ export const uk = {
       tier: "Рівень",
       contentExamples: "Приклади контенту",
       cancel: "Скасувати",
+      // Content features
+      slides: "Слайди",
+      text: "Текст",
+      simpleTests: "Прості тести",
+      nonInteractiveScorm: "Неінтерактивний SCORM",
+      animations: "Анімації",
+      clickableBlocks: "Клікабельні блоки",
+      voiceover: "Озвучка",
+      interactiveScorm: "Інтерактивний SCORM",
+      mobileSupport: "Мобільна підтримка",
+      scenarios: "Сценарії",
+      simulations: "Симуляції",
+      gamification: "Гейміфікація",
+      adaptationToRoles: "Адаптація до ролей",
+      multilingualism: "Багатомовність",
+      videosWithActors: "Відео з акторами",
+      vrAr: "VR/AR",
+      lmsIntegration: "Інтеграція з LMS",
+      personalizedCourses: "Персоналізовані курси та симуляції",
+      // Hours
+      hours: "год",
       saveChanges: "Зберегти зміни",
       saving: "Збереження...",
       failedToSave: "Не вдалося зберегти налаштування папки"
     },
     projectSettings: {
       title: "Налаштування курсу",
-      subtitle: "Налаштування якості виробництва для"
+      subtitle: "Налаштування якості виробництва для",
+      failedToSave: "Не вдалося зберегти налаштування рівня проекту"
     },
     clientName: {
       title: "Експорт у PDF",

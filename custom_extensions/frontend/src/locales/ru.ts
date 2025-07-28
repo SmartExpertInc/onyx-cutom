@@ -172,13 +172,35 @@ export const ru = {
       tier: "Уровень",
       contentExamples: "Примеры контента",
       cancel: "Отмена",
+      // Content features
+      slides: "Слайды",
+      text: "Текст",
+      simpleTests: "Простые тесты",
+      nonInteractiveScorm: "Неинтерактивный SCORM",
+      animations: "Анимации",
+      clickableBlocks: "Кликабельные блоки",
+      voiceover: "Озвучка",
+      interactiveScorm: "Интерактивный SCORM",
+      mobileSupport: "Мобильная поддержка",
+      scenarios: "Сценарии",
+      simulations: "Симуляции",
+      gamification: "Геймификация",
+      adaptationToRoles: "Адаптация к ролям",
+      multilingualism: "Многоязычность",
+      videosWithActors: "Видео с актерами",
+      vrAr: "VR/AR",
+      lmsIntegration: "Интеграция с LMS",
+      personalizedCourses: "Персонализированные курсы и симуляции",
+      // Hours
+      hours: "ч",
       saveChanges: "Сохранить изменения",
       saving: "Сохранение...",
       failedToSave: "Не удалось сохранить настройки папки"
     },
     projectSettings: {
       title: "Настройки курса",
-      subtitle: "Настройка качества производства для"
+      subtitle: "Настройка качества производства для",
+      failedToSave: "Не удалось сохранить настройку уровня проекта"
     },
     clientName: {
       title: "Экспорт в PDF",

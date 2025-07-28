@@ -172,13 +172,35 @@ export const es = {
       tier: "Nivel",
       contentExamples: "Ejemplos de Contenido",
       cancel: "Cancelar",
+      // Content features
+      slides: "Diapositivas",
+      text: "Texto",
+      simpleTests: "Pruebas Simples",
+      nonInteractiveScorm: "SCORM No Interactivo",
+      animations: "Animaciones",
+      clickableBlocks: "Bloques Clicables",
+      voiceover: "Narración",
+      interactiveScorm: "SCORM Interactivo",
+      mobileSupport: "Soporte Móvil",
+      scenarios: "Escenarios",
+      simulations: "Simulaciones",
+      gamification: "Gamificación",
+      adaptationToRoles: "Adaptación a Roles",
+      multilingualism: "Multilingüismo",
+      videosWithActors: "Videos con Actores",
+      vrAr: "VR/AR",
+      lmsIntegration: "Integración LMS",
+      personalizedCourses: "Cursos Personalizados y Simulaciones",
+      // Hours
+      hours: "h",
       saveChanges: "Guardar cambios",
       saving: "Guardando...",
       failedToSave: "No se pudo guardar la configuración de la carpeta"
     },
     projectSettings: {
       title: "Configuración del curso",
-      subtitle: "Configurar calidad de producción para"
+      subtitle: "Configurar calidad de producción para",
+      failedToSave: "No se pudo guardar la configuración del nivel del proyecto"
     },
     clientName: {
       title: "Exportar a PDF",
