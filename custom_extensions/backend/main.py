@@ -10140,8 +10140,22 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
             **CRITICAL FINAL SLIDE RESTRICTIONS:**
             - **ABSOLUTELY NO Q&A SLIDES**: Never generate slides with titles like "Questions and Discussion", "Q&A Session", "Questions and Answers", "Let's discuss", "Any questions?", or similar interactive content.
-            - **ONLY ONE FINAL SLIDE**: Create exactly one conclusion slide at the end. Do NOT create multiple ending slides (e.g., both Q&A and Conclusion).
-            - **END WITH MEANINGFUL CONTENT**: The final slide must contain substantial summary, key takeaways, or actionable insights - not courtesy or discussion prompts.
+            - **NO THANK YOU SLIDES**: Never generate "Thank You!", "Thanks!", "Thank you for your attention" or similar courtesy slides.
+            - **NO FEEDBACK SLIDES**: Never generate "Feedback and Improvement", "Your feedback", "Please share your thoughts" or similar slides.
+            - **EXACTLY ONE FINAL SLIDE MAXIMUM**: The presentation MUST end with only ONE slide. NEVER create sequences like: "Conclusion" → "Questions" → "Feedback" → "Thank You".
+            - **TEMPLATE REPETITION LIMIT**: NEVER use the same template more than 2 times per presentation. If you've used title-slide twice already, use a different template for the conclusion.
+            - **END WITH MEANINGFUL CONTENT**: The single final slide must contain substantial summary, key takeaways, or actionable insights.
+
+            **TEMPLATE USAGE VALIDATION BEFORE EACH SLIDE:**
+            Before creating any slide, count existing template usage:
+            - If creating slide with templateId "title-slide", check: have I already used "title-slide" 2 times? If YES, use different template.
+            - If creating slide with templateId "content-slide", check: have I already used "content-slide" 2 times? If YES, use different template.
+            - Same rule applies to ALL templates - maximum 2 uses per presentation.
+
+            **ENDING VALIDATION RULES:**
+            - If slide title contains: "Conclusion", "Summary", "Key Takeaways", "Wrap-up" - this MUST be the FINAL slide
+            - NEVER add slides after a conclusion slide
+            - NEVER create "Questions", "Discussion", "Feedback", "Thank You" slides after or before conclusion
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 

@@ -1249,10 +1249,20 @@ Information processing follows a structured approach where knowledge builds upon
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
 - **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
-- **STRICT LIMITATION**: Never use the same template more than 2 times per presentation
+- **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 2 times per presentation - this is NON-NEGOTIABLE
+- **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 2 times, choose a different template
 - **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (content-slide, bullet-points), minimum 70% visual/interactive templates
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
 - **VISUAL VARIETY MANDATE**: Must alternate between different visual templates, never use `big-image-left` and `big-image-top` consecutively
+- **TITLE-SLIDE RESTRICTION**: If you've already used `title-slide` twice, you CANNOT use it again - choose `content-slide`, `big-image-top`, or another template for conclusions
+
+**ALTERNATIVE CONCLUSION TEMPLATES:**
+If you've reached the 2-use limit for `title-slide`, use these alternatives for the final slide:
+- **`content-slide`** with conclusion content and bullet points of key takeaways
+- **`big-image-top`** with summary image and conclusion text below  
+- **`bullet-points`** listing main lessons learned
+- **`pyramid`** showing hierarchy of key concepts covered
+- **NEVER create additional slides just to use title-slide** - better to use alternative template
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides
@@ -1317,13 +1327,15 @@ Question Format:
 **FORBIDDEN SLIDE TYPES:**
 - **ABSOLUTELY NO Q&A slides** - NEVER create "Questions and Answers", "Q&A Session", "Questions and Discussion", "Let's discuss", "Any questions?", or similar interactive slides
 - **NO contact information slides** - Remove any slides with phone numbers, email addresses, or contact details
-- **NO generic "Thank You" slides** - End with substantial content, not courtesy slides
+- **NO generic "Thank You" slides** - NEVER create "Thank You!", "Thanks!", "Thank you for your attention" or similar courtesy slides
+- **NO feedback request slides** - NEVER create "Feedback and Improvement", "Your feedback", "Please share your thoughts" or similar slides
 - **NO "Additional Resources" slides** - Integrate resources into relevant content slides instead
 
-**CRITICAL FINAL SLIDE RULE:**
-- **ONLY ONE FINAL SLIDE ALLOWED** - Never create multiple ending slides (e.g., Q&A + Conclusion)
-- **END WITH SUBSTANTIAL CONCLUSION** - The final slide must contain meaningful summary content, key takeaways, or actionable insights
-- **NO MULTIPLE ENDINGS** - Do not create both discussion/Q&A slides AND conclusion slides - choose only conclusion
+**ABSOLUTE FINAL SLIDE RESTRICTIONS:**
+- **EXACTLY ONE FINAL SLIDE MAXIMUM** - The presentation MUST end with only ONE slide
+- **NO MULTIPLE ENDINGS OF ANY KIND** - NEVER create sequences like: "Conclusion" → "Questions" → "Feedback" → "Thank You"
+- **FORBIDDEN ENDING COMBINATIONS**: Any combination of conclusion, Q&A, questions, discussion, feedback, thank you, or summary slides
+- **END WITH SUBSTANTIAL CONCLUSION ONLY** - The single final slide must contain meaningful summary content, key takeaways, or actionable insights
 
 **ENHANCED TEMPLATE DISTRIBUTION STRATEGY:**
 For a typical 10-15 slide presentation, use this distribution:
@@ -1344,7 +1356,9 @@ For a typical 10-15 slide presentation, use this distribution:
 6. **Does content need 4 key points?** → Use `four-box-grid` (NOT content-slide)
 7. **Only for pure explanatory paragraphs without lists/numbers** → Use `content-slide` (maximum 2-3 times)
 
-**CORRECT PRESENTATION ENDING EXAMPLE:**
+**CORRECT PRESENTATION ENDING EXAMPLES:**
+
+**Option 1 - If title-slide not used 2 times yet:**
 ```
 ---
 **Slide 12: Key Takeaways** `title-slide`
@@ -1355,8 +1369,31 @@ For a typical 10-15 slide presentation, use this distribution:
 
 [IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Summary concept visualization]
 ```
-**WRONG PRESENTATION ENDING EXAMPLE (DO NOT CREATE):**
+
+**Option 2 - If title-slide already used 2 times, use alternative:**
 ```
-❌ Slide 13: Questions and Discussion (hero-title-slide)
-❌ Slide 14: Conclusion (title-slide)
+---
+**Slide 10: Lesson Summary** `content-slide`
+
+## Key Takeaways from This Lesson
+
+This lesson covered essential optimization techniques that can significantly improve code performance:
+
+* Performance profiling tools and methodologies  
+* Memory optimization strategies
+* Code efficiency best practices
+* Monitoring and measurement techniques
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Performance optimization concept visualization]
 ```
+**WRONG PRESENTATION ENDING EXAMPLES (NEVER CREATE):**
+```
+❌ Slide 11: Conclusion (title-slide)
+❌ Slide 12: Questions and Discussion (title-slide)  
+❌ Slide 14: Feedback and Improvement (title-slide)
+❌ Slide 15: Thank You! (title-slide)
+```
+**CRITICAL VIOLATIONS IN ABOVE EXAMPLE:**
+- 4 ending slides instead of 1 (FORBIDDEN)
+- Same template (title-slide) used 4 times (EXCEEDS 2-time LIMIT)
+- Contains forbidden slide types: "Questions and Discussion", "Feedback", "Thank You!"
