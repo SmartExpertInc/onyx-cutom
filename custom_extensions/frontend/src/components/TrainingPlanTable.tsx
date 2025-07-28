@@ -412,10 +412,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
     console.log(`🔍 [LESSON_DISCOVERY] Starting lesson discovery for lesson: "${lessonTitle}"`);
-    console.log(`🔍 [LESSON_DISCOVERY] Excluding component types: ["Quiz", "TextPresentationDisplay", "TextPresentation"]`);
+    console.log(`🔍 [LESSON_DISCOVERY] Excluding component types: ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation"]`);
     
     // Find presentations/lessons but exclude quizzes and text presentations to avoid double-matching
-    const result = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation"]);
+    const result = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation"]);
     
     if (result) {
       console.log(`✅ [LESSON_DISCOVERY] Found lesson:`, {
@@ -640,6 +640,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
       const isOnePager = mpDesignMicroproductType === "TextPresentationDisplay" || 
                          mpDesignMicroproductType === "TextPresentation" ||
+                         mpDesignMicroproductType === "Text Presentation" ||
                          mpDesignMicroproductType === "textpresentation" ||
                          mpDesignMicroproductType?.toLowerCase() === "textpresentationdisplay";
       console.log(`🔍 [ONE_PAGER_DISCOVERY] Checking product:`, {
@@ -647,7 +648,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         projectName: mp.projectName,
         designMicroproductType: mpDesignMicroproductType,
         isOnePager,
-        expectedTypes: ["TextPresentationDisplay", "TextPresentation", "textpresentation", "textpresentationdisplay"]
+        expectedTypes: ["TextPresentationDisplay", "TextPresentation", "Text Presentation", "textpresentation", "textpresentationdisplay"]
       });
       return isOnePager;
     });
