@@ -26,34 +26,6 @@ const LoadingAnimation: React.FC<{ message?: string; fallbackMessage?: string }>
   </div>
 );
 
-const themeOptions = [
-  { id: "wine", label: "Wine" },
-  { id: "cherry", label: "Default" },
-  { id: "vanilla", label: "Engenuity" },
-  { id: "terracotta", label: "Deloitte" },
-  { id: "lunaria", label: "Lunaria" },
-  { id: "zephyr", label: "Zephyr" },
-];
-
-const lengthOptions = [
-  { value: "short", label: "Short" },
-  { value: "medium", label: "Medium" },
-  { value: "long", label: "Long" },
-];
-
-const styleOptions = [
-  { value: "headlines", label: "Headlines" },
-  { value: "paragraphs", label: "Paragraphs" },
-  { value: "bullet_lists", label: "Bullet Lists" },
-  { value: "numbered_lists", label: "Numbered Lists" },
-  { value: "tables", label: "Tables" },
-  { value: "alerts", label: "Alerts" },
-  { value: "recommendations", label: "Recommendations" },
-  { value: "section_breaks", label: "Section Breaks" },
-  { value: "icons", label: "Icons" },
-  { value: "important_sections", label: "Important Sections" },
-];
-
 export default function TextPresentationClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
@@ -591,6 +563,94 @@ export default function TextPresentationClient() {
     }
   }, [content]);
 
+  const themeOptions = [
+    { id: "wine", label: "Wine" },
+    { id: "cherry", label: "Default" },
+    { id: "vanilla", label: "Engenuity" },
+  ];
+  const styleOptions = [
+    { value: "professional", label: "Professional" },
+    { value: "casual", label: "Casual" },
+    { value: "bold", label: "Bold" },
+    { value: "italic", label: "Italic" },
+    { value: "underline", label: "Underline" },
+    { value: "strikethrough", label: "Strikethrough" },
+    { value: "code", label: "Code" },
+    { value: "quote", label: "Quote" },
+    { value: "bullet-list", label: "Bullet List" },
+    { value: "numbered-list", label: "Numbered List" },
+    { value: "check-list", label: "Check List" },
+    { value: "link", label: "Link" },
+    { value: "image", label: "Image" },
+    { value: "table", label: "Table" },
+    { value: "heading-1", label: "Heading 1" },
+    { value: "heading-2", label: "Heading 2" },
+    { value: "heading-3", label: "Heading 3" },
+    { value: "heading-4", label: "Heading 4" },
+    { value: "heading-5", label: "Heading 5" },
+    { value: "heading-6", label: "Heading 6" },
+    { value: "paragraph", label: "Paragraph" },
+    { value: "text-left", label: "Align Left" },
+    { value: "text-center", label: "Align Center" },
+    { value: "text-right", label: "Align Right" },
+    { value: "indent", label: "Indent" },
+    { value: "outdent", label: "Outdent" },
+    { value: "clear-format", label: "Clear Format" },
+    { value: "undo", label: "Undo" },
+    { value: "redo", label: "Redo" },
+    { value: "fullscreen", label: "Fullscreen" },
+    { value: "preview", label: "Preview" },
+    { value: "print", label: "Print" },
+    { value: "save", label: "Save" },
+    { value: "new-document", label: "New Document" },
+    { value: "open", label: "Open" },
+    { value: "export", label: "Export" },
+    { value: "import", label: "Import" },
+    { value: "help", label: "Help" },
+    { value: "about", label: "About" },
+    { value: "settings", label: "Settings" },
+    { value: "feedback", label: "Feedback" },
+    { value: "donate", label: "Donate" },
+    { value: "github", label: "GitHub" },
+    { value: "twitter", label: "Twitter" },
+    { value: "linkedin", label: "LinkedIn" },
+    { value: "facebook", label: "Facebook" },
+    { value: "instagram", label: "Instagram" },
+    { value: "youtube", label: "YouTube" },
+    { value: "vimeo", label: "Vimeo" },
+    { value: "dribbble", label: "Dribbble" },
+    { value: "behance", label: "Behance" },
+    { value: "pinterest", label: "Pinterest" },
+    { value: "reddit", label: "Reddit" },
+    { value: "tumblr", label: "Tumblr" },
+    { value: "vk", label: "VK" },
+    { value: "odnoklassniki", label: "Odnoklassniki" },
+    { value: "whatsapp", label: "WhatsApp" },
+    { value: "telegram", label: "Telegram" },
+    { value: "line", label: "Line" },
+    { value: "wechat", label: "WeChat" },
+    { value: "viber", label: "Viber" },
+    { value: "snapchat", label: "Snapchat" },
+    { value: "tiktok", label: "TikTok" },
+    { value: "pinterest", label: "Pinterest" },
+    { value: "reddit", label: "Reddit" },
+    { value: "tumblr", label: "Tumblr" },
+    { value: "vk", label: "VK" },
+    { value: "odnoklassniki", label: "Odnoklassniki" },
+    { value: "whatsapp", label: "WhatsApp" },
+    { value: "telegram", label: "Telegram" },
+    { value: "line", label: "Line" },
+    { value: "wechat", label: "WeChat" },
+    { value: "viber", label: "Viber" },
+    { value: "snapchat", label: "Snapchat" },
+    { value: "tiktok", label: "TikTok" },
+  ];
+  const lengthOptions = [
+    { value: "brief", label: "Brief" },
+    { value: "medium", label: "Medium" },
+    { value: "detailed", label: "Detailed" },
+  ];
+
   return (
     <>
     <main className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)" }}>
@@ -603,10 +663,10 @@ export default function TextPresentationClient() {
           {/* Step 1: Choose source */}
           {useExistingOutline === null && (
             <div className="flex flex-col items-center gap-3">
-              <p className="text-lg font-medium text-gray-700">Do you want to create a one-pager from an existing Course Outline?</p>
+              <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
               <div className="flex gap-3">
-                <button onClick={() => setUseExistingOutline(true)} className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium">Yes, content for the one-pager from the outline</button>
-                <button onClick={() => setUseExistingOutline(false)} className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium">No, I want standalone one-pager</button>
+                <button onClick={() => setUseExistingOutline(true)} className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium">{t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}</button>
+                <button onClick={() => setUseExistingOutline(false)} className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium">{t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}</button>
               </div>
             </div>
           )}
@@ -625,7 +685,7 @@ export default function TextPresentationClient() {
                       setLessonsForModule([]);
                       setSelectedLesson("");
                     }} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                      <option value="">Select Outline</option>
+                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
                       {outlines.map((o) => (
                         <option key={o.id} value={o.id}>{o.name}</option>
                       ))}
@@ -641,7 +701,7 @@ export default function TextPresentationClient() {
                         setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
                         setSelectedLesson("");
                       }} disabled={modulesForOutline.length === 0} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <option value="">Select Module</option>
+                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
                         {modulesForOutline.map((m, idx) => (
                           <option key={idx} value={idx}>{m.name}</option>
                         ))}
@@ -653,7 +713,7 @@ export default function TextPresentationClient() {
                   {selectedModuleIndex !== null && (
                     <div className="relative">
                       <select value={selectedLesson} onChange={(e) => setSelectedLesson(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <option value="">Select Lesson</option>
+                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
                         {lessonsForModule.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
@@ -666,10 +726,10 @@ export default function TextPresentationClient() {
                     <>
                       <div className="relative">
                         <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <option value="en">English</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="es">Spanish</option>
-                          <option value="ru">Russian</option>
+                          <option value="en">{t('interface.generate.english', 'English')}</option>
+                          <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
+                          <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
+                          <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
@@ -687,7 +747,7 @@ export default function TextPresentationClient() {
                           onClick={() => setShowStylesDropdown(!showStylesDropdown)}
                           className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                         >
-                          <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                          <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                           <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
                         </button>
                         {showStylesDropdown && (
@@ -786,8 +846,8 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">One-Pager Content</h2>
-          {loading && <LoadingAnimation message="Generating one-pager content..." />}
+          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.onePagerContent', 'One-Pager Content')}</h2>
+          {loading && <LoadingAnimation message={t('interface.generate.generatingOnePagerContent', 'Generating one-pager content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           {textareaVisible && (
             <div className="bg-white rounded-xl p-6 flex flex-col gap-6 relative" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
@@ -800,7 +860,7 @@ export default function TextPresentationClient() {
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="One-pager content will appear here..."
+                placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
                 className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
                 disabled={loadingEdit}
               />
@@ -899,7 +959,7 @@ export default function TextPresentationClient() {
               {/* Content section */}
               <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
                 <h3 className="text-lg font-semibold text-[#20355D]">Content</h3>
-                <p className="text-sm text-[#858587] font-medium">Adjust text and image styles for your one-pager</p>
+                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustTextAndImageStyles', 'Adjust text and image styles for your one-pager')}</p>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">Amount of text per card</label>
                   <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
@@ -967,7 +1027,7 @@ export default function TextPresentationClient() {
     `}</style>
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message="Finalizing one-pager..." />
+        <LoadingAnimation message={t('interface.generate.finalizingOnePager', 'Finalizing one-pager...')} />
       </div>
     )}
     </>

@@ -498,7 +498,25 @@ export const en = {
       recommendations: "Recommendations",
       sectionBreaks: "Section Breaks",
       icons: "Icons",
-      importantSections: "Important Sections"
+      importantSections: "Important Sections",
+      // One-pager specific translations
+      yesContentForOnePager: "Yes, content for the one-pager from the outline",
+      noStandaloneOnePager: "No, I want standalone one-pager",
+      onePagerContent: "One-Pager Content",
+      generatingOnePagerContent: "Generating one-pager content...",
+      onePagerContentPlaceholder: "One-pager content will appear here...",
+      finalizingOnePager: "Finalizing one-pager...",
+      failedToGenerateOnePager: "Failed to generate one-pager – please try again later.",
+      untitledOnePager: "Untitled One-Pager",
+      adjustTextAndImageStyles: "Adjust text and image styles for your one-pager",
+      // Theme options
+      wine: "Wine",
+      default: "Default",
+      engenuity: "Engenuity",
+      deloitte: "Deloitte",
+      lunaria: "Lunaria",
+      zephyr: "Zephyr",
+
     },
 
     // Course Outline specific translations

@@ -1567,15 +1567,15 @@ function GenerateProductPicker() {
                       {showTextStylesDropdown && (
                         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                           {[
-                            { value: "headlines", label: "Headlines" },
-                            { value: "paragraphs", label: "Paragraphs" },
-                            { value: "bullet_lists", label: "Bullet Lists" },
-                            { value: "numbered_lists", label: "Numbered Lists" },
-                            { value: "alerts", label: "Alerts" },
-                            { value: "recommendations", label: "Recommendations" },
-                            { value: "section_breaks", label: "Section Breaks" },
-                            { value: "icons", label: "Icons" },
-                            { value: "important_sections", label: "Important Sections" }
+                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
+                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
+                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
+                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
+                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
+                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
+                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
+                            { value: "icons", label: t('interface.generate.icons', 'Icons') },
+                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
                           ].map((option) => (
                             <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
                               <input
