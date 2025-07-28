@@ -2257,7 +2257,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                             const isVideoLesson = contentType === "video lesson";
                             const isPdfLesson = contentType === "pdf lesson";
                             
-                            // Check if product has explicit is_standalone field
+                            // NEW: Check if product has explicit is_standalone field
                             const hasStandaloneFlag = (proj as any).is_standalone !== undefined && (proj as any).is_standalone !== null;
                             
                             // If product has explicit standalone flag, use it to determine visibility
@@ -2267,62 +2267,63 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                                     belongsToOutline = true;
                                     console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false)`);
                                 }
-                            } else {
-                                // Legacy filtering for products without explicit standalone flag
-                                // Only apply to quizzes and PDF lessons - show text presentations by default
-                                if (isQuiz || isPdfLesson) {
-                                    // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title")
-                                    if (projectTitle.includes(' - ') && projectTitle.includes(': ')) {
-                                        const parts = projectTitle.split(' - ');
-                                        if (parts.length >= 2) {
-                                            const outlinePart = parts[1].split(': ')[0].trim();
-                                            if (outlineNames.has(outlinePart)) {
-                                                belongsToOutline = true;
-                                                console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 1: Legacy Content Type - Outline)`);
-                                            }
-                                        }
-                                    }
-                                    // Pattern 2: "Outline Name: Lesson Title" (for any content type)
-                                    else if (projectTitle.includes(': ')) {
-                                        const outlinePart = projectTitle.split(': ')[0].trim();
+                            } else if (isQuiz) {
+                                // NEW: Only apply legacy filtering to quizzes - show all One-pagers (text presentations, PDF lessons) by default
+                                // This ensures all One-pagers are visible on the main products page
+                                // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title") - Legacy pattern
+                                if (projectTitle.includes(' - ') && projectTitle.includes(': ')) {
+                                    const parts = projectTitle.split(' - ');
+                                    if (parts.length >= 2) {
+                                        const outlinePart = parts[1].split(': ')[0].trim();
                                         if (outlineNames.has(outlinePart)) {
                                             belongsToOutline = true;
-                                            console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 2: Outline: Lesson)`);
-                                        }
-                                    }
-                                    // Pattern 3: Legacy pattern - check if project name matches outline name
-                                    else {
-                                        // Check if there's an outline with the same project name
-                                        const matchingOutline = projectsArr.find(p => 
-                                            (p.designMicroproductType || "").toLowerCase() === "training plan" && 
-                                            p.title.trim() === proj.title.trim()
-                                        );
-                                        if (matchingOutline) {
-                                            belongsToOutline = true;
-                                            console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 3: Legacy match)`);
-                                        }
-                                    }
-                                    
-                                    // Pattern 4: Check if quiz and outline share the same chat session (indicating they were created together)
-                                    if (!belongsToOutline) {
-                                        const quizChatSessionId = (proj as any).source_chat_session_id;
-                                        if (quizChatSessionId) {
-                                            const outlineWithSameChatSession = projectsArr.find(p => 
-                                                (p.designMicroproductType || "").toLowerCase() === "training plan" && 
-                                                (p as any).source_chat_session_id === quizChatSessionId
-                                            );
-                                            if (outlineWithSameChatSession) {
-                                                belongsToOutline = true;
-                                                console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 4: Same chat session as outline "${outlineWithSameChatSession.title}")`);
-                                            }
+                                            console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 1: Legacy Content Type - Outline)`);
                                         }
                                     }
                                 }
-                                // For text presentations and video lessons without explicit standalone flag, show them by default
-                                else if (isTextPresentation || isVideoLesson) {
-                                    console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" shown by default (no explicit standalone flag)`);
+                                // Pattern 2: "Outline Name: Lesson Title" (for any content type)
+                                else if (projectTitle.includes(': ')) {
+                                    const outlinePart = projectTitle.split(': ')[0].trim();
+                                    if (outlineNames.has(outlinePart)) {
+                                        belongsToOutline = true;
+                                        console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 2: Outline: Lesson)`);
+                                    }
+                                }
+                                // Pattern 3: Legacy pattern - check if project name matches outline name
+                                else {
+                                    // Check if there's an outline with the same project name
+                                    const matchingOutline = projectsArr.find(p => 
+                                        (p.designMicroproductType || "").toLowerCase() === "training plan" && 
+                                        p.title.trim() === proj.title.trim()
+                                    );
+                                    if (matchingOutline) {
+                                        belongsToOutline = true;
+                                        console.log(`🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Pattern 3: Legacy match)`);
+                                    }
+                                }
+                                
+
+                                
+                                // Pattern 6: Check if quiz and outline share the same chat session (indicating they were created together)
+                                if (!belongsToOutline) {
+                                    const quizChatSessionId = (proj as any).source_chat_session_id;
+                                    if (quizChatSessionId) {
+                                        const outlineWithSameChatSession = projectsArr.find(p => 
+                                            (p.designMicroproductType || "").toLowerCase() === "training plan" && 
+                                            (p as any).source_chat_session_id === quizChatSessionId
+                                        );
+                                        if (outlineWithSameChatSession) {
+                                            belongsToOutline = true;
+                                            console.log(`🔍 [FILTER] Quiz "${projectTitle}" filtered out (Pattern 6: Same chat session as outline "${outlineWithSameChatSession.title}")`);
+                                        }
+                                    }
                                 }
                             }
+                        }
+
+                        // Only include projects that don't belong to an outline (either legacy or new pattern)
+                        if (proj.designMicroproductType === "Text Presentation") {
+                            belongsToOutline = false;
                         }
                         
                         if (!belongsToOutline) {

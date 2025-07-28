@@ -470,7 +470,6 @@ export default function TextPresentationClient() {
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
           language: language,
-          outlineId: selectedOutlineId,
         }),
       });
 

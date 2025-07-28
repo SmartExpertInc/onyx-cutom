@@ -8637,39 +8637,24 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
 
-        # Determine if this is a standalone lesson presentation or part of an outline
-        is_standalone_lesson = payload.outlineProjectId is None
-        
-        # For lesson presentations, we need to insert directly to avoid double parsing
-        # since add_project_to_custom_db would call parse_ai_response_with_llm again
-        insert_query = """
-        INSERT INTO projects (
-            onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+        # Create project data
+        project_data = ProjectCreateRequest(
+            projectName=project_name,
+            design_template_id=slide_deck_template_id,
+            microProductName=None,
+            aiResponse=payload.aiResponse.strip(),
+            chatSessionId=payload.chatSessionId
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
-        """
         
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                insert_query,
-                onyx_user_id,
-                project_name,
-                "Lesson Presentation",  # product_type
-                "Lesson Presentation",  # microproduct_type
-                project_name,  # microproduct_name
-                payload.aiResponse.strip(),  # microproduct_content
-                slide_deck_template_id,  # design_template_id
-                payload.chatSessionId,  # source_chat_session_id
-                is_standalone_lesson  # is_standalone
-            )
-        
-        if not row:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create lesson project entry.")
-        
-        created_project = ProjectDB(**dict(row))
+        # Create project with proper error handling
+        try:
+            created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        except HTTPException as e:
+            # Re-raise HTTP exceptions as-is
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to create project: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create lesson project")
 
         # Validate the created project
         if not created_project or not created_project.id:
@@ -11766,7 +11751,6 @@ class TextPresentationWizardFinalize(BaseModel):
     courseName: Optional[str] = None
     language: str = "en"
     chatSessionId: Optional[str] = None
-    outlineId: Optional[int] = None
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -12328,18 +12312,14 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # For text presentation components, we need to insert directly to avoid double parsing
         # since add_project_to_custom_db would call parse_ai_response_with_llm again
-        
-        # Determine if this is a standalone text presentation or part of an outline
-        is_standalone_text_presentation = payload.outlineId is None
-        
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, created_at;
         """
         
         async with pool.acquire() as conn:
@@ -12352,8 +12332,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 final_project_name,  # microproduct_name
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
-                payload.chatSessionId,  # source_chat_session_id
-                is_standalone_text_presentation  # is_standalone
+                payload.chatSessionId  # source_chat_session_id
             )
         
         if not row:
