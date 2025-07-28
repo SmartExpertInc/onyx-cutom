@@ -452,7 +452,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         )}
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
-         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+         <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />
           <span>{t('interface.templates', 'Templates')}</span>
         </Link>
