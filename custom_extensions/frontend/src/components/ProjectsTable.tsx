@@ -2322,10 +2322,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         }
 
                         // Only include projects that don't belong to an outline (either legacy or new pattern)
-                        if (proj.designMicroproductType === "Text Presentation") {
-                            belongsToOutline = false;
-                        }
-                        
                         if (!belongsToOutline) {
                             filteredProjects.push(proj);
                             console.log(`✅ [FILTER] "${projectTitle}" (${proj.designMicroproductType}) included - standalone content`);
