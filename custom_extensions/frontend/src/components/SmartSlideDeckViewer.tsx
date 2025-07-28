@@ -300,11 +300,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       {/* Professional Header */}
       <div className="professional-header">
         <div className="header-content">
-          <div className="presentation-info">
-            <h1 className="presentation-title">{componentDeck.lessonTitle || 'Presentation'}</h1>
-            <span className="slide-counter">{componentDeck.slides.length} slides</span>
-          </div>
-          
           {isEditable && (
             <div className="header-controls">
               <button 
