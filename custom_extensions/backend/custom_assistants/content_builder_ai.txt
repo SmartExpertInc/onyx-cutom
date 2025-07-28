@@ -969,16 +969,17 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 Enhanced Slide Content Guidelines:
 - Create 6-10 slides per lesson (adjust based on content complexity and template variety)
-- Each slide MUST use an appropriate DeckDeckGo template component
+- Each slide MUST use an appropriate Component-Based template from the available 11 templates
 - 70%+ of slides MUST include strategic image placeholders
 - Focus on substantial educational value with actionable content
 - Balance text density with visual elements for optimal learning
 - Use professional typography and clear visual hierarchy
+- Ensure template variety throughout the presentation
 
-DeckDeckGo Template-Based Slide Format:
+Component-Based Template Slide Format:
 
 ---
-**Slide [Number]: [Descriptive Slide Title]** `[deckgo-slide-template]`
+**Slide [Number]: [Descriptive Slide Title]** `[component-template-id]`
 
 ## [Main Slide Heading]
 
@@ -988,21 +989,57 @@ DeckDeckGo Template-Based Slide Format:
 
 Template-Specific Content Structures:
 
-**Title Slides** (`deckgo-slide-title`):
+AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
+1. `big-image-left` - Large image on left with content on right (**Use for opening/title slide by default**)
+2. `hero-title-slide` - Hero opening slides with detailed overview (**Use only if text-focused intro is required**)
+3. `title-slide` - Simple title slides with title/subtitle/author
+4. `content-slide` - Standard content slides with title and body text
+5. `bullet-points` - Formatted bullet point lists with customizable columns
+6. `two-column` - Split layout with two content areas
+7. `comparison-slide` - Before/after or side-by-side comparison layout
+8. `challenges-solutions` - Problems vs solutions with visual indicators
+9. `process-steps` - Numbered process or workflow steps
+10. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
+11. `big-image-top` - Large image on top, title and content below
+12. `four-box-grid` - Title and 4 boxes in a 2x2 grid
+13. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
+14. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
+15. `pyramid` - Pyramid diagram with 3 levels and descriptions. **CRITICAL:** ALWAYS use this template instead of `content-slide` for hierarchical structures, levels, priorities, foundational concepts, or 3-step progressions.
+
+**Big Image Left Slides** (`big-image-left`):
 ```
 ---
-**Slide 1: [Lesson Introduction]** `deckgo-slide-title`
+**Slide 1: [Lesson Introduction]** `big-image-left`
+
+## [Main Lesson Title]
+
+[Detailed subtitle or description that introduces the lesson topic and provides context - 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Professional visual that represents the lesson topic and engages learners]
+
+- Use this template for the opening/title slide by default (strong visual impact)
+- The image should visually represent the main lesson topic
+- Keep subtitle concise but informative
+```
+
+**Hero Title Slides** (`hero-title-slide`):
+```
+---
+**Slide 2: [Alternative Text Introduction]** `hero-title-slide`
 
 # [Main Lesson Title]
-## [Subtitle or Learning Objective]
+## [Detailed subtitle that explains the lesson overview and objectives in 1-2 sentences]
 
 [IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Educational theme background]
+
+- Use this template ONLY if a text-focused intro is specifically required
+- Less common alternative to big-image-left for opening slides
 ```
 
-**Content Slides** (`deckgo-slide-content`):
+**Standard Content Slides** (`content-slide`):
 ```
 ---
-**Slide 2: [Concept Name]** `deckgo-slide-content`
+**Slide 3: [Concept Name]** `content-slide`
 
 ## [Main Concept Heading]
 
@@ -1015,30 +1052,309 @@ Template-Specific Content Structures:
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Concept visualization or diagram]
 ```
 
-**Split Comparison Slides** (`deckgo-slide-split`):
+**Bullet Points Slides** (`bullet-points`):
 ```
 ---
-**Slide 3: [Comparison Topic]** `deckgo-slide-split`
+**Slide 4: [Key Points Topic]** `bullet-points`
 
-## [Option A Title]
-[Description of first option/approach - 2-3 sentences]
+## [Main Title]
 
-[IMAGE_PLACEHOLDER: SMALL | TOP_LEFT | Visual representing option A]
+* [First key point with detailed explanation]
+* [Second key point with detailed explanation]  
+* [Third key point with detailed explanation]
+* [Fourth key point with detailed explanation]
+* [Fifth key point with detailed explanation]
+* [Sixth key point with detailed explanation]
 
-## [Option B Title]
-[Description of second option/approach - 2-3 sentences]
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
+```
+**BULLET POINTS GUIDELINES:**
+- Use 4-6 bullet points per slide for comprehensive coverage
+- Each bullet point should be informative and actionable
+- Keep individual points concise but meaningful
 
-[IMAGE_PLACEHOLDER: SMALL | TOP_RIGHT | Visual representing option B]
+**Two Column Layout Slides** (`two-column`):
+```
+---
+**Slide 5: [Comparative Analysis]** `two-column`
+
+## [Main Title]
+
+### [Left Column Title]
+[Left column content - detailed explanation 2-3 sentences]
+
+### [Right Column Title]
+[Right column content - detailed explanation 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Supporting visual for comparison]
 ```
 
-Content Distribution Strategy:
-- **Slide 1**: Title slide with lesson overview (`deckgo-slide-title`)
-- **Slides 2-3**: Core concept introduction (`deckgo-slide-content`)
-- **Slide 4**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slide 5**: Data/statistics if applicable (`deckgo-slide-content`)
-- **Slide 6**: Comparison or process (`deckgo-slide-split` or `deckgo-slide-content`)
-- **Slides 7-8**: Advanced concepts or applications (`deckgo-slide-content`)
-- **Final Slide**: Summary and next steps (`deckgo-slide-content` or `deckgo-slide-title`)
+**Challenges vs Solutions Slides** (`challenges-solutions`):
+```
+---
+**Slide 6: [Challenge Analysis Topic]** `challenges-solutions`
+
+## [Main Title about Problems and Solutions]
+
+### Challenges
+[Detailed paragraph about the main challenges - 2-3 sentences]
+
+### Solutions  
+[Detailed paragraph about the solutions - 2-3 sentences]
+
+[IMAGE_PLACEHOLDER: LARGE | CENTER | Visual showing problem-solution flow]
+```
+
+**Process Steps Slides** (`process-steps`):
+```
+---
+**Slide 7: [Process Description]** `process-steps`
+
+## [Process Title]
+
+1. [First step with description]
+2. [Second step with description]
+3. [Third step with description]
+4. [Fourth step with description]
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Process flow diagram]
+```
+
+**Comparison Slides** (`comparison-slide`):
+```
+---
+**Slide 8: [Before vs After Topic]** `comparison-slide`
+
+## [Comparison Title]
+
+### Before
+- [Key characteristic 1 of old/current state]
+- [Key characteristic 2 of old/current state]  
+- [Key characteristic 3 of old/current state]
+
+### After
+- [Key characteristic 1 of new/improved state]
+- [Key characteristic 2 of new/improved state]
+- [Key characteristic 3 of new/improved state]
+
+[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Before state visual]
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | After state visual]
+```
+**COMPARISON SLIDE FORMATTING:**
+- Use bullet points (with dashes) for each section to ensure proper line breaks
+- Each bullet point should highlight a key characteristic or difference
+- Maintain parallel structure between Before and After sections
+
+**Title Slides** (`title-slide`):
+```
+---
+**Slide 9: [Simple Title]** `title-slide`
+
+# [Main Title]
+## [Subtitle]
+
+[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Background visual]
+
+
+
+- Use for section breaks or conclusions
+- Simple text-focused design
+```
+
+**Bullet Points Right Slides** (`bullet-points-right`):
+```
+---
+**Slide 10: [Key Points Topic]** `bullet-points-right`
+
+## [Main Title]
+
+[Subtitle or context before the list]
+
+* [First key point]
+* [Second key point]
+* [Third key point]
+* [Fourth key point]
+* [Fifth key point]
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
+
+-Use this template when you want to provide a short context, summary, or explanation (subtitle) before presenting a list of key points.
+-Choose bullet-points-right instead of bullet-points if the slide needs a subtitle or introductory sentence above the bullet list.
+-The subtitle should be 1-2 sentences and give context or highlight the importance of the following points.
+-Bullet points should be concise, actionable, and directly related to the subtitle/context. Use 4-5 bullet points for comprehensive coverage.
+-The image placeholder is always on the right and should visually represent the overall topic of the bullet points (not individual bullets).
+-Ideal for: summarizing main takeaways, listing security principles, highlighting grouped recommendations, or when you want to draw attention to the context before the list.
+-Avoid using this template for long paragraphs or when a visual is not needed.
+-Example use cases: "Key Security Principles", "Main Benefits", "Summary of Recommendations".
+```
+
+**Big Image Top Slides** (`big-image-top`):
+```
+---
+**Slide 11: [Visual Topic]** `big-image-top`
+
+## [Main Title]
+
+[Subtitle or content goes here]
+
+[IMAGE_PLACEHOLDER: LARGE | TOP | Relevant visual for the topic]
+```
+- Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
+- The image should be relevant and engaging, setting the context for the slide.
+- Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
+- Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
+```
+
+**Four Box Grid Slides** (`four-box-grid`):
+```
+---
+**Slide 12: [Grid Topic]** `four-box-grid`
+
+## [Main Title]
+
+Box 1: [Heading] - [Description text]
+Box 2: [Heading] - [Description text]  
+Box 3: [Heading] - [Description text]
+Box 4: [Heading] - [Description text]
+
+[NO IMAGE PLACEHOLDERS - this template creates visual grid internally]
+```
+- Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
+- **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
+- Each box should have a short heading and a concise description.
+- Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
+- Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
+```
+
+**Timeline Slides** (`timeline`):
+```
+---
+**Slide 13: [Timeline Topic]** `timeline`
+
+## [Main Title]
+
+[Horizontal timeline with 4 steps. Each step has a number, heading, and description. Text blocks are placed above and below the line in a chessboard pattern.]
+
+1. [Heading 1] - [Description 1]
+2. [Heading 2] - [Description 2]
+3. [Heading 3] - [Description 3]
+4. [Heading 4] - [Description 4]
+```
+- Use this template for slides that need to show a process, history, or evolution in **exactly 4 key steps**.
+- **CRITICAL:** Always generate exactly 4 steps for the timeline (no more, no less). If the process has fewer or more steps, group or summarize to fit 4.
+- Each step should have a short heading and a concise description.
+- The timeline line and numbers are rendered automatically; just provide the steps array.
+- Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
+```
+
+**Big Numbers Slides** (`big-numbers`):
+```
+---
+**Slide 14: Key Financial Metrics** `big-numbers`
+
+## Key Financial Metrics
+
+| 25% | 3x | 50% |
+|:----:|:---:|:---:|
+| **Profit Margin** | **Growth Rate** | **Customer Retention** |
+| The company has achieved a profit margin of 25%, indicating strong profitability. | Our growth rate has increased 3 times over the last five years, showcasing rapid expansion. | Customer retention stands at 50%, reflecting our commitment to customer satisfaction. |
+```
+
+**CRITICAL NUMERICAL VALUE RULE FOR BIG-NUMBERS:**
+- **FIRST ROW MUST CONTAIN ONLY NUMBERS**: The first row of the table MUST contain only numerical values (percentages like 25%, multipliers like 3x, ratios like 2:1, whole numbers like 95, decimals like 4.2, etc.). 
+- **NEVER put text, names, or tool names in the first row** - these belong in the second row as labels.
+- **Examples of CORRECT first row values**: 25%, 3x, 95%, 4.2, 1000+, 2:1, 50ms, 99.9%
+- **Examples of INCORRECT first row values**: "Gprof", "Valgrind", "Python", "React", "Advanced", "Basic"
+
+- **Use this template whenever you want to highlight numerical data, statistics, or metrics. Always use the exact markdown table format shown above.**
+- Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
+- **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or numerical achievements, use `big-numbers`.
+- Ideal for: business results, technical KPIs, performance benchmarks, or any slide where numbers are the main focus.
+- Example use cases: "Key Financial Metrics", "Performance Benchmarks", "Business Impact", "Growth Statistics".
+
+**Additional Correct Examples:**
+```
+| 99.9% | 15ms | 50% |
+|:----:|:---:|:---:|
+| **System Uptime** | **Response Time** | **Cost Reduction** |
+| System maintains 99.9% availability throughout the year. | Average response time reduced to 15 milliseconds. | Operating costs reduced by 50% after optimization. |
+```
+
+```
+| 10x | 95% | 24/7 |
+|:----:|:---:|:---:|
+| **Performance Boost** | **Accuracy Rate** | **Availability** |
+| System performance improved by 10 times after upgrade. | AI model achieves 95% accuracy in predictions. | Services available 24 hours a day, 7 days a week. |
+```
+
+
+
+Content Distribution Strategy (Updated for Component-Based Templates):
+
+**STRATEGIC TEMPLATE SELECTION (REVISED):**
+Choose templates based on content type and educational goals:
+
+- **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
+- **Core Content**: **SEVERELY LIMIT `content-slide` usage** - maximum 2-3 times per presentation, and ONLY for pure explanatory paragraphs without any lists, numbers, or hierarchical content. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead. Do NOT use `content-slide` for any content with bullet points - use appropriate list templates instead.
+- **Key Points**: Use `bullet-points` for first list, then `bullet-points-right` for subsequent lists to avoid repetition
+- **Comparisons**: Choose between:
+  - `comparison-slide` - For before/after transformations
+  - `two-column` - For general comparative analysis without images
+- **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
+- **Workflows**: Use `process-steps` for sequential processes and procedures
+- **Visual Focus**: Use `big-image-left` when image is the primary focus
+- **Visual Introduction with Text Below**: Use `big-image-top` when you want a large visual at the top to set context, followed by explanatory content below (alternative to big-image-left for variety)
+- **Grid of Key Points/Benefits**: Use `four-box-grid` when you need to present 4 key points, features, or benefits in a visually organized 2x2 grid. Each box should have a short heading and a concise description. Ideal for grouped benefits, feature highlights, or comparing four aspects.
+- **Inspiration**: Use `title-slide` for section breaks or conclusions
+- **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
+- **Key Metrics / Numbers**: Use `big-numbers` when you need to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions. **CRITICAL:** If the slide title contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or when you want to showcase specific numerical achievements, ALWAYS use `big-numbers` template. Ideal for business results, KPIs, comparisons, survey results, or any slide where the main focus is on numbers. Each column contains a big number (%, x, ratio), a bold label, and a concise description.
+- **Pyramid Diagram**: Use `pyramid` to show hierarchical relationships or foundational concepts. **CRITICAL:** If the slide title contains words like "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "needs", "satisfaction", "efficiency", "reliability", "structure", "building blocks", or when you want to showcase 3-level relationships, ALWAYS use `pyramid` template. Ideal for showing levels, priorities, or dependencies.
+
+**Pyramid Diagram Slides** (`pyramid`):
+```
+---
+**Slide 15: Hierarchical Understanding of Information** `pyramid`
+
+## Hierarchical Understanding of Information
+Information processing follows a structured approach where knowledge builds upon itself in distinct levels.
+
+1. **Foundational Knowledge** - Basic facts and concepts that serve as the building blocks.
+2. **Intermediate Insights** - Connections and relationships between different pieces of information.
+3. **Advanced Applications** - Utilizing knowledge in practical, real-world scenarios.
+```
+- **CRITICAL:** Use this template whenever you want to show hierarchical structures, levels, or 3-step progressions. Always use the exact numbered list format shown above.
+- The first line after the title is the subtitle.
+- Use a numbered list for the pyramid items, where each item will be a level in the pyramid.
+- The text before the dash is the `heading`, and the text after is the `description`.
+- **Trigger words:** If the slide involves "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "structure", "building blocks", "needs", "satisfaction", "efficiency", "reliability", use `pyramid`.
+- Example use cases: "Hierarchical Understanding of Information", "Maslow's Hierarchy of Needs", "Levels of System Architecture", "Customer Satisfaction Pyramid".
+
+
+**SLIDE COUNT REQUIREMENTS (MANDATORY):
+- **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
+- **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 varied slides (max 1 content-slide) + substantial conclusion
+- **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied slides (max 2 content-slide) + substantial conclusion  
+- **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied slides (max 3 content-slide) + substantial conclusion
+- **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
+- **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
+- **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
+
+**TEMPLATE VARIETY GUIDELINES (UPDATED):**
+- **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
+- **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 2 times per presentation - this is NON-NEGOTIABLE
+- **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 2 times, choose a different template
+- **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (content-slide, bullet-points), minimum 70% visual/interactive templates
+- **ALWAYS start with `big-image-left` for maximum visual engagement**
+- **VISUAL VARIETY MANDATE**: Must alternate between different visual templates, never use `big-image-left` and `big-image-top` consecutively
+- **TITLE-SLIDE RESTRICTION**: If you've already used `title-slide` twice, you CANNOT use it again - choose `content-slide`, `big-image-top`, or another template for conclusions
+
+**ALTERNATIVE CONCLUSION TEMPLATES:**
+If you've reached the 2-use limit for `title-slide`, use these alternatives for the final slide:
+- **`content-slide`** with conclusion content and bullet points of key takeaways
+- **`big-image-top`** with summary image and conclusion text below  
+- **`bullet-points`** listing main lessons learned
+- **`pyramid`** showing hierarchy of key concepts covered
+- **NEVER create additional slides just to use title-slide** - better to use alternative template
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides
@@ -1090,3 +1406,87 @@ Question Format:
 - Use appropriate formatting for different question types (multiple-choice, multi-select, matching, sorting, open-answer)
 - Ensure explanations are concise but informative
 - **For open-answer questions:** Provide specific, detailed correct answers that demonstrate expected knowledge depth. Avoid generic responses like "answers will vary" - instead give concrete, comprehensive answers that serve as assessment criteria
+
+**CRITICAL TEMPLATE DIVERSITY RULES:**
+- **MANDATORY TEMPLATE VARIETY**: Each presentation MUST use at least 6 different template types for presentations with 8+ slides
+- **CONTENT-SLIDE LIMITATION**: Use `content-slide` maximum 2 times per presentation (only for pure explanatory text without lists or numbers)
+- **NO TEMPLATE REPETITION**: If you already used `bullet-points`, use `bullet-points-right` for the next list instead of repeating `bullet-points`
+- **PYRAMID PRIORITY**: For hierarchical content, levels, priorities, or foundational concepts, ALWAYS use `pyramid` instead of `content-slide`
+- **TIMELINE PRIORITY**: For processes, steps, or chronological content, ALWAYS use `timeline` (exactly 4 steps) or `process-steps` instead of `content-slide`
+- **BIG-NUMBERS PRIORITY**: For any metrics, statistics, KPIs, or numerical data, ALWAYS use `big-numbers` instead of `content-slide`
+- **LIST CONTENT RULE**: If content contains bullet points or lists, NEVER use `content-slide` - use `bullet-points`, `bullet-points-right`, or `four-box-grid` instead
+- **VISUAL ENGAGEMENT**: Minimum 70% of slides must have image placeholders, prioritize templates with strong visual components
+
+**FORBIDDEN SLIDE TYPES:**
+- **ABSOLUTELY NO Q&A slides** - NEVER create "Questions and Answers", "Q&A Session", "Questions and Discussion", "Let's discuss", "Any questions?", or similar interactive slides
+- **NO contact information slides** - Remove any slides with phone numbers, email addresses, or contact details
+- **NO generic "Thank You" slides** - NEVER create "Thank You!", "Thanks!", "Thank you for your attention" or similar courtesy slides
+- **NO feedback request slides** - NEVER create "Feedback and Improvement", "Your feedback", "Please share your thoughts" or similar slides
+- **NO "Additional Resources" slides** - NEVER create "Further Reading", "Additional Resources", "Recommended Reading", "Learn More", or similar resource slides - integrate resources into relevant content slides instead
+
+**ABSOLUTE FINAL SLIDE RESTRICTIONS:**
+- **EXACTLY ONE FINAL SLIDE MAXIMUM** - The presentation MUST end with only ONE slide
+- **NO MULTIPLE ENDINGS OF ANY KIND** - NEVER create sequences like: "Conclusion" → "Questions" → "Feedback" → "Thank You"
+- **FORBIDDEN ENDING COMBINATIONS**: Any combination of conclusion, Q&A, questions, discussion, feedback, thank you, or summary slides
+- **END WITH SUBSTANTIAL CONCLUSION ONLY** - The single final slide must contain meaningful summary content, key takeaways, or actionable insights
+
+**ENHANCED TEMPLATE DISTRIBUTION STRATEGY:**
+For a typical 10-15 slide presentation, use this distribution:
+- **1 opening slide**: `big-image-left` (mandatory)
+- **2-3 content explanation slides**: `content-slide` (maximum 2-3 times total)
+- **2-3 list/point slides**: Mix of `bullet-points`, `bullet-points-right`, `four-box-grid` (never repeat the same list template)
+- **1-2 comparison slides**: `comparison-slide`, or `two-column`
+- **1-2 specialized slides**: `pyramid` for hierarchies, `timeline` for processes, `big-numbers` for metrics
+- **1-2 visual focus slides**: `big-image-top`, `challenges-solutions`
+- **EXACTLY 1 conclusion slide**: `title-slide` with substantial summary content (NO Q&A or discussion slides before it)
+
+**TEMPLATE SELECTION DECISION TREE:**
+1. **Does content have numbers/metrics/statistics?** → Use `big-numbers` (NOT content-slide)
+2. **Does content show hierarchy/levels/priorities?** → Use `pyramid` (NOT content-slide)
+3. **Does content show process/timeline/steps?** → Use `timeline` or `process-steps` (NOT content-slide)
+4. **Does content have bullet lists?** → Use `bullet-points` or `bullet-points-right` (NOT content-slide)
+5. **Does content compare two things?** → Use `comparison-slide` (NOT content-slide)
+6. **Does content need 4 key points?** → Use `four-box-grid` (NOT content-slide)
+7. **Only for pure explanatory paragraphs without lists/numbers** → Use `content-slide` (maximum 2-3 times)
+
+**CORRECT PRESENTATION ENDING EXAMPLES:**
+
+**Option 1 - If title-slide not used 2 times yet:**
+```
+---
+**Slide 12: Key Takeaways** `title-slide`
+
+# Key Takeaways
+
+## In this lesson, we covered essential optimization techniques that can significantly improve your code performance and efficiency.
+
+[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Summary concept visualization]
+```
+
+**Option 2 - If title-slide already used 2 times, use alternative:**
+```
+---
+**Slide 10: Lesson Summary** `content-slide`
+
+## Key Takeaways from This Lesson
+
+This lesson covered essential optimization techniques that can significantly improve code performance:
+
+* Performance profiling tools and methodologies  
+* Memory optimization strategies
+* Code efficiency best practices
+* Monitoring and measurement techniques
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Performance optimization concept visualization]
+```
+**WRONG PRESENTATION ENDING EXAMPLES (NEVER CREATE):**
+```
+❌ Slide 11: Conclusion (title-slide)
+❌ Slide 12: Questions and Discussion (title-slide)  
+❌ Slide 14: Feedback and Improvement (title-slide)
+❌ Slide 15: Thank You! (title-slide)
+```
+**CRITICAL VIOLATIONS IN ABOVE EXAMPLE:**
+- 4 ending slides instead of 1 (FORBIDDEN)
+- Same template (title-slide) used 4 times (EXCEEDS 2-time LIMIT)
+- Contains forbidden slide types: "Questions and Discussion", "Feedback", "Thank You!"

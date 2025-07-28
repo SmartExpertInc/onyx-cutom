@@ -360,7 +360,7 @@
 .professional-slide {
   width: var(--slide-width);
   height: var(--slide-height);
-  background: white;
+  background: #261c4e;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   margin-bottom: var(--space-3xl);
@@ -403,9 +403,10 @@
 
 .slide-title-text,
 .slide-title-display {
-  font-size: 2rem;
+  font-size: 45px;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 700;
-  color: var(--gray-900);
+  color: #ffffff;
   margin: 0;
   line-height: 1.2;
 }
@@ -530,27 +531,31 @@
 }
 
 .professional-headline.level-1 .heading-text {
-  font-size: 2rem;
+  font-size: 45px;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 700;
-  color: var(--gray-900);
+  color: #ffffff;
 }
 
 .professional-headline.level-2 .heading-text {
-  font-size: 1.5rem;
+  font-size: 35px;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 600;
-  color: var(--gray-800);
+  color: #ffffff;
 }
 
 .professional-headline.level-3 .heading-text {
-  font-size: 1.25rem;
+  font-size: 28px;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 600;
-  color: var(--gray-700);
+  color: #ffffff;
 }
 
 .professional-headline.level-4 .heading-text {
-  font-size: 1.125rem;
+  font-size: 22px;
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 500;
-  color: var(--gray-600);
+  color: #ffffff;
 }
 
 .professional-paragraph {
@@ -580,8 +585,9 @@
 .paragraph-text {
   margin: 0;
   font-size: 1rem;
+  font-family: 'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   line-height: 1.6;
-  color: var(--gray-700);
+  color: #d9e1ff;
   flex: 1;
 }
 
@@ -646,11 +652,44 @@
 }
 
 .bullet-indicator {
-  color: var(--gray-400);
-  font-size: 1rem;
+  color: var(--gray-600);  /* Made darker for better visibility */
+  font-size: 1.2rem;       /* Made slightly larger */
   line-height: 1.6;
   flex-shrink: 0;
   margin-top: 2px;
+  font-weight: 600;        /* Made bolder */
+}
+
+/* Fallback bullet styling for lists without explicit bullet indicators */
+.professional-bullet-list ul,
+.slide-bullet-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.professional-bullet-list li,
+.slide-bullet-list li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.professional-bullet-list li:before,
+.slide-bullet-list li:before {
+  content: "•";
+  color: var(--gray-600);
+  font-size: 1.2rem;
+  font-weight: 600;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Ensure bullet points in component templates are visible */
+.bullet-points-template .bullet-icon,
+.component-based-slide .bullet-icon {
+  color: var(--gray-700) !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
 }
 
 .number-badge {

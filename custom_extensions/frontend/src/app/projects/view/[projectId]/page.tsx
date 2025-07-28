@@ -13,7 +13,7 @@ import {
   TextPresentationData,
 } from '@/types/projectSpecificTypes';
 import { VideoLessonData } from '@/types/videoLessonTypes';
-import { SlideDeckData } from '@/types/pdfLesson';
+import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
@@ -25,6 +25,7 @@ import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
+import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -221,7 +222,7 @@ export default function ProjectInstanceViewPage() {
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData(copiedDetails as PdfLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
-          setEditableData(copiedDetails as SlideDeckData);
+          setEditableData(copiedDetails as ComponentBasedSlideDeck);
         } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
           setEditableData(copiedDetails as VideoLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
@@ -779,22 +780,31 @@ export default function ProjectInstanceViewPage() {
           />
         );
       case COMPONENT_NAME_SLIDE_DECK:
-        const slideDeckData = editableData as SlideDeckData | null;
+        const slideDeckData = editableData as ComponentBasedSlideDeck | null;
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">{t('projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
-        // For slide decks, use the full editor page layout instead of the standard project view
+                // For slide decks, use the new SmartSlideDeckViewer with component-based templates
         return (
           <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100vw', 
-            height: '100vh', 
-            zIndex: 9999, 
-            backgroundColor: '#f8f9fa' 
+            width: '100%',
+            minHeight: '600px',
+            backgroundColor: '#f8f9fa',
+            padding: '20px',
+            borderRadius: '8px'
           }}>
-            <EditorPage projectId={projectInstanceData.project_id.toString()} />
+            <SmartSlideDeckViewer
+              deck={slideDeckData}
+              isEditable={isEditing}
+              onSave={(updatedDeck) => {
+                // Convert the updated deck back to the format expected by handleTextChange
+                if (handleTextChange) {
+                  handleTextChange([], updatedDeck as any);
+                }
+              }}
+              showFormatInfo={true}
+              theme="dark-purple"
+            />
           </div>
         );
        case COMPONENT_NAME_TEXT_PRESENTATION:
