@@ -153,7 +153,17 @@ export const uk = {
       lessonTypes: "Типи уроків",
       assessmentTypes: "Типи оцінювання",
       createNewLesson: "Створити новий урок",
-      chooseContentType: "Виберіть тип контенту, який ви хочете створити для цього уроку"
+      chooseContentType: "Виберіть тип контенту, який ви хочете створити для цього уроку",
+      presentation: "Презентація",
+      presentationDescription: "Створити презентацію на основі слайдів з інтерактивним контентом",
+      onePager: "Односторінка",
+      onePagerDescription: "Створити комплексний текстовий документ-резюме",
+      quiz: "Тест",
+      quizDescription: "Створити інтерактивний тест для перевірки знань",
+      videoLesson: "Відео-урок",
+      videoLessonDescription: "Створити відео-урок з озвучкою та візуальними елементами",
+      soon: "Незабаром",
+      alreadyCreated: "Вже створено"
     },
     openContent: {
       title: "Відкрити контент",

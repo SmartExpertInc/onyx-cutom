@@ -162,7 +162,17 @@ export const en = {
       lessonTypes: "Lesson Types",
       assessmentTypes: "Assessment Types",
       createNewLesson: "Create New Lesson",
-      chooseContentType: "Choose the type of content you'd like to create for this lesson"
+      chooseContentType: "Choose the type of content you'd like to create for this lesson",
+      presentation: "Presentation",
+      presentationDescription: "Create a slide-based presentation with interactive content",
+      onePager: "One-Pager",
+      onePagerDescription: "Create a comprehensive text-based summary document",
+      quiz: "Quiz",
+      quizDescription: "Create an interactive quiz to test knowledge",
+      videoLesson: "Video Lesson",
+      videoLessonDescription: "Create a video lesson with narration and visuals",
+      soon: "Soon",
+      alreadyCreated: "Already created"
     },
     openContent: {
       title: "Open Content",

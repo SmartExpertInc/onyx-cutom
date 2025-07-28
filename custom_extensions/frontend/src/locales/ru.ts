@@ -153,7 +153,17 @@ export const ru = {
       lessonTypes: "Типы уроков",
       assessmentTypes: "Типы оценивания",
       createNewLesson: "Создать новый урок",
-      chooseContentType: "Выберите тип контента, который вы хотите создать для этого урока"
+      chooseContentType: "Выберите тип контента, который вы хотите создать для этого урока",
+      presentation: "Презентация",
+      presentationDescription: "Создать презентацию на основе слайдов с интерактивным контентом",
+      onePager: "Одностраничник",
+      onePagerDescription: "Создать комплексный текстовый документ-резюме",
+      quiz: "Тест",
+      quizDescription: "Создать интерактивный тест для проверки знаний",
+      videoLesson: "Видео-урок",
+      videoLessonDescription: "Создать видео-урок с озвучкой и визуальными элементами",
+      soon: "Скоро",
+      alreadyCreated: "Уже создано"
     },
     openContent: {
       title: "Открыть контент",

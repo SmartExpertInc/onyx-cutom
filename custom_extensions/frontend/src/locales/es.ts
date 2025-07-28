@@ -153,7 +153,17 @@ export const es = {
       lessonTypes: "Tipos de lecciones",
       assessmentTypes: "Tipos de evaluación",
       createNewLesson: "Crear nueva lección",
-      chooseContentType: "Elige el tipo de contenido que te gustaría crear para esta lección"
+      chooseContentType: "Elige el tipo de contenido que te gustaría crear para esta lección",
+      presentation: "Presentación",
+      presentationDescription: "Crear una presentación basada en diapositivas con contenido interactivo",
+      onePager: "Resumen",
+      onePagerDescription: "Crear un documento de resumen completo basado en texto",
+      quiz: "Cuestionario",
+      quizDescription: "Crear un cuestionario interactivo para evaluar conocimientos",
+      videoLesson: "Lección de Video",
+      videoLessonDescription: "Crear una lección de video con narración y elementos visuales",
+      soon: "Pronto",
+      alreadyCreated: "Ya creado"
     },
     openContent: {
       title: "Abrir Contenido",

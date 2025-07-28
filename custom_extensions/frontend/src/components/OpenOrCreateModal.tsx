@@ -110,11 +110,11 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                   {hasLesson && hasQuiz && hasOnePager
                     ? t('modals.openOrCreate.createAll')
                     : hasLesson && hasQuiz
-                    ? t('modals.openOrCreate.createPresentationAndQuiz')
+                    ? t('modals.openOrCreate.createOnePager')
                     : hasLesson && hasOnePager
-                    ? t('modals.openOrCreate.createPresentationAndOnePager')
+                    ? t('modals.openOrCreate.createQuiz')
                     : hasQuiz && hasOnePager
-                    ? t('modals.openOrCreate.createQuizAndOnePager')
+                    ? t('modals.openOrCreate.createPresentation')
                     : hasLesson 
                     ? t('modals.openOrCreate.createQuizAndOnePager')
                     : hasQuiz 

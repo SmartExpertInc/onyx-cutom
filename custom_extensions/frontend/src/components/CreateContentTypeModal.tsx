@@ -19,43 +19,7 @@ interface CreateContentTypeModalProps {
   parentProjectName?: string; // Add outline name for quiz creation
 }
 
-const contentTypes = [
-  { 
-    name: "lessonPresentation", 
-    icon: <BookText className="w-6 h-6" />, 
-    label: "Presentation",
-    description: "Create a slide-based presentation with interactive content",
-    color: "blue",
-    disabled: false 
-  },
-  { 
-    name: "textPresentation", 
-    icon: <FileText className="w-6 h-6" />, 
-    label: "One-Pager",
-    description: "Create a comprehensive text-based summary document",
-    color: "purple",
-    disabled: false 
-  },
-  { 
-    name: "multiple-choice", 
-    icon: <HelpCircle className="w-6 h-6" />, 
-    label: "Quiz",
-    description: "Create an interactive quiz to test knowledge",
-    color: "green",
-    disabled: false 
-  },
-  { 
-    name: "videoLesson", 
-    icon: <Video className="w-6 h-6" />, 
-    label: "Video Lesson",
-    description: "Create a video lesson with narration and visuals",
-    color: "orange",
-    disabled: true,
-    soon: true
-  },
-];
-
-export const CreateContentTypeModal = ({ 
+const CreateContentTypeModal = ({ 
   isOpen, 
   onClose, 
   lessonTitle, 
@@ -70,6 +34,44 @@ export const CreateContentTypeModal = ({
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
   const { t } = useLanguage();
+
+  const contentTypes = [
+    { 
+      name: "lessonPresentation", 
+      icon: <BookText className="w-6 h-6" />, 
+      label: t('modals.createContent.presentation'),
+      description: t('modals.createContent.presentationDescription'),
+      color: "blue",
+      disabled: false 
+    },
+    { 
+      name: "textPresentation", 
+      icon: <FileText className="w-6 h-6" />, 
+      label: t('modals.createContent.onePager'),
+      description: t('modals.createContent.onePagerDescription'),
+      color: "purple",
+      disabled: false 
+    },
+    { 
+      name: "multiple-choice", 
+      icon: <HelpCircle className="w-6 h-6" />, 
+      label: t('modals.createContent.quiz'),
+      description: t('modals.createContent.quizDescription'),
+      color: "green",
+      disabled: false 
+    },
+    { 
+      name: "videoLesson", 
+      icon: <Video className="w-6 h-6" />, 
+      label: t('modals.createContent.videoLesson'),
+      description: t('modals.createContent.videoLessonDescription'),
+      color: "orange",
+      disabled: true,
+      soon: true
+    },
+  ];
+
+
 
   // Update disabled states based on what already exists
   const updatedContentTypes = contentTypes.map(type => ({
@@ -196,12 +198,12 @@ export const CreateContentTypeModal = ({
                       <h3 className="text-lg font-semibold text-black">{type.label}</h3>
                       {type.soon && (
                         <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
-                          Soon
+                          {t('modals.createContent.soon')}
                         </span>
                       )}
                       {isAlreadyCreated && (
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                          Already created
+                          {t('modals.createContent.alreadyCreated')}
                         </span>
                       )}
                     </div>
