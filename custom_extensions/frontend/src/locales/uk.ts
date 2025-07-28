@@ -583,10 +583,12 @@ export const uk = {
       modulesAndLessons: "Модулі та уроки",
       editsProtected: "✓ Редагування захищено",
       moduleTitle: "Назва модуля {number}",
+      title: "назва",
       lessonTitle: "Урок {number}",
       addModule: "Додати модуль",
       lessonsTotal: "{count} уроків всього",
       pressEnterToSplit: "Натисніть ⏎ для розділення уроків",
+      toSplitLessons: "щоб розділити уроки",
       credits: "кредитів",
       generate: "Генерувати",
       helpComingSoon: "Допомога (скоро)",
@@ -693,7 +695,6 @@ export const uk = {
       generatingLessonContent: "Генерування контенту уроку...",
       applyingEdit: "Застосування редагування...",
       lessonContentPlaceholder: "Контент уроку з'явиться тут...",
-      describeImprovements: "Опишіть, що ви хочете покращити...",
       applying: "Застосування...",
       advancedMode: "Розширений режим",
       themes: "Теми",
@@ -709,34 +710,7 @@ export const uk = {
       words: "слів"
     },
 
-    // Course Outline specific translations
-    courseOutline: {
-      additionalInfo: "Додаткова інформація",
-      assessmentType: "Тип оцінки",
-      contentVolume: "Обсяг контенту",
-      source: "Джерело",
-      productionHours: "Години виробництва",
-      describeWhatToMake: "Опишіть, що ви хочете створити",
-      regenerate: "Перегенерувати",
-      modulesAndLessons: "Модулі та уроки",
-      editsProtected: "Редагування захищено",
-      applyingEdit: "Застосування редагування...",
-      moduleTitle: "Модуль",
-      title: "назва",
-      lessonTitle: "Урок",
-      addModule: "Додати модуль",
-      lessonsTotal: "уроків всього",
-      pressEnterToSplit: "Натисніть",
-      toSplitLessons: "щоб розділити уроки",
-      aiImageModel: "Модель ШІ зображення",
-      fluxKontextFast: "Flux Kontext Fast",
-      fluxKontextHQ: "Flux Kontext HQ",
-      stableDiffusion: "Stable Diffusion 2.1",
-      credits: "кредитів",
-      generate: "Генерувати",
-      helpComingSoon: "Допомога (скоро)",
-      finalizingProduct: "Завершення продукту..."
-    },
+
     // Module and Lesson Settings Modals
     modals: {
       // ... existing code ...

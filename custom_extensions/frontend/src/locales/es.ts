@@ -590,10 +590,12 @@ export const es = {
       modulesAndLessons: "Módulos y lecciones",
       editsProtected: "✓ Ediciones protegidas",
       moduleTitle: "Título del módulo {number}",
+      title: "título",
       lessonTitle: "Lección {number}",
       addModule: "Agregar módulo",
       lessonsTotal: "{count} lecciones en total",
       pressEnterToSplit: "Presiona ⏎ para dividir lecciones",
+      toSplitLessons: "para dividir lecciones",
       credits: "créditos",
       generate: "Generar",
       helpComingSoon: "Ayuda (próximamente)",
@@ -700,7 +702,6 @@ export const es = {
       generatingLessonContent: "Generando contenido de lección...",
       applyingEdit: "Aplicando edición...",
       lessonContentPlaceholder: "El contenido de la lección aparecerá aquí...",
-      describeImprovements: "Describe lo que te gustaría mejorar...",
       applying: "Aplicando...",
       advancedMode: "Modo avanzado",
       themes: "Temas",
@@ -716,34 +717,7 @@ export const es = {
       words: "palabras"
     },
 
-    // Course Outline specific translations
-    courseOutline: {
-      additionalInfo: "Información adicional",
-      assessmentType: "Tipo de evaluación",
-      contentVolume: "Volumen de contenido",
-      source: "Fuente",
-      productionHours: "Horas de producción",
-      describeWhatToMake: "Describe lo que te gustaría crear",
-      regenerate: "Regenerar",
-      modulesAndLessons: "Módulos y lecciones",
-      editsProtected: "Ediciones protegidas",
-      applyingEdit: "Aplicando edición...",
-      moduleTitle: "Módulo",
-      title: "título",
-      lessonTitle: "Lección",
-      addModule: "Agregar módulo",
-      lessonsTotal: "lecciones totales",
-      pressEnterToSplit: "Presiona",
-      toSplitLessons: "para dividir lecciones",
-      aiImageModel: "Modelo de imagen IA",
-      fluxKontextFast: "Flux Kontext Fast",
-      fluxKontextHQ: "Flux Kontext HQ",
-      stableDiffusion: "Stable Diffusion 2.1",
-      credits: "créditos",
-      generate: "Generar",
-      helpComingSoon: "Ayuda (próximamente)",
-      finalizingProduct: "Finalizando producto..."
-    },
+
     // Module and Lesson Settings Modals
     modals: {
       // ... existing code ...

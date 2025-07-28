@@ -579,10 +579,12 @@ export const ru = {
       modulesAndLessons: "Модули и уроки",
       editsProtected: "✓ Редактирование защищено",
       moduleTitle: "Название модуля {number}",
+      title: "название",
       lessonTitle: "Урок {number}",
       addModule: "Добавить модуль",
       lessonsTotal: "{count} уроков всего",
       pressEnterToSplit: "Нажмите ⏎ для разделения уроков",
+      toSplitLessons: "чтобы разделить уроки",
       credits: "кредитов",
       generate: "Генерировать",
       helpComingSoon: "Помощь (скоро)",
@@ -704,31 +706,6 @@ export const ru = {
       words: "слов"
     },
 
-    // Course Outline specific translations
-    courseOutline: {
-      additionalInfo: "Дополнительная информация",
-      assessmentType: "Тип оценки",
-      contentVolume: "Объем контента",
-      source: "Источник",
-      productionHours: "Часы производства",
-      describeWhatToMake: "Опишите, что вы хотите создать",
-      modulesAndLessons: "Модули и уроки",
-      editsProtected: "Редактирование защищено",
-      applyingEdit: "Применение редактирования...",
-      moduleTitle: "Модуль",
-      title: "название",
-      lessonTitle: "Урок",
-      addModule: "Добавить модуль",
-      lessonsTotal: "уроков всего",
-      pressEnterToSplit: "Нажмите",
-      toSplitLessons: "чтобы разделить уроки",
-      aiImageModel: "Модель ИИ изображений",
-      fluxKontextFast: "Flux Kontext Fast",
-      fluxKontextHQ: "Flux Kontext HQ",
-      stableDiffusion: "Stable Diffusion 2.1",
-      credits: "кредитов",
-      helpComingSoon: "Помощь (скоро)",
-      finalizingProduct: "Завершение продукта..."
-    }
+
   }
 }; 
