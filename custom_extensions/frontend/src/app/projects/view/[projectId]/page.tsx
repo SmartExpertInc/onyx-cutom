@@ -795,7 +795,7 @@ export default function ProjectInstanceViewPage() {
           }}>
             <SmartSlideDeckViewer
               deck={editableData || slideDeckData}
-              isEditable={isEditing}
+              isEditable={true} // Завжди включено для слайдів
               onSave={(updatedDeck) => {
                 // Оновлюємо editableData з новими даними слайду
                 setEditableData(updatedDeck as any);
@@ -896,8 +896,8 @@ export default function ProjectInstanceViewPage() {
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
-            {/* Edit mode toggle for other content types */}
-            {canEditContent && projectId && (
+            {/* Edit mode toggle for other content types (excluding slide decks) */}
+            {canEditContent && projectId && projectInstanceData.component_name !== COMPONENT_NAME_SLIDE_DECK && (
               <button
                 onClick={handleToggleEdit}
                 disabled={isSaving}

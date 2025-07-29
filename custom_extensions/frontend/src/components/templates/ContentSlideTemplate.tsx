@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/ContentSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ContentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
@@ -95,6 +95,16 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 }) => {
   // State for inline editing (копіюємо з TrainingPlanTable)
   const [editingField, setEditingField] = useState<string | null>(null);
+  
+  // Локальний стан для редагування
+  const [editingTitle, setEditingTitle] = useState(title);
+  const [editingContent, setEditingContent] = useState(content);
+
+  // Оновлюємо локальний стан коли пропси змінюються
+  useEffect(() => {
+    setEditingTitle(title);
+    setEditingContent(content);
+  }, [title, content]);
 
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -154,17 +164,25 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   // Handle input changes (копіюємо з TrainingPlanTable)
   const handleInputChange = (fieldPath: string, value: string) => {
-    if (onTextChange) {
-      onTextChange(slideId, fieldPath, value);
-      if (onAutoSave) {
-        onAutoSave();
-      }
+    // Оновлюємо локальний стан для плавного введення
+    if (fieldPath === 'title') {
+      setEditingTitle(value);
+    } else if (fieldPath === 'content') {
+      setEditingContent(value);
     }
   };
 
   // Handle input blur (копіюємо з TrainingPlanTable)
   const handleInputBlur = () => {
+    // Викликаємо onTextChange з поточним значенням локального стану
+    if (onTextChange && editingField) {
+      const currentValue = editingField === 'title' ? editingTitle : editingContent;
+      onTextChange(slideId, editingField, currentValue);
+    }
+    
     stopEditing();
+    
+    // Викликаємо автозбереження тільки при втраті фокусу
     if (onAutoSave) {
       onAutoSave();
     }
@@ -174,12 +192,24 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      
+      // Викликаємо onTextChange з поточним значенням локального стану
+      if (onTextChange && editingField) {
+        const currentValue = editingField === 'title' ? editingTitle : editingContent;
+        onTextChange(slideId, editingField, currentValue);
+      }
+      
       stopEditing();
+      
+      // Викликаємо автозбереження при натисканні Enter
       if (onAutoSave) {
         onAutoSave();
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
+      // Скасовуємо зміни, повертаємо оригінальні значення
+      setEditingTitle(title);
+      setEditingContent(content);
       stopEditing();
     }
   };
@@ -214,7 +244,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       {editingField === 'title' ? (
         <input
           type="text"
-          value={title}
+          value={editingTitle}
           onChange={(e) => handleInputChange('title', e.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
@@ -243,7 +273,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       {/* Content */}
       {editingField === 'content' ? (
         <textarea
-          value={content}
+          value={editingContent}
           onChange={(e) => handleInputChange('content', e.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
