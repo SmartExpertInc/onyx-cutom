@@ -863,7 +863,7 @@ export default function ProjectInstanceViewPage() {
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} className="mr-2" />
-              {t('projectView.backButton', 'Back')}
+              {t('projectView.back', 'Back')}
             </button>
             
             <Link
@@ -881,9 +881,9 @@ export default function ProjectInstanceViewPage() {
                     onClick={handlePdfDownload}
                     disabled={isSaving}
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={t('projectView.downloadPDF', 'Download content as PDF')}
+                    title={t('projectView.downloadPdf', 'Download content as PDF')}
                   >
-                   <ArrowDownToLine size={16} className="mr-2" /> {t('projectView.downloadPDF', 'Download PDF')}
+                   <ArrowDownToLine size={16} className="mr-2" /> {t('projectView.downloadPdf', 'Download PDF')}
                   </button>
             )}
             {/* Smart Edit button for Training Plans */}
