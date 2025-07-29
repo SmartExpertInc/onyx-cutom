@@ -95,6 +95,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 }) => {
   // Локальний стан для редагування
   const [editingField, setEditingField] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState(title);
+  const [editingContent, setEditingContent] = useState(content);
 
   // Helper functions
   const startEditing = (fieldPath: string) => {
@@ -102,6 +104,14 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     
     if (isEditable) {
       setEditingField(fieldPath);
+      // Синхронізуємо локальний стан з поточними пропсами
+      if (fieldPath === 'title') {
+        setEditingTitle(title);
+        console.log('🔄 Set editingTitle to:', title);
+      } else if (fieldPath === 'content') {
+        setEditingContent(content);
+        console.log('🔄 Set editingContent to:', content);
+      }
     }
   };
 
@@ -156,33 +166,33 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   // Handle input changes (копіюємо з TrainingPlanTable)
   const handleInputChange = (fieldPath: string, value: string) => {
+    console.log('🔄 handleInputChange called:', { fieldPath, value });
+    
     // Оновлюємо локальний стан для плавного введення
     if (fieldPath === 'title') {
-      // setEditingTitle(value); // Removed as per new_code
+      setEditingTitle(value);
     } else if (fieldPath === 'content') {
-      // setEditingContent(value); // Removed as per new_code
+      setEditingContent(value);
     }
   };
 
-  // Handle input blur (копіюємо з TrainingPlanTable)
+  // Handle input blur
   const handleInputBlur = () => {
     console.log('🔄 handleInputBlur called:', {
       editingField,
-      // editingTitle, // Removed as per new_code
-      // editingContent, // Removed as per new_code
+      editingTitle,
+      editingContent,
       originalTitle: title,
       originalContent: content
     });
     
     // Викликаємо onTextChange з поточним значенням локального стану
     if (onTextChange && editingField) {
-      const currentValue = editingField === 'title' ? title : content; // Changed to use original title/content
+      const currentValue = editingField === 'title' ? editingTitle : editingContent;
       console.log('🔄 Calling onTextChange with:', { slideId, editingField, currentValue });
       onTextChange(slideId, editingField, currentValue);
     }
-    
     stopEditing();
-    
     // Викликаємо автозбереження тільки при втраті фокусу
     if (onAutoSave) {
       console.log('🔄 Calling onAutoSave');
@@ -190,19 +200,16 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     }
   };
 
-  // Handle key down (копіюємо з TrainingPlanTable)
+  // Handle key down
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      
       // Викликаємо onTextChange з поточним значенням локального стану
       if (onTextChange && editingField) {
-        const currentValue = editingField === 'title' ? title : content; // Changed to use original title/content
+        const currentValue = editingField === 'title' ? editingTitle : editingContent;
         onTextChange(slideId, editingField, currentValue);
       }
-      
       stopEditing();
-      
       // Викликаємо автозбереження при натисканні Enter
       if (onAutoSave) {
         onAutoSave();
@@ -210,8 +217,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       // Скасовуємо зміни, повертаємо оригінальні значення
-      // setEditingTitle(title); // Removed as per new_code
-      // setEditingContent(content); // Removed as per new_code
+      setEditingTitle(title);
+      setEditingContent(content);
       stopEditing();
     }
   };
@@ -246,61 +253,47 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       {editingField === 'title' ? (
         <input
           type="text"
-          value={title} // Changed to use original title
+          value={editingTitle}
           onChange={(e) => handleInputChange('title', e.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
-          style={{
-            ...titleStyles,
-            border: '2px solid #3b82f6',
-            borderRadius: '4px',
-            padding: '8px',
-            outline: 'none',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            color: '#333'
-          }}
+          style={titleStyles}
+          className="bg-transparent border-none outline-none w-full"
           autoFocus
+          title={isEditable ? 'Click to edit title' : ''}
         />
       ) : (
-        <h1 
+        <h1
           style={titleStyles}
           onClick={() => startEditing('title')}
-          className={isEditable ? 'editable-field' : ''}
+          className={isEditable ? 'cursor-pointer hover:bg-yellow-50 hover:bg-opacity-20 rounded px-2 py-1 transition-colors' : ''}
           title={isEditable ? 'Click to edit title' : ''}
         >
-          {title} {/* Changed to use original title */}
+          {title}
         </h1>
       )}
 
       {/* Content */}
       {editingField === 'content' ? (
         <textarea
-          value={content} // Changed to use original content
+          value={editingContent}
           onChange={(e) => handleInputChange('content', e.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
-          style={{
-            ...contentStyles,
-            border: '2px solid #3b82f6',
-            borderRadius: '4px',
-            padding: '8px',
-            outline: 'none',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            color: '#333',
-            resize: 'vertical',
-            minHeight: '200px',
-            fontFamily: 'inherit'
-          }}
+          style={contentStyles}
+          className="bg-transparent border-none outline-none w-full resize-none"
           autoFocus
+          rows={10}
+          title={isEditable ? 'Click to edit content' : ''}
         />
       ) : (
-        <div 
+        <div
           style={contentStyles}
           onClick={() => startEditing('content')}
-          className={isEditable ? 'editable-field' : ''}
+          className={isEditable ? 'cursor-pointer hover:bg-yellow-50 hover:bg-opacity-20 rounded px-2 py-1 transition-colors' : ''}
           title={isEditable ? 'Click to edit content' : ''}
         >
-          {parseContent(content)} {/* Changed to use original content */}
+          {parseContent(content)}
         </div>
       )}
     </div>
