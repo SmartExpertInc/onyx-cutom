@@ -39,6 +39,79 @@ import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
+// Helper function to calculate dynamic text width based on column width
+const calculateTextWidth = (columnWidthPercent: number, containerWidth: number = 1200): number => {
+  // Calculate the actual pixel width based on percentage
+  const pixelWidth = (columnWidthPercent / 100) * containerWidth;
+  
+  // Account for padding, margins, and other elements in the cell
+  // Subtract space for icons, padding, and other UI elements
+  const availableWidth = pixelWidth - 120; // Account for icons, padding, etc.
+  
+  // Ensure minimum width for readability
+  return Math.max(availableWidth, 50);
+};
+
+// Dynamic text component that adjusts width based on column width
+const DynamicText: React.FC<{
+  text: string;
+  columnWidthPercent: number;
+  className?: string;
+  title?: string;
+  href?: string;
+  onClick?: () => void;
+}> = ({ text, columnWidthPercent, className = "", title, href, onClick }) => {
+  const [containerWidth, setContainerWidth] = useState(1200);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Update container width on resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        const tableContainer = containerRef.current.closest('.overflow-x-auto');
+        if (tableContainer) {
+          setContainerWidth(tableContainer.clientWidth);
+        }
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  const dynamicWidth = calculateTextWidth(columnWidthPercent, containerWidth);
+  
+  const textElement = (
+    <span 
+      className={`truncate block ${className}`}
+      style={{ 
+        maxWidth: `${dynamicWidth}px`,
+        width: `${dynamicWidth}px`
+      }}
+      title={title || text}
+    >
+      {text}
+    </span>
+  );
+
+  if (href) {
+    return (
+      <div ref={containerRef}>
+        <Link href={href} className="hover:underline cursor-pointer text-gray-900" onClick={onClick}>
+          {textElement}
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef}>
+      {textElement}
+    </div>
+  );
+};
+
 // Loading Modal Component for Folder Export
 const FolderExportLoadingModal: React.FC<{
   isOpen: boolean;
@@ -562,6 +635,7 @@ const FolderRow: React.FC<{
     index: number;
     trashMode: boolean;
     columnVisibility: ColumnVisibility;
+    columnWidths: ColumnWidths;
     expandedFolders: Set<number>;
     folderProjects: Record<number, Project[]>;
     lessonDataCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>;
@@ -589,6 +663,7 @@ const FolderRow: React.FC<{
     index, 
     trashMode, 
     columnVisibility, 
+    columnWidths,
     expandedFolders, 
     folderProjects, 
     lessonDataCache,
@@ -691,7 +766,12 @@ const FolderRow: React.FC<{
                                 />
                             </button>
                             <Folder size={16} style={{ color: getFolderTierColor(folder, allFolders) }} className="mr-2" />
-                            <span className="font-semibold text-blue-700 truncate max-w-[200px]" title={folder.name}>{folder.name}</span>
+                            <DynamicText 
+                                text={folder.name}
+                                columnWidthPercent={columnWidths.title}
+                                className="font-semibold text-blue-700"
+                                title={folder.name}
+                            />
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? t('interface.item', 'item') : t('interface.items', 'items')}
                             </span>
@@ -814,9 +894,12 @@ const FolderRow: React.FC<{
                                     </div>
                                     <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
                                     <Star size={16} className="text-gray-300 mr-2" />
-                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
-                                        {p.title}
-                                    </Link>
+                                    <DynamicText 
+                                        text={p.title}
+                                        columnWidthPercent={columnWidths.title}
+                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                        title={p.title}
+                                    />
                                 </span>
                             </td>
                         )}
@@ -890,6 +973,7 @@ const FolderRow: React.FC<{
                     index={childIndex}
                     trashMode={trashMode}
                     columnVisibility={columnVisibility}
+                    columnWidths={columnWidths}
                     expandedFolders={expandedFolders}
                     folderProjects={folderProjects}
                     lessonDataCache={lessonDataCache}
@@ -3363,6 +3447,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         index={folderIndex}
                                         trashMode={trashMode}
                                         columnVisibility={columnVisibility}
+                                        columnWidths={columnWidths}
                                         expandedFolders={expandedFolders}
                                         folderProjects={filteredFolderProjects}
                                         lessonDataCache={lessonDataCache}
@@ -3454,9 +3539,12 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                         </svg>
                                                     </div>
                                                     <Star size={16} className="text-gray-300 mr-2" />
-                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
-                                                        {p.title}
-                                                    </Link>
+                                                    <DynamicText 
+                                                        text={p.title}
+                                                        columnWidthPercent={columnWidths.title}
+                                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                                        title={p.title}
+                                                    />
                                                 </span>
                                             </td>
                                         )}
@@ -3578,9 +3666,12 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                         </svg>
                                                     </div>
                                                     <Star size={16} className="text-gray-300 mr-2" />
-                                                    <Link href={trashMode ? '#' : `/projects/view/${p.id}` } className="hover:underline cursor-pointer text-gray-900 truncate max-w-[200px]" title={p.title}>
-                                                        {p.title}
-                                                    </Link>
+                                                    <DynamicText 
+                                                        text={p.title}
+                                                        columnWidthPercent={columnWidths.title}
+                                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                                        title={p.title}
+                                                    />
                                                 </span>
                                             </td>
                                         )}

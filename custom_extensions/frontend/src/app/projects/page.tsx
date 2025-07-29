@@ -312,7 +312,7 @@ const FolderItem: React.FC<{
             <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
-        <span className="font-medium truncate max-w-[120px]" title={folder.name}>{folder.name}</span>
+        <span className="font-medium truncate" style={{ maxWidth: '120px' }} title={folder.name}>{folder.name}</span>
       </div>
       {hasChildren && isExpanded && (
         <div>
