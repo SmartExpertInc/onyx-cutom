@@ -322,7 +322,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               id={`slide-${slide.slideId}`}
             >
               {/* Editable Slide Title */}
-              {(
+            
                 <div 
                   className="slide-title-editable"
                   onClick={() => setEditingTitle(slide.slideId)}
@@ -344,7 +344,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     <h2 className="slide-title-text">{(slide.props.title as string) || `Slide ${slide.slideNumber}`}</h2>
                   )}
                 </div>
-              ) 
+              
 
               {/* Component-based slide content */}
               <div className="slide-content">
