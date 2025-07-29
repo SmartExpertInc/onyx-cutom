@@ -1,186 +1,66 @@
 // custom_extensions/frontend/src/components/ComponentBasedSlideRenderer.tsx
 
 import React from 'react';
-import { ComponentBasedSlide } from '@/types/slideTemplates';
-import { getTemplate } from './templates/registry';
-import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { useInlineEditing } from '../hooks/useInlineEditing';
+import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import { SLIDE_TEMPLATE_REGISTRY } from './templates/registry';
+import { SlideTheme } from '@/types/slideThemes';
 
 interface ComponentBasedSlideRendererProps {
-  slide: ComponentBasedSlide;
-  isEditable?: boolean;
+  slides: ComponentBasedSlide[];
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
-  slide,
-  onSlideUpdate,
-  onTemplateChange,
-  theme
-}) => {
-  const template = getTemplate(slide.templateId);
-  const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
-  const inlineEditing = useInlineEditing();
-
-  // Handle template prop updates
-  const handlePropsUpdate = (newProps: Record<string, unknown>) => {
-    if (onSlideUpdate) {
-      const updatedSlide: ComponentBasedSlide = {
-        ...slide,
-        props: { ...slide.props, ...newProps },
-        metadata: {
-          ...slide.metadata,
-          updatedAt: new Date().toISOString()
-        }
-      };
-      onSlideUpdate(updatedSlide);
-    }
-  };
-
-  // Handle inline editing updates
-  const handleInlineEditSave = (slideId: string, fieldPath: string[], value: string | string[]) => {
-    if (onSlideUpdate) {
-      const updatedProps = { ...slide.props };
-      let target: Record<string, unknown> = updatedProps;
-      
-      // Navigate to the target field
-      for (let i = 0; i < fieldPath.length - 1; i++) {
-        const segment = fieldPath[i];
-        if (target[segment] === undefined || target[segment] === null) {
-          target[segment] = {};
-        }
-        target = target[segment] as Record<string, unknown>;
-      }
-      
-      // Set the new value
-      const finalKey = fieldPath[fieldPath.length - 1];
-      target[finalKey] = value;
-      
-      const updatedSlide: ComponentBasedSlide = {
-        ...slide,
-        props: updatedProps,
-        metadata: {
-          ...slide.metadata,
-          updatedAt: new Date().toISOString()
-        }
-      };
-      onSlideUpdate(updatedSlide);
-    }
-  };
-
-  // Fallback for unknown templates
-  if (!template) {
-    return (
-      <div style={{
-        width: '100%',
-        height: '600px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f8f9fa',
-        border: '2px dashed #dee2e6',
-        borderRadius: '8px',
-        padding: '40px'
-      }}>
-        <div style={{ fontSize: '24px', fontWeight: 600, color: '#6c757d', marginBottom: '16px' }}>
-          Template Not Found
-        </div>
-        <div style={{ fontSize: '16px', color: '#6c757d', textAlign: 'center' }}>
-          Template ID: <code>{slide.templateId}</code>
-        </div>
-        <div style={{ fontSize: '14px', color: '#6c757d', marginTop: '16px' }}>
-          Slide ID: {slide.slideId}
-        </div>
-        {isEditable && onTemplateChange && (
-          <button 
-            style={{
-              marginTop: '20px',
-              padding: '8px 16px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-            onClick={() => onTemplateChange(slide.slideId, 'content-slide')}
-          >
-            Switch to Default Template
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  // Render the template component with props and theme
-  const TemplateComponent = template.component;
-  const templateProps = {
-    ...slide.props,
-    slideId: slide.slideId,
-    isEditable,
-    onUpdate: handlePropsUpdate,
-    theme: currentTheme,
-    // Pass inline editing context to template components
-    inlineEditing,
-    onInlineEditSave: handleInlineEditSave
-  };
-
-  return (
-    <div className={`slide-${slide.slideId} template-${slide.templateId}`}>
-      <TemplateComponent {...templateProps} />
-    </div>
-  );
-};
-
-// Utility component for rendering multiple slides
-interface ComponentBasedSlideDeckRendererProps {
-  slides: ComponentBasedSlide[];
-  selectedSlideId?: string;
-  isEditable?: boolean;
-  onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
-  onTemplateChange?: (slideId: string, newTemplateId: string) => void;
-  theme?: string;
-}
-
-export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
   slides,
-  selectedSlideId,
-  isEditable = false,
   onSlideUpdate,
   onTemplateChange,
   theme
 }) => {
-  // Safety check for slides array
-  if (!slides || !Array.isArray(slides) || slides.length === 0) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
-        No slides to display
-      </div>
-    );
-  }
+  const handleSlideUpdate = (slideId: string, updates: Record<string, unknown>) => {
+    const slide = slides.find(s => s.slideId === slideId);
+    if (!slide) return;
+
+    const updatedSlide: ComponentBasedSlide = {
+      ...slide,
+      props: {
+        ...slide.props,
+        ...updates
+      }
+    };
+
+    onSlideUpdate?.(updatedSlide);
+  };
 
   return (
-    <div className="component-based-slide-deck">
-      {slides.map((slide) => (
-        <div 
-          key={slide.slideId}
-          className={`slide-container ${selectedSlideId === slide.slideId ? 'active' : ''}`}
-          style={{
-            display: selectedSlideId ? (selectedSlideId === slide.slideId ? 'block' : 'none') : 'block',
-            marginBottom: selectedSlideId ? 0 : '40px'
-          }}
-        >
-          <ComponentBasedSlideRenderer
-            slide={slide}
-            isEditable={isEditable}
-            onSlideUpdate={onSlideUpdate}
-            onTemplateChange={onTemplateChange}
-            theme={theme}
-          />
-        </div>
-      ))}
+    <div className="component-based-slide-renderer">
+      {slides.map((slide) => {
+        const templateInfo = SLIDE_TEMPLATE_REGISTRY[slide.templateId];
+        
+        if (!templateInfo) {
+          console.warn(`Template not found: ${slide.templateId}`);
+          return (
+            <div key={slide.slideId} className="error-slide">
+              <p>Template not found: {slide.templateId}</p>
+            </div>
+          );
+        }
+
+        const TemplateComponent = templateInfo.component;
+        const templateProps = {
+          ...slide.props,
+          slideId: slide.slideId,
+          onUpdate: (updates: Record<string, unknown>) => handleSlideUpdate(slide.slideId, updates),
+          theme
+        };
+
+        return (
+          <div key={slide.slideId} className="slide-container">
+            <TemplateComponent {...templateProps} />
+          </div>
+        );
+      })}
     </div>
   );
 };

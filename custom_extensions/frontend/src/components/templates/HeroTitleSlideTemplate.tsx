@@ -3,6 +3,7 @@
 import React from 'react';
 import { HeroTitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: SlideTheme }> = ({
   slideId,
@@ -20,6 +21,15 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: Sl
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
+
+  const handleTitleChange = (newTitle: string) => {
+    if (onUpdate) { onUpdate({ title: newTitle }); }
+  };
+
+  const handleSubtitleChange = (newSubtitle: string) => {
+    if (onUpdate) { onUpdate({ subtitle: newSubtitle }); }
+  };
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
@@ -133,65 +143,33 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: Sl
     }
   };
 
-  const editOverlayStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    zIndex: 10
-  };
-
-  const handleClick = () => {
-    if (onUpdate) {
-      onUpdate({ slideId });
-    }
-  };
-
   return (
-    <div className="hero-title-slide-template" style={slideStyles} onClick={handleClick}>
-      {/* Accent Element */}
-      {showAccent && <div style={getAccentStyles()}></div>}
+    <div className="hero-title-slide-template" style={slideStyles}>
+      {/* Accent Bar */}
+      {showAccent && <div style={getAccentStyles()} />}
 
-      {/* Content Container */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start',
-        zIndex: 2,
-        position: 'relative',
-        width: '100%'
-      }}>
-        {/* Main Title */}
-        <h1 style={titleStyles}>
-          {title}
-        </h1>
+      {/* Main Title */}
+      <h1 style={titleStyles}>
+        <SimpleInlineEditor
+          value={title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter hero title..."
+          maxLength={100}
+          className="hero-title-editable"
+        />
+      </h1>
 
-        {/* Subtitle */}
-        <div style={subtitleStyles}>
-          {subtitle}
-        </div>
-      </div>
-
-      {/* Edit Overlay */}
-      <div style={editOverlayStyles}>
-        <div style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 600,
-          color: '#333',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>
-          Натисніть для редагування hero-слайду
-        </div>
+      {/* Subtitle */}
+      <div style={subtitleStyles}>
+        <SimpleInlineEditor
+          value={subtitle || ''}
+          onSave={handleSubtitleChange}
+          multiline={true}
+          placeholder="Enter hero subtitle..."
+          maxLength={300}
+          rows={4}
+          className="hero-subtitle-editable"
+        />
       </div>
     </div>
   );

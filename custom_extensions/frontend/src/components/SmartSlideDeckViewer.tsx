@@ -1,16 +1,16 @@
 // components/SmartSlideDeckViewer.tsx
 // Component-based slide viewer with classic UX (sidebar, navigation, inline editing)
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
-import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
-import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import SimpleInlineEditor from './SimpleInlineEditor';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
   deck: ComponentBasedSlideDeck | unknown;
   
-
   /** Save callback for changes */
   onSave?: (updatedDeck: ComponentBasedSlideDeck) => void;
   
@@ -21,169 +21,101 @@ interface SmartSlideDeckViewerProps {
   theme?: string;
 }
 
-// Inline Editor Component
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-}
-
-function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  if (multiline) {
-    return React.createElement('textarea', {
-      ref: inputRef as React.RefObject<HTMLTextAreaElement>,
-      className: 'inline-editor-textarea',
-      value: value,
-      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value),
-      onKeyDown: handleKeyDown,
-      onBlur: handleBlur,
-      rows: 4
-    });
-  }
-
-  return React.createElement('input', {
-    ref: inputRef as React.RefObject<HTMLInputElement>,
-    className: 'inline-editor-input',
-    type: 'text',
-    value: value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
-    onKeyDown: handleKeyDown,
-    onBlur: handleBlur
-  });
-}
-
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
   onSave,
   showFormatInfo = false,
   theme
 }) => {
-  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeme | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
-  
-  // Get the current theme
-  const currentTheme = getSlideTheme(theme || (deck as ComponentBasedSlideDeck)?.theme || DEFAULT_SLIDE_THEME);
 
-  // Process deck - expect component-based format only
+  // Process the deck data to ensure it's in component-based format
   useEffect(() => {
     const processDeck = async () => {
-      setIsLoading(true);
-      setError(null);
-
       try {
-        if (!deck || !(deck as ComponentBasedSlideDeck).slides || !Array.isArray((deck as ComponentBasedSlideDeck).slides)) {
+        // Reset error state
+        setError(null);
+
+        // Type guard to check if deck is already in component-based format
+        const typedDeck = deck as ComponentBasedSlideDeck;
+        
+        if (!typedDeck || !typedDeck.slides || !Array.isArray(typedDeck.slides)) {
           setError('Invalid slide deck format. Expected component-based slides.');
           return;
         }
 
-        // Validate that slides have templateId and props (component-based format)
-        const hasValidFormat = (deck as ComponentBasedSlideDeck).slides.every((slide: any) => 
-          slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props')
+        // Validate each slide has required properties
+        const validSlides = typedDeck.slides.every(slide => 
+          slide && 
+          typeof slide === 'object' && 
+          'slideId' in slide && 
+          'templateId' in slide && 
+          'props' in slide
         );
 
-        if (!hasValidFormat) {
-          setError('Slides must be in component-based format with templateId and props.');
+        if (!validSlides) {
+          setError('Invalid slide structure. Each slide must have slideId, templateId, and props.');
           return;
         }
 
-        // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
-        console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
-        (deck as ComponentBasedSlideDeck).slides.forEach((slide: any, index: number) => {
-          console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
-            slideId: slide.slideId,
-            templateId: slide.templateId,
-            props: slide.props
-          });
+        // Ensure slides have slideNumber for display
+        const processedSlides = typedDeck.slides.map((slide, index) => ({
+          ...slide,
+          slideNumber: index + 1
+        }));
+
+        // Set the processed deck
+        setComponentDeck({
+          ...typedDeck,
+          slides: processedSlides,
+          theme: theme || typedDeck.theme || DEFAULT_SLIDE_THEME
         });
 
-        // Set theme on the deck
-        const deckWithTheme = {
-          ...deck,
-          theme: theme || (deck as ComponentBasedSlideDeck)?.theme || DEFAULT_SLIDE_THEME
-        };
-
-        setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
-        
-        console.log('✅ Component-based slides loaded with theme:', {
-          slideCount: (deck as ComponentBasedSlideDeck).slides.length,
-          theme: deckWithTheme.theme,
-          themeColors: currentTheme.colors,
-          templates: (deck as ComponentBasedSlideDeck).slides.map((s: any) => s.templateId)
-          });
-        
       } catch (err) {
-        console.error('❌ Error processing slide deck:', err);
-        setError(`Error processing slide deck: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      } finally {
-        setIsLoading(false);
+        console.error('Error processing slide deck:', err);
+        setError(`Failed to process slide deck: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     };
 
-    if (deck) {
-      processDeck();
-    } else {
-      setIsLoading(false);
-      setError('No slide deck provided');
-    }
-  }, [deck]);
+    processDeck();
+  }, [deck, theme]);
 
   // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
-    if (componentDeck) {
-      const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentDeck,
-        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
-          slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-        )
-      };
-      setComponentDeck(updatedDeck);
-      onSave?.(updatedDeck);
-    }
+    if (!componentDeck) return;
+
+    const updatedSlides = componentDeck.slides.map(slide => 
+      slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+    );
+
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentDeck,
+      slides: updatedSlides
+    };
+
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
   };
 
+  // Handle template changes
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
-    if (componentDeck) {
-      const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentDeck,
-        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
-          slide.slideId === slideId 
-            ? { ...slide, templateId: newTemplateId }
-            : slide
-        )
-      };
-      setComponentDeck(updatedDeck);
-      onSave?.(updatedDeck);
-    }
+    if (!componentDeck) return;
+
+    const updatedSlides = componentDeck.slides.map(slide => 
+      slide.slideId === slideId 
+        ? { ...slide, templateId: newTemplateId }
+        : slide
+    );
+
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentDeck,
+      slides: updatedSlides
+    };
+
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
   };
 
   // Add new slide
@@ -192,14 +124,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
     const newSlide: ComponentBasedSlide = {
       slideId: `slide-${Date.now()}`,
-      slideNumber: componentDeck.slides.length + 1,
       templateId: 'content-slide',
+      slideNumber: componentDeck.slides.length + 1,
       props: {
-        title: `Slide ${componentDeck.slides.length + 1}`,
+        title: 'New Slide',
         content: 'Add your content here...'
-        // Colors will be applied by theme, not props
-      },
-      metadata: {}
+      }
     };
 
     const updatedDeck: ComponentBasedSlideDeck = {
@@ -213,57 +143,38 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Delete slide
   const deleteSlide = (slideId: string) => {
-    if (!componentDeck || componentDeck.slides.length <= 1) return;
+    if (!componentDeck) return;
+
+    const updatedSlides = componentDeck.slides
+      .filter(slide => slide.slideId !== slideId)
+      .map((slide, index) => ({
+        ...slide,
+        slideNumber: index + 1
+      }));
 
     const updatedDeck: ComponentBasedSlideDeck = {
       ...componentDeck,
-      slides: componentDeck.slides.filter((s: ComponentBasedSlide) => s.slideId !== slideId)
+      slides: updatedSlides
     };
 
-    // Update slide numbers
-    updatedDeck.slides.forEach((slide: ComponentBasedSlide, index: number) => {
-      slide.slideNumber = index + 1;
-    });
-
     setComponentDeck(updatedDeck);
-    
-    // Slide deleted - no need to select next slide since navigation is removed
-    
     onSave?.(updatedDeck);
   };
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '400px',
-        fontSize: '16px',
-        color: '#6b7280'
-      }}>
-                 <div>
-          <div style={{ marginBottom: '12px' }}>🔄 Loading slides...</div>
-        </div>
-      </div>
-    );
-  }
 
   // Error state
   if (error) {
     return (
-      <div style={{
-        padding: '40px',
-        textAlign: 'center',
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center', 
+        color: '#ef4444',
         backgroundColor: '#fef2f2',
         border: '1px solid #fecaca',
         borderRadius: '8px',
-        color: '#dc2626'
+        margin: '20px'
       }}>
-        <div style={{ fontSize: '24px', marginBottom: '16px' }}>⚠️</div>
-        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
-          Error Loading Slides
+        <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+          Slide Deck Error
         </div>
         <div style={{ fontSize: '14px' }}>{error}</div>
         {showFormatInfo && (
@@ -322,38 +233,30 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               id={`slide-${slide.slideId}`}
             >
               {/* Editable Slide Title */}
-            
-                <div 
-                  className="slide-title-editable"
-                  onClick={() => setEditingTitle(slide.slideId)}
-                >
-                  {editingTitle === slide.slideId ? (
-                    <InlineEditor
-                      initialValue={(slide.props.title as string) || `Slide ${slide.slideNumber}`}
-                      onSave={(newTitle) => {
-                        const updatedSlide: ComponentBasedSlide = {
-                          ...slide,
-                          props: { ...slide.props, title: newTitle }
-                        };
-                        handleSlideUpdate(updatedSlide);
-                        setEditingTitle(null);
-                      }}
-                      onCancel={() => setEditingTitle(null)}
-                    />
-                  ) : (
-                    <h2 className="slide-title-text">{(slide.props.title as string) || `Slide ${slide.slideNumber}`}</h2>
-                  )}
-                </div>
-              
+              <div className="slide-title-editable">
+                <SimpleInlineEditor
+                  value={(slide.props.title as string) || `Slide ${slide.slideNumber}`}
+                  onSave={(newTitle) => {
+                    const updatedSlide: ComponentBasedSlide = {
+                      ...slide,
+                      props: { ...slide.props, title: newTitle }
+                    };
+                    handleSlideUpdate(updatedSlide);
+                  }}
+                  placeholder={`Slide ${slide.slideNumber}`}
+                  maxLength={100}
+                  className="slide-title-text"
+                />
+              </div>
 
               {/* Component-based slide content */}
               <div className="slide-content">
-        <ComponentBasedSlideDeckRenderer
+                <ComponentBasedSlideRenderer
                   slides={[slide]}
-            onSlideUpdate={handleSlideUpdate}
-          onTemplateChange={handleTemplateChange}
-          theme={componentDeck.theme}
-        />
+                  onSlideUpdate={handleSlideUpdate}
+                  onTemplateChange={handleTemplateChange}
+                  theme={componentDeck.theme}
+                />
               </div>
             </div>
           ))}

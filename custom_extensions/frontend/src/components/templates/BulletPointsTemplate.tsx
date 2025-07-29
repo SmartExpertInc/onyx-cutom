@@ -3,6 +3,7 @@
 import React from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideTheme }> = ({
   slideId,
@@ -11,12 +12,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   maxColumns = 2,
   bulletStyle = 'dot',
   onUpdate,
-  theme,
-  // Inline editing props
-  renderEditableText,
-  renderEditableArray
+  theme
 }) => {
-  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
@@ -28,9 +25,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     padding: '80px',
-    position: 'relative',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
@@ -39,119 +35,112 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     fontFamily: currentTheme.fonts.titleFont,
     fontWeight: 700,
     color: titleColor,
-    marginBottom: '40px',
+    textAlign: 'center',
+    marginBottom: '60px',
     lineHeight: 1.3,
     maxWidth: '900px'
   };
 
-  const contentStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    fontWeight: 400,
-    color: contentColor,
-    lineHeight: 1.6,
-    maxWidth: '100%',
-    flex: 1
-  };
-
-  // Bullet style mapping
-  const bulletSymbols = {
-    dot: '•',
-    arrow: '→',
-    check: '✓',
-    star: '★'
-  };
-
-  const getBulletSymbol = (index: number): string => {
-    if (bulletStyle === 'number') {
-      return `${index + 1}.`;
-    }
-    return bulletSymbols[bulletStyle as keyof typeof bulletSymbols] || '•';
-  };
-
-  // Calculate grid layout
-  const gridStyles: React.CSSProperties = {
+  const bulletsContainerStyles: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: `repeat(${maxColumns}, 1fr)`,
-    gap: '20px',
-    width: '100%'
+    gap: '40px',
+    width: '100%',
+    maxWidth: '1200px'
   };
 
   const bulletItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'flex-start',
-    marginBottom: '16px',
-    gap: '12px'
+    gap: '12px',
+    marginBottom: '16px'
   };
 
   const bulletSymbolStyles: React.CSSProperties = {
-    fontSize: '18px',
+    fontSize: '1.2rem',
     color: contentColor,
-    fontWeight: 'bold',
+    fontWeight: 600,
     flexShrink: 0,
     marginTop: '2px'
   };
 
   const bulletTextStyles: React.CSSProperties = {
-    fontSize: 'inherit',
-    color: 'inherit',
-    lineHeight: 'inherit'
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: contentColor,
+    lineHeight: 1.6,
+    flex: 1
+  };
+
+  const getBulletSymbol = (index: number): string => {
+    switch (bulletStyle) {
+      case 'number':
+        return `${index + 1}.`;
+      case 'dash':
+        return '—';
+      case 'arrow':
+        return '→';
+      case 'check':
+        return '✓';
+      case 'star':
+        return '★';
+      default:
+        return '•';
+    }
+  };
+
+  const handleTitleChange = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+  };
+
+  const handleBulletsChange = (newBulletsText: string) => {
+    const newBullets = newBulletsText.split('\n').filter(item => item.trim());
+    if (onUpdate) {
+      onUpdate({ bullets: newBullets });
+    }
   };
 
   return (
     <div className="bullet-points-template" style={slideStyles}>
       {/* Title */}
       <h1 style={titleStyles}>
-        {renderEditableText ? 
-          renderEditableText(['title'], title || '', {
-            className: 'slide-title-editable',
-            placeholder: 'Enter slide title...',
-            maxLength: 100
-          }) : 
-          title
-        }
+        <SimpleInlineEditor
+          value={title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter slide title..."
+          maxLength={100}
+          className="slide-title-editable"
+        />
       </h1>
 
-      {/* Bullet Points */}
-      <div style={contentStyles}>
-        {renderEditableArray ? (
-          // Inline editing mode
-          renderEditableArray(['bullets'], bullets, {
-            placeholder: 'Enter bullet points, one per line...',
-            className: 'bullet-points-editable',
-            maxLength: 2000
-          })
-        ) : (
-          // Display mode
-          <div style={gridStyles}>
-            {bullets.map((bullet, index) => (
-              <div key={index} style={bulletItemStyles}>
-                <span style={bulletSymbolStyles}>
-                  {getBulletSymbol(index)}
-                </span>
-                <span style={bulletTextStyles}>
-                  {bullet}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Bullets */}
+      <div style={bulletsContainerStyles}>
+        <SimpleInlineEditor
+          value={bullets.join('\n')}
+          onSave={handleBulletsChange}
+          multiline={true}
+          placeholder="Enter bullet points, one per line..."
+          maxLength={2000}
+          rows={Math.max(6, bullets.length + 2)}
+          className="bullets-editable"
+        />
       </div>
 
-      {/* Empty state */}
-      {(!bullets || bullets.length === 0) && !renderEditableArray && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '200px',
-          color: '#666',
-          fontSize: '16px',
-          fontStyle: 'italic'
-        }}>
-          No bullet points added yet
-        </div>
-      )}
+      {/* Display bullets */}
+      <div style={bulletsContainerStyles}>
+        {bullets.map((bullet, index) => (
+          <div key={index} style={bulletItemStyles}>
+            <span style={bulletSymbolStyles}>
+              {getBulletSymbol(index)}
+            </span>
+            <span style={bulletTextStyles}>
+              {bullet}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

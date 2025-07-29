@@ -3,6 +3,7 @@
 import React from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }> = ({
   title,
@@ -15,9 +16,30 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
   rightImageAlt,
   rightImagePrompt,
   columnRatio,
-  theme
+  theme,
+  onUpdate
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+
+  const handleTitleChange = (newTitle: string) => {
+    if (onUpdate) { onUpdate({ title: newTitle }); }
+  };
+
+  const handleLeftTitleChange = (newLeftTitle: string) => {
+    if (onUpdate) { onUpdate({ leftTitle: newLeftTitle }); }
+  };
+
+  const handleLeftContentChange = (newLeftContent: string) => {
+    if (onUpdate) { onUpdate({ leftContent: newLeftContent }); }
+  };
+
+  const handleRightTitleChange = (newRightTitle: string) => {
+    if (onUpdate) { onUpdate({ rightTitle: newRightTitle }); }
+  };
+
+  const handleRightContentChange = (newRightContent: string) => {
+    if (onUpdate) { onUpdate({ rightContent: newRightContent }); }
+  };
 
   // AI prompt logic (like BigImageLeftTemplate)
   const leftDisplayPrompt = leftImagePrompt || leftImageAlt || "man sitting on a chair";
@@ -27,7 +49,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
     width: '100%',
     maxWidth: '320px',
     maxHeight: '200px',
-    // aspectRatio: '1 / 1',
     backgroundColor: '#e9ecef',
     border: '2px dashed #adb5bd',
     borderRadius: '8px',
@@ -38,7 +59,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
     padding: '20px',
     textAlign: 'center',
     color: '#6c757d',
-    // margin: '0 auto 24px auto'
     marginBottom: '24px'
   };
 
@@ -61,7 +81,13 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           color: currentTheme.colors.titleColor,
         }}
       >
-        {title}
+        <SimpleInlineEditor
+          value={title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter slide title..."
+          maxLength={100}
+          className="two-column-title-editable"
+        />
       </h1>
       <div
         style={{
@@ -93,23 +119,36 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               alignSelf: 'flex-start'
             }}
           >
-            {leftTitle}
+            <SimpleInlineEditor
+              value={leftTitle || ''}
+              onSave={handleLeftTitleChange}
+              placeholder="Enter left column title..."
+              maxLength={80}
+              className="two-column-left-title-editable"
+            />
           </h2>
           {/* Main text */}
-          <p
+          <div
             style={{
               fontFamily: currentTheme.fonts.contentFont,
               fontSize: currentTheme.fonts.contentSize,
               color: currentTheme.colors.contentColor,
-              margin: 0,
-              alignSelf: 'flex-start',
-              lineHeight: 1.6
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap'
             }}
           >
-            {leftContent}
-          </p>
+            <SimpleInlineEditor
+              value={leftContent || ''}
+              onSave={handleLeftContentChange}
+              multiline={true}
+              placeholder="Enter left column content..."
+              maxLength={500}
+              rows={6}
+              className="two-column-left-content-editable"
+            />
+          </div>
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Placeholder first */}
           <div style={placeholderStyles}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
@@ -129,25 +168,38 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               fontFamily: currentTheme.fonts.titleFont,
               fontSize: '27px',
               color: currentTheme.colors.titleColor,
-              margin: '16px 0 8px 0',
-              alignSelf: 'flex-start',
+              margin: '16px 0 16px 0',
+              alignSelf: 'flex-start'
             }}
           >
-            {rightTitle}
+            <SimpleInlineEditor
+              value={rightTitle || ''}
+              onSave={handleRightTitleChange}
+              placeholder="Enter right column title..."
+              maxLength={80}
+              className="two-column-right-title-editable"
+            />
           </h2>
           {/* Main text */}
-          <p
+          <div
             style={{
               fontFamily: currentTheme.fonts.contentFont,
               fontSize: currentTheme.fonts.contentSize,
               color: currentTheme.colors.contentColor,
-              margin: 0,
-              alignSelf: 'flex-start',
-              lineHeight: 1.6
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap'
             }}
           >
-            {rightContent}
-          </p>
+            <SimpleInlineEditor
+              value={rightContent || ''}
+              onSave={handleRightContentChange}
+              multiline={true}
+              placeholder="Enter right column content..."
+              maxLength={500}
+              rows={6}
+              className="two-column-right-content-editable"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -3,9 +3,22 @@
 import React from 'react';
 import { ProcessStepsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideTheme }> = (props) => {
   const currentTheme = props.theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+
+  const handleTitleChange = (newTitle: string) => {
+    if (props.onUpdate) { props.onUpdate({ title: newTitle }); }
+  };
+
+  const handleStepChange = (index: number, newStep: string) => {
+    if (!props.onUpdate || !Array.isArray(props.steps)) return;
+    
+    const newSteps = [...props.steps];
+    newSteps[index] = newStep;
+    props.onUpdate({ steps: newSteps });
+  };
 
   return (
     <div
@@ -26,7 +39,13 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideT
           color: currentTheme.colors.titleColor,
         }}
       >
-        {props.title}
+        <SimpleInlineEditor
+          value={props.title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter slide title..."
+          maxLength={100}
+          className="process-steps-title-editable"
+        />
       </h1>
       <div
         style={{
@@ -36,7 +55,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideT
           gap: '32px',
         }}
       >
-        {props.steps.map((step, index) => {
+        {Array.isArray(props.steps) && props.steps.map((step, index) => {
           // Підтримка масиву рядків (як генерує AI)
           const stepDescription = typeof step === 'string' ? step : step.description;
           return (
@@ -61,7 +80,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideT
               >
                 {index + 1}
               </div>
-              <p
+              <div
                 style={{
                   fontFamily: currentTheme.fonts.contentFont,
                   fontSize: currentTheme.fonts.contentSize,
@@ -69,8 +88,16 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideT
                   margin: 0,
                 }}
               >
-                {stepDescription}
-              </p>
+                <SimpleInlineEditor
+                  value={stepDescription || ''}
+                  onSave={(value) => handleStepChange(index, value)}
+                  multiline={true}
+                  placeholder={`Step ${index + 1} description`}
+                  maxLength={200}
+                  rows={4}
+                  className="process-step-editable"
+                />
+              </div>
             </div>
           );
         })}

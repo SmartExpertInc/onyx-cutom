@@ -3,6 +3,7 @@
 import React from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme }> = ({
   slideId,
@@ -17,6 +18,23 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
+
+  const handleTitleChange = (newTitle: string) => {
+    if (onUpdate) { onUpdate({ title: newTitle }); }
+  };
+
+  const handleSubtitleChange = (newSubtitle: string) => {
+    if (onUpdate) { onUpdate({ subtitle: newSubtitle }); }
+  };
+
+  const handleAuthorChange = (newAuthor: string) => {
+    if (onUpdate) { onUpdate({ author: newAuthor }); }
+  };
+
+  const handleDateChange = (newDate: string) => {
+    if (onUpdate) { onUpdate({ date: newDate }); }
+  };
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
@@ -69,68 +87,49 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   const metadataItemStyles: React.CSSProperties = {
   };
 
-  const editOverlayStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
-  const handleClick = () => {
-    if (onUpdate) {
-      // This would trigger the prop editor
-      onUpdate({ slideId });
-    }
-  };
-
   return (
-    <div className="title-slide-template" style={slideStyles} onClick={handleClick}>
+    <div className="title-slide-template" style={slideStyles}>
       {/* Main Title */}
       <h1 style={titleStyles}>
-        {title}
+        <SimpleInlineEditor
+          value={title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter presentation title..."
+          maxLength={100}
+          className="title-slide-title-editable"
+        />
       </h1>
 
       {/* Subtitle */}
-      {subtitle && (
-        <h2 style={subtitleStyles}>
-          {subtitle}
-        </h2>
-      )}
+      <div style={subtitleStyles}>
+        <SimpleInlineEditor
+          value={subtitle || ''}
+          onSave={handleSubtitleChange}
+          placeholder="Enter subtitle..."
+          maxLength={200}
+          className="title-slide-subtitle-editable"
+        />
+      </div>
 
       {/* Metadata */}
-      {(author || date) && (
-        <div style={metadataStyles}>
-          {author && (
-            <div style={metadataItemStyles}>
-              {author}
-            </div>
-          )}
-          {date && (
-            <div style={metadataItemStyles}>
-              {date}
-            </div>
-          )}
+      <div style={metadataStyles}>
+        <div style={metadataItemStyles}>
+          <SimpleInlineEditor
+            value={author || ''}
+            onSave={handleAuthorChange}
+            placeholder="Author name"
+            maxLength={50}
+            className="title-slide-author-editable"
+          />
         </div>
-      )}
-
-      {/* Edit Overlay */}
-      <div style={editOverlayStyles}>
-        <div style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          color: '#333',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>
-          Click to edit title slide
+        <div style={metadataItemStyles}>
+          <SimpleInlineEditor
+            value={date || ''}
+            onSave={handleDateChange}
+            placeholder="Date"
+            maxLength={50}
+            className="title-slide-date-editable"
+          />
         </div>
       </div>
     </div>

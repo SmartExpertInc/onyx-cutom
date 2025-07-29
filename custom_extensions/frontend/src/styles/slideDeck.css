@@ -804,34 +804,7 @@
   line-height: 1;
 }
 
-/* Clean Inline Editing */
-.inline-editor-input,
-.inline-editor-textarea {
-  width: 100%;
-  border: 2px solid var(--primary-color);
-  border-radius: var(--border-radius);
-  padding: var(--space-lg);
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
-  background: white;
-  outline: none;
-  box-shadow: var(--shadow-md);
-  transition: all 0.2s ease;
-}
 
-.inline-editor-input:focus,
-.inline-editor-textarea:focus {
-  border-color: var(--primary-dark);
-  box-shadow: var(--shadow-lg), 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.inline-editor-textarea {
-  resize: vertical;
-  min-height: 100px;
-  font-family: var(--font-primary);
-}
 
 /* Responsive Design */
 @media (max-width: 1400px) {

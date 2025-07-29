@@ -16277,6 +16277,97 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             created_at=updated_project["created_at"]
         )
 
+class SlideFieldUpdateRequest(BaseModel):
+    slideId: str
+    fieldPath: List[str]
+    value: Union[str, List[str]]
+
+@app.patch("/api/custom/projects/{project_id}/slide-update", response_model=ProjectDB)
+async def update_slide_field(project_id: int, update_data: SlideFieldUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update a specific field in a slide"""
+    try:
+        # Get current project
+        async with pool.acquire() as conn:
+            project_row = await conn.fetchrow(
+                "SELECT p.*, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project_row:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
+            
+            current_component_name = project_row["component_name"]
+            db_content = project_row["microproduct_content"]
+            
+            if not db_content or not isinstance(db_content, dict):
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid project content.")
+            
+            # Update slide field
+            if current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                slides = db_content.get("slides", [])
+                slide_found = False
+                
+                for slide in slides:
+                    if slide.get("slideId") == update_data.slideId:
+                        # Navigate to the target field
+                        target = slide.get("props", {})
+                        for i, path_segment in enumerate(update_data.fieldPath[:-1]):
+                            if path_segment not in target:
+                                target[path_segment] = {}
+                            target = target[path_segment]
+                        
+                        # Set the new value
+                        final_key = update_data.fieldPath[-1]
+                        target[final_key] = update_data.value
+                        slide_found = True
+                        break
+                
+                if not slide_found:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Slide not found.")
+                
+                # Update the project in database
+                query = """
+                    UPDATE projects 
+                    SET microproduct_content = $1, updated_at = NOW()
+                    WHERE id = $2 AND onyx_user_id = $3
+                    RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, 
+                              microproduct_name, microproduct_content, design_template_id, created_at, updated_at;
+                """
+                
+                updated_row = await conn.fetchrow(query, db_content, project_id, onyx_user_id)
+                
+                if not updated_row:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project update failed.")
+                
+                # Parse the updated content
+                final_content_for_model: Optional[MicroProductContentType] = None
+                try:
+                    final_content_for_model = SlideDeckDetails(**db_content)
+                except Exception as e_parse:
+                    logger.error(f"Error parsing updated slide deck content (proj ID {updated_row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
+                
+                return ProjectDB(
+                    id=updated_row["id"],
+                    onyx_user_id=updated_row["onyx_user_id"],
+                    project_name=updated_row["project_name"],
+                    product_type=updated_row["product_type"],
+                    microproduct_type=updated_row["microproduct_type"],
+                    microproduct_name=updated_row["microproduct_name"],
+                    microproduct_content=final_content_for_model,
+                    design_template_id=updated_row["design_template_id"],
+                    created_at=updated_row["created_at"],
+                    updated_at=updated_row["updated_at"]
+                )
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not a slide deck.")
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating slide field in project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while updating the slide field." if IS_PRODUCTION else f"DB error on slide field update: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
 @app.patch("/api/custom/projects/{project_id}/tier", response_model=ProjectDB)
 async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     """Update the quality tier and custom rate of a project and recalculate creation hours"""

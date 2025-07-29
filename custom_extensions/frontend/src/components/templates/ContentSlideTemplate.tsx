@@ -3,6 +3,7 @@
 import React from 'react';
 import { ContentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideTheme }> = ({
   slideId,
@@ -11,10 +12,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   alignment = 'left',
   backgroundImage,
   onUpdate,
-  theme,
-  // Inline editing props
-  renderEditableText,
-  renderEditableField
+  theme
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -60,23 +58,15 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
   };
 
-  const editOverlayStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
+  const handleTitleChange = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
   };
 
-  const handleClick = () => {
+  const handleContentChange = (newContent: string) => {
     if (onUpdate) {
-      onUpdate({ slideId });
+      onUpdate({ content: newContent });
     }
   };
 
@@ -108,49 +98,27 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
     <div className="content-slide-template" style={slideStyles}>
       {/* Title */}
       <h1 style={titleStyles}>
-        {renderEditableText ? 
-          renderEditableText(['title'], title || '', {
-            className: 'slide-title-editable',
-            placeholder: 'Enter slide title...',
-            maxLength: 100
-          }) : 
-          title
-        }
+        <SimpleInlineEditor
+          value={title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter slide title..."
+          maxLength={100}
+          className="slide-title-editable"
+        />
       </h1>
 
       {/* Content */}
       <div style={contentStyles}>
-        {renderEditableField ? 
-          renderEditableField(['content'], content || '', 
-            (displayValue) => parseContent(displayValue),
-            {
-              multiline: true,
-              placeholder: 'Enter slide content...',
-              className: 'slide-content-editable',
-              maxLength: 2000,
-              rows: 8
-            }
-          ) : 
-          parseContent(content)
-        }
+        <SimpleInlineEditor
+          value={content || ''}
+          onSave={handleContentChange}
+          multiline={true}
+          placeholder="Enter slide content..."
+          maxLength={2000}
+          rows={8}
+          className="slide-content-editable"
+        />
       </div>
-
-      {/* Edit Overlay - only show if not using inline editing */}
-      { !renderEditableText && (
-        <div style={editOverlayStyles} onClick={handleClick}>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#333',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
-            Click to edit content slide
-          </div>
-        </div>
-      )}
     </div>
   );
 };

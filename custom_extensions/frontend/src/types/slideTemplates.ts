@@ -5,52 +5,9 @@ import { SlideTheme } from '@/types/slideThemes';
 
 // --- Base Template System Types ---
 
-// Inline editing function types
-export type RenderEditableTextFunction = (
-  fieldPath: string[],
-  value: string,
-  options?: {
-    multiline?: boolean;
-    placeholder?: string;
-    className?: string;
-    style?: React.CSSProperties;
-    maxLength?: number;
-    rows?: number;
-  }
-) => React.ReactNode;
-
-export type RenderEditableFieldFunction = (
-  fieldPath: string[],
-  value: string,
-  renderDisplay: (value: string) => React.ReactNode,
-  options?: {
-    multiline?: boolean;
-    placeholder?: string;
-    className?: string;
-    style?: React.CSSProperties;
-    maxLength?: number;
-    rows?: number;
-  }
-) => React.ReactNode;
-
-export type RenderEditableArrayFunction = (
-  fieldPath: string[],
-  items: string[],
-  options?: {
-    placeholder?: string;
-    className?: string;
-    style?: React.CSSProperties;
-    maxLength?: number;
-  }
-) => React.ReactNode;
-
 export interface BaseTemplateProps {
   slideId: string;
   onUpdate?: (props: Record<string, unknown>) => void;
-  // Inline editing props (optional)
-  renderEditableText?: RenderEditableTextFunction;
-  renderEditableField?: RenderEditableFieldFunction;
-  renderEditableArray?: RenderEditableArrayFunction;
   // Common template props (optional)
   title?: string;
   subtitle?: string;
@@ -126,7 +83,7 @@ export interface ComponentBasedSlideDeck {
   };
 }
 
-// --- Specific Template Prop Interfaces ---
+// --- Template-Specific Props ---
 
 export interface TitleSlideProps extends BaseTemplateProps {
   title: string;
@@ -250,6 +207,7 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   subtitleSize?: 'small' | 'medium' | 'large';
 }
 
+// --- Additional Template Props ---
 
 export interface FourBoxGridProps {
   slideId: string;
@@ -294,7 +252,7 @@ export interface BigNumbersTemplateProps {
   theme?: SlideTheme;
 }
 
-// --- Migration and Compatibility ---
+// --- Legacy Types (for migration) ---
 
 export interface LegacySlide {
   slideId: string;
@@ -312,6 +270,8 @@ export interface MigrationResult {
   warnings?: string[];
 }
 
+// --- Editor Types ---
+
 export interface SlideEditor {
   templateId: string;
   props: Record<string, unknown>;
@@ -319,7 +279,7 @@ export interface SlideEditor {
   onTemplateChange: (newTemplateId: string) => void;
 }
 
-// --- Utility Types ---
+// --- Template IDs ---
 
 export type TemplateId = 
   | 'title-slide'
@@ -338,6 +298,8 @@ export type TemplateId =
   | 'big-numbers'
   | 'pyramid';
 
+// --- Preview Types ---
+
 export interface TemplatePreview {
   templateId: string;
   name: string;
@@ -347,7 +309,7 @@ export interface TemplatePreview {
   tags: string[];
 }
 
-// --- Editor Integration ---
+// --- Editor Field Types ---
 
 export interface EditableField {
   key: string;

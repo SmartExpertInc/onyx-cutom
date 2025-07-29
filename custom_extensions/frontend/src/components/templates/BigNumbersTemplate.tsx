@@ -1,5 +1,6 @@
 import React from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export interface BigNumberItem {
   value: string;
@@ -12,16 +13,33 @@ export interface BigNumbersTemplateProps {
   title: string;
   items: BigNumberItem[];
   theme?: SlideTheme;
+  onUpdate?: (updates: Record<string, unknown>) => void;
 }
 
 export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   slideId,
   title,
   items,
-  theme
+  theme,
+  onUpdate
 }: BigNumbersTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+
+  const handleTitleChange = (newTitle: string) => {
+    if (onUpdate) { onUpdate({ title: newTitle }); }
+  };
+
+  const handleItemChange = (index: number, field: keyof BigNumberItem, value: string) => {
+    if (!onUpdate || !Array.isArray(items)) return;
+    
+    const newItems = [...items];
+    if (!newItems[index]) {
+      newItems[index] = { value: '', label: '', description: '' };
+    }
+    newItems[index] = { ...newItems[index], [field]: value };
+    onUpdate({ items: newItems });
+  };
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -83,14 +101,48 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   return (
     <div className="big-numbers-template" style={slideStyles}>
-      <h1 style={titleStyles}>{title}</h1>
+      <h1 style={titleStyles}>
+        <SimpleInlineEditor
+          value={title || ''}
+          onSave={handleTitleChange}
+          placeholder="Enter slide title..."
+          maxLength={100}
+          className="slide-title-editable"
+        />
+      </h1>
       <div style={gridStyles}>
         {Array.isArray(items) && items.length >= 3 ? (
           items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
             <div key={idx} style={itemStyles}>
-              <div style={valueStyles}>{item.value || 'N/A'}</div>
-              <div style={labelStyles}>{item.label || 'Label'}</div>
-              <div style={descriptionStyles}>{item.description || 'Description'}</div>
+              <div style={valueStyles}>
+                <SimpleInlineEditor
+                  value={item.value || ''}
+                  onSave={(value) => handleItemChange(idx, 'value', value)}
+                  placeholder="Value"
+                  maxLength={20}
+                  className="big-number-value-editable"
+                />
+              </div>
+              <div style={labelStyles}>
+                <SimpleInlineEditor
+                  value={item.label || ''}
+                  onSave={(value) => handleItemChange(idx, 'label', value)}
+                  placeholder="Label"
+                  maxLength={50}
+                  className="big-number-label-editable"
+                />
+              </div>
+              <div style={descriptionStyles}>
+                <SimpleInlineEditor
+                  value={item.description || ''}
+                  onSave={(value) => handleItemChange(idx, 'description', value)}
+                  multiline={true}
+                  placeholder="Description"
+                  maxLength={200}
+                  rows={3}
+                  className="big-number-description-editable"
+                />
+              </div>
             </div>
           ))
         ) : (
