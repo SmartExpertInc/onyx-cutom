@@ -1032,6 +1032,19 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **For grouped concepts**: Use `four-box-grid` (not content-slide)
 - **For explanatory text only**: Use `content-slide` (maximum 2-3 times per presentation)
 
+**CRITICAL TEMPLATE USAGE RULES:**
+- **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
+- **NEVER use `content-slide` for numerical data** - use `big-numbers` instead
+- **NEVER use `content-slide` for hierarchical structures** - use `pyramid` instead
+- **NEVER use `content-slide` for sequential steps** - use `process-steps` or `timeline` instead
+- **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
+
+**TWO-COLUMN TEMPLATE FORMATTING RULES:**
+- **For `leftContent` and `rightContent`**: Use flowing paragraph text, NOT lists
+- **If content naturally contains lists**: Convert them to flowing paragraph text
+- **Example CORRECT format**: "Smart homes include devices that enhance convenience and security. Wearable technology provides health monitoring and fitness tracking capabilities. Industrial IoT optimizes manufacturing processes and supply chains."
+- **Example INCORRECT format**: "- Smart Homes: Devices...\n- Wearable Technology: Health...\n- Industrial IoT: Optimizing..."
+
 **EDUCATIONAL TEMPLATE EXAMPLES:**
 
 **Opening Visual Impact** (`big-image-left`):
@@ -1068,15 +1081,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 [Comprehensive explanation of the concept with real-world context. Start with basic definition, then expand with practical implications and applications. Include why this concept matters in the broader field.]
 
-[Detailed analysis with examples, use cases, and practical applications. Connect theory to practice with specific scenarios learners might encounter.]
+[Detailed analysis with examples, use cases, and practical applications. Connect theory to practice with specific scenarios learners might encounter. Provide thorough explanations without using bullet points or lists.]
 
-* [Key insight with practical application and real-world example]
-* [Important consideration with implementation guidance]
-* [Critical success factor with actionable advice]
+[Additional insights with practical application and real-world examples. Include important considerations with implementation guidance and critical success factors with actionable advice.]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Detailed diagram or visual that reinforces the concept being taught]
 ```
-*Reserve for essential explanatory content - use maximum 2-3 times per presentation*
+*Reserve for essential explanatory content - use maximum 2-3 times per presentation. Use ONLY paragraph text, never bullet points or lists.*
 
 **Comprehensive Learning Points** (`bullet-points`):
 ```
@@ -1097,6 +1108,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 ```
 *Generate 5-7 comprehensive bullet points with substantial educational value*
 
+**BULLET-POINTS CONTENT REQUIREMENTS:**
+- **MANDATORY**: Always generate 5-7 bullet points (never fewer than 5)
+- **Each bullet point**: Must contain detailed explanation with practical examples and real-world applications
+- **Content depth**: Each point should be substantial enough to educate learners thoroughly
+- **Practical focus**: Include actionable insights and implementation guidance
+- **Variety**: Cover different aspects of the topic to provide comprehensive understanding
+
 **Comparative Learning Analysis** (`two-column`):
 ```
 ---
@@ -1105,14 +1123,14 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 ## [Educational Comparison Title]
 
 ### [First Concept/Approach]
-[Comprehensive explanation of the first concept with detailed analysis, practical examples, and real-world applications. Discuss advantages, use cases, and when this approach is most effective. Include specific scenarios and outcomes.]
+[Comprehensive explanation of the first concept with detailed analysis, practical examples, and real-world applications. Discuss advantages, use cases, and when this approach is most effective. Include specific scenarios and outcomes. Convert any natural lists into flowing paragraph text.]
 
 ### [Second Concept/Approach]
-[Thorough analysis of the second concept with practical insights, implementation considerations, and educational benefits. Explain key differences, advantages, and practical applications learners should understand.]
+[Thorough analysis of the second concept with practical insights, implementation considerations, and educational benefits. Explain key differences, advantages, and practical applications learners should understand. Use paragraph format, not bullet points.]
 
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Educational visual that illustrates the comparison effectively]
 ```
-*Use flowing educational narrative - avoid lists, focus on comprehensive explanations*
+*Use flowing educational narrative - avoid lists, focus on comprehensive explanations. Convert any lists to paragraph text.*
 
 **Educational Problem-Solution Framework** (`challenges-solutions`):
 ```
@@ -1153,6 +1171,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - Include specific techniques, tools, best practices, and practical guidance
 - Provide examples, scenarios, or use cases where relevant
 - Discuss potential challenges and how to overcome them
+- **MANDATORY DETAIL:** Each step must include practical implementation guidance and real-world applications
+- **Depth requirement:** Never use single-sentence descriptions - always provide substantial educational content
 
 **Title Slides** (`title-slide`):
 ```
@@ -1236,6 +1256,7 @@ Box 4: [Heading] - [In-depth explanation with 2-3 sentences covering the concept
 - **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
 - **CONTENT REQUIREMENTS:** Each box description MUST contain 2-3 detailed sentences with comprehensive explanations, examples, and practical insights.
 - **AVOID SHORT DESCRIPTIONS:** Never use single-sentence descriptions. Always provide substantial content that educates and informs.
+- **MANDATORY DETAIL:** Each box must include practical examples, implementation considerations, and real-world applications.
 - Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
 - Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
 ```
@@ -1351,6 +1372,26 @@ Information processing follows a structured approach where knowledge builds upon
 - **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 - **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
+
+**FINAL SLIDE RESTRICTIONS:**
+- **EXACTLY ONE final slide maximum** - never create multiple ending slides
+- **FORBIDDEN final slide combinations**: 
+  * "Questions and Discussion" + "Conclusion"
+  * "Q&A Session" + "Summary" 
+  * "Thank You" + "Feedback"
+  * "Further Reading" + "Conclusion"
+  * Any combination of 2+ ending slides
+- **ALLOWED final slide types** (choose only ONE):
+  * "Conclusion" (preferred)
+  * "Key Takeaways" 
+  * "Summary"
+  * "Next Steps"
+- **NEVER create these slides**: "Questions and Discussion", "Open Floor for Questions", "Thank You", "Feedback", "Further Reading", "Additional Resources"
+
+**SLIDE COUNT ENFORCEMENT:**
+- **If you reach the target count before creating a final slide**: Use the last slide as the conclusion
+- **If you need more slides to reach the target**: Add more educational content, not additional ending slides
+- **NEVER create "courtesy" slides** to fill the count - create meaningful educational content instead
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
 - **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
@@ -1470,3 +1511,11 @@ End with a meaningful conclusion that:
 
 **EDUCATIONAL FOCUS REMINDER:**
 Your primary role is to create educational content that transforms learners. Every slide should contribute to their knowledge, skills, and practical capabilities. Focus on educational value, practical application, and meaningful learning outcomes rather than restrictive rules.
+
+**CRITICAL CONTENT QUALITY REQUIREMENTS:**
+- **NEVER create shallow or superficial content** - every slide must provide substantial educational value
+- **ALWAYS include practical examples and real-world applications** in your explanations
+- **CONVERT lists to flowing paragraph text** when using `two-column` and `content-slide` templates
+- **USE appropriate templates** - `bullet-points` for lists, `content-slide` for pure text, `big-numbers` for statistics
+- **CREATE exactly ONE final slide** - never multiple ending slides
+- **GENERATE exactly the requested number of slides** with meaningful educational content
