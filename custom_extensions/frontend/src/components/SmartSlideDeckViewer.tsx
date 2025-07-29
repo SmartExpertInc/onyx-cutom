@@ -27,7 +27,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   showFormatInfo = false,
   theme
 }) => {
-  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeme | null>(null);
+  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
 
