@@ -39,7 +39,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
-    fontWeight: 700,
     color: titleColor,
     textAlign: 'center',
     marginBottom: '24px',
@@ -51,7 +50,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   const subtitleStyles: React.CSSProperties = {
     fontSize: `${parseInt(currentTheme.fonts.contentSize) + 8}px`,
     fontFamily: currentTheme.fonts.contentFont,
-    fontWeight: 400,
     color: subtitleColor,
     textAlign: 'center',
     marginBottom: '40px',
@@ -70,7 +68,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   };
 
   const metadataItemStyles: React.CSSProperties = {
-    fontWeight: 500
   };
 
   const editOverlayStyles: React.CSSProperties = {
@@ -131,7 +128,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
           padding: '12px 24px',
           borderRadius: '8px',
           fontSize: '14px',
-          fontWeight: 600,
           color: '#333',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}>
