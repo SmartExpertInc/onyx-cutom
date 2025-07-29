@@ -74,7 +74,7 @@ export const ru = {
     selectAll: "Выбрать Все",
     noFilesInFolder: "В этой папке пока нет файлов",
     uploadSomeDocuments: "Загрузите несколько документов для начала",
-    filesSelected: "{count} файл{plural} выбран{plural}",
+    filesSelected: "файл{plural} выбран{plural}",
     readyToCreateContent: "Готово к созданию контента из этих документов",
     createContent: "Создать Контент",
     backToFolders: "Вернуться к Папкам",

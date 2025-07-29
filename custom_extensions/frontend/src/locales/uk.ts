@@ -677,7 +677,7 @@ export const uk = {
       creatingFromText: "Створення з тексту",
       foldersSelected: "{count} папка вибрана",
       foldersSelectedPlural: "{count} папки вибрані",
-      filesSelected: "{count} файл вибраний",
+      filesSelected: "файл вибраний",
       filesSelectedPlural: "{count} файлів вибрано",
       aiWillUseDocuments: "ШІ буде використовувати ваші вибрані документи як вихідний матеріал для створення навчального контенту.",
       modeUsingAsContext: "Режим: Використання як контекст",
