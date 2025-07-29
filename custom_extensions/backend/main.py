@@ -10722,7 +10722,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 slides=[]
             )
             llm_json_example = DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM  # Force use of new template format
-             component_specific_instructions = """
+            component_specific_instructions = """
             You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
@@ -10810,7 +10810,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 "Second key insight with comprehensive analysis",
                 "Third critical element with thorough examination",
                 "Fourth essential consideration with strategic importance",
-                "Fifth valuable perspective with actionable recommendations"
+                "Fifth valuable perspective with actionable recommendations",
+                "Sixth valuable perspective with actionable recommendations",
+                "Seventh valuable perspective with actionable recommendations"
               ],
               "maxColumns": 2,
               "bulletStyle": "dot",
