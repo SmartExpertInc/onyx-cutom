@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
+import FolderSettingsModal from './FolderSettingsModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -224,6 +225,7 @@ const SidebarFolderMenu: React.FC<{
   const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [renameModalOpen, setRenameModalOpen] = React.useState(false);
+  const [showSettingsModal, setShowSettingsModal] = React.useState(false);
   const [isRenaming, setIsRenaming] = React.useState(false);
   const [newName, setNewName] = React.useState(folder.name);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -273,6 +275,14 @@ const SidebarFolderMenu: React.FC<{
     setRenameModalOpen(true);
   };
 
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setMenuOpen(false);
+    if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+    setShowSettingsModal(true);
+  };
+
   return (
     <>
       <div ref={menuRef} className="inline-block">
@@ -308,7 +318,10 @@ const SidebarFolderMenu: React.FC<{
                 <PenLine size={16} className="text-gray-500" />
                 <span>{t('actions.renameFolder', 'Rename')}</span>
               </button>
-              <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+              <button 
+                onClick={handleSettingsClick}
+                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+              >
                 <Settings size={16} className="text-gray-500" />
                 <span>{t('actions.folderSettings', 'Settings')}</span>
               </button>
@@ -348,7 +361,7 @@ const SidebarFolderMenu: React.FC<{
               />
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-start gap-3">
               <button
                 onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
                 className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
@@ -405,6 +418,19 @@ const SidebarFolderMenu: React.FC<{
           </div>
         </div>
       )}
+
+      {/* Folder Settings Modal */}
+      <FolderSettingsModal
+        open={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        folderName={folder.name}
+        folderId={folder.id}
+        currentTier={folder.quality_tier || 'interactive'}
+        onTierChange={(tier) => {
+          console.log('Folder tier changed to:', tier);
+          onFolderUpdated();
+        }}
+      />
     </>
   );
 };
