@@ -1,22 +1,105 @@
 // custom_extensions/frontend/src/components/templates/ContentSlideTemplate.tsx
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ContentSlideProps } from '@/types/slideTemplates';
-import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
-import SimpleInlineEditor from '../SimpleInlineEditor';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
-export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideTheme }> = ({
+// Inline Editor Component (копіюємо з SmartSlideDeckViewer.tsx)
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+}
+
+function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  if (multiline) {
+    return (
+      <textarea
+        className="inline-editor-textarea"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        rows={4}
+        style={{
+          width: '100%',
+          border: '2px solid #3b82f6',
+          borderRadius: '4px',
+          padding: '8px',
+          fontSize: 'inherit',
+          fontFamily: 'inherit',
+          outline: 'none',
+          resize: 'vertical',
+          minHeight: '100px'
+        }}
+      />
+    );
+  }
+
+  return (
+    <input
+      className="inline-editor-input"
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      style={{
+        width: '100%',
+        border: '2px solid #3b82f6',
+        borderRadius: '4px',
+        padding: '8px',
+        fontSize: 'inherit',
+        fontFamily: 'inherit',
+        outline: 'none'
+      }}
+    />
+  );
+}
+
+export const ContentSlideTemplate: React.FC<ContentSlideProps & { 
+  theme?: SlideTheme;
+  onTextChange?: (slideId: string, fieldPath: string, newValue: any) => void;
+  onAutoSave?: () => void;
+}> = ({
   slideId,
   title,
   content,
   alignment = 'left',
   backgroundImage,
+  isEditable = false,
   onUpdate,
+  onTextChange,
+  onAutoSave,
   theme
 }) => {
+  // State for inline editing
+  const [editingField, setEditingField] = useState<string | null>(null);
+
   // Use theme colors instead of props
-  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
@@ -58,16 +141,47 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
   };
 
-  const handleTitleChange = (newTitle: string) => {
-    if (onUpdate) {
-      onUpdate({ title: newTitle });
+  const editOverlayStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    display: isEditable ? 'flex' : 'none',
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  };
+
+  const handleClick = () => {
+    if (isEditable && onUpdate) {
+      onUpdate({ slideId });
     }
   };
 
-  const handleContentChange = (newContent: string) => {
-    if (onUpdate) {
-      onUpdate({ content: newContent });
+  // Inline editing handlers
+  const handleFieldClick = (fieldPath: string) => {
+    console.log('Field clicked:', fieldPath, 'isEditable:', isEditable);
+    if (isEditable) {
+      setEditingField(fieldPath);
     }
+  };
+
+  const handleFieldSave = (fieldPath: string, newValue: string) => {
+    console.log('Field save:', fieldPath, 'newValue:', newValue);
+    if (onTextChange) {
+      onTextChange(slideId, fieldPath, newValue);
+      if (onAutoSave) {
+        onAutoSave();
+      }
+    }
+    setEditingField(null);
+  };
+
+  const handleFieldCancel = () => {
+    setEditingField(null);
   };
 
   // Parse content as simple HTML or markdown-like formatting
@@ -95,29 +209,57 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   };
 
   return (
-    <div className="content-slide-template" style={slideStyles}>
+    <div className="content-slide-template" style={slideStyles} onClick={handleClick}>
       {/* Title */}
-      <h1 style={titleStyles}>
-        <SimpleInlineEditor
-          value={title || ''}
-          onSave={handleTitleChange}
-          placeholder="Enter slide title..."
-          maxLength={100}
-          className="slide-title-editable"
+      {editingField === 'title' ? (
+        <InlineEditor
+          initialValue={title}
+          onSave={(value) => handleFieldSave('title', value)}
+          onCancel={handleFieldCancel}
         />
-      </h1>
+      ) : (
+        <h1 
+          style={titleStyles}
+          onClick={() => handleFieldClick('title')}
+          className={isEditable ? 'editable-field' : ''}
+          title={isEditable ? 'Click to edit title' : ''}
+        >
+          {title}
+        </h1>
+      )}
 
       {/* Content */}
-      <div style={contentStyles}>
-        <SimpleInlineEditor
-          value={content || ''}
-          onSave={handleContentChange}
+      {editingField === 'content' ? (
+        <InlineEditor
+          initialValue={content}
+          onSave={(value) => handleFieldSave('content', value)}
+          onCancel={handleFieldCancel}
           multiline={true}
-          placeholder="Enter slide content..."
-          maxLength={2000}
-          rows={8}
-          className="slide-content-editable"
         />
+      ) : (
+        <div 
+          style={contentStyles}
+          onClick={() => handleFieldClick('content')}
+          className={isEditable ? 'editable-field' : ''}
+          title={isEditable ? 'Click to edit content' : ''}
+        >
+          {parseContent(content)}
+        </div>
+      )}
+
+      {/* Edit Overlay */}
+      <div style={editOverlayStyles}>
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: 600,
+          color: '#333',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          Click to edit content slide
+        </div>
       </div>
     </div>
   );

@@ -7,19 +7,8 @@ import { SlideTheme } from '@/types/slideThemes';
 
 export interface BaseTemplateProps {
   slideId: string;
-  onUpdate?: (props: Record<string, unknown>) => void;
-  // Common template props (optional)
-  title?: string;
-  subtitle?: string;
-  content?: string;
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  subtitleColor?: string;
-  backgroundImage?: string;
-  alignment?: 'left' | 'center' | 'right';
-  // Allow any additional props for flexibility
-  [key: string]: unknown;
+  isEditable?: boolean;
+  onUpdate?: (props: any) => void;
 }
 
 export interface TemplateComponentInfo {
@@ -29,9 +18,8 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: React.ComponentType<any>;
-  defaultProps: Record<string, unknown>;
+  component: React.ComponentType<BaseTemplateProps & any>;
+  defaultProps: Record<string, any>;
   propSchema: Record<string, PropDefinition>;
 }
 
@@ -40,8 +28,8 @@ export interface PropDefinition {
   label: string;
   description?: string;
   required?: boolean;
-  default?: unknown;
-  options?: Array<{value: unknown; label: string}>; // For select type
+  default?: any;
+  options?: Array<{value: any; label: string}>; // For select type
   min?: number; // For number type
   max?: number; // For number type
   maxLength?: number; // For text type
@@ -58,7 +46,7 @@ export interface ComponentBasedSlide {
   slideId: string;
   slideNumber: number;
   templateId: string;
-  props: Record<string, unknown>;
+  props: Record<string, any>;
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
@@ -83,7 +71,7 @@ export interface ComponentBasedSlideDeck {
   };
 }
 
-// --- Template-Specific Props ---
+// --- Specific Template Prop Interfaces ---
 
 export interface TitleSlideProps extends BaseTemplateProps {
   title: string;
@@ -118,7 +106,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
 }
 
-export type BigImageTopProps = BigImageLeftProps;
+export interface BigImageTopProps extends BigImageLeftProps {}
 
 export interface QuoteCenterProps extends BaseTemplateProps {
   quote: string;
@@ -134,7 +122,7 @@ export interface BulletPointsProps extends BaseTemplateProps {
   title: string;
   bullets: string[];
   maxColumns?: 1 | 2 | 3;
-  bulletStyle?: 'dot' | 'arrow' | 'check' | 'star' | 'number' | 'dash';
+  bulletStyle?: 'dot' | 'arrow' | 'check' | 'star' | 'number';
   titleColor?: string;
   bulletColor?: string;
   backgroundColor?: string;
@@ -207,7 +195,6 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   subtitleSize?: 'small' | 'medium' | 'large';
 }
 
-// --- Additional Template Props ---
 
 export interface FourBoxGridProps {
   slideId: string;
@@ -252,15 +239,15 @@ export interface BigNumbersTemplateProps {
   theme?: SlideTheme;
 }
 
-// --- Legacy Types (for migration) ---
+// --- Migration and Compatibility ---
 
 export interface LegacySlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
-  contentBlocks: unknown[];
+  contentBlocks: any[];
   deckgoTemplate?: string;
-  imagePlaceholders?: unknown[];
+  imagePlaceholders?: any[];
 }
 
 export interface MigrationResult {
@@ -270,16 +257,14 @@ export interface MigrationResult {
   warnings?: string[];
 }
 
-// --- Editor Types ---
-
 export interface SlideEditor {
   templateId: string;
-  props: Record<string, unknown>;
-  onPropsChange: (newProps: Record<string, unknown>) => void;
+  props: Record<string, any>;
+  onPropsChange: (newProps: Record<string, any>) => void;
   onTemplateChange: (newTemplateId: string) => void;
 }
 
-// --- Template IDs ---
+// --- Utility Types ---
 
 export type TemplateId = 
   | 'title-slide'
@@ -298,8 +283,6 @@ export type TemplateId =
   | 'big-numbers'
   | 'pyramid';
 
-// --- Preview Types ---
-
 export interface TemplatePreview {
   templateId: string;
   name: string;
@@ -309,14 +292,14 @@ export interface TemplatePreview {
   tags: string[];
 }
 
-// --- Editor Field Types ---
+// --- Editor Integration ---
 
 export interface EditableField {
   key: string;
   label: string;
   type: PropDefinition['type'];
-  value: unknown;
-  onChange: (value: unknown) => void;
+  value: any;
+  onChange: (value: any) => void;
   validation?: {
     required?: boolean;
     minLength?: number;

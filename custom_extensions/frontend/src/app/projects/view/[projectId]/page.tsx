@@ -17,7 +17,7 @@ import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { ProjectListItem } from '@/types/products';
 import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
-
+import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
@@ -795,11 +795,12 @@ export default function ProjectInstanceViewPage() {
           }}>
             <SmartSlideDeckViewer
               deck={slideDeckData}
+              isEditable={true}
               onSave={(updatedDeck) => {
-                // Convert the updated deck back to the format expected by handleTextChange
-                if (handleTextChange) {
-                  handleTextChange([], updatedDeck as any);
-                }
+                // Оновлюємо editableData з новими даними слайду
+                setEditableData(updatedDeck as any);
+                // Викликаємо handleAutoSave для збереження на сервер
+                handleAutoSave();
               }}
               showFormatInfo={true}
               theme="dark-purple"

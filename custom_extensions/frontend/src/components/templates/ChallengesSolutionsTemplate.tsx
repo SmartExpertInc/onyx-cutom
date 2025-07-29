@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
-import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
-import SimpleInlineEditor from '../SimpleInlineEditor';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { theme?: SlideTheme }> = ({
   slideId,
@@ -15,29 +14,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
   onUpdate,
   theme
 }) => {
-  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
-
-  const handleTitleChange = (newTitle: string) => {
-    if (onUpdate) { onUpdate({ title: newTitle }); }
-  };
-
-  const handleChallengesTitleChange = (newChallengesTitle: string) => {
-    if (onUpdate) { onUpdate({ challengesTitle: newChallengesTitle }); }
-  };
-
-  const handleSolutionsTitleChange = (newSolutionsTitle: string) => {
-    if (onUpdate) { onUpdate({ solutionsTitle: newSolutionsTitle }); }
-  };
-
-  const handleChallengesChange = (newChallengesText: string) => {
-    const newChallenges = newChallengesText.split('\n').filter(item => item.trim());
-    if (onUpdate) { onUpdate({ challenges: newChallenges }); }
-  };
-
-  const handleSolutionsChange = (newSolutionsText: string) => {
-    const newSolutions = newSolutionsText.split('\n').filter(item => item.trim());
-    if (onUpdate) { onUpdate({ solutions: newSolutions }); }
-  };
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -117,105 +94,105 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
     marginTop: '8px'
   };
 
+  const editOverlayStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  };
+
+  // SVG Icons
   const XMarkIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg 
+      width="24" 
+      height="24" 
+      viewBox="0 0 512 512" 
+      fill={currentTheme.colors.accentColor}
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
     </svg>
   );
 
   const CheckIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 6L7 15L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg 
+      width="24" 
+      height="24" 
+      viewBox="0 0 512 512" 
+      fill={currentTheme.colors.accentColor}
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
     </svg>
   );
 
+  const handleClick = () => {
+    if (onUpdate) {
+      onUpdate({ slideId });
+    }
+  };
+
   return (
-    <div className="challenges-solutions-template" style={slideStyles}>
+    <div className="challenges-solutions-template" style={slideStyles} onClick={handleClick}>
+      {/* Main Title */}
       <h1 style={titleStyles}>
-        <SimpleInlineEditor
-          value={title || ''}
-          onSave={handleTitleChange}
-          placeholder="Enter slide title..."
-          maxLength={100}
-          className="challenges-solutions-title-editable"
-        />
+        {title}
       </h1>
 
+      {/* Two Column Grid */}
       <div style={gridStyles}>
-        {/* Challenges Section */}
-        <div style={calloutBoxStyles('rgba(255, 107, 107, 0.1)')}>
+        {/* Challenges Column */}
+        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
           <div style={headerStyles}>
             <XMarkIcon />
-            <h3 style={sectionTitleStyles}>
-              <SimpleInlineEditor
-                value={challengesTitle || ''}
-                onSave={handleChallengesTitleChange}
-                placeholder="Challenges"
-                maxLength={50}
-                className="challenges-title-editable"
-              />
-            </h3>
+            <h2 style={sectionTitleStyles}>{challengesTitle}</h2>
           </div>
-          <div>
-            <SimpleInlineEditor
-              value={Array.isArray(challenges) ? challenges.join('\n') : ''}
-              onSave={handleChallengesChange}
-              multiline={true}
-              placeholder="Enter challenges, one per line..."
-              maxLength={1000}
-              rows={8}
-              className="challenges-content-editable"
-            />
-          </div>
-          {/* Display challenges */}
-          {Array.isArray(challenges) && challenges.length > 0 && (
-            <ul style={listStyles}>
-              {challenges.map((challenge, index) => (
-                <li key={index} style={listItemStyles}>
-                  <div style={bulletStyles} />
-                  <span>{challenge}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul style={listStyles}>
+            {challenges.map((challenge, index) => (
+              <li key={index} style={listItemStyles}>
+                <div style={bulletStyles}></div>
+                <span>{challenge}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Solutions Section */}
-        <div style={calloutBoxStyles('rgba(76, 175, 80, 0.1)')}>
+        {/* Solutions Column */}
+        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
           <div style={headerStyles}>
             <CheckIcon />
-            <h3 style={sectionTitleStyles}>
-              <SimpleInlineEditor
-                value={solutionsTitle || ''}
-                onSave={handleSolutionsTitleChange}
-                placeholder="Solutions"
-                maxLength={50}
-                className="solutions-title-editable"
-              />
-            </h3>
+            <h2 style={sectionTitleStyles}>{solutionsTitle}</h2>
           </div>
-          <div>
-            <SimpleInlineEditor
-              value={Array.isArray(solutions) ? solutions.join('\n') : ''}
-              onSave={handleSolutionsChange}
-              multiline={true}
-              placeholder="Enter solutions, one per line..."
-              maxLength={1000}
-              rows={8}
-              className="solutions-content-editable"
-            />
-          </div>
-          {/* Display solutions */}
-          {Array.isArray(solutions) && solutions.length > 0 && (
-            <ul style={listStyles}>
-              {solutions.map((solution, index) => (
-                <li key={index} style={listItemStyles}>
-                  <div style={bulletStyles} />
-                  <span>{solution}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul style={listStyles}>
+            {solutions.map((solution, index) => (
+              <li key={index} style={listItemStyles}>
+                <div style={bulletStyles}></div>
+                <span>{solution}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Edit Overlay */}
+      <div style={editOverlayStyles}>
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: 600,
+          color: '#333',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          Натисніть для редагування викликів та рішень
         </div>
       </div>
     </div>

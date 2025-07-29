@@ -1,6 +1,5 @@
 import React from 'react';
-import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
-import SimpleInlineEditor from '../SimpleInlineEditor';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 export interface FourBoxGridProps {
   slideId: string;
@@ -10,32 +9,15 @@ export interface FourBoxGridProps {
     text: string;
   }>;
   theme?: SlideTheme;
-  onUpdate?: (updates: Record<string, unknown>) => void;
 }
 
 export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   slideId,
   title,
   boxes,
-  theme,
-  onUpdate
+  theme
 }) => {
-  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
-
-  const handleTitleChange = (newTitle: string) => {
-    if (onUpdate) { onUpdate({ title: newTitle }); }
-  };
-
-  const handleBoxChange = (index: number, field: 'heading' | 'text', value: string) => {
-    if (!onUpdate || !Array.isArray(boxes)) return;
-    
-    const newBoxes = [...boxes];
-    if (!newBoxes[index]) {
-      newBoxes[index] = { heading: '', text: '' };
-    }
-    newBoxes[index] = { ...newBoxes[index], [field]: value };
-    onUpdate({ boxes: newBoxes });
-  };
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -93,39 +75,13 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
 
   return (
     <div className="four-box-grid-template" style={slideStyles}>
-      <h1 style={titleStyles}>
-        <SimpleInlineEditor
-          value={title || ''}
-          onSave={handleTitleChange}
-          placeholder="Enter slide title..."
-          maxLength={100}
-          className="four-box-title-editable"
-        />
-      </h1>
+      <h1 style={titleStyles}>{title}</h1>
       <div style={gridStyles}>
         {Array.isArray(boxes) && boxes.length >= 4 ? (
           boxes.slice(0, 4).map((box: any, idx: number) => (
             <div key={idx} style={boxStyles}>
-              <div style={headingStyles}>
-                <SimpleInlineEditor
-                  value={box.heading || ''}
-                  onSave={(value) => handleBoxChange(idx, 'heading', value)}
-                  placeholder="Box heading"
-                  maxLength={50}
-                  className="four-box-heading-editable"
-                />
-              </div>
-              <div style={textStyles}>
-                <SimpleInlineEditor
-                  value={box.text || ''}
-                  onSave={(value) => handleBoxChange(idx, 'text', value)}
-                  multiline={true}
-                  placeholder="Box description"
-                  maxLength={200}
-                  rows={4}
-                  className="four-box-text-editable"
-                />
-              </div>
+              <div style={headingStyles}>{box.heading || 'Heading'}</div>
+              <div style={textStyles}>{box.text || 'Description'}</div>
             </div>
           ))
         ) : (

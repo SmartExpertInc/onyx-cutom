@@ -1,6 +1,5 @@
 import React from 'react';
-import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
-import SimpleInlineEditor from '../SimpleInlineEditor';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 export interface PyramidItem {
   heading: string;
@@ -13,7 +12,6 @@ export interface PyramidTemplateProps {
   subtitle: string;
   items: PyramidItem[];
   theme?: SlideTheme;
-  onUpdate?: (updates: Record<string, unknown>) => void;
 }
 
 export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
@@ -22,29 +20,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   subtitle,
   items = [],
   theme,
-  onUpdate,
 }: PyramidTemplateProps) => {
-  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
-
-  const handleTitleChange = (newTitle: string) => {
-    if (onUpdate) { onUpdate({ title: newTitle }); }
-  };
-
-  const handleSubtitleChange = (newSubtitle: string) => {
-    if (onUpdate) { onUpdate({ subtitle: newSubtitle }); }
-  };
-
-  const handleItemChange = (index: number, field: keyof PyramidItem, value: string) => {
-    if (!onUpdate || !Array.isArray(items)) return;
-    
-    const newItems = [...items];
-    if (!newItems[index]) {
-      newItems[index] = { heading: '', description: '' };
-    }
-    newItems[index] = { ...newItems[index], [field]: value };
-    onUpdate({ items: newItems });
-  };
 
   const slideStyles: React.CSSProperties = {
     backgroundColor,
@@ -120,79 +98,60 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           right: 0,
           top: topPositions[level],
           height: '1px',
-          background: 'rgba(255,255,255,0.2)',
-      };
-  };
-
-  const itemStyles: React.CSSProperties = {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: '8px',
-    padding: '16px',
-    border: '1px solid rgba(255,255,255,0.1)',
-    maxWidth: '300px',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      }
   };
 
   const itemHeadingStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
-    fontWeight: 600,
-    color: contentColor,
+    color: titleColor,
+    fontSize: '1.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     marginBottom: '8px',
   };
 
   const itemDescriptionStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
     color: contentColor,
-    fontFamily: currentTheme.fonts.contentFont,
-    lineHeight: 1.4,
+    fontSize: currentTheme.fonts.contentSize,
   };
 
   const PyramidSVG1 = () => {
-    return (
-      <svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M100 20L180 100H20L100 20Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/>
-      </svg>
+    const pyramidFill = "rgba(255, 255, 255, 0.1)";
+    const textFill = "rgba(255, 255, 255, 0.9)";
+
+    return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
+      // Segment 1 (Top Triangle)
+      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, strokeWidth: "0.5" }),
+      React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
     );
   };
 
   const PyramidSVG2 = () => {
-    return (
-      <svg width="160" height="100" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M80 20L140 80H20L80 20Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
-      </svg>
+    const pyramidFill = "rgba(255, 255, 255, 0.1)";
+    const textFill = "rgba(255, 255, 255, 0.9)";
+
+    return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
+      // Segment 2 (Middle Trapezoid)
+      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill,  strokeWidth: "0.5" }),
+      React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
     );
   };
 
   const PyramidSVG3 = () => {
-    return (
-      <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M60 20L100 60H20L60 20Z" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" strokeWidth="1"/>
-      </svg>
+    const pyramidFill = "rgba(255, 255, 255, 0.1)";
+    const textFill = "rgba(255, 255, 255, 0.9)";
+
+    return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
+      // Segment 3 (Bottom Trapezoid)
+      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, strokeWidth: "0.5" }),
+      React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
     );
   };
+      
 
   return (
     <div className="pyramid-template" style={slideStyles}>
-      <h1 style={titleStyles}>
-        <SimpleInlineEditor
-          value={title || ''}
-          onSave={handleTitleChange}
-          placeholder="Enter slide title..."
-          maxLength={100}
-          className="pyramid-title-editable"
-        />
-      </h1>
-      <div style={subtitleStyles}>
-        <SimpleInlineEditor
-          value={subtitle || ''}
-          onSave={handleSubtitleChange}
-          multiline={true}
-          placeholder="Enter slide subtitle..."
-          maxLength={300}
-          rows={3}
-          className="pyramid-subtitle-editable"
-        />
-      </div>
+      <h1 style={titleStyles}>{title}</h1>
+      {subtitle && <p style={subtitleStyles}>{subtitle}</p>}
       <div style={mainContentStyles}>
         <div style={pyramidContainerStyles}>
           <PyramidSVG1 />
@@ -202,32 +161,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         <div style={itemsContainerStyles}>
           {Array.isArray(items) && items.slice(0, 3).map((item, index) => (
             <div key={index} style={itemWrapperStyles(index)}>
-              <div style={itemStyles}>
-                <div style={itemHeadingStyles}>
-                  <SimpleInlineEditor
-                    value={item.heading || ''}
-                    onSave={(value) => handleItemChange(index, 'heading', value)}
-                    placeholder={`Level ${index + 1} heading`}
-                    maxLength={50}
-                    className="pyramid-heading-editable"
-                  />
-                </div>
-                <div style={itemDescriptionStyles}>
-                  <SimpleInlineEditor
-                    value={item.description || ''}
-                    onSave={(value) => handleItemChange(index, 'description', value)}
-                    multiline={true}
-                    placeholder={`Level ${index + 1} description`}
-                    maxLength={200}
-                    rows={3}
-                    className="pyramid-description-editable"
-                  />
-                </div>
-              </div>
+              <div style={itemHeadingStyles}>{item.heading || 'Heading'}</div>
+              <div style={itemDescriptionStyles}>{item.description || 'Description'}</div>
             </div>
           ))}
-          <div style={separatorLineStyles(0)} />
-          <div style={separatorLineStyles(1)} />
+          <div style={separatorLineStyles(0)}></div>
+          <div style={separatorLineStyles(1)}></div>
         </div>
       </div>
     </div>

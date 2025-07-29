@@ -80,43 +80,9 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
 // Default theme
 export const DEFAULT_SLIDE_THEME = 'dark-purple';
 
-// Fallback theme for safety
-export const FALLBACK_THEME: SlideTheme = {
-  id: 'fallback',
-  name: 'Fallback',
-  colors: {
-    backgroundColor: '#ffffff',
-    titleColor: '#000000',
-    subtitleColor: '#666666',
-    contentColor: '#333333',
-    accentColor: '#3b82f6'
-  },
-  fonts: {
-    titleFont: 'Arial, sans-serif',
-    contentFont: 'Arial, sans-serif',
-    titleSize: '2rem',
-    contentSize: '1rem'
-  }
-};
-
 // Helper function to get theme
 export function getSlideTheme(themeId?: string): SlideTheme {
-  const theme = SLIDE_THEMES[themeId || DEFAULT_SLIDE_THEME] || SLIDE_THEMES[DEFAULT_SLIDE_THEME];
-  return theme || FALLBACK_THEME;
-}
-
-// Safe function to get theme with fallback
-export function getSafeSlideTheme(themeId?: string): SlideTheme {
-  try {
-    const theme = getSlideTheme(themeId);
-    if (!theme || !theme.colors || !theme.fonts) {
-      return FALLBACK_THEME;
-    }
-    return theme;
-  } catch (error) {
-    console.warn('Error getting slide theme, using fallback:', error);
-    return FALLBACK_THEME;
-  }
+  return SLIDE_THEMES[themeId || DEFAULT_SLIDE_THEME] || SLIDE_THEMES[DEFAULT_SLIDE_THEME];
 }
 
 // Helper function to get theme colors for a specific slide
