@@ -12,11 +12,16 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideT
     if (props.onUpdate) { props.onUpdate({ title: newTitle }); }
   };
 
-  const handleStepChange = (index: number, newStep: string) => {
+  const handleStepChange = (index: number, newDescription: string) => {
     if (!props.onUpdate || !Array.isArray(props.steps)) return;
     
     const newSteps = [...props.steps];
-    newSteps[index] = newStep;
+    // Підтримка як об'єктів, так і рядків
+    if (typeof newSteps[index] === 'string') {
+      newSteps[index] = newDescription;
+    } else {
+      newSteps[index] = { ...newSteps[index], description: newDescription };
+    }
     props.onUpdate({ steps: newSteps });
   };
 
