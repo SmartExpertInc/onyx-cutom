@@ -2150,10 +2150,10 @@ const FolderRowMenu: React.FC<{
             {renameModalOpen && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20 p-4" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-semibold text-lg mb-4 text-gray-900 text-center">{t('actions.renameFolder', 'Rename Folder')}</h4>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">{t('actions.renameFolder', 'Rename Folder')}</h4>
 
                         <div className="mb-6">
-                            <label htmlFor="newFolderName" className="block text-sm font-medium text-gray-700 mb-1 text-center">{t('actions.newName', 'New Name:')}</label>
+                            <label htmlFor="newFolderName" className="block text-sm font-medium text-gray-700 mb-1">{t('actions.newName', 'New Name:')}</label>
                             <input
                                 id="newFolderName"
                                 type="text"
