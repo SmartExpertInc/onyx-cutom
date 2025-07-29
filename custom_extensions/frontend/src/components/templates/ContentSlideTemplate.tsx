@@ -103,13 +103,17 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   // Прапорець для контролю синхронізації
   const [isEditing, setIsEditing] = useState(false);
 
-  // Прибираємо useEffect - синхронізуємо тільки при початку редагування
-  // useEffect(() => {
-  //   if (!isEditing) {
-  //     setEditingTitle(title);
-  //     setEditingContent(content);
-  //   }
-  // }, [title, content, isEditing]);
+  // Синхронізуємо локальний стан з пропсами (тільки коли не редагуємо)
+  useEffect(() => {
+    console.log('🔄 useEffect triggered:', { isEditing, title, content });
+    if (!isEditing) {
+      console.log('🔄 Syncing local state with props:', { title, content });
+      setEditingTitle(title);
+      setEditingContent(content);
+    } else {
+      console.log('🔄 Skipping sync - currently editing');
+    }
+  }, [title, content, isEditing]);
 
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
