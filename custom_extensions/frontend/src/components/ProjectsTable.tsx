@@ -2268,7 +2268,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         estCompletionTime: true,
     });
     const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-        title: 60,
+        title: 48,
         created: 15,
         creator: 15,
         numberOfLessons: 13,
