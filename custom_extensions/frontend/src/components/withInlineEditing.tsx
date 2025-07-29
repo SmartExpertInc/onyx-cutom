@@ -5,7 +5,7 @@ interface WithInlineEditingProps {
   slideId: string;
   isEditable?: boolean;
   inlineEditing?: any;
-  onInlineEditSave?: (slideId: string, fieldPath: string[], value: string) => void;
+  onInlineEditSave?: (slideId: string, fieldPath: string[], value: string | string[]) => void;
 }
 
 export function withInlineEditing<P extends object>(

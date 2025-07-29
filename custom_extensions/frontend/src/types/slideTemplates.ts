@@ -52,6 +52,8 @@ export interface BaseTemplateProps {
   renderEditableText?: RenderEditableTextFunction;
   renderEditableField?: RenderEditableFieldFunction;
   renderEditableArray?: RenderEditableArrayFunction;
+  // Allow any additional props for flexibility
+  [key: string]: unknown;
 }
 
 export interface TemplateComponentInfo {
@@ -61,7 +63,7 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<any>; // Allow any component type for flexibility
+  component: React.ComponentType<BaseTemplateProps & Record<string, unknown>>;
   defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }

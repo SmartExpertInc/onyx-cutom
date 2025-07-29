@@ -41,7 +41,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   };
 
   // Handle inline editing updates
-  const handleInlineEditSave = (slideId: string, fieldPath: string[], value: string) => {
+  const handleInlineEditSave = (slideId: string, fieldPath: string[], value: string | string[]) => {
     if (onSlideUpdate) {
       const updatedProps = { ...slide.props };
       let target: Record<string, unknown> = updatedProps;
