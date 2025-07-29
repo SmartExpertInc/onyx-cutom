@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ContentSlideProps } from '@/types/slideTemplates';
-import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideTheme }> = ({
@@ -15,7 +15,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   theme
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   const slideStyles: React.CSSProperties = {
     width: '100%',

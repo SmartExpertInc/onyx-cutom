@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
-import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme }> = ({
@@ -16,7 +16,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   theme
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

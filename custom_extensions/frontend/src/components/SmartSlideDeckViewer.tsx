@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
-import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from './SimpleInlineEditor';
 
 interface SmartSlideDeckViewerProps {
@@ -70,7 +70,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         setComponentDeck({
           ...typedDeck,
           slides: processedSlides,
-          theme: theme || typedDeck.theme || DEFAULT_SLIDE_THEME
+          theme: theme || typedDeck.theme || 'dark-purple'
         });
 
       } catch (err) {

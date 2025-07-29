@@ -1,5 +1,5 @@
 import React from 'react';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export interface BigNumberItem {
@@ -23,7 +23,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   theme,
   onUpdate
 }: BigNumbersTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

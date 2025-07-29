@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideTheme }> = ({
@@ -16,7 +16,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
   onUpdate,
   theme
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

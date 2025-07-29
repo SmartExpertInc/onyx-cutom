@@ -1,6 +1,6 @@
 import React from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
-import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export interface BulletPointsRightProps extends BulletPointsProps {
@@ -20,7 +20,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
   imageAlt,
   theme
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (onUpdate) { onUpdate({ title: newTitle }); }

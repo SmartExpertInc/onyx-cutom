@@ -1,5 +1,5 @@
 import React from 'react';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export interface FourBoxGridProps {
@@ -20,7 +20,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   theme,
   onUpdate
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (onUpdate) { onUpdate({ title: newTitle }); }

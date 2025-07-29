@@ -1,5 +1,5 @@
 import React from 'react';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export interface TimelineStep {
@@ -22,7 +22,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   theme,
   onUpdate
 }: TimelineTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

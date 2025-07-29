@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { ProcessStepsProps } from '@/types/slideTemplates';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideTheme }> = (props) => {
-  const currentTheme = props.theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = props.theme || getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (props.onUpdate) { props.onUpdate({ title: newTitle }); }

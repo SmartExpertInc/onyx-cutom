@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
-import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideTheme }> = ({
@@ -14,7 +14,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   onUpdate,
   theme
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {

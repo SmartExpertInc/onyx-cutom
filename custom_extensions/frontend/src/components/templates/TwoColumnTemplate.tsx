@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
-import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }> = ({
@@ -19,7 +19,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
   theme,
   onUpdate
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = theme || getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (onUpdate) { onUpdate({ title: newTitle }); }
