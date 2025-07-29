@@ -611,7 +611,7 @@ export const en = {
     // Project View Page
     projectView: {
       loadingProjectDetails: "Loading project details...",
-      backButton: "Back",
+      back: "Back",
       openProducts: "Open Products",
       downloadPdf: "Download PDF",
       smartEdit: "Smart Edit",
