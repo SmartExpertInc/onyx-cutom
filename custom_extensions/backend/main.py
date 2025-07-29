@@ -175,6 +175,35 @@ def should_use_openai_direct(payload) -> bool:
     logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
     return use_openai
 
+def parse_id_list(id_string: str, context_name: str) -> List[int]:
+    """
+    Parse a comma-separated string of IDs, handling negative integers (like -1 for special cases).
+    
+    Args:
+        id_string: Comma-separated string of IDs (e.g., "1,2,3" or "-1" or "42")
+        context_name: Context name for logging (e.g., "folder" or "file")
+    
+    Returns:
+        List of parsed integer IDs
+    """
+    if not id_string:
+        return []
+    
+    id_list = []
+    try:
+        for id_part in id_string.split(','):
+            id_stripped = id_part.strip()
+            if id_stripped.lstrip('-').isdigit():  # Allow negative numbers
+                id_list.append(int(id_stripped))
+            elif id_stripped:  # Log non-empty invalid parts
+                logger.warning(f"[ID_PARSING] Skipping invalid {context_name} ID: '{id_stripped}'")
+        
+        logger.debug(f"[ID_PARSING] Parsed {context_name} IDs from '{id_string}': {id_list}")
+        return id_list
+    except Exception as e:
+        logger.error(f"[ID_PARSING] Failed to parse {context_name} IDs from '{id_string}': {e}")
+        return []
+
 def should_use_hybrid_approach(payload) -> bool:
     """
     Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
@@ -13189,18 +13218,12 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 file_ids_list = []
                 
                 if payload.fromFiles and payload.folderIds:
-                    try:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
                 
                 if payload.fromFiles and payload.fileIds:
-                    try:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                    file_ids_list = parse_id_list(payload.fileIds, "file")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
                 
                 # Add virtual file ID if created for large text
                 if wiz_payload.get("virtualFileId"):
@@ -14732,18 +14755,12 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 file_ids_list = []
                 
                 if payload.fromFiles and payload.folderIds:
-                    try:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
                 
                 if payload.fromFiles and payload.fileIds:
-                    try:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                    file_ids_list = parse_id_list(payload.fileIds, "file")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
                 
                 # Add virtual file ID if created for large text
                 if wizard_dict.get("virtualFileId"):
@@ -15368,9 +15385,9 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                     folder_ids_list = []
                     file_ids_list = []
                     if payload.fromFiles and payload.folderIds:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
                     if payload.fromFiles and payload.fileIds:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
                     
                     # Add virtual file ID if created for large text
                     if wiz_payload.get("virtualFileId"):
@@ -17430,18 +17447,12 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 file_ids_list = []
                 
                 if payload.fromFiles and payload.folderIds:
-                    try:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
                 
                 if payload.fromFiles and payload.fileIds:
-                    try:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                    file_ids_list = parse_id_list(payload.fileIds, "file")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
                 
                 # Add virtual file ID if created for large text
                 if wiz_payload.get("virtualFileId"):
@@ -18230,18 +18241,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 file_ids_list = []
                 
                 if payload.fromFiles and payload.folderIds:
-                    try:
-                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse folder IDs from '{payload.folderIds}': {e}")
+                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
                 
                 if payload.fromFiles and payload.fileIds:
-                    try:
-                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                    except Exception as e:
-                        logger.error(f"[HYBRID_CONTEXT] Failed to parse file IDs from '{payload.fileIds}': {e}")
+                    file_ids_list = parse_id_list(payload.fileIds, "file")
+                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
                 
                 # Add virtual file ID if created for large text
                 if wiz_payload.get("virtualFileId"):
