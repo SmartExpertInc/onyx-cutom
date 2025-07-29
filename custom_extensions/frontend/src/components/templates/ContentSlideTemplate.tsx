@@ -99,12 +99,17 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   // Локальний стан для редагування
   const [editingTitle, setEditingTitle] = useState(title);
   const [editingContent, setEditingContent] = useState(content);
+  
+  // Прапорець для контролю синхронізації
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Оновлюємо локальний стан коли пропси змінюються
+  // Оновлюємо локальний стан коли пропси змінюються (тільки якщо не редагуємо)
   useEffect(() => {
-    setEditingTitle(title);
-    setEditingContent(content);
-  }, [title, content]);
+    if (!isEditing) {
+      setEditingTitle(title);
+      setEditingContent(content);
+    }
+  }, [title, content, isEditing]);
 
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -155,6 +160,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const startEditing = (fieldPath: string) => {
     if (isEditable) {
       setEditingField(fieldPath);
+      setIsEditing(true);
       // Синхронізуємо локальний стан з поточними пропсами
       if (fieldPath === 'title') {
         setEditingTitle(title);
@@ -166,6 +172,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   const stopEditing = () => {
     setEditingField(null);
+    setIsEditing(false);
   };
 
   // Handle input changes (копіюємо з TrainingPlanTable)
