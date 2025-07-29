@@ -337,6 +337,7 @@ export const es = {
     
     // Folder actions
     folderSettings: "Configuración de carpeta",
+    renameFolder: "Renombrar carpeta",
     deleteFolder: "Eliminar carpeta",
     moveFolder: "Mover carpeta",
     

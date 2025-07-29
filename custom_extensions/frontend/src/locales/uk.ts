@@ -330,6 +330,7 @@ export const uk = {
     
     // Folder actions
     folderSettings: "Налаштування папки",
+    renameFolder: "Перейменувати папку",
     deleteFolder: "Видалити папку",
     moveFolder: "Перемістити папку",
     

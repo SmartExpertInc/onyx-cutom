@@ -1736,7 +1736,7 @@ const ProjectRowMenu: React.FC<{
                             <div className="py-1">
                                 <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <Share2 size={16} className="text-gray-500" />
-                                    <span>Share...</span>
+                                    <span>{t('actions.share', 'Share...')}</span>
                                 </button>
                                 <button
                                     onClick={(e) => { 
@@ -1748,22 +1748,22 @@ const ProjectRowMenu: React.FC<{
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                 >
                                     <PenLine size={16} className="text-gray-500"/>
-                                    <span>Rename...</span>
+                                    <span>{t('actions.rename', 'Rename...')}</span>
                                 </button>
                                 <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <Star size={16} className="text-gray-500"/>
-                                    <span>Add to favorites</span>
+                                    <span>{t('actions.addToFavorites', 'Add to favorites')}</span>
                                 </button>
                                 <button
                                     onClick={handleDuplicateProject}
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                 >
                                     <Copy size={16} className="text-gray-500"/>
-                                <span>Duplicate</span>
+                                <span>{t('actions.duplicate', 'Duplicate')}</span>
                                 </button>
                                 <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                     <LinkIcon size={16} className="text-gray-500"/>
-                                    <span>Copy link</span>
+                                    <span>{t('actions.copyLink', 'Copy link')}</span>
                                 </button>
                                 {isOutline && (
                                     <button 
@@ -1776,7 +1776,7 @@ const ProjectRowMenu: React.FC<{
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                                     >
                                         <Settings size={16} className="text-gray-500"/>
-                                        <span>Settings</span>
+                                        <span>{t('actions.settings', 'Settings')}</span>
                                     </button>
                                 )}
                                 {folderId && (
@@ -1790,7 +1790,7 @@ const ProjectRowMenu: React.FC<{
                                         className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md"
                                     >
                                         <FolderMinus size={16} className="text-orange-500"/>
-                                        <span>Remove from Folder</span>
+                                        <span>{t('actions.removeFromFolder', 'Remove from Folder')}</span>
                                     </button>
                                 )}
                             </div>
@@ -1805,7 +1805,7 @@ const ProjectRowMenu: React.FC<{
                                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                                 >
                                     <Trash2 size={14} />
-                                    <span>Send to trash</span>
+                                    <span>{t('actions.sendToTrash', 'Send to trash')}</span>
                                 </button>
                             </div>
                         </>
@@ -1820,8 +1820,8 @@ const ProjectRowMenu: React.FC<{
                         <h4 className="font-semibold text-lg mb-2 text-gray-900">Are you sure?</h4>
                         <p className="text-sm text-gray-600 mb-4">This action is permanent and cannot be undone. The project will be deleted forever.</p>
                         <div className="flex justify-center gap-4">
-                            <button onClick={() => setPermanentDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">Cancel</button>
-                            <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDeletePermanently(project.id); setPermanentDeleteConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete Permanently</button>
+                            <button onClick={() => setPermanentDeleteConfirmOpen(false)} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800">{t('actions.cancel', 'Cancel')}</button>
+                            <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDeletePermanently(project.id); setPermanentDeleteConfirmOpen(false); }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">{t('actions.deletePermanentlyButton', 'Delete Permanently')}</button>
                         </div>
                     </div>
                 </div>
@@ -1946,9 +1946,13 @@ const FolderRowMenu: React.FC<{
     folder: Folder;
     formatDate: (date: string) => string;
     trashMode: boolean;
-    onDeleteFolder: (id: number) => void;
+    onDeleteFolder: (folderId: number) => void;
 }> = ({ folder, formatDate, trashMode, onDeleteFolder }) => {
+    const { t } = useLanguage();
     const [menuOpen, setMenuOpen] = React.useState(false);
+    const [renameModalOpen, setRenameModalOpen] = React.useState(false);
+    const [isRenaming, setIsRenaming] = React.useState(false);
+    const [newName, setNewName] = React.useState(folder.name);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
     const [showSettingsModal, setShowSettingsModal] = React.useState(false);
     const [isExporting, setIsExporting] = React.useState(false);
@@ -1997,6 +2001,15 @@ const FolderRowMenu: React.FC<{
         setMenuOpen(false);
         if (typeof window !== 'undefined') (window as any).__modalOpen = false;
         onDeleteFolder(folder.id);
+    };
+
+    const handleRenameClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+        setNewName(folder.name);
+        setRenameModalOpen(true);
     };
 
     const handleSettingsClick = (e: React.MouseEvent) => {
@@ -2095,25 +2108,28 @@ const FolderRowMenu: React.FC<{
                         <div className="py-1">
                             <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
                                 <Share2 size={16} className="text-gray-500" />
-                                <span>Share</span>
+                                <span>{t('actions.share', 'Share')}</span>
                             </button>
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                            <button 
+                                onClick={handleRenameClick}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
                                 <PenLine size={16} className="text-gray-500" />
-                                <span>Rename</span>
+                                <span>{t('actions.renameFolder', 'Rename')}</span>
                             </button>
                             <button 
                                 onClick={handleSettingsClick}
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                             >
                                 <Settings size={16} className="text-gray-500" />
-                                <span>Settings</span>
+                                <span>{t('actions.folderSettings', 'Settings')}</span>
                             </button>
                             <button 
                                 onClick={handleExportFolder}
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                             >
                                 <Download size={16} className="text-gray-500" />
-                                <span>Export as file</span>
+                                <span>{t('actions.exportAsFile', 'Export as file')}</span>
                             </button>
                         </div>
                         <div className="py-1 border-t border-gray-100">
@@ -2122,13 +2138,90 @@ const FolderRowMenu: React.FC<{
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                             >
                                 <Trash2 size={14} />
-                                <span>Delete</span>
+                                <span>{t('actions.deleteFolder', 'Delete')}</span>
                             </button>
                         </div>
                     </div>,
                     document.body
                 )}
             </div>
+
+            {/* ---------------- Rename Modal ---------------- */}
+            {renameModalOpen && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">{t('actions.renameFolder', 'Rename Folder')}</h4>
+
+                        <div className="mb-6">
+                            <label htmlFor="newFolderName" className="block text-sm font-medium text-gray-700 mb-1">{t('actions.newName', 'New Name:')}</label>
+                            <input
+                                id="newFolderName"
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
+                                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                                disabled={isRenaming}
+                            >
+                                {t('actions.cancel', 'Cancel')}
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    setIsRenaming(true);
+                                    try {
+                                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                        const devUserId = "dummy-onyx-user-id-for-testing";
+                                        if (devUserId && process.env.NODE_ENV === 'development') {
+                                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                                        }
+
+                                        const response = await fetch(`${CUSTOM_BACKEND_URL}/folders/${folder.id}`, {
+                                            method: 'PATCH',
+                                            headers,
+                                            credentials: 'same-origin',
+                                            body: JSON.stringify({ name: newName })
+                                        });
+
+                                        if (!response.ok) {
+                                            if (response.status === 401 || response.status === 403) {
+                                                // Handle authentication error - redirect to main app login
+                                                const protocol = window.location.protocol;
+                                                const host = window.location.host;
+                                                const currentUrl = window.location.pathname + window.location.search;
+                                                const mainAppUrl = `${protocol}//${host}/auth/login?next=${encodeURIComponent(currentUrl)}`;
+                                                window.location.href = mainAppUrl;
+                                                return;
+                                            }
+                                            const errorText = await response.text();
+                                            throw new Error(`Failed to rename folder: ${response.status} ${errorText}`);
+                                        }
+
+                                        setRenameModalOpen(false);
+                                        window.location.reload();
+                                    } catch (error) {
+                                        console.error(error);
+                                        alert((error as Error).message);
+                                    } finally {
+                                        setIsRenaming(false);
+                                    }
+                                }}
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                                disabled={isRenaming || !newName.trim()}
+                            >
+                                {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <FolderSettingsModal
                 open={showSettingsModal}
                 onClose={() => setShowSettingsModal(false)}

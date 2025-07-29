@@ -329,6 +329,7 @@ export const ru = {
     
     // Folder actions
     folderSettings: "Настройки папки",
+    renameFolder: "Переименовать папку",
     deleteFolder: "Удалить папку",
     moveFolder: "Переместить папку",
     

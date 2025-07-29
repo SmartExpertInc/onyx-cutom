@@ -374,6 +374,7 @@ export const en = {
     
     // Folder actions
     folderSettings: "Folder Settings",
+    renameFolder: "Rename Folder",
     deleteFolder: "Delete Folder",
     moveFolder: "Move Folder",
     
