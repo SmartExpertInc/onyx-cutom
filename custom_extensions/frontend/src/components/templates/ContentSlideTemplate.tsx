@@ -12,7 +12,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   backgroundImage,
   isEditable = false,
   onUpdate,
-  theme
+  theme,
+  // Inline editing props
+  renderEditableText,
+  renderEditableField
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -103,31 +106,52 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   };
 
   return (
-    <div className="content-slide-template" style={slideStyles} onClick={handleClick}>
+    <div className="content-slide-template" style={slideStyles}>
       {/* Title */}
       <h1 style={titleStyles}>
-        {title}
+        {renderEditableText ? 
+          renderEditableText(['title'], title || '', {
+            className: 'slide-title-editable',
+            placeholder: 'Enter slide title...',
+            maxLength: 100
+          }) : 
+          title
+        }
       </h1>
 
       {/* Content */}
       <div style={contentStyles}>
-        {parseContent(content)}
+        {renderEditableField ? 
+          renderEditableField(['content'], content || '', 
+            (displayValue) => parseContent(displayValue),
+            {
+              multiline: true,
+              placeholder: 'Enter slide content...',
+              className: 'slide-content-editable',
+              maxLength: 2000,
+              rows: 8
+            }
+          ) : 
+          parseContent(content)
+        }
       </div>
 
-      {/* Edit Overlay */}
-      <div style={editOverlayStyles}>
-        <div style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 600,
-          color: '#333',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>
-          Click to edit content slide
+      {/* Edit Overlay - only show if not using inline editing */}
+      {isEditable && !renderEditableText && (
+        <div style={editOverlayStyles} onClick={handleClick}>
+          <div style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#333',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            Click to edit content slide
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -1,0 +1,227 @@
+/* Inline Editing Styles for Slides */
+
+/* Base inline editor styles */
+.inline-editor-base {
+  transition: all 0.2s ease-in-out;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: #fef3c7 !important;
+  border: 2px solid #f59e0b !important;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.inline-editor-base:focus {
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1), 0 2px 8px rgba(245, 158, 11, 0.3);
+  background: #fef3c7 !important;
+}
+
+.inline-editor-base::placeholder {
+  color: #9ca3af;
+  opacity: 0.7;
+}
+
+/* Editable field hover states */
+.editable-field {
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.editable-field:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.editable-field:hover::after {
+  content: "✏️";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #f59e0b;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  opacity: 0.9;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Slide-specific editable styles */
+.slide-title-editable {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.slide-title-editable:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.slide-content-editable {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  margin: -8px -12px;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.slide-content-editable:hover {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Bullet points editable styles */
+.bullet-points-editable {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  margin: -12px -16px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  min-height: 200px;
+  resize: vertical;
+}
+
+.bullet-points-editable:hover {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .editable-field:hover::after {
+    display: none;
+  }
+  
+  .slide-title-editable,
+  .slide-content-editable,
+  .bullet-points-editable {
+    padding: 6px 8px;
+    margin: -6px -8px;
+  }
+}
+
+/* Focus management */
+.inline-editor-base:focus {
+  z-index: 10;
+}
+
+/* Keyboard navigation support */
+.editable-field:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.editable-field.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.editable-field.loading::after {
+  content: "⏳";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #f59e0b;
+}
+
+/* Error states */
+.editable-field.error {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+}
+
+.editable-field.error::after {
+  content: "⚠️";
+  background: #ef4444;
+}
+
+/* Success states */
+.editable-field.success {
+  border-color: #10b981 !important;
+  background: #f0fdf4 !important;
+}
+
+.editable-field.success::after {
+  content: "✓";
+  background: #10b981;
+}
+
+/* Accessibility improvements */
+.editable-field[aria-label]::before {
+  content: attr(aria-label);
+  position: absolute;
+  top: -30px;
+  left: 0;
+  background: #374151;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.editable-field:hover[aria-label]::before {
+  opacity: 1;
+}
+
+/* Print styles */
+@media print {
+  .editable-field:hover::after,
+  .editable-field[aria-label]::before {
+    display: none;
+  }
+  
+  .inline-editor-base {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+} 

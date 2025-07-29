@@ -4,6 +4,7 @@ import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { useInlineEditing } from '../hooks/useInlineEditing';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -22,6 +23,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
 }) => {
   const template = getTemplate(slide.templateId);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
+  const inlineEditing = useInlineEditing();
 
   // Handle template prop updates
   const handlePropsUpdate = (newProps: any) => {
@@ -29,6 +31,37 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
       const updatedSlide: ComponentBasedSlide = {
         ...slide,
         props: { ...slide.props, ...newProps },
+        metadata: {
+          ...slide.metadata,
+          updatedAt: new Date().toISOString()
+        }
+      };
+      onSlideUpdate(updatedSlide);
+    }
+  };
+
+  // Handle inline editing updates
+  const handleInlineEditSave = (slideId: string, fieldPath: string[], value: string) => {
+    if (onSlideUpdate) {
+      const updatedProps = { ...slide.props };
+      let target = updatedProps;
+      
+      // Navigate to the target field
+      for (let i = 0; i < fieldPath.length - 1; i++) {
+        const segment = fieldPath[i];
+        if (target[segment] === undefined || target[segment] === null) {
+          target[segment] = {};
+        }
+        target = target[segment];
+      }
+      
+      // Set the new value
+      const finalKey = fieldPath[fieldPath.length - 1];
+      target[finalKey] = value;
+      
+      const updatedSlide: ComponentBasedSlide = {
+        ...slide,
+        props: updatedProps,
         metadata: {
           ...slide.metadata,
           updatedAt: new Date().toISOString()
@@ -89,7 +122,10 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     slideId: slide.slideId,
     isEditable,
     onUpdate: handlePropsUpdate,
-    theme: currentTheme
+    theme: currentTheme,
+    // Pass inline editing context to template components
+    inlineEditing,
+    onInlineEditSave: handleInlineEditSave
   };
 
   return (
