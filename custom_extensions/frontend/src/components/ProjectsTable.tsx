@@ -3308,7 +3308,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             title="Download projects list as PDF"
                         >
                             <ArrowDownToLine size={16} />
-                            Download PDF
+                            {t('interface.downloadPDF', 'Download PDF')}
                         </button>
                     )}
                     
