@@ -522,7 +522,6 @@ export const ru = {
       contentEditingSupported: "Редактирование контента в настоящее время поддерживается для",
       typesOnThisPage: "типов на этой странице.",
       project: "Проект",
-      couldNotMoveToTrash: "Не удалось переместить в корзину",
       configureVisibleColumns: "Настроить видимые колонки",
       moveToTrashTooltip: "Переместить этот продукт в корзину"
     },

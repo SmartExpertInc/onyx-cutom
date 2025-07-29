@@ -526,7 +526,6 @@ export const uk = {
       projectDataOrIdNotAvailableForDownload: "Дані проекту або ID недоступні для завантаження.",
       failedToMoveToTrash: "Не вдалося перемістити в кошик",
       project: "Проект",
-      couldNotMoveToTrash: "Не вдалося перемістити в кошик",
       configureVisibleColumns: "Налаштувати видимі стовпці",
       moveToTrashTooltip: "Перемістити цей продукт в кошик"
     },
