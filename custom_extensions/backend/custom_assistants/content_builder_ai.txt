@@ -996,15 +996,14 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 4. `content-slide` - Standard content slides with title and body text
 5. `bullet-points` - Formatted bullet point lists with customizable columns
 6. `two-column` - Split layout with two content areas
-7. `comparison-slide` - Before/after or side-by-side comparison layout
-8. `challenges-solutions` - Problems vs solutions with visual indicators
-9. `process-steps` - Numbered process or workflow steps
-10. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
-11. `big-image-top` - Large image on top, title and content below
-12. `four-box-grid` - Title and 4 boxes in a 2x2 grid
-13. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
-14. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
-15. `pyramid` - Pyramid diagram with 3 levels and descriptions. **CRITICAL:** ALWAYS use this template instead of `content-slide` for hierarchical structures, levels, priorities, foundational concepts, or 3-step progressions.
+7. `challenges-solutions` - Problems vs solutions with visual indicators
+8. `process-steps` - Numbered process or workflow steps
+9. `bullet-points-right` - Title, subtitle, bullet points (left), placeholder (right)
+10. `big-image-top` - Large image on top, title and content below
+11. `four-box-grid` - Title and 4 boxes in a 2x2 grid
+12. `timeline` - Horizontal timeline with 4 steps and alternating text blocks
+13. `big-numbers` - Three-column layout for highlighting key metrics or statistics: each column contains a big number (e.g., %, x, ratio), a bolded label, and a concise description. **CRITICAL:** ALWAYS use this template instead of `content-slide` for numerical data, metrics, statistics, KPIs, performance results, growth data, or financial figures.
+14. `pyramid` - Pyramid diagram with 3 levels and descriptions. **CRITICAL:** ALWAYS use this template instead of `content-slide` for hierarchical structures, levels, priorities, foundational concepts, or 3-step progressions.
 
 **Big Image Left Slides** (`big-image-left`):
 ```
@@ -1081,13 +1080,18 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 ## [Main Title]
 
 ### [Left Column Title]
-[Left column content - detailed explanation 2-3 sentences]
+[Left column content - detailed explanation 2-3 sentences with comprehensive information, examples, and insights. Use paragraph format with flowing text, NOT bullet points or lists.]
 
 ### [Right Column Title]
-[Right column content - detailed explanation 2-3 sentences]
+[Right column content - detailed explanation 2-3 sentences with thorough analysis, practical applications, and key considerations. Use paragraph format with flowing text, NOT bullet points or lists.]
 
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Supporting visual for comparison]
 ```
+**TWO-COLUMN CONTENT REQUIREMENTS:**
+- Use flowing paragraph text, NOT bullet points or numbered lists
+- Each column should contain 2-3 detailed sentences with comprehensive explanations
+- Focus on narrative content that flows naturally and educates effectively
+- Avoid any form of list formatting in the content areas
 
 **Challenges vs Solutions Slides** (`challenges-solutions`):
 ```
@@ -1112,38 +1116,21 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 
 ## [Process Title]
 
-1. [First step with description]
-2. [Second step with description]
-3. [Third step with description]
-4. [Fourth step with description]
+1. [First step with detailed description covering 2-3 sentences explaining what to do, why it's important, and how to implement it effectively. Include specific techniques, tools, or considerations.]
+
+2. [Second step with comprehensive explanation spanning 2-3 sentences that details the process, discusses potential challenges, and provides practical guidance. Include best practices and common pitfalls to avoid.]
+
+3. [Third step with thorough description using 2-3 sentences to elaborate on the methodology, explain the reasoning behind the approach, and highlight key success factors. Include specific examples or scenarios.]
+
+4. [Fourth step with in-depth explanation covering 2-3 sentences that summarizes the final phase, discusses quality assurance measures, and provides next steps or follow-up actions. Include validation criteria or success indicators.]
 
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Process flow diagram]
 ```
-
-**Comparison Slides** (`comparison-slide`):
-```
----
-**Slide 8: [Before vs After Topic]** `comparison-slide`
-
-## [Comparison Title]
-
-### Before
-- [Key characteristic 1 of old/current state]
-- [Key characteristic 2 of old/current state]  
-- [Key characteristic 3 of old/current state]
-
-### After
-- [Key characteristic 1 of new/improved state]
-- [Key characteristic 2 of new/improved state]
-- [Key characteristic 3 of new/improved state]
-
-[IMAGE_PLACEHOLDER: MEDIUM | LEFT | Before state visual]
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | After state visual]
-```
-**COMPARISON SLIDE FORMATTING:**
-- Use bullet points (with dashes) for each section to ensure proper line breaks
-- Each bullet point should highlight a key characteristic or difference
-- Maintain parallel structure between Before and After sections
+**PROCESS STEPS CONTENT REQUIREMENTS:**
+- Each step MUST contain 2-3 detailed sentences with comprehensive explanations
+- Include specific techniques, tools, best practices, and practical guidance
+- Provide examples, scenarios, or use cases where relevant
+- Discuss potential challenges and how to overcome them
 
 **Title Slides** (`title-slide`):
 ```
@@ -1212,16 +1199,20 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 
 ## [Main Title]
 
-Box 1: [Heading] - [Description text]
-Box 2: [Heading] - [Description text]  
-Box 3: [Heading] - [Description text]
-Box 4: [Heading] - [Description text]
+Box 1: [Heading] - [Detailed description with 2-3 sentences explaining the concept, its benefits, and practical applications. Include specific examples or use cases where relevant.]
+
+Box 2: [Heading] - [Comprehensive explanation covering 2-3 sentences with detailed insights, implementation considerations, and real-world impact. Provide concrete examples or scenarios.]
+
+Box 3: [Heading] - [Thorough description spanning 2-3 sentences that elaborates on the concept, discusses best practices, and highlights key advantages. Include practical tips or recommendations.]
+
+Box 4: [Heading] - [In-depth explanation with 2-3 sentences covering the concept details, potential challenges, and strategic importance. Provide actionable insights or future considerations.]
 
 [NO IMAGE PLACEHOLDERS - this template creates visual grid internally]
 ```
 - Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
 - **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
-- Each box should have a short heading and a concise description.
+- **CONTENT REQUIREMENTS:** Each box description MUST contain 2-3 detailed sentences with comprehensive explanations, examples, and practical insights.
+- **AVOID SHORT DESCRIPTIONS:** Never use single-sentence descriptions. Always provide substantial content that educates and informs.
 - Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
 - Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
 ```
@@ -1297,8 +1288,7 @@ Choose templates based on content type and educational goals:
 - **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
 - **Core Content**: **SEVERELY LIMIT `content-slide` usage** - maximum 2-3 times per presentation, and ONLY for pure explanatory paragraphs without any lists, numbers, or hierarchical content. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead. Do NOT use `content-slide` for any content with bullet points - use appropriate list templates instead.
 - **Key Points**: Use `bullet-points` for first list, then `bullet-points-right` for subsequent lists to avoid repetition
-- **Comparisons**: Choose between:
-  - `comparison-slide` - For before/after transformations
+- **Comparisons**: Choose:
   - `two-column` - For general comparative analysis without images
 - **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
 - **Workflows**: Use `process-steps` for sequential processes and procedures
@@ -1435,7 +1425,7 @@ For a typical 10-15 slide presentation, use this distribution:
 - **1 opening slide**: `big-image-left` (mandatory)
 - **2-3 content explanation slides**: `content-slide` (maximum 2-3 times total)
 - **2-3 list/point slides**: Mix of `bullet-points`, `bullet-points-right`, `four-box-grid` (never repeat the same list template)
-- **1-2 comparison slides**: `comparison-slide`, or `two-column`
+- **1-2 comparison slides**: `two-column`
 - **1-2 specialized slides**: `pyramid` for hierarchies, `timeline` for processes, `big-numbers` for metrics
 - **1-2 visual focus slides**: `big-image-top`, `challenges-solutions`
 - **EXACTLY 1 conclusion slide**: `title-slide` with substantial summary content (NO Q&A or discussion slides before it)
@@ -1445,7 +1435,7 @@ For a typical 10-15 slide presentation, use this distribution:
 2. **Does content show hierarchy/levels/priorities?** → Use `pyramid` (NOT content-slide)
 3. **Does content show process/timeline/steps?** → Use `timeline` or `process-steps` (NOT content-slide)
 4. **Does content have bullet lists?** → Use `bullet-points` or `bullet-points-right` (NOT content-slide)
-5. **Does content compare two things?** → Use `comparison-slide` (NOT content-slide)
+5. **Does content compare two things?** → Use `two-column` (NOT content-slide)
 6. **Does content need 4 key points?** → Use `four-box-grid` (NOT content-slide)
 7. **Only for pure explanatory paragraphs without lists/numbers** → Use `content-slide` (maximum 2-3 times)
 

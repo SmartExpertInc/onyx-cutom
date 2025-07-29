@@ -151,7 +151,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
                 outline: 'none',
                 resize: 'none',
                 minHeight: '120px',
-                width: '100%'
+                width: '100%',
+                lineHeight: 1.6
               }}
               placeholder="Enter slide content..."
             />

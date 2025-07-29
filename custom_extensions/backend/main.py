@@ -10782,9 +10782,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             "props": {
               "title": "Key Points",
               "bullets": [
-                "First important point",
-                "Second key insight",
-                "Third critical element"
+                "First important point with detailed explanation and practical insights",
+                "Second key insight with comprehensive analysis and real-world applications",
+                "Third critical element with thorough examination and implementation guidance",
+                "Fourth essential consideration with strategic importance and best practices",
+                "Fifth valuable perspective with actionable recommendations and future implications",
+                "Sixth crucial factor with detailed methodology and success indicators"
               ],
               "maxColumns": 2,
               "bulletStyle": "dot",
@@ -10798,12 +10801,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             "props": {
                 "title": "Two Column Layout",
                 "leftTitle": "Left Column",
-                "leftContent": "Content for the left side",
+                "leftContent": "Comprehensive content for the left side with detailed explanations, examples, and insights. Use flowing paragraph text with 2-3 sentences that provide thorough analysis and practical applications. Avoid bullet points or lists - focus on narrative content.",
                 "leftImageUrl": "https://via.placeholder.com/320x200?text=Left+Image",
                 "leftImageAlt": "Description of left image",
                 "leftImagePrompt": "Prompt for left image",
                 "rightTitle": "Right Column",
-                "rightContent": "Content for the right side",
+                "rightContent": "Detailed content for the right side with comprehensive information, strategic considerations, and actionable guidance. Use flowing paragraph text with 2-3 sentences that elaborate on concepts and provide real-world context. Avoid bullet points or lists - focus on narrative content.",
                 "rightImageUrl": "https://via.placeholder.com/320x200?text=Right+Image",
                 "rightImageAlt": "Description of right image",
                 "rightImagePrompt": "Prompt for right image",
@@ -10816,37 +10819,33 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             "props": {
               "title": "Process Steps",
               "steps": [
-                "Step 1 description",
-                "Step 2 description", 
-                "Step 3 description"
+                "Step 1 with detailed description covering 2-3 sentences explaining what to do, why it's important, and how to implement it effectively. Include specific techniques, tools, or considerations.",
+                "Step 2 with comprehensive explanation spanning 2-3 sentences that details the process, discusses potential challenges, and provides practical guidance. Include best practices and common pitfalls to avoid.",
+                "Step 3 with thorough description using 2-3 sentences to elaborate on the methodology, explain the reasoning behind the approach, and highlight key success factors. Include specific examples or scenarios.",
+                "Step 4 with in-depth explanation covering 2-3 sentences that summarizes the final phase, discusses quality assurance measures, and provides next steps or follow-up actions. Include validation criteria or success indicators."
               ],
               "layout": "horizontal"
             }
             ```
 
-            7. **`comparison-slide`** - Before/after or side-by-side comparison layout:
-            ```json
-            "props": {
-              "title": "Comparison Analysis",
-              "beforeTitle": "Before",
-              "beforeContent": "- Key characteristic 1 of old/current state\n- Key characteristic 2 of old/current state\n- Key characteristic 3 of old/current state",
-              "afterTitle": "After", 
-              "afterContent": "- Key characteristic 1 of new/improved state\n- Key characteristic 2 of new/improved state\n- Key characteristic 3 of new/improved state"
-            }
-            ```
-
-            8. **`challenges-solutions`** - Problems vs solutions with visual indicators:
+            7. **`challenges-solutions`** - Problems vs solutions with visual indicators:
             ```json
             "props": {
               "title": "Challenges and Solutions",
               "challengesTitle": "Challenges",
               "solutionsTitle": "Solutions",
-              "challenges": ["Challenge 1", "Challenge 2"],
-              "solutions": ["Solution 1", "Solution 2"]
+              "challenges": [
+                "Challenge 1 with detailed explanation of the problem, its impact, and underlying causes. Include specific scenarios and consequences.",
+                "Challenge 2 with comprehensive analysis of the issue, potential complications, and strategic implications. Include real-world examples and risk factors."
+              ],
+              "solutions": [
+                "Solution 1 with detailed approach, implementation strategy, and expected outcomes. Include specific techniques, tools, and best practices.",
+                "Solution 2 with comprehensive methodology, practical steps, and success indicators. Include actionable guidance and validation criteria."
+              ]
             }
             ```
 
-            9. **`big-image-left`** - Large image on left with content on right:
+            8. **`big-image-left`** - Large image on left with content on right:
             ```json
             "props": {
               "title": "Slide Title",
@@ -10857,7 +10856,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageSize": "large"
             }
             ```
-            10. **`bullet-points-right`** - Title, subtitle, bullet points (left), placeholder (right):
+            9. **`bullet-points-right`** - Title, subtitle, bullet points (left), placeholder (right):
            ```json
            "props": {
               "title": "Key Points",
@@ -10873,7 +10872,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageAlt": "Illustration for bullet points"
             }
             ```
-             11. **`big-image-top`** - Large image on top, title and content below:
+             10. **`big-image-top`** - Large image on top, title and content below:
             ```json
             "props": {
               "title": "Main Title",
@@ -10884,19 +10883,19 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imageSize": "large"
             }
             ``` 
-              12. **`four-box-grid`** - Title and 4 boxes in a 2x2 grid:
+              11. **`four-box-grid`** - Title and 4 boxes in a 2x2 grid:
             ```json
             "props": {
               "title": "Main Title",
               "boxes": [
-                { "heading": "Box 1", "text": "Description for box 1." },
-                { "heading": "Box 2", "text": "Description for box 2." },
-                { "heading": "Box 3", "text": "Description for box 3." },
-                { "heading": "Box 4", "text": "Description for box 4." }
+                { "heading": "Box 1", "text": "Detailed description with 2-3 sentences explaining the concept, its benefits, and practical applications. Include specific examples or use cases where relevant." },
+                { "heading": "Box 2", "text": "Comprehensive explanation covering 2-3 sentences with detailed insights, implementation considerations, and real-world impact. Provide concrete examples or scenarios." },
+                { "heading": "Box 3", "text": "Thorough description spanning 2-3 sentences that elaborates on the concept, discusses best practices, and highlights key advantages. Include practical tips or recommendations." },
+                { "heading": "Box 4", "text": "In-depth explanation with 2-3 sentences covering the concept details, potential challenges, and strategic importance. Provide actionable insights or future considerations." }
               ]
             }
             ``` 
-            13. **`timeline`** - Horizontal timeline with 4 steps and alternating text blocks:
+            12. **`timeline`** - Horizontal timeline with 4 steps and alternating text blocks:
             ```json
             "props": {
               "title": "History and Evolution",
@@ -10909,7 +10908,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ``` 
           
-            14. **`big-numbers`** - Three-column layout for highlighting key metrics/statistics:
+            13. **`big-numbers`** - Three-column layout for highlighting key metrics/statistics:
             ```json
             "props": {
               "title": "Key Metrics of Effective System Architecture",
@@ -10921,7 +10920,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ``` 
             
-            15. **`pyramid`** - Pyramid diagram with 3 levels and descriptions:
+            14. **`pyramid`** - Pyramid diagram with 3 levels and descriptions:
             ```json
             "props": {
               "title": "Key Metrics of Effective System Architecture",
@@ -11066,8 +11065,10 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             
             **ENHANCED CONTENT GUIDELINES:**
             - For bullet-points templates: Use 4-6 bullet points per slide for comprehensive coverage
-            - For comparison-slide templates: Use bullet points with dashes for proper line formatting
             - Each bullet point should be informative and actionable
+            - For four-box-grid templates: Each box description MUST contain 2-3 detailed sentences with comprehensive explanations
+            - For process-steps templates: Each step MUST contain 2-3 detailed sentences with specific techniques and guidance
+            - For two-column templates: Use flowing paragraph text, NOT bullet points or lists in content areas
 
             **ENDING VALIDATION RULES:**
             - If slide title contains: "Conclusion", "Summary", "Key Takeaways", "Wrap-up" - this MUST be the FINAL slide

@@ -64,7 +64,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     color: currentTheme.colors.contentColor,
     display: 'flex',
     flexDirection: 'column',
-    paddingLeft: '14px',
+    paddingLeft: '40px',
     minWidth: 0
   };
 
