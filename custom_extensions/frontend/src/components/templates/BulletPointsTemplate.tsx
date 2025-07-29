@@ -60,13 +60,12 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
     dot: '•',
     arrow: '→',
     check: '✓',
-    star: '★',
-    number: (index: number) => `${index + 1}.`
+    star: '★'
   };
 
-  const getBulletSymbol = (index: number) => {
+  const getBulletSymbol = (index: number): string => {
     if (bulletStyle === 'number') {
-      return bulletSymbols.number(index);
+      return `${index + 1}.`;
     }
     return bulletSymbols[bulletStyle as keyof typeof bulletSymbols] || '•';
   };
