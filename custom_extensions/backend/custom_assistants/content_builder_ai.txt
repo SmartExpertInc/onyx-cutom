@@ -1115,26 +1115,27 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 ```
 *Generate 5-7 comprehensive bullet points with substantial educational value*
 
-**BULLET-POINTS CONTENT REQUIREMENTS:**
-- **MANDATORY**: Always generate 5-7 bullet points (never fewer than 5)
-- **Each bullet point**: Must contain detailed explanation with practical examples and real-world applications
-- **Content depth**: Each point should be substantial enough to educate learners thoroughly
+**LIST ITEM REQUIREMENTS FOR BULLET-POINTS TEMPLATE:**
+- These rules apply to the content WITHIN each individual bullet-points slide. They do NOT refer to the number of bullet-points slides in the presentation.
+- **MANDATORY**: Always generate 5-7 list items (never fewer than 5) per slide
+- **Each list item**: Must contain detailed explanation with practical examples and real-world applications
+- **Content depth**: Each item should be substantial enough to educate learners thoroughly
 - **Practical focus**: Include actionable insights and implementation guidance
 - **Variety**: Cover different aspects of the topic to provide comprehensive understanding
 
 **CRITICAL BULLET-POINTS VALIDATION RULES:**
-- **ABSOLUTE MINIMUM**: You MUST generate at least 5 bullet points - this is NON-NEGOTIABLE
-- **TARGET RANGE**: Aim for 6-7 bullet points for comprehensive coverage
-- **CONTENT QUALITY**: Each bullet point must be substantial (2-3 sentences minimum)
-- **NO SHORT POINTS**: Never create bullet points with less than 2 sentences
-- **COMPREHENSIVE COVERAGE**: Ensure bullet points cover different aspects of the topic
-- **VALIDATION CHECK**: Before finalizing, count your bullet points - if fewer than 5, add more content
+- **ABSOLUTE MINIMUM**: You MUST generate at least 5 list items per slide - this is NON-NEGOTIABLE
+- **TARGET RANGE**: Aim for 6-7 list items per slide for comprehensive coverage
+- **CONTENT QUALITY**: Each list item must be substantial (2-3 sentences minimum)
+- **NO SHORT POINTS**: Never create list items with less than 2 sentences
+- **COMPREHENSIVE COVERAGE**: Ensure list items cover different aspects of the topic
+- **VALIDATION CHECK**: Before finalizing each bullet-points slide, count your list items - if fewer than 5, add more content
 
 **BULLET-POINTS ENFORCEMENT EXAMPLES:**
-- **CORRECT**: 5-7 detailed bullet points with substantial explanations
-- **INCORRECT**: 3 bullet points (too few)
-- **INCORRECT**: 5 bullet points but each is only 1 sentence (too short)
-- **CORRECT**: 6 bullet points, each with 2-3 sentences of detailed content
+- **CORRECT**: One slide with 5-7 detailed list items
+- **INCORRECT**: Slide with 3 list items (too few)
+- **INCORRECT**: Slide with 5 list items but each is only 1 sentence (too short)
+- **CORRECT**: Slide with 6 list items, each with 2-3 sentences of detailed content
 
 **Comparative Learning Analysis** (`two-column`):
 ```
@@ -1416,7 +1417,7 @@ Information processing follows a structured approach where knowledge builds upon
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
 - **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
-- **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 2 times per presentation - this is NON-NEGOTIABLE
+- **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 2 times per presentation - this is NON-NEGOTIABLE. For bullet-points, maximum 2 slides per presentation.
 - **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 2 times, choose a different template
 - **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (content-slide, bullet-points), minimum 70% visual/interactive templates
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
