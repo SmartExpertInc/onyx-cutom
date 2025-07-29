@@ -1395,7 +1395,7 @@ Choose templates based on content type and educational goals:
 
 - **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
 - **Core Content**: **SEVERELY LIMIT `content-slide` usage** - maximum 2-3 times per presentation, and ONLY for pure explanatory paragraphs without any lists, numbers, or hierarchical content. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead. Do NOT use `content-slide` for any content with bullet points - use appropriate list templates instead.
-- **Key Points**: **LIMIT bullet-points usage** - maximum 3 total bullet-points slides per presentation. Use specialized templates instead when possible.
+- **Key Points**: **LIMIT bullet-points usage** - maximum 3 total bullet-points slides per presentation. Use specialized templates instead when possible. **ALTERNATE** between `bullet-points` and `bullet-points-right` when using multiple bullet slides.
 - **Comparisons**: Choose:
   - `two-column` - For general comparative analysis without images
 - **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
@@ -1467,6 +1467,7 @@ Information processing follows a structured approach where knowledge builds upon
 - **VISUAL VARIETY MANDATE**: Must alternate between different visual templates, never use `big-image-left` and `big-image-top` consecutively
 - **TITLE-SLIDE RESTRICTION**: If you've already used `title-slide` twice, you CANNOT use it again - choose `content-slide`, `big-image-top`, or another template for conclusions
 - **BULLET-POINTS RESTRICTION**: Maximum 3 bullet-points slides total per presentation (bullet-points + bullet-points-right combined)
+- **BULLET-POINTS ALTERNATION**: MUST alternate between `bullet-points` and `bullet-points-right` when using multiple bullet slides
 - **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
 - **MANDATORY DIVERSITY**: For presentations with 8+ slides, use minimum 8 different template types
 
@@ -1603,17 +1604,18 @@ Before you finish generating any presentation, perform these checks:
 
 **TEMPLATE DIVERSITY VALIDATION:**
 6. **MAXIMUM 3 bullet-points slides total** (bullet-points + bullet-points-right combined)
-7. **Minimum template variety achieved** (4 for 5-7 slides, 6 for 8-12 slides, 8 for 13-15 slides)
-8. **Specialized templates used appropriately** (big-numbers for numbers, pyramid for hierarchy, etc.)
-9. **No template used more than 2 times** (except bullet-points which is limited to 3 total)
-10. **Visual templates used for engagement** (big-image-left, big-image-top, etc.)
+7. **Bullet-points alternation followed** (bullet-points → bullet-points-right → bullet-points pattern)
+8. **Minimum template variety achieved** (4 for 5-7 slides, 6 for 8-12 slides, 8 for 13-15 slides)
+9. **Specialized templates used appropriately** (big-numbers for numbers, pyramid for hierarchy, etc.)
+10. **No template used more than 2 times** (except bullet-points which is limited to 3 total)
+11. **Visual templates used for engagement** (big-image-left, big-image-top, etc.)
 
 **CONTENT QUALITY VALIDATION:**
-11. **Every slide provides substantial educational value**
-12. **Practical examples and real-world applications included**
-13. **Progressive learning structure maintained**
-14. **Exactly the requested number of slides generated**
-15. **Only one final slide created** (no multiple ending slides)
+12. **Every slide provides substantial educational value**
+13. **Practical examples and real-world applications included**
+14. **Progressive learning structure maintained**
+15. **Exactly the requested number of slides generated**
+16. **Only one final slide created** (no multiple ending slides)
 
 If you find any violations, you MUST fix them before finalizing the presentation.
 
@@ -1631,3 +1633,50 @@ If you find any violations, you MUST fix them before finalizing the presentation
 - **EACH ITEM SUBSTANTIAL**: Every list item must contain at least 2-3 sentences of detailed explanation
 - **NO EXCEPTIONS**: These rules apply to ALL list item templates - no shortcuts or exceptions
 - **VALIDATION REQUIRED**: Double-check your work - if you see 3 list items, you have made an error
+
+**BULLET-POINTS ALTERNATION RULES (NEW):**
+- **MANDATORY ALTERNATION**: When using bullet-points templates, you MUST alternate between `bullet-points` and `bullet-points-right`
+- **FIRST BULLET SLIDE**: Always start with `bullet-points` (no subtitle/context needed)
+- **SECOND BULLET SLIDE**: Use `bullet-points-right` (with subtitle/context)
+- **THIRD BULLET SLIDE**: Use `bullet-points` (no subtitle/context)
+- **ALTERNATION PATTERN**: bullet-points → bullet-points-right → bullet-points (if using all 3)
+- **CONTEXT REQUIREMENT**: Use `bullet-points-right` when the slide needs introductory context or explanation before the list
+- **DIRECT LIST REQUIREMENT**: Use `bullet-points` when the list can stand alone without introduction
+
+**BULLET-POINTS USAGE DECISION TREE:**
+1. **Do you need bullet points?** → Check if specialized templates are more appropriate first
+2. **Is this your first bullet slide?** → Use `bullet-points`
+3. **Do you need context/introduction before the list?** → Use `bullet-points-right`
+4. **Is this your second bullet slide?** → Use `bullet-points-right` (alternate)
+5. **Is this your third bullet slide?** → Use `bullet-points` (alternate back)
+
+**BULLET-POINTS CONTEXT EXAMPLES:**
+- **Use `bullet-points-right` when**:
+  * Explaining the importance of the following points
+  * Providing background information before the list
+  * Setting learning objectives for the section
+  * Summarizing previous content before new points
+  * Creating transition between topics
+
+- **Use `bullet-points` when**:
+  * List items are self-explanatory
+  * No additional context is needed
+  * Direct presentation of key points
+  * Simple enumeration of features/benefits
+  * Clear topic that doesn't need introduction
+
+**CORRECT BULLET-POINTS ALTERNATION EXAMPLE:**
+```
+Slide 4: Key Learning Objectives (bullet-points) - Direct list
+Slide 7: Advanced Implementation Strategies (bullet-points-right) - With context
+Slide 10: Final Key Takeaways (bullet-points) - Direct list
+```
+
+**INCORRECT BULLET-POINTS USAGE:**
+```
+Slide 4: Key Learning Objectives (bullet-points)
+Slide 7: Advanced Implementation Strategies (bullet-points) - Should be bullet-points-right
+Slide 10: Final Key Takeaways (bullet-points) - Should alternate
+```
+
+// ... existing code ...
