@@ -1,4 +1,4 @@
-﻿# custom_extensions/backend/main.py
+# custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -10447,6 +10447,17 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[
     if file_context.get("key_topics"):
         enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
     
+    # Add specific instructions for the product type with enhanced formatting guidance
+    if product_type == "Course Outline":
+        enhanced_prompt += """
+CRITICAL FORMATTING REQUIREMENTS FOR COURSE OUTLINE:
+1. Use exactly this structure: ## Module [Number]: [Module Title]
+2. Each module must be a separate H2 header starting with ##
+3. Lessons must be numbered list items (1. 2. 3.) under each module
+
+ENSURE: Create the requested number of modules, not a single module with all lessons.
+"""
+    
     # Add specific instructions for the product type
     if file_context.get("metadata", {}).get("fallback_used"):
         enhanced_prompt += f"""
@@ -12810,8 +12821,7 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
     """Parse the markdown outline produced by the assistant into a lightweight
     list-of-modules representation expected by the wizard UI.
 
-    Now also captures the "Total Time" line for each module and stores it as
-    `totalHours` (float).
+    Enhanced to handle various markdown formats and create intelligent module divisions.
     """
     logger.info(f"[PARSE_OUTLINE] Starting parse with input length: {len(md)}")
     logger.info(f"[PARSE_OUTLINE] Input preview: {md[:200]}{'...' if len(md) > 200 else ''}")
@@ -12837,8 +12847,16 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
         indent = len(raw_line) - len(raw_line.lstrip())
         line = raw_line.lstrip()
 
-        # Module detection
-        if line.startswith("## "):
+        # Enhanced module detection - look for ## headers OR ### headers OR "Module" patterns
+        is_module_header = (
+            line.startswith("## ") or 
+            line.startswith("### ") or
+            (line.startswith("# ") and "module" in line.lower()) or
+            line.startswith("**Module") or
+            re.match(r"^Module\s+\d+", line, re.IGNORECASE)
+        )
+        
+        if is_module_header:
             # flush any buffered lesson into previous module before switching
             if current:
                 last_lesson = flush_current_lesson(_buf)
@@ -12846,9 +12864,14 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
                     current["lessons"].append(last_lesson)
                 _buf = []
 
-            title_part = line.lstrip("# ").strip()
+            # Extract title from various formats
+            title_part = line.lstrip("#* ").strip()
             if ":" in title_part:
                 title_part = title_part.split(":", 1)[-1].strip()
+            if title_part.lower().startswith("module"):
+                # Keep the "Module X:" format if present
+                pass
+            
             current = {
                 "id": f"mod{len(modules) + 1}",
                 "title": title_part,
@@ -12898,11 +12921,12 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
     logger.info(f"[PARSE_OUTLINE] After main parsing: {len(modules)} modules found, {lines_processed} lines processed")
 
-    # Fallback when no module headings present
+    # Enhanced fallback when no module headings present
     if not modules:
-        logger.warning(f"[PARSE_OUTLINE] No modules found, using fallback parsing")
-        tmp_module = {"id": "mod1", "title": "Outline", "lessons": []}
-        fallback_lessons = 0
+        logger.warning(f"[PARSE_OUTLINE] No modules found, using intelligent fallback parsing")
+        
+        # Collect all lessons first
+        all_lessons = []
         for raw_line in md.splitlines():
             if not raw_line.strip():
                 continue
@@ -12912,15 +12936,68 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
                 txt = re.sub(r"^(?:- |\* |\d+\.\s*)", "", line).strip()
                 if txt.startswith("**") and "**" in txt[2:]:
                     txt = txt.split("**", 2)[1].strip()
-                tmp_module["lessons"].append(txt)
-                fallback_lessons += 1
-        if not tmp_module["lessons"]:
-            # As very last resort just dump all lines
-            logger.warning(f"[PARSE_OUTLINE] No list items found, dumping all non-empty lines")
+                all_lessons.append(txt)
+        
+        # If we have lessons, try to intelligently divide them into modules
+        if all_lessons:
+            logger.info(f"[PARSE_OUTLINE] Found {len(all_lessons)} lessons for intelligent division")
+            
+            # Try to determine intended module count from lesson separators or natural breaks
+            separator_indices = []
+            for i, lesson in enumerate(all_lessons):
+                if "---" in lesson or lesson.strip() == "---":
+                    separator_indices.append(i)
+            
+            if separator_indices:
+                # Use separator-based division
+                logger.info(f"[PARSE_OUTLINE] Using separator-based division with {len(separator_indices)} separators")
+                start_idx = 0
+                for module_num, sep_idx in enumerate(separator_indices + [len(all_lessons)], 1):
+                    if start_idx < sep_idx:
+                        module_lessons = [l for l in all_lessons[start_idx:sep_idx] if "---" not in l]
+                        if module_lessons:  # Only create module if it has lessons
+                            module = {
+                                "id": f"mod{module_num}",
+                                "title": f"Module {module_num}",
+                                "totalHours": 0.0,
+                                "lessons": module_lessons
+                            }
+                            modules.append(module)
+                    start_idx = sep_idx + 1
+            else:
+                # Intelligently divide lessons into reasonable groups (3-5 lessons per module)
+                target_lessons_per_module = 4
+                num_modules = max(1, min(6, (len(all_lessons) + target_lessons_per_module - 1) // target_lessons_per_module))
+                lessons_per_module = len(all_lessons) // num_modules
+                remainder = len(all_lessons) % num_modules
+                
+                logger.info(f"[PARSE_OUTLINE] Dividing {len(all_lessons)} lessons into {num_modules} modules (~{lessons_per_module} lessons each)")
+                
+                start_idx = 0
+                for module_num in range(1, num_modules + 1):
+                    # Add one extra lesson to some modules to handle remainder
+                    current_module_size = lessons_per_module + (1 if module_num <= remainder else 0)
+                    end_idx = start_idx + current_module_size
+                    
+                    module_lessons = all_lessons[start_idx:end_idx]
+                    if module_lessons:  # Only create module if it has lessons
+                        module = {
+                            "id": f"mod{module_num}",
+                            "title": f"Module {module_num}",
+                            "totalHours": 0.0,
+                            "lessons": module_lessons
+                        }
+                        modules.append(module)
+                    start_idx = end_idx
+        
+        # Last resort fallback - create single module with all content
+        if not modules:
+            logger.warning(f"[PARSE_OUTLINE] No lessons found, dumping all non-empty lines")
+            tmp_module = {"id": "mod1", "title": "Course Content", "lessons": [], "totalHours": 0.0}
             tmp_module["lessons"] = [l.strip() for l in md.splitlines() if l.strip()]
-            fallback_lessons = len(tmp_module["lessons"])
-        modules.append(tmp_module)
-        logger.info(f"[PARSE_OUTLINE] Fallback created 1 module with {fallback_lessons} lessons")
+            modules.append(tmp_module)
+        
+        logger.info(f"[PARSE_OUTLINE] Intelligent fallback created {len(modules)} modules")
 
     logger.info(f"[PARSE_OUTLINE] Final result: {len(modules)} modules")
     
@@ -13174,6 +13251,29 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     modules_preview = _parse_outline_markdown(assistant_reply)
                     logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
                     logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+                    
+                    # Validate the parsed result meets basic requirements
+                    validation_passed = True
+                    validation_messages = []
+                    
+                    # Check if we have reasonable number of modules (not just 1 with many lessons)
+                    if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                        validation_passed = False
+                        validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+                    
+                    # Check if we have expected module count (if specified in payload)
+                    expected_modules = getattr(payload, 'modules', None)
+                    if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                        validation_passed = False
+                        validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+                    
+                    if not validation_passed:
+                        logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                        logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                        # Continue anyway but log the issue - the intelligent fallback should have handled it
+                    else:
+                        logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+                    
                 except Exception as e:
                     logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
                     logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
@@ -13197,8 +13297,22 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         else:
             logger.info(f"[PREVIEW_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            # Enhance the wizard message with formatting requirements for course outlines
+            enhanced_wizard_message = wizard_message
+            if "Course Outline" in wizard_message:
+                enhanced_wizard_message += """
+
+CRITICAL FORMATTING REQUIREMENTS:
+1. Use exactly this structure: ## Module [Number]: [Module Title]
+2. Each module must be a separate H2 header starting with ##
+3. Lessons must be numbered list items (1. 2. 3.) under each module
+
+ENSURE: Create the requested number of modules, not a single module with all lessons.
+"""
+            
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                async for chunk_data in stream_openai_response(enhanced_wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -13239,6 +13353,29 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             modules_preview = _parse_outline_markdown(assistant_reply)
             logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
             logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+            
+            # Validate the parsed result meets basic requirements
+            validation_passed = True
+            validation_messages = []
+            
+            # Check if we have reasonable number of modules (not just 1 with many lessons)
+            if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                validation_passed = False
+                validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+            
+            # Check if we have expected module count (if specified in payload)
+            expected_modules = getattr(payload, 'modules', None)
+            if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                validation_passed = False
+                validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+            
+            if not validation_passed:
+                logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                # Continue anyway but log the issue - the intelligent fallback should have handled it
+            else:
+                logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+            
         except Exception as e:
             logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
             logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
