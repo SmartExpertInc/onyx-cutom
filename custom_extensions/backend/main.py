@@ -12850,7 +12850,6 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
         # Enhanced module detection - look for ## headers OR ### headers OR "Module" patterns
         is_module_header = (
             line.startswith("## ") or 
-            line.startswith("### ") or
             (line.startswith("# ") and "module" in line.lower()) or
             line.startswith("**Module") or
             re.match(r"^Module\s+\d+", line, re.IGNORECASE)
