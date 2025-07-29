@@ -12,7 +12,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
   imagePrompt,
   imageSize = 'large',
   slideId,
-  isEditable = false,
   onUpdate,
   theme
 }) => {
@@ -122,7 +121,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
 
       {/* Right side - Content */}
       <div style={contentContainerStyles}>
-        {isEditable ? (
+        {(
           <>
             <input
               type="text"
@@ -152,12 +151,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { theme?: SlideT
               placeholder="Enter slide subtitle..."
             />
           </>
-        ) : (
-          <>
-            <h2 style={titleStyles}>{title}</h2>
-            <div style={subtitleStyles}>{subtitle}</div>
-          </>
-        )}
+        ) 
       </div>
     </div>
   );

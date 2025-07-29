@@ -46,7 +46,6 @@ export type RenderEditableArrayFunction = (
 
 export interface BaseTemplateProps {
   slideId: string;
-  isEditable?: boolean;
   onUpdate?: (props: Record<string, unknown>) => void;
   // Inline editing props (optional)
   renderEditableText?: RenderEditableTextFunction;

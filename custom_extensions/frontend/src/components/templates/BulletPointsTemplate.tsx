@@ -10,7 +10,6 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   bullets = [],
   maxColumns = 2,
   bulletStyle = 'dot',
-  isEditable = false,
   onUpdate,
   theme,
   // Inline editing props

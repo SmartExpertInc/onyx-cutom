@@ -10,7 +10,6 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   content,
   alignment = 'left',
   backgroundImage,
-  isEditable = false,
   onUpdate,
   theme,
   // Inline editing props
@@ -68,7 +67,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: isEditable ? 'flex' : 'none',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
@@ -76,7 +75,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
   };
 
   const handleClick = () => {
-    if (isEditable && onUpdate) {
+    if (onUpdate) {
       onUpdate({ slideId });
     }
   };
@@ -137,7 +136,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & { theme?: SlideT
       </div>
 
       {/* Edit Overlay - only show if not using inline editing */}
-      {isEditable && !renderEditableText && (
+      { !renderEditableText && (
         <div style={editOverlayStyles} onClick={handleClick}>
           <div style={{
             backgroundColor: 'rgba(255, 255, 255, 0.9)',

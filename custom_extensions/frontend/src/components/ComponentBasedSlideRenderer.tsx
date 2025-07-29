@@ -16,7 +16,6 @@ interface ComponentBasedSlideRendererProps {
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
   slide,
-  isEditable = false,
   onSlideUpdate,
   onTemplateChange,
   theme

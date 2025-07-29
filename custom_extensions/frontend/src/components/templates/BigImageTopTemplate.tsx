@@ -13,8 +13,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
   imageAlt,
   imagePrompt,
   imageSize = 'large',
-  slideId,
-  isEditable = false,
+  slideId,  
   onUpdate,
   theme
 }) => {
@@ -126,7 +125,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
 
       {/* Bottom - Content */}
       <div style={contentContainerStyles}>
-        {isEditable ? (
+        {(
           <>
             <input
               type="text"
@@ -137,7 +136,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
                 border: 'none',
                 background: 'transparent',
                 outline: 'none',
-                width: '100%'
+                width: '100%' 
               }}
               placeholder="Enter slide title..."
             />
@@ -157,12 +156,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
               placeholder="Enter slide content..."
             />
           </>
-        ) : (
-          <>
-            <h2 style={titleStyles}>{title}</h2>
-            <div style={subtitleStyles}>{subtitle}</div>
-          </>
-        )}
+        ) 
       </div>
     </div>
   );

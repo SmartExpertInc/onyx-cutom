@@ -11,7 +11,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   author,
   date,
   backgroundImage,
-  isEditable = false,
   onUpdate,
   theme
 }) => {
@@ -77,7 +76,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: isEditable ? 'flex' : 'none',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
@@ -85,7 +84,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   };
 
   const handleClick = () => {
-    if (isEditable && onUpdate) {
+    if (onUpdate) {
       // This would trigger the prop editor
       onUpdate({ slideId });
     }

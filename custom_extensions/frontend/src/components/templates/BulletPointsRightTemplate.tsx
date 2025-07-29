@@ -14,7 +14,6 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps> = ({
   bullets,
   maxColumns = 1,
   bulletStyle = 'dot',
-  isEditable = false,
   onUpdate,
   imagePrompt,
   imageAlt,

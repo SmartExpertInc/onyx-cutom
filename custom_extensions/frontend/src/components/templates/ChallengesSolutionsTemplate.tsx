@@ -11,7 +11,6 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
   solutionsTitle = 'Рішення',
   challenges,
   solutions,
-  isEditable = false,
   onUpdate,
   theme
 }) => {
@@ -102,7 +101,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: isEditable ? 'flex' : 'none',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
@@ -135,7 +134,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
   );
 
   const handleClick = () => {
-    if (isEditable && onUpdate) {
+    if (onUpdate) {
       onUpdate({ slideId });
     }
   };

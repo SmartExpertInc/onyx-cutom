@@ -10,9 +10,7 @@ interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
   deck: ComponentBasedSlideDeck | unknown;
   
-  /** Whether the deck is editable */
-  isEditable?: boolean;
-  
+
   /** Save callback for changes */
   onSave?: (updatedDeck: ComponentBasedSlideDeck) => void;
   
@@ -84,7 +82,6 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
-  isEditable = false,
   onSave,
   showFormatInfo = false,
   theme
@@ -300,7 +297,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       {/* Professional Header */}
       <div className="professional-header">
         <div className="header-content">
-          {isEditable && (
+          { (
             <div className="header-controls">
               <button 
                 className="control-button add-button"
@@ -325,7 +322,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               id={`slide-${slide.slideId}`}
             >
               {/* Editable Slide Title */}
-              {isEditable ? (
+              {(
                 <div 
                   className="slide-title-editable"
                   onClick={() => setEditingTitle(slide.slideId)}
@@ -347,17 +344,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     <h2 className="slide-title-text">{(slide.props.title as string) || `Slide ${slide.slideNumber}`}</h2>
                   )}
                 </div>
-              ) : (
-                <h2 className="slide-title-display">{(slide.props.title as string) || `Slide ${slide.slideNumber}`}</h2>
-              )}
+              ) 
 
               {/* Component-based slide content */}
               <div className="slide-content">
         <ComponentBasedSlideDeckRenderer
                   slides={[slide]}
-          isEditable={isEditable}
-          onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-          onTemplateChange={isEditable ? handleTemplateChange : undefined}
+            onSlideUpdate={handleSlideUpdate}
+          onTemplateChange={handleTemplateChange}
           theme={componentDeck.theme}
         />
               </div>

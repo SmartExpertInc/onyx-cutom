@@ -14,7 +14,6 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: Sl
   textAlign = 'center',
   titleSize = 'xlarge',
   subtitleSize = 'medium',
-  isEditable = false,
   onUpdate,
   theme
 }) => {
@@ -141,7 +140,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: Sl
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: isEditable ? 'flex' : 'none',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
@@ -150,7 +149,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: Sl
   };
 
   const handleClick = () => {
-    if (isEditable && onUpdate) {
+    if (onUpdate) {
       onUpdate({ slideId });
     }
   };
