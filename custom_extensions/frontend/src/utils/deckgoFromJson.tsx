@@ -10,7 +10,7 @@ import {
 } from '@/types/pdfLesson';
 
 /* -------- Render individual list items (handles nested structures) ---------- */
-const renderListItem = (item: any, index: number): React.ReactNode => {
+const renderListItem = (item: unknown, index: number): React.ReactNode => {
   if (typeof item === 'string') {
     return <span key={index}>{item}</span>;
   }
@@ -20,7 +20,7 @@ const renderListItem = (item: any, index: number): React.ReactNode => {
       case 'bullet_list':
         return (
           <ul key={index} className="nested-bullet-list">
-            {item.items.map((subItem: any, subIndex: number) => (
+            {item.items.map((subItem: unknown, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
             ))}
           </ul>
@@ -28,7 +28,7 @@ const renderListItem = (item: any, index: number): React.ReactNode => {
       case 'numbered_list':
         return (
           <ol key={index} className="nested-numbered-list">
-            {item.items.map((subItem: any, subIndex: number) => (
+            {item.items.map((subItem: unknown, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
             ))}
           </ol>

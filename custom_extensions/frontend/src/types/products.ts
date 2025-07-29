@@ -40,7 +40,7 @@ export interface ProjectViewDetails {
   microProductName: string | null;
   designTemplateName: string | null;
   componentName: string | null; // Crucial for frontend component rendering
-  microProductContent: any; // The parsed JSON content
+  microProductContent: unknown; // The parsed JSON content
   createdAt: string; // Assuming ISO string date
 }
 

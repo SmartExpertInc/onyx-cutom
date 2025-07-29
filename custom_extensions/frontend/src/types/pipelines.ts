@@ -1,5 +1,4 @@
 // custom_extensions/frontend/src/types/pipelines.ts
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface PromptTemplate {
   id: string;

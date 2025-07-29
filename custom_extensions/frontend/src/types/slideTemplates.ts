@@ -5,10 +5,53 @@ import { SlideTheme } from '@/types/slideThemes';
 
 // --- Base Template System Types ---
 
+// Inline editing function types
+export type RenderEditableTextFunction = (
+  fieldPath: string[],
+  value: string,
+  options?: {
+    multiline?: boolean;
+    placeholder?: string;
+    className?: string;
+    style?: React.CSSProperties;
+    maxLength?: number;
+    rows?: number;
+  }
+) => React.ReactNode;
+
+export type RenderEditableFieldFunction = (
+  fieldPath: string[],
+  value: string,
+  renderDisplay: (value: string) => React.ReactNode,
+  options?: {
+    multiline?: boolean;
+    placeholder?: string;
+    className?: string;
+    style?: React.CSSProperties;
+    maxLength?: number;
+    rows?: number;
+  }
+) => React.ReactNode;
+
+export type RenderEditableArrayFunction = (
+  fieldPath: string[],
+  items: string[],
+  options?: {
+    placeholder?: string;
+    className?: string;
+    style?: React.CSSProperties;
+    maxLength?: number;
+  }
+) => React.ReactNode;
+
 export interface BaseTemplateProps {
   slideId: string;
   isEditable?: boolean;
-  onUpdate?: (props: any) => void;
+  onUpdate?: (props: Record<string, unknown>) => void;
+  // Inline editing props (optional)
+  renderEditableText?: RenderEditableTextFunction;
+  renderEditableField?: RenderEditableFieldFunction;
+  renderEditableArray?: RenderEditableArrayFunction;
 }
 
 export interface TemplateComponentInfo {
@@ -18,8 +61,8 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<BaseTemplateProps & any>;
-  defaultProps: Record<string, any>;
+  component: React.ComponentType<BaseTemplateProps & Record<string, unknown>>;
+  defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }
 
@@ -28,8 +71,8 @@ export interface PropDefinition {
   label: string;
   description?: string;
   required?: boolean;
-  default?: any;
-  options?: Array<{value: any; label: string}>; // For select type
+  default?: unknown;
+  options?: Array<{value: unknown; label: string}>; // For select type
   min?: number; // For number type
   max?: number; // For number type
   maxLength?: number; // For text type
@@ -46,7 +89,7 @@ export interface ComponentBasedSlide {
   slideId: string;
   slideNumber: number;
   templateId: string;
-  props: Record<string, any>;
+  props: Record<string, unknown>;
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
@@ -106,7 +149,9 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
 }
 
-export interface BigImageTopProps extends BigImageLeftProps {}
+export interface BigImageTopProps extends BigImageLeftProps {
+  // Inherits all properties from BigImageLeftProps
+}
 
 export interface QuoteCenterProps extends BaseTemplateProps {
   quote: string;
@@ -147,19 +192,6 @@ export interface TwoColumnProps extends BaseTemplateProps {
   rightImageAlt?: string;
   rightImagePrompt?: string;
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-}
-
-export interface ComparisonSlideProps extends BaseTemplateProps {
-  title: string;
-  beforeTitle: string;
-  beforeContent: string;
-  afterTitle: string;
-  afterContent: string;
-  beforeImage?: string;
-  afterImage?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -258,9 +290,9 @@ export interface LegacySlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
-  contentBlocks: any[];
+  contentBlocks: unknown[];
   deckgoTemplate?: string;
-  imagePlaceholders?: any[];
+  imagePlaceholders?: unknown[];
 }
 
 export interface MigrationResult {
@@ -272,8 +304,8 @@ export interface MigrationResult {
 
 export interface SlideEditor {
   templateId: string;
-  props: Record<string, any>;
-  onPropsChange: (newProps: Record<string, any>) => void;
+  props: Record<string, unknown>;
+  onPropsChange: (newProps: Record<string, unknown>) => void;
   onTemplateChange: (newTemplateId: string) => void;
 }
 
@@ -311,8 +343,8 @@ export interface EditableField {
   key: string;
   label: string;
   type: PropDefinition['type'];
-  value: any;
-  onChange: (value: any) => void;
+  value: unknown;
+  onChange: (value: unknown) => void;
   validation?: {
     required?: boolean;
     minLength?: number;
