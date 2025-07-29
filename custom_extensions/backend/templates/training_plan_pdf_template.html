@@ -123,17 +123,14 @@
         .theme-icon-color { color: #FF1414; }
         .theme-icon-fill { fill: #FF1414; }
 
-        /* Quality tier colors */
-        .tier-basic { color: #059669; background-color: #ecfdf5; border-color: #a7f3d0; }
-        .tier-interactive { color: #ea580c; background-color: #fff7ed; border-color: #fed7aa; }
-        .tier-advanced { color: #7c3aed; background-color: #f3f4f6; border-color: #c4b5fd; }
-        .tier-immersive { color: #2563eb; background-color: #eff6ff; border-color: #93c5fd; }
+        /* Quality tier colors - text only, no background */
+        .tier-basic { color: #059669; }
+        .tier-interactive { color: #ea580c; }
+        .tier-advanced { color: #7c3aed; }
+        .tier-immersive { color: #2563eb; }
         
         .tier-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid;
             font-size: 0.68rem;
             text-transform: capitalize;
             font-weight: 500;
@@ -263,7 +260,7 @@
                                 'immersive': {'color': '#2563eb', 'bg': '#eff6ff', 'border': '#93c5fd'}
                             } %}
                             {% set current_tier_colors = tier_colors.get(section_tier, tier_colors['interactive']) %}
-                            <span class="tier-badge" style="color: {{ current_tier_colors.color }}; background-color: {{ current_tier_colors.bg }}; border-color: {{ current_tier_colors.border }};">
+                            <span class="tier-badge" style="color: {{ current_tier_colors.color }};">
                                 {{ current_tier_labels.get(section_tier, section_tier.title()) }}
                             </span>
                         </div>{% endif %}
@@ -347,7 +344,7 @@
                                 'immersive': {'color': '#2563eb', 'bg': '#eff6ff', 'border': '#93c5fd'}
                             } %}
                             {% set current_tier_colors = tier_colors.get(lesson_tier, tier_colors['interactive']) %}
-                            <span class="tier-badge" style="color: {{ current_tier_colors.color }}; background-color: {{ current_tier_colors.bg }}; border-color: {{ current_tier_colors.border }};">
+                            <span class="tier-badge" style="color: {{ current_tier_colors.color }};">
                                 {{ current_tier_labels.get(lesson_tier, lesson_tier.title()) }}
                             </span>
                         </div>{% endif %}
