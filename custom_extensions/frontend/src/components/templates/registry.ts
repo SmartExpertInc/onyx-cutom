@@ -9,7 +9,6 @@ import { BigImageLeftTemplate } from './BigImageLeftTemplate';
 import { BulletPointsTemplate } from './BulletPointsTemplate';
 import { BulletPointsRightTemplate } from './BulletPointsRightTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
-import { ComparisonSlideTemplate } from './ComparisonSlideTemplate';
 import { ProcessStepsTemplate } from './ProcessStepsTemplate';
 import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
 import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
