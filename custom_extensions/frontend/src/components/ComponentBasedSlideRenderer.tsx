@@ -3,7 +3,7 @@
 import React from 'react';
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { SLIDE_TEMPLATE_REGISTRY } from './templates/registry';
-import { SlideTheme } from '@/types/slideThemes';
+import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 
 interface ComponentBasedSlideRendererProps {
   slides: ComponentBasedSlide[];
@@ -48,11 +48,12 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
         }
 
         const TemplateComponent = templateInfo.component;
+        const themeObject = theme ? getSafeSlideTheme(theme) : getSafeSlideTheme();
         const templateProps = {
           ...slide.props,
           slideId: slide.slideId,
           onUpdate: (updates: Record<string, unknown>) => handleSlideUpdate(slide.slideId, updates),
-          theme
+          theme: themeObject
         };
 
         return (
