@@ -52,6 +52,16 @@ export interface BaseTemplateProps {
   renderEditableText?: RenderEditableTextFunction;
   renderEditableField?: RenderEditableFieldFunction;
   renderEditableArray?: RenderEditableArrayFunction;
+  // Common template props (optional)
+  title?: string;
+  subtitle?: string;
+  content?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  subtitleColor?: string;
+  backgroundImage?: string;
+  alignment?: 'left' | 'center' | 'right';
   // Allow any additional props for flexibility
   [key: string]: unknown;
 }
@@ -63,7 +73,8 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<BaseTemplateProps & Record<string, unknown>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: React.ComponentType<any>;
   defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }
