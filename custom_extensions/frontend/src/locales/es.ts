@@ -648,7 +648,7 @@ export const es = {
       describeWhatToMake: "Describe lo que te gustaría crear",
       regenerate: "Regenerar",
       modulesAndLessons: "Módulos y lecciones",
-      editsProtected: "✓ Ediciones protegidas",
+      editsProtected: "Ediciones protegidas",
       moduleTitle: "Título del módulo",
       title: "título",
       lessonTitle: "Lección",

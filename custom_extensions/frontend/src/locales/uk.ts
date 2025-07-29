@@ -641,7 +641,7 @@ export const uk = {
       describeWhatToMake: "Опишіть, що ви хочете створити",
       regenerate: "Перегенерувати",
       modulesAndLessons: "Модулі та уроки",
-      editsProtected: "✓ Редагування захищено",
+      editsProtected: "Редагування захищено",
       moduleTitle: "Назва модуля",
       title: "назва",
       lessonTitle: "Урок",

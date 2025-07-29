@@ -638,7 +638,7 @@ export const ru = {
       describeWhatToMake: "Опишите, что вы хотите создать",
       regenerate: "Перегенерировать",
       modulesAndLessons: "Модули и уроки",
-      editsProtected: "✓ Редактирование защищено",
+      editsProtected: "Редактирование защищено",
       moduleTitle: "Название модуля",
       title: "название",
       lessonTitle: "Урок",
