@@ -26,7 +26,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   const inlineEditing = useInlineEditing();
 
   // Handle template prop updates
-  const handlePropsUpdate = (newProps: any) => {
+  const handlePropsUpdate = (newProps: Record<string, unknown>) => {
     if (onSlideUpdate) {
       const updatedSlide: ComponentBasedSlide = {
         ...slide,
@@ -44,7 +44,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   const handleInlineEditSave = (slideId: string, fieldPath: string[], value: string) => {
     if (onSlideUpdate) {
       const updatedProps = { ...slide.props };
-      let target = updatedProps;
+      let target: Record<string, unknown> = updatedProps;
       
       // Navigate to the target field
       for (let i = 0; i < fieldPath.length - 1; i++) {
@@ -52,7 +52,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
         if (target[segment] === undefined || target[segment] === null) {
           target[segment] = {};
         }
-        target = target[segment];
+        target = target[segment] as Record<string, unknown>;
       }
       
       // Set the new value

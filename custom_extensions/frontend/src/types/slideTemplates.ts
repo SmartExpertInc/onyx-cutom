@@ -149,9 +149,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
 }
 
-export interface BigImageTopProps extends BigImageLeftProps {
-  // Inherits all properties from BigImageLeftProps
-}
+export type BigImageTopProps = BigImageLeftProps;
 
 export interface QuoteCenterProps extends BaseTemplateProps {
   quote: string;
