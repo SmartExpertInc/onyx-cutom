@@ -131,7 +131,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               color: currentTheme.colors.titleColor,
               margin: '16px 0 8px 0',
               alignSelf: 'flex-start',
-              lineHeight: 1.6
             }}
           >
             {rightTitle}
@@ -143,7 +142,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               fontSize: currentTheme.fonts.contentSize,
               color: currentTheme.colors.contentColor,
               margin: 0,
-              alignSelf: 'flex-start'
+              alignSelf: 'flex-start',
+              lineHeight: 1.6
             }}
           >
             {rightContent}
