@@ -142,14 +142,14 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           {existingFolders.length > 0 && (
             <div className="flex items-center gap-2">
               <select
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                className="w-full max-w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black truncate"
                 value={selectedParentId || ''}
                 onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
               >
                 <option value="">{t('interface.createAtTopLevel', 'Create at top level (no parent folder)')}</option>
                 {existingFolders.map(folder => (
-                  <option key={folder.id} value={folder.id}>
-                    {folder.name}
+                  <option key={folder.id} value={folder.id} title={folder.name}>
+                    {folder.name.length > 40 ? `${folder.name.substring(0, 40)}...` : folder.name}
                   </option>
                 ))}
               </select>
