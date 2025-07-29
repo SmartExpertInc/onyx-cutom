@@ -20,7 +20,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   theme,
   onUpdate
 }) => {
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (onUpdate) { onUpdate({ title: newTitle }); }

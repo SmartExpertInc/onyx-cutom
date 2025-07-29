@@ -23,7 +23,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   theme,
   onUpdate
 }: BigNumbersTemplateProps) => {
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

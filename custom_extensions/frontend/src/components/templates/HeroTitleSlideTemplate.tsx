@@ -19,7 +19,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { theme?: Sl
   theme
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
   const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

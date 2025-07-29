@@ -16,7 +16,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & { theme?: SlideTheme
   theme
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

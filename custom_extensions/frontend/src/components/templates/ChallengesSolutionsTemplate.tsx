@@ -15,7 +15,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
   onUpdate,
   theme
 }) => {
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (onUpdate) { onUpdate({ title: newTitle }); }

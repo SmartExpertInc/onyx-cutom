@@ -22,7 +22,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   theme,
   onUpdate
 }: TimelineTemplateProps) => {
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

@@ -24,7 +24,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   theme,
   onUpdate,
 }: PyramidTemplateProps) => {
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
   const handleTitleChange = (newTitle: string) => {

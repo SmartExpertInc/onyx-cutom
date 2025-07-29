@@ -14,7 +14,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & { theme?: SlideT
   onUpdate,
   theme
 }) => {
-  const currentTheme = theme || getSafeSlideTheme();
+  const currentTheme = theme && theme.colors ? theme : getSafeSlideTheme();
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {

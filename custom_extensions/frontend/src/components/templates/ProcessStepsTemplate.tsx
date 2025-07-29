@@ -6,7 +6,7 @@ import { SlideTheme, getSafeSlideTheme } from '@/types/slideThemes';
 import SimpleInlineEditor from '../SimpleInlineEditor';
 
 export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { theme?: SlideTheme }> = (props) => {
-  const currentTheme = props.theme || getSafeSlideTheme();
+  const currentTheme = props.theme && props.theme.colors ? props.theme : getSafeSlideTheme();
 
   const handleTitleChange = (newTitle: string) => {
     if (props.onUpdate) { props.onUpdate({ title: newTitle }); }
