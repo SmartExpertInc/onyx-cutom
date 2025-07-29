@@ -125,8 +125,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
 
       {/* Bottom - Content */}
       <div style={contentContainerStyles}>
-        {(
-          <>
+         
             <input
               type="text"
               value={title}
@@ -155,8 +154,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
               }}
               placeholder="Enter slide content..."
             />
-          </>
-        ) 
+         
       </div>
     </div>
   );
