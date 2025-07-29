@@ -883,7 +883,7 @@ export default function ProjectInstanceViewPage() {
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
                     title={t('projectView.downloadPdf', 'Download content as PDF')}
                   >
-                   <ArrowDownToLine size={16} className="mr-2" /> {t('projectView.downloadPdf', 'Download PDF')}
+                   <ArrowDownToLine size={16} className="mr-2" /> {t('projectView.downloadPdf', 'Download PDFF')}
                   </button>
             )}
             {/* Smart Edit button for Training Plans */}
