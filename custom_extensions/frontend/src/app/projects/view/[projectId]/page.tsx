@@ -794,8 +794,8 @@ export default function ProjectInstanceViewPage() {
             borderRadius: '8px'
           }}>
             <SmartSlideDeckViewer
-              deck={slideDeckData}
-              isEditable={true}
+              deck={editableData || slideDeckData}
+              isEditable={isEditing}
               onSave={(updatedDeck) => {
                 // Оновлюємо editableData з новими даними слайду
                 setEditableData(updatedDeck as any);

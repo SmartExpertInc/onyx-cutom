@@ -161,38 +161,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     }
   };
 
-  // Функція перемикання редагування (копіюємо з page.tsx)
-  const handleToggleEdit = () => {
-    if (isEditing) {
-      handleSave();
-    } else {
-      // Створюємо копію даних для редагування
-      if (componentDeck) {
-        setEditableDeck(JSON.parse(JSON.stringify(componentDeck)));
-      }
-      setIsEditing(true);
-    }
-  };
-
-  // Функція збереження (копіюємо з page.tsx)
-  const handleSave = async () => {
-    if (!editableDeck) {
-      alert('No editable data available');
-      return;
-    }
-    
-    setIsSaving(true);
-    try {
-      onSave?.(editableDeck);
-      setIsEditing(false);
-      alert('Content saved successfully!');
-    } catch (err: any) {
-      alert(`Save failed: ${err.message}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   // Cleanup effect для автозбереження (копіюємо з page.tsx)
   useEffect(() => {
     return () => {
@@ -271,43 +239,46 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
-    if (componentDeck) {
+    const currentDeck = editableDeck || componentDeck;
+    if (currentDeck) {
       const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentDeck,
-        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
+        ...currentDeck,
+        slides: currentDeck.slides.map((slide: ComponentBasedSlide) => 
           slide.slideId === updatedSlide.slideId ? updatedSlide : slide
         )
       };
-      setComponentDeck(updatedDeck);
+      setEditableDeck(updatedDeck);
       onSave?.(updatedDeck);
     }
   };
 
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
-    if (componentDeck) {
+    const currentDeck = editableDeck || componentDeck;
+    if (currentDeck) {
       const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentDeck,
-        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
+        ...currentDeck,
+        slides: currentDeck.slides.map((slide: ComponentBasedSlide) => 
           slide.slideId === slideId 
             ? { ...slide, templateId: newTemplateId }
             : slide
         )
       };
-      setComponentDeck(updatedDeck);
+      setEditableDeck(updatedDeck);
       onSave?.(updatedDeck);
     }
   };
 
   // Add new slide
   const addSlide = () => {
-    if (!componentDeck) return;
+    const currentDeck = editableDeck || componentDeck;
+    if (!currentDeck) return;
 
     const newSlide: ComponentBasedSlide = {
       slideId: `slide-${Date.now()}`,
-      slideNumber: componentDeck.slides.length + 1,
+      slideNumber: currentDeck.slides.length + 1,
       templateId: 'content-slide',
       props: {
-        title: `Slide ${componentDeck.slides.length + 1}`,
+        title: `Slide ${currentDeck.slides.length + 1}`,
         content: 'Add your content here...'
         // Colors will be applied by theme, not props
       },
@@ -315,32 +286,25 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     };
 
     const updatedDeck: ComponentBasedSlideDeck = {
-      ...componentDeck,
-      slides: [...componentDeck.slides, newSlide]
+      ...currentDeck,
+      slides: [...currentDeck.slides, newSlide]
     };
 
-    setComponentDeck(updatedDeck);
+    setEditableDeck(updatedDeck);
     onSave?.(updatedDeck);
   };
 
   // Delete slide
   const deleteSlide = (slideId: string) => {
-    if (!componentDeck || componentDeck.slides.length <= 1) return;
+    const currentDeck = editableDeck || componentDeck;
+    if (!currentDeck || currentDeck.slides.length <= 1) return;
 
     const updatedDeck: ComponentBasedSlideDeck = {
-      ...componentDeck,
-      slides: componentDeck.slides.filter((s: ComponentBasedSlide) => s.slideId !== slideId)
+      ...currentDeck,
+      slides: currentDeck.slides.filter((slide: ComponentBasedSlide) => slide.slideId !== slideId)
     };
 
-    // Update slide numbers
-    updatedDeck.slides.forEach((slide: ComponentBasedSlide, index: number) => {
-      slide.slideNumber = index + 1;
-    });
-
-    setComponentDeck(updatedDeck);
-    
-    // Slide deleted - no need to select next slide since navigation is removed
-    
+    setEditableDeck(updatedDeck);
     onSave?.(updatedDeck);
   };
 
@@ -411,20 +375,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         <div className="header-content">
           {isEditable && (
             <div className="header-controls">
-              {/* Edit/Save button (копіюємо з page.tsx) */}
-              <button 
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className={`control-button ${isEditing ? 'save-button' : 'edit-button'}`}
-                title={isEditing ? 'Save current changes' : 'Edit content'}
-              >
-                {isEditing ? (
-                  <> {isSaving ? 'Saving...' : 'Save Content'} </>
-                ) : (
-                  <> Edit Content </>
-                )}
-              </button>
-              
               <button 
                 className="control-button add-button"
                 onClick={addSlide}
@@ -478,7 +428,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               <div className="slide-content">
                 <ComponentBasedSlideDeckRenderer
                   slides={[slide]}
-                  isEditable={isEditing}
+                  isEditable={isEditable}
                   onTextChange={handleTextChange}
                   onAutoSave={handleAutoSave}
                   onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
