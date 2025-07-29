@@ -1948,6 +1948,7 @@ const FolderRowMenu: React.FC<{
     trashMode: boolean;
     onDeleteFolder: (id: number) => void;
 }> = ({ folder, formatDate, trashMode, onDeleteFolder }) => {
+    const { t } = useLanguage();
     const [menuOpen, setMenuOpen] = React.useState(false);
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
     const [showSettingsModal, setShowSettingsModal] = React.useState(false);
@@ -2072,7 +2073,7 @@ const FolderRowMenu: React.FC<{
     };
 
     const handleRename = async () => {
-        if (!newName.trim() || newName.trim() === folder.name) {
+        if (!newName.trim()) {
             setRenameModalOpen(false);
             return;
         }
@@ -2154,7 +2155,7 @@ const FolderRowMenu: React.FC<{
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                             >
                                 <PenLine size={16} className="text-gray-500" />
-                                <span>Rename</span>
+                                <span>{t('actions.rename', 'Rename')}</span>
                             </button>
                             <button 
                                 onClick={handleSettingsClick}
@@ -2201,28 +2202,20 @@ const FolderRowMenu: React.FC<{
                 folderName={folder.name}
             />
 
-            {/* Rename Modal */}
+            {/* ---------------- Rename Modal ---------------- */}
             {renameModalOpen && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
                     <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename Folder</h4>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">{t('actions.rename', 'Rename')}</h4>
 
                         <div className="mb-6">
-                            <label htmlFor="newFolderName" className="block text-sm font-medium text-gray-700 mb-1">New Name:</label>
+                            <label htmlFor="newName" className="block text-sm font-medium text-gray-700 mb-1">{t('actions.newName', 'New Name:')}</label>
                             <input
-                                id="newFolderName"
+                                id="newName"
                                 type="text"
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
                                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !isRenaming && newName.trim() && newName.trim() !== folder.name) {
-                                        handleRename();
-                                    }
-                                    if (e.key === 'Escape') {
-                                        setRenameModalOpen(false);
-                                    }
-                                }}
                             />
                         </div>
 
@@ -2232,14 +2225,14 @@ const FolderRowMenu: React.FC<{
                                 className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
                                 disabled={isRenaming}
                             >
-                                Cancel
+                                {t('actions.cancel', 'Cancel')}
                             </button>
                             <button
                                 onClick={handleRename}
                                 className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
-                                disabled={isRenaming || !newName.trim() || newName.trim() === folder.name}
+                                disabled={isRenaming || !newName.trim()}
                             >
-                                {isRenaming ? 'Saving...' : 'Rename'}
+                                {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
                             </button>
                         </div>
                     </div>
