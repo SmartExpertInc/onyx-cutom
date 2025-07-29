@@ -105,7 +105,7 @@ export const CreateContentTypeModal = ({
         break;
     }
 
-    // Redirect to generate page for one-pager, others to /create
+    // Redirect all products to /create page for consistent user experience
     const params = new URLSearchParams({
       product: product,
       lessonType: lessonType,
@@ -116,11 +116,7 @@ export const CreateContentTypeModal = ({
     if (parentProjectName) {
       params.set('courseName', parentProjectName);
     }
-    if (product === 'text-presentation') {
-      router.push(`/create/generate?${params.toString()}`);
-    } else {
-      router.push(`/create?${params.toString()}`);
-    }
+    router.push(`/create?${params.toString()}`);
     onClose();
   };
 
