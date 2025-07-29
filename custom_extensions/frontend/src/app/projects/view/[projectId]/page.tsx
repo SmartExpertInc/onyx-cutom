@@ -795,7 +795,6 @@ export default function ProjectInstanceViewPage() {
           }}>
             <SmartSlideDeckViewer
               deck={slideDeckData}
-              isEditable={isEditing}
               onSave={(updatedDeck) => {
                 // Convert the updated deck back to the format expected by handleTextChange
                 if (handleTextChange) {
