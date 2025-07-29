@@ -777,7 +777,10 @@ export const uk = {
       quizContentPlaceholder: "Контент тесту з'явиться тут...",
       creatingQuiz: "Створення тесту...",
       finalizingQuiz: "Завершення тесту...",
-      words: "слів"
+      words: "слів",
+      short: "Короткий",
+      medium: "Середній",
+      long: "Довгий"
     },
 
 

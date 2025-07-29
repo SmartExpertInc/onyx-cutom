@@ -784,7 +784,10 @@ export const es = {
       quizContentPlaceholder: "El contenido del cuestionario aparecerá aquí...",
       creatingQuiz: "Creando cuestionario...",
       finalizingQuiz: "Finalizando cuestionario...",
-      words: "palabras"
+      words: "palabras",
+      short: "Corto",
+      medium: "Medio",
+      long: "Largo"
     },
 
 

@@ -773,7 +773,10 @@ export const ru = {
       quizContentPlaceholder: "Контент теста появится здесь...",
       creatingQuiz: "Создание теста...",
       finalizingQuiz: "Завершение теста...",
-      words: "слов"
+      words: "слов",
+      short: "Короткий",
+      medium: "Средний",
+      long: "Длинный"
     },
 
 

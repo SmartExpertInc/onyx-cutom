@@ -532,6 +532,7 @@ export const en = {
       perModule: "per module",
       // One-pager dropdown options
       short: "Short",
+      medium: "Medium",
       long: "Long",
       selectStyles: "Select styles",
       stylesSelected: "styles selected",
