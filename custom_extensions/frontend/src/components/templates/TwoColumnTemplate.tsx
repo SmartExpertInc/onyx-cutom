@@ -87,7 +87,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           <h2
             style={{
               fontFamily: currentTheme.fonts.titleFont,
-              fontSize: '1.3rem',
+              fontSize: '27px',
               color: currentTheme.colors.titleColor,
               margin: '16px 0 16px 0',
               alignSelf: 'flex-start'
@@ -102,7 +102,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               fontSize: currentTheme.fonts.contentSize,
               color: currentTheme.colors.contentColor,
               margin: 0,
-              alignSelf: 'flex-start'
+              alignSelf: 'flex-start',
+              lineHeight: 1.6
             }}
           >
             {leftContent}
@@ -126,10 +127,10 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
           <h2
             style={{
               fontFamily: currentTheme.fonts.titleFont,
-              fontSize: '1.3rem',
+              fontSize: '27px',
               color: currentTheme.colors.titleColor,
               margin: '16px 0 8px 0',
-              alignSelf: 'flex-start'
+              alignSelf: 'flex-start',
             }}
           >
             {rightTitle}
@@ -141,7 +142,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & { theme?: SlideTheme }
               fontSize: currentTheme.fonts.contentSize,
               color: currentTheme.colors.contentColor,
               margin: 0,
-              alignSelf: 'flex-start'
+              alignSelf: 'flex-start',
+              lineHeight: 1.6
             }}
           >
             {rightContent}

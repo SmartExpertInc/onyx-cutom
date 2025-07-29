@@ -9,7 +9,6 @@ import { BigImageLeftTemplate } from './BigImageLeftTemplate';
 import { BulletPointsTemplate } from './BulletPointsTemplate';
 import { BulletPointsRightTemplate } from './BulletPointsRightTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
-import { ComparisonSlideTemplate } from './ComparisonSlideTemplate';
 import { ProcessStepsTemplate } from './ProcessStepsTemplate';
 import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
 import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
@@ -394,83 +393,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'comparison-slide': {
-    id: 'comparison-slide',
-    name: 'Comparison',
-    description: 'Before/after or side-by-side comparison layout',
-    category: 'layout',
-    icon: '⚖️',
-    component: ComparisonSlideTemplate,
-    defaultProps: {
-      title: 'Comparison Analysis',
-      beforeTitle: 'Before',
-      beforeContent: 'Current situation or old approach',
-      afterTitle: 'After',
-      afterContent: 'Improved situation or new approach',
-      beforeImage: '',
-      afterImage: '',
-      backgroundColor: '#3b82f6',
-      titleColor: '#1a1a1a',
-      contentColor: '#333333'
-    },
-    propSchema: {
-      title: {
-        type: 'text',
-        label: 'Main Title',
-        required: true,
-        maxLength: 100
-      },
-      beforeTitle: {
-        type: 'text',
-        label: 'Before Title',
-        required: true,
-        maxLength: 50
-      },
-      beforeContent: {
-        type: 'richtext',
-        label: 'Before Content',
-        required: true,
-        maxLength: 800
-      },
-      afterTitle: {
-        type: 'text',
-        label: 'After Title',
-        required: true,
-        maxLength: 50
-      },
-      afterContent: {
-        type: 'richtext',
-        label: 'After Content',
-        required: true,
-        maxLength: 800
-      },
-      beforeImage: {
-        type: 'image',
-        label: 'Before Image',
-        description: 'Optional image for before state'
-      },
-      afterImage: {
-        type: 'image',
-        label: 'After Image',
-        description: 'Optional image for after state'
-      },
-      backgroundColor: {
-        type: 'color',
-        label: 'Background Color',
-        default: '#ffffff'
-      },
-      titleColor: {
-        type: 'color',
-        label: 'Title Color',
-        default: '#1a1a1a'
-      },
-      contentColor: {
-        type: 'color',
-        label: 'Content Color',
-        default: '#333333'
-      }
-    }
-  },
+  
 
   'process-steps': {
     id: 'process-steps',

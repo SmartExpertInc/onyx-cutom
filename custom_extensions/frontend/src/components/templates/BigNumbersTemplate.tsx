@@ -29,7 +29,6 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     backgroundColor: backgroundColor,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
     padding: '64px',
     fontFamily: currentTheme.fonts.contentFont,

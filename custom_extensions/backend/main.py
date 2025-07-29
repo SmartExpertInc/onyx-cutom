@@ -10727,26 +10727,50 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            **CRITICAL: Generate Component-Based Slides with templateId and props**
-            You must convert slides to the new component-based format using templateId and props instead of the legacy contentBlocks format.
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON. Parse all slides provided without filtering or removing any content. Maintain original language and slide count.
+
+            **CRITICAL: Parse Component-Based Slides with templateId and props**
+            You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
-            2.  `slides` (array): Ordered list of slide objects in COMPONENT-BASED format.
+                - Look for patterns like "**Course Name** : **Lesson Presentation** : **Title**" or similar
+                - Extract ONLY the title part (the last part after the last "**")
+                - If no clear pattern is found, use the first meaningful title or heading
+            2.  `slides` (array): Ordered list of ALL slide objects in COMPONENT-BASED format.
             3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
             4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
             5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
 
+            **SLIDE PARSING RULES - PARSE ALL SLIDES:**
+            - Parse every slide section marked by "---" or slide separators in the input text
+            - If input contains 15 slides, output exactly 15 slides in JSON
+            - Do NOT filter or skip slides based on their titles or content
+            - Do NOT remove slides with titles like "Questions", "Thank You", "Further Reading", etc.
+            - Your job is to PARSE, not to validate or filter content
+
             **Component-Based Slide Object (`slides` array items):**
-            * `slideId` (string): Unique identifier like "slide_1_intro", "slide_2_concepts".
-            * `slideNumber` (integer): Sequential slide number (1, 2, 3, ...).
-            * `slideTitle` (string): Descriptive title for the slide.
-            * `templateId` (string): Component template ID (e.g., "hero-title-slide", "content-slide", "process-steps").
-            * `props` (object): Template-specific properties containing the actual content.
+            * `slideId` (string): Generate unique identifier like "slide_1_intro", "slide_2_concepts" based on slide number and title.
+            * `slideNumber` (integer): Sequential slide number from input (1, 2, 3, ...).
+            * `slideTitle` (string): Extract descriptive title exactly as provided in the input.
+            * `templateId` (string): Assign appropriate template based on content structure (see template guidelines below).
+            * `props` (object): Template-specific properties containing the actual content from the slide.
+
+            **Template Assignment Guidelines:**
+            Assign templateId based on the content structure of each slide:
+            - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
+            - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
+            - If slide has two distinct sections → use "two-column" or "comparison-slide"
+            - If slide has numbered steps → use "process-steps"
+            - If slide has 4 distinct points → use "four-box-grid"
+            - If slide has metrics/statistics → use "big-numbers"
+            - If slide has hierarchical content → use "pyramid"
+            - If slide has timeline content → use "timeline"
+            - For standard content → use "content-slide"
 
             **Available Template IDs and their Props (must match exactly):**
 
-            1. **`hero-title-slide`** - Hero opening slides with detailed overview:
+            1. **`hero-title-slide`** - Hero opening slides:
             ```json
             "props": {
               "title": "Main slide title",
@@ -10759,7 +10783,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            2. **`title-slide`** - Simple title slides with title/subtitle/author:
+            2. **`title-slide`** - Simple title slides:
             ```json
             "props": {
               "title": "Presentation Title",
@@ -10769,42 +10793,46 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            3. **`content-slide`** - Standard content slides with title and body text:
+            3. **`content-slide`** - Standard content slides:
             ```json
             "props": {
               "title": "Slide title",
-              "content": "Main content with bullet points:\n\n• Point 1\n• Point 2\n• Point 3",
+              "content": "Main content with bullet points:\\n\\n• Point 1\\n• Point 2\\n• Point 3",
               "alignment": "left"
             }
             ```
 
-            4. **`bullet-points`** - Formatted bullet point lists with customizable columns and image placeholder:
+            4. **`bullet-points`** - Formatted bullet point lists:
             ```json
             "props": {
               "title": "Key Points",
               "bullets": [
-                "First important point",
-                "Second key insight",
-                "Third critical element"
+                "First important point with detailed explanation",
+                "Second key insight with comprehensive analysis",
+                "Third critical element with thorough examination",
+                "Fourth essential consideration with strategic importance",
+                "Fifth valuable perspective with actionable recommendations",
+                "Sixth valuable perspective with actionable recommendations",
+                "Seventh valuable perspective with actionable recommendations"
               ],
               "maxColumns": 2,
               "bulletStyle": "dot",
-              "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
+              "imagePrompt": "A relevant illustration for the bullet points",
               "imageAlt": "Illustration for bullet points"
             }
             ```
 
-            5. **`two-column`** - Split layout with two content areas:
+            5. **`two-column`** - Split layout:
             ```json
             "props": {
                 "title": "Two Column Layout",
                 "leftTitle": "Left Column",
-                "leftContent": "Content for the left side",
+                "leftContent": "Content for the left side with detailed explanations",
                 "leftImageUrl": "https://via.placeholder.com/320x200?text=Left+Image",
                 "leftImageAlt": "Description of left image",
                 "leftImagePrompt": "Prompt for left image",
                 "rightTitle": "Right Column",
-                "rightContent": "Content for the right side",
+                "rightContent": "Content for the right side with detailed information",
                 "rightImageUrl": "https://via.placeholder.com/320x200?text=Right+Image",
                 "rightImageAlt": "Description of right image",
                 "rightImagePrompt": "Prompt for right image",
@@ -10812,69 +10840,80 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            6. **`process-steps`** - Numbered process or workflow steps:
+            6. **`process-steps`** - Numbered process steps:
             ```json
             "props": {
               "title": "Process Steps",
               "steps": [
-                "Step 1 description",
-                "Step 2 description", 
-                "Step 3 description"
+                "Step 1 with detailed description explaining what to do",
+                "Step 2 with comprehensive explanation covering the process",
+                "Step 3 with thorough description of the methodology",
+                "Step 4 with in-depth explanation covering the final phase"
               ],
               "layout": "horizontal"
             }
             ```
 
-            7. **`comparison-slide`** - Before/after or side-by-side comparison layout:
+            7. **`comparison-slide`** - Before/after comparison:
             ```json
             "props": {
               "title": "Comparison Analysis",
               "beforeTitle": "Before",
-              "beforeContent": "- Key characteristic 1 of old/current state\n- Key characteristic 2 of old/current state\n- Key characteristic 3 of old/current state",
-              "afterTitle": "After", 
-              "afterContent": "- Key characteristic 1 of new/improved state\n- Key characteristic 2 of new/improved state\n- Key characteristic 3 of new/improved state"
+              "beforeContent": "- Key characteristic 1 of old/current state\\n- Key characteristic 2 of old/current state\\n- Key characteristic 3 of old/current state",
+              "afterTitle": "After",
+              "afterContent": "- Key characteristic 1 of new/improved state\\n- Key characteristic 2 of new/improved state\\n- Key characteristic 3 of new/improved state"
             }
             ```
 
-            8. **`challenges-solutions`** - Problems vs solutions with visual indicators:
+            8. **`challenges-solutions`** - Problems vs solutions:
             ```json
             "props": {
               "title": "Challenges and Solutions",
               "challengesTitle": "Challenges",
               "solutionsTitle": "Solutions",
-              "challenges": ["Challenge 1", "Challenge 2"],
-              "solutions": ["Solution 1", "Solution 2"]
+              "challenges": [
+                "Challenge 1 with detailed explanation of the problem",
+                "Challenge 2 with comprehensive analysis of the issue"
+              ],
+              "solutions": [
+                "Solution 1 with detailed approach and implementation strategy",
+                "Solution 2 with comprehensive methodology and practical steps"
+              ]
             }
             ```
 
-            9. **`big-image-left`** - Large image on left with content on right:
+            9. **`big-image-left`** - Large image on left:
             ```json
             "props": {
               "title": "Slide Title",
               "subtitle": "Subtitle or detailed description for the slide",
               "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
               "imageAlt": "Descriptive alt text",
-              "imagePrompt": "A high-quality illustration that visually represents the slide title and subtitle, e.g. 'Street art in a public space, colorful mural, urban environment'",
+              "imagePrompt": "A high-quality illustration that visually represents the slide title",
               "imageSize": "large"
             }
             ```
-            10. **`bullet-points-right`** - Title, subtitle, bullet points (left), placeholder (right):
-           ```json
-           "props": {
+
+            10. **`bullet-points-right`** - Title, subtitle, bullet points with image:
+            ```json
+            "props": {
               "title": "Key Points",
               "subtitle": "Short intro or context before the list",
               "bullets": [
                 "First important point",
                 "Second key insight",
-                "Third critical element"
+                "Third critical element",
+                "Fourth essential consideration",
+                "Fifth valuable perspective"
               ],
               "maxColumns": 1,
               "bulletStyle": "dot",
-              "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
+              "imagePrompt": "A relevant illustration for the bullet points",
               "imageAlt": "Illustration for bullet points"
             }
             ```
-             11. **`big-image-top`** - Large image on top, title and content below:
+
+            11. **`big-image-top`** - Large image on top:
             ```json
             "props": {
               "title": "Main Title",
@@ -10884,196 +10923,77 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imagePrompt": "A high-quality illustration for the topic",
               "imageSize": "large"
             }
-            ``` 
-              12. **`four-box-grid`** - Title and 4 boxes in a 2x2 grid:
+            ```
+
+            12. **`four-box-grid`** - Title and 4 boxes in 2x2 grid:
             ```json
             "props": {
               "title": "Main Title",
               "boxes": [
-                { "heading": "Box 1", "text": "Description for box 1." },
-                { "heading": "Box 2", "text": "Description for box 2." },
-                { "heading": "Box 3", "text": "Description for box 3." },
-                { "heading": "Box 4", "text": "Description for box 4." }
+                { "heading": "Box 1", "text": "Detailed description with comprehensive explanations" },
+                { "heading": "Box 2", "text": "Comprehensive explanation covering detailed insights" },
+                { "heading": "Box 3", "text": "Thorough description spanning multiple sentences" },
+                { "heading": "Box 4", "text": "In-depth explanation with actionable insights" }
               ]
             }
-            ``` 
-            13. **`timeline`** - Horizontal timeline with 4 steps and alternating text blocks:
+            ```
+
+            13. **`timeline`** - Horizontal timeline with 4 steps:
             ```json
             "props": {
               "title": "History and Evolution",
               "steps": [
-                { "heading": "Hip-Hop Influence", "description": "Deeply intertwined with hip-hop culture, early street art was a raw, authentic voice of the streets." },
-                { "heading": "1960s NYC Graffiti", "description": "Street art's roots trace back to graffiti tagging in New York City, an underground movement defining urban identity." },
-                { "heading": "Transition to Commissioned Works", "description": "From illicit markings to celebrated public art, its evolution saw a shift towards acceptance and commissioned projects." },
-                { "heading": "Pioneers Emerge", "description": "Artists like Basquiat, Haring, and Banksy transformed the landscape, bringing street art into mainstream consciousness." }
+                { "heading": "Step 1", "description": "Detailed description of the first phase" },
+                { "heading": "Step 2", "description": "Comprehensive explanation of the second phase" },
+                { "heading": "Step 3", "description": "Thorough description of the third phase" },
+                { "heading": "Step 4", "description": "In-depth explanation of the final phase" }
               ]
             }
-            ``` 
-          
-            14. **`big-numbers`** - Three-column layout for highlighting key metrics/statistics:
+            ```
+
+            14. **`big-numbers`** - Three-column layout for metrics:
             ```json
             "props": {
-              "title": "Key Metrics of Effective System Architecture",
+              "title": "Key Metrics",
               "items": [
-                { "value": "25%", "label": "Reduced Costs", "description": "Efficient architecture can decrease development and maintenance expenses by up to 25%." },
-                { "value": "3x", "label": "Faster Time-to-Market", "description": "Well-defined architectures accelerate feature deployment, bringing products to market 3 times faster." },
-                { "value": "50%", "label": "Improved Stability", "description": "Robust designs lead to a 50% reduction in critical system outages and performance issues." }
+                { "value": "25%", "label": "Performance Improvement", "description": "System performance improved by 25% after optimization" },
+                { "value": "3x", "label": "Speed Increase", "description": "Processing speed increased 3 times faster than before" },
+                { "value": "50%", "label": "Cost Reduction", "description": "Operating costs reduced by 50% through efficient design" }
               ]
             }
-            ``` 
-            
-            15. **`pyramid`** - Pyramid diagram with 3 levels and descriptions:
+            ```
+
+            15. **`pyramid`** - Pyramid diagram with 3 levels:
             ```json
             "props": {
-              "title": "Key Metrics of Effective System Architecture",
-              "subtitle": "Effective system architecture is measured by how well it delivers on key objectives, balancing user needs, operational demands, and technical robustness.",
+              "title": "Hierarchical Structure",
+              "subtitle": "Explanation of the hierarchical relationship between elements",
               "items": [
-                { "heading": "User Satisfaction", "description": "Achieving user delight" },
-                { "heading": "Operational Efficiency", "description": "Optimizing resources" },
-                { "heading": "System Reliability", "description": "Ensuring stability" }
+                { "heading": "Top Level", "description": "Description of the highest level" },
+                { "heading": "Middle Level", "description": "Description of the intermediate level" },
+                { "heading": "Base Level", "description": "Description of the foundational level" }
               ]
             }
-            ``` 
-            - Use this template to show hierarchical relationships or foundational concepts.
-            - Each level should have a heading and description.
-            - Example use cases: "Maslow's Hierarchy of Needs", "System Architecture Levels", "Customer Satisfaction Pyramid".
-            
-
-
-            **Enhanced Slide Parsing Rules:**
-            * Each slide should be separated by `---` in the input markdown
-            * Extract slide titles from `**Slide N: Title**` format, which may include template specification like `` `hero-title-slide` ``
-            * Parse template specification: Look for backtick-enclosed template names (e.g., `` `content-slide` ``) in slide titles
-            * Convert slide content to appropriate template props based on the template type
-            * Generate appropriate `slideId` values based on slide number and title
-            * Preserve all formatting and original language in props
-
-            **Content to Props Conversion:**
-            - Headlines → `title` prop
-            - Paragraphs and lists → `content` prop (formatted as markdown text)
-            - Multiple sections → use appropriate template (two-column, process-steps, etc.)
-            - Always include `backgroundColor` prop (default: "#ffffff")
-
-            - First slide: Use `big-image-left` for introduction by default (strong visual). Use `hero-title-slide` only if a text-focused intro is required.
-            - Content with steps/process: Use `process-steps`
-            - Content with bullet points: Use `bullet-points`
-            - Content with two sections: Use `two-column`
-            - Visual-focused content: Use `big-image-left` when image is central to understanding
-            - Problem-solution content: Use `challenges-solutions`
-            - Default: Use `content-slide`
-
-            **Special Instructions for `big-image-left`:**
-            - Always include meaningful `imagePrompt` for AI image generation that describes both the title and subtitle
-            - Use when the visual element is essential to understanding the content
-            - Suitable for: case studies, examples, demonstrations, visual concepts
-            - `imagePrompt` should be descriptive and specific (e.g., "Street art in a public space, colorful mural, urban environment")
-
-             **Special Instructions for `bullet-points`:**
-            - Always include a meaningful `imagePrompt` for AI image generation that describes the overall topic of the bullet points
-            - `imageAlt` should be a short description of the illustration
-            - The image should visually represent the bullet points as a group (not individual bullets)
-            - Generate 4-6 bullet points per slide for comprehensive coverage
-            - Each bullet point should be informative and actionable
-
-            **Special Instructions for `big-image-top`:**
-            - Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
-            - The image should be relevant and engaging, setting the context for the slide.
-            - Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
-            - Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
-
-            **Special Instructions for `four-box-grid`:**
-            - Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
-            - **CRITICAL PARSING:** When parsing markdown for four-box-grid, look for lines in format "Box N: [Heading] - [Description]" and convert them to the boxes array format: [{"heading": "[Heading]", "text": "[Description]"}].
-            - Do NOT use the standard content parsing for four-box-grid. Always extract boxes from the "Box N:" format.
-            - Each box should have a short heading and a concise description.
-            - Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
-            - Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
-            
-            **Special Instructions for `timeline`:**
-            - Use this template for slides that need to show a process, history, or evolution in 4 key steps.
-            - Each step should have a short heading and a concise description.
-            - The timeline line and numbers are rendered automatically; just provide the steps array.
-            - Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
-
-            **Special Instructions for `big-numbers`:**
-            - Use this template to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions.
-            - Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
-            - Example use cases: "Key Metrics of Effective System Architecture", "Business Impact", "Performance Benchmarks".
-            - **CRITICAL PARSING:** When parsing markdown for big-numbers, look for markdown table format like:
-              ```
-              | 25% | 3x | 50% |
-              |:----:|:---:|:---:|
-              | **Increased Revenue** | **Faster Customer Acquisition** | **Higher Market Share** |
-              | Our revenue has increased by 25% this year. | We have tripled our customer acquisition rate. | Our market share has grown by 50% in the last quarter. |
-              ```
-              Convert this to the items array format: [{"value": "25%", "label": "Increased Revenue", "description": "Our revenue has increased by 25% this year."}].
-            - **CRITICAL VALUE VALIDATION:** The `value` field MUST contain ONLY numerical data (percentages like 25%, multipliers like 3x, ratios like 2:1, whole numbers like 95, decimals like 4.2, etc.). NEVER extract text, names, or tool names for the value field.
-            - **CORRECT value examples:** "25%", "3x", "95%", "4.2", "1000+", "2:1", "50ms", "99.9%"
-            - **INCORRECT value examples:** "Gprof", "Valgrind", "Python", "React", "Advanced", "Basic"
-            - Do NOT use the standard content parsing for big-numbers. Always extract items from the table format.
-            - First row contains numerical values only, second row contains labels (remove ** formatting), third row contains descriptions.
-            
-            **Additional Valid Examples for big-numbers parsing:**
-            ```
-            | 99.9% | 15ms | 50% |
-            |:----:|:---:|:---:|
-            | **System Uptime** | **Response Time** | **Cost Reduction** |
-            | System maintains 99.9% availability. | Average response time is 15ms. | Costs reduced by 50%. |
-            ```
-            
-            ```
-            | 10x | 95% | 24/7 |
-            |:----:|:---:|:---:|
-            | **Performance Boost** | **Accuracy Rate** | **Availability** |
-            | Performance improved 10 times. | Model achieves 95% accuracy. | Available 24/7. |
             ```
 
-            **Special Instructions for `pyramid`:**
-            - Use this template to show hierarchical relationships or foundational concepts with exactly 3 levels.
-            - Each level should have a heading and description.
-            - **CRITICAL PARSING:** When parsing markdown for pyramid, look for numbered list format like:
-              ```
-              1. **User Satisfaction** - Achieving user delight
-              2. **Operational Efficiency** - Optimizing resources
-              3. **System Reliability** - Ensuring stability
-              ```
-              Convert this to the items array format: [{"heading": "User Satisfaction", "description": "Achieving user delight"}].
-            - Do NOT use the standard content parsing for pyramid. Always extract items from the numbered list format.
-            - The text before the dash is the heading (remove ** formatting), the text after is the description.
-            - The first paragraph after the title becomes the subtitle.
+            **Content Parsing Instructions:**
+            - Extract slide titles from headings or "**Slide N: Title**" format
+            - Parse slide content and map to appropriate template props
+            - For bullet-points: extract list items into "bullets" array
+            - For two-column: split content into left and right sections
+            - For process-steps: extract numbered or sequential items into "steps" array
+            - For four-box-grid: parse "Box N:" format into "boxes" array
+            - For big-numbers: parse table format into "items" array with value/label/description
+            - For timeline: parse chronological content into "steps" array
+            - For pyramid: parse hierarchical content into "items" array
 
-            **CRITICAL FINAL SLIDE RESTRICTIONS:**
-            - **ABSOLUTELY NO Q&A SLIDES**: Never generate slides with titles like "Questions and Discussion", "Q&A Session", "Questions and Answers", "Let's discuss", "Any questions?", or similar interactive content.
-            - **NO THANK YOU SLIDES**: Never generate "Thank You!", "Thanks!", "Thank you for your attention" or similar courtesy slides.
-            - **NO FEEDBACK SLIDES**: Never generate "Feedback and Improvement", "Your feedback", "Please share your thoughts" or similar slides.
-            - **EXACTLY ONE FINAL SLIDE MAXIMUM**: The presentation MUST end with only ONE slide. NEVER create sequences like: "Conclusion" → "Questions" → "Feedback" → "Thank You".
-            - **TEMPLATE REPETITION LIMIT**: NEVER use the same template more than 2 times per presentation. If you've used title-slide twice already, use a different template for the conclusion.
-            - **END WITH MEANINGFUL CONTENT**: The single final slide must contain substantial summary, key takeaways, or actionable insights.
-
-            **TEMPLATE USAGE VALIDATION BEFORE EACH SLIDE:**
-            Before creating any slide, count existing template usage:
-            - If creating slide with templateId "title-slide", check: have I already used "title-slide" 2 times? If YES, use different template.
-            - If creating slide with templateId "content-slide", check: have I already used "content-slide" 2 times? If YES, use different template.
-            - Same rule applies to ALL templates - maximum 2 uses per presentation.
-
-            **SLIDE COUNT REQUIREMENTS:**
-            - Generate EXACTLY the number of slides specified in the request (e.g., if 15 slides requested, create exactly 15 slides)
-            - Never generate fewer slides than requested - create meaningful educational content to reach target count
-            - Distribute content evenly across all requested slides with substantial information
-
-            **ADDITIONAL FORBIDDEN SLIDE TYPES:**
-            - NEVER create "Further Reading", "Additional Resources", "Recommended Reading", "Learn More" slides
-            - Integrate any additional resources into relevant content slides instead
-            
-            **ENHANCED CONTENT GUIDELINES:**
-            - For bullet-points templates: Use 4-6 bullet points per slide for comprehensive coverage
-            - For comparison-slide templates: Use bullet points with dashes for proper line formatting
-            - Each bullet point should be informative and actionable
-
-            **ENDING VALIDATION RULES:**
-            - If slide title contains: "Conclusion", "Summary", "Key Takeaways", "Wrap-up" - this MUST be the FINAL slide
-            - NEVER add slides after a conclusion slide
-            - NEVER create "Questions", "Discussion", "Feedback", "Thank You" slides after or before conclusion
+            **Critical Parsing Rules:**
+            - Parse ALL slides provided in the input text - do not skip any
+            - Maintain the exact number of slides from input to output
+            - Assign appropriate templateId based on content structure, not validation rules
+            - Preserve all content exactly as provided in the input
+            - Generate sequential slideNumber values (1, 2, 3, ...)
+            - Create descriptive slideId values based on number and title
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
