@@ -61,7 +61,7 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<BaseTemplateProps & Record<string, unknown>>;
+  component: React.ComponentType<any>; // Allow any component type for flexibility
   defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }

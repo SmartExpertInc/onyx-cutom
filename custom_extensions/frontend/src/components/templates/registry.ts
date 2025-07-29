@@ -850,7 +850,7 @@ export function getTemplateCategories(): string[] {
   return Array.from(categories);
 }
 
-export function validateTemplateProps(templateId: string, props: any): { valid: boolean; errors: string[] } {
+export function validateTemplateProps(templateId: string, props: Record<string, unknown>): { valid: boolean; errors: string[] } {
   const template = getTemplate(templateId);
   if (!template) {
     return { valid: false, errors: [`Template ${templateId} not found`] };
