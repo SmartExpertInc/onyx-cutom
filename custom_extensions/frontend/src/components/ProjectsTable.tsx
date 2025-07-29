@@ -1952,6 +1952,9 @@ const FolderRowMenu: React.FC<{
     const [menuPosition, setMenuPosition] = React.useState<'above' | 'below'>('below');
     const [showSettingsModal, setShowSettingsModal] = React.useState(false);
     const [isExporting, setIsExporting] = React.useState(false);
+    const [renameModalOpen, setRenameModalOpen] = React.useState(false);
+    const [isRenaming, setIsRenaming] = React.useState(false);
+    const [newName, setNewName] = React.useState(folder.name);
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     
@@ -2060,6 +2063,55 @@ const FolderRowMenu: React.FC<{
         }
     };
 
+    const handleRenameClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+        setRenameModalOpen(true);
+    };
+
+    const handleRename = async () => {
+        if (!newName.trim() || newName.trim() === folder.name) {
+            setRenameModalOpen(false);
+            return;
+        }
+
+        setIsRenaming(true);
+        try {
+            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const devUserId = "dummy-onyx-user-id-for-testing";
+            if (devUserId && process.env.NODE_ENV === 'development') {
+                headers['X-Dev-Onyx-User-ID'] = devUserId;
+            }
+
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/${folder.id}`, {
+                method: 'PATCH',
+                headers,
+                credentials: 'same-origin',
+                body: JSON.stringify({ name: newName.trim() })
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    redirectToMainAuth('/auth/login');
+                    return;
+                }
+                throw new Error(`Failed to rename folder: ${response.status}`);
+            }
+
+            setRenameModalOpen(false);
+            // Refresh the page to update the view
+            window.location.reload();
+        } catch (error) {
+            console.error('Error renaming folder:', error);
+            alert('Failed to rename folder');
+        } finally {
+            setIsRenaming(false);
+        }
+    };
+
     return (
         <>
             <div ref={menuRef} className="inline-block">
@@ -2097,7 +2149,10 @@ const FolderRowMenu: React.FC<{
                                 <Share2 size={16} className="text-gray-500" />
                                 <span>Share</span>
                             </button>
-                            <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                            <button 
+                                onClick={handleRenameClick}
+                                className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
                                 <PenLine size={16} className="text-gray-500" />
                                 <span>Rename</span>
                             </button>
@@ -2145,6 +2200,51 @@ const FolderRowMenu: React.FC<{
                 isOpen={isExporting}
                 folderName={folder.name}
             />
+
+            {/* Rename Modal */}
+            {renameModalOpen && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename Folder</h4>
+
+                        <div className="mb-6">
+                            <label htmlFor="newFolderName" className="block text-sm font-medium text-gray-700 mb-1">New Name:</label>
+                            <input
+                                id="newFolderName"
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !isRenaming && newName.trim() && newName.trim() !== folder.name) {
+                                        handleRename();
+                                    }
+                                    if (e.key === 'Escape') {
+                                        setRenameModalOpen(false);
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
+                                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                                disabled={isRenaming}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleRename}
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                                disabled={isRenaming || !newName.trim() || newName.trim() === folder.name}
+                            >
+                                {isRenaming ? 'Saving...' : 'Rename'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
