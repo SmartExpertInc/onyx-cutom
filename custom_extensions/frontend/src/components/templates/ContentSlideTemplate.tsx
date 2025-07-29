@@ -93,27 +93,21 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   onAutoSave,
   theme
 }) => {
-  // State for inline editing (копіюємо з TrainingPlanTable)
-  const [editingField, setEditingField] = useState<string | null>(null);
-  
   // Локальний стан для редагування
-  const [editingTitle, setEditingTitle] = useState(title);
-  const [editingContent, setEditingContent] = useState(content);
-  
-  // Прапорець для контролю синхронізації
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
 
-  // Синхронізуємо локальний стан з пропсами (тільки коли не редагуємо)
-  useEffect(() => {
-    console.log('🔄 useEffect triggered:', { isEditing, title, content });
-    if (!isEditing) {
-      console.log('🔄 Syncing local state with props:', { title, content });
-      setEditingTitle(title);
-      setEditingContent(content);
-    } else {
-      console.log('🔄 Skipping sync - currently editing');
+  // Helper functions
+  const startEditing = (fieldPath: string) => {
+    console.log('🔄 startEditing called:', { fieldPath, isEditable, title, content });
+    
+    if (isEditable) {
+      setEditingField(fieldPath);
     }
-  }, [title, content, isEditing]);
+  };
+
+  const stopEditing = () => {
+    setEditingField(null);
+  };
 
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -160,36 +154,13 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
   };
 
-  // Helper functions (копіюємо з TrainingPlanTable)
-  const startEditing = (fieldPath: string) => {
-    console.log('🔄 startEditing called:', { fieldPath, isEditable, title, content });
-    
-    if (isEditable) {
-      setEditingField(fieldPath);
-      setIsEditing(true);
-      // Синхронізуємо локальний стан з поточними пропсами
-      if (fieldPath === 'title') {
-        setEditingTitle(title);
-        console.log('🔄 Set editingTitle to:', title);
-      } else if (fieldPath === 'content') {
-        setEditingContent(content);
-        console.log('🔄 Set editingContent to:', content);
-      }
-    }
-  };
-
-  const stopEditing = () => {
-    setEditingField(null);
-    setIsEditing(false);
-  };
-
   // Handle input changes (копіюємо з TrainingPlanTable)
   const handleInputChange = (fieldPath: string, value: string) => {
     // Оновлюємо локальний стан для плавного введення
     if (fieldPath === 'title') {
-      setEditingTitle(value);
+      // setEditingTitle(value); // Removed as per new_code
     } else if (fieldPath === 'content') {
-      setEditingContent(value);
+      // setEditingContent(value); // Removed as per new_code
     }
   };
 
@@ -197,15 +168,15 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const handleInputBlur = () => {
     console.log('🔄 handleInputBlur called:', {
       editingField,
-      editingTitle,
-      editingContent,
+      // editingTitle, // Removed as per new_code
+      // editingContent, // Removed as per new_code
       originalTitle: title,
       originalContent: content
     });
     
     // Викликаємо onTextChange з поточним значенням локального стану
     if (onTextChange && editingField) {
-      const currentValue = editingField === 'title' ? editingTitle : editingContent;
+      const currentValue = editingField === 'title' ? title : content; // Changed to use original title/content
       console.log('🔄 Calling onTextChange with:', { slideId, editingField, currentValue });
       onTextChange(slideId, editingField, currentValue);
     }
@@ -226,7 +197,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       
       // Викликаємо onTextChange з поточним значенням локального стану
       if (onTextChange && editingField) {
-        const currentValue = editingField === 'title' ? editingTitle : editingContent;
+        const currentValue = editingField === 'title' ? title : content; // Changed to use original title/content
         onTextChange(slideId, editingField, currentValue);
       }
       
@@ -239,8 +210,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       // Скасовуємо зміни, повертаємо оригінальні значення
-      setEditingTitle(title);
-      setEditingContent(content);
+      // setEditingTitle(title); // Removed as per new_code
+      // setEditingContent(content); // Removed as per new_code
       stopEditing();
     }
   };
@@ -275,7 +246,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       {editingField === 'title' ? (
         <input
           type="text"
-          value={editingTitle}
+          value={title} // Changed to use original title
           onChange={(e) => handleInputChange('title', e.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
@@ -297,14 +268,14 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           className={isEditable ? 'editable-field' : ''}
           title={isEditable ? 'Click to edit title' : ''}
         >
-          {editingTitle}
+          {title} {/* Changed to use original title */}
         </h1>
       )}
 
       {/* Content */}
       {editingField === 'content' ? (
         <textarea
-          value={editingContent}
+          value={content} // Changed to use original content
           onChange={(e) => handleInputChange('content', e.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
@@ -329,7 +300,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           className={isEditable ? 'editable-field' : ''}
           title={isEditable ? 'Click to edit content' : ''}
         >
-          {parseContent(editingContent)}
+          {parseContent(content)} {/* Changed to use original content */}
         </div>
       )}
     </div>
