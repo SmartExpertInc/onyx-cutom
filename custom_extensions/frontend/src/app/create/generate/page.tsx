@@ -125,6 +125,25 @@ function GenerateProductPicker() {
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
   
+  // Check for folder context from sessionStorage (when coming from inside a folder)
+  const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
+  useEffect(() => {
+    try {
+      const storedFolderContext = sessionStorage.getItem('folderContext');
+      if (storedFolderContext) {
+        const context = JSON.parse(storedFolderContext);
+        // Check if data is recent (within 1 hour)
+        if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
+          setFolderContext(context);
+        } else {
+          sessionStorage.removeItem('folderContext');
+        }
+      }
+    } catch (error) {
+      console.error('Error retrieving folder context:', error);
+    }
+  }, []);
+  
   // Retrieve user text from sessionStorage
   const [userText, setUserText] = useState('');
   useEffect(() => {

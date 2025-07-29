@@ -229,6 +229,26 @@ export default function CourseOutlineClient() {
   }, [isFromText, textMode]);
   const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
+  
+  // Check for folder context from sessionStorage (when coming from inside a folder)
+  const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
+  useEffect(() => {
+    try {
+      const storedFolderContext = sessionStorage.getItem('folderContext');
+      if (storedFolderContext) {
+        const context = JSON.parse(storedFolderContext);
+        // Check if data is recent (within 1 hour)
+        if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
+          setFolderContext(context);
+        } else {
+          // Clean up expired data
+          sessionStorage.removeItem('folderContext');
+        }
+      }
+    } catch (error) {
+      console.error('Error retrieving folder context:', error);
+    }
+  }, []);
 
   // Optional pre-created chat session id (speeds up backend). If none present, we lazily
   // call the backend to obtain one and store it both in state and the URL so subsequent
@@ -716,6 +736,11 @@ export default function CourseOutlineClient() {
         finalizeBody.fromText = true;
         finalizeBody.textMode = textMode;
         finalizeBody.userText = userText;
+      }
+
+      // Add folder context if coming from inside a folder
+      if (folderContext?.folderId) {
+        finalizeBody.folderId = folderContext.folderId;
       }
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {

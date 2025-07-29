@@ -3206,7 +3206,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             { !trashMode && (
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
-                    <Link href="/create">
+                    <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
                         <button
                             className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg"
                         >

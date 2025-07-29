@@ -8164,6 +8164,7 @@ class ProjectCreateRequest(BaseModel):
     aiResponse: str
     chatSessionId: Optional[uuid.UUID] = None
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
+    folder_id: Optional[int] = None  # Add folder_id for automatic folder assignment
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -11338,11 +11339,11 @@ Return ONLY the JSON object.
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
     """
 
         async with pool.acquire() as conn:
@@ -11356,7 +11357,8 @@ Return ONLY the JSON object.
                 content_to_store_for_db,
                 project_data.design_template_id,
                 project_data.chatSessionId,
-                is_standalone_product
+                is_standalone_product,
+                project_data.folder_id
             )
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create project entry.")
@@ -12788,6 +12790,8 @@ class OutlineWizardFinalize(BaseModel):
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
     theme: Optional[str] = None  # Selected theme from frontend
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
@@ -13372,11 +13376,11 @@ async def insert_ai_audit_onepager_to_db(
     insert_query = """
     INSERT INTO projects (
         onyx_user_id, project_name, product_type, microproduct_type,
-        microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at
+        microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)
     RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                microproduct_content, design_template_id, source_chat_session_id, created_at;
+                microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id;
     """
     
     async with pool.acquire() as conn:
@@ -13390,6 +13394,7 @@ async def insert_ai_audit_onepager_to_db(
             microproduct_content,  # parsed content from AI parser
             template_id,  # design_template_id (from _ensure_text_presentation_template)
             chat_session_id,  # source_chat_session_id
+            None,  # folder_id - AI audit doesn't support folder assignment yet
         )
     
     if not row:
@@ -13993,6 +13998,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 microProductName=None,
                 aiResponse=raw_outline_cached,
                 chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+                folder_id=int(payload.folderId) if payload.folderId else None,
             )
             onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -14265,6 +14271,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     microProductName=None,
                     aiResponse=assistant_reply,
                     chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+                    folder_id=int(payload.folderId) if payload.folderId else None,
                 )
                 onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -14558,6 +14565,8 @@ class LessonWizardFinalize(BaseModel):
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -14865,7 +14874,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             microProductName=None,
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
-            outlineId=payload.outlineProjectId  # Pass outlineId for consistent naming
+            outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
+            folder_id=int(payload.folderId) if payload.folderId else None  # Add folder assignment
         )
         
         # Create project with proper error handling
@@ -17152,6 +17162,8 @@ class QuizWizardFinalize(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -17755,11 +17767,11 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
         """
         
         async with pool.acquire() as conn:
@@ -17773,7 +17785,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 parsed_quiz.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
-                is_standalone_quiz  # is_standalone
+                is_standalone_quiz,  # is_standalone
+                payload.folderId if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
             )
         
         if not row:
@@ -17992,6 +18005,8 @@ class TextPresentationWizardFinalize(BaseModel):
     courseName: Optional[str] = None
     language: str = "en"
     chatSessionId: Optional[str] = None
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -18572,11 +18587,11 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
         """
         
         async with pool.acquire() as conn:
@@ -18590,7 +18605,8 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
-                is_standalone_text_presentation  # is_standalone - consistent with outline connection
+                is_standalone_text_presentation,  # is_standalone - consistent with outline connection
+                payload.folderId if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
             )
         
         if not row:

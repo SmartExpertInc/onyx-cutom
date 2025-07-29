@@ -105,6 +105,7 @@ function CreatePageHandler() {
     const lessonTitle = searchParams?.get('lessonTitle');
     const moduleName = searchParams?.get('moduleName');
     const lessonNumber = searchParams?.get('lessonNumber');
+    const folderId = searchParams?.get('folderId');
 
     if ((product === 'lesson' || product === 'quiz') && lessonType && lessonTitle && moduleName && lessonNumber) {
       // Store lesson/quiz context in sessionStorage for use across all creation paths
@@ -125,6 +126,22 @@ function CreatePageHandler() {
         sessionStorage.removeItem('lessonContextForDropdowns');
       } catch (error) {
         console.error('Error clearing lesson context:', error);
+      }
+    }
+
+    // Store folder context if present
+    if (folderId) {
+      const folderContext = {
+        folderId: folderId,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('folderContext', JSON.stringify(folderContext));
+    } else {
+      // Clear folder context if not present
+      try {
+        sessionStorage.removeItem('folderContext');
+      } catch (error) {
+        console.error('Error clearing folder context:', error);
       }
     }
   }, [searchParams]);

@@ -168,6 +168,26 @@ export default function LessonPresentationClient() {
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
   const [userText, setUserText] = useState('');
   
+  // Check for folder context from sessionStorage (when coming from inside a folder)
+  const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
+  useEffect(() => {
+    try {
+      const storedFolderContext = sessionStorage.getItem('folderContext');
+      if (storedFolderContext) {
+        const context = JSON.parse(storedFolderContext);
+        // Check if data is recent (within 1 hour)
+        if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
+          setFolderContext(context);
+        } else {
+          // Clean up expired data
+          sessionStorage.removeItem('folderContext');
+        }
+      }
+    } catch (error) {
+      console.error('Error retrieving folder context:', error);
+    }
+  }, []);
+  
   // Retrieve user text from sessionStorage
   useEffect(() => {
     if (isFromText) {
@@ -574,6 +594,7 @@ export default function LessonPresentationClient() {
           aiResponse: content,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
+          folderId: folderContext?.folderId || undefined,
         }),
       });
 

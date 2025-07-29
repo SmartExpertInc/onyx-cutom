@@ -54,6 +54,26 @@ export default function QuizClient() {
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
+  
+  // Check for folder context from sessionStorage (when coming from inside a folder)
+  const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
+  useEffect(() => {
+    try {
+      const storedFolderContext = sessionStorage.getItem('folderContext');
+      if (storedFolderContext) {
+        const context = JSON.parse(storedFolderContext);
+        // Check if data is recent (within 1 hour)
+        if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
+          setFolderContext(context);
+        } else {
+          // Clean up expired data
+          sessionStorage.removeItem('folderContext');
+        }
+      }
+    } catch (error) {
+      console.error('Error retrieving folder context:', error);
+    }
+  }, []);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestInProgressRef = useRef(false);
@@ -453,6 +473,7 @@ export default function QuizClient() {
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,
           questionCount: selectedQuestionCount,
+          folderId: folderContext?.folderId || undefined,
         }),
       });
 
