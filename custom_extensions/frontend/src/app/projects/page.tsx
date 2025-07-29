@@ -4,7 +4,6 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createPortal } from 'react-dom';
 import ProjectsTable from '../../components/ProjectsTable';
 import { 
   Search, 
@@ -22,12 +21,7 @@ import {
   Plus,
   Bell,
   MessageSquare,
-  ChevronRight,
-  MoreHorizontal,
-  PenLine,
-  Settings,
-  Download,
-  Share2
+  ChevronRight
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -228,15 +222,7 @@ const FolderItem: React.FC<{
   folderProjects?: Record<number, any[]>;
   allFolders: Folder[];
 }> = ({ folder, level, selectedFolderId, onFolderSelect, onDragOver, onDrop, onDragEnter, onDragLeave, folderProjects, allFolders }) => {
-  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<'above' | 'below'>('below');
-  const [renameModalOpen, setRenameModalOpen] = useState(false);
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [newName, setNewName] = useState(folder.name);
-  const menuRef = React.useRef<HTMLDivElement>(null);
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
   const hasChildren = folder.children && folder.children.length > 0;
 
   // Check if any modal is open - prevent dragging completely
@@ -258,95 +244,10 @@ const FolderItem: React.FC<{
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleMenuToggle = () => {
-    if (!menuOpen && buttonRef.current) {
-      // Calculate if there's enough space below
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const spaceBelow = viewportHeight - buttonRect.bottom;
-      const menuHeight = 200; // Approximate menu height
-      
-      setMenuPosition(spaceBelow < menuHeight ? 'above' : 'below');
-    }
-    setMenuOpen(prev => {
-      if (!prev && typeof window !== 'undefined') (window as any).__modalOpen = true;
-      if (prev && typeof window !== 'undefined') (window as any).__modalOpen = false;
-      return !prev;
-    });
-  };
-
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        // Check if the click is on the portal modal
-        const target = event.target as Element;
-        if (target.closest('[data-modal-portal]')) {
-          return; // Don't close if clicking inside the modal
-        }
-        setMenuOpen(false);
-        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      if (typeof window !== 'undefined') (window as any).__modalOpen = false;
-    };
-  }, []);
-
-  const handleRenameClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setMenuOpen(false);
-    if (typeof window !== 'undefined') (window as any).__modalOpen = false;
-    setRenameModalOpen(true);
-  };
-
-  const handleRename = async () => {
-    if (!newName.trim()) {
-      setRenameModalOpen(false);
-      return;
-    }
-
-    setIsRenaming(true);
-    try {
-      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      const devUserId = "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === 'development') {
-        headers['X-Dev-Onyx-User-ID'] = devUserId;
-      }
-
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/${folder.id}`, {
-        method: 'PATCH',
-        headers,
-        credentials: 'same-origin',
-        body: JSON.stringify({ name: newName.trim() })
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          redirectToMainAuth('/auth/login');
-          return;
-        }
-        throw new Error(`Failed to rename folder: ${response.status}`);
-      }
-
-      setRenameModalOpen(false);
-      // Refresh the page to update the view
-      window.location.reload();
-    } catch (error) {
-      console.error('Error renaming folder:', error);
-      alert('Failed to rename folder');
-    } finally {
-      setIsRenaming(false);
-    }
-  };
-
   return (
     <div>
       <div
-        className={`group flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${
+        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${
           !isModalOpen ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
         } ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
@@ -411,71 +312,7 @@ const FolderItem: React.FC<{
             <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
-        <span className="font-medium truncate flex-1" style={{ maxWidth: '120px' }} title={folder.name}>{folder.name}</span>
-        <div ref={menuRef} className="inline-block">
-          <button 
-            ref={buttonRef}
-            className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleMenuToggle();
-            }}
-          >
-            <MoreHorizontal size={16} />
-          </button>
-          {menuOpen && createPortal(
-            <div 
-              data-modal-portal="true"
-              className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-                menuPosition === 'above' 
-                  ? 'bottom-auto mb-2' 
-                  : 'top-auto mt-2'
-              }`}
-              style={{
-                left: buttonRef.current ? buttonRef.current.getBoundingClientRect().right - 240 : 0,
-                top: buttonRef.current ? (menuPosition === 'above' 
-                  ? buttonRef.current.getBoundingClientRect().top - 220
-                  : buttonRef.current.getBoundingClientRect().bottom + 8) : 0
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="px-3 py-2 border-b border-gray-100">
-                <p className="font-semibold text-sm text-gray-900 truncate">{folder.name}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {getTotalItemsInFolder(folder, folderProjects)} items
-                </p>
-              </div>
-              <div className="py-1">
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                  <Share2 size={16} className="text-gray-500" />
-                  <span>{t('actions.share', 'Share')}</span>
-                </button>
-                <button 
-                  onClick={handleRenameClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <PenLine size={16} className="text-gray-500" />
-                  <span>{t('actions.rename', 'Rename')}</span>
-                </button>
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                  <Settings size={16} className="text-gray-500" />
-                  <span>{t('actions.settings', 'Settings')}</span>
-                </button>
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
-                  <Download size={16} className="text-gray-500" />
-                  <span>{t('actions.export', 'Export as file')}</span>
-                </button>
-              </div>
-              <div className="py-1 border-t border-gray-100">
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md">
-                  <Trash2 size={14} />
-                  <span>{t('actions.delete', 'Delete')}</span>
-                </button>
-              </div>
-            </div>,
-            document.body
-          )}
-        </div>
+        <span className="font-medium truncate" style={{ maxWidth: '120px' }} title={folder.name}>{folder.name}</span>
       </div>
       {hasChildren && isExpanded && (
         <div>
@@ -494,44 +331,6 @@ const FolderItem: React.FC<{
                 allFolders={allFolders}
               />
             ))}
-        </div>
-      )}
-
-      {/* ---------------- Rename Modal ---------------- */}
-      {renameModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
-          <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-            <h4 className="font-bold text-xl mb-6 text-gray-900">{t('actions.rename', 'Rename')}</h4>
-
-            <div className="mb-8">
-              <label htmlFor="newName" className="block text-sm font-semibold text-gray-700 mb-2">{t('actions.newName', 'New Name:')}</label>
-              <input
-                id="newName"
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-0 text-gray-900 text-base transition-colors"
-                placeholder={t('actions.enterNewName', 'Enter new name')}
-              />
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
-                className="px-6 py-3 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50"
-                disabled={isRenaming}
-              >
-                {t('actions.cancel', 'Cancel')}
-              </button>
-              <button
-                onClick={handleRename}
-                className="px-6 py-3 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                disabled={isRenaming || !newName.trim()}
-              >
-                {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

@@ -1458,30 +1458,29 @@ const ProjectCard: React.FC<{
 
             {/* ---------------- Rename Modal ---------------- */}
             {renameModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
-                    <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-bold text-xl mb-6 text-gray-900">{t('actions.rename', 'Rename')}</h4>
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">{t('actions.rename', 'Rename')}</h4>
 
-                        <div className="mb-8">
-                            <label htmlFor="newName" className="block text-sm font-semibold text-gray-700 mb-2">{t('actions.newName', 'New Name:')}</label>
+                        <div className="mb-6">
+                            <label htmlFor="newName" className="block text-sm font-medium text-gray-700 mb-1">{t('actions.newName', 'New Name:')}</label>
                             <input
                                 id="newName"
                                 type="text"
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
-                                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-0 text-gray-900 text-base transition-colors"
-                                placeholder={t('actions.enterNewName', 'Enter new name')}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                             />
                         </div>
 
-                        <div className="flex justify-end gap-4">
-                            <button
-                                onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
-                                className="px-6 py-3 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50"
-                                disabled={isRenaming}
-                            >
-                                {t('actions.cancel', 'Cancel')}
-                            </button>
+                        <div className="flex justify-end gap-3">
+                                                            <button
+                                    onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
+                                    className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                                    disabled={isRenaming}
+                                >
+                                    {t('actions.cancel', 'Cancel')}
+                                </button>
                             <button
                                 onClick={async () => {
                                     setIsRenaming(true);
@@ -1540,7 +1539,7 @@ const ProjectCard: React.FC<{
                                         setIsRenaming(false);
                                     }
                                 }}
-                                className="px-6 py-3 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
                                 disabled={isRenaming || !newName.trim()}
                             >
                                 {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
@@ -2012,6 +2011,15 @@ const FolderRowMenu: React.FC<{
         setShowSettingsModal(true);
     };
 
+    const handleRenameClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setMenuOpen(false);
+        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
+        setNewName(folder.name);
+        setRenameModalOpen(true);
+    };
+
     const handleExportFolder = async (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -2062,55 +2070,6 @@ const FolderRowMenu: React.FC<{
         } finally {
             // Hide loading modal
             setIsExporting(false);
-        }
-    };
-
-    const handleRenameClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setMenuOpen(false);
-        if (typeof window !== 'undefined') (window as any).__modalOpen = false;
-        setRenameModalOpen(true);
-    };
-
-    const handleRename = async () => {
-        if (!newName.trim()) {
-            setRenameModalOpen(false);
-            return;
-        }
-
-        setIsRenaming(true);
-        try {
-            const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            const devUserId = "dummy-onyx-user-id-for-testing";
-            if (devUserId && process.env.NODE_ENV === 'development') {
-                headers['X-Dev-Onyx-User-ID'] = devUserId;
-            }
-
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/${folder.id}`, {
-                method: 'PATCH',
-                headers,
-                credentials: 'same-origin',
-                body: JSON.stringify({ name: newName.trim() })
-            });
-
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    redirectToMainAuth('/auth/login');
-                    return;
-                }
-                throw new Error(`Failed to rename folder: ${response.status}`);
-            }
-
-            setRenameModalOpen(false);
-            // Refresh the page to update the view
-            window.location.reload();
-        } catch (error) {
-            console.error('Error renaming folder:', error);
-            alert('Failed to rename folder');
-        } finally {
-            setIsRenaming(false);
         }
     };
 
@@ -2205,33 +2164,66 @@ const FolderRowMenu: React.FC<{
 
             {/* ---------------- Rename Modal ---------------- */}
             {renameModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
-                    <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-bold text-xl mb-6 text-gray-900">{t('actions.rename', 'Rename')}</h4>
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40" onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}>
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="font-semibold text-lg mb-4 text-gray-900">{t('actions.rename', 'Rename')}</h4>
 
-                        <div className="mb-8">
-                            <label htmlFor="newName" className="block text-sm font-semibold text-gray-700 mb-2">{t('actions.newName', 'New Name:')}</label>
+                        <div className="mb-6">
+                            <label htmlFor="newFolderName" className="block text-sm font-medium text-gray-700 mb-1">{t('actions.newName', 'New Name:')}</label>
                             <input
-                                id="newName"
+                                id="newFolderName"
                                 type="text"
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
-                                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-0 text-gray-900 text-base transition-colors"
-                                placeholder={t('actions.enterNewName', 'Enter new name')}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                             />
                         </div>
 
-                        <div className="flex justify-end gap-4">
+                        <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => { if (!isRenaming) setRenameModalOpen(false); }}
-                                className="px-6 py-3 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50"
+                                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
                                 disabled={isRenaming}
                             >
                                 {t('actions.cancel', 'Cancel')}
                             </button>
                             <button
-                                onClick={handleRename}
-                                className="px-6 py-3 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                onClick={async () => {
+                                    setIsRenaming(true);
+                                    try {
+                                        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+                                        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                        const devUserId = "dummy-onyx-user-id-for-testing";
+                                        if (devUserId && process.env.NODE_ENV === 'development') {
+                                            headers['X-Dev-Onyx-User-ID'] = devUserId;
+                                        }
+
+                                        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/folders/${folder.id}`, {
+                                            method: 'PATCH',
+                                            headers,
+                                            credentials: 'same-origin',
+                                            body: JSON.stringify({ name: newName })
+                                        });
+
+                                        if (!response.ok) {
+                                            if (response.status === 401 || response.status === 403) {
+                                                redirectToMainAuth('/auth/login');
+                                                return;
+                                            }
+                                            const errorText = await response.text();
+                                            throw new Error(`Failed to rename folder: ${response.status} ${errorText}`);
+                                        }
+
+                                        setRenameModalOpen(false);
+                                        window.location.reload();
+                                    } catch (error) {
+                                        console.error(error);
+                                        alert((error as Error).message);
+                                    } finally {
+                                        setIsRenaming(false);
+                                    }
+                                }}
+                                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
                                 disabled={isRenaming || !newName.trim()}
                             >
                                 {isRenaming ? t('actions.saving', 'Saving...') : t('actions.rename', 'Rename')}
