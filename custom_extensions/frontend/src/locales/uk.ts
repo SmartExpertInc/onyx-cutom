@@ -74,7 +74,7 @@ export const uk = {
     selectAll: "Вибрати Всі",
     noFilesInFolder: "У цій папці поки немає файлів",
     uploadSomeDocuments: "Завантажте кілька документів для початку",
-    filesSelected: "{count} файл{plural} вибрано{plural}",
+    filesSelected: "{count} файл вибрано",
     readyToCreateContent: "Готово до створення контенту з цих документів",
     createContent: "Створити Контент",
     backToFolders: "Повернутися до Папок",

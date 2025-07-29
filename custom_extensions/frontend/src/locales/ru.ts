@@ -605,7 +605,7 @@ export const ru = {
       browseDescription: "Выберите папки, содержащие документы, которые вы хотите использовать для создания образовательного контента",
       searchFolders: "Поиск папок...",
       newFolder: "Новая папка",
-      filesTotal: "{count} файл{plural} всего",
+      filesTotal: "{count} файл всего",
       clearSelection: "Очистить выбор",
       createFromFiles: "Создать из этих файлов",
       name: "Название",
