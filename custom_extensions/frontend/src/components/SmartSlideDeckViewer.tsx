@@ -95,7 +95,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
   
   // Get the current theme
-  const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
+  const currentTheme = getSlideTheme(theme || (deck as ComponentBasedSlideDeck)?.theme || DEFAULT_SLIDE_THEME);
 
   // Process deck - expect component-based format only
   useEffect(() => {
@@ -132,16 +132,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         // Set theme on the deck
         const deckWithTheme = {
           ...deck,
-          theme: theme || deck.theme || DEFAULT_SLIDE_THEME
+          theme: theme || (deck as ComponentBasedSlideDeck)?.theme || DEFAULT_SLIDE_THEME
         };
 
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
         console.log('✅ Component-based slides loaded with theme:', {
-          slideCount: deck.slides.length,
+          slideCount: (deck as ComponentBasedSlideDeck).slides.length,
           theme: deckWithTheme.theme,
           themeColors: currentTheme.colors,
-          templates: deck.slides.map((s: any) => s.templateId)
+          templates: (deck as ComponentBasedSlideDeck).slides.map((s: any) => s.templateId)
           });
         
       } catch (err) {
