@@ -73,7 +73,7 @@ const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 
-type interface.ProjectViewParams = {
+type ProjectViewParams = {
   projectId: string;
 };
 
@@ -89,7 +89,7 @@ const slugify = (text: string | null | undefined): string => {
 
 
 export default function ProjectInstanceViewPage() {
-  const params = useParams<interface.ProjectViewParams>();
+  const params = useParams<ProjectViewParams>();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { projectId } = params || {};
