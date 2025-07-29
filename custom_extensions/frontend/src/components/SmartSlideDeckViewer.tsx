@@ -153,6 +153,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
+        // Синхронізуємо editableDeck з новим deck
+        setEditableDeck(deckWithTheme as ComponentBasedSlideDeck);
+        
         console.log('✅ Component-based slides loaded with theme:', {
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
@@ -174,7 +177,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       setIsLoading(false);
       setError('No slide deck provided');
     }
-  }, [deck]);
+  }, [deck, theme]);
 
   // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {

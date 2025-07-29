@@ -479,6 +479,17 @@ export default function ProjectInstanceViewPage() {
       return; // Silent fail for unsupported types
     }
 
+    // Спеціальне логування для слайдів
+    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+      console.log('🎯 SLIDE DECK AUTO-SAVE:', {
+        projectId,
+        slideCount: editableData.slides?.length,
+        firstSlideTitle: editableData.slides?.[0]?.props?.title,
+        firstSlideContent: editableData.slides?.[0]?.props?.content?.substring(0, 50) + '...',
+        hasTheme: !!editableData.theme
+      });
+    }
+
     const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
     const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
     if (devUserId && process.env.NODE_ENV === 'development') {
@@ -797,9 +808,17 @@ export default function ProjectInstanceViewPage() {
               deck={editableData || slideDeckData}
               isEditable={true} // Завжди включено для слайдів
               onSave={(updatedDeck) => {
+                console.log('🔄 SmartSlideDeckViewer onSave called with:', {
+                  slideCount: updatedDeck.slides?.length,
+                  firstSlideTitle: updatedDeck.slides?.[0]?.props?.title,
+                  firstSlideContent: updatedDeck.slides?.[0]?.props?.content?.substring(0, 50) + '...'
+                });
+                
                 // Оновлюємо editableData з новими даними слайду
                 setEditableData(updatedDeck as any);
+                
                 // Викликаємо handleAutoSave для збереження на сервер
+                console.log('🔄 Calling handleAutoSave from onSave callback');
                 handleAutoSave();
               }}
               showFormatInfo={true}
