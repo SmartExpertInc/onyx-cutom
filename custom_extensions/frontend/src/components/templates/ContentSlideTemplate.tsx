@@ -103,13 +103,13 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   // Прапорець для контролю синхронізації
   const [isEditing, setIsEditing] = useState(false);
 
-  // Оновлюємо локальний стан коли пропси змінюються (тільки якщо не редагуємо)
-  useEffect(() => {
-    if (!isEditing) {
-      setEditingTitle(title);
-      setEditingContent(content);
-    }
-  }, [title, content, isEditing]);
+  // Прибираємо useEffect - синхронізуємо тільки при початку редагування
+  // useEffect(() => {
+  //   if (!isEditing) {
+  //     setEditingTitle(title);
+  //     setEditingContent(content);
+  //   }
+  // }, [title, content, isEditing]);
 
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -158,14 +158,18 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   // Helper functions (копіюємо з TrainingPlanTable)
   const startEditing = (fieldPath: string) => {
+    console.log('🔄 startEditing called:', { fieldPath, isEditable, title, content });
+    
     if (isEditable) {
       setEditingField(fieldPath);
       setIsEditing(true);
       // Синхронізуємо локальний стан з поточними пропсами
       if (fieldPath === 'title') {
         setEditingTitle(title);
+        console.log('🔄 Set editingTitle to:', title);
       } else if (fieldPath === 'content') {
         setEditingContent(content);
+        console.log('🔄 Set editingContent to:', content);
       }
     }
   };
@@ -187,9 +191,18 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   // Handle input blur (копіюємо з TrainingPlanTable)
   const handleInputBlur = () => {
+    console.log('🔄 handleInputBlur called:', {
+      editingField,
+      editingTitle,
+      editingContent,
+      originalTitle: title,
+      originalContent: content
+    });
+    
     // Викликаємо onTextChange з поточним значенням локального стану
     if (onTextChange && editingField) {
       const currentValue = editingField === 'title' ? editingTitle : editingContent;
+      console.log('🔄 Calling onTextChange with:', { slideId, editingField, currentValue });
       onTextChange(slideId, editingField, currentValue);
     }
     
@@ -197,6 +210,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     
     // Викликаємо автозбереження тільки при втраті фокусу
     if (onAutoSave) {
+      console.log('🔄 Calling onAutoSave');
       onAutoSave();
     }
   };
