@@ -8,7 +8,7 @@ import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
-  deck: ComponentBasedSlideDeck | any;
+  deck: ComponentBasedSlideDeck | unknown;
   
   /** Whether the deck is editable */
   isEditable?: boolean;
@@ -332,7 +332,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 >
                   {editingTitle === slide.slideId ? (
                     <InlineEditor
-                      initialValue={slide.props.title || `Slide ${slide.slideNumber}`}
+                      initialValue={(slide.props.title as string) || `Slide ${slide.slideNumber}`}
                       onSave={(newTitle) => {
                         const updatedSlide: ComponentBasedSlide = {
                           ...slide,
@@ -344,11 +344,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                       onCancel={() => setEditingTitle(null)}
                     />
                   ) : (
-                    <h2 className="slide-title-text">{slide.props.title || `Slide ${slide.slideNumber}`}</h2>
+                    <h2 className="slide-title-text">{(slide.props.title as string) || `Slide ${slide.slideNumber}`}</h2>
                   )}
                 </div>
               ) : (
-                <h2 className="slide-title-display">{slide.props.title || `Slide ${slide.slideNumber}`}</h2>
+                <h2 className="slide-title-display">{(slide.props.title as string) || `Slide ${slide.slideNumber}`}</h2>
               )}
 
               {/* Component-based slide content */}
