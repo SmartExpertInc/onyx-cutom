@@ -134,7 +134,7 @@ export interface BulletPointsProps extends BaseTemplateProps {
   title: string;
   bullets: string[];
   maxColumns?: 1 | 2 | 3;
-  bulletStyle?: 'dot' | 'arrow' | 'check' | 'star' | 'number';
+  bulletStyle?: 'dot' | 'arrow' | 'check' | 'star' | 'number' | 'dash';
   titleColor?: string;
   bulletColor?: string;
   backgroundColor?: string;
