@@ -1064,13 +1064,15 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 * [Fourth key point with detailed explanation]
 * [Fifth key point with detailed explanation]
 * [Sixth key point with detailed explanation]
+* [Seventh key point with detailed explanation]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
 ```
 **BULLET POINTS GUIDELINES:**
-- Use 4-6 bullet points per slide for comprehensive coverage
+- Use 5-7 bullet points per slide for comprehensive coverage
 - Each bullet point should be informative and actionable
 - Keep individual points concise but meaningful
+- Provide detailed explanations with practical insights and examples
 
 **Two Column Layout Slides** (`two-column`):
 ```
@@ -1162,13 +1164,14 @@ AVAILABLE COMPONENT-BASED TEMPLATES (exact IDs from frontend registry):
 * [Third key point]
 * [Fourth key point]
 * [Fifth key point]
+* [Sixth key point]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
 
 -Use this template when you want to provide a short context, summary, or explanation (subtitle) before presenting a list of key points.
 -Choose bullet-points-right instead of bullet-points if the slide needs a subtitle or introductory sentence above the bullet list.
 -The subtitle should be 1-2 sentences and give context or highlight the importance of the following points.
--Bullet points should be concise, actionable, and directly related to the subtitle/context. Use 4-5 bullet points for comprehensive coverage.
+-Bullet points should be concise, actionable, and directly related to the subtitle/context. Use 5-6 bullet points for comprehensive coverage.
 -The image placeholder is always on the right and should visually represent the overall topic of the bullet points (not individual bullets).
 -Ideal for: summarizing main takeaways, listing security principles, highlighting grouped recommendations, or when you want to draw attention to the context before the list.
 -Avoid using this template for long paragraphs or when a visual is not needed.

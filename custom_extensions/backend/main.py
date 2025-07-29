@@ -10787,7 +10787,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 "Third critical element with thorough examination and implementation guidance",
                 "Fourth essential consideration with strategic importance and best practices",
                 "Fifth valuable perspective with actionable recommendations and future implications",
-                "Sixth crucial factor with detailed methodology and success indicators"
+                "Sixth crucial factor with detailed methodology and success indicators",
+                "Seventh critical aspect with comprehensive analysis and strategic implementation guidance"
               ],
               "maxColumns": 2,
               "bulletStyle": "dot",
@@ -10970,7 +10971,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Always include a meaningful `imagePrompt` for AI image generation that describes the overall topic of the bullet points
             - `imageAlt` should be a short description of the illustration
             - The image should visually represent the bullet points as a group (not individual bullets)
-            - Generate 4-6 bullet points per slide for comprehensive coverage
+            - Generate 5-7 bullet points per slide for comprehensive coverage
             - Each bullet point should be informative and actionable
 
             **Special Instructions for `big-image-top`:**
@@ -11064,7 +11065,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Integrate any additional resources into relevant content slides instead
             
             **ENHANCED CONTENT GUIDELINES:**
-            - For bullet-points templates: Use 4-6 bullet points per slide for comprehensive coverage
+            - For bullet-points templates: Use 5-7 bullet points per slide for comprehensive coverage
             - Each bullet point should be informative and actionable
             - For four-box-grid templates: Each box description MUST contain 2-3 detailed sentences with comprehensive explanations
             - For process-steps templates: Each step MUST contain 2-3 detailed sentences with specific techniques and guidance
