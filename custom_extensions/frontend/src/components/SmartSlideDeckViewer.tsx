@@ -104,13 +104,13 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       setError(null);
 
       try {
-        if (!deck || !deck.slides || !Array.isArray(deck.slides)) {
+        if (!deck || !(deck as ComponentBasedSlideDeck).slides || !Array.isArray((deck as ComponentBasedSlideDeck).slides)) {
           setError('Invalid slide deck format. Expected component-based slides.');
           return;
         }
 
         // Validate that slides have templateId and props (component-based format)
-        const hasValidFormat = deck.slides.every((slide: any) => 
+        const hasValidFormat = (deck as ComponentBasedSlideDeck).slides.every((slide: any) => 
           slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props')
         );
 
@@ -121,7 +121,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
         // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
         console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
-        deck.slides.forEach((slide: any, index: number) => {
+        (deck as ComponentBasedSlideDeck).slides.forEach((slide: any, index: number) => {
           console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
             slideId: slide.slideId,
             templateId: slide.templateId,
