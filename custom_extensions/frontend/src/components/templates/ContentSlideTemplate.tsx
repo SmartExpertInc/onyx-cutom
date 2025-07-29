@@ -93,7 +93,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   onAutoSave,
   theme
 }) => {
-  // State for inline editing
+  // State for inline editing (копіюємо з TrainingPlanTable)
   const [editingField, setEditingField] = useState<string | null>(null);
 
   // Use theme colors instead of props
@@ -141,47 +141,47 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
   };
 
-  const editOverlayStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    display: isEditable ? 'flex' : 'none',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
-  const handleClick = () => {
-    if (isEditable && onUpdate) {
-      onUpdate({ slideId });
-    }
-  };
-
-  // Inline editing handlers
-  const handleFieldClick = (fieldPath: string) => {
-    console.log('Field clicked:', fieldPath, 'isEditable:', isEditable);
+  // Helper functions (копіюємо з TrainingPlanTable)
+  const startEditing = (fieldPath: string) => {
     if (isEditable) {
       setEditingField(fieldPath);
     }
   };
 
-  const handleFieldSave = (fieldPath: string, newValue: string) => {
-    console.log('Field save:', fieldPath, 'newValue:', newValue);
+  const stopEditing = () => {
+    setEditingField(null);
+  };
+
+  // Handle input changes (копіюємо з TrainingPlanTable)
+  const handleInputChange = (fieldPath: string, value: string) => {
     if (onTextChange) {
-      onTextChange(slideId, fieldPath, newValue);
+      onTextChange(slideId, fieldPath, value);
       if (onAutoSave) {
         onAutoSave();
       }
     }
-    setEditingField(null);
   };
 
-  const handleFieldCancel = () => {
-    setEditingField(null);
+  // Handle input blur (копіюємо з TrainingPlanTable)
+  const handleInputBlur = () => {
+    stopEditing();
+    if (onAutoSave) {
+      onAutoSave();
+    }
+  };
+
+  // Handle key down (копіюємо з TrainingPlanTable)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      stopEditing();
+      if (onAutoSave) {
+        onAutoSave();
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      stopEditing();
+    }
   };
 
   // Parse content as simple HTML or markdown-like formatting
@@ -209,18 +209,30 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   };
 
   return (
-    <div className="content-slide-template" style={slideStyles} onClick={handleClick}>
+    <div className="content-slide-template" style={slideStyles}>
       {/* Title */}
       {editingField === 'title' ? (
-        <InlineEditor
-          initialValue={title}
-          onSave={(value) => handleFieldSave('title', value)}
-          onCancel={handleFieldCancel}
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => handleInputChange('title', e.target.value)}
+          onBlur={handleInputBlur}
+          onKeyDown={handleKeyDown}
+          style={{
+            ...titleStyles,
+            border: '2px solid #3b82f6',
+            borderRadius: '4px',
+            padding: '8px',
+            outline: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            color: '#333'
+          }}
+          autoFocus
         />
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => handleFieldClick('title')}
+          onClick={() => startEditing('title')}
           className={isEditable ? 'editable-field' : ''}
           title={isEditable ? 'Click to edit title' : ''}
         >
@@ -230,37 +242,35 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
       {/* Content */}
       {editingField === 'content' ? (
-        <InlineEditor
-          initialValue={content}
-          onSave={(value) => handleFieldSave('content', value)}
-          onCancel={handleFieldCancel}
-          multiline={true}
+        <textarea
+          value={content}
+          onChange={(e) => handleInputChange('content', e.target.value)}
+          onBlur={handleInputBlur}
+          onKeyDown={handleKeyDown}
+          style={{
+            ...contentStyles,
+            border: '2px solid #3b82f6',
+            borderRadius: '4px',
+            padding: '8px',
+            outline: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            color: '#333',
+            resize: 'vertical',
+            minHeight: '200px',
+            fontFamily: 'inherit'
+          }}
+          autoFocus
         />
       ) : (
         <div 
           style={contentStyles}
-          onClick={() => handleFieldClick('content')}
+          onClick={() => startEditing('content')}
           className={isEditable ? 'editable-field' : ''}
           title={isEditable ? 'Click to edit content' : ''}
         >
           {parseContent(content)}
         </div>
       )}
-
-      {/* Edit Overlay */}
-      <div style={editOverlayStyles}>
-        <div style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 600,
-          color: '#333',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>
-          Click to edit content slide
-        </div>
-      </div>
     </div>
   );
 };
