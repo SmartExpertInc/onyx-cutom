@@ -481,12 +481,14 @@ export default function ProjectInstanceViewPage() {
 
     // Спеціальне логування для слайдів
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+      // Type guard для перевірки, що editableData є ComponentBasedSlideDeck
+      const slideDeckData = editableData as ComponentBasedSlideDeck;
       console.log('🎯 SLIDE DECK AUTO-SAVE:', {
         projectId,
-        slideCount: editableData.slides?.length,
-        firstSlideTitle: editableData.slides?.[0]?.props?.title,
-        firstSlideContent: editableData.slides?.[0]?.props?.content?.substring(0, 50) + '...',
-        hasTheme: !!editableData.theme
+        slideCount: slideDeckData.slides?.length,
+        firstSlideTitle: slideDeckData.slides?.[0]?.props?.title,
+        firstSlideContent: slideDeckData.slides?.[0]?.props?.content?.substring(0, 50) + '...',
+        hasTheme: !!slideDeckData.theme
       });
     }
 
@@ -815,7 +817,7 @@ export default function ProjectInstanceViewPage() {
                 });
                 
                 // Оновлюємо editableData з новими даними слайду
-                setEditableData(updatedDeck as any);
+                setEditableData(updatedDeck as ComponentBasedSlideDeck);
                 
                 // Викликаємо handleAutoSave для збереження на сервер
                 console.log('🔄 Calling handleAutoSave from onSave callback');
