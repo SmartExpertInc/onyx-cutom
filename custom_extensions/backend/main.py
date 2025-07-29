@@ -15112,6 +15112,9 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 section_id = section.get("id", "")
                 section_title = section.get("title", "")
                 total_hours = section.get("totalHours", 0.0)
+                # Get module quality tier information for preservation
+                section_quality_tier = section.get("quality_tier", "")
+                
                 # Convert special characters to safe ASCII for AI processing
                 # We'll convert back after AI response to preserve user-visible format
                 if section_id and section_title:
@@ -15128,7 +15131,10 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 else:
                     # Fallback for empty IDs
                     current_outline += f"## {section_title}\n"
-                current_outline += f"**Total Hours:** {total_hours}\n\n"
+                current_outline += f"**Total Hours:** {total_hours}\n"
+                if section_quality_tier:
+                    current_outline += f"**Module Quality Tier:** {section_quality_tier}\n"
+                current_outline += "\n"
                 
                 lessons = section.get("lessons", [])
                 if lessons:
@@ -15148,11 +15154,17 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                         content_type = content_available.get("type", "yes")
                         content_text = content_available.get("text", "100%")
                         
+                        # Get quality tier information for preservation
+                        lesson_quality_tier = lesson.get("quality_tier", "")
+                        
                         current_outline += f"{idx}. **{lesson_title}**\n"
                         current_outline += f"   - Hours: {lesson_hours}\n"
                         current_outline += f"   - Source: {lesson_source}\n"
                         current_outline += f"   - Assessment: {check_type} ({check_text})\n"
-                        current_outline += f"   - Content Available: {content_type} ({content_text})\n\n"
+                        current_outline += f"   - Content Available: {content_type} ({content_text})\n"
+                        if lesson_quality_tier:
+                            current_outline += f"   - Quality Tier: {lesson_quality_tier}\n"
+                        current_outline += "\n"
                 else:
                     current_outline += "*No lessons defined*\n\n"
                 current_outline += "\n"
@@ -15315,6 +15327,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             * `id` (string): CRITICAL - Extract the exact module ID from the markdown headers. If you see "## №2: Title", extract "№2". If you see "## #2: Title", convert it to "№2". If you see "## Module 3: Title", convert it to "№3". Always preserve the original numbering but use "№X" format.
             * `title` (string): Module name without the word "Module".
             * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
+            * `quality_tier` (string, optional): Quality tier for this module. PRESERVE EXACTLY from source if mentioned as "Module Quality Tier: X". If not specified, omit this field entirely.
             * `lessons` (array): List of lesson objects belonging to the module.
             * `autoCalculateHours` (boolean, default true): Leave as `true` unless the source explicitly provides `totalHours`.
 
@@ -15323,6 +15336,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             * `hours` (number): Duration in hours. If absent, default to 1.
             * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
             * `completionTime` (string): Estimated completion time in minutes, randomly generated between 5-8 minutes. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
+            * `quality_tier` (string, optional): Quality tier for this lesson. PRESERVE EXACTLY from source if mentioned as "Quality Tier: X". If not specified, omit this field entirely.
             * `check` (object):
                 - `type` (string): One of "test", "quiz", "practice", "none".
                 - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
@@ -15364,12 +15378,14 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                         "id": "№1",
                         "title": "Introduction to Topic",
                         "totalHours": 10,
+                        "quality_tier": "premium",
                         "lessons": [
                             {
                                 "title": "Lesson 1: Basics",
                                 "hours": 2,
                                 "source": "Create from scratch",
                                 "completionTime": "5m",
+                                "quality_tier": "interactive",
                                 "check": {"type": "test", "text": "Test"},
                                 "contentAvailable": {"type": "yes", "text": "100%"}
                             }
