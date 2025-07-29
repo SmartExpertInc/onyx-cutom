@@ -22,6 +22,8 @@ export const ru = {
   },
   // Action buttons and UI elements
   actions: {
+    renameFolder: "Переименовать папку",
+    exportAsFile: "Экспортировать как файл",
     edit: "Редактировать",
     save: "Сохранить",
     saving: "Сохранение...",

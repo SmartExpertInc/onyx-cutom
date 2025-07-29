@@ -22,6 +22,8 @@ export const uk = {
   },
   // Action buttons and UI elements
   actions: {
+    renameFolder: "Перейменувати папку",
+    exportAsFile: "Експортувати як файл",
     edit: "Редагувати",
     save: "Зберегти",
     saving: "Збереження...",

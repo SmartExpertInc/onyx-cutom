@@ -22,6 +22,8 @@ export const en = {
   },
   // Action buttons and UI elements
   actions: {
+    renameFolder: "Rename Folder",
+    exportAsFile: "Export as file",
     edit: "Edit",
     save: "Save",
     saving: "Saving...",

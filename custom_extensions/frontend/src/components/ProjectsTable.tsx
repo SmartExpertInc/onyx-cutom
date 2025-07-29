@@ -2102,7 +2102,7 @@ const FolderRowMenu: React.FC<{
                         <div className="px-3 py-2 border-b border-gray-100">
                             <p className="font-semibold text-sm text-gray-900 truncate">{folder.name}</p>
                             <p className="text-xs text-gray-500 mt-1">
-                                Created {formatDate(folder.created_at)}
+                                {t('actions.created', 'Created')} {formatDate(folder.created_at)}
                             </p>
                         </div>
                         <div className="py-1">
@@ -2115,14 +2115,14 @@ const FolderRowMenu: React.FC<{
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                             >
                                 <PenLine size={16} className="text-gray-500" />
-                                <span>{t('actions.renameFolder', 'Rename')}</span>
+                                <span>{t('actions.rename', 'Rename')}</span>
                             </button>
                             <button 
                                 onClick={handleSettingsClick}
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                             >
                                 <Settings size={16} className="text-gray-500" />
-                                <span>{t('actions.folderSettings', 'Settings')}</span>
+                                <span>{t('actions.settings', 'Settings')}</span>
                             </button>
                             <button 
                                 onClick={handleExportFolder}
@@ -2138,7 +2138,7 @@ const FolderRowMenu: React.FC<{
                                 className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
                             >
                                 <Trash2 size={14} />
-                                <span>{t('actions.deleteFolder', 'Delete')}</span>
+                                <span>{t('actions.delete', 'Delete')}</span>
                             </button>
                         </div>
                     </div>,
