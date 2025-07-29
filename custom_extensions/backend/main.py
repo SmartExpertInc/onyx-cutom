@@ -10894,8 +10894,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             ```
 
             10. **`bullet-points-right`** - Title, subtitle, bullet points with image:
-           ```json
-           "props": {
+            ```json
+            "props": {
               "title": "Key Points",
               "subtitle": "Short intro or context before the list",
               "bullets": [
@@ -10922,7 +10922,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "imagePrompt": "A high-quality illustration for the topic",
               "imageSize": "large"
             }
-            ``` 
+            ```
 
             12. **`four-box-grid`** - Title and 4 boxes in 2x2 grid:
             ```json
@@ -10935,7 +10935,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 { "heading": "Box 4", "text": "In-depth explanation with actionable insights" }
               ]
             }
-            ``` 
+            ```
 
             13. **`timeline`** - Horizontal timeline with 4 steps:
             ```json
@@ -10948,8 +10948,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 { "heading": "Step 4", "description": "In-depth explanation of the final phase" }
               ]
             }
-            ``` 
-          
+            ```
+
             14. **`big-numbers`** - Three-column layout for metrics:
             ```json
             "props": {
@@ -10960,8 +10960,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 { "value": "50%", "label": "Cost Reduction", "description": "Operating costs reduced by 50% through efficient design" }
               ]
             }
-            ``` 
-            
+            ```
+
             15. **`pyramid`** - Pyramid diagram with 3 levels:
             ```json
             "props": {
@@ -10973,7 +10973,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 { "heading": "Base Level", "description": "Description of the foundational level" }
               ]
             }
-            ``` 
+            ```
 
             **Content Parsing Instructions:**
             - Extract slide titles from headings or "**Slide N: Title**" format
@@ -13197,10 +13197,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -13214,10 +13214,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                return
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -14655,10 +14655,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -14681,7 +14681,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
                 return
@@ -15204,64 +15204,64 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             logger.info(f"[SMART_EDIT_STREAM] ❌ USING ONYX API (file context detected)")
             logger.info(f"[SMART_EDIT_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             
-        try:
-            async with httpx.AsyncClient(timeout=timeout_duration) as client:
-                # Parse folder and file IDs for Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                send_payload = {
-                    "chat_session_id": chat_id,
-                    "message": wizard_message,
-                    "parent_message_id": None,
-                    "file_descriptors": [],
-                    "user_file_ids": file_ids_list,
-                    "user_folder_ids": folder_ids_list,
-                    "prompt_id": None,
-                    "search_doc_ids": None,
-                    "retrieval_options": {"run_search": "never", "real_time": False},
-                    "stream_response": True,
-                }
-                logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
-                async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
-                    logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
-                    async for raw_line in resp.aiter_lines():
-                        if not raw_line:
-                            continue
-                        line = raw_line.strip()
-                        if line.startswith("data:"):
-                            line = line.split("data:", 1)[1].strip()
-                        if line == "[DONE]":
-                            logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
-                            break
-                        try:
-                            pkt = json.loads(line)
-                            if "answer_piece" in pkt:
-                                delta_text = pkt["answer_piece"].replace("\\n", "\n")
-                                assistant_reply += delta_text
-                                logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                        except Exception as e:
-                            logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
-                            continue
+            try:
+                async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                    # Parse folder and file IDs for Onyx
+                    folder_ids_list = []
+                    file_ids_list = []
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = [int(fid) for fid in payload.folderIds.split(',') if fid.strip().isdigit()]
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = [int(fid) for fid in payload.fileIds.split(',') if fid.strip().isdigit()]
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    send_payload = {
+                        "chat_session_id": chat_id,
+                        "message": wizard_message,
+                        "parent_message_id": None,
+                        "file_descriptors": [],
+                        "user_file_ids": file_ids_list,
+                        "user_folder_ids": folder_ids_list,
+                        "prompt_id": None,
+                        "search_doc_ids": None,
+                        "retrieval_options": {"run_search": "never", "real_time": False},
+                        "stream_response": True,
+                    }
+                    logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                        logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                    assistant_reply += delta_text
+                                    logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            except Exception as e:
+                                logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                                continue
 
-                        # send keep-alive every 8s
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "
-                            last_send = now
-        except Exception as e:
-            logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
-            raise
+                            # send keep-alive every 8s
+                            now = asyncio.get_event_loop().time()
+                            if now - last_send > 8:
+                                yield b" "
+                                last_send = now
+            except Exception as e:
+                logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+                raise
 
         # Cache full raw outline for later finalize step
         if chat_id:
@@ -15970,8 +15970,8 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     
                                     # Recalculate hours with new folder rate using completion time (or 5 minutes default)
                                     lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
-                                        lesson['hours'] = lesson_creation_hours
-                                        section_total_hours += lesson_creation_hours
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
                             
                             # Update the section's totalHours with sum of existing lesson hours
                             if 'totalHours' in section:
@@ -16348,8 +16348,8 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                     
                                     # Recalculate hours with new project rate using completion time (or 5 minutes default)
                                     lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
-                                        lesson['hours'] = lesson_creation_hours
-                                        section_total_hours += lesson_creation_hours
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
                             
                             # Update the section's totalHours with sum of existing lesson hours
                             if 'totalHours' in section:
@@ -16545,8 +16545,8 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                         completion_time_minutes = 5  # No completion time, use 5 minutes
                                     
                                     # Add to totals
-                                            section_completion_time += completion_time_minutes
-                                            total_completion_time += completion_time_minutes
+                                    section_completion_time += completion_time_minutes
+                                    total_completion_time += completion_time_minutes
                                     
                                     # Use existing lesson hours if available, otherwise calculate with folder rate
                                     if lesson.get('hours'):
@@ -16556,14 +16556,14 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                             total_hours += lesson_creation_hours
                                         except (ValueError, TypeError):
                                             # If hours parsing fails, calculate with completion time
-                                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
-                                                    section_hours += lesson_creation_hours
-                                                    total_hours += lesson_creation_hours
-                                    else:
-                                        # No existing hours, calculate with completion time
                                             lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
                                             section_hours += lesson_creation_hours
                                             total_hours += lesson_creation_hours
+                                    else:
+                                        # No existing hours, calculate with completion time
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
+                                        section_hours += lesson_creation_hours
+                                        total_hours += lesson_creation_hours
                             
                             # Add section data with tier-adjusted totals
                             sections_data.append({
@@ -17326,10 +17326,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -17346,10 +17346,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
@@ -17434,24 +17434,24 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
             async for chunk_data in stream_openai_response(wizard_message):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                    assistant_reply += delta_text
                     chunks_received += 1
                     logger.debug(f"[QUIZ_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                 elif chunk_data["type"] == "error":
                     logger.error(f"[QUIZ_EDIT_OPENAI_ERROR] {chunk_data['text']}")
                     yield (json.dumps(chunk_data) + "\n").encode()
                     return
                 
                 # Send keep-alive every 8s
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "
-                            last_send = now
+                now = asyncio.get_event_loop().time()
+                if now - last_send > 8:
+                    yield b" "
+                    last_send = now
                     logger.debug(f"[QUIZ_EDIT_OPENAI_STREAM] Sent keep-alive")
             
             logger.info(f"[QUIZ_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-
+            
         except Exception as e:
             logger.error(f"[QUIZ_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
             yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
@@ -17536,7 +17536,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                         outline_name = outline_row["project_name"]
                         project_name = f"{outline_name}: {payload.lesson.strip()}"
                         logger.info(f"[QUIZ_FINALIZE_NAMING] Using outline-based naming: {project_name}")
-        else:
+                    else:
                         logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
             except Exception as e:
                 logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
@@ -18123,10 +18123,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 async for chunk_data in stream_openai_response(wizard_message):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                        assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -18143,10 +18143,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
 
     return StreamingResponse(
         streamer(),
@@ -18206,24 +18206,24 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
             async for chunk_data in stream_openai_response(wizard_message):
                 if chunk_data["type"] == "delta":
                     delta_text = chunk_data["text"]
-                                assistant_reply += delta_text
+                    assistant_reply += delta_text
                     chunks_received += 1
                     logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                                yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                 elif chunk_data["type"] == "error":
                     logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_ERROR] {chunk_data['text']}")
                     yield (json.dumps(chunk_data) + "\n").encode()
                     return
                 
                 # Send keep-alive every 8s
-                        now = asyncio.get_event_loop().time()
-                        if now - last_send > 8:
-                            yield b" "
-                            last_send = now
+                now = asyncio.get_event_loop().time()
+                if now - last_send > 8:
+                    yield b" "
+                    last_send = now
                     logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Sent keep-alive")
             
             logger.info(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-
+            
         except Exception as e:
             logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
             yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
@@ -18311,7 +18311,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                         outline_name = outline_row["project_name"]
                         project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
                         logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
-        else:
+                    else:
                         logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
             except Exception as e:
                 logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
@@ -18656,7 +18656,7 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
-
+        
 
 @app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
 async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
