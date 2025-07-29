@@ -397,6 +397,19 @@ export const uk = {
     estCreationTimeShort: "Оц. час створення",
     estCompletionTimeShort: "Оц. час завершення",
 
+    // PDF Download Modal
+    customizePDF: "Налаштувати PDF",
+    customizePDFDescription: "Введіть ім'я клієнта та виберіть, які папки/продукти включити в PDF.",
+    clientNameOptional: "Ім'я клієнта (необов'язково)",
+    enterClientName: "Введіть ім'я клієнта",
+    selectFoldersAndProducts: "Вибрати папки та продукти",
+    selected: "вибрано",
+    pdfFolders: "Папки",
+    pdfUnassignedProducts: "Непризначені продукти",
+    noFoldersOrProductsAvailable: "Папки або продукти недоступні",
+    skip: "Пропустити",
+    downloadPDF: "Завантажити список проектів як PDF",
+
     // Filters
     recentlyViewed: "Нещодавно переглянуті",
     favorites: "Обране",

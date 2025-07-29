@@ -230,14 +230,14 @@ const ClientNameModal: React.FC<{
           </svg>
         </button>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">Customize PDF</h2>
-          <p className="text-gray-600">Enter a client name and select which folders/products to include in the PDF.</p>
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">{t('interface.customizePDF', 'Customize PDF')}</h2>
+          <p className="text-gray-600">{t('interface.customizePDFDescription', 'Enter a client name and select which folders/products to include in the PDF.')}</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="client-name" className="block text-sm font-semibold text-gray-700 mb-2">
-              Client Name (optional)
+              {t('interface.clientNameOptional', 'Client Name (optional)')}
             </label>
             <input
               id="client-name"
@@ -250,7 +250,7 @@ const ClientNameModal: React.FC<{
                   handleSubmit(e as any);
                 }
               }}
-              placeholder="Enter client name"
+              placeholder={t('interface.enterClientName', 'Enter client name')}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
               autoFocus
             />
@@ -259,17 +259,17 @@ const ClientNameModal: React.FC<{
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="block text-sm font-semibold text-gray-700">
-                Select Folders & Products
+                {t('interface.selectFoldersAndProducts', 'Select Folders & Products')}
               </label>
               <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                {selectedProjects.size} selected
+                {selectedProjects.size} {t('interface.selected', 'selected')}
               </span>
             </div>
             <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50/50 shadow-inner">
               {/* Folders */}
               {folders.length > 0 && (
                 <div className="mb-4">
-                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Folders</div>
+                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">{t('interface.pdfFolders', 'Folders')}</div>
                   {folders.map((folder) => (
                     <div key={folder.id} className="mb-2">
                       <label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
@@ -324,7 +324,7 @@ const ClientNameModal: React.FC<{
               {/* Unassigned Projects */}
               {unassignedProjects.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Unassigned Products</div>
+                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">{t('interface.pdfUnassignedProducts', 'Unassigned Products')}</div>
                   <div className="space-y-1">
                     {unassignedProjects.map((project) => (
                       <label key={project.id} className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group">
@@ -356,7 +356,7 @@ const ClientNameModal: React.FC<{
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="mx-auto mb-3 text-gray-300">
                     <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  No folders or products available
+                  {t('interface.noFoldersOrProductsAvailable', 'No folders or products available')}
                 </div>
               )}
             </div>
@@ -368,13 +368,13 @@ const ClientNameModal: React.FC<{
               onClick={handleSkip}
               className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300"
             >
-              Skip
+              {t('interface.skip', 'Skip')}
             </button>
             <button
               type="submit"
               className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
             >
-              Download PDF
+              {t('common.downloadPdf', 'Download PDF')}
             </button>
           </div>
         </form>
@@ -3305,10 +3305,10 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                         <button
                             onClick={handlePdfDownload}
                             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                            title="Download projects list as PDF"
+                            title={t('interface.downloadPDF', 'Download projects list as PDF')}
                         >
                             <ArrowDownToLine size={16} />
-                            {t('interface.downloadPDF', 'Download PDF')}
+                            {t('common.downloadPdf', 'Download PDF')}
                         </button>
                     )}
                     

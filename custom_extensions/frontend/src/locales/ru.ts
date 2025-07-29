@@ -396,6 +396,19 @@ export const ru = {
     estCreationTimeShort: "Оц. время создания",
     estCompletionTimeShort: "Оц. время завершения",
 
+    // PDF Download Modal
+    customizePDF: "Настроить PDF",
+    customizePDFDescription: "Введите имя клиента и выберите, какие папки/продукты включить в PDF.",
+    clientNameOptional: "Имя клиента (необязательно)",
+    enterClientName: "Введите имя клиента",
+    selectFoldersAndProducts: "Выбрать папки и продукты",
+    selected: "выбрано",
+    pdfFolders: "Папки",
+    pdfUnassignedProducts: "Неприсвоенные продукты",
+    noFoldersOrProductsAvailable: "Папки или продукты недоступны",
+    skip: "Пропустить",
+    downloadPDF: "Скачать список проектов как PDF",
+
     // Filters
     recentlyViewed: "Недавно просмотренные",
     favorites: "Избранное",

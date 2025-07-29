@@ -404,6 +404,19 @@ export const es = {
     estCreationTimeShort: "Tiempo est. creación",
     estCompletionTimeShort: "Tiempo est. finalización",
 
+    // PDF Download Modal
+    customizePDF: "Personalizar PDF",
+    customizePDFDescription: "Ingrese un nombre de cliente y seleccione qué carpetas/productos incluir en el PDF.",
+    clientNameOptional: "Nombre del cliente (opcional)",
+    enterClientName: "Ingrese nombre del cliente",
+    selectFoldersAndProducts: "Seleccionar carpetas y productos",
+    selected: "seleccionado",
+    pdfFolders: "Carpetas",
+    pdfUnassignedProducts: "Productos sin asignar",
+    noFoldersOrProductsAvailable: "No hay carpetas o productos disponibles",
+    skip: "Omitir",
+    downloadPDF: "Descargar lista de proyectos como PDF",
+
     // Filters
     recentlyViewed: "Visto recientemente",
     favorites: "Favoritos",

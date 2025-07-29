@@ -441,6 +441,19 @@ export const en = {
     estCreationTimeShort: "Est. creation time",
     estCompletionTimeShort: "Est. completion time",
 
+    // PDF Download Modal
+    customizePDF: "Customize PDF",
+    customizePDFDescription: "Enter a client name and select which folders/products to include in the PDF.",
+    clientNameOptional: "Client Name (optional)",
+    enterClientName: "Enter client name",
+    selectFoldersAndProducts: "Select Folders & Products",
+    selected: "selected",
+    pdfFolders: "Folders",
+    pdfUnassignedProducts: "Unassigned Products",
+    noFoldersOrProductsAvailable: "No folders or products available",
+    skip: "Skip",
+    downloadPDF: "Download projects list as PDF",
+
     // Filters
     recentlyViewed: "Recently viewed",
     favorites: "Favorites",
