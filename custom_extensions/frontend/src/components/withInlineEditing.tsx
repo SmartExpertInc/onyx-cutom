@@ -176,8 +176,9 @@ export function withInlineEditing<P extends object>(
       isEditable,
       inlineEditing,
       onInlineEditSave
-    } as P & WithInlineEditingProps;
+    };
 
-    return <WrappedComponent {...enhancedProps} ref={ref} />;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return <WrappedComponent {...(enhancedProps as any)} ref={ref} />;
   });
 } 
