@@ -155,6 +155,12 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const startEditing = (fieldPath: string) => {
     if (isEditable) {
       setEditingField(fieldPath);
+      // Синхронізуємо локальний стан з поточними пропсами
+      if (fieldPath === 'title') {
+        setEditingTitle(title);
+      } else if (fieldPath === 'content') {
+        setEditingContent(content);
+      }
     }
   };
 
@@ -266,7 +272,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           className={isEditable ? 'editable-field' : ''}
           title={isEditable ? 'Click to edit title' : ''}
         >
-          {title}
+          {editingTitle}
         </h1>
       )}
 
@@ -298,7 +304,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           className={isEditable ? 'editable-field' : ''}
           title={isEditable ? 'Click to edit content' : ''}
         >
-          {parseContent(content)}
+          {parseContent(editingContent)}
         </div>
       )}
     </div>
