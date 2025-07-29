@@ -17786,7 +17786,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
                 is_standalone_quiz,  # is_standalone
-                payload.folderId if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+                int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
             )
         
         if not row:
@@ -18606,7 +18606,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
                 is_standalone_text_presentation,  # is_standalone - consistent with outline connection
-                payload.folderId if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+                int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
             )
         
         if not row:

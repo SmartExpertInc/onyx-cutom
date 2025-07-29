@@ -217,8 +217,12 @@ A comprehensive test suite was created to verify the implementation:
 - ✅ OutlineWizardFinalize with folderId
 - ✅ Create New button URL generation
 - ✅ Course outline finalize payload building
+- ✅ FolderId string to integer conversion
+- ✅ Database compatibility validation
 
-**Test Results**: All 7 tests passed successfully.
+**Test Results**: All tests passed successfully.
+
+**Bug Fix**: Fixed folderId type conversion issue that was causing database errors when creating products from folders.
 
 ## Backward Compatibility
 
@@ -227,6 +231,7 @@ The implementation maintains full backward compatibility:
 - **Optional fields**: All new fields are optional
 - **Default behavior**: When no folder context is provided, products are created without folder assignment (existing behavior)
 - **No breaking changes**: Existing API endpoints continue to work without modification
+- **Type safety**: Proper string to integer conversion for folderId to prevent database errors
 
 ## Security Considerations
 
