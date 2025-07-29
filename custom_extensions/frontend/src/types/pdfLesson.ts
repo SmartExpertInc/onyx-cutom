@@ -73,27 +73,4 @@ export interface PdfLessonData {
   detectedLanguage?: string | null;
 }
 
-// --- NEW: Slide Deck Types ---
-export interface ImagePlaceholder {
-  size: string;          // "LARGE", "MEDIUM", "SMALL", "BANNER", "BACKGROUND"
-  position: string;      // "LEFT", "RIGHT", "TOP_BANNER", "BACKGROUND", etc.
-  description: string;   // Description of the image content
-}
 
-export interface DeckSlide {
-  slideId: string;
-  slideNumber: number;
-  slideTitle: string;
-  contentBlocks: AnyContentBlock[];
-  deckgoTemplate?: string;  // Legacy DeckDeckGo template support
-  templateId?: string;      // Component-based template ID (e.g., "hero-title-slide", "challenges-solutions")
-  imagePlaceholders?: ImagePlaceholder[];
-}
-
-export interface SlideDeckData {
-  lessonTitle: string;
-  slides: DeckSlide[];
-  currentSlideId?: string | null;
-  lessonNumber?: number | null;
-  detectedLanguage?: string | null;
-}
