@@ -82,9 +82,10 @@ export const SmartSlideDeckViewer: FC<SmartSlideDeckViewerProps> = ({
                 <ComponentBasedSlideDeckRenderer
                   slides={[slide]}
                   isEditable={isEditable}
-                  onTextChange={(path: (string | number)[], value: any) => {
-                    // path is relative to slide, so prepend ['slides', idx, ...]
-                    onTextChange && onTextChange(['slides', idx, ...path], value);
+                  onTextChange={(slideId: string, fieldPath: string, value: any) => {
+                    // Convert from (slideId, fieldPath, value) to (path, value) format
+                    // fieldPath is like 'title' or 'content', so we create path ['slides', idx, 'props', fieldPath]
+                    onTextChange && onTextChange(['slides', idx, 'props', fieldPath], value);
                   }}
                   onAutoSave={onAutoSave}
                   theme={deck.theme}
