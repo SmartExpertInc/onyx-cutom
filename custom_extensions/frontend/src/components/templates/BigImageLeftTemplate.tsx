@@ -294,7 +294,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
             style={{
               ...titleStyles,
               // Ensure title behaves exactly like h1 element
-              margin: '0',
               padding: '0',
               border: 'none',
               outline: 'none',
