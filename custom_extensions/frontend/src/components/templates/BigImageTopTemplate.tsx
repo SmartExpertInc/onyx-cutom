@@ -170,9 +170,9 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
-    overflow: 'hidden',
     justifyContent: 'space-between',
     paddingBottom: '50px'
+    // Removed overflow: 'hidden' to allow natural content expansion
   };
 
   const getImageDimensions = () => {
