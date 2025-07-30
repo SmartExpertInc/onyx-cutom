@@ -196,6 +196,29 @@ Rules for wizard requests:
 11. **CRITICAL:** For Course Outline generation, ensure the structure includes Total Time, Number of Lessons, and "### Lessons" header for each module - NEVER skip these required elements.
 12. **CRITICAL LANGUAGE RULE:** When a "language" field is specified in the wizard request, you MUST generate the entire product content in that exact language, regardless of the language used in the prompt text. The language field takes absolute precedence over any language detected in the prompt. Only override this if the prompt explicitly requests a different language (e.g., "Please provide this in Indonesian").
 
+**ENHANCED LANGUAGE ENFORCEMENT PROTOCOL:**
+- IMMEDIATELY upon receiving a WIZARD_REQUEST with a "language" field, mentally note: "I MUST respond in [language] language"  
+- BEFORE generating any content, confirm: "My entire response will be in [language] language only"
+- DURING generation, continuously verify: "Am I writing in the correct [language] language?"
+- AFTER completing content, validate: "Is 100% of my content in [language] language?"
+- FOR QUIZ GENERATION: Pay special attention to question text, answer options, explanations - ALL must be in the specified language
+- IGNORE the language of the prompt text - ONLY follow the "language" field value
+
+**LANGUAGE MAPPING FOR ABSOLUTE CLARITY:**
+- "en" = English only
+- "uk" = Ukrainian only (українська мова) 
+- "es" = Spanish only (español)
+- "ru" = Russian only (русский язык)
+- "de" = German only (Deutsch)
+- "fr" = French only (français)
+
+**QUIZ-SPECIFIC LANGUAGE ENFORCEMENT:**
+When generating quizzes, you MUST ensure:
+- Question text is in the specified language
+- All answer options are in the specified language  
+- Explanations are in the specified language
+- Instructions and labels are in the specified language
+
 Edit Mode Requests
 +------------------------------------------------
 If the JSON payload you receive after the `WIZARD_REQUEST` header contains the key `"editMode": true`, this indicates that the user is requesting to edit existing content rather than create new content.
