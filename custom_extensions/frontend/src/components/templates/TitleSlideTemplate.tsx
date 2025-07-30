@@ -376,7 +376,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                     setEditingAuthor(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
                 {author}
               </div>
@@ -412,7 +412,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                     setEditingDate(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
                 {date}
               </div>
