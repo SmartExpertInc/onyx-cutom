@@ -85,10 +85,7 @@ const slugify = (text: string | null | undefined): string => {
     .replace(/--+/g, '-');
 }
 
-// Type guard for ComponentBasedSlideDeck
-function isComponentBasedSlideDeck(data: any): data is ComponentBasedSlideDeck {
-  return data && Array.isArray(data.slides);
-}
+
 
 
 export default function ProjectInstanceViewPage() {
@@ -482,19 +479,6 @@ export default function ProjectInstanceViewPage() {
       return; // Silent fail for unsupported types
     }
 
-    // Спеціальне логування для слайдів
-    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
-      // Type guard для перевірки, що editableData є ComponentBasedSlideDeck
-      const slideDeckData = editableData as ComponentBasedSlideDeck;
-      console.log('🎯 SLIDE DECK AUTO-SAVE:', {
-        projectId,
-        slideCount: slideDeckData.slides?.length,
-        firstSlideTitle: slideDeckData.slides?.[0]?.props?.title,
-        firstSlideContent: slideDeckData.slides?.[0]?.props?.content?.substring(0, 50) + '...',
-        hasTheme: !!slideDeckData.theme
-      });
-    }
-
     const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
     const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
     if (devUserId && process.env.NODE_ENV === 'development') {
@@ -797,8 +781,7 @@ export default function ProjectInstanceViewPage() {
         );
       case COMPONENT_NAME_SLIDE_DECK:
         const slideDeckData = editableData as ComponentBasedSlideDeck | null;
-        const deckData = editableData || slideDeckData;
-        if (!isComponentBasedSlideDeck(deckData)) {
+        if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
                 // For slide decks, use the new SmartSlideDeckViewer with component-based templates
@@ -811,22 +794,15 @@ export default function ProjectInstanceViewPage() {
             borderRadius: '8px'
           }}>
             <SmartSlideDeckViewer
-              deck={deckData}
-              isEditable={true} // Завжди включено для слайдів
-              projectId={projectId} // Передаємо projectId для прямого збереження
+              deck={slideDeckData}
+              isEditable={isEditing}
               onSave={(updatedDeck) => {
-                console.log('🔄 SmartSlideDeckViewer onSave called with:', {
-                  slideCount: updatedDeck.slides?.length,
-                  firstSlideTitle: updatedDeck.slides?.[0]?.props?.title,
-                  firstSlideContent: updatedDeck.slides?.[0]?.props?.content?.substring(0, 50) + '...'
-                });
-                
-                // Оновлюємо editableData з новими даними слайду
-                setEditableData(updatedDeck as ComponentBasedSlideDeck);
-                
-                // Автозбереження вже відбувається в SmartSlideDeckViewer
-                // Не викликаємо handleAutoSave тут, щоб уникнути циклу
+                // Convert the updated deck back to the format expected by handleTextChange
+                if (handleTextChange) {
+                  handleTextChange([], updatedDeck as any);
+                }
               }}
+              onAutoSave={handleAutoSave}
               showFormatInfo={true}
               theme="dark-purple"
             />
@@ -921,8 +897,8 @@ export default function ProjectInstanceViewPage() {
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
-            {/* Edit mode toggle for other content types (excluding slide decks) */}
-            {canEditContent && projectId && projectInstanceData.component_name !== COMPONENT_NAME_SLIDE_DECK && (
+            {/* Edit mode toggle for other content types */}
+            {canEditContent && projectId && (
               <button
                 onClick={handleToggleEdit}
                 disabled={isSaving}

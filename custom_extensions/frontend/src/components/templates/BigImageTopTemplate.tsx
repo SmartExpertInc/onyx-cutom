@@ -107,52 +107,56 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & { theme?: SlideThe
     <div style={slideStyles}>
       {/* Top - Image */}
       <div style={imageContainerStyles}>
-        <div style={placeholderStyles}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-            Image Placeholder
+        {(
+          <div style={placeholderStyles}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+              Image Placeholder
+            </div>
+            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
+              AI Prompt: "{displayPrompt}"
+            </div>
+            <div style={{ fontSize: '12px', color: '#868e96' }}>
+              {imageDimensions.width} × {imageDimensions.height}
+            </div>
           </div>
-          <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-            AI Prompt: "{displayPrompt}"
-          </div>
-          <div style={{ fontSize: '12px', color: '#868e96' }}>
-            {imageDimensions.width} × {imageDimensions.height}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Bottom - Content */}
       <div style={contentContainerStyles}>
-        <>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => handleUpdate('title', e.target.value)}
-            style={{
-              ...titleStyles,
-              border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              width: '100%' 
-            }}
-            placeholder="Enter slide title..."
-          />
-          <textarea
-            value={subtitle}
-            onChange={(e) => handleUpdate('subtitle', e.target.value)}
-            style={{
-              ...subtitleStyles,
-              border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              resize: 'none',
-              minHeight: '120px',
-              width: '100%',
-              lineHeight: 1.6
-            }}
-            placeholder="Enter slide content..."
-          />
-        </>
+        {(
+          <>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => handleUpdate('title', e.target.value)}
+              style={{
+                ...titleStyles,
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                width: '100%' 
+              }}
+              placeholder="Enter slide title..."
+            />
+            <textarea
+              value={subtitle}
+              onChange={(e) => handleUpdate('subtitle', e.target.value)}
+              style={{
+                ...subtitleStyles,
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                resize: 'none',
+                minHeight: '120px',
+                width: '100%',
+                lineHeight: 1.6
+              }}
+              placeholder="Enter slide content..."
+            />
+          </>
+        ) 
       </div>
     </div>
   );

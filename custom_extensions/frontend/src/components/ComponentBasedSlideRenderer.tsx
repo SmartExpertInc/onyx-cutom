@@ -8,21 +8,19 @@ import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
   isEditable?: boolean;
-  onTextChange?: (slideId: string, fieldPath: string, newValue: any) => void;
-  onAutoSave?: () => void;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  onAutoSave?: () => void;
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
   slide,
   isEditable = false,
-  onTextChange,
-  onAutoSave,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  onAutoSave
 }) => {
   const template = getTemplate(slide.templateId);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
@@ -92,10 +90,9 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     ...slide.props,
     slideId: slide.slideId,
     isEditable,
-    onTextChange,
-    onAutoSave,
     onUpdate: handlePropsUpdate,
-    theme: currentTheme
+    theme: currentTheme,
+    onAutoSave
   };
 
   return (
@@ -110,22 +107,20 @@ interface ComponentBasedSlideDeckRendererProps {
   slides: ComponentBasedSlide[];
   selectedSlideId?: string;
   isEditable?: boolean;
-  onTextChange?: (slideId: string, fieldPath: string, newValue: any) => void;
-  onAutoSave?: () => void;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  onAutoSave?: () => void;
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
   slides,
   selectedSlideId,
   isEditable = false,
-  onTextChange,
-  onAutoSave,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  onAutoSave
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -150,11 +145,10 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
           <ComponentBasedSlideRenderer
             slide={slide}
             isEditable={isEditable}
-            onTextChange={onTextChange}
-            onAutoSave={onAutoSave}
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
             theme={theme}
+            onAutoSave={onAutoSave}
           />
         </div>
       ))}
