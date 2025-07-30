@@ -32,7 +32,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
   const handleClick = (e: React.MouseEvent) => {
     if (disabled || !href) return;
     
-    // Check if we have lesson/quiz context in sessionStorage
+    // Check if we have lesson/quiz/text-presentation context in sessionStorage
     try {
       const lessonContextData = sessionStorage.getItem('lessonContext');
       if (lessonContextData) {
@@ -41,7 +41,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
         if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
           e.preventDefault();
           
-          // Build URL with lesson/quiz parameters
+          // Build URL with lesson/quiz/text-presentation parameters
           const params = new URLSearchParams();
           Object.entries(lessonContext).forEach(([key, value]) => {
             if (key !== 'timestamp') {
@@ -55,7 +55,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
         }
       }
     } catch (error) {
-      console.error('Error handling lesson/quiz context:', error);
+      console.error('Error handling lesson/quiz/text-presentation context:', error);
     }
     
     // Fallback to normal navigation
@@ -98,7 +98,7 @@ function CreatePageHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Store lesson/quiz parameters in sessionStorage for use across all creation paths
+  // Store lesson/quiz/text-presentation parameters in sessionStorage for use across all creation paths
   useEffect(() => {
     const product = searchParams?.get('product');
     const lessonType = searchParams?.get('lessonType');
@@ -107,8 +107,8 @@ function CreatePageHandler() {
     const lessonNumber = searchParams?.get('lessonNumber');
     const folderId = searchParams?.get('folderId');
 
-    if ((product === 'lesson' || product === 'quiz') && lessonType && lessonTitle && moduleName && lessonNumber) {
-      // Store lesson/quiz context in sessionStorage for use across all creation paths
+    if ((product === 'lesson' || product === 'quiz' || product === 'text-presentation') && lessonType && lessonTitle && moduleName && lessonNumber) {
+      // Store lesson/quiz/text-presentation context in sessionStorage for use across all creation paths
       const lessonContext = {
         product: product,
         lessonType: lessonType,
@@ -119,7 +119,7 @@ function CreatePageHandler() {
       };
       sessionStorage.setItem('lessonContext', JSON.stringify(lessonContext));
     } else {
-      // If no lesson/quiz parameters are present, clear any existing context
+      // If no lesson/quiz/text-presentation parameters are present, clear any existing context
       // This ensures that if user navigates directly to /create, they don't carry over old context
       try {
         sessionStorage.removeItem('lessonContext');
