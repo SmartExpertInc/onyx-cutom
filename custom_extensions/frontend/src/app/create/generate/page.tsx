@@ -365,6 +365,15 @@ function GenerateProductPicker() {
         setQuizLessonsForModule([]);
         setSelectedQuizLesson("");
       }
+      
+      // Clear text presentation context when switching away from One-Pager
+      if (activeProduct !== "One-Pager") {
+        setUseExistingTextOutline(null);
+        setSelectedTextOutlineId(null);
+        setSelectedTextModuleIndex(null);
+        setTextLessonsForModule([]);
+        setSelectedTextLesson("");
+      }
     }, 100); // 100ms delay
 
     return () => clearTimeout(timer);
