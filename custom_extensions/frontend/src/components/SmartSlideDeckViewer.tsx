@@ -48,7 +48,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Функція зміни тексту (копіюємо з page.tsx)
   const handleTextChange = useCallback((slideId: string, fieldPath: string, newValue: any) => {
-    console.log('handleTextChange called with:', { slideId, fieldPath, newValue, currentEditableDeck: editableDeck });
+    console.log('handleTextChange called with:', { slideId, fieldPath, newValue });
 
     setEditableDeck(currentDeck => {
       if (currentDeck === null || currentDeck === undefined) {
@@ -74,6 +74,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       };
 
       console.log('handleTextChange: Updated deck:', JSON.stringify(newDeck, null, 2));
+      console.log('handleTextChange: Updated slide title:', newDeck.slides[slideIndex].props[fieldPath]);
       return newDeck;
     });
 
@@ -84,17 +85,30 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     
     autoSaveTimeoutRef.current = setTimeout(() => {
       console.log('Auto-save timeout triggered for slide:', slideId, 'field:', fieldPath);
-      handleAutoSave();
+      // Використовуємо функцію, яка отримає поточний стан
+      setEditableDeck(currentDeck => {
+        if (currentDeck) {
+          handleAutoSaveWithDeck(currentDeck);
+        }
+        return currentDeck;
+      });
     }, 2000);
-  }, [editableDeck]);
+  }, []); // Прибрали залежність від editableDeck
 
-  // Автозбереження (копіюємо з page.tsx)
-  const handleAutoSave = async () => {
-    console.log('Auto-save triggered');
-    if (!editableDeck) {
-      console.log('Auto-save: Missing editableDeck');
+  // Автозбереження з переданим deck (для використання в timeout)
+  const handleAutoSaveWithDeck = async (deckToSave: ComponentBasedSlideDeck) => {
+    console.log('Auto-save triggered with deck');
+    if (!deckToSave) {
+      console.log('Auto-save: Missing deckToSave');
       return;
     }
+    
+    console.log('Auto-save: Current deck state:', {
+      slideCount: deckToSave.slides?.length,
+      firstSlideTitle: deckToSave.slides?.[0]?.props?.title,
+      slide4Title: deckToSave.slides?.[3]?.props?.title, // slide_4_communication
+      slide4Content: deckToSave.slides?.[3]?.props?.content?.substring(0, 50) + '...'
+    });
     
     // Якщо є projectId, зберігаємо безпосередньо на сервер
     if (projectId) {
@@ -106,7 +120,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
         }
 
-        const payload = { microProductContent: editableDeck };
+        const payload = { microProductContent: deckToSave };
+        console.log('Auto-save: Payload being sent:', JSON.stringify(payload, null, 2));
         console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
         
         const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
@@ -131,11 +146,20 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       // Якщо немає projectId, використовуємо onSave callback
       try {
         console.log('Auto-save: Sending data to onSave callback');
-        onSave?.(editableDeck);
+        onSave?.(deckToSave);
       } catch (err: any) {
         console.warn('Auto-save error:', err.message);
       }
     }
+  };
+
+  // Автозбереження (копіюємо з page.tsx) - для використання в cleanup
+  const handleAutoSave = async () => {
+    if (!editableDeck) {
+      console.log('Auto-save: Missing editableDeck');
+      return;
+    }
+    await handleAutoSaveWithDeck(editableDeck);
   };
 
   // Cleanup effect для автозбереження (копіюємо з page.tsx)
