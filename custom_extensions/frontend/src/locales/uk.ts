@@ -726,7 +726,7 @@ export const uk = {
       selectOutline: "Виберіть план",
       selectModule: "Виберіть модуль",
       selectLesson: "Виберіть урок",
-      multipleChoice: "Множинний вибір",
+      multipleChoice: "Одна правильна відповідь",
       multiSelect: "Множинний вибір",
       matching: "Відповідність",
       sorting: "Сортування",
