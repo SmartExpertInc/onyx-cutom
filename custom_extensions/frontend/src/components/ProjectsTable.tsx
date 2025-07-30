@@ -2412,12 +2412,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                         const projectTitle = proj.title.trim();
                         let belongsToOutline = false;
 
-                        // Method 1: Legacy logic - check if there's an outline with the same exact title
-                        const groupForThisTitle = grouped[proj.title];
-                        if (groupForThisTitle && groupForThisTitle.outline) {
-                            belongsToOutline = true;
-                        }
-
                         // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
                         if (!belongsToOutline && projectTitle.includes(': ')) {
                             const outlinePart = projectTitle.split(': ')[0].trim();
