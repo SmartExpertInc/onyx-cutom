@@ -108,6 +108,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
+    console.log('🔍 SmartSlideDeckViewer: handleSlideUpdate called with:', updatedSlide);
+    
     if (componentDeck) {
       const updatedDeck: ComponentBasedSlideDeck = {
         ...componentDeck,
@@ -115,8 +117,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           slide.slideId === updatedSlide.slideId ? updatedSlide : slide
         )
       };
+      console.log('🔍 SmartSlideDeckViewer: Updated deck:', updatedDeck);
       setComponentDeck(updatedDeck);
       onSave?.(updatedDeck);
+    } else {
+      console.warn('🔍 SmartSlideDeckViewer: componentDeck is null');
     }
   };
 

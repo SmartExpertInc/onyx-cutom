@@ -172,7 +172,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     console.log('🔍 ContentSlideTemplate: Saving title:', newTitle);
+    console.log('🔍 ContentSlideTemplate: Current slide props before update:', { title, content });
+    
     if (onUpdate) {
+      console.log('🔍 ContentSlideTemplate: Calling onUpdate with new title');
       onUpdate({ title: newTitle });
       
       // Clear existing timeout
@@ -185,6 +188,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
         console.log('🔍 ContentSlideTemplate: Immediate save triggered for title');
         onAutoSave();
       }
+    } else {
+      console.warn('🔍 ContentSlideTemplate: onUpdate is not available');
     }
     setEditingTitle(false);
   };

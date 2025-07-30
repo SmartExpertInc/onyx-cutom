@@ -846,15 +846,44 @@ export default function ProjectInstanceViewPage() {
               deck={slideDeckData}
               isEditable={true}
               onSave={(updatedDeck) => {
-                // Update the editableData state with the new deck
+                // Update the editableData state with the new deck and trigger save
                 console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
                 setEditableData(updatedDeck);
-                // Trigger immediate save to backend
-                setTimeout(() => {
-                  if (handleAutoSave) {
-                    handleAutoSave();
+                
+                // Use the updated deck directly for immediate save
+                console.log('🔍 page.tsx: Triggering auto-save with updated data');
+                // Create a temporary auto-save function that uses the updated deck
+                const tempAutoSave = async () => {
+                  if (!projectId || !projectInstanceData) {
+                    console.log('🔍 page.tsx: Missing required data for auto-save');
+                    return;
                   }
-                }, 100);
+                  
+                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+                  if (devUserId && process.env.NODE_ENV === 'development') {
+                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+                  }
+
+                  try {
+                    const payload = { microProductContent: updatedDeck };
+                    console.log('🔍 page.tsx: Sending updated deck to backend:', JSON.stringify(payload, null, 2));
+                    
+                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
+                    });
+                    
+                    if (!response.ok) {
+                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
+                    } else {
+                      console.log('🔍 page.tsx: Auto-save successful with updated data');
+                    }
+                  } catch (err: any) {
+                    console.error('🔍 page.tsx: Auto-save error:', err.message);
+                  }
+                };
+                
+                tempAutoSave();
               }}
               onAutoSave={handleAutoSave}
               showFormatInfo={true}
