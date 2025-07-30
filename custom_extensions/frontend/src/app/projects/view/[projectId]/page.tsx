@@ -809,6 +809,7 @@ export default function ProjectInstanceViewPage() {
             <SmartSlideDeckViewer
               deck={editableData || slideDeckData}
               isEditable={true} // Завжди включено для слайдів
+              projectId={projectId} // Передаємо projectId для прямого збереження
               onSave={(updatedDeck) => {
                 console.log('🔄 SmartSlideDeckViewer onSave called with:', {
                   slideCount: updatedDeck.slides?.length,
@@ -819,9 +820,8 @@ export default function ProjectInstanceViewPage() {
                 // Оновлюємо editableData з новими даними слайду
                 setEditableData(updatedDeck as ComponentBasedSlideDeck);
                 
-                // Викликаємо handleAutoSave для збереження на сервер
-                console.log('🔄 Calling handleAutoSave from onSave callback');
-                handleAutoSave();
+                // Автозбереження вже відбувається в SmartSlideDeckViewer
+                // Не викликаємо handleAutoSave тут, щоб уникнути циклу
               }}
               showFormatInfo={true}
               theme="dark-purple"

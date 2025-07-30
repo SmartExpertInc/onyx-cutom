@@ -21,6 +21,9 @@ interface SmartSlideDeckViewerProps {
   
   /** Theme ID for the slide deck (optional, uses deck.theme or default) */
   theme?: string;
+  
+  /** Project ID for direct server saving */
+  projectId?: string;
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -28,7 +31,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   isEditable = false,
   onSave,
   showFormatInfo = false,
-  theme
+  theme,
+  projectId
 }) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [editableDeck, setEditableDeck] = useState<ComponentBasedSlideDeck | null>(null);
@@ -92,11 +96,45 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       return;
     }
     
-    try {
-      console.log('Auto-save: Sending data to onSave');
-      onSave?.(editableDeck);
-    } catch (err: any) {
-      console.warn('Auto-save error:', err.message);
+    // Якщо є projectId, зберігаємо безпосередньо на сервер
+    if (projectId) {
+      try {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+        const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+        if (devUserId && process.env.NODE_ENV === 'development') {
+          saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+        }
+
+        const payload = { microProductContent: editableDeck };
+        console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
+        
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+          method: 'PUT', 
+          headers: saveOperationHeaders, 
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          console.warn('Auto-save failed:', response.status);
+          const errorText = await response.text();
+          console.warn('Auto-save error details:', errorText);
+        } else {
+          console.log('Auto-save successful');
+          const responseData = await response.json();
+          console.log('Auto-save response data:', JSON.stringify(responseData, null, 2));
+        }
+      } catch (err: any) {
+        console.warn('Auto-save error:', err.message);
+      }
+    } else {
+      // Якщо немає projectId, використовуємо onSave callback
+      try {
+        console.log('Auto-save: Sending data to onSave callback');
+        onSave?.(editableDeck);
+      } catch (err: any) {
+        console.warn('Auto-save error:', err.message);
+      }
     }
   };
 
