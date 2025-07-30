@@ -255,19 +255,6 @@ function UnifiedBulletEditor({
           position: 'relative'
         }}
       >
-        <div style={{
-          position: 'absolute',
-          top: '-8px',
-          right: '8px',
-          backgroundColor: '#3b82f6',
-          color: 'white',
-          fontSize: '10px',
-          padding: '2px 6px',
-          borderRadius: '4px',
-          fontWeight: '500'
-        }}>
-          Editing
-        </div>
         <ul style={{
           listStyle: 'none',
           padding: 0,
@@ -321,14 +308,47 @@ function UnifiedBulletEditor({
                         
                         // Focus the new line
                         setFocusedIndex(index + 1);
-                      } else if (e.key === 'Backspace' && line === '' && editLines.length > 1) {
-                        e.preventDefault();
-                        // Remove empty line
-                        const newLines = editLines.filter((_, i) => i !== index);
-                        setEditValue(newLines.join('\n'));
+                      } else if (e.key === 'Backspace') {
+                        const target = e.target as HTMLTextAreaElement;
+                        const cursorPosition = target.selectionStart;
                         
-                        // Focus the previous line
-                        setFocusedIndex(Math.max(0, index - 1));
+                        if (cursorPosition === 0 && index > 0) {
+                          // Backspace at the beginning of a line - merge with previous
+                          e.preventDefault();
+                          const newLines = [...editLines];
+                          const currentText = newLines[index];
+                          const previousText = newLines[index - 1];
+                          
+                          // Merge current text with previous line
+                          newLines[index - 1] = previousText + currentText;
+                          newLines.splice(index, 1);
+                          setEditValue(newLines.join('\n'));
+                          
+                          // Focus the previous line and position cursor at the end
+                          setFocusedIndex(index - 1);
+                          setTimeout(() => {
+                            const prevTextarea = textareaRefs.current[index - 1];
+                            if (prevTextarea) {
+                              prevTextarea.focus();
+                              prevTextarea.setSelectionRange(prevTextarea.value.length, prevTextarea.value.length);
+                            }
+                          }, 10);
+                        } else if (line === '' && editLines.length > 1) {
+                          // Backspace on empty line - remove the line
+                          e.preventDefault();
+                          const newLines = editLines.filter((_, i) => i !== index);
+                          setEditValue(newLines.join('\n'));
+                          
+                          // Focus the previous line and position cursor at the end
+                          setFocusedIndex(Math.max(0, index - 1));
+                          setTimeout(() => {
+                            const prevTextarea = textareaRefs.current[Math.max(0, index - 1)];
+                            if (prevTextarea) {
+                              prevTextarea.focus();
+                              prevTextarea.setSelectionRange(prevTextarea.value.length, prevTextarea.value.length);
+                            }
+                          }, 10);
+                        }
                       } else if (e.key === 'ArrowUp' && index > 0) {
                         e.preventDefault();
                         setFocusedIndex(index - 1);
