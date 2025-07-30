@@ -91,7 +91,9 @@ function InlineEditor({
           width: '100%',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
-          minHeight: '1.6em'
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block'
         }}
         rows={1}
       />
@@ -117,7 +119,9 @@ function InlineEditor({
           boxShadow: 'none',
           width: '100%',
           wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap'
+          whiteSpace: 'pre-wrap',
+          boxSizing: 'border-box',
+          display: 'block'
         }}
     />
   );
@@ -312,10 +316,23 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
-          multiline={false}
+          multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={titleStyles}
+          style={{
+            ...titleStyles,
+            // Ensure title behaves exactly like h1 element
+            margin: '0',
+            padding: '0',
+            border: 'none',
+            outline: 'none',
+            resize: 'none',
+            overflow: 'hidden',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
+            boxSizing: 'border-box',
+            display: 'block'
+          }}
         />
       ) : (
         <h1 
@@ -341,7 +358,20 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           multiline={true}
           placeholder="Enter slide content..."
           className="inline-editor-content"
-          style={contentStyles}
+          style={{
+            ...contentStyles,
+            // Ensure content behaves exactly like div element
+            margin: '0',
+            padding: '0',
+            border: 'none',
+            outline: 'none',
+            resize: 'none',
+            overflow: 'hidden',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
+            boxSizing: 'border-box',
+            display: 'block'
+          }}
         />
       ) : (
         <div 
