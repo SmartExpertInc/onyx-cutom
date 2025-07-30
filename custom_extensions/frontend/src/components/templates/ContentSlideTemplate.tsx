@@ -182,7 +182,6 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
-    fontWeight: 700,
     color: titleColor,
     textAlign: alignment,
     marginBottom: '40px',
@@ -195,12 +194,12 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const contentStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.contentSize,
     fontFamily: currentTheme.fonts.contentFont,
-    fontWeight: 400,
     color: contentColor,
     textAlign: alignment,
     lineHeight: 1.6,
     maxWidth: '800px',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
+    wordWrap: 'break-word'
   };
 
   const editOverlayStyles: React.CSSProperties = {
