@@ -71,20 +71,13 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Ensure no default browser styling interferes
+          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
           boxShadow: 'none',
           resize: 'none',
-          overflow: 'hidden',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          lineHeight: 'inherit',
-          color: 'inherit',
-          padding: '0',
-          margin: '0'
+          overflow: 'hidden'
         }}
         rows={1}
       />
@@ -101,21 +94,14 @@ function InlineEditor({
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       placeholder={placeholder}
-      style={{
-        ...style,
-        // Ensure no default browser styling interferes
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        fontFamily: 'inherit',
-        fontSize: 'inherit',
-        fontWeight: 'inherit',
-        lineHeight: 'inherit',
-        color: 'inherit',
-        padding: '0',
-        margin: '0'
-      }}
+              style={{
+          ...style,
+          // Only override browser defaults, preserve all passed styles
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none'
+        }}
     />
   );
 }
@@ -312,18 +298,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           multiline={false}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            backgroundColor: 'transparent',
-            border: 'none',
-            outline: 'none',
-            width: '100%',
-            maxWidth: '900px',
-            padding: '0',
-            margin: '0',
-            boxShadow: 'none',
-            resize: 'none'
-          }}
+          style={titleStyles}
         />
       ) : (
         <h1 
@@ -334,7 +309,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer' : ''}
+          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -349,21 +324,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           multiline={true}
           placeholder="Enter slide content..."
           className="inline-editor-content"
-          style={{
-            ...contentStyles,
-            backgroundColor: 'transparent',
-            border: 'none',
-            outline: 'none',
-            width: '100%',
-            maxWidth: '800px',
-            padding: '0',
-            margin: '0',
-            boxShadow: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            minHeight: 'auto',
-            height: 'auto'
-          }}
+          style={contentStyles}
         />
       ) : (
         <div 
@@ -374,7 +335,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
               setEditingContent(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer' : ''}
+          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {content ? parseContent(content) : <p>Click to add content...</p>}
         </div>
