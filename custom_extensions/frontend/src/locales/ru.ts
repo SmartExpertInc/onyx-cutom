@@ -92,7 +92,7 @@ export const ru = {
     deletePermanentlyButton: "Удалить Навсегда",
     wantToEditInTrash: "Хотите отредактировать это? Это в корзине.",
     restoreIt: "Восстановить",
-    created: "Создан {date}",
+    created: "Создан",
     courseOutlineTrashMessage: "Это План Курса. Вы хотите переместить только план или план и все его уроки?",
     tokens: "токенов",
     ready: "Готово",
