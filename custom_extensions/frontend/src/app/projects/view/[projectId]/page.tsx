@@ -543,45 +543,94 @@ export default function ProjectInstanceViewPage() {
         }
       }
       
-      console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
+      // Add validation for Slide Deck data
+      if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+        const slideDeckData = editableData as ComponentBasedSlideDeck;
+        console.log('Auto-save: Slide deck validation check:', {
+          hasLessonTitle: !!slideDeckData.lessonTitle,
+          hasSlides: !!slideDeckData.slides,
+          slidesLength: slideDeckData.slides?.length || 0,
+          hasTheme: !!slideDeckData.theme,
+          slidesStructure: slideDeckData.slides?.map(slide => ({
+            hasSlideId: !!slide.slideId,
+            hasTemplateId: !!slide.templateId,
+            hasProps: !!slide.props,
+            propsKeys: slide.props ? Object.keys(slide.props) : []
+          }))
+        });
+        
+        // Validate and fix slide deck structure before sending
+        if (slideDeckData.slides) {
+          slideDeckData.slides.forEach((slide, index) => {
+            // Ensure slide has required properties
+            if (!slide.slideId) {
+              slide.slideId = `slide-${Date.now()}-${index}`;
+            }
+            if (!slide.templateId) {
+              slide.templateId = 'content-slide';
+            }
+            if (!slide.props) {
+              slide.props = {};
+            }
+            // Ensure props have required fields
+            if (!slide.props.title) {
+              slide.props.title = `Slide ${index + 1}`;
+            }
+            if (!slide.props.content) {
+              slide.props.content = '';
+            }
+          });
+        }
+      }
+      
+      console.log('🔍 Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
       });
       if (!response.ok) {
-        console.warn('Auto-save failed:', response.status);
+        console.error('🔍 Auto-save failed:', response.status);
         const errorText = await response.text();
-        console.warn('Auto-save error details:', errorText);
+        console.error('🔍 Auto-save error details:', errorText);
         
         // Try to parse error details for better debugging
         try {
           const errorJson = JSON.parse(errorText);
-          console.warn('Auto-save parsed error:', errorJson);
+          console.error('🔍 Auto-save parsed error:', errorJson);
           if (errorJson.detail) {
-            console.warn('Auto-save validation errors:', errorJson.detail);
+            console.error('🔍 Auto-save validation errors:', errorJson.detail);
           }
         } catch (e) {
-          console.warn('Could not parse error response as JSON');
+          console.error('🔍 Could not parse error response as JSON');
         }
       } else {
-        console.log('Auto-save successful');
+        console.log('🔍 Auto-save successful');
         const responseData = await response.json();
-        console.log('Auto-save response data:', JSON.stringify(responseData, null, 2));
+        console.log('🔍 Auto-save response data:', JSON.stringify(responseData, null, 2));
         
-        // Check if the response data matches what we sent (only for TrainingPlanData)
+        // Check if the response data matches what we sent
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           const trainingPlanData = editableData as TrainingPlanData;
-          console.log('Auto-save: Data comparison:', {
+          console.log('🔍 Auto-save: Training plan data comparison:', {
             sentMainTitle: trainingPlanData.mainTitle,
             receivedMainTitle: responseData.microproduct_content?.mainTitle,
             sentSectionsCount: trainingPlanData.sections?.length || 0,
             receivedSectionsCount: responseData.microproduct_content?.sections?.length || 0,
             dataMatches: JSON.stringify(trainingPlanData) === JSON.stringify(responseData.microproduct_content)
           });
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+          const slideDeckData = editableData as ComponentBasedSlideDeck;
+          console.log('🔍 Auto-save: Slide deck data comparison:', {
+            sentLessonTitle: slideDeckData.lessonTitle,
+            receivedLessonTitle: responseData.microproduct_content?.lessonTitle,
+            sentSlidesCount: slideDeckData.slides?.length || 0,
+            receivedSlidesCount: responseData.microproduct_content?.slides?.length || 0,
+            dataMatches: JSON.stringify(slideDeckData) === JSON.stringify(responseData.microproduct_content)
+          });
         }
       }
       // Don't refresh page or show alerts for auto-save
     } catch (err: any) {
-      console.warn('Auto-save error:', err.message);
+      console.error('🔍 Auto-save error:', err.message);
     }
   };
 
@@ -797,10 +846,15 @@ export default function ProjectInstanceViewPage() {
               deck={slideDeckData}
               isEditable={true}
               onSave={(updatedDeck) => {
-                // Convert the updated deck back to the format expected by handleTextChange
-                if (handleTextChange) {
-                  handleTextChange([], updatedDeck as any);
-                }
+                // Update the editableData state with the new deck
+                console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
+                setEditableData(updatedDeck);
+                // Trigger immediate save to backend
+                setTimeout(() => {
+                  if (handleAutoSave) {
+                    handleAutoSave();
+                  }
+                }, 100);
               }}
               onAutoSave={handleAutoSave}
               showFormatInfo={true}

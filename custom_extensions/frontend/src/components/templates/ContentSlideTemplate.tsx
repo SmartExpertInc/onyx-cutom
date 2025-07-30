@@ -103,7 +103,16 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
-  const [autoSaveTimeoutRef] = useState<React.MutableRefObject<NodeJS.Timeout | null>>({ current: null });
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -162,6 +171,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
+    console.log('🔍 ContentSlideTemplate: Saving title:', newTitle);
     if (onUpdate) {
       onUpdate({ title: newTitle });
       
@@ -170,12 +180,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
         clearTimeout(autoSaveTimeoutRef.current);
       }
       
-      // Set new timeout for auto-save
+      // Immediate save on blur for better UX
       if (onAutoSave) {
-        autoSaveTimeoutRef.current = setTimeout(() => {
-          console.log('Auto-save timeout triggered for title');
-          onAutoSave();
-        }, 2000);
+        console.log('🔍 ContentSlideTemplate: Immediate save triggered for title');
+        onAutoSave();
       }
     }
     setEditingTitle(false);
@@ -187,6 +195,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   // Handle content editing
   const handleContentSave = (newContent: string) => {
+    console.log('🔍 ContentSlideTemplate: Saving content:', newContent.substring(0, 50) + '...');
     if (onUpdate) {
       onUpdate({ content: newContent });
       
@@ -195,12 +204,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
         clearTimeout(autoSaveTimeoutRef.current);
       }
       
-      // Set new timeout for auto-save
+      // Immediate save on blur for better UX
       if (onAutoSave) {
-        autoSaveTimeoutRef.current = setTimeout(() => {
-          console.log('Auto-save timeout triggered for content');
-          onAutoSave();
-        }, 2000);
+        console.log('🔍 ContentSlideTemplate: Immediate save triggered for content');
+        onAutoSave();
       }
     }
     setEditingContent(false);
