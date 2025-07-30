@@ -450,7 +450,7 @@ function UnifiedBulletEditor({
   return (
     <div 
       onClick={startEditing}
-      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
       style={{ padding: '4px', borderRadius: '4px' }}
     >
       <ul style={{
