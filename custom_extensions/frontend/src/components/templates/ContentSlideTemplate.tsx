@@ -59,6 +59,16 @@ function InlineEditor({
     }
   }, [value, multiline]);
 
+  // Set initial height for textarea to match content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
   if (multiline) {
     return (
       <textarea
@@ -77,7 +87,11 @@ function InlineEditor({
           outline: 'none',
           boxShadow: 'none',
           resize: 'none',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em'
         }}
         rows={1}
       />
@@ -100,7 +114,10 @@ function InlineEditor({
           background: 'transparent',
           border: 'none',
           outline: 'none',
-          boxShadow: 'none'
+          boxShadow: 'none',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap'
         }}
     />
   );
