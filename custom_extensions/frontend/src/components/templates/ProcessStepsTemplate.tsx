@@ -94,7 +94,6 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6',
           textAlign: 'center'
         }}
         rows={1}
@@ -153,7 +152,6 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   const titleStyles: React.CSSProperties = {
     textAlign: 'center',
     marginBottom: '40px',
-    fontWeight: '700',
     fontFamily: currentTheme.fonts.titleFont,
     fontSize: currentTheme.fonts.titleSize,
     color: currentTheme.colors.titleColor,
@@ -252,7 +250,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
               setEditingTitle(true);
             }
           }}
-          className={props.isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {props.title || 'Click to add title'}
         </h1>
@@ -325,7 +323,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                       startEditingStep(index);
                     }
                   }}
-                  className={props.isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {stepDescription || 'Click to add step description'}
                 </p>
