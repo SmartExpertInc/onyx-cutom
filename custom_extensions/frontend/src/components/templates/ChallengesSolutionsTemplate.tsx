@@ -289,7 +289,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   };
 
   const handleChallengeCancel = (index: number) => {
-    setEditingChallenges(editingChallenges.filter(i => i !== index));
+    setEditingChallenges(editingChallenges.filter((i: number) => i !== index));
   };
 
   // Handle solution editing
@@ -299,11 +299,11 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
       updatedSolutions[index] = newSolution;
       onUpdate({ solutions: updatedSolutions });
     }
-    setEditingSolutions(editingSolutions.filter(i => i !== index));
+    setEditingSolutions(editingSolutions.filter((i: number) => i !== index));
   };
 
   const handleSolutionCancel = (index: number) => {
-    setEditingSolutions(editingSolutions.filter(i => i !== index));
+    setEditingSolutions(editingSolutions.filter((i: number) => i !== index));
   };
 
   const startEditingChallenge = (index: number) => {
@@ -423,7 +423,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             )}
           </div>
           <ul style={listStyles}>
-            {challenges?.map((challenge, index) => (
+            {challenges?.map((challenge: string, index: number) => (
               <li key={index} style={listItemStyles}>
                 <div style={bulletStyles}></div>
                 {isEditable && editingChallenges.includes(index) ? (
@@ -513,7 +513,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             )}
           </div>
           <ul style={listStyles}>
-            {solutions?.map((solution, index) => (
+            {solutions?.map((solution: string, index: number) => (
               <li key={index} style={listItemStyles}>
                 <div style={bulletStyles}></div>
                 {isEditable && editingSolutions.includes(index) ? (

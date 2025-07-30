@@ -242,7 +242,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   };
 
   const handleBoxHeadingCancel = (index: number) => {
-    setEditingBoxHeadings(editingBoxHeadings.filter(i => i !== index));
+    setEditingBoxHeadings(editingBoxHeadings.filter((i: number) => i !== index));
   };
 
   // Handle box text editing
@@ -252,11 +252,11 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
       updatedBoxes[index] = { ...updatedBoxes[index], text: newText };
       onUpdate({ boxes: updatedBoxes });
     }
-    setEditingBoxTexts(editingBoxTexts.filter(i => i !== index));
+    setEditingBoxTexts(editingBoxTexts.filter((i: number) => i !== index));
   };
 
   const handleBoxTextCancel = (index: number) => {
-    setEditingBoxTexts(editingBoxTexts.filter(i => i !== index));
+    setEditingBoxTexts(editingBoxTexts.filter((i: number) => i !== index));
   };
 
   const startEditingBoxHeading = (index: number) => {

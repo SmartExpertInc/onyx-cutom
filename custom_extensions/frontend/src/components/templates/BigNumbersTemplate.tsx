@@ -252,7 +252,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   };
 
   const handleItemValueCancel = (index: number) => {
-    setEditingItemValues(editingItemValues.filter(i => i !== index));
+    setEditingItemValues(editingItemValues.filter((i: number) => i !== index));
   };
 
   // Handle item label editing
@@ -262,11 +262,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       updatedItems[index] = { ...updatedItems[index], label: newLabel };
       onUpdate({ items: updatedItems });
     }
-    setEditingItemLabels(editingItemLabels.filter(i => i !== index));
+    setEditingItemLabels(editingItemLabels.filter((i: number) => i !== index));
   };
 
   const handleItemLabelCancel = (index: number) => {
-    setEditingItemLabels(editingItemLabels.filter(i => i !== index));
+    setEditingItemLabels(editingItemLabels.filter((i: number) => i !== index));
   };
 
   // Handle item description editing
@@ -276,11 +276,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       updatedItems[index] = { ...updatedItems[index], description: newDescription };
       onUpdate({ items: updatedItems });
     }
-    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
   };
 
   const handleItemDescriptionCancel = (index: number) => {
-    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
   };
 
   const startEditingItemValue = (index: number) => {

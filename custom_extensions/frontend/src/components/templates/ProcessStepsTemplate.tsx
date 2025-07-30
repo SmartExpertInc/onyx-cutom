@@ -183,19 +183,27 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   const handleStepSave = (index: number, newStep: string) => {
     if (props.onUpdate && props.steps) {
       const updatedSteps = [...props.steps];
-      // Handle both string and object formats
+      // Always maintain the object structure with title, description, and optional icon
       if (typeof updatedSteps[index] === 'string') {
-        updatedSteps[index] = newStep;
+        // Convert string to object format
+        updatedSteps[index] = {
+          title: `Step ${index + 1}`,
+          description: newStep
+        };
       } else {
-        updatedSteps[index] = { ...updatedSteps[index], description: newStep };
+        // Update existing object, preserving title and icon if they exist
+        updatedSteps[index] = {
+          ...updatedSteps[index],
+          description: newStep
+        };
       }
       props.onUpdate({ steps: updatedSteps });
     }
-    setEditingSteps(editingSteps.filter(i => i !== index));
+    setEditingSteps(editingSteps.filter((i: number) => i !== index));
   };
 
   const handleStepCancel = (index: number) => {
-    setEditingSteps(editingSteps.filter(i => i !== index));
+    setEditingSteps(editingSteps.filter((i: number) => i !== index));
   };
 
   const startEditingStep = (index: number) => {
@@ -257,7 +265,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
           gap: '32px',
         }}
       >
-        {props.steps?.map((step, index) => {
+        {props.steps?.map((step: any, index: number) => {
           // Підтримка масиву рядків (як генерує AI)
           const stepDescription = typeof step === 'string' ? step : step.description;
           return (
