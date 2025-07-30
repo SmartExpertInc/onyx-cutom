@@ -94,7 +94,6 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6'
         }}
         rows={1}
       />
@@ -343,7 +342,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.6'
             }}
           />
         ) : (
