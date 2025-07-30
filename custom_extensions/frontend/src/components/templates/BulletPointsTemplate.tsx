@@ -128,6 +128,194 @@ function InlineEditor({
   );
 }
 
+// New component for unified bullet points editing
+interface UnifiedBulletEditorProps {
+  bullets: string[];
+  bulletStyle: string;
+  onUpdate: (bullets: string[]) => void;
+  theme: SlideTheme;
+  isEditable: boolean;
+}
+
+function UnifiedBulletEditor({ 
+  bullets, 
+  bulletStyle, 
+  onUpdate, 
+  theme, 
+  isEditable 
+}: UnifiedBulletEditorProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Convert bullets array to text for editing
+  const bulletsToText = (bullets: string[]): string => {
+    return bullets.join('\n');
+  };
+
+  // Convert text back to bullets array
+  const textToBullets = (text: string): string[] => {
+    return text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0 && line !== 'Click to add bullet point' && line !== 'Click to add bullet points...');
+  };
+
+  const getBulletIcon = (style: string, index: number) => {
+    switch (style) {
+      case 'dot':
+        return '•';
+      case 'arrow':
+        return '→';
+      case 'check':
+        return '✓';
+      case 'star':
+        return '★';
+      case 'number':
+        return `${index + 1}.`;
+      default:
+        return '•';
+    }
+  };
+
+  const startEditing = () => {
+    if (!isEditable) return;
+    setEditValue(bulletsToText(bullets));
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    const newBullets = textToBullets(editValue);
+    onUpdate(newBullets);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    handleSave();
+  };
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const textarea = textareaRef.current;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [editValue, isEditing]);
+
+  // Focus and select when editing starts
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.select();
+    }
+  }, [isEditing]);
+
+  const bulletIconStyles: React.CSSProperties = {
+    color: theme.colors.accentColor,
+    fontWeight: 600,
+    minWidth: '20px',
+    fontSize: bulletStyle === 'number' ? '1.1rem' : '1.2rem',
+    fontFamily: theme.fonts.titleFont
+  };
+
+  const bulletTextStyles: React.CSSProperties = {
+    fontFamily: theme.fonts.contentFont,
+    fontSize: theme.fonts.contentSize,
+    color: theme.colors.contentColor,
+    lineHeight: '1.6'
+  };
+
+  if (isEditing) {
+    return (
+      <textarea
+        ref={textareaRef}
+        value={editValue}
+        onChange={(e) => setEditValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder="Enter bullet points... Press Enter to save, Shift+Enter for new line"
+        style={{
+          ...bulletTextStyles,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          padding: '0',
+          margin: '0'
+        }}
+        rows={Math.max(1, bullets.length)}
+      />
+    );
+  }
+
+  return (
+    <div 
+      onClick={startEditing}
+      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+      style={{ padding: '4px', borderRadius: '4px' }}
+    >
+      <ul style={{
+        listStyle: 'none',
+        padding: 0,
+        margin: 0,
+        width: '100%'
+      }}>
+        {bullets.map((bullet: string, index: number) => (
+          <li key={index} style={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            gap: '12px', 
+            marginBottom: '16px' 
+          }}>
+            <span style={bulletIconStyles}>
+              {getBulletIcon(bulletStyle, index)}
+            </span>
+            <span style={bulletTextStyles}>
+              {bullet || 'Click to add bullet point'}
+            </span>
+          </li>
+        ))}
+        {bullets.length === 0 && isEditable && (
+          <li style={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            gap: '12px', 
+            marginBottom: '16px' 
+          }}>
+            <span style={bulletIconStyles}>•</span>
+            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic' }}>
+              Click to add bullet points...
+            </span>
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
 export const BulletPointsTemplate: React.FC<BulletPointsProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
@@ -147,20 +335,9 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
-  // Inline editing state
+  // Inline editing state for title only
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingBullets, setEditingBullets] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
@@ -219,43 +396,6 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     wordWrap: 'break-word'
   };
 
-  const bulletItemStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '12px',
-    fontSize: currentTheme.fonts.contentSize,
-    lineHeight: 1.6,
-    color: currentTheme.colors.contentColor,
-    marginBottom: '16px',
-    minWidth: maxColumns === 2 ? '40%' : '100%',
-    flex: maxColumns === 2 ? '0 0 45%' : '1 1 100%'
-  };
-
-  const getBulletIcon = (style: string, index: number) => {
-    switch (style) {
-      case 'dot':
-        return '•';
-      case 'arrow':
-        return '→';
-      case 'check':
-        return '✓';
-      case 'star':
-        return '★';
-      case 'number':
-        return `${index + 1}.`;
-      default:
-        return '•';
-    }
-  };
-
-  const bulletIconStyles: React.CSSProperties = {
-    color: currentTheme.colors.accentColor,
-    fontWeight: 600,
-    minWidth: '20px',
-    fontSize: bulletStyle === 'number' ? '1.1rem' : '1.2rem',
-    fontFamily: currentTheme.fonts.titleFont
-  };
-
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
@@ -268,22 +408,11 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     setEditingTitle(false);
   };
 
-  // Handle bullet editing
-  const handleBulletSave = (index: number, newBullet: string) => {
-    if (onUpdate && bullets) {
-      const updatedBullets = [...bullets];
-      updatedBullets[index] = newBullet;
-      onUpdate({ bullets: updatedBullets });
+  // Handle bullet points update
+  const handleBulletsUpdate = (newBullets: string[]) => {
+    if (onUpdate) {
+      onUpdate({ bullets: newBullets });
     }
-    setEditingBullets(editingBullets.filter(i => i !== index));
-  };
-
-  const handleBulletCancel = (index: number) => {
-    setEditingBullets(editingBullets.filter(i => i !== index));
-  };
-
-  const startEditingBullet = (index: number) => {
-    setEditingBullets([...editingBullets, index]);
   };
 
   // AI prompt logic
@@ -345,65 +474,15 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             </div>
           </div>
         </div>
-        {/* Right: Bullets as list */}
+        {/* Right: Unified bullet points editor */}
         <div style={bulletsContainerStyles}>
-          <ul style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: 0,
-            width: '100%'
-          }}>
-            {bullets?.map((bullet: string, index: number) => (
-              <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
-                <span style={bulletIconStyles}>{getBulletIcon(bulletStyle, index)}</span>
-                {isEditable && editingBullets.includes(index) ? (
-                  <InlineEditor
-                    initialValue={bullet || ''}
-                    onSave={(newBullet) => handleBulletSave(index, newBullet)}
-                    onCancel={() => handleBulletCancel(index)}
-                    multiline={true}
-                    placeholder="Enter bullet point..."
-                    className="inline-editor-bullet"
-                    style={{
-                      fontFamily: currentTheme.fonts.contentFont,
-                      fontSize: currentTheme.fonts.contentSize,
-                      color: currentTheme.colors.contentColor,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      width: '100%',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      lineHeight: '1.6',
-                      margin: '0',
-                      padding: '0'
-                    }}
-                  />
-                ) : (
-                  <span 
-                    style={{ 
-                      fontFamily: currentTheme.fonts.contentFont, 
-                      fontSize: currentTheme.fonts.contentSize, 
-                      color: currentTheme.colors.contentColor 
-                    }}
-                    onClick={() => {
-                      if (isEditable) {
-                        startEditingBullet(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {bullet || 'Click to add bullet point'}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <UnifiedBulletEditor
+            bullets={bullets || []}
+            bulletStyle={bulletStyle}
+            onUpdate={handleBulletsUpdate}
+            theme={currentTheme}
+            isEditable={isEditable}
+          />
         </div>
       </div>
     </div>
