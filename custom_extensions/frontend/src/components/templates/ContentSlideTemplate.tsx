@@ -293,7 +293,6 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       return (
         <p 
           key={index} 
-          style={{ marginBottom: '16px' }}
           dangerouslySetInnerHTML={{ __html: processedLine }}
         />
       );
@@ -323,7 +322,6 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           style={{
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
-            margin: '0',
             padding: '0',
             border: 'none',
             outline: 'none',
@@ -345,7 +343,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -385,7 +383,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
               setEditingContent(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {content ? parseContent(content) : <p>Click to add content...</p>}
         </div>
