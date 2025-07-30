@@ -146,7 +146,8 @@ function UnifiedBulletEditor({
 }: UnifiedBulletEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   // Convert bullets array to text for editing
   const bulletsToText = (bullets: string[]): string => {
@@ -182,16 +183,19 @@ function UnifiedBulletEditor({
     if (!isEditable) return;
     setEditValue(bulletsToText(bullets));
     setIsEditing(true);
+    setFocusedIndex(0);
   };
 
   const handleSave = () => {
     const newBullets = textToBullets(editValue);
     onUpdate(newBullets);
     setIsEditing(false);
+    setFocusedIndex(0);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    setFocusedIndex(0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -208,22 +212,18 @@ function UnifiedBulletEditor({
     handleSave();
   };
 
-  // Auto-resize textarea
+  // Focus management
   useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      const textarea = textareaRef.current;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+    if (isEditing && textareaRefs.current[focusedIndex]) {
+      textareaRefs.current[focusedIndex]?.focus();
     }
-  }, [editValue, isEditing]);
+  }, [focusedIndex, isEditing]);
 
-  // Focus and select when editing starts
+  // Initialize refs array
   useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.select();
-    }
-  }, [isEditing]);
+    const editLines = editValue.split('\n');
+    textareaRefs.current = textareaRefs.current.slice(0, editLines.length);
+  }, [editValue]);
 
   const bulletIconStyles: React.CSSProperties = {
     color: theme.colors.accentColor,
@@ -302,7 +302,9 @@ function UnifiedBulletEditor({
                 )}
                 <div style={{ flex: 1, position: 'relative' }}>
                   <textarea
-                    ref={index === 0 ? textareaRef : null}
+                    ref={(el) => {
+                      textareaRefs.current[index] = el;
+                    }}
                     value={line}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                       const newLines = [...editLines];
@@ -317,13 +319,8 @@ function UnifiedBulletEditor({
                         newLines.splice(index + 1, 0, '');
                         setEditValue(newLines.join('\n'));
                         
-                        // Focus the new line after a brief delay
-                        setTimeout(() => {
-                          const textareas = document.querySelectorAll('.bullet-edit-textarea');
-                          if (textareas[index + 1]) {
-                            (textareas[index + 1] as HTMLTextAreaElement).focus();
-                          }
-                        }, 10);
+                        // Focus the new line
+                        setFocusedIndex(index + 1);
                       } else if (e.key === 'Backspace' && line === '' && editLines.length > 1) {
                         e.preventDefault();
                         // Remove empty line
@@ -331,18 +328,34 @@ function UnifiedBulletEditor({
                         setEditValue(newLines.join('\n'));
                         
                         // Focus the previous line
-                        setTimeout(() => {
-                          const textareas = document.querySelectorAll('.bullet-edit-textarea');
-                          if (textareas[index - 1]) {
-                            (textareas[index - 1] as HTMLTextAreaElement).focus();
-                          }
-                        }, 10);
+                        setFocusedIndex(Math.max(0, index - 1));
+                      } else if (e.key === 'ArrowUp' && index > 0) {
+                        e.preventDefault();
+                        setFocusedIndex(index - 1);
+                      } else if (e.key === 'ArrowDown' && index < editLines.length - 1) {
+                        e.preventDefault();
+                        setFocusedIndex(index + 1);
                       } else if (e.key === 'Escape') {
                         e.preventDefault();
                         handleCancel();
+                      } else if (e.key === 'Tab') {
+                        e.preventDefault();
+                        handleSave();
                       }
                     }}
-                    onBlur={handleBlur}
+                    onFocus={() => {
+                      setFocusedIndex(index);
+                    }}
+                    onBlur={() => {
+                      // Only save on blur if we're not switching to another textarea
+                      setTimeout(() => {
+                        const activeElement = document.activeElement;
+                        const isStillInEditMode = activeElement?.classList.contains('bullet-edit-textarea');
+                        if (!isStillInEditMode) {
+                          handleSave();
+                        }
+                      }, 100);
+                    }}
                     placeholder={index === 0 ? "Enter bullet points... Press Enter for new line" : ""}
                     className="bullet-edit-textarea"
                     style={{
@@ -364,7 +377,7 @@ function UnifiedBulletEditor({
                       height: 'auto'
                     }}
                     rows={1}
-                    onInput={(e) => {
+                    onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
                       // Auto-resize this specific textarea
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
