@@ -94,7 +94,6 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6'
         }}
         rows={1}
       />
@@ -279,7 +278,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
           style={{
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
-            margin: '0',
             padding: '0',
             border: 'none',
             outline: 'none',
