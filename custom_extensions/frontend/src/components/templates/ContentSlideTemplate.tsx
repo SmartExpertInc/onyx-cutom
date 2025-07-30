@@ -327,23 +327,6 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
           {content ? parseContent(content) : <p>Click to add content...</p>}
         </div>
       )}
-
-      {/* Edit Overlay - only show when not editing */}
-      {isEditable && !editingTitle && !editingContent && (
-        <div style={editOverlayStyles}>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#333',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
-            Click to edit content slide
-          </div>
-        </div>
-      )}
     </div>
   );
 };
