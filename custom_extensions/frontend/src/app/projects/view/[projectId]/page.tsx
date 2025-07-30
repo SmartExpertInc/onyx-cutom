@@ -875,8 +875,12 @@ export default function ProjectInstanceViewPage() {
                     
                     if (!response.ok) {
                       console.error('🔍 page.tsx: Auto-save failed:', response.status);
+                      const errorText = await response.text();
+                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
                     } else {
                       console.log('🔍 page.tsx: Auto-save successful with updated data');
+                      const responseData = await response.json();
+                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
                     }
                   } catch (err: any) {
                     console.error('🔍 page.tsx: Auto-save error:', err.message);
@@ -885,7 +889,7 @@ export default function ProjectInstanceViewPage() {
                 
                 tempAutoSave();
               }}
-              onAutoSave={handleAutoSave}
+              // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
               theme="dark-purple"
             />

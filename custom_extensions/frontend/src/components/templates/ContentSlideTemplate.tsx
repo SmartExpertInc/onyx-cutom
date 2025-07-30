@@ -183,11 +183,9 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
         clearTimeout(autoSaveTimeoutRef.current);
       }
       
-      // Immediate save on blur for better UX
-      if (onAutoSave) {
-        console.log('🔍 ContentSlideTemplate: Immediate save triggered for title');
-        onAutoSave();
-      }
+      // Note: Auto-save is now handled by the parent component via onUpdate
+      // No need to call onAutoSave here as it would cause duplicate requests
+      console.log('🔍 ContentSlideTemplate: Title update completed, auto-save handled by parent');
     } else {
       console.warn('🔍 ContentSlideTemplate: onUpdate is not available');
     }
@@ -209,11 +207,9 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
         clearTimeout(autoSaveTimeoutRef.current);
       }
       
-      // Immediate save on blur for better UX
-      if (onAutoSave) {
-        console.log('🔍 ContentSlideTemplate: Immediate save triggered for content');
-        onAutoSave();
-      }
+      // Note: Auto-save is now handled by the parent component via onUpdate
+      // No need to call onAutoSave here as it would cause duplicate requests
+      console.log('🔍 ContentSlideTemplate: Content update completed, auto-save handled by parent');
     }
     setEditingContent(false);
   };

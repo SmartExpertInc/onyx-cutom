@@ -16,9 +16,6 @@ interface SmartSlideDeckViewerProps {
   /** Save callback for changes */
   onSave?: (updatedDeck: ComponentBasedSlideDeck) => void;
   
-  /** Auto-save callback for inline editing */
-  onAutoSave?: () => void;
-  
   /** Show format detection info */
   showFormatInfo?: boolean;
   
@@ -32,7 +29,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
   isEditable = false,
   onSave,
-  onAutoSave,
   showFormatInfo = false,
   theme
 }) => {
@@ -285,7 +281,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
           onTemplateChange={isEditable ? handleTemplateChange : undefined}
           theme={componentDeck.theme}
-          onAutoSave={onAutoSave}
         />
               </div>
             </div>
