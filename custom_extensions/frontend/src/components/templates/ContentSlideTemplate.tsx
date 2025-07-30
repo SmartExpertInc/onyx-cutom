@@ -245,12 +245,21 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     });
   };
 
+  // Debug logging
+  console.log('ContentSlideTemplate render:', {
+    isEditable,
+    editingTitle,
+    editingContent,
+    title,
+    content: content?.substring(0, 50) + '...'
+  });
+
   return (
     <div className="content-slide-template" style={slideStyles}>
       {/* Title */}
       {isEditable && editingTitle ? (
         <InlineEditor
-          initialValue={title}
+          initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={false}
@@ -270,17 +279,22 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => isEditable && setEditingTitle(true)}
+          onClick={() => {
+            console.log('Title clicked, isEditable:', isEditable);
+            if (isEditable) {
+              setEditingTitle(true);
+            }
+          }}
           className={isEditable ? 'cursor-pointer hover:bg-yellow-50 hover:bg-opacity-20 rounded p-2 transition-colors' : ''}
         >
-          {title}
+          {title || 'Click to add title'}
         </h1>
       )}
 
       {/* Content */}
       {isEditable && editingContent ? (
         <InlineEditor
-          initialValue={content}
+          initialValue={content || ''}
           onSave={handleContentSave}
           onCancel={handleContentCancel}
           multiline={true}
@@ -302,10 +316,15 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       ) : (
         <div 
           style={contentStyles}
-          onClick={() => isEditable && setEditingContent(true)}
+          onClick={() => {
+            console.log('Content clicked, isEditable:', isEditable);
+            if (isEditable) {
+              setEditingContent(true);
+            }
+          }}
           className={isEditable ? 'cursor-pointer hover:bg-yellow-50 hover:bg-opacity-20 rounded p-2 transition-colors' : ''}
         >
-          {parseContent(content)}
+          {content ? parseContent(content) : <p>Click to add content...</p>}
         </div>
       )}
 

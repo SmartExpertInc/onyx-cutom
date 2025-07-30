@@ -26,64 +26,7 @@ interface SmartSlideDeckViewerProps {
   theme?: string;
 }
 
-// Inline Editor Component
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-}
 
-function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  if (multiline) {
-    return React.createElement('textarea', {
-      ref: inputRef as React.RefObject<HTMLTextAreaElement>,
-      className: 'inline-editor-textarea',
-      value: value,
-      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value),
-      onKeyDown: handleKeyDown,
-      onBlur: handleBlur,
-      rows: 4
-    });
-  }
-
-  return React.createElement('input', {
-    ref: inputRef as React.RefObject<HTMLInputElement>,
-    className: 'inline-editor-input',
-    type: 'text',
-    value: value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
-    onKeyDown: handleKeyDown,
-    onBlur: handleBlur
-  });
-}
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
@@ -96,7 +39,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState<string | null>(null);
   
   // Get the current theme
   const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
@@ -328,32 +270,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               className="professional-slide"
               id={`slide-${slide.slideId}`}
             >
-              {/* Editable Slide Title */}
-              {isEditable ? (
-                <div 
-                  className="slide-title-editable"
-                  onClick={() => setEditingTitle(slide.slideId)}
-                >
-                  {editingTitle === slide.slideId ? (
-                    <InlineEditor
-                      initialValue={slide.props.title || `Slide ${slide.slideNumber}`}
-                      onSave={(newTitle) => {
-                        const updatedSlide: ComponentBasedSlide = {
-                          ...slide,
-                          props: { ...slide.props, title: newTitle }
-                        };
-                        handleSlideUpdate(updatedSlide);
-                        setEditingTitle(null);
-                      }}
-                      onCancel={() => setEditingTitle(null)}
-                    />
-                  ) : (
-                    <h2 className="slide-title-text">{slide.props.title || `Slide ${slide.slideNumber}`}</h2>
-                  )}
-                </div>
-              ) : (
-                <h2 className="slide-title-display">{slide.props.title || `Slide ${slide.slideNumber}`}</h2>
-              )}
+
 
               {/* Component-based slide content */}
               <div className="slide-content">

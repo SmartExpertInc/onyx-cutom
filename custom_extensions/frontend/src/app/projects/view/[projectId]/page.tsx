@@ -795,7 +795,7 @@ export default function ProjectInstanceViewPage() {
           }}>
             <SmartSlideDeckViewer
               deck={slideDeckData}
-              isEditable={isEditing}
+              isEditable={true}
               onSave={(updatedDeck) => {
                 // Convert the updated deck back to the format expected by handleTextChange
                 if (handleTextChange) {
@@ -897,22 +897,7 @@ export default function ProjectInstanceViewPage() {
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
-            {/* Edit mode toggle for other content types */}
-            {canEditContent && projectId && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center
-                                ${isEditing ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500'}`}
-                title={isEditing ? t('interface.projectView.saveContent', 'Save current changes') : t('interface.projectView.editContent', 'Edit content')}
-              >
-                {isEditing ? (
-                  <> <Save size={16} className="mr-2" /> {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.saveContent', 'Save Content')} </>
-                ) : (
-                  <> <Edit size={16} className="mr-2" /> {t('interface.projectView.editContent', 'Edit Content')} </>
-                )}
-              </button>
-            )}
+
             {/* Column Visibility Dropdown - only for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
               <div className="relative" ref={columnDropdownRef}>
