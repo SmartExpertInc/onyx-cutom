@@ -122,7 +122,8 @@ function InlineEditor({
         wordWrap: 'break-word',
         whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block'
+        display: 'block',
+        lineHeight: '1.2'
       }}
     />
   );
@@ -303,7 +304,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
