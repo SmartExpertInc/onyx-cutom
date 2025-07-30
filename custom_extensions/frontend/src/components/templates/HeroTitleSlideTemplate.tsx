@@ -94,7 +94,7 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6'
+          
         }}
         rows={1}
       />
@@ -122,7 +122,8 @@ function InlineEditor({
         wordWrap: 'break-word',
         whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block'
+        display: 'block',
+        lineHeight: '1.2'
       }}
     />
   );
@@ -338,7 +339,8 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
@@ -349,7 +351,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
                 setEditingTitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
             {title || 'Click to add hero title'}
           </h1>
@@ -376,7 +378,8 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.6'
             }}
           />
         ) : (
@@ -387,7 +390,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
                 setEditingSubtitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
             {subtitle || 'Click to add subtitle'}
           </div>
