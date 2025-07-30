@@ -122,7 +122,8 @@ function InlineEditor({
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
           boxSizing: 'border-box',
-          display: 'block'
+          display: 'block',
+          lineHeight: '1.3'
         }}
     />
   );
@@ -198,9 +199,9 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     textAlign: alignment,
     lineHeight: 1.6,
     maxWidth: '800px',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
+    };
 
   const editOverlayStyles: React.CSSProperties = {
     position: 'absolute',

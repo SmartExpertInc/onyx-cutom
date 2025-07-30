@@ -166,8 +166,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     backgroundColor: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    alignItems: 'stretch',
-    overflow: 'hidden'
+    alignItems: 'stretch'
+    // Removed overflow: 'hidden' to allow natural growth
   };
 
   const getImageDimensions = () => {
@@ -213,6 +213,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     flexDirection: 'column',
     justifyContent: 'center',
     minWidth: 0,
+    // Allow content to grow naturally without scrollbars
+    overflow: 'visible'
   };
 
   const titleStyles: React.CSSProperties = {
