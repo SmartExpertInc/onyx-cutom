@@ -93,8 +93,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
+          display: 'block'
         }}
         rows={1}
       />
@@ -571,7 +570,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     color: currentTheme.colors.titleColor,
     textAlign: 'left',
     marginBottom: '32px',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    lineHeight: '1.2'
   };
 
   // Handle title editing
@@ -610,7 +610,6 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
           style={{
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
-            margin: '0',
             padding: '0',
             border: 'none',
             outline: 'none',
@@ -619,7 +618,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             wordWrap: 'break-word',
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
-            display: 'block'
+            display: 'block',
+            lineHeight: '1.2'
           }}
         />
       ) : (
@@ -630,7 +630,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
