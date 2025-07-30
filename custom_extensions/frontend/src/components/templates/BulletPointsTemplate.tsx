@@ -241,33 +241,142 @@ function UnifiedBulletEditor({
   };
 
   if (isEditing) {
+    // WYSIWYG editing mode with visible bullet icons
+    const editLines = editValue.split('\n');
+    const currentBullets = textToBullets(editValue);
+    
     return (
-      <textarea
-        ref={textareaRef}
-        value={editValue}
-        onChange={(e) => setEditValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder="Enter bullet points... Press Enter to save, Shift+Enter for new line"
-        style={{
-          ...bulletTextStyles,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          padding: '0',
-          margin: '0'
+      <div 
+        style={{ 
+          padding: '4px', 
+          borderRadius: '4px',
+          border: '1px solid #3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.05)',
+          position: 'relative'
         }}
-        rows={Math.max(1, bullets.length)}
-      />
+      >
+        <div style={{
+          position: 'absolute',
+          top: '-8px',
+          right: '8px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          fontSize: '10px',
+          padding: '2px 6px',
+          borderRadius: '4px',
+          fontWeight: '500'
+        }}>
+          Editing
+        </div>
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          width: '100%'
+        }}>
+          {editLines.map((line: string, index: number) => {
+            const trimmedLine = line.trim();
+            const isEmpty = trimmedLine.length === 0;
+            const isPlaceholder = trimmedLine === 'Click to add bullet point' || trimmedLine === 'Click to add bullet points...';
+            
+            // Only show bullet icon for non-empty lines that aren't placeholders
+            const shouldShowBullet = !isEmpty && !isPlaceholder;
+            
+            return (
+              <li key={index} style={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                gap: '12px', 
+                marginBottom: '16px',
+                minHeight: '1.6em'
+              }}>
+                {shouldShowBullet && (
+                  <span style={bulletIconStyles}>
+                    {getBulletIcon(bulletStyle, currentBullets.indexOf(trimmedLine))}
+                  </span>
+                )}
+                {!shouldShowBullet && (
+                  <span style={{ ...bulletIconStyles, opacity: 0.3 }}>
+                    {getBulletIcon(bulletStyle, index)}
+                  </span>
+                )}
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <textarea
+                    ref={index === 0 ? textareaRef : null}
+                    value={line}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                      const newLines = [...editLines];
+                      newLines[index] = e.target.value;
+                      setEditValue(newLines.join('\n'));
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        // Insert a new line at the current position
+                        const newLines = [...editLines];
+                        newLines.splice(index + 1, 0, '');
+                        setEditValue(newLines.join('\n'));
+                        
+                        // Focus the new line after a brief delay
+                        setTimeout(() => {
+                          const textareas = document.querySelectorAll('.bullet-edit-textarea');
+                          if (textareas[index + 1]) {
+                            (textareas[index + 1] as HTMLTextAreaElement).focus();
+                          }
+                        }, 10);
+                      } else if (e.key === 'Backspace' && line === '' && editLines.length > 1) {
+                        e.preventDefault();
+                        // Remove empty line
+                        const newLines = editLines.filter((_, i) => i !== index);
+                        setEditValue(newLines.join('\n'));
+                        
+                        // Focus the previous line
+                        setTimeout(() => {
+                          const textareas = document.querySelectorAll('.bullet-edit-textarea');
+                          if (textareas[index - 1]) {
+                            (textareas[index - 1] as HTMLTextAreaElement).focus();
+                          }
+                        }, 10);
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancel();
+                      }
+                    }}
+                    onBlur={handleBlur}
+                    placeholder={index === 0 ? "Enter bullet points... Press Enter for new line" : ""}
+                    className="bullet-edit-textarea"
+                    style={{
+                      ...bulletTextStyles,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      width: '100%',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      minHeight: '1.6em',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      padding: '0',
+                      margin: '0',
+                      height: 'auto'
+                    }}
+                    rows={1}
+                    onInput={(e) => {
+                      // Auto-resize this specific textarea
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = target.scrollHeight + 'px';
+                    }}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     );
   }
 
