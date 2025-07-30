@@ -145,7 +145,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-green-50',
         borderColor: 'border-green-500',
-        textColor: 'text-green-800',
+        textColor: 'text-black', // Changed from text-green-800 to text-black
         iconColorClass: 'text-green-500',
         Icon: CheckCircle
       };
@@ -153,7 +153,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-yellow-50',
         borderColor: 'border-yellow-500',
-        textColor: 'text-yellow-800',
+        textColor: 'text-black', // Changed from text-yellow-800 to text-black
         iconColorClass: 'text-yellow-500',
         Icon: AlertTriangle
       };
@@ -161,7 +161,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-red-50',
         borderColor: 'border-red-500',
-        textColor: 'text-red-800',
+        textColor: 'text-black', // Changed from text-red-800 to text-black
         iconColorClass: 'text-red-500',
         Icon: XCircle
       };
@@ -170,7 +170,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-blue-50',
         borderColor: 'border-blue-500',
-        textColor: 'text-blue-800',
+        textColor: 'text-black', // Changed from text-blue-800 to text-black
         iconColorClass: 'text-blue-500',
         Icon: InfoIconLucide
       };
@@ -1061,13 +1061,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         if (contentBlocksToProcess[i].type === 'section_break') { i++; continue; }
         const innerBlock = contentBlocksToProcess[i];
         const innerNextBlock = (i + 1 < contentBlocksToProcess.length) ? contentBlocksToProcess[i+1] : null;
-        if (innerBlock.type === 'headline' && ((innerBlock as HeadlineBlock).level === 3 || (innerBlock as HeadlineBlock).level === 4) && (innerBlock as HeadlineBlock).isImportant === true && innerNextBlock && (innerNextBlock.type === 'bullet_list' || innerNextBlock.type === 'numbered_list' || innerNextBlock.type === 'paragraph' || innerNextBlock.type === 'alert')) {
+        if (innerBlock.type === 'headline' && ((innerBlock as HeadlineBlock).level === 3 || (innerBlock as HeadlineBlock).level === 4) && ((innerBlock as HeadlineBlock).isImportant === true || (innerBlock as HeadlineBlock).level === 4) && innerNextBlock && (innerNextBlock.type === 'bullet_list' || innerNextBlock.type === 'numbered_list' || innerNextBlock.type === 'paragraph' || innerNextBlock.type === 'alert')) {
           sectionItemsInternal.push({ type: "mini_section", headline: innerBlock as HeadlineBlock, list: innerNextBlock as BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock });
           i += 2; 
         } else { sectionItemsInternal.push(innerBlock); i++;  }
       }
       renderableItems.push({ type: "major_section", headline: majorSectionHeadline, items: sectionItemsInternal, _skipRenderHeadline: headlineToSkipThisIteration });
-    } else if (currentBlock.type === 'headline' && ((currentBlock as HeadlineBlock).level === 3 || (currentBlock as HeadlineBlock).level === 4) && (currentBlock as HeadlineBlock).isImportant === true && nextBlock && (nextBlock.type === 'bullet_list' || nextBlock.type === 'numbered_list' || nextBlock.type === 'paragraph' || nextBlock.type === 'alert')) {
+    } else if (currentBlock.type === 'headline' && ((currentBlock as HeadlineBlock).level === 3 || (currentBlock as HeadlineBlock).level === 4) && ((currentBlock as HeadlineBlock).isImportant === true || (currentBlock as HeadlineBlock).level === 4) && nextBlock && (nextBlock.type === 'bullet_list' || nextBlock.type === 'numbered_list' || nextBlock.type === 'paragraph' || nextBlock.type === 'alert')) {
       renderableItems.push({ type: "mini_section", headline: currentBlock as HeadlineBlock, list: nextBlock as BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock });
       i += 2; 
     } else {
@@ -1129,7 +1129,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                           const originalMiniListIndex = findOriginalIndex(subItem.list);
                           return (
-                            <div key={subIndex} className="p-3 my-4 bg-white border-l-2 border-[#FF1414] text-left">
+                            <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
                               <RenderBlock
                                 block={subItem.headline}
                                 isMiniSectionHeadline={true}
@@ -1168,7 +1168,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
-                  <div key={index} className="p-3 my-4 bg-white border-l-2 border-[#FF1414] text-left">
+                  <div key={index} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
                     <RenderBlock
                       block={item.headline}
                       isMiniSectionHeadline={true}
