@@ -793,41 +793,27 @@ export default function ProjectInstanceViewPage() {
           />
         );
       case COMPONENT_NAME_SLIDE_DECK:
-        const slideDeckData = editableData as ComponentBasedSlideDeck | null;
-        if (!slideDeckData) {
+        if (editableData && 'slides' in editableData && Array.isArray((editableData as any).slides)) {
+          return (
+            <div style={{ 
+              width: '100%',
+              minHeight: '600px',
+              backgroundColor: '#f8f9fa',
+              padding: '20px',
+              borderRadius: '8px'
+            }}>
+              <SmartSlideDeckViewer
+                deck={editableData as ComponentBasedSlideDeck}
+                isEditable={true}
+                projectId={projectId}
+                showFormatInfo={true}
+                theme="dark-purple"
+              />
+            </div>
+          );
+        } else {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
-                // For slide decks, use the new SmartSlideDeckViewer with component-based templates
-        return (
-          <div style={{ 
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
-            <SmartSlideDeckViewer
-              deck={editableData || slideDeckData}
-              isEditable={true} // Завжди включено для слайдів
-              projectId={projectId} // Передаємо projectId для прямого збереження
-              onSave={(updatedDeck) => {
-                console.log('🔄 SmartSlideDeckViewer onSave called with:', {
-                  slideCount: updatedDeck.slides?.length,
-                  firstSlideTitle: updatedDeck.slides?.[0]?.props?.title,
-                  firstSlideContent: updatedDeck.slides?.[0]?.props?.content?.substring(0, 50) + '...'
-                });
-                
-                // Оновлюємо editableData з новими даними слайду
-                setEditableData(updatedDeck as ComponentBasedSlideDeck);
-                
-                // Автозбереження вже відбувається в SmartSlideDeckViewer
-                // Не викликаємо handleAutoSave тут, щоб уникнути циклу
-              }}
-              showFormatInfo={true}
-              theme="dark-purple"
-            />
-          </div>
-        );
        case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
         return (
@@ -908,133 +894,4 @@ export default function ProjectInstanceViewPage() {
                   </button>
             )}
             {/* Smart Edit button for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
-              <button
-                onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center"
-                title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
-              >
-                <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
-              </button>
-            )}
-            {/* Edit mode toggle for other content types (excluding slide decks) */}
-            {canEditContent && projectId && projectInstanceData.component_name !== COMPONENT_NAME_SLIDE_DECK && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center
-                                ${isEditing ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500'}`}
-                title={isEditing ? t('interface.projectView.saveContent', 'Save current changes') : t('interface.projectView.editContent', 'Edit content')}
-              >
-                {isEditing ? (
-                  <> <Save size={16} className="mr-2" /> {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.saveContent', 'Save Content')} </>
-                ) : (
-                  <> <Edit size={16} className="mr-2" /> {t('interface.projectView.editContent', 'Edit Content')} </>
-                )}
-              </button>
-            )}
-            {/* Column Visibility Dropdown - only for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <div className="relative" ref={columnDropdownRef}>
-                <button
-                  onClick={() => setShowColumnDropdown(!showColumnDropdown)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
-                  title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
-                >
-                  <Info size={16} className="mr-2" />
-                  {t('interface.projectView.columns', 'Columns')}
-                  <ChevronDown size={16} className="ml-1" />
-                </button>
-                
-                {showColumnDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.knowledgeCheck}
-                          onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.contentAvailability}
-                          onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.informationSource}
-                          onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.source}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.estCreationTime}
-                          onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.estCompletionTime}
-                          onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.qualityTier}
-                          onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
-                      </label>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-            {/* Move to Trash button for non-outline microproducts placed as right-most */}
-            {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
-              <button
-                onClick={handleMoveToTrash}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
-                title={t('interface.projectView.moveToTrashTooltip', 'Move this product to Trash')}
-              >
-                <Trash2 size={16} className="mr-2" /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {saveError &&
-          <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm flex items-center">
-            <AlertTriangle size={18} className="mr-2 flex-shrink-0" />
-            <span>{saveError}</span>
-          </div>
-        }
-
-        <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
-            <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
-              {displayContent()}
-            </Suspense>
-        </div>
-      </div>
-    </main>
-  );
-}
+            {projectInstanceData && projectInstanceData.component_name ===
