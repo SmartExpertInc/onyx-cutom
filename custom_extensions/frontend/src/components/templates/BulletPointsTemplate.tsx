@@ -91,7 +91,6 @@ function InlineEditor({
           width: '100%',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block'
         }}
