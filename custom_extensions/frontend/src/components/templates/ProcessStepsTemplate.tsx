@@ -94,7 +94,8 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6'
+          lineHeight: '1.6',
+          textAlign: 'center'
         }}
         rows={1}
       />
@@ -312,7 +313,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                     wordWrap: 'break-word',
                     whiteSpace: 'pre-wrap',
                     boxSizing: 'border-box',
-                    display: 'block'
+                    display: 'block',
+                    textAlign: 'center'
                   }}
                 />
               ) : (
