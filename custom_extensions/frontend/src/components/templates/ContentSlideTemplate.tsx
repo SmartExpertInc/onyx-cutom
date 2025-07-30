@@ -93,7 +93,8 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block'
+          display: 'block',
+          lineHeight: '1.6'
         }}
         rows={1}
       />
@@ -187,7 +188,8 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     marginBottom: '40px',
     lineHeight: 1.3,
     maxWidth: '900px',
-    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none'
+    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
+    wordWrap: 'break-word'
   };
 
   const contentStyles: React.CSSProperties = {
