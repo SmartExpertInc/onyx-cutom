@@ -219,11 +219,46 @@ function UnifiedBulletEditor({
     }
   }, [focusedIndex, isEditing]);
 
-  // Initialize refs array
+  // Initialize refs array and set proper heights
   useEffect(() => {
     const editLines = editValue.split('\n');
     textareaRefs.current = textareaRefs.current.slice(0, editLines.length);
-  }, [editValue]);
+    
+    // Set proper heights for all textareas after a brief delay to ensure DOM is ready
+    if (isEditing) {
+      setTimeout(() => {
+        textareaRefs.current.forEach((textarea, index) => {
+          if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+          }
+        });
+      }, 10);
+    }
+  }, [editValue, isEditing]);
+
+  // Set initial heights when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      setTimeout(() => {
+        textareaRefs.current.forEach((textarea) => {
+          if (textarea) {
+            textarea.style.height = 'auto';
+            // Calculate proper height for wrapped text
+            const computedStyle = window.getComputedStyle(textarea);
+            const lineHeight = parseInt(computedStyle.lineHeight) || 20;
+            const padding = parseInt(computedStyle.paddingTop) + parseInt(computedStyle.paddingBottom);
+            const border = parseInt(computedStyle.borderTopWidth) + parseInt(computedStyle.borderBottomWidth);
+            
+            // Set a minimum height and ensure all wrapped content is visible
+            const minHeight = lineHeight + padding + border;
+            const contentHeight = textarea.scrollHeight;
+            textarea.style.height = Math.max(minHeight, contentHeight + 4) + 'px';
+          }
+        });
+      }, 50);
+    }
+  }, [isEditing]);
 
   const bulletIconStyles: React.CSSProperties = {
     color: theme.colors.accentColor,
@@ -398,10 +433,11 @@ function UnifiedBulletEditor({
                     }}
                     rows={1}
                     onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
-                      // Auto-resize this specific textarea
+                      // Auto-resize this specific textarea with better wrapping support
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
-                      target.style.height = target.scrollHeight + 'px';
+                      // Add a small buffer to ensure all wrapped text is visible
+                      target.style.height = (target.scrollHeight + 2) + 'px';
                     }}
                   />
                 </div>
