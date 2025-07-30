@@ -83,12 +83,35 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       clearTimeout(autoSaveTimeoutRef.current);
     }
     
+    // Зберігаємо значення для використання в timeout
+    const saveValue = newValue;
+    const saveSlideId = slideId;
+    const saveFieldPath = fieldPath;
+    
     autoSaveTimeoutRef.current = setTimeout(() => {
-      console.log('Auto-save timeout triggered for slide:', slideId, 'field:', fieldPath);
+      console.log('Auto-save timeout triggered for slide:', saveSlideId, 'field:', saveFieldPath, 'value:', saveValue);
       // Використовуємо функцію, яка отримає поточний стан
       setEditableDeck(currentDeck => {
         if (currentDeck) {
-          handleAutoSaveWithDeck(currentDeck);
+          // Оновлюємо title в поточному стані перед збереженням
+          const updatedDeck = JSON.parse(JSON.stringify(currentDeck));
+          const slideIndex = updatedDeck.slides.findIndex((slide: ComponentBasedSlide) => slide.slideId === saveSlideId);
+          if (slideIndex !== -1) {
+            updatedDeck.slides[slideIndex].props[saveFieldPath] = saveValue;
+            updatedDeck.slides[slideIndex].metadata = {
+              ...updatedDeck.slides[slideIndex].metadata,
+              updatedAt: new Date().toISOString()
+            };
+            console.log('Auto-save: Updated deck before saving:', {
+              slideId: saveSlideId,
+              fieldPath: saveFieldPath,
+              newValue: saveValue,
+              updatedTitle: updatedDeck.slides[slideIndex].props[saveFieldPath]
+            });
+            handleAutoSaveWithDeck(updatedDeck);
+          } else {
+            handleAutoSaveWithDeck(currentDeck);
+          }
         }
         return currentDeck;
       });
