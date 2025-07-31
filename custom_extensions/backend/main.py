@@ -11650,6 +11650,21 @@ async def download_folder_as_pdf(
                         data_for_template_render = json.loads(json.dumps(content_json))
                         if not data_for_template_render.get('detectedLanguage'):
                             data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
+                        
+                        # Log content blocks for debugging image issues
+                        content_blocks = data_for_template_render.get('contentBlocks', [])
+                        image_blocks = [block for block in content_blocks if block.get('type') == 'image']
+                        
+                        logger.info(f"🖼️ [PDF GEN] Processing {len(content_blocks)} content blocks, {len(image_blocks)} image blocks")
+                        for i, block in enumerate(image_blocks):
+                            logger.info(f"🖼️ [PDF GEN] Image block {i}: {json.dumps(block, indent=2)}")
+                            if hasattr(block, 'keys'):
+                                logger.info(f"🖼️ [PDF GEN] Image block {i} keys: {list(block.keys())}")
+                            if 'src' in block:
+                                logger.info(f"🖼️ [PDF GEN] Image block {i} src: '{block['src']}' (type: {type(block['src'])})")
+                            else:
+                                logger.info(f"🚨 [PDF GEN] Image block {i} missing 'src' property!")
+                                
                     else:
                         data_for_template_render = {
                             "title": f"Content Unavailable: {mp_name_for_pdf_context}",
@@ -12005,16 +12020,6 @@ async def download_project_instance_pdf(
         if isinstance(data_for_template_render, dict):
             logger.info(f"Project {project_id} PDF Gen: Starting deep inspection of data_for_template_render (to be passed as 'details' in template context)...")
             inspect_list_items_recursively(data_for_template_render.get('contentBlocks', []), "data_for_template_render.contentBlocks")
-            
-            # Special logging for image blocks
-            content_blocks = data_for_template_render.get('contentBlocks', [])
-            for i, block in enumerate(content_blocks):
-                if isinstance(block, dict) and block.get('type') == 'image':
-                    logger.info(f"🖼️ [PDF] Image block #{i}: {block}")
-                    if 'src' not in block:
-                        logger.error(f"🖼️ [PDF] ❌ Image block #{i} missing 'src' attribute!")
-                    else:
-                        logger.info(f"🖼️ [PDF] ✅ Image block #{i} src: {block['src']}")
 
         unique_output_filename = f"{project_id}_{document_name_slug}_{uuid.uuid4().hex[:12]}.pdf"
         

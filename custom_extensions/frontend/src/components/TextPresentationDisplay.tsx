@@ -950,8 +950,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'alert': {
       const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor, fontSize } = block as AlertBlock;
       const { bgColor, borderColor: defaultBorderColor, textColor: defaultTextColor, iconColorClass, Icon } = getAlertColors(alertType);
-      // Force black text color for all alerts regardless of custom settings
-      const effectiveTextColor = 'black';
+      // Force black text color for all alerts
+      const effectiveTextColor = '#000000';
       
       // Use custom icon if specified, otherwise use default for alert type
       const AlertIconComponent = iconName ? iconMap[iconName] : Icon;
@@ -1083,44 +1083,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       );
     }
     case 'image': {
-      console.log('🖼️ [One-Pager Image] Raw image block received:', block);
-      console.log('🖼️ [One-Pager Image] Block keys:', Object.keys(block));
-      console.log('🖼️ [One-Pager Image] Block JSON:', JSON.stringify(block, null, 2));
-      
-      // 🚨 CRITICAL FIX: Detect corrupted section breaks saved as image blocks
-      const blockAny = block as any;
-      console.log('🔍 [One-Pager Image] Checking corruption - has style:', !!blockAny.style, 'has src:', !!blockAny.src);
-      console.log('🔍 [One-Pager Image] Style value:', blockAny.style, 'Src value:', blockAny.src);
-      
-      // Only treat as corrupted if it has EXACTLY the section break pattern: style property but NO src, alt, caption, etc.
-      const hasStyleProperty = blockAny.style !== undefined && blockAny.style !== null;
-      const hasSrcProperty = blockAny.src !== undefined && blockAny.src !== null && blockAny.src !== '';
-      const hasImageProperties = blockAny.alt !== undefined || blockAny.caption !== undefined || blockAny.alignment !== undefined || blockAny.borderRadius !== undefined;
-      
-      console.log('🔍 [One-Pager Image] hasStyleProperty:', hasStyleProperty, 'hasSrcProperty:', hasSrcProperty, 'hasImageProperties:', hasImageProperties);
-      
-      if (hasStyleProperty && !hasSrcProperty && !hasImageProperties && Object.keys(blockAny).length <= 3) {
-        console.log('🔧 [One-Pager Image] Detected corrupted section break saved as image block - fixing...');
-        console.log('🔧 [One-Pager Image] Block keys count:', Object.keys(blockAny).length, 'Keys:', Object.keys(blockAny));
-        // This is actually a section break that was incorrectly saved as type "image"
-        // Render it as a section break instead
-        if (blockAny.style === 'solid' || blockAny.style === 'dashed') {
-          return <hr className={`section-break-block ${blockAny.style}`} style={{
-            border: blockAny.style === 'solid' ? '1px solid #e5e7eb' : '1px dashed #e5e7eb',
-            margin: '20px 0',
-            backgroundColor: 'transparent'
-          }} />;
-        } else if (blockAny.style === 'none') {
-          return <div className="section-break-block none" style={{ margin: '20px 0', height: '20px' }}></div>;
-        }
-        // If unknown style, show as spacer
-        return <div style={{ margin: '20px 0', height: '10px' }}></div>;
-      }
-      
-      console.log('🖼️ [One-Pager Image] Processing as normal image block...');
-      
       const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
-      console.log('🖼️ [One-Pager Image] Destructured values:', { src, alt, caption, width, height, alignment, borderRadius, maxWidth });
+      
+      console.log('🖼️ [IMAGE RENDER] Rendering image block:', {
+        block,
+        blockType: block.type,
+        src,
+        alt,
+        caption,
+        width,
+        height,
+        alignment,
+        borderRadius,
+        maxWidth,
+        allBlockProperties: Object.keys(block),
+        blockAsString: JSON.stringify(block, null, 2)
+      });
+      
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Calculate current width for scaling controls
@@ -1129,26 +1108,29 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Ensure proper image path resolution with null check
       if (!src) {
-        console.log('🖼️ [One-Pager Image] ❌ No src found in valid image block');
+        console.log('🚨 [IMAGE RENDER] No src found for image block:', {
+          block,
+          srcValue: src,
+          srcType: typeof src,
+          blockKeys: Object.keys(block)
+        });
         return (
           <div className={`my-4 ${alignmentClass}`}>
             <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-center">
               <p>Image source not available</p>
-              <p className="text-xs mt-1 text-red-500">Missing src property</p>
+              <p className="text-xs mt-1 text-red-500">Debug: src = {JSON.stringify(src)}</p>
               {caption && <p className="text-sm mt-2 italic">{caption}</p>}
             </div>
           </div>
         );
       }
       
-      // Copy exact logic from design templates: use Next.js Image with unoptimized
       const imageSrc = src.startsWith('/') ? src : `/${src}`;
-      console.log('🖼️ [One-Pager Image] Final imageSrc:', imageSrc);
       
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
           <div className="inline-block relative">
-            {/* Use img tag with exact same path logic as design templates */}
+            {/* Use regular img tag for better compatibility in view mode */}
             <img
               src={imageSrc}
               alt={alt || 'Uploaded image'}
@@ -1159,8 +1141,13 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 borderRadius: borderRadius || '8px',
                 maxWidth: maxWidth || '100%'
               }}
-              onError={(e: any) => {
-                console.error('🖼️ [One-Pager Image] Image failed to load:', imageSrc);
+              onError={(e) => {
+                console.error('Image failed to load:', imageSrc);
+                // Fallback: try with different path resolution
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes('/api/custom-projects-backend/')) {
+                  target.src = `/api/custom-projects-backend${imageSrc}`;
+                }
               }}
             />
             
@@ -1383,7 +1370,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleImageUploaded = useCallback((imagePath: string) => {
-    console.log('🖼️ [One-Pager Image] Image uploaded successfully:', imagePath);
     if (onTextChange && dataToDisplay) {
       const newImageBlock: ImageBlock = {
         type: 'image',
@@ -1395,35 +1381,29 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         maxWidth: '100%'
       };
       
-      console.log('🖼️ [One-Pager Image] Created new image block:', newImageBlock);
-      console.log('🖼️ [One-Pager Image] New image block JSON:', JSON.stringify(newImageBlock, null, 2));
-      console.log('🖼️ [One-Pager Image] New image block keys:', Object.keys(newImageBlock));
+      console.log('🖼️ [IMAGE UPLOAD] Creating new image block:', {
+        imagePath,
+        newImageBlock,
+        blockType: newImageBlock.type,
+        blockSrc: newImageBlock.src,
+        blockProperties: Object.keys(newImageBlock)
+      });
       
       const updatedContentBlocks = [...(dataToDisplay.contentBlocks || []), newImageBlock];
-      console.log('🖼️ [One-Pager Image] Updated content blocks count:', updatedContentBlocks.length);
-      console.log('🖼️ [One-Pager Image] Last block (should be image):', updatedContentBlocks[updatedContentBlocks.length - 1]);
-      console.log('🖼️ [One-Pager Image] Calling onTextChange with updated blocks...');
+      
+      console.log('🖼️ [IMAGE UPLOAD] Updated content blocks:', {
+        totalBlocks: updatedContentBlocks.length,
+        lastBlock: updatedContentBlocks[updatedContentBlocks.length - 1],
+        allBlockTypes: updatedContentBlocks.map(block => block.type)
+      });
+      
       onTextChange(['contentBlocks'], updatedContentBlocks);
     }
   }, [onTextChange, dataToDisplay]);
 
   if (!dataToDisplay) {
-    console.log('🖼️ [One-Pager Image] ❌ No dataToDisplay received');
     return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
   }
-  
-  console.log('🖼️ [One-Pager Image] Component received dataToDisplay:', dataToDisplay);
-  console.log('🖼️ [One-Pager Image] Content blocks:', dataToDisplay.contentBlocks);
-  console.log('🖼️ [One-Pager Image] Content blocks count:', dataToDisplay.contentBlocks?.length);
-  
-  // Log each content block to see which ones are images
-  dataToDisplay.contentBlocks?.forEach((block, index) => {
-    if (block.type === 'image') {
-      console.log(`🖼️ [One-Pager Image] Found image block at index ${index}:`, block);
-      console.log(`🖼️ [One-Pager Image] Image block ${index} keys:`, Object.keys(block));
-      console.log(`🖼️ [One-Pager Image] Image block ${index} JSON:`, JSON.stringify(block, null, 2));
-    }
-  });
   
   const renderableItems: RenderableItem[] = [];
   let i = 0;
