@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slide Deck PDF</title>
     
-    <!-- Import Google Fonts to match frontend exactly -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
         /* Reset and base styles */
-        html {
+        html, body {
             margin: 0;
             padding: 0;
-            height: auto;
-            min-height: auto;
+            background: transparent;
         }
         
         * {
@@ -29,34 +27,27 @@
             font-family: 'Martel Sans', sans-serif;
             line-height: 1.6;
             color: #333;
-            margin: 0;
-            padding: 0;
-            background: transparent;
-            height: auto;
-            min-height: auto;
         }
         
-        /* Page setup for PDF - DYNAMIC HEIGHT CALCULATION */
+        /* Page setup for PDF - FIXED 16:9 ASPECT RATIO */
         @page {
-            size: 1174px auto; /* Fixed width, dynamic height per page */
+            size: 1174px 661px; /* Exact 16:9 aspect ratio */
             margin: 0;
             padding: 0;
         }
         
         /* Each slide gets its own page - EXACT FRONTEND MATCH */
         .slide-page {
-            width: 1174px; /* Fixed width as requested */
-            min-height: 600px; /* Minimum height, but allow growth */
-            height: var(--page-height, fit-content); /* Use custom height or fit-content */
+            width: 1174px;
+            height: 661px; /* Match page height */
             page-break-after: always;
             page-break-inside: avoid;
             position: relative;
-            overflow: visible; /* Allow content to expand */
+            overflow: hidden; /* Hide any overflow */
             margin: 0;
             padding: 0;
             background: transparent;
             display: block;
-            box-sizing: border-box;
         }
         
         /* Ensure last slide doesn't have page break */
@@ -66,8 +57,7 @@
         
         .slide-content {
             width: 100%;
-            height: var(--page-height, fit-content); /* Use custom height or fit-content */
-            min-height: 600px;
+            height: 100%; /* Fill the page height */
             padding: 0;
             margin: 0;
             display: flex;
@@ -75,7 +65,6 @@
             justify-content: center;
             align-items: center;
             background: transparent;
-            box-sizing: border-box;
         }
         
         /* Theme color definitions - EXACT FRONTEND MATCH */
@@ -107,7 +96,6 @@
         .slide {
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
@@ -117,8 +105,6 @@
             align-items: center;
             padding: 80px; /* Exact frontend match */
             position: relative;
-            margin: 0;
-            box-sizing: border-box;
         }
         
         /* Title styles - EXACT FRONTEND MATCH */
@@ -164,10 +150,7 @@
             padding: 80px; /* Exact frontend match */
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            min-height: 600px; /* Minimum height from frontend */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            box-sizing: border-box;
         }
         
         .title-slide .slide-title {
@@ -206,14 +189,11 @@
         .big-image-left {
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
             display: flex;
             align-items: stretch;
-            margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
         
         .big-image-left .image-container {
@@ -274,7 +254,6 @@
         .bullet-points {
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
@@ -283,8 +262,6 @@
             padding: 80px; /* Exact frontend match */
             position: relative;
             font-family: 'Martel Sans', sans-serif;
-            margin: 0;
-            box-sizing: border-box;
         }
         
         .bullet-points .slide-title {
@@ -375,14 +352,11 @@
             padding: 40px; /* Exact frontend match */
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
-            margin: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-sizing: border-box;
         }
         
         .process-steps .slide-title {
@@ -431,16 +405,13 @@
         .challenges-solutions {
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             padding: 60px; /* Exact frontend match */
             position: relative;
             font-family: 'Martel Sans', sans-serif;
-            margin: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-sizing: border-box;
         }
         
         .challenges-solutions .slide-title {
@@ -681,7 +652,6 @@
     </style>
 </head>
 <body>
-    <!-- Debug info (will be hidden in PDF) -->
     <div style="display: none;">
         <p>Debug: details object exists: {{ details is defined }}</p>
         <p>Debug: slides count: {{ details.slides|length if details and details.slides else 0 }}</p>
@@ -694,7 +664,6 @@
         <div class="slide-page">
             <div class="slide-content theme-{{ details.theme or 'dark-purple' }}">
                 {% if slide.templateId == 'title-slide' %}
-                    <!-- Title Slide Template -->
                     <div class="title-slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         {% if slide.props.subtitle %}
@@ -713,7 +682,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'big-image-left' %}
-                    <!-- Big Image Left Template -->
                     <div class="big-image-left">
                         <div class="image-container">
                             <div class="image-placeholder">
@@ -730,7 +698,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'big-image-top' %}
-                    <!-- Big Image Top Template -->
                     <div class="slide">
                         <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px;">
                             <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
@@ -742,7 +709,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'bullet-points' %}
-                    <!-- Bullet Points Template -->
                     <div class="bullet-points">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="content-row">
@@ -781,7 +747,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'process-steps' %}
-                    <!-- Process Steps Template -->
                     <div class="process-steps">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="steps-container">
@@ -795,7 +760,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'challenges-solutions' %}
-                    <!-- Challenges & Solutions Template -->
                     <div class="challenges-solutions">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="grid">
@@ -835,7 +799,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'two-column' %}
-                    <!-- Two Column Template -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="two-column-layout">
@@ -849,7 +812,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'big-numbers' %}
-                    <!-- Big Numbers Template -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="numbers-grid">
@@ -864,7 +826,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'four-box-grid' %}
-                    <!-- Four Box Grid Template -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="four-box-grid">
@@ -878,7 +839,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'pyramid' %}
-                    <!-- Pyramid Template -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="pyramid-container">
@@ -894,7 +854,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'timeline' %}
-                    <!-- Timeline Template -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="timeline-container">
@@ -908,7 +867,6 @@
                     </div>
                     
                 {% elif slide.templateId == 'comparison-slide' %}
-                    <!-- Comparison Slide Template -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="two-column-layout">
@@ -924,7 +882,6 @@
                     </div>
                     
                 {% else %}
-                    <!-- Default Content Slide -->
                     <div class="slide">
                         <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="content-text">{{ slide.props.content or 'Click to add content' }}</div>
@@ -934,7 +891,6 @@
         </div>
         {% endfor %}
     {% else %}
-        <!-- Fallback if no slides data -->
         <div class="slide-page">
             <div class="slide-content theme-dark-purple">
                 <div class="slide">
