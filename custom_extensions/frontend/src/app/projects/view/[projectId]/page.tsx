@@ -206,7 +206,41 @@ export default function ProjectInstanceViewPage() {
       }
 
       if (instanceData.details) {
+        console.log('🖼️ [Data Flow] Original instanceData.details:', instanceData.details);
+        
+        // Check if we have content blocks and image blocks before deep copy
+        if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+          const originalData = instanceData.details as any;
+          console.log('🖼️ [Data Flow] Original contentBlocks:', originalData.contentBlocks);
+          if (originalData.contentBlocks) {
+            originalData.contentBlocks.forEach((block: any, index: number) => {
+              if (block.type === 'image') {
+                console.log(`🖼️ [Data Flow] BEFORE JSON deep copy - Image block ${index}:`, block);
+                console.log(`🖼️ [Data Flow] BEFORE JSON deep copy - Image block ${index} keys:`, Object.keys(block));
+                console.log(`🖼️ [Data Flow] BEFORE JSON deep copy - Image block ${index} JSON:`, JSON.stringify(block, null, 2));
+              }
+            });
+          }
+        }
+        
         const copiedDetails = JSON.parse(JSON.stringify(instanceData.details));
+        
+        // Check image blocks after deep copy
+        if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+          const copiedData = copiedDetails as any;
+          console.log('🖼️ [Data Flow] AFTER JSON deep copy - copiedDetails:', copiedDetails);
+          console.log('🖼️ [Data Flow] AFTER JSON deep copy - contentBlocks:', copiedData.contentBlocks);
+          if (copiedData.contentBlocks) {
+            copiedData.contentBlocks.forEach((block: any, index: number) => {
+              if (block.type === 'image') {
+                console.log(`🖼️ [Data Flow] AFTER JSON deep copy - Image block ${index}:`, block);
+                console.log(`🖼️ [Data Flow] AFTER JSON deep copy - Image block ${index} keys:`, Object.keys(block));
+                console.log(`🖼️ [Data Flow] AFTER JSON deep copy - Image block ${index} JSON:`, JSON.stringify(block, null, 2));
+              }
+            });
+          }
+        }
+        
         if (instanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           // Normalize completionTime for all lessons
           if (copiedDetails.sections) {

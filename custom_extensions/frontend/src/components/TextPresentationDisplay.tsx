@@ -1083,8 +1083,13 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       );
     }
     case 'image': {
+      console.log('🖼️ [One-Pager Image] Raw image block received:', block);
+      console.log('🖼️ [One-Pager Image] Block keys:', Object.keys(block));
+      console.log('🖼️ [One-Pager Image] Block type:', typeof block);
+      console.log('🖼️ [One-Pager Image] Block JSON:', JSON.stringify(block, null, 2));
+      
       const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
-      console.log('🖼️ [One-Pager Image] Rendering image block:', { src, alt, caption, width, height, alignment, borderRadius, maxWidth });
+      console.log('🖼️ [One-Pager Image] Destructured values:', { src, alt, caption, width, height, alignment, borderRadius, maxWidth });
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Calculate current width for scaling controls
@@ -1094,10 +1099,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       // Ensure proper image path resolution with null check
       if (!src) {
         console.log('🖼️ [One-Pager Image] ❌ No src found in image block, showing fallback');
+        console.log('🖼️ [One-Pager Image] ❌ Checking if src exists with different property names:');
+        console.log('🖼️ [One-Pager Image] ❌ block.source:', (block as any).source);
+        console.log('🖼️ [One-Pager Image] ❌ block.image_src:', (block as any).image_src);
+        console.log('🖼️ [One-Pager Image] ❌ block.imageSrc:', (block as any).imageSrc);
         return (
           <div className={`my-4 ${alignmentClass}`}>
             <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-center">
               <p>Image source not available</p>
+              <p className="text-xs mt-1 text-red-500">Debug: {JSON.stringify(block)}</p>
               {caption && <p className="text-sm mt-2 italic">{caption}</p>}
             </div>
           </div>
@@ -1359,8 +1369,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       };
       
       console.log('🖼️ [One-Pager Image] Created new image block:', newImageBlock);
+      console.log('🖼️ [One-Pager Image] New image block JSON:', JSON.stringify(newImageBlock, null, 2));
+      console.log('🖼️ [One-Pager Image] New image block keys:', Object.keys(newImageBlock));
+      
       const updatedContentBlocks = [...(dataToDisplay.contentBlocks || []), newImageBlock];
-      console.log('🖼️ [One-Pager Image] Updated content blocks:', updatedContentBlocks);
+      console.log('🖼️ [One-Pager Image] Updated content blocks count:', updatedContentBlocks.length);
+      console.log('🖼️ [One-Pager Image] Last block (should be image):', updatedContentBlocks[updatedContentBlocks.length - 1]);
+      console.log('🖼️ [One-Pager Image] Calling onTextChange with updated blocks...');
       onTextChange(['contentBlocks'], updatedContentBlocks);
     }
   }, [onTextChange, dataToDisplay]);
@@ -1372,6 +1387,16 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   
   console.log('🖼️ [One-Pager Image] Component received dataToDisplay:', dataToDisplay);
   console.log('🖼️ [One-Pager Image] Content blocks:', dataToDisplay.contentBlocks);
+  console.log('🖼️ [One-Pager Image] Content blocks count:', dataToDisplay.contentBlocks?.length);
+  
+  // Log each content block to see which ones are images
+  dataToDisplay.contentBlocks?.forEach((block, index) => {
+    if (block.type === 'image') {
+      console.log(`🖼️ [One-Pager Image] Found image block at index ${index}:`, block);
+      console.log(`🖼️ [One-Pager Image] Image block ${index} keys:`, Object.keys(block));
+      console.log(`🖼️ [One-Pager Image] Image block ${index} JSON:`, JSON.stringify(block, null, 2));
+    }
+  });
   
   const renderableItems: RenderableItem[] = [];
   let i = 0;
