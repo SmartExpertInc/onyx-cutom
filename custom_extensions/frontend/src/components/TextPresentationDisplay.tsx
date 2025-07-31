@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
@@ -1097,34 +1097,58 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         borderRadius,
         maxWidth,
         allBlockProperties: Object.keys(block),
-        hasStyleProperty: 'style' in block,
-        styleValue: (block as any).style,
-        blockAsString: JSON.stringify(block, null, 2)
+        blockAsString: JSON.stringify(block, null, 2),
+        hasValidSrc: !!src && typeof src === 'string' && src.length > 0,
+        srcLength: src ? src.length : 0,
+        blockKeys: Object.keys(block),
+        blockValues: Object.values(block),
+        isValidImageBlock: !!(src && typeof src === 'string' && block.type === 'image'),
+        suspiciousProperties: Object.keys(block).filter(key => !['type', 'src', 'alt', 'caption', 'width', 'height', 'alignment', 'borderRadius', 'maxWidth'].includes(key))
       });
       
-      // SAFETY CHECK: Detect corrupted blocks (section breaks with wrong type)
-      // Only check if the block lacks essential image properties but has section break properties
+      // ENHANCED SAFETY CHECK: Detect corrupted blocks more accurately
       const blockAny = block as any;
-      if (blockAny.style && 
-          (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none') &&
-          !src && // No image src (essential for image blocks)
-          !blockAny.alt && // No alt text property 
-          !blockAny.caption && // No caption property
-          Object.keys(blockAny).includes('style')) { // Has style property (section break characteristic)
-        
-        console.log('🚨 [IMAGE RENDER] CORRUPTED BLOCK DETECTED: Section break with image type!', {
+      const hasStyle = 'style' in blockAny;
+      const hasValidImageProperties = src && typeof src === 'string' && src.startsWith('/static_design_images/');
+      const hasInvalidProperties = hasStyle || !hasValidImageProperties;
+      
+      if (hasInvalidProperties) {
+        console.log('🚨 [IMAGE RENDER] INVALID IMAGE BLOCK DETECTED!', {
           block,
-          detectedAs: 'section_break',
-          correctType: 'section_break',
-          style: blockAny.style,
-          src: blockAny.src,
-          reason: 'Has style property but missing essential image properties'
+          analysis: {
+            hasStyle: hasStyle,
+            styleValue: blockAny.style,
+            hasValidSrc: hasValidImageProperties,
+            srcValue: src,
+            blockType: block.type,
+            suspiciousKeys: Object.keys(blockAny).filter(key => !['type', 'src', 'alt', 'caption', 'width', 'height', 'alignment', 'borderRadius', 'maxWidth'].includes(key)),
+            allKeys: Object.keys(blockAny),
+            reason: hasStyle ? 'Block has style property (section break contamination)' : 'Invalid or missing src property'
+          }
         });
         
-        // Render as section break instead
-        if (blockAny.style === 'none') return null;
-        const borderStyle = blockAny.style === 'dashed' ? 'border-dashed' : 'border-solid';
-        return <hr className={`my-3 border-t ${borderStyle} border-gray-300`} />;
+        // If it has section break properties, render as section break
+        if (hasStyle && (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none')) {
+          console.log('🔄 [IMAGE RENDER] Converting corrupted image block to section break');
+          if (blockAny.style === 'none') return null;
+          const borderStyle = blockAny.style === 'dashed' ? 'border-dashed' : 'border-solid';
+          return <hr className={`my-3 border-t ${borderStyle} border-gray-300`} />;
+        }
+        
+        // Otherwise show error placeholder
+        return (
+          <div className="my-4 text-center">
+            <div className="inline-block p-4 border-2 border-red-300 rounded-lg bg-red-50 text-red-700">
+              <p className="font-semibold">⚠️ Invalid Image Block</p>
+              <p className="text-sm mt-1">Block type: {block.type}</p>
+              <p className="text-xs mt-1">Reason: {hasStyle ? 'Contaminated with section break properties' : 'Missing or invalid image source'}</p>
+              <details className="mt-2">
+                <summary className="text-xs cursor-pointer">Debug Info</summary>
+                <pre className="text-xs mt-1 text-left overflow-auto">{JSON.stringify(block, null, 2)}</pre>
+              </details>
+            </div>
+          </div>
+        );
       }
       
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
@@ -1395,6 +1419,52 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
+
+  // 🔍 COMPREHENSIVE LOGGING: Print entire content when one-pager opens
+  useEffect(() => {
+    if (dataToDisplay) {
+      console.log('📋 [ONE-PAGER OPENED] Complete content structure:', {
+        dataToDisplay,
+        contentBlocks: dataToDisplay.contentBlocks,
+        contentBlocksLength: dataToDisplay.contentBlocks?.length || 0,
+        contentBlocksStringified: JSON.stringify(dataToDisplay.contentBlocks, null, 2),
+        allBlockTypes: dataToDisplay.contentBlocks?.map((block, index) => ({
+          index,
+          type: block.type,
+          allKeys: Object.keys(block),
+          blockAsString: JSON.stringify(block, null, 2)
+        })) || []
+      });
+
+      // 🔍 Analyze for potential corruption
+      const corruptedBlocks = dataToDisplay.contentBlocks?.filter((block, index) => {
+        if (block.type === 'image') {
+          const imageBlock = block as any;
+          const hasStyle = 'style' in imageBlock;
+          const hasValidSrc = imageBlock.src && typeof imageBlock.src === 'string' && imageBlock.src.startsWith('/static_design_images/');
+          const isCorrupted = hasStyle || !hasValidSrc;
+          
+          if (isCorrupted) {
+            console.warn(`🚨 [CORRUPTION DETECTED] Block at index ${index}:`, {
+              block,
+              issues: {
+                hasStyle: hasStyle,
+                hasValidSrc: hasValidSrc,
+                srcValue: imageBlock.src
+              }
+            });
+          }
+          
+          return isCorrupted;
+        }
+        return false;
+      }) || [];
+
+      if (corruptedBlocks.length > 0) {
+        console.error('🚨 [CRITICAL] Found corrupted image blocks:', corruptedBlocks);
+      }
+    }
+  }, [dataToDisplay]);
 
   const handleImageUploaded = useCallback((imagePath: string) => {
     if (onTextChange && dataToDisplay) {
