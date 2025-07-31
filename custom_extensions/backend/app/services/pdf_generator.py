@@ -9,6 +9,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import random
 import tempfile
 import uuid
+import gc
+import time
 
 # Attempt to import settings (as before)
 try:
@@ -37,11 +39,14 @@ PDF_CACHE_DIR.mkdir(exist_ok=True)
 
 CHROME_EXEC_PATH = '/usr/bin/chromium'
 
-# Configuration constants for PDF generation
+# Configuration constants for PDF generation - OPTIMIZED
 PDF_MIN_SLIDE_HEIGHT = 600
 PDF_MAX_SLIDE_HEIGHT = 3000
 PDF_HEIGHT_SAFETY_MARGIN = 40
-PDF_GENERATION_TIMEOUT = 30000  # 30 seconds
+PDF_GENERATION_TIMEOUT = 60000  # Increased to 60 seconds
+PDF_PAGE_TIMEOUT = 30000  # 30 seconds per page
+MAX_CONCURRENT_SLIDES = 3  # Limit concurrent processing
+BROWSER_MEMORY_LIMIT = 1024  # MB
 
 # --- Setup Jinja2 Environment ---
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -67,6 +72,61 @@ def shuffle_filter(seq):
         return seq
 
 jinja_env.filters['shuffle'] = shuffle_filter
+
+# Optimized browser launch options
+def get_browser_launch_options():
+    """Get optimized browser launch options for better stability."""
+    return {
+        'headless': 'new',
+        'args': [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox', 
+            '--disable-dev-shm-usage', 
+            '--disable-gpu', 
+            '--no-zygote', 
+            f'--js-flags=--max-old-space-size={BROWSER_MEMORY_LIMIT}', 
+            '--single-process', 
+            '--disable-extensions', 
+            '--disable-background-networking', 
+            '--disable-default-apps', 
+            '--disable-sync', 
+            '--disable-translate', 
+            '--hide-scrollbars', 
+            '--metrics-recording-only', 
+            '--mute-audio', 
+            '--no-first-run', 
+            '--safeBrowse-disable-auto-update',
+            '--font-render-hinting=none',
+            '--enable-font-antialiasing',
+            '--force-color-profile=srgb',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-ipc-flooding-protection',
+            '--disable-renderer-backgrounding',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-client-side-phishing-detection',
+            '--disable-component-extensions-with-background-pages',
+            '--disable-default-apps',
+            '--disable-domain-reliability',
+            '--disable-features=TranslateUI',
+            '--disable-hang-monitor',
+            '--disable-prompt-on-repost',
+            '--disable-sync-preferences',
+            '--disable-threaded-animation',
+            '--disable-threaded-scrolling',
+            '--disable-web-resources',
+            '--no-default-browser-check',
+            '--no-pings',
+            '--no-zygote',
+            '--aggressive-cache-discard',
+            '--memory-pressure-off',
+            '--max_old_space_size=1024'
+        ], 
+        'dumpio': False,  # Disable to reduce overhead
+        'executablePath': CHROME_EXEC_PATH,
+        'timeout': PDF_GENERATION_TIMEOUT
+    }
 
 async def generate_pdf_from_html_template(
     template_name: str,
@@ -101,36 +161,8 @@ async def generate_pdf_from_html_template(
         logger.error(f"Error rendering HTML template '{template_name}': {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to render PDF template: {e}")
 
-    launch_options = {
-        'headless': 'new', 
-        'args': [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox', 
-            '--disable-dev-shm-usage', 
-            '--disable-gpu', 
-            '--no-zygote', 
-            '--js-flags=--max-old-space-size=512', 
-            '--single-process', 
-            '--disable-extensions', 
-            '--disable-background-networking', 
-            '--disable-default-apps', 
-            '--disable-sync', 
-            '--disable-translate', 
-            '--hide-scrollbars', 
-            '--metrics-recording-only', 
-            '--mute-audio', 
-            '--no-first-run', 
-            '--safeBrowse-disable-auto-update',
-            '--font-render-hinting=none',
-            '--enable-font-antialiasing',
-            '--force-color-profile=srgb'
-        ], 
-        'dumpio': True, 
-        'executablePath': CHROME_EXEC_PATH
-    }
-
     try:
-        browser = await pyppeteer.launch(**launch_options)
+        browser = await pyppeteer.launch(**get_browser_launch_options())
         logger.info(f"Browser launched for HTML content. Version: {await browser.version()}")
         page = await browser.newPage()
         logger.info("New page created for HTML content.")
@@ -392,34 +424,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
     
     try:
         if browser is None:
-            launch_options = {
-                'headless': 'new',
-                'args': [
-                    '--no-sandbox', 
-                    '--disable-setuid-sandbox', 
-                    '--disable-dev-shm-usage', 
-                    '--disable-gpu', 
-                    '--no-zygote', 
-                    '--js-flags=--max-old-space-size=512', 
-                    '--single-process', 
-                    '--disable-extensions', 
-                    '--disable-background-networking', 
-                    '--disable-default-apps', 
-                    '--disable-sync', 
-                    '--disable-translate', 
-                    '--hide-scrollbars', 
-                    '--metrics-recording-only', 
-                    '--mute-audio', 
-                    '--no-first-run', 
-                    '--safeBrowse-disable-auto-update',
-                    '--font-render-hinting=none',
-                    '--enable-font-antialiasing',
-                    '--force-color-profile=srgb'
-                ], 
-                'dumpio': True, 
-                'executablePath': CHROME_EXEC_PATH
-            }
-            browser = await pyppeteer.launch(**launch_options)
+            browser = await pyppeteer.launch(**get_browser_launch_options())
         
         page = await browser.newPage()
         
@@ -443,7 +448,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
             () => {
                 return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
             }
-        """, timeout=10000)
+        """, timeout=PDF_PAGE_TIMEOUT)
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
@@ -526,34 +531,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
     
     try:
         if browser is None:
-            launch_options = {
-                'headless': 'new',
-                'args': [
-                    '--no-sandbox', 
-                    '--disable-setuid-sandbox', 
-                    '--disable-dev-shm-usage', 
-                    '--disable-gpu', 
-                    '--no-zygote', 
-                    '--js-flags=--max-old-space-size=512', 
-                    '--single-process', 
-                    '--disable-extensions', 
-                    '--disable-background-networking', 
-                    '--disable-default-apps', 
-                    '--disable-sync', 
-                    '--disable-translate', 
-                    '--hide-scrollbars', 
-                    '--metrics-recording-only', 
-                    '--mute-audio', 
-                    '--no-first-run', 
-                    '--safeBrowse-disable-auto-update',
-                    '--font-render-hinting=none',
-                    '--enable-font-antialiasing',
-                    '--force-color-profile=srgb'
-                ], 
-                'dumpio': True, 
-                'executablePath': CHROME_EXEC_PATH
-            }
-            browser = await pyppeteer.launch(**launch_options)
+            browser = await pyppeteer.launch(**get_browser_launch_options())
         
         page = await browser.newPage()
         
@@ -577,7 +555,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             () => {
                 return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
             }
-        """, timeout=10000)
+        """, timeout=PDF_PAGE_TIMEOUT)
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
@@ -606,6 +584,34 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         if should_close_browser and browser:
             await browser.close()
 
+async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> list:
+    """
+    Process a batch of slides in parallel for better performance.
+    
+    Args:
+        slides_batch: List of (slide_data, slide_height, output_path) tuples
+        theme: The theme name
+        browser: Optional browser instance to reuse
+    
+    Returns:
+        list: List of successful output paths
+    """
+    tasks = []
+    for slide_data, slide_height, output_path in slides_batch:
+        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser)
+        tasks.append(task)
+    
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    successful_paths = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.error(f"Failed to generate slide {i + 1}: {result}")
+        elif result:
+            successful_paths.append(slides_batch[i][2])  # output_path
+    
+    return successful_paths
+
 async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
@@ -614,6 +620,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
 ) -> str:
     """
     Generate a PDF slide deck with dynamic height per slide.
+    OPTIMIZED VERSION with better resource management and parallel processing.
     
     Args:
         slides_data: List of slide data dictionaries
@@ -635,90 +642,113 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     
     browser = None
     temp_pdf_paths = []
+    start_time = time.time()
     
     try:
         logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}")
         
-        # Launch browser once to reuse for all slides
-        launch_options = {
-            'headless': 'new',
-            'args': [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox', 
-                '--disable-dev-shm-usage', 
-                '--disable-gpu', 
-                '--no-zygote', 
-                '--js-flags=--max-old-space-size=512', 
-                '--single-process', 
-                '--disable-extensions', 
-                '--disable-background-networking', 
-                '--disable-default-apps', 
-                '--disable-sync', 
-                '--disable-translate', 
-                '--hide-scrollbars', 
-                '--metrics-recording-only', 
-                '--mute-audio', 
-                '--no-first-run', 
-                '--safeBrowse-disable-auto-update',
-                '--font-render-hinting=none',
-                '--enable-font-antialiasing',
-                '--force-color-profile=srgb'
-            ], 
-            'dumpio': True, 
-            'executablePath': CHROME_EXEC_PATH
-        }
-        browser = await pyppeteer.launch(**launch_options)
-        
-        # Step 1: Calculate heights for all slides
+        # Step 1: Calculate heights for all slides with a single browser instance
         logger.info("Calculating slide heights...")
+        browser = await pyppeteer.launch(**get_browser_launch_options())
+        
         slide_heights = []
         for i, slide_data in enumerate(slides_data):
             logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)}")
-            height = await calculate_slide_dimensions(slide_data, theme, browser)
-            slide_heights.append(height)
+            try:
+                height = await calculate_slide_dimensions(slide_data, theme, browser)
+                slide_heights.append(height)
+            except Exception as e:
+                logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
+                slide_heights.append(PDF_MIN_SLIDE_HEIGHT)
         
-        # Step 2: Generate individual PDFs for each slide
+        # Close the height calculation browser to free memory
+        await browser.close()
+        browser = None
+        
+        # Step 2: Generate individual PDFs in batches for better performance
         logger.info("Generating individual slide PDFs...")
+        
+        # Create temporary paths for all slides
+        slide_tasks = []
         for i, (slide_data, slide_height) in enumerate(zip(slides_data, slide_heights)):
-            logger.info(f"Generating PDF for slide {i + 1}/{len(slides_data)} (height: {slide_height}px)")
-            
             temp_pdf_path = f"/tmp/slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
-            success = await generate_single_slide_pdf(slide_data, theme, slide_height, temp_pdf_path, browser)
+            slide_tasks.append((slide_data, slide_height, temp_pdf_path))
+        
+        # Process slides in batches to avoid memory issues
+        batch_size = MAX_CONCURRENT_SLIDES
+        successful_paths = []
+        
+        for batch_start in range(0, len(slide_tasks), batch_size):
+            batch_end = min(batch_start + batch_size, len(slide_tasks))
+            batch = slide_tasks[batch_start:batch_end]
             
-            if success:
-                temp_pdf_paths.append(temp_pdf_path)
-            else:
-                logger.error(f"Failed to generate PDF for slide {i + 1}")
-                # Clean up any generated PDFs
-                for path in temp_pdf_paths:
+            logger.info(f"Processing batch {batch_start//batch_size + 1}/{(len(slide_tasks) + batch_size - 1)//batch_size} ({len(batch)} slides)")
+            
+            # Launch a new browser for each batch to prevent memory accumulation
+            batch_browser = await pyppeteer.launch(**get_browser_launch_options())
+            
+            try:
+                batch_results = await process_slide_batch(batch, theme, batch_browser)
+                successful_paths.extend(batch_results)
+                temp_pdf_paths.extend(batch_results)
+            except Exception as e:
+                logger.error(f"Failed to process batch: {e}")
+                # Clean up any generated PDFs in this batch
+                for _, _, path in batch:
                     try:
-                        os.remove(path)
+                        if os.path.exists(path):
+                            os.remove(path)
                     except:
                         pass
-                raise HTTPException(status_code=500, detail=f"Failed to generate PDF for slide {i + 1}")
+                raise HTTPException(status_code=500, detail=f"Failed to process slide batch: {str(e)[:200]}")
+            finally:
+                await batch_browser.close()
+                # Force garbage collection after each batch
+                gc.collect()
+        
+        if len(successful_paths) != len(slides_data):
+            logger.error(f"Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully")
+            # Clean up any generated PDFs
+            for path in temp_pdf_paths:
+                try:
+                    os.remove(path)
+                except:
+                    pass
+            raise HTTPException(status_code=500, detail=f"Failed to generate all slides. Only {len(successful_paths)}/{len(slides_data)} were successful.")
         
         # Step 3: Merge all PDFs into final document
         logger.info(f"Merging {len(temp_pdf_paths)} slide PDFs...")
         merger = PdfMerger()
         
-        for pdf_path in temp_pdf_paths:
-            merger.append(pdf_path)
-        
-        # Write the merged PDF
-        if os.path.exists(pdf_path_in_cache):
-            os.remove(pdf_path_in_cache)
-        
-        merger.write(str(pdf_path_in_cache))
-        merger.close()
+        try:
+            for pdf_path in temp_pdf_paths:
+                if os.path.exists(pdf_path):
+                    merger.append(pdf_path)
+                else:
+                    logger.warning(f"PDF file not found: {pdf_path}")
+            
+            # Write the merged PDF
+            if os.path.exists(pdf_path_in_cache):
+                os.remove(pdf_path_in_cache)
+            
+            merger.write(str(pdf_path_in_cache))
+            merger.close()
+            
+        except Exception as e:
+            logger.error(f"Failed to merge PDFs: {e}")
+            merger.close()
+            raise HTTPException(status_code=500, detail=f"Failed to merge PDFs: {str(e)[:200]}")
         
         # Clean up temporary PDF files
         for pdf_path in temp_pdf_paths:
             try:
-                os.remove(pdf_path)
-            except:
-                pass
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+            except Exception as e:
+                logger.warning(f"Failed to clean up temporary PDF {pdf_path}: {e}")
         
-        logger.info(f"Slide deck PDF generated successfully: {pdf_path_in_cache}")
+        total_time = time.time() - start_time
+        logger.info(f"Slide deck PDF generated successfully in {total_time:.2f}s: {pdf_path_in_cache}")
         return str(pdf_path_in_cache)
         
     except Exception as e:
@@ -727,7 +757,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
         # Clean up any generated PDFs
         for path in temp_pdf_paths:
             try:
-                os.remove(path)
+                if os.path.exists(path):
+                    os.remove(path)
             except:
                 pass
         
@@ -735,4 +766,9 @@ async def generate_slide_deck_pdf_with_dynamic_height(
         
     finally:
         if browser:
-            await browser.close()
+            try:
+                await browser.close()
+            except:
+                pass
+        # Force garbage collection
+        gc.collect()
