@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import PresentationPreview from "../../../components/PresentationPreview";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -114,7 +115,6 @@ export default function TextPresentationClient() {
   const [retryTrigger, setRetryTrigger] = useState(0);
   const maxRetries = 3;
   const previewAbortRef = useRef<AbortController | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Advanced mode state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -321,7 +321,7 @@ export default function TextPresentationClient() {
           });
 
           if (!res.ok || !res.body) {
-            throw new Error(`Failed to generate one-pager: ${res.status}`);
+            throw new Error(`Failed to generate presentation: ${res.status}`);
           }
 
           const reader = res.body.getReader();
@@ -407,7 +407,7 @@ export default function TextPresentationClient() {
             // If the stream ended but we never displayed content, remove spinner anyway
             if (loading) setLoading(false);
             if (!gotFirstChunk && attempt >= 3) {
-              setError("Failed to generate one-pager – please try again later.");
+              setError("Failed to generate presentation – please try again later.");
             }
           }
         }
@@ -476,7 +476,7 @@ export default function TextPresentationClient() {
     // Add timeout safeguard to prevent infinite loading
     const timeoutId = setTimeout(() => {
       setIsGenerating(false);
-      setError("Finalization timed out. Please try again.");
+      setError("Presentation finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
     try {
@@ -513,7 +513,7 @@ export default function TextPresentationClient() {
       // Clear timeout on error
       clearTimeout(timeoutId);
       console.error('Finalization failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to finalize text presentation');
+      setError(error instanceof Error ? error.message : 'Failed to finalize presentation');
     } finally {
       setIsGenerating(false);
     }
@@ -577,13 +577,7 @@ export default function TextPresentationClient() {
     fetchLessons();
   }, [selectedOutlineId, useExistingOutline]);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [content]);
+  // Note: Auto-resize effect removed since we're using PresentationPreview instead of textarea
 
   const themeOptions = [
     { id: "wine", label: t('interface.generate.wine', 'Wine') },
@@ -623,10 +617,10 @@ export default function TextPresentationClient() {
           {/* Step 1: Choose source */}
           {useExistingOutline === null && (
             <div className="flex flex-col items-center gap-3">
-              <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
+              <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
               <div className="flex gap-3">
-                <button onClick={() => setUseExistingOutline(true)} className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium">{t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}</button>
-                <button onClick={() => setUseExistingOutline(false)} className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium">{t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}</button>
+                <button onClick={() => setUseExistingOutline(true)} className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium">{t('interface.generate.yesContentForPresentation', 'Yes, content for the presentation from the outline')}</button>
+                <button onClick={() => setUseExistingOutline(false)} className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium">{t('interface.generate.noStandalonePresentation', 'No, I want standalone presentation')}</button>
               </div>
             </div>
           )}
@@ -800,29 +794,27 @@ export default function TextPresentationClient() {
           </div>
           )}
         </div>
-        {/* Prompt input for standalone one-pager */}
+        {/* Prompt input for standalone presentation */}
         {useExistingOutline === false && (
-          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('interface.generate.promptPlaceholder', "Describe what you'd like to make")} rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
+          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")} rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.onePagerContent', 'One-Pager Content')}</h2>
-          {loading && <LoadingAnimation message={t('interface.generate.generatingOnePagerContent', 'Generating one-pager content...')} />}
+          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+          {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           {textareaVisible && (
-            <div className="bg-white rounded-xl p-6 flex flex-col gap-6 relative" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+            <div style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
               {loadingEdit && (
-                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
                   <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={loadingEdit}
+              <PresentationPreview
+                markdown={content}
+                isEditing={true}
+                onContentChange={(newMarkdown) => setContent(newMarkdown)}
+                className="w-full"
               />
           </div>
         )}
@@ -919,7 +911,7 @@ export default function TextPresentationClient() {
               {/* Content section */}
               <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
                 <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustTextAndImageStyles', 'Adjust text and image styles for your one-pager')}</p>
+                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
                   <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
@@ -961,7 +953,7 @@ export default function TextPresentationClient() {
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">
-                {content.split(/\s+/).length} {t('interface.generate.words', 'words')}
+                {content.split(/^---\s*$/m).filter(slide => slide.trim()).length} {t('interface.generate.slides', 'slides')}
               </span>
               <button
                 type="button"
@@ -987,7 +979,7 @@ export default function TextPresentationClient() {
     `}</style>
     {isGenerating && (
       <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message={t('interface.generate.finalizingOnePager', 'Finalizing one-pager...')} />
+        <LoadingAnimation message={t('interface.generate.finalizingPresentation', 'Finalizing presentation...')} />
       </div>
     )}
     </>
