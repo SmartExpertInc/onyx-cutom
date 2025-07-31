@@ -1255,7 +1255,7 @@ const ImageUploadModal: React.FC<{
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('/api/custom/onepager/upload_image', {
+      const response = await fetch('/api/custom-projects-backend/onepager/upload_image', {
         method: 'POST',
         body: formData,
       });
