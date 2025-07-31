@@ -115,7 +115,7 @@ const EditableBlock: React.FC<{
 
   switch (block.type) {
     case 'heading':
-      const HeadingTag = `h${Math.min(block.level || 2, 6)}` as keyof JSX.IntrinsicElements;
+      const headingLevel = Math.min(block.level || 2, 6);
       const headingClasses = {
         1: 'text-3xl md:text-4xl font-bold text-gray-900 mb-6',
         2: 'text-2xl md:text-3xl font-bold text-gray-900 mb-4',
@@ -123,7 +123,7 @@ const EditableBlock: React.FC<{
         4: 'text-lg md:text-xl font-semibold text-gray-800 mb-3',
         5: 'text-base md:text-lg font-medium text-gray-700 mb-2',
         6: 'text-sm md:text-base font-medium text-gray-700 mb-2'
-      }[block.level || 2];
+      }[headingLevel];
 
       if (isEditMode && isEditing) {
         return (
@@ -141,17 +141,40 @@ const EditableBlock: React.FC<{
         );
       }
 
+      const renderHeading = () => {
+        const content = (
+          <>
+            {block.content}
+            {isEditing && (
+              <Edit3 className="inline-block w-4 h-4 ml-2 opacity-0 group-hover:opacity-50 transition-opacity" />
+            )}
+          </>
+        );
+
+        switch (headingLevel) {
+          case 1:
+            return <h1 className={headingClasses}>{content}</h1>;
+          case 2:
+            return <h2 className={headingClasses}>{content}</h2>;
+          case 3:
+            return <h3 className={headingClasses}>{content}</h3>;
+          case 4:
+            return <h4 className={headingClasses}>{content}</h4>;
+          case 5:
+            return <h5 className={headingClasses}>{content}</h5>;
+          case 6:
+            return <h6 className={headingClasses}>{content}</h6>;
+          default:
+            return <h2 className={headingClasses}>{content}</h2>;
+        }
+      };
+
       return (
         <div 
           className={`group cursor-pointer ${isEditing ? 'hover:bg-gray-50 rounded-md p-2 -m-2' : ''}`}
           onClick={() => isEditing && setIsEditMode(true)}
         >
-          <HeadingTag className={headingClasses}>
-            {block.content}
-            {isEditing && (
-              <Edit3 className="inline-block w-4 h-4 ml-2 opacity-0 group-hover:opacity-50 transition-opacity" />
-            )}
-          </HeadingTag>
+          {renderHeading()}
         </div>
       );
 
