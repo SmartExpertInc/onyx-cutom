@@ -20,16 +20,16 @@
             background: #fff;
         }
         
-        /* Page setup for PDF */
+        /* Page setup for PDF - LANDSCAPE ORIENTATION */
         @page {
-            size: A4;
+            size: A4 landscape;
             margin: 0;
         }
         
-        /* Each slide gets its own page */
+        /* Each slide gets its own page - LANDSCAPE DIMENSIONS */
         .slide-page {
-            width: 210mm;
-            height: 297mm;
+            width: 297mm; /* A4 landscape width */
+            height: 210mm; /* A4 landscape height */
             page-break-after: always;
             page-break-inside: avoid;
             position: relative;
@@ -43,7 +43,7 @@
             page-break-after: auto;
         }
         
-        /* Slide content container */
+        /* Slide content container - match editor dimensions */
         .slide-content {
             width: 100%;
             height: 100%;
@@ -51,7 +51,7 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: stretch;
-            padding: 40px;
+            padding: 60px; /* Increased padding for better spacing */
             position: relative;
         }
         
@@ -313,6 +313,161 @@
             color: {{ colors.accent }};
         }
         
+        /* Two Column Layout */
+        .two-column-layout {
+            display: flex;
+            gap: 40px;
+            height: 100%;
+        }
+        
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: {{ colors.title }};
+        }
+        
+        /* Bullet List Styles */
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .bullet-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .bullet-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: {{ colors.content }};
+        }
+        
+        /* Numbers Grid */
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .number-item {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid {{ colors.accent }};
+            border-radius: 8px;
+        }
+        
+        .number-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: {{ colors.accent }};
+            margin-bottom: 8px;
+        }
+        
+        .number-label {
+            font-size: 20px;
+            font-weight: 600;
+            color: {{ colors.title }};
+            margin-bottom: 8px;
+        }
+        
+        .number-description {
+            font-size: 16px;
+            color: {{ colors.content }};
+        }
+        
+        /* Four Box Grid */
+        .four-box-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .box-item {
+            padding: 20px;
+            border: 2px solid {{ colors.accent }};
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .box-item h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: {{ colors.title }};
+            margin-bottom: 12px;
+        }
+        
+        .box-item .content {
+            font-size: 16px;
+            color: {{ colors.content }};
+        }
+        
+        /* Pyramid */
+        .pyramid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+        }
+        
+        .pyramid-level {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid {{ colors.accent }};
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .pyramid-level:nth-child(1) { width: 60%; }
+        .pyramid-level:nth-child(2) { width: 80%; }
+        .pyramid-level:nth-child(3) { width: 100%; }
+        
+        .level-content {
+            font-size: 18px;
+            font-weight: 600;
+            color: {{ colors.title }};
+        }
+        
+        /* Timeline */
+        .timeline-container {
+            margin-top: 40px;
+        }
+        
+        .timeline-event {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 16px;
+            border-left: 4px solid {{ colors.accent }};
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        
+        .event-date {
+            font-size: 18px;
+            font-weight: 600;
+            color: {{ colors.accent }};
+            min-width: 80px;
+        }
+        
+        .event-content {
+            font-size: 16px;
+            color: {{ colors.content }};
+        }
+        
         /* Responsive adjustments for PDF */
         @media print {
             .slide-page {
@@ -435,6 +590,148 @@
                         <h2>{{ slide.props.afterTitle or 'After' }}</h2>
                         <div class="content">{{ slide.props.afterContent or 'After state description' }}</div>
                     </div>
+                </div>
+                
+            {% elif slide.templateId == 'big-image-left' %}
+                <!-- Big Image Left Template -->
+                <h1>{{ slide.props.title or 'Big Image Left' }}</h1>
+                <div style="display: flex; gap: 40px; height: 100%;">
+                    <!-- Left: Big image placeholder -->
+                    <div style="flex: 0 0 60%; display: flex; align-items: center; justify-content: center;">
+                        <div class="image-placeholder" style="width: 100%; max-width: 400px;">
+                            <div class="icon">🖼️</div>
+                            <div class="title">Big Image</div>
+                            <div class="prompt">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration' }}"</div>
+                            <div class="size">400px × 300px</div>
+                        </div>
+                    </div>
+                    <!-- Right: Content -->
+                    <div style="flex: 1 1 40%;">
+                        <div class="content">{{ slide.props.content or 'Add your content here...' }}</div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'big-image-top' %}
+                <!-- Big Image Top Template -->
+                <h1>{{ slide.props.title or 'Big Image Top' }}</h1>
+                <!-- Top: Big image placeholder -->
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;">
+                    <div class="image-placeholder" style="width: 100%; max-width: 500px; height: 250px;">
+                        <div class="icon">🖼️</div>
+                        <div class="title">Big Image</div>
+                        <div class="prompt">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration' }}"</div>
+                        <div class="size">500px × 250px</div>
+                    </div>
+                </div>
+                <!-- Bottom: Content -->
+                <div class="content">{{ slide.props.content or 'Add your content here...' }}</div>
+                
+            {% elif slide.templateId == 'big-numbers' %}
+                <!-- Big Numbers Template -->
+                <h1>{{ slide.props.title or 'Big Numbers' }}</h1>
+                <div class="numbers-grid">
+                    {% for number in slide.props.numbers or [] %}
+                    <div class="number-item">
+                        <div class="number-value">{{ number.value or '100' }}</div>
+                        <div class="number-label">{{ number.label or 'Label' }}</div>
+                        <div class="number-description">{{ number.description or 'Description' }}</div>
+                    </div>
+                    {% endfor %}
+                    {% if not slide.props.numbers or slide.props.numbers|length == 0 %}
+                    <div class="number-item">
+                        <div class="number-value">100</div>
+                        <div class="number-label">Example Metric</div>
+                        <div class="number-description">Add your key metrics here</div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+            {% elif slide.templateId == 'challenges-solutions' %}
+                <!-- Challenges Solutions Template -->
+                <h1>{{ slide.props.title or 'Challenges & Solutions' }}</h1>
+                <div class="two-column-layout">
+                    <div class="column">
+                        <h2>{{ slide.props.challengesTitle or 'Challenges' }}</h2>
+                        <ul class="bullet-list">
+                            {% for challenge in slide.props.challenges or [] %}
+                            <li>
+                                <span class="bullet-icon">⚠️</span>
+                                <span class="bullet-text">{{ challenge or 'Add challenge' }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h2>{{ slide.props.solutionsTitle or 'Solutions' }}</h2>
+                        <ul class="bullet-list">
+                            {% for solution in slide.props.solutions or [] %}
+                            <li>
+                                <span class="bullet-icon">✅</span>
+                                <span class="bullet-text">{{ solution or 'Add solution' }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'four-box-grid' %}
+                <!-- Four Box Grid Template -->
+                <h1>{{ slide.props.title or 'Four Box Grid' }}</h1>
+                <div class="four-box-grid">
+                    {% for box in slide.props.boxes or [] %}
+                    <div class="box-item">
+                        <h3>{{ box.title or 'Box Title' }}</h3>
+                        <div class="content">{{ box.content or 'Box content' }}</div>
+                    </div>
+                    {% endfor %}
+                    {% if not slide.props.boxes or slide.props.boxes|length == 0 %}
+                    {% for i in range(4) %}
+                    <div class="box-item">
+                        <h3>Box {{ i + 1 }}</h3>
+                        <div class="content">Add content for box {{ i + 1 }}</div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                
+            {% elif slide.templateId == 'pyramid' %}
+                <!-- Pyramid Template -->
+                <h1>{{ slide.props.title or 'Pyramid Structure' }}</h1>
+                <div class="pyramid-container">
+                    {% for level in slide.props.levels or [] %}
+                    <div class="pyramid-level">
+                        <div class="level-content">{{ level.content or 'Level content' }}</div>
+                    </div>
+                    {% endfor %}
+                    {% if not slide.props.levels or slide.props.levels|length == 0 %}
+                    <div class="pyramid-level">
+                        <div class="level-content">Top Level</div>
+                    </div>
+                    <div class="pyramid-level">
+                        <div class="level-content">Middle Level</div>
+                    </div>
+                    <div class="pyramid-level">
+                        <div class="level-content">Base Level</div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+            {% elif slide.templateId == 'timeline' %}
+                <!-- Timeline Template -->
+                <h1>{{ slide.props.title or 'Timeline' }}</h1>
+                <div class="timeline-container">
+                    {% for event in slide.props.events or [] %}
+                    <div class="timeline-event">
+                        <div class="event-date">{{ event.date or 'Date' }}</div>
+                        <div class="event-content">{{ event.content or 'Event description' }}</div>
+                    </div>
+                    {% endfor %}
+                    {% if not slide.props.events or slide.props.events|length == 0 %}
+                    <div class="timeline-event">
+                        <div class="event-date">2024</div>
+                        <div class="event-content">Add your timeline events</div>
+                    </div>
+                    {% endif %}
                 </div>
                 
             {% else %}

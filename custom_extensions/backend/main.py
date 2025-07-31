@@ -11754,8 +11754,8 @@ async def download_slide_deck_pdf(
 
         unique_output_filename = f"slide_deck_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
         
-        # Generate PDF using the slide deck template
-        pdf_path = await generate_pdf_from_html_template("slide_deck_pdf_template.html", context_for_jinja, unique_output_filename)
+        # Generate PDF using the slide deck template with landscape orientation
+        pdf_path = await generate_pdf_from_html_template("slide_deck_pdf_template.html", context_for_jinja, unique_output_filename, landscape=True)
         
         if not os.path.exists(pdf_path):
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")

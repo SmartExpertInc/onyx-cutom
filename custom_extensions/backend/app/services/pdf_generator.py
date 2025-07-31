@@ -57,7 +57,8 @@ async def generate_pdf_from_html_template(
     template_name: str,
     context_data: dict,
     output_filename: str,
-    use_cache: bool = True
+    use_cache: bool = True,
+    landscape: bool = False
 ) -> str:
     pdf_path_in_cache = PDF_CACHE_DIR / output_filename
     if use_cache and pdf_path_in_cache.exists():
@@ -159,6 +160,7 @@ async def generate_pdf_from_html_template(
         await page.pdf({
             'path': temp_pdf_path, 
             'format': 'A4', 
+            'landscape': landscape,
             'printBackground': True,
             'margin': {'top': '20px', 'right': '20px', 'bottom': '20px', 'left': '20px'},
             'preferCSSPageSize': True,
