@@ -1084,11 +1084,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
+      // Fix image path to work with backend proxy
+      const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
+      const imageSrc = src?.startsWith('/static_design_images') ? `${CUSTOM_BACKEND_URL}${src}` : src;
+      
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
-          <div className="inline-block">
+          <div className="inline-block relative">
             <img
-              src={src}
+              src={imageSrc}
               alt={alt || 'Uploaded image'}
               className="max-w-full h-auto shadow-sm"
               style={{
@@ -1098,6 +1102,91 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 maxWidth: maxWidth || '100%'
               }}
             />
+            
+            {/* Easy scaling handles in edit mode */}
+            {isEditing && onTextChange && (
+              <>
+                {/* Corner resize handle */}
+                <div
+                  className="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 rounded-tl cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const img = e.currentTarget.parentElement?.querySelector('img') as HTMLImageElement;
+                    if (!img) return;
+                    
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startWidth = img.clientWidth;
+                    const startHeight = img.clientHeight;
+                    const aspectRatio = startWidth / startHeight;
+                    
+                    const handleMouseMove = (e: MouseEvent) => {
+                      const deltaX = e.clientX - startX;
+                      const newWidth = Math.max(50, startWidth + deltaX);
+                      const newHeight = newWidth / aspectRatio;
+                      
+                      // Update the image block
+                      onTextChange?.(fieldPath('width'), newWidth);
+                      onTextChange?.(fieldPath('height'), newHeight);
+                    };
+                    
+                    const handleMouseUp = () => {
+                      document.removeEventListener('mousemove', handleMouseMove);
+                      document.removeEventListener('mouseup', handleMouseUp);
+                    };
+                    
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', handleMouseUp);
+                  }}
+                  title="Resize image"
+                />
+                
+                {/* Quick size buttons */}
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => {
+                      onTextChange?.(fieldPath('width'), 200);
+                      onTextChange?.(fieldPath('height'), undefined);
+                    }}
+                    className="px-1 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                    title="Small (200px)"
+                  >
+                    S
+                  </button>
+                  <button
+                    onClick={() => {
+                      onTextChange?.(fieldPath('width'), 400);
+                      onTextChange?.(fieldPath('height'), undefined);
+                    }}
+                    className="px-1 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                    title="Medium (400px)"
+                  >
+                    M
+                  </button>
+                  <button
+                    onClick={() => {
+                      onTextChange?.(fieldPath('width'), 600);
+                      onTextChange?.(fieldPath('height'), undefined);
+                    }}
+                    className="px-1 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                    title="Large (600px)"
+                  >
+                    L
+                  </button>
+                  <button
+                    onClick={() => {
+                      onTextChange?.(fieldPath('width'), '100%');
+                      onTextChange?.(fieldPath('height'), undefined);
+                    }}
+                    className="px-1 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                    title="Full width"
+                  >
+                    F
+                  </button>
+                </div>
+              </>
+            )}
+            
             {caption && (
               <p className="text-xs text-gray-600 mt-2 italic">
                 {isEditing && onTextChange ? (
@@ -1166,7 +1255,7 @@ const ImageUploadModal: React.FC<{
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('/api/custom-projects-backend/onepager/upload_image', {
+      const response = await fetch('/api/custom/onepager/upload_image', {
         method: 'POST',
         body: formData,
       });

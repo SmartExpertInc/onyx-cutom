@@ -582,9 +582,13 @@
          <div class="section-break-block none"></div>
     {% endif %}
 {% elif block_type == 'image' %}
+    {% set local_image_src = block_data.src %}
+    {% if block_data.src.startswith('/static_design_images/') %}
+        {% set local_image_src = 'file://' + (static_design_images_dir or 'static_design_images') + '/' + block_data.src.split('/')[-1] %}
+    {% endif %}
     <div class="image-block-wrapper" 
          style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
-        <img src="{{ block_data.src }}" 
+        <img src="{{ local_image_src }}" 
              alt="{{ block_data.alt or 'Image' }}" 
              style="max-width: {{ block_data.maxWidth or '100%' }}; 
                     height: auto; 
