@@ -1089,8 +1089,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // 🚨 CRITICAL FIX: Detect corrupted section breaks saved as image blocks
       const blockAny = block as any;
-      if (blockAny.style && !blockAny.src) {
+      console.log('🔍 [One-Pager Image] Checking corruption - has style:', !!blockAny.style, 'has src:', !!blockAny.src);
+      console.log('🔍 [One-Pager Image] Style value:', blockAny.style, 'Src value:', blockAny.src);
+      
+      // Only treat as corrupted if it has EXACTLY the section break pattern: style property but NO src, alt, caption, etc.
+      const hasStyleProperty = blockAny.style !== undefined && blockAny.style !== null;
+      const hasSrcProperty = blockAny.src !== undefined && blockAny.src !== null && blockAny.src !== '';
+      const hasImageProperties = blockAny.alt !== undefined || blockAny.caption !== undefined || blockAny.alignment !== undefined || blockAny.borderRadius !== undefined;
+      
+      console.log('🔍 [One-Pager Image] hasStyleProperty:', hasStyleProperty, 'hasSrcProperty:', hasSrcProperty, 'hasImageProperties:', hasImageProperties);
+      
+      if (hasStyleProperty && !hasSrcProperty && !hasImageProperties && Object.keys(blockAny).length <= 3) {
         console.log('🔧 [One-Pager Image] Detected corrupted section break saved as image block - fixing...');
+        console.log('🔧 [One-Pager Image] Block keys count:', Object.keys(blockAny).length, 'Keys:', Object.keys(blockAny));
         // This is actually a section break that was incorrectly saved as type "image"
         // Render it as a section break instead
         if (blockAny.style === 'solid' || blockAny.style === 'dashed') {
@@ -1105,6 +1116,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         // If unknown style, show as spacer
         return <div style={{ margin: '20px 0', height: '10px' }}></div>;
       }
+      
+      console.log('🖼️ [One-Pager Image] Processing as normal image block...');
       
       const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
       console.log('🖼️ [One-Pager Image] Destructured values:', { src, alt, caption, width, height, alignment, borderRadius, maxWidth });

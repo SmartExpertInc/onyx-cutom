@@ -582,8 +582,9 @@
          <div class="section-break-block none"></div>
     {% endif %}
 {% elif block_type == 'image' %}
-    {% if block_data.style and not block_data.src %}
+    {% if block_data.style and not block_data.src and not block_data.alt and not block_data.caption and not block_data.alignment and not block_data.borderRadius %}
         <!-- 🚨 CRITICAL FIX: Handle corrupted section breaks saved as image blocks -->
+        <!-- Only treat as corrupted if it has style but none of the image properties -->
         {% if block_data.style == 'solid' or block_data.style == 'dashed' %}
             <hr style="border: 1px {{ block_data.style }} #e5e7eb; margin: 20px 0; background-color: transparent;" />
         {% elif block_data.style == 'none' %}
