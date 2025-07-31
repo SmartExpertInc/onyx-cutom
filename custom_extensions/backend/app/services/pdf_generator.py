@@ -142,8 +142,8 @@ async def generate_pdf_from_html_template(
             document.head.appendChild(testElement);
         """)
         
-        # Set viewport to match slide width but allow dynamic height
-        await page.setViewport({'width': 1174, 'height': 600})
+                # Set viewport to match slide width but allow dynamic height
+        await page.setViewport({'width': 1174, 'height': 800})
         
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
@@ -158,14 +158,15 @@ async def generate_pdf_from_html_template(
         
         # Additional delay for complex rendering
         await asyncio.sleep(3)
-        
+
+        # Generate PDF with CSS-driven dynamic page sizing
         logger.info("Generating PDF from HTML content...")
         await page.pdf({
             'path': temp_pdf_path, 
             'landscape': landscape,
             'printBackground': True,
             'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
-            'preferCSSPageSize': True, # Use CSS @page sizing
+            'preferCSSPageSize': True, # Use CSS @page sizing for dynamic heights
             'displayHeaderFooter': False,
             'omitBackground': False
         })

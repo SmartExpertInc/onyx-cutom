@@ -38,7 +38,7 @@
         
         /* Page setup for PDF - EXACT SLIDE MATCHING */
         @page {
-            size: 1174px 600px; /* Fixed width, minimum height */
+            size: 1174px auto; /* Fixed width, dynamic height per page */
             margin: 0;
             padding: 0;
         }
@@ -46,19 +46,17 @@
         /* Each slide gets its own page - EXACT SLIDE DIMENSIONS */
         .slide-page {
             width: 1174px; /* Updated slide width as requested */
-            height: 600px; /* Fixed height to match @page */
+            min-height: 600px; /* Minimum height, but allow growth */
+            height: fit-content; /* Fit exactly to content */
             page-break-after: always;
             page-break-inside: avoid;
             position: relative;
-            overflow: hidden; /* Prevent any overflow */
+            overflow: visible; /* Allow content to expand */
             margin: 0;
             padding: 0;
             background: transparent;
             display: block;
             box-sizing: border-box;
-            /* Ensure no extra space */
-            line-height: 1;
-            font-size: 16px;
         }
         
         /* Ensure last slide doesn't have page break */
@@ -68,7 +66,8 @@
         
         .slide-content {
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px;
             padding: 0;
             margin: 0;
             display: flex;
@@ -107,7 +106,8 @@
         /* Common slide styles - EXACT FRONTEND MATCH */
         .slide {
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
@@ -163,7 +163,8 @@
             align-items: center;
             padding: 80px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px; /* Minimum height from frontend */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             box-sizing: border-box;
@@ -204,7 +205,8 @@
         /* Big Image Left Template - EXACT FRONTEND MATCH */
         .big-image-left {
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
             display: flex;
@@ -271,7 +273,8 @@
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         .bullet-points {
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
@@ -371,7 +374,8 @@
         .process-steps {
             padding: 40px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
             margin: 0;
@@ -426,7 +430,8 @@
         /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
         .challenges-solutions {
             width: 100%;
-            height: 100%;
+            height: fit-content;
+            min-height: 600px; /* Minimum height from frontend */
             background-color: var(--bg-color);
             padding: 60px; /* Exact frontend match */
             position: relative;
@@ -530,7 +535,7 @@
             display: flex;
             gap: 40px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: fit-content;
         }
         
         .column {
