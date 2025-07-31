@@ -582,39 +582,51 @@
          <div class="section-break-block none"></div>
     {% endif %}
 {% elif block_type == 'image' %}
-    <div class="image-block-wrapper" 
-         style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
-        {% if block_data.src %}
-            {% set image_src = block_data.src %}
-            {% if image_src.startswith('/static_design_images/') %}
-                {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/static_design_images/', '') %}
-            {% elif image_src.startswith('/') %}
-                {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/', '') %}
-            {% endif %}
+    {% if block_data.style and not block_data.src %}
+        <!-- 🚨 CRITICAL FIX: Handle corrupted section breaks saved as image blocks -->
+        {% if block_data.style == 'solid' or block_data.style == 'dashed' %}
+            <hr style="border: 1px {{ block_data.style }} #e5e7eb; margin: 20px 0; background-color: transparent;" />
+        {% elif block_data.style == 'none' %}
+            <div style="margin: 20px 0; height: 20px;"></div>
         {% else %}
-            {% set image_src = '' %}
+            <div style="margin: 20px 0; height: 10px;"></div>
         {% endif %}
-        <img src="{{ image_src }}" 
-             alt="{{ block_data.alt or 'Image' }}" 
-             style="max-width: {{ block_data.maxWidth or '100%' }}; 
-                    height: auto; 
-                    border-radius: {{ block_data.borderRadius or '8px' }};
-                    {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
-                    {% if block_data.height %}height: {{ block_data.height }}{% if block_data.height|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-        <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
-            {{ block_data.alt or 'Image not available' }}
+    {% else %}
+        <!-- Handle real image blocks -->
+        <div class="image-block-wrapper" 
+             style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
+            {% if block_data.src %}
+                {% set image_src = block_data.src %}
+                {% if image_src.startswith('/static_design_images/') %}
+                    {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/static_design_images/', '') %}
+                {% elif image_src.startswith('/') %}
+                    {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/', '') %}
+                {% endif %}
+            {% else %}
+                {% set image_src = '' %}
+            {% endif %}
+            <img src="{{ image_src }}" 
+                 alt="{{ block_data.alt or 'Image' }}" 
+                 style="max-width: {{ block_data.maxWidth or '100%' }}; 
+                        height: auto; 
+                        border-radius: {{ block_data.borderRadius or '8px' }};
+                        {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
+                        {% if block_data.height %}height: {{ block_data.height }}{% if block_data.height|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+            <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
+                {{ block_data.alt or 'Image not available' }}
+            </div>
+            {% if block_data.caption %}
+                <p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
+                    {% set segments = block_data.caption.split('**') %}
+                    {% for segment in segments %}
+                        {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
+                    {% endfor %}
+                </p>
+            {% endif %}
         </div>
-        {% if block_data.caption %}
-            <p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
-                {% set segments = block_data.caption.split('**') %}
-                {% for segment in segments %}
-                    {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
-                {% endfor %}
-            </p>
-        {% endif %}
-    </div>
+    {% endif %}
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
 {% endif %}

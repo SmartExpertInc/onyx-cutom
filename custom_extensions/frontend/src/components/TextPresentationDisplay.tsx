@@ -1085,8 +1085,26 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'image': {
       console.log('🖼️ [One-Pager Image] Raw image block received:', block);
       console.log('🖼️ [One-Pager Image] Block keys:', Object.keys(block));
-      console.log('🖼️ [One-Pager Image] Block type:', typeof block);
       console.log('🖼️ [One-Pager Image] Block JSON:', JSON.stringify(block, null, 2));
+      
+      // 🚨 CRITICAL FIX: Detect corrupted section breaks saved as image blocks
+      const blockAny = block as any;
+      if (blockAny.style && !blockAny.src) {
+        console.log('🔧 [One-Pager Image] Detected corrupted section break saved as image block - fixing...');
+        // This is actually a section break that was incorrectly saved as type "image"
+        // Render it as a section break instead
+        if (blockAny.style === 'solid' || blockAny.style === 'dashed') {
+          return <hr className={`section-break-block ${blockAny.style}`} style={{
+            border: blockAny.style === 'solid' ? '1px solid #e5e7eb' : '1px dashed #e5e7eb',
+            margin: '20px 0',
+            backgroundColor: 'transparent'
+          }} />;
+        } else if (blockAny.style === 'none') {
+          return <div className="section-break-block none" style={{ margin: '20px 0', height: '20px' }}></div>;
+        }
+        // If unknown style, show as spacer
+        return <div style={{ margin: '20px 0', height: '10px' }}></div>;
+      }
       
       const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
       console.log('🖼️ [One-Pager Image] Destructured values:', { src, alt, caption, width, height, alignment, borderRadius, maxWidth });
@@ -1098,16 +1116,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Ensure proper image path resolution with null check
       if (!src) {
-        console.log('🖼️ [One-Pager Image] ❌ No src found in image block, showing fallback');
-        console.log('🖼️ [One-Pager Image] ❌ Checking if src exists with different property names:');
-        console.log('🖼️ [One-Pager Image] ❌ block.source:', (block as any).source);
-        console.log('🖼️ [One-Pager Image] ❌ block.image_src:', (block as any).image_src);
-        console.log('🖼️ [One-Pager Image] ❌ block.imageSrc:', (block as any).imageSrc);
+        console.log('🖼️ [One-Pager Image] ❌ No src found in valid image block');
         return (
           <div className={`my-4 ${alignmentClass}`}>
             <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-center">
               <p>Image source not available</p>
-              <p className="text-xs mt-1 text-red-500">Debug: {JSON.stringify(block)}</p>
+              <p className="text-xs mt-1 text-red-500">Missing src property</p>
               {caption && <p className="text-sm mt-2 italic">{caption}</p>}
             </div>
           </div>
