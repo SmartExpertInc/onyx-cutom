@@ -140,8 +140,8 @@ async def generate_pdf_from_html_template(
         # Set viewport to match PDF slide dimensions exactly - CRITICAL FIX
         await page.setViewport({'width': 1174, 'height': 600})  # Start with minimum height
         
-        # Set content from string - waitUntil option is important
-        await page.setContent(html_content, waitUntil='networkidle0')
+        # Set content from string
+        await page.setContent(html_content)
         logger.info("HTML content set in Pyppeteer page.")
         
         # Wait for fonts to load and rendering to complete
