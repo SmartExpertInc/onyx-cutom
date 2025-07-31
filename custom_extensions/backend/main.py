@@ -11698,38 +11698,7 @@ async def download_folder_as_pdf(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate folder PDF: {str(e)[:200]}")
     
 
-@app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
-async def download_project_instance_pdf_no_slug(
-    project_id: int,
-    # all other parameters as in the main function
-    parentProjectName: Optional[str] = Query(None),
-    lessonNumber: Optional[int] = Query(None),
-    knowledgeCheck: Optional[str] = Query(None),
-    contentAvailability: Optional[str] = Query(None),
-    informationSource: Optional[str] = Query(None),
-    time: Optional[str] = Query(None),
-    estCompletionTime: Optional[str] = Query(None),
-    qualityTier: Optional[str] = Query(None),
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    # Just call the main function with a default slug
-    return await download_project_instance_pdf(
-        project_id=project_id,
-        document_name_slug="-",  # or any default value
-        parentProjectName=parentProjectName,
-        lessonNumber=lessonNumber,
-        knowledgeCheck=knowledgeCheck,
-        contentAvailability=contentAvailability,
-        informationSource=informationSource,
-        time=time,
-        estCompletionTime=estCompletionTime,
-        qualityTier=qualityTier,
-        onyx_user_id=onyx_user_id,
-        pool=pool,
-    )    
-
-
+# Move slide deck route BEFORE the general route to avoid path conflicts
 @app.get("/api/custom/pdf/slide-deck/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_slide_deck_pdf(
     project_id: int,
@@ -11802,6 +11771,38 @@ async def download_slide_deck_pdf(
     except Exception as e:
         logger.error(f"Error generating slide deck PDF for project {project_id}: {e}", exc_info=True)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate slide deck PDF: {str(e)[:200]}")
+
+
+@app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+async def download_project_instance_pdf_no_slug(
+    project_id: int,
+    # all other parameters as in the main function
+    parentProjectName: Optional[str] = Query(None),
+    lessonNumber: Optional[int] = Query(None),
+    knowledgeCheck: Optional[str] = Query(None),
+    contentAvailability: Optional[str] = Query(None),
+    informationSource: Optional[str] = Query(None),
+    time: Optional[str] = Query(None),
+    estCompletionTime: Optional[str] = Query(None),
+    qualityTier: Optional[str] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    # Just call the main function with a default slug
+    return await download_project_instance_pdf(
+        project_id=project_id,
+        document_name_slug="-",  # or any default value
+        parentProjectName=parentProjectName,
+        lessonNumber=lessonNumber,
+        knowledgeCheck=knowledgeCheck,
+        contentAvailability=contentAvailability,
+        informationSource=informationSource,
+        time=time,
+        estCompletionTime=estCompletionTime,
+        qualityTier=qualityTier,
+        onyx_user_id=onyx_user_id,
+        pool=pool,
+    )    
 
 
 @app.get("/api/custom/pdf/{project_id}/{document_name_slug}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
