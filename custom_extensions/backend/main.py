@@ -9641,6 +9641,31 @@ async def upload_design_template_image(file: UploadFile = File(...)):
     web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
     return {"file_path": web_accessible_path}
 
+@app.post("/api/custom/onepager/upload_image", responses={200: {"description": "Image uploaded successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/your_image_name.png"}}}},400: {"description": "Invalid file type or other error", "model": ErrorDetail},413: {"description": "File too large", "model": ErrorDetail}})
+async def upload_onepager_image(file: UploadFile = File(...)):
+    """Upload an image for use in one-pagers"""
+    allowed_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp"}; max_file_size = 10 * 1024 * 1024  # 10MB for one-pager images
+    file_content = await file.read()
+    if len(file_content) > max_file_size:
+        detail_msg = "File too large." if IS_PRODUCTION else f"File too large. Max size {max_file_size // (1024*1024)}MB."
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=detail_msg)
+    await file.seek(0)
+    file_extension = os.path.splitext(file.filename)[1].lower() if file.filename else ".png"
+    if file_extension not in allowed_extensions:
+        detail_msg = "Invalid file type." if IS_PRODUCTION else f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_msg)
+    safe_filename_base = str(uuid.uuid4()); unique_filename = f"onepager_{safe_filename_base}{file_extension}"; file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
+    try:
+        with open(file_path_on_disk, "wb") as buffer: shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        logger.error(f"Error saving one-pager image: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not save image." if IS_PRODUCTION else f"Could not save image: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    finally:
+        await file.close()
+    web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
+    return {"file_path": web_accessible_path}
+
 @app.post("/api/custom/design_templates/add", response_model=DesignTemplateResponse, status_code=status.HTTP_201_CREATED)
 async def add_design_template(template_data: DesignTemplateCreate, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "INSERT INTO design_templates (template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created;"

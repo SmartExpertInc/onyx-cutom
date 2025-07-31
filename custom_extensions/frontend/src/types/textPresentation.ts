@@ -37,6 +37,18 @@ export interface SectionBreakBlock {
   style?: 'dashed' | 'solid' | 'none' | null;
 }
 
+export interface ImageBlock {
+  type: 'image';
+  src: string;
+  alt?: string | null;
+  caption?: string | null;
+  width?: string | number | null;
+  height?: string | number | null;
+  alignment?: 'left' | 'center' | 'right' | null;
+  borderRadius?: string | null;
+  maxWidth?: string | null;
+}
+
 // --- List Block Types ---
 // Forward declaration for AnyContentBlock used in ListItem
 export interface TableBlock {
@@ -54,6 +66,7 @@ export type AnyContentBlock =
   | BulletListBlock
   | NumberedListBlock
   | TableBlock
+  | ImageBlock
   | MiniSection
   | StandaloneBlock;
 

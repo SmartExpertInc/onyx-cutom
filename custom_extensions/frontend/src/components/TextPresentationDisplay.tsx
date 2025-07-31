@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
-  BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock,
+  BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock,
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
@@ -456,6 +456,74 @@ const BlockSettingsModal = ({
     );
   };
 
+  const renderImageSettings = () => {
+    const imageBlock = block as ImageBlock;
+    return (
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Alt Text</label>
+          <input
+            type="text"
+            value={imageBlock.alt || ''}
+            onChange={e => onTextChange?.(fieldPath('alt'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            placeholder="Describe the image"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Caption</label>
+          <input
+            type="text"
+            value={imageBlock.caption || ''}
+            onChange={e => onTextChange?.(fieldPath('caption'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            placeholder="Image caption"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Alignment</label>
+          <select
+            value={imageBlock.alignment || 'center'}
+            onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="left">Left</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Max Width</label>
+          <input
+            type="text"
+            value={imageBlock.maxWidth || '100%'}
+            onChange={e => onTextChange?.(fieldPath('maxWidth'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            placeholder="e.g., 100%, 500px, 50vw"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-3">Border Radius</label>
+          <select
+            value={imageBlock.borderRadius || '8px'}
+            onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="0px">None</option>
+            <option value="4px">Small (4px)</option>
+            <option value="8px">Medium (8px)</option>
+            <option value="12px">Large (12px)</option>
+            <option value="50%">Circular</option>
+          </select>
+        </div>
+      </div>
+    );
+  };
+
   const getBlockTitle = () => {
     switch (block.type) {
       case 'headline': return 'Headline Settings';
@@ -463,6 +531,7 @@ const BlockSettingsModal = ({
       case 'bullet_list': return 'Bullet List Settings';
       case 'numbered_list': return 'Numbered List Settings';
       case 'alert': return 'Alert Settings';
+      case 'image': return 'Image Settings';
       default: return 'Block Settings';
     }
   };
@@ -474,6 +543,7 @@ const BlockSettingsModal = ({
       case 'bullet_list': return <List className="w-5 h-5" />;
       case 'numbered_list': return <List className="w-5 h-5" />;
       case 'alert': return <AlertCircle className="w-5 h-5" />;
+      case 'image': return <Settings className="w-5 h-5" />;
       default: return <Settings className="w-5 h-5" />;
     }
   };
@@ -485,6 +555,7 @@ const BlockSettingsModal = ({
       case 'bullet_list': return renderListSettings();
       case 'numbered_list': return renderListSettings();
       case 'alert': return renderAlertSettings();
+      case 'image': return renderImageSettings();
       default: return <p className="text-gray-500">No settings available for this block type.</p>;
     }
   };
@@ -1009,6 +1080,62 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         </div>
       );
     }
+    case 'image': {
+      const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
+      const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
+      
+      return (
+        <div className={`my-4 ${alignmentClass} group relative`}>
+          <div className="inline-block">
+            <img
+              src={src}
+              alt={alt || 'Uploaded image'}
+              className="max-w-full h-auto shadow-sm"
+              style={{
+                width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined,
+                height: height ? (typeof height === 'number' ? `${height}px` : height) : undefined,
+                borderRadius: borderRadius || '8px',
+                maxWidth: maxWidth || '100%'
+              }}
+            />
+            {caption && (
+              <p className="text-xs text-gray-600 mt-2 italic">
+                {isEditing && onTextChange ? (
+                  <input
+                    type="text"
+                    value={caption}
+                    onChange={e => handleInputChangeEvent(fieldPath('caption'), e)}
+                    className={`${editingInputClass} text-center italic`}
+                    placeholder="Image caption"
+                  />
+                ) : (
+                  caption
+                )}
+              </p>
+            )}
+          </div>
+          
+          {/* Modern Settings Button */}
+          {isEditing && onTextChange && (
+            <button
+              onClick={() => setShowSettings(true)}
+              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
+              title="Image settings"
+            >
+              <Settings className="w-4 h-4 text-gray-600" />
+            </button>
+          )}
+          
+          <BlockSettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            block={block}
+            onTextChange={onTextChange}
+            basePath={basePath}
+          />
+        </div>
+      );
+    }
     default:
       return null;
   }
@@ -1021,11 +1148,168 @@ export interface TextPresentationDisplayProps {
   parentProjectName?: string;
 }
 
+// Image Upload Component
+const ImageUploadModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onImageUploaded: (imagePath: string) => void;
+}> = ({ isOpen, onClose, onImageUploaded }) => {
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const uploadImage = async (file: File) => {
+    setUploading(true);
+    setError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/custom/onepager/upload_image', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Upload failed');
+      }
+      
+      const result = await response.json();
+      onImageUploaded(result.file_path);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadImage(file);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      uploadImage(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={onClose}>
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Upload Image</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+            disabled={uploading}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          {uploading ? (
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
+              <p className="text-sm text-gray-600">Uploading...</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">
+                Drag and drop an image here, or click to browse
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="image-upload"
+                disabled={uploading}
+              />
+              <label
+                htmlFor="image-upload"
+                className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Choose File
+              </label>
+            </>
+          )}
+        </div>
+        
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+        
+        <div className="mt-4 text-xs text-gray-500">
+          Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName }: TextPresentationDisplayProps): React.JSX.Element | null => {
   const searchParams = useSearchParams();
   const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
   const locale = locales[lang as keyof typeof locales] || locales.en;
   const { t } = useLanguage();
+  
+  const [showImageUpload, setShowImageUpload] = useState(false);
+
+  const handleImageUploaded = useCallback((imagePath: string) => {
+    if (onTextChange && dataToDisplay) {
+      const newImageBlock: ImageBlock = {
+        type: 'image',
+        src: imagePath,
+        alt: '',
+        caption: '',
+        alignment: 'center',
+        borderRadius: '8px',
+        maxWidth: '100%'
+      };
+      
+      const updatedContentBlocks = [...(dataToDisplay.contentBlocks || []), newImageBlock];
+      onTextChange(['contentBlocks'], updatedContentBlocks);
+    }
+  }, [onTextChange, dataToDisplay]);
 
   if (!dataToDisplay) {
     return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
@@ -1207,6 +1491,26 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           </main>
         </div>
       </div>
+      
+      {/* Floating Add Image Button - Only show in editing mode */}
+      {isEditing && onTextChange && (
+        <button
+          onClick={() => setShowImageUpload(true)}
+          className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+          title="Add Image"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      )}
+      
+      {/* Image Upload Modal */}
+      <ImageUploadModal
+        isOpen={showImageUpload}
+        onClose={() => setShowImageUpload(false)}
+        onImageUploaded={handleImageUploaded}
+      />
     </div>
   );
 };

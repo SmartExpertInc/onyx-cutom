@@ -34,16 +34,33 @@ export async function uploadDesignImage(imageFile: File): Promise<ImageUploadRes
   const formData = new FormData();
   formData.append('file', imageFile);
 
-  const response = await fetch(`${API_BASE_URL}/design_templates/upload_image`, {
+  const response = await fetch('/api/custom/design_templates/upload_image', {
     method: 'POST',
     body: formData,
-    // 'Content-Type' header is not set by us when using FormData with fetch; browser does it.
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to upload image' }));
-    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to upload image');
   }
+
+  return response.json();
+}
+
+export async function uploadOnePagerImage(imageFile: File): Promise<ImageUploadResponse> {
+  const formData = new FormData();
+  formData.append('file', imageFile);
+
+  const response = await fetch('/api/custom/onepager/upload_image', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to upload one-pager image');
+  }
+
   return response.json();
 }
 
