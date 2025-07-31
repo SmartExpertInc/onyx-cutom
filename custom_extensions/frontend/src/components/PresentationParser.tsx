@@ -11,6 +11,7 @@ export interface PresentationSlide {
   content: string; // Raw markdown content for the slide
   parsedContent: ContentBlock[];
   imageInfo?: ImageInfo;
+  isMetadata?: boolean; // Flag to indicate if this is a metadata slide
 }
 
 export interface ImageInfo {
@@ -49,6 +50,28 @@ const LAYOUT_PATTERNS = {
   'four-box-grid': 'four-box-grid',
   'quote-slide': 'quote-slide'
 };
+
+// Function to detect if a slide is a metadata slide (should be hidden in preview)
+function isMetadataSlide(content: string): boolean {
+  const trimmedContent = content.trim();
+  
+  // Check for metadata patterns like "**Title** : **Type** : **Title**"
+  const metadataPattern = /^\*\*[^*]+\*\*\s*:\s*\*\*[^*]+\*\*\s*:\s*\*\*[^*]+\*\*\s*$/m;
+  if (metadataPattern.test(trimmedContent)) {
+    return true;
+  }
+  
+  // Check for other metadata patterns - slides that contain project info but no actual slide content
+  const hasSlideTitle = /\*\*Slide \d+:/.test(trimmedContent);
+  const hasColonPattern = /\*\*[^*]+\*\*\s*:\s*\*\*[^*]+\*\*/.test(trimmedContent);
+  
+  // If it has colon patterns but no "Slide X:" format, it's likely metadata
+  if (hasColonPattern && !hasSlideTitle) {
+    return true;
+  }
+  
+  return false;
+}
 
 // Function to extract layout from slide content
 function extractLayoutFromSlide(slideContent: string): string {
@@ -223,6 +246,9 @@ export function parsePresentationMarkdown(markdown: string): PresentationData {
     // Parse content blocks
     const parsedContent = parseSlideContent(trimmedContent);
     
+    // Check if this is a metadata slide
+    const isMetadata = isMetadataSlide(trimmedContent);
+    
     return {
       id: `slide-${index + 1}`,
       slideNumber: index + 1,
@@ -230,7 +256,8 @@ export function parsePresentationMarkdown(markdown: string): PresentationData {
       layout,
       content: trimmedContent,
       parsedContent,
-      imageInfo: extractImageInfo(trimmedContent)
+      imageInfo: extractImageInfo(trimmedContent),
+      isMetadata
     };
   });
   

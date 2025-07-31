@@ -233,11 +233,8 @@ const EditableBlock: React.FC<{
       );
 
     case 'image':
-      return (
-        <div className="mb-6">
-          <ImagePlaceholder imageInfo={block.imageInfo} />
-        </div>
-      );
+      // Hide image placeholders in preview, but preserve them for finalization
+      return null;
 
     default:
       return null;
@@ -402,7 +399,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({
                 {t('presentationPreview.title', 'Presentation Preview')}
               </h2>
               <p className="text-sm text-gray-600">
-                {presentationData.totalSlides} {t('presentationPreview.slides', 'slides')}
+                {presentationData.slides.filter(slide => !slide.isMetadata).length} {t('presentationPreview.slides', 'slides')}
               </p>
             </div>
           </div>
@@ -416,10 +413,12 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({
         </div>
       </div>
 
-      {/* All slides displayed vertically */}
+      {/* All slides displayed vertically (excluding metadata slides) */}
       <div className="max-h-[600px] overflow-y-auto">
         <div className="p-6 bg-gray-50 space-y-6">
-          {presentationData.slides.map((slide) => (
+          {presentationData.slides
+            .filter(slide => !slide.isMetadata) // Hide metadata slides from preview
+            .map((slide) => (
             <SlideDisplay
               key={slide.id}
               slide={slide}
