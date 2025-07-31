@@ -880,7 +880,7 @@
                                         <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
                                     </li>
                                 {% endfor %}
-                                {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                                {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
                                     <li class="bullet-item">
                                         <span class="bullet-icon">•</span>
                                         <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
@@ -913,7 +913,7 @@
                                         <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
                                     </li>
                                 {% endfor %}
-                                {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                                {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
                                     <li class="bullet-item">
                                         <span class="bullet-icon">•</span>
                                         <span class="bullet-text">Building Trust: Values create a foundation of trust among employees and with clients.</span>
@@ -1029,7 +1029,7 @@
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="numbers-grid">
                         {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
-                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length }} items -->
+                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
                             {% for item in slide.props.items %}
                                 <div class="number-item">
                                     <div class="number-value">{{ item.value or 'Click to add value' }}</div>
@@ -1040,7 +1040,7 @@
                         {% else %}
                             <!-- DEBUG: items is not iterable or is callable, using fallback -->
                         {% endif %}
-                        {% if not slide.props.items or slide.props.items|length == 0 %}
+                        {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
                             <div class="number-item">
                                 <div class="number-value">100+</div>
                                 <div class="number-label">Countries Served</div>
@@ -1070,7 +1070,7 @@
                                 <div class="box-text">{{ box.text or 'Click to add text' }}</div>
                             </div>
                         {% endfor %}
-                        {% if not slide.props.boxes or slide.props.boxes|length == 0 %}
+                        {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
                             <div class="box-item">
                                 <div class="box-heading">[Employee Name]</div>
                                 <div class="box-text">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
@@ -1127,7 +1127,7 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        {% if not slide.props.steps or slide.props.steps|length == 0 %}
+                        {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
                             <div class="step-wrapper">
                                 <div class="milestone-content" style="top: calc(50% - 20px);">
                                     <div class="text-block" style="order: 3;">
