@@ -36,14 +36,14 @@
             min-height: auto;
         }
         
-        /* Page setup for PDF - EXACT SLIDE MATCHING */
+        /* Page setup for PDF - DYNAMIC HEIGHT CALCULATION */
         @page {
             size: 1174px auto; /* Fixed width, dynamic height per page */
             margin: 0;
             padding: 0;
         }
         
-        /* Each slide gets its own page - EXACT SLIDE DIMENSIONS */
+        /* Each slide gets its own page - EXACT FRONTEND MATCH */
         .slide-page {
             width: 1174px; /* Updated slide width as requested */
             min-height: 600px; /* Minimum height, but allow growth */

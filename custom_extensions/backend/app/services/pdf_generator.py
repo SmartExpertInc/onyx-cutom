@@ -142,8 +142,8 @@ async def generate_pdf_from_html_template(
             document.head.appendChild(testElement);
         """)
         
-                # Set viewport to match slide width but allow dynamic height
-        await page.setViewport({'width': 1174, 'height': 800})
+        # Set viewport to match frontend slide dimensions exactly
+        await page.setViewport({'width': 900, 'height': 1200})  # Match frontend slide width, allow for dynamic height
         
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
@@ -159,8 +159,52 @@ async def generate_pdf_from_html_template(
         # Additional delay for complex rendering
         await asyncio.sleep(3)
 
-        # Generate PDF with CSS-driven dynamic page sizing
-        logger.info("Generating PDF from HTML content...")
+        # Calculate dynamic page heights for each slide
+        slide_heights = await page.evaluate("""
+            () => {
+                const slidePages = document.querySelectorAll('.slide-page');
+                const heights = [];
+                
+                slidePages.forEach((slidePage, index) => {
+                    // Get the actual rendered height of each slide
+                    const slideContent = slidePage.querySelector('.slide-content > div');
+                    if (slideContent) {
+                        const rect = slideContent.getBoundingClientRect();
+                        const computedStyle = window.getComputedStyle(slideContent);
+                        const paddingTop = parseFloat(computedStyle.paddingTop);
+                        const paddingBottom = parseFloat(computedStyle.paddingBottom);
+                        const marginTop = parseFloat(computedStyle.marginTop);
+                        const marginBottom = parseFloat(computedStyle.marginBottom);
+                        
+                        // Calculate total height including padding and margins
+                        const totalHeight = rect.height + paddingTop + paddingBottom + marginTop + marginBottom;
+                        
+                        // Ensure minimum height of 600px (matching frontend)
+                        const finalHeight = Math.max(totalHeight, 600);
+                        
+                        heights.push({
+                            index: index,
+                            height: Math.ceil(finalHeight)
+                        });
+                        
+                        console.log(`Slide ${index + 1} height: ${finalHeight}px`);
+                    } else {
+                        // Fallback to minimum height
+                        heights.push({
+                            index: index,
+                            height: 600
+                        });
+                    }
+                });
+                
+                return heights;
+            }
+        """)
+        
+        logger.info(f"Calculated slide heights: {slide_heights}")
+
+        # Generate PDF with dynamic page sizing based on actual content
+        logger.info("Generating PDF from HTML content with dynamic heights...")
         await page.pdf({
             'path': temp_pdf_path, 
             'landscape': landscape,
