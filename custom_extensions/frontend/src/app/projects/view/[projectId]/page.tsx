@@ -24,7 +24,7 @@ import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download } from 'lucide-react';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 
 // Localization config for column labels based on product language
@@ -679,6 +679,17 @@ export default function ProjectInstanceViewPage() {
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
         return;
     }
+    
+    // Special handling for slide decks
+    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+        const slideDeckData = editableData as ComponentBasedSlideDeck;
+        const theme = slideDeckData?.theme || 'dark-purple';
+        const pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`;
+        window.open(pdfUrl, '_blank');
+        return;
+    }
+    
+    // Original PDF download logic for other component types
     const nameForSlug = projectInstanceData.name || 'document';
     const docNameSlug = slugify(nameForSlug);
     const pdfProjectId = projectInstanceData.project_id;
@@ -969,9 +980,17 @@ export default function ProjectInstanceViewPage() {
                     onClick={handlePdfDownload}
                     disabled={isSaving}
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
+                    title={
+                      projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
+                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
+                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
+                    }
                   >
-                   <ArrowDownToLine size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                   <Download size={16} className="mr-2" /> {
+                     projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
+                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
+                       : t('interface.projectView.downloadPdf', 'Download PDF')
+                   }
                   </button>
             )}
             {/* Smart Edit button for Training Plans */}

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="{{ details.detectedLanguage or 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ details.lessonTitle }}</title>
+    
+    <style type="text/css">
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            background: #fff;
+        }
+        
+        /* Page setup for PDF */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        /* Each slide gets its own page */
+        .slide-page {
+            width: 210mm;
+            height: 297mm;
+            page-break-after: always;
+            page-break-inside: avoid;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Last slide shouldn't have page break */
+        .slide-page:last-child {
+            page-break-after: auto;
+        }
+        
+        /* Slide content container */
+        .slide-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 40px;
+            position: relative;
+        }
+        
+        /* Title slide specific styles */
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .title-slide h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            max-width: 900px;
+            word-wrap: break-word;
+        }
+        
+        .title-slide h2 {
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1.4;
+            margin-bottom: 40px;
+            max-width: 700px;
+            word-wrap: break-word;
+        }
+        
+        .title-slide .metadata {
+            display: flex;
+            gap: 32px;
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        /* Content slide styles */
+        .content-slide h1 {
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 32px;
+            word-wrap: break-word;
+        }
+        
+        .content-slide .content {
+            font-size: 18px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        
+        /* Bullet points styles */
+        .bullet-points-slide h1 {
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 32px;
+            word-wrap: break-word;
+        }
+        
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .bullet-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .bullet-list .bullet-icon {
+            font-weight: 600;
+            min-width: 20px;
+            font-size: 20px;
+        }
+        
+        .bullet-list .bullet-text {
+            flex: 1;
+            word-wrap: break-word;
+        }
+        
+        /* Two column layout */
+        .two-column-layout {
+            display: flex;
+            gap: 40px;
+            height: 100%;
+        }
+        
+        .two-column-layout .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .two-column-layout h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+        }
+        
+        .two-column-layout .content {
+            font-size: 16px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        
+        /* Process steps */
+        .process-steps h1 {
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 32px;
+            word-wrap: break-word;
+        }
+        
+        .steps-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .steps-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .steps-list .step-number {
+            font-weight: 600;
+            min-width: 30px;
+            font-size: 20px;
+        }
+        
+        .steps-list .step-text {
+            flex: 1;
+            word-wrap: break-word;
+        }
+        
+        /* Image placeholder */
+        .image-placeholder {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #6c757d;
+            margin: 0 auto;
+        }
+        
+        .image-placeholder .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .image-placeholder .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .image-placeholder .prompt {
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+        
+        .image-placeholder .size {
+            font-size: 12px;
+            color: #868e96;
+        }
+        
+        /* Theme-based color support */
+        {% set theme = details.theme or 'dark-purple' %}
+        {% set theme_colors = {
+            'dark-purple': {
+                'background': '#261c4e',
+                'title': '#ffffff',
+                'subtitle': '#d9e1ff',
+                'content': '#ffffff',
+                'accent': '#8b5cf6'
+            },
+            'cherry': {
+                'background': '#ffffff',
+                'title': '#1f2937',
+                'subtitle': '#6b7280',
+                'content': '#374151',
+                'accent': '#dc2626'
+            },
+            'lunaria': {
+                'background': '#ffffff',
+                'title': '#1f2937',
+                'subtitle': '#6b7280',
+                'content': '#374151',
+                'accent': '#85749e'
+            },
+            'wine': {
+                'background': '#ffffff',
+                'title': '#1f2937',
+                'subtitle': '#6b7280',
+                'content': '#374151',
+                'accent': '#dc2626'
+            },
+            'vanilla': {
+                'background': '#ffffff',
+                'title': '#1f2937',
+                'subtitle': '#6b7280',
+                'content': '#374151',
+                'accent': '#8776a0'
+            },
+            'terracotta': {
+                'background': '#ffffff',
+                'title': '#1f2937',
+                'subtitle': '#6b7280',
+                'content': '#374151',
+                'accent': '#2D7C21'
+            },
+            'zephyr': {
+                'background': '#ffffff',
+                'title': '#1f2937',
+                'subtitle': '#6b7280',
+                'content': '#374151',
+                'accent': '#dc2626'
+            }
+        } %}
+        {% set colors = theme_colors.get(theme, theme_colors['dark-purple']) %}
+        
+        /* Apply theme colors */
+        .slide-content {
+            background-color: {{ colors.background }};
+            color: {{ colors.content }};
+        }
+        
+        .slide-content h1,
+        .slide-content h2 {
+            color: {{ colors.title }};
+        }
+        
+        .slide-content .subtitle {
+            color: {{ colors.subtitle }};
+        }
+        
+        .bullet-icon,
+        .step-number {
+            color: {{ colors.accent }};
+        }
+        
+        /* Responsive adjustments for PDF */
+        @media print {
+            .slide-page {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% for slide in details.slides %}
+    <div class="slide-page">
+        <div class="slide-content {% if slide.templateId == 'title-slide' or slide.templateId == 'hero-title-slide' %}title-slide{% endif %}">
+            {% if slide.templateId == 'title-slide' or slide.templateId == 'hero-title-slide' %}
+                <!-- Title Slide Template -->
+                <h1>{{ slide.props.title or 'Presentation Title' }}</h1>
+                {% if slide.props.subtitle %}
+                <h2 class="subtitle">{{ slide.props.subtitle }}</h2>
+                {% endif %}
+                {% if slide.props.author or slide.props.date %}
+                <div class="metadata">
+                    {% if slide.props.author %}
+                    <div>{{ slide.props.author }}</div>
+                    {% endif %}
+                    {% if slide.props.date %}
+                    <div>{{ slide.props.date }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+            {% elif slide.templateId == 'content-slide' %}
+                <!-- Content Slide Template -->
+                <h1>{{ slide.props.title or 'Slide Title' }}</h1>
+                <div class="content">{{ slide.props.content or 'Add your content here...' }}</div>
+                
+            {% elif slide.templateId == 'bullet-points' or slide.templateId == 'bullet-points-right' %}
+                <!-- Bullet Points Template -->
+                <h1>{{ slide.props.title or 'Key Points' }}</h1>
+                <div style="display: flex; gap: 40px; height: 100%;">
+                    <!-- Left: Image placeholder -->
+                    <div style="flex: 0 0 50%; display: flex; align-items: center; justify-content: center;">
+                        <div class="image-placeholder">
+                            <div class="icon">🖼️</div>
+                            <div class="title">Image Placeholder</div>
+                            <div class="prompt">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration' }}"</div>
+                            <div class="size">320px × 320px</div>
+                        </div>
+                    </div>
+                    <!-- Right: Bullet points -->
+                    <div style="flex: 1 1 50%; padding-left: 40px;">
+                        <ul class="bullet-list">
+                            {% for bullet in slide.props.bullets or [] %}
+                            <li>
+                                <span class="bullet-icon">
+                                    {% if slide.props.bulletStyle == 'arrow' %}→
+                                    {% elif slide.props.bulletStyle == 'check' %}✓
+                                    {% elif slide.props.bulletStyle == 'star' %}★
+                                    {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                    {% else %}•
+                                    {% endif %}
+                                </span>
+                                <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                            </li>
+                            {% endfor %}
+                            {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                            <li>
+                                <span class="bullet-icon">•</span>
+                                <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'two-column' %}
+                <!-- Two Column Template -->
+                <h1>{{ slide.props.title or 'Two Column Layout' }}</h1>
+                <div class="two-column-layout">
+                    <div class="column">
+                        {% if slide.props.leftTitle %}
+                        <h2>{{ slide.props.leftTitle }}</h2>
+                        {% endif %}
+                        <div class="content">{{ slide.props.leftContent or 'Left column content' }}</div>
+                    </div>
+                    <div class="column">
+                        {% if slide.props.rightTitle %}
+                        <h2>{{ slide.props.rightTitle }}</h2>
+                        {% endif %}
+                        <div class="content">{{ slide.props.rightContent or 'Right column content' }}</div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'process-steps' %}
+                <!-- Process Steps Template -->
+                <h1>{{ slide.props.title or 'Process Steps' }}</h1>
+                <ul class="steps-list">
+                    {% for step in slide.props.steps or [] %}
+                    <li>
+                        <span class="step-number">{{ loop.index }}.</span>
+                        <span class="step-text">{{ step or 'Add step description' }}</span>
+                    </li>
+                    {% endfor %}
+                    {% if not slide.props.steps or slide.props.steps|length == 0 %}
+                    <li>
+                        <span class="step-number">1.</span>
+                        <span class="step-text" style="color: #9ca3af; font-style: italic;">Add your first step...</span>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+            {% elif slide.templateId == 'comparison-slide' %}
+                <!-- Comparison Slide Template -->
+                <h1>{{ slide.props.title or 'Comparison Analysis' }}</h1>
+                <div class="two-column-layout">
+                    <div class="column">
+                        <h2>{{ slide.props.beforeTitle or 'Before' }}</h2>
+                        <div class="content">{{ slide.props.beforeContent or 'Before state description' }}</div>
+                    </div>
+                    <div class="column">
+                        <h2>{{ slide.props.afterTitle or 'After' }}</h2>
+                        <div class="content">{{ slide.props.afterContent or 'After state description' }}</div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- Generic fallback for unknown templates -->
+                <h1>{{ slide.props.title or 'Slide Title' }}</h1>
+                <div class="content">
+                    {% if slide.props.content %}
+                        {{ slide.props.content }}
+                    {% elif slide.props.bullets %}
+                        <ul class="bullet-list">
+                            {% for bullet in slide.props.bullets %}
+                            <li>
+                                <span class="bullet-icon">•</span>
+                                <span class="bullet-text">{{ bullet }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Content for this slide template is not yet supported in PDF export.</p>
+                        <p><strong>Template ID:</strong> {{ slide.templateId }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</body>
+</html> 
