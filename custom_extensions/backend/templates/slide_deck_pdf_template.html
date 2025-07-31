@@ -37,7 +37,7 @@
         /* Each slide gets its own page - LANDSCAPE DIMENSIONS */
         .slide-page {
             width: 297mm; /* A4 landscape width */
-            height: 210mm; /* A4 landscape height */
+            min-height: 210mm; /* A4 landscape height - allow growth */
             page-break-after: always;
             page-break-inside: avoid;
             position: relative;
@@ -49,7 +49,7 @@
         
         .slide-content {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             padding: 0;
             margin: 0;
             display: flex;
@@ -87,7 +87,7 @@
         /* Common slide styles */
         .slide {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             background-color: var(--bg-color);
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
@@ -142,7 +142,7 @@
             align-items: center;
             padding: 60px 80px;
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
         }
@@ -248,7 +248,7 @@
         /* Bullet Points Template */
         .bullet-points {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
@@ -347,7 +347,7 @@
         .process-steps {
             padding: 40px;
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
             margin: 0;
@@ -401,7 +401,7 @@
         /* Challenges & Solutions Template */
         .challenges-solutions {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             background-color: var(--bg-color);
             padding: 60px;
             position: relative;
