@@ -1100,6 +1100,22 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         blockAsString: JSON.stringify(block, null, 2)
       });
       
+      // SAFETY CHECK: Detect corrupted blocks (section breaks with wrong type)
+      const blockAny = block as any;
+      if (blockAny.style && (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none')) {
+        console.log('🚨 [IMAGE RENDER] CORRUPTED BLOCK DETECTED: Section break with image type!', {
+          block,
+          detectedAs: 'section_break',
+          correctType: 'section_break',
+          style: blockAny.style
+        });
+        
+        // Render as section break instead
+        if (blockAny.style === 'none') return null;
+        const borderStyle = blockAny.style === 'dashed' ? 'border-dashed' : 'border-solid';
+        return <hr className={`my-3 border-t ${borderStyle} border-gray-300`} />;
+      }
+      
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Calculate current width for scaling controls
