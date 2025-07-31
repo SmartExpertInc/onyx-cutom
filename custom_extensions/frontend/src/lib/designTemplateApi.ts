@@ -34,7 +34,7 @@ export async function uploadDesignImage(imageFile: File): Promise<ImageUploadRes
   const formData = new FormData();
   formData.append('file', imageFile);
 
-  const response = await fetch('/api/custom/design_templates/upload_image', {
+  const response = await fetch(`${API_BASE_URL}/design_templates/upload_image`, {
     method: 'POST',
     body: formData,
   });
@@ -51,7 +51,7 @@ export async function uploadOnePagerImage(imageFile: File): Promise<ImageUploadR
   const formData = new FormData();
   formData.append('file', imageFile);
 
-  const response = await fetch('/api/custom/onepager/upload_image', {
+  const response = await fetch(`${API_BASE_URL}/onepager/upload_image`, {
     method: 'POST',
     body: formData,
   });
