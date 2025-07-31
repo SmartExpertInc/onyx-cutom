@@ -10,6 +10,7 @@ import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCente
 import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import PresentationPreview from "../../../components/PresentationPreview";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -244,7 +245,7 @@ export default function LessonPresentationClient() {
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null); // For the content
+  // Note: textareaRef removed since we're using PresentationPreview instead
 
   // ---- Inline Advanced Mode ----
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -540,13 +541,7 @@ export default function LessonPresentationClient() {
     };
   }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
 
-  // Auto-scroll textarea as new content streams in
-  useEffect(() => {
-    if (textareaVisible && textareaRef.current) {
-      // Scroll to bottom to keep newest text in view
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-    }
-  }, [content, textareaVisible]);
+  // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
@@ -1045,7 +1040,7 @@ export default function LessonPresentationClient() {
           {loading && <LoadingAnimation message={t('interface.generate.generatingLessonContent', 'Generating lesson content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
-          {/* Main content display - Textarea instead of module list */}
+          {/* Main content display - PresentationPreview instead of textarea */}
           {textareaVisible && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
@@ -1056,13 +1051,11 @@ export default function LessonPresentationClient() {
                   <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={t('interface.generate.lessonContentPlaceholder', 'Lesson content will appear here...')}
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={loadingEdit}
+              <PresentationPreview
+                markdown={content}
+                isEditing={true}
+                onContentChange={(newMarkdown: string) => setContent(newMarkdown)}
+                className="min-h-[70vh]"
               />
             </div>
           )}

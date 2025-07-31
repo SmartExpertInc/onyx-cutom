@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import PresentationPreview from "../../../components/PresentationPreview";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -115,6 +114,7 @@ export default function TextPresentationClient() {
   const [retryTrigger, setRetryTrigger] = useState(0);
   const maxRetries = 3;
   const previewAbortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Advanced mode state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -577,7 +577,7 @@ export default function TextPresentationClient() {
     fetchLessons();
   }, [selectedOutlineId, useExistingOutline]);
 
-  // Note: Auto-resize effect removed since we're using PresentationPreview instead of textarea
+  // Note: Auto-resize effect removed since we're using textarea
 
   const themeOptions = [
     { id: "wine", label: t('interface.generate.wine', 'Wine') },
@@ -810,11 +810,13 @@ export default function TextPresentationClient() {
                   <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
-              <PresentationPreview
-                markdown={content}
-                isEditing={true}
-                onContentChange={(newMarkdown) => setContent(newMarkdown)}
-                className="w-full"
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
+                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                disabled={loadingEdit}
               />
           </div>
         )}
