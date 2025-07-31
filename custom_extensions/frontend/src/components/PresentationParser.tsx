@@ -22,11 +22,13 @@ export interface ImageInfo {
 }
 
 export interface ContentBlock {
-  type: 'heading' | 'paragraph' | 'list' | 'image' | 'quote';
+  type: 'heading' | 'paragraph' | 'list' | 'image' | 'quote' | 'process-step' | 'big-numbers';
   level?: number; // for headings
   content: string;
   items?: string[]; // for lists
   imageInfo?: ImageInfo;
+  stepNumber?: number; // for process steps
+  numbersData?: { number: string; label: string; description: string; }[]; // for big numbers
 }
 
 export interface PresentationData {
@@ -100,6 +102,9 @@ function extractLayoutFromSlide(slideContent: string): string {
   if (contentStr.includes('###') && contentStr.includes('###')) {
     return 'two-column';
   }
+  if (contentStr.includes('|') && contentStr.includes('%') && contentStr.includes(':---')) {
+    return 'big-numbers';
+  }
   if (contentStr.includes('1.') || contentStr.includes('2.') || contentStr.includes('3.')) {
     return 'process-steps';
   }
@@ -132,12 +137,84 @@ function extractImageInfo(content: string): ImageInfo | undefined {
   };
 }
 
+// Function to parse table format for big-numbers
+function parseBigNumbersTable(content: string): { number: string; label: string; description: string; }[] {
+  const lines = content.split('\n');
+  const numbersData: { number: string; label: string; description: string; }[] = [];
+  
+  // Look for table format like:
+  // | 75% | 5+ | 10+ |
+  // |:----:|:---:|:---:|
+  // | User Adoption | Tools Available | Templates Offered |
+  // | 75% of businesses... | There are over... | Many tools offer... |
+  
+  let numberRow = '';
+  let labelRow = '';
+  let descriptionRow = '';
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('|') && !trimmed.includes(':---')) {
+      if (!numberRow && /\|\s*\d+[%+]?\s*\|/.test(trimmed)) {
+        numberRow = trimmed;
+      } else if (numberRow && !labelRow) {
+        labelRow = trimmed;
+      } else if (labelRow && !descriptionRow) {
+        descriptionRow = trimmed;
+      }
+    }
+  }
+  
+  if (numberRow && labelRow && descriptionRow) {
+    const numbers = numberRow.split('|').map(s => s.trim()).filter(s => s);
+    const labels = labelRow.split('|').map(s => s.trim()).filter(s => s);
+    const descriptions = descriptionRow.split('|').map(s => s.trim()).filter(s => s);
+    
+    for (let i = 0; i < Math.min(numbers.length, labels.length, descriptions.length); i++) {
+      numbersData.push({
+        number: numbers[i],
+        label: labels[i], 
+        description: descriptions[i]
+      });
+    }
+  }
+  
+  return numbersData;
+}
+
 // Function to parse slide content into structured blocks
 function parseSlideContent(content: string): ContentBlock[] {
   const blocks: ContentBlock[] = [];
   const lines = content.split('\n').filter(line => line.trim());
   
   let currentBlock: Partial<ContentBlock> | null = null;
+  
+  // Check for big-numbers table format first
+  if (content.includes('|') && content.includes('%') && content.includes(':---')) {
+    const numbersData = parseBigNumbersTable(content);
+    if (numbersData.length > 0) {
+      // Extract heading if present
+      for (const line of lines) {
+        if (line.startsWith('##')) {
+          const level = line.match(/^#+/)?.[0].length || 2;
+          const headingText = line.replace(/^#+\s*/, '').replace(/\*\*/g, '');
+          blocks.push({
+            type: 'heading',
+            level,
+            content: headingText
+          });
+        }
+      }
+      
+      blocks.push({
+        type: 'big-numbers',
+        content: content,
+        numbersData
+      });
+      
+      return blocks;
+    }
+  }
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -162,6 +239,25 @@ function parseSlideContent(content: string): ContentBlock[] {
         level,
         content: headingText
       });
+    }
+    // Parse numbered process steps (1., 2., 3., etc.)
+    else if (/^\d+\.\s+/.test(line)) {
+      if (currentBlock) {
+        blocks.push(currentBlock as ContentBlock);
+        currentBlock = null;
+      }
+      
+      const stepMatch = line.match(/^(\d+)\.\s+(.+)/);
+      if (stepMatch) {
+        const stepNumber = parseInt(stepMatch[1]);
+        const stepContent = stepMatch[2].replace(/\*\*([^*]+)\*\*/g, '$1');
+        
+        blocks.push({
+          type: 'process-step',
+          content: stepContent,
+          stepNumber
+        });
+      }
     }
     // Parse lists
     else if (line.startsWith('- ') || line.startsWith('* ')) {
@@ -192,6 +288,10 @@ function parseSlideContent(content: string): ContentBlock[] {
         content: line,
         imageInfo
       });
+    }
+    // Skip table separator lines
+    else if (line.includes(':---')) {
+      continue;
     }
     // Parse regular paragraphs
     else {
@@ -278,6 +378,10 @@ export function contentBlocksToMarkdown(blocks: ContentBlock[]): string {
         return block.content;
       case 'list':
         return block.items?.map(item => `- ${item}`).join('\n') || '';
+      case 'process-step':
+        return `${block.stepNumber}. ${block.content}`;
+      case 'big-numbers':
+        return block.content; // Preserve original table format
       case 'image':
         return block.content; // Preserve original image placeholder text
       default:

@@ -280,11 +280,129 @@ const EditableBlock: React.FC<{
                     }}
                   />
                 ) : (
-                  <span className="text-gray-700 flex-1 break-words">{item}</span>
+                  <span className="text-gray-700 flex-1 break-words text-sm">{item}</span>
                 )}
               </li>
             ))}
           </ul>
+          {isEditing && (
+            <Edit3 className="w-4 h-4 mt-2 opacity-0 group-hover:opacity-50 transition-opacity" />
+          )}
+        </div>
+      );
+
+    case 'process-step':
+      if (isEditMode && isEditing) {
+        return (
+          <div className="mb-4">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                {block.stepNumber}
+              </div>
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleSave}
+                className="flex-1 p-3 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none leading-relaxed resize-none break-words min-h-[4rem]"
+                autoFocus
+                rows={Math.max(2, Math.ceil(editContent.length / 60))}
+                style={{
+                  height: 'auto',
+                  minHeight: '4rem'
+                }}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.max(64, target.scrollHeight) + 'px';
+                }}
+                onFocus={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  setTimeout(() => {
+                    target.style.height = 'auto';
+                    target.style.height = Math.max(64, target.scrollHeight) + 'px';
+                  }, 0);
+                }}
+              />
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div 
+          className={`group cursor-pointer ${isEditing ? 'hover:bg-gray-50 rounded-md p-2 -m-2' : ''} mb-4`}
+          onClick={() => isEditing && setIsEditMode(true)}
+        >
+          <div className="flex items-start gap-4">
+            <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
+              {block.stepNumber}
+            </div>
+            <div className="flex-1">
+              <p className="text-gray-700 leading-relaxed break-words text-sm">
+                {block.content}
+                {isEditing && (
+                  <Edit3 className="inline-block w-4 h-4 ml-2 opacity-0 group-hover:opacity-50 transition-opacity" />
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+
+    case 'big-numbers':
+      if (isEditMode && isEditing) {
+        return (
+          <div className="mb-6">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={handleSave}
+              className="w-full p-3 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none leading-relaxed resize-none break-words min-h-[8rem]"
+              autoFocus
+              rows={Math.max(4, Math.ceil(editContent.length / 80))}
+              style={{
+                height: 'auto',
+                minHeight: '8rem'
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.max(128, target.scrollHeight) + 'px';
+              }}
+              onFocus={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                setTimeout(() => {
+                  target.style.height = 'auto';
+                  target.style.height = Math.max(128, target.scrollHeight) + 'px';
+                }, 0);
+              }}
+            />
+          </div>
+        );
+      }
+
+      return (
+        <div 
+          className={`group cursor-pointer ${isEditing ? 'hover:bg-gray-50 rounded-md p-2 -m-2' : ''} mb-6`}
+          onClick={() => isEditing && setIsEditMode(true)}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {block.numbersData?.map((item, index) => (
+              <div key={index} className="text-center bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-6 border border-blue-200">
+                <div className="text-4xl font-bold text-blue-600 mb-2">
+                  {item.number}
+                </div>
+                <div className="text-lg font-semibold text-gray-800 mb-2">
+                  {item.label}
+                </div>
+                <div className="text-sm text-gray-600 leading-relaxed">
+                  {item.description}
+                </div>
+              </div>
+            ))}
+          </div>
           {isEditing && (
             <Edit3 className="w-4 h-4 mt-2 opacity-0 group-hover:opacity-50 transition-opacity" />
           )}
@@ -402,48 +520,19 @@ const SlideDisplay: React.FC<{
       );
     }
     
-    // Special handling for process-steps layout
+    // Special handling for process-steps layout (now handled by individual process-step blocks)
     if (layout === 'process-steps') {
-      const headings = parsedContent.filter(block => block.type === 'heading');
-      const lists = parsedContent.filter(block => block.type === 'list');
-      const paragraphs = parsedContent.filter(block => block.type === 'paragraph');
-      
       return (
-        <div className="p-6">
-          {/* Main headings */}
-          {headings.map((block, index) => (
+        <div className="p-6 space-y-4">
+          {parsedContent.map((block, index) => (
             <EditableBlock
-              key={`heading-${index}`}
+              key={index}
               block={block}
               isEditing={isEditing}
-              onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
-              onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+              onContentChange={(newContent) => updateSlideContent(index, newContent)}
+              onItemChange={(itemIndex, newContent) => updateListItem(index, itemIndex, newContent)}
             />
           ))}
-          
-          {/* Process steps */}
-          <div className="space-y-6 mt-6">
-            {lists.map((block, index) => (
-              <div key={`step-${index}`} className="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-500">
-                <EditableBlock
-                  block={block}
-                  isEditing={isEditing}
-                  onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
-                  onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
-                />
-              </div>
-            ))}
-            {paragraphs.map((block, index) => (
-              <div key={`para-${index}`} className="bg-gray-50 rounded-lg p-4 border-l-4 border-green-500">
-                <EditableBlock
-                  block={block}
-                  isEditing={isEditing}
-                  onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
-                  onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
-                />
-              </div>
-            ))}
-          </div>
         </div>
       );
     }
