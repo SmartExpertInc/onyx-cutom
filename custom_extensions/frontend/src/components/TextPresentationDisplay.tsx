@@ -1097,17 +1097,27 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         borderRadius,
         maxWidth,
         allBlockProperties: Object.keys(block),
+        hasStyleProperty: 'style' in block,
+        styleValue: (block as any).style,
         blockAsString: JSON.stringify(block, null, 2)
       });
       
       // SAFETY CHECK: Detect corrupted blocks (section breaks with wrong type)
+      // Only check if the block lacks essential image properties but has section break properties
       const blockAny = block as any;
-      if (blockAny.style && (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none')) {
+      if (blockAny.style && 
+          (blockAny.style === 'solid' || blockAny.style === 'dashed' || blockAny.style === 'none') &&
+          !src && // No image src (essential for image blocks)
+          !blockAny.alt && // No alt text property 
+          !blockAny.caption && // No caption property
+          Object.keys(blockAny).includes('style')) { // Has style property (section break characteristic)
+        
         console.log('🚨 [IMAGE RENDER] CORRUPTED BLOCK DETECTED: Section break with image type!', {
           block,
           detectedAs: 'section_break',
           correctType: 'section_break',
-          style: blockAny.style
+          style: blockAny.style,
+          reason: 'Has style property but missing essential image properties'
         });
         
         // Render as section break instead
