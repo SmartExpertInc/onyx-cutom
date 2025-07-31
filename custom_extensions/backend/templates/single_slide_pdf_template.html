@@ -245,7 +245,7 @@
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         .bullet-points {
             width: 100%;
-            height: 100%; /* Fill the entire slide content area */
+            min-height: 600px;
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
@@ -490,88 +490,190 @@
         }
         
         /* Two Column Template - EXACT FRONTEND MATCH */
+        .two-column {
+            padding: 40px;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .two-column .slide-title {
+            text-align: left;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px;
+            color: var(--title-color);
+            word-wrap: break-word;
+        }
+        
         .two-column-layout {
             display: flex;
             gap: 40px; /* Exact frontend match */
             width: 100%;
-            height: fit-content;
         }
         
         .column {
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
         }
         
-        /* Numbers Grid Template - EXACT FRONTEND MATCH */
+        .placeholder {
+            width: 100%;
+            max-width: 320px;
+            max-height: 200px;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 24px;
+        }
+        
+        .column-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 27px;
+            color: var(--title-color);
+            margin: 16px 0 16px 0;
+            align-self: flex-start;
+            word-wrap: break-word;
+        }
+        
+        .column-content {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px;
+            color: var(--content-color);
+            margin: 0;
+            align-self: flex-start;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        /* Big Numbers Template - EXACT FRONTEND MATCH */
+        .big-numbers {
+            width: 100%;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 64px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .big-numbers .slide-title {
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 56px;
+            width: 100%;
+            word-wrap: break-word;
+        }
+        
         .numbers-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 32px; /* Exact frontend match */
             width: 100%;
-            max-width: 800px; /* Exact frontend match */
+            max-width: 1100px;
             margin: 0 auto;
         }
         
         .number-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            padding: 24px; /* Exact frontend match */
+            padding: 0 16px;
         }
         
         .number-value {
-            font-size: 3rem; /* Exact frontend match */
-            font-weight: 700;
-            color: var(--accent-color);
+            font-size: 4.5rem;
+            color: var(--content-color);
+            margin-bottom: 16px;
             font-family: 'Kanit', sans-serif;
-            margin-bottom: 12px; /* Exact frontend match */
+            word-wrap: break-word;
         }
         
         .number-label {
-            font-size: 1.25rem; /* Exact frontend match */
-            font-weight: 600;
-            color: var(--title-color);
+            font-size: 1.4rem;
+            color: var(--content-color);
+            margin-bottom: 10px;
             font-family: 'Kanit', sans-serif;
-            margin-bottom: 8px; /* Exact frontend match */
+            word-wrap: break-word;
         }
         
         .number-description {
-            font-size: 16px; /* Exact frontend match */
+            font-size: 18px;
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
             line-height: 1.5;
+            word-wrap: break-word;
         }
         
         /* Four Box Grid Template - EXACT FRONTEND MATCH */
         .four-box-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 32px; /* Exact frontend match */
             width: 100%;
-            max-width: 800px; /* Exact frontend match */
-            margin: 0 auto;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 64px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .four-box-grid .slide-title {
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 40px;
+            word-wrap: break-word;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            flex: 1;
         }
         
         .box-item {
-            background: rgba(0,0,0,0.08);
-            border-radius: 12px; /* Exact frontend match */
-            padding: 32px 24px; /* Exact frontend match */
-            text-align: center;
+            background-color: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 20px;
+            color: var(--content-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 1px 0 0 #393963;
+            border: 1px solid #393963;
+            min-height: 160px;
         }
         
-        .box-title {
-            font-size: 1.5rem; /* Exact frontend match */
-            color: var(--title-color);
+        .box-heading {
+            font-size: 1.5rem;
+            color: var(--content-color);
+            margin-bottom: 12px;
             font-family: 'Kanit', sans-serif;
-            margin-bottom: 16px; /* Exact frontend match */
+            word-wrap: break-word;
         }
         
-        .box-content {
-            font-size: 16px; /* Exact frontend match */
+        .box-text {
+            font-size: 18px;
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
-            line-height: 1.6;
+            word-wrap: break-word;
         }
         
         /* Pyramid Template - EXACT FRONTEND MATCH */
@@ -607,35 +709,98 @@
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH */
-        .timeline-container {
+        .timeline {
+            min-height: 600px;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            gap: 24px; /* Exact frontend match */
-            width: 100%;
-            max-width: 800px; /* Exact frontend match */
-            margin: 0 auto;
+            padding: 64px;
+            font-family: 'Martel Sans', sans-serif;
+            align-items: stretch;
+            text-align: center;
         }
         
-        .timeline-event {
-            display: flex;
-            align-items: flex-start;
-            gap: 24px; /* Exact frontend match */
-        }
-        
-        .event-date {
-            font-size: 1.25rem; /* Exact frontend match */
-            font-weight: 700;
-            color: var(--accent-color);
+        .timeline .slide-title {
+            font-size: 45px;
             font-family: 'Kanit', sans-serif;
-            min-width: 120px; /* Exact frontend match */
+            color: var(--title-color);
+            margin-bottom: 80px;
+            text-align: left;
+            word-wrap: break-word;
         }
         
-        .event-content {
-            font-size: 18px; /* Exact frontend match */
+        .timeline-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            display: flex;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            width: 90%;
+            height: 2px;
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .step-wrapper {
+            position: relative;
+            width: 25%;
+            height: 100%;
+        }
+        
+        .milestone-content {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .text-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+        }
+        
+        .step-heading {
+            font-size: 1.2rem;
+            color: var(--title-color);
+            font-family: 'Kanit', sans-serif;
+            word-wrap: break-word;
+        }
+        
+        .step-description {
+            font-size: 18px;
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
-            line-height: 1.6;
-            flex: 1;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .vertical-line {
+            width: 2px;
+            height: 20px;
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .number-square {
+            width: 40px;
+            height: 40px;
+            border-radius: 3px;
+            background: var(--accent-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
     </style>
 </head>
@@ -832,48 +997,44 @@
                 </div>
                 
             {% elif slide.templateId == 'two-column' %}
-                <div class="slide">
-                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                <div class="two-column">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="two-column-layout">
                         <div class="column">
-                            {% if slide.props.leftImage %}
-                                <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 14px; font-style: italic;">AI Prompt: "{{ slide.props.leftImage.prompt or slide.props.leftImage.alt or 'relevant image' }}"</div>
-                                </div>
-                            {% endif %}
-                            {% if slide.props.leftTitle %}
-                                <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.leftTitle }}</h2>
-                            {% endif %}
-                            <div class="content-text" style="text-align: left;">{{ slide.props.leftContent or 'Left column content' }}</div>
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImagePrompt or slide.props.leftImageAlt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                            <h2 class="column-title">{{ slide.props.leftTitle or 'Click to add left title' }}</h2>
+                            <p class="column-content">{{ slide.props.leftContent or 'Click to add left content' }}</p>
                         </div>
                         <div class="column">
-                            {% if slide.props.rightImage %}
-                                <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 14px; font-style: italic;">AI Prompt: "{{ slide.props.rightImage.prompt or slide.props.rightImage.alt or 'relevant image' }}"</div>
-                                </div>
-                            {% endif %}
-                            {% if slide.props.rightTitle %}
-                                <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.rightTitle }}</h2>
-                            {% endif %}
-                            <div class="content-text" style="text-align: left;">{{ slide.props.rightContent or 'Right column content' }}</div>
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImagePrompt or slide.props.rightImageAlt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                            <h2 class="column-title">{{ slide.props.rightTitle or 'Click to add right title' }}</h2>
+                            <p class="column-content">{{ slide.props.rightContent or 'Click to add right content' }}</p>
                         </div>
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'big-numbers' %}
-                <div class="slide">
-                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                <div class="big-numbers">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="numbers-grid">
-                        {% for number in slide.props.numbers %}
+                        {% for item in slide.props.items %}
                             <div class="number-item">
-                                <div class="number-value">{{ number.value or '0' }}</div>
-                                <div class="number-label">{{ number.label or 'Label' }}</div>
-                                <div class="number-description">{{ number.description or 'Description' }}</div>
+                                <div class="number-value">{{ item.value or 'Click to add value' }}</div>
+                                <div class="number-label">{{ item.label or 'Click to add label' }}</div>
+                                <div class="number-description">{{ item.description or 'Click to add description' }}</div>
                             </div>
                         {% endfor %}
-                        {% if not slide.props.numbers or slide.props.numbers|length == 0 %}
+                        {% if not slide.props.items or slide.props.items|length == 0 %}
                             <div class="number-item">
                                 <div class="number-value">100+</div>
                                 <div class="number-label">Countries Served</div>
@@ -894,34 +1055,31 @@
                 </div>
                 
             {% elif slide.templateId == 'four-box-grid' %}
-                <div class="slide">
-                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
-                    {% if slide.props.subtitle %}
-                        <div class="content-text" style="text-align: left; margin-bottom: 32px;">{{ slide.props.subtitle }}</div>
-                    {% endif %}
-                    <div class="four-box-grid">
+                <div class="four-box-grid">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="grid-container">
                         {% for box in slide.props.boxes %}
                             <div class="box-item">
-                                <div class="box-title">{{ box.title or 'Box Title' }}</div>
-                                <div class="box-content">{{ box.content or 'Box content' }}</div>
+                                <div class="box-heading">{{ box.heading or 'Click to add heading' }}</div>
+                                <div class="box-text">{{ box.text or 'Click to add text' }}</div>
                             </div>
                         {% endfor %}
                         {% if not slide.props.boxes or slide.props.boxes|length == 0 %}
                             <div class="box-item">
-                                <div class="box-title">[Employee Name]</div>
-                                <div class="box-content">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
                             </div>
                             <div class="box-item">
-                                <div class="box-title">[Employee Name]</div>
-                                <div class="box-content">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
                             </div>
                             <div class="box-item">
-                                <div class="box-title">[Employee Name]</div>
-                                <div class="box-content">The teamwork culture makes every project enjoyable and successful.</div>
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">The teamwork culture makes every project enjoyable and successful.</div>
                             </div>
                             <div class="box-item">
-                                <div class="box-title">[Employee Name]</div>
-                                <div class="box-content">Our commitment to customer focus is evident in everything we do.</div>
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Our commitment to customer focus is evident in everything we do.</div>
                             </div>
                         {% endif %}
                     </div>
@@ -943,31 +1101,66 @@
                 </div>
                 
             {% elif slide.templateId == 'timeline' %}
-                <div class="slide">
-                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                <div class="timeline">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="timeline-container">
-                        {% for event in slide.props.events %}
-                            <div class="timeline-event">
-                                <div class="event-date">{{ event.date or 'Date' }}</div>
-                                <div class="event-content">{{ event.content or 'Event content' }}</div>
+                        <div class="timeline-line"></div>
+                        {% for step in slide.props.steps %}
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
+                                    <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
+                                        <div class="step-heading">{{ step.heading or 'Click to add heading' }}</div>
+                                        {% if step.description %}
+                                            <div class="step-description">{{ step.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
+                                        {{ loop.index }}
+                                    </div>
+                                </div>
                             </div>
                         {% endfor %}
-                        {% if not slide.props.events or slide.props.events|length == 0 %}
-                            <div class="timeline-event">
-                                <div class="event-date">[Year]</div>
-                                <div class="event-content">[Milestone 1: Description]</div>
+                        {% if not slide.props.steps or slide.props.steps|length == 0 %}
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="top: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 3;">
+                                        <div class="step-heading">Phase 1</div>
+                                        <div class="step-description">Initial planning and setup</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 1;">1</div>
+                                </div>
                             </div>
-                            <div class="timeline-event">
-                                <div class="event-date">[Year]</div>
-                                <div class="event-content">[Milestone 2: Description]</div>
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 1;">
+                                        <div class="step-heading">Phase 2</div>
+                                        <div class="step-description">Development and implementation</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 3;">2</div>
+                                </div>
                             </div>
-                            <div class="timeline-event">
-                                <div class="event-date">[Year]</div>
-                                <div class="event-content">[Milestone 3: Description]</div>
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="top: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 3;">
+                                        <div class="step-heading">Phase 3</div>
+                                        <div class="step-description">Testing and refinement</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 1;">3</div>
+                                </div>
                             </div>
-                            <div class="timeline-event">
-                                <div class="event-date">[Year]</div>
-                                <div class="event-content">[Milestone 4: Description]</div>
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 1;">
+                                        <div class="step-heading">Phase 4</div>
+                                        <div class="step-description">Launch and deployment</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 3;">4</div>
+                                </div>
                             </div>
                         {% endif %}
                     </div>
