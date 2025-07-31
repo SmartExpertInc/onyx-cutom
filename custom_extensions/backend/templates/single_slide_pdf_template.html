@@ -98,7 +98,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 80px; /* Exact frontend match */
+            padding: 40px;
             position: relative;
         }
         
@@ -141,7 +141,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 80px; /* Exact frontend match */
+            padding: 40px;
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -251,7 +251,7 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: stretch;
-            padding: 80px; /* Exact frontend match */
+            padding: 40px;
             position: relative;
             font-family: 'Martel Sans', sans-serif;
         }
@@ -396,7 +396,7 @@
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
             background-color: var(--bg-color);
-            padding: 60px; /* Exact frontend match */
+            padding: 40px;
             position: relative;
             font-family: 'Martel Sans', sans-serif;
             display: flex;
@@ -563,7 +563,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 64px;
+            padding: 40px;
             font-family: 'Martel Sans', sans-serif;
         }
         
@@ -626,7 +626,7 @@
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            padding: 64px;
+            padding: 40px;
             font-family: 'Martel Sans', sans-serif;
         }
         
@@ -714,10 +714,11 @@
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            padding: 64px;
+            padding: 40px;
             font-family: 'Martel Sans', sans-serif;
             align-items: stretch;
             text-align: center;
+            height: 100%;
         }
         
         .timeline .slide-title {
@@ -732,8 +733,9 @@
         .timeline-container {
             position: relative;
             width: 100%;
-            height: 350px;
+            flex: 1;
             display: flex;
+            min-height: 400px;
         }
         
         .timeline-line {
@@ -749,6 +751,8 @@
             position: relative;
             width: 25%;
             height: 100%;
+            display: flex;
+            align-items: center;
         }
         
         .milestone-content {
@@ -759,7 +763,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            padding: 10px 0;
         }
         
         .text-block {
@@ -767,18 +772,19 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            gap: 8px;
+            gap: 12px;
+            max-width: 200px;
         }
         
         .step-heading {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: var(--title-color);
             font-family: 'Kanit', sans-serif;
             word-wrap: break-word;
         }
         
         .step-description {
-            font-size: 18px;
+            font-size: 20px;
             color: var(--content-color);
             font-family: 'Martel Sans', sans-serif;
             line-height: 1.5;
