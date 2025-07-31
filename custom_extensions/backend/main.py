@@ -11780,6 +11780,28 @@ async def download_slide_deck_pdf(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate slide deck PDF: {str(e)[:200]}")
 
 
+@app.post("/api/custom/pdf/debug/slides", response_class=JSONResponse)
+async def debug_slide_generation(
+    slides_data: List[Dict[str, Any]],
+    theme: Optional[str] = Query("light-modern"),
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Debug endpoint to test individual slide generation and identify problematic slides."""
+    try:
+        from app.services.pdf_generator import test_all_slides_individually
+        
+        logger.info(f"Debug slide generation: Testing {len(slides_data)} slides with theme: {theme}")
+        
+        # Test all slides individually
+        summary = await test_all_slides_individually(slides_data, theme)
+        
+        return JSONResponse(content=summary)
+        
+    except Exception as e:
+        logger.error(f"Error in debug slide generation: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Debug failed: {str(e)[:200]}")
+
+
 @app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_project_instance_pdf_no_slug(
     project_id: int,

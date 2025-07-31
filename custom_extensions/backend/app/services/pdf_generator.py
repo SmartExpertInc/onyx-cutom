@@ -422,6 +422,9 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
     should_close_browser = browser is None
     page = None
     
+    # Get slide info for logging
+    template_id = slide_data.get('templateId', 'unknown')
+    
     try:
         if browser is None:
             browser = await pyppeteer.launch(**get_browser_launch_options())
@@ -432,15 +435,56 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         await page.setViewport({'width': 1174, 'height': 800})
         
         # Create context for single slide
+        # Add safety checks for slide data
+        safe_slide_data = slide_data.copy() if slide_data else {}
+        if 'props' not in safe_slide_data or not safe_slide_data['props']:
+            safe_slide_data['props'] = {
+                'title': 'Untitled Slide',
+                'subtitle': '',
+                'content': '',
+                'bullets': [],
+                'steps': [],
+                'challenges': [],
+                'solutions': [],
+                'items': [],
+                'boxes': [],
+                'levels': [],
+                'events': []
+            }
+        
         context_data = {
-            'slide': slide_data,
+            'slide': safe_slide_data,
             'theme': theme,
             'slide_height': 600  # Start with minimum height
         }
         
         # Render the single slide template
-        template = jinja_env.get_template("single_slide_pdf_template.html")
-        html_content = template.render(**context_data)
+        try:
+            template = jinja_env.get_template("single_slide_pdf_template.html")
+            html_content = template.render(**context_data)
+        except Exception as template_error:
+            logger.error(f"Template rendering error for {template_id}: {template_error}", exc_info=True)
+            # Fallback to a simple template
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head><style>
+                body {{ margin: 0; padding: 40px; font-family: Arial, sans-serif; background: #f0f0f0; }}
+                .slide-page {{ width: 1174px; height: 600px; background: white; padding: 40px; border-radius: 8px; }}
+                .slide-content {{ display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }}
+                .slide-title {{ font-size: 32px; font-weight: bold; margin-bottom: 20px; }}
+                .content {{ font-size: 18px; }}
+            </style></head>
+            <body>
+                <div class="slide-page">
+                    <div class="slide-content">
+                        <div class="slide-title">{safe_slide_data.get('props', {}).get('title', 'Untitled Slide')}</div>
+                        <div class="content">Slide content could not be rendered properly.</div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
         
         # Set content and wait for rendering
         await page.setContent(html_content)
@@ -499,11 +543,11 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         # Add safety margin
         final_height = max(PDF_MIN_SLIDE_HEIGHT, min(int(height_result) + PDF_HEIGHT_SAFETY_MARGIN, PDF_MAX_SLIDE_HEIGHT))
         
-        logger.info(f"Calculated slide height: {final_height}px (original: {height_result}px)")
+        logger.info(f"Calculated height for {template_id}: {final_height}px (original: {height_result}px)")
         return final_height
         
     except Exception as e:
-        logger.error(f"Error calculating slide dimensions: {e}", exc_info=True)
+        logger.error(f"Error calculating slide dimensions for {template_id}: {e}", exc_info=True)
         return PDF_MIN_SLIDE_HEIGHT
         
     finally:
@@ -512,7 +556,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         if should_close_browser and browser:
             await browser.close()
 
-async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None) -> bool:
+async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None) -> bool:
     """
     Generate a PDF for a single slide with exact dimensions.
     
@@ -522,6 +566,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         slide_height: The calculated height for this slide
         output_path: Where to save the PDF
         browser: Optional browser instance to reuse
+        slide_index: Optional slide index for logging (1-based)
+        template_id: Optional template ID for logging
     
     Returns:
         bool: True if successful, False otherwise
@@ -529,7 +575,13 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
     should_close_browser = browser is None
     page = None
     
+    # Get slide info for logging
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
     try:
+        logger.info(f"Starting PDF generation for {slide_info}{template_info} (height: {slide_height}px)")
+        
         if browser is None:
             browser = await pyppeteer.launch(**get_browser_launch_options())
         
@@ -539,15 +591,56 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         await page.setViewport({'width': 1174, 'height': slide_height})
         
         # Create context for single slide with calculated height
+        # Add safety checks for slide data
+        safe_slide_data = slide_data.copy() if slide_data else {}
+        if 'props' not in safe_slide_data or not safe_slide_data['props']:
+            safe_slide_data['props'] = {
+                'title': 'Untitled Slide',
+                'subtitle': '',
+                'content': '',
+                'bullets': [],
+                'steps': [],
+                'challenges': [],
+                'solutions': [],
+                'items': [],
+                'boxes': [],
+                'levels': [],
+                'events': []
+            }
+        
         context_data = {
-            'slide': slide_data,
+            'slide': safe_slide_data,
             'theme': theme,
             'slide_height': slide_height
         }
         
         # Render the single slide template
-        template = jinja_env.get_template("single_slide_pdf_template.html")
-        html_content = template.render(**context_data)
+        try:
+            template = jinja_env.get_template("single_slide_pdf_template.html")
+            html_content = template.render(**context_data)
+        except Exception as template_error:
+            logger.error(f"Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
+            # Fallback to a simple template
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head><style>
+                body {{ margin: 0; padding: 40px; font-family: Arial, sans-serif; background: #f0f0f0; }}
+                .slide-page {{ width: 1174px; height: {slide_height}px; background: white; padding: 40px; border-radius: 8px; }}
+                .slide-content {{ display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }}
+                .slide-title {{ font-size: 32px; font-weight: bold; margin-bottom: 20px; }}
+                .content {{ font-size: 18px; }}
+            </style></head>
+            <body>
+                <div class="slide-page">
+                    <div class="slide-content">
+                        <div class="slide-title">{safe_slide_data.get('props', {}).get('title', 'Untitled Slide')}</div>
+                        <div class="content">Slide content could not be rendered properly.</div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
         
         # Set content and wait for rendering
         await page.setContent(html_content)
@@ -571,11 +664,11 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             'omitBackground': False
         })
         
-        logger.info(f"Generated single slide PDF: {output_path} (height: {slide_height}px)")
+        logger.info(f"✓ Generated PDF for {slide_info}{template_info}: {output_path}")
         return True
         
     except Exception as e:
-        logger.error(f"Error generating single slide PDF: {e}", exc_info=True)
+        logger.error(f"✗ Error generating PDF for {slide_info}{template_info}: {e}", exc_info=True)
         return False
         
     finally:
@@ -589,7 +682,7 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     Process a batch of slides in parallel for better performance.
     
     Args:
-        slides_batch: List of (slide_data, slide_height, output_path) tuples
+        slides_batch: List of (slide_data, slide_height, output_path, slide_index, template_id) tuples
         theme: The theme name
         browser: Optional browser instance to reuse
     
@@ -597,18 +690,21 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
         list: List of successful output paths
     """
     tasks = []
-    for slide_data, slide_height, output_path in slides_batch:
-        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser)
+    for slide_data, slide_height, output_path, slide_index, template_id in slides_batch:
+        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
         tasks.append(task)
     
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
     successful_paths = []
     for i, result in enumerate(results):
+        slide_index = slides_batch[i][3] + 1  # Convert to 1-based index
+        template_id = slides_batch[i][4]
         if isinstance(result, Exception):
-            logger.error(f"Failed to generate slide {i + 1}: {result}")
+            logger.error(f"✗ Failed to generate slide {slide_index} ({template_id}): {result}", exc_info=True)
         elif result:
             successful_paths.append(slides_batch[i][2])  # output_path
+            logger.info(f"✓ Successfully generated slide {slide_index} ({template_id})")
     
     return successful_paths
 
@@ -653,12 +749,14 @@ async def generate_slide_deck_pdf_with_dynamic_height(
         
         slide_heights = []
         for i, slide_data in enumerate(slides_data):
-            logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)}")
+            template_id = slide_data.get('templateId', 'unknown')
+            logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)} (templateId: {template_id})")
             try:
                 height = await calculate_slide_dimensions(slide_data, theme, browser)
                 slide_heights.append(height)
+                logger.info(f"✓ Slide {i + 1} ({template_id}) height calculated: {height}px")
             except Exception as e:
-                logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
+                logger.error(f"✗ Failed to calculate height for slide {i + 1} ({template_id}): {e}", exc_info=True)
                 slide_heights.append(PDF_MIN_SLIDE_HEIGHT)
         
         # Close the height calculation browser to free memory
@@ -671,8 +769,9 @@ async def generate_slide_deck_pdf_with_dynamic_height(
         # Create temporary paths for all slides
         slide_tasks = []
         for i, (slide_data, slide_height) in enumerate(zip(slides_data, slide_heights)):
+            template_id = slide_data.get('templateId', 'unknown')
             temp_pdf_path = f"/tmp/slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
-            slide_tasks.append((slide_data, slide_height, temp_pdf_path))
+            slide_tasks.append((slide_data, slide_height, temp_pdf_path, i, template_id))
         
         # Process slides in batches to avoid memory issues
         batch_size = MAX_CONCURRENT_SLIDES
@@ -684,6 +783,10 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             
             logger.info(f"Processing batch {batch_start//batch_size + 1}/{(len(slide_tasks) + batch_size - 1)//batch_size} ({len(batch)} slides)")
             
+            # Log batch details
+            for slide_data, slide_height, temp_pdf_path, slide_index, template_id in batch:
+                logger.info(f"  - Slide {slide_index + 1} ({template_id}): height={slide_height}px, output={temp_pdf_path}")
+            
             # Launch a new browser for each batch to prevent memory accumulation
             batch_browser = await pyppeteer.launch(**get_browser_launch_options())
             
@@ -692,9 +795,9 @@ async def generate_slide_deck_pdf_with_dynamic_height(
                 successful_paths.extend(batch_results)
                 temp_pdf_paths.extend(batch_results)
             except Exception as e:
-                logger.error(f"Failed to process batch: {e}")
+                logger.error(f"Failed to process batch: {e}", exc_info=True)
                 # Clean up any generated PDFs in this batch
-                for _, _, path in batch:
+                for _, _, path, slide_index, template_id in batch:
                     try:
                         if os.path.exists(path):
                             os.remove(path)
@@ -772,3 +875,138 @@ async def generate_slide_deck_pdf_with_dynamic_height(
                 pass
         # Force garbage collection
         gc.collect()
+
+async def test_single_slide_generation(slide_data: dict, theme: str, slide_index: int = None) -> dict:
+    """
+    Test generation of a single slide in isolation to identify issues.
+    
+    Args:
+        slide_data: The slide data dictionary
+        theme: The theme name
+        slide_index: Optional slide index for logging
+    
+    Returns:
+        dict: Test results with success status and details
+    """
+    template_id = slide_data.get('templateId', 'unknown')
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    
+    logger.info(f"🧪 Testing {slide_info} ({template_id}) in isolation...")
+    
+    result = {
+        'success': False,
+        'slide_index': slide_index,
+        'template_id': template_id,
+        'error': None,
+        'height_calculation_success': False,
+        'pdf_generation_success': False,
+        'calculated_height': None
+    }
+    
+    browser = None
+    temp_pdf_path = None
+    
+    try:
+        # Test 1: Height calculation
+        logger.info(f"  📏 Testing height calculation for {slide_info} ({template_id})...")
+        try:
+            browser = await pyppeteer.launch(**get_browser_launch_options())
+            height = await calculate_slide_dimensions(slide_data, theme, browser)
+            result['height_calculation_success'] = True
+            result['calculated_height'] = height
+            logger.info(f"  ✅ Height calculation successful: {height}px")
+        except Exception as e:
+            result['error'] = f"Height calculation failed: {str(e)}"
+            logger.error(f"  ❌ Height calculation failed for {slide_info} ({template_id}): {e}", exc_info=True)
+            return result
+        finally:
+            if browser:
+                await browser.close()
+                browser = None
+        
+        # Test 2: PDF generation
+        logger.info(f"  📄 Testing PDF generation for {slide_info} ({template_id})...")
+        try:
+            temp_pdf_path = f"/tmp/test_slide_{slide_index}_{uuid.uuid4().hex[:8]}.pdf"
+            browser = await pyppeteer.launch(**get_browser_launch_options())
+            success = await generate_single_slide_pdf(slide_data, theme, result['calculated_height'], temp_pdf_path, browser, slide_index, template_id)
+            
+            if success:
+                result['pdf_generation_success'] = True
+                result['success'] = True
+                logger.info(f"  ✅ PDF generation successful: {temp_pdf_path}")
+            else:
+                result['error'] = "PDF generation returned False"
+                logger.error(f"  ❌ PDF generation returned False for {slide_info} ({template_id})")
+        except Exception as e:
+            result['error'] = f"PDF generation failed: {str(e)}"
+            logger.error(f"  ❌ PDF generation failed for {slide_info} ({template_id}): {e}", exc_info=True)
+        finally:
+            if browser:
+                await browser.close()
+        
+        return result
+        
+    except Exception as e:
+        result['error'] = f"General test failure: {str(e)}"
+        logger.error(f"  ❌ General test failure for {slide_info} ({template_id}): {e}", exc_info=True)
+        return result
+    finally:
+        # Clean up temporary file
+        if temp_pdf_path and os.path.exists(temp_pdf_path):
+            try:
+                os.remove(temp_pdf_path)
+            except:
+                pass
+
+async def test_all_slides_individually(slides_data: list, theme: str) -> dict:
+    """
+    Test each slide individually to identify which one is causing issues.
+    
+    Args:
+        slides_data: List of slide data dictionaries
+        theme: The theme name
+    
+    Returns:
+        dict: Summary of test results
+    """
+    logger.info(f"🧪 Testing all {len(slides_data)} slides individually...")
+    
+    results = []
+    failed_slides = []
+    
+    for i, slide_data in enumerate(slides_data):
+        slide_index = i + 1  # 1-based index
+        result = await test_single_slide_generation(slide_data, theme, slide_index)
+        results.append(result)
+        
+        if not result['success']:
+            failed_slides.append({
+                'slide_index': slide_index,
+                'template_id': result['template_id'],
+                'error': result['error']
+            })
+    
+    # Summary
+    successful_count = len([r for r in results if r['success']])
+    failed_count = len(failed_slides)
+    
+    summary = {
+        'total_slides': len(slides_data),
+        'successful_slides': successful_count,
+        'failed_slides': failed_count,
+        'failed_slide_details': failed_slides,
+        'all_results': results
+    }
+    
+    logger.info(f"🧪 Individual slide test summary:")
+    logger.info(f"  📊 Total slides: {summary['total_slides']}")
+    logger.info(f"  ✅ Successful: {summary['successful_slides']}")
+    logger.info(f"  ❌ Failed: {summary['failed_slides']}")
+    
+    if failed_slides:
+        logger.error(f"  🚨 Failed slides:")
+        for failed in failed_slides:
+            logger.error(f"    - Slide {failed['slide_index']} ({failed['template_id']}): {failed['error']}")
+    
+    return summary
