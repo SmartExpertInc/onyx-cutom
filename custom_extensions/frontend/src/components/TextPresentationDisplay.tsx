@@ -1117,6 +1117,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           detectedAs: 'section_break',
           correctType: 'section_break',
           style: blockAny.style,
+          src: blockAny.src,
           reason: 'Has style property but missing essential image properties'
         });
         
