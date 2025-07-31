@@ -185,7 +185,7 @@ interface RenderBlockProps {
   isMiniSectionHeadline?: boolean;
   isListItemContent?: boolean;
   isEditing?: boolean;
-  onTextChange?: (path: (string | number)[], newText: string) => void;
+  onTextChange?: (path: (string | number)[], newValue: any) => void;
   basePath?: (string | number)[];
   suppressRecommendationStripe?: boolean;
 }
@@ -201,7 +201,7 @@ const BlockSettingsModal = ({
   isOpen: boolean;
   onClose: () => void;
   block: AnyContentBlock;
-  onTextChange?: (path: (string | number)[], newText: string) => void;
+  onTextChange?: (path: (string | number)[], newValue: any) => void;
   basePath: (string | number)[];
 }) => {
   const fieldPath = (fieldKey: string) => [...basePath, fieldKey];
@@ -1144,7 +1144,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 export interface TextPresentationDisplayProps {
   dataToDisplay: TextPresentationData | null;
   isEditing?: boolean;
-  onTextChange?: (path: (string | number)[], newText: string) => void;
+  onTextChange?: (path: (string | number)[], newValue: any) => void;
   parentProjectName?: string;
 }
 
