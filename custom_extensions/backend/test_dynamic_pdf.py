@@ -43,6 +43,87 @@ test_slides = [
         }
     },
     {
+        "templateId": "bullet-points-right",
+        "props": {
+            "title": "Why Our Values Matter",
+            "subtitle": "Understanding and embodying our values is essential for:",
+            "bullets": [
+                "Building Trust: Values create a foundation of trust among employees and with clients.",
+                "Guiding Decisions: They serve as a compass for decision-making at all levels.",
+                "Fostering Culture: Values shape our company culture and work environment.",
+                "Driving Success: Aligning with our values leads to greater success and fulfillment."
+            ],
+            "bulletStyle": "check"
+        }
+    },
+    {
+        "templateId": "big-image-top",
+        "props": {
+            "title": "Looking Ahead",
+            "subtitle": "As we move forward, our vision is to [Vision Statement]. This vision will guide our strategies and initiatives as we continue to grow and adapt in a changing market."
+        }
+    },
+    {
+        "templateId": "two-column",
+        "props": {
+            "title": "Two Column Layout",
+            "leftTitle": "Left Column Title",
+            "rightTitle": "Right Column Title",
+            "leftContent": "This is the content for the left column. It should be properly aligned and formatted.",
+            "rightContent": "This is the content for the right column. It should also be properly aligned and formatted."
+        }
+    },
+    {
+        "templateId": "two-column-diversity",
+        "props": {
+            "title": "Embracing Diversity and Inclusion",
+            "leftTitle": "Our Commitment",
+            "rightTitle": "Benefits of Diversity",
+            "leftContent": "We are dedicated to fostering a diverse and inclusive workplace where everyone feels valued and respected.",
+            "rightBullets": [
+                "Enhances creativity and innovation.",
+                "Reflects the diverse communities we serve.",
+                "Improves employee satisfaction and retention."
+            ]
+        }
+    },
+    {
+        "templateId": "big-numbers",
+        "props": {
+            "title": "Key Achievements",
+            "numbers": [
+                {"value": "100+", "label": "Countries Served", "description": "We have expanded our operations to over 100 countries worldwide."},
+                {"value": "5", "label": "Years in Business", "description": "Celebrating over 5 years of successful operations."},
+                {"value": "20%", "label": "Employee Satisfaction Rate", "description": "Our employee satisfaction rate stands at an impressive 20%."}
+            ]
+        }
+    },
+    {
+        "templateId": "four-box-grid",
+        "props": {
+            "title": "Voices from Our Team",
+            "subtitle": "What our employees say about working here",
+            "boxes": [
+                {"title": "[Employee Name]", "content": "Working here has been a transformative experience. The values resonate with my personal beliefs."},
+                {"title": "[Employee Name]", "content": "I appreciate the emphasis on innovation. It inspires me to think outside the box."},
+                {"title": "[Employee Name]", "content": "The teamwork culture makes every project enjoyable and successful."},
+                {"title": "[Employee Name]", "content": "Our commitment to customer focus is evident in everything we do."}
+            ]
+        }
+    },
+    {
+        "templateId": "timeline",
+        "props": {
+            "title": "Major Milestones in Our History",
+            "events": [
+                {"date": "[Year]", "content": "[Milestone 1: Description]"},
+                {"date": "[Year]", "content": "[Milestone 2: Description]"},
+                {"date": "[Year]", "content": "[Milestone 3: Description]"},
+                {"date": "[Year]", "content": "[Milestone 4: Description]"}
+            ]
+        }
+    },
+    {
         "templateId": "challenges-solutions",
         "props": {
             "title": "Challenges and Solutions",

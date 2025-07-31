@@ -107,7 +107,7 @@
             font-family: 'Kanit', sans-serif;
             font-size: 45px; /* Exact frontend match */
             color: var(--title-color);
-            text-align: center;
+            text-align: left; /* Default to left alignment */
             margin-bottom: 24px; /* Exact frontend match */
             line-height: 1.2;
             max-width: 1174px; /* Updated to match new slide width */
@@ -501,7 +501,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            align-items: stretch;
         }
         
         /* Numbers Grid Template - EXACT FRONTEND MATCH */
@@ -677,13 +678,14 @@
                 
             {% elif slide.templateId == 'big-image-top' %}
                 <div class="slide">
-                    <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px;">
+                    <div style="width: 100%; height: 350px; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                         <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                        <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant image' }}"</div>
+                        <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A high-quality illustration for the topic' }}"</div>
+                        <div style="font-size: 12px; color: #868e96;">100% × 350px</div>
                     </div>
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="content-text" style="text-align: left;">{{ slide.props.subtitle or 'Click to add content' }}</div>
                 </div>
                 
             {% elif slide.templateId == 'bullet-points' %}
@@ -720,6 +722,59 @@
                                     </li>
                                 {% endif %}
                             </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'bullet-points-right' %}
+                <div class="bullet-points">
+                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.subtitle %}
+                        <div class="content-text" style="text-align: left; margin-bottom: 32px;">{{ slide.props.subtitle }}</div>
+                    {% endif %}
+                    <div class="content-row">
+                        <div class="bullets-container" style="flex: 1 1 50%; padding-right: 40px;">
+                            <ul class="bullet-list">
+                                {% for bullet in slide.props.bullets %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
+                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                                    </li>
+                                {% endfor %}
+                                {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Building Trust: Values create a foundation of trust among employees and with clients.</span>
+                                    </li>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Guiding Decisions: They serve as a compass for decision-making at all levels.</span>
+                                    </li>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Fostering Culture: Values shape our company culture and work environment.</span>
+                                    </li>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Driving Success: Aligning with our values leads to greater success and fulfillment.</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="placeholder-container" style="flex: 0 0 50%;">
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A relevant illustration for the bullet points' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -778,20 +833,38 @@
                 
             {% elif slide.templateId == 'two-column' %}
                 <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="two-column-layout">
                         <div class="column">
-                            <div class="content-text">{{ slide.props.leftContent or 'Left column content' }}</div>
+                            {% if slide.props.leftImage %}
+                                <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 14px; font-style: italic;">AI Prompt: "{{ slide.props.leftImage.prompt or slide.props.leftImage.alt or 'relevant image' }}"</div>
+                                </div>
+                            {% endif %}
+                            {% if slide.props.leftTitle %}
+                                <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.leftTitle }}</h2>
+                            {% endif %}
+                            <div class="content-text" style="text-align: left;">{{ slide.props.leftContent or 'Left column content' }}</div>
                         </div>
                         <div class="column">
-                            <div class="content-text">{{ slide.props.rightContent or 'Right column content' }}</div>
+                            {% if slide.props.rightImage %}
+                                <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 14px; font-style: italic;">AI Prompt: "{{ slide.props.rightImage.prompt or slide.props.rightImage.alt or 'relevant image' }}"</div>
+                                </div>
+                            {% endif %}
+                            {% if slide.props.rightTitle %}
+                                <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.rightTitle }}</h2>
+                            {% endif %}
+                            <div class="content-text" style="text-align: left;">{{ slide.props.rightContent or 'Right column content' }}</div>
                         </div>
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'big-numbers' %}
                 <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="numbers-grid">
                         {% for number in slide.props.numbers %}
                             <div class="number-item">
@@ -800,12 +873,32 @@
                                 <div class="number-description">{{ number.description or 'Description' }}</div>
                             </div>
                         {% endfor %}
+                        {% if not slide.props.numbers or slide.props.numbers|length == 0 %}
+                            <div class="number-item">
+                                <div class="number-value">100+</div>
+                                <div class="number-label">Countries Served</div>
+                                <div class="number-description">We have expanded our operations to over 100 countries worldwide.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">5</div>
+                                <div class="number-label">Years in Business</div>
+                                <div class="number-description">Celebrating over 5 years of successful operations.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">20%</div>
+                                <div class="number-label">Employee Satisfaction Rate</div>
+                                <div class="number-description">Our employee satisfaction rate stands at an impressive 20%.</div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'four-box-grid' %}
                 <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.subtitle %}
+                        <div class="content-text" style="text-align: left; margin-bottom: 32px;">{{ slide.props.subtitle }}</div>
+                    {% endif %}
                     <div class="four-box-grid">
                         {% for box in slide.props.boxes %}
                             <div class="box-item">
@@ -813,6 +906,24 @@
                                 <div class="box-content">{{ box.content or 'Box content' }}</div>
                             </div>
                         {% endfor %}
+                        {% if not slide.props.boxes or slide.props.boxes|length == 0 %}
+                            <div class="box-item">
+                                <div class="box-title">[Employee Name]</div>
+                                <div class="box-content">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-title">[Employee Name]</div>
+                                <div class="box-content">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-title">[Employee Name]</div>
+                                <div class="box-content">The teamwork culture makes every project enjoyable and successful.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-title">[Employee Name]</div>
+                                <div class="box-content">Our commitment to customer focus is evident in everything we do.</div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -833,7 +944,7 @@
                 
             {% elif slide.templateId == 'timeline' %}
                 <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="timeline-container">
                         {% for event in slide.props.events %}
                             <div class="timeline-event">
@@ -841,6 +952,61 @@
                                 <div class="event-content">{{ event.content or 'Event content' }}</div>
                             </div>
                         {% endfor %}
+                        {% if not slide.props.events or slide.props.events|length == 0 %}
+                            <div class="timeline-event">
+                                <div class="event-date">[Year]</div>
+                                <div class="event-content">[Milestone 1: Description]</div>
+                            </div>
+                            <div class="timeline-event">
+                                <div class="event-date">[Year]</div>
+                                <div class="event-content">[Milestone 2: Description]</div>
+                            </div>
+                            <div class="timeline-event">
+                                <div class="event-date">[Year]</div>
+                                <div class="event-content">[Milestone 3: Description]</div>
+                            </div>
+                            <div class="timeline-event">
+                                <div class="event-date">[Year]</div>
+                                <div class="event-content">[Milestone 4: Description]</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'two-column-diversity' %}
+                <div class="slide">
+                    <h1 class="slide-title" style="text-align: center;">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="two-column-layout">
+                        <div class="column">
+                            <div style="width: 100%; height: 320px; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImage.prompt or slide.props.leftImage.alt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                            <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.leftTitle or 'Our Commitment' }}</h2>
+                            <div class="content-text" style="text-align: left;">{{ slide.props.leftContent or 'We are dedicated to fostering a diverse and inclusive workplace where everyone feels valued and respected.' }}</div>
+                        </div>
+                        <div class="column">
+                            <div style="width: 100%; height: 320px; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImage.prompt or slide.props.rightImage.alt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                            <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.rightTitle or 'Benefits of Diversity' }}</h2>
+                            <div class="content-text" style="text-align: left;">
+                                {% if slide.props.rightBullets %}
+                                    {% for bullet in slide.props.rightBullets %}
+                                        <div style="margin-bottom: 8px;">• {{ bullet }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div style="margin-bottom: 8px;">• Enhances creativity and innovation.</div>
+                                    <div style="margin-bottom: 8px;">• Reflects the diverse communities we serve.</div>
+                                    <div style="margin-bottom: 8px;">• Improves employee satisfaction and retention.</div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
