@@ -11,8 +11,6 @@ import {
 } from './PresentationParser';
 import { useLanguage } from '../contexts/LanguageContext';
 import { 
-  ChevronLeft, 
-  ChevronRight, 
   FileText, 
   Image, 
   List, 
@@ -341,50 +339,7 @@ const SlideDisplay: React.FC<{
   );
 };
 
-// Slide navigation component
-const SlideNavigation: React.FC<{
-  slides: PresentationSlide[];
-  currentSlideIndex: number;
-  onSlideSelect: (index: number) => void;
-}> = ({ slides, currentSlideIndex, onSlideSelect }) => {
-  return (
-    <div className="bg-gray-50 border-r border-gray-200 p-4 overflow-y-auto">
-      <h3 className="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">
-        Slides ({slides.length})
-      </h3>
-      <div className="space-y-2">
-        {slides.map((slide, index) => (
-          <button
-            key={slide.id}
-            onClick={() => onSlideSelect(index)}
-            className={`
-              w-full text-left p-3 rounded-lg border transition-all duration-200
-              ${index === currentSlideIndex 
-                ? 'bg-blue-50 border-blue-200 text-blue-900' 
-                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-              }
-            `}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500">
-                Slide {slide.slideNumber}
-              </span>
-              <span className={`
-                text-xs px-2 py-1 rounded
-                ${index === currentSlideIndex ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}
-              `}>
-                {slide.layout}
-              </span>
-            </div>
-            <div className="text-sm font-medium truncate">
-              {slide.title}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+// Note: SlideNavigation component removed - now displaying all slides vertically
 
 // Main presentation preview component
 const PresentationPreview: React.FC<PresentationPreviewProps> = ({
@@ -397,18 +352,12 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({
   const [presentationData, setPresentationData] = useState<PresentationData>(() => 
     parsePresentationMarkdown(markdown)
   );
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   // Re-parse when markdown changes
   useEffect(() => {
     const newData = parsePresentationMarkdown(markdown);
     setPresentationData(newData);
-    
-    // Reset to first slide if current index is out of bounds
-    if (currentSlideIndex >= newData.slides.length) {
-      setCurrentSlideIndex(0);
-    }
-  }, [markdown, currentSlideIndex]);
+  }, [markdown]);
 
   const handleSlideChange = (newSlide: PresentationSlide) => {
     const updatedSlides = [...presentationData.slides];
@@ -426,8 +375,6 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({
       }
     }
   };
-
-  const currentSlide = presentationData.slides[currentSlideIndex];
 
   if (!presentationData.slides.length) {
     return (
@@ -469,55 +416,17 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex h-[600px]">
-        {/* Slide navigation */}
-        <div className="w-80 flex-shrink-0">
-          <SlideNavigation
-            slides={presentationData.slides}
-            currentSlideIndex={currentSlideIndex}
-            onSlideSelect={setCurrentSlideIndex}
-          />
-        </div>
-
-        {/* Current slide display */}
-        <div className="flex-1 p-6 bg-gray-50 overflow-y-auto">
-          {currentSlide && (
+      {/* All slides displayed vertically */}
+      <div className="max-h-[600px] overflow-y-auto">
+        <div className="p-6 bg-gray-50 space-y-6">
+          {presentationData.slides.map((slide) => (
             <SlideDisplay
-              slide={currentSlide}
+              key={slide.id}
+              slide={slide}
               isEditing={isEditing}
               onSlideChange={handleSlideChange}
             />
-          )}
-        </div>
-      </div>
-
-      {/* Footer navigation */}
-      <div className="border-t border-gray-200 p-4 bg-white">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
-            disabled={currentSlideIndex === 0}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            {t('presentationPreview.previous', 'Previous')}
-          </button>
-          
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">
-              {currentSlideIndex + 1} / {presentationData.totalSlides}
-            </span>
-          </div>
-          
-          <button
-            onClick={() => setCurrentSlideIndex(Math.min(presentationData.slides.length - 1, currentSlideIndex + 1))}
-            disabled={currentSlideIndex === presentationData.slides.length - 1}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {t('presentationPreview.next', 'Next')}
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
+          ))}
         </div>
       </div>
     </div>
