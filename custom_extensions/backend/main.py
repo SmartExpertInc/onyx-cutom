@@ -973,8 +973,19 @@ class TableBlock(BaseContentBlock):
     rows: List[List[str]]
     caption: Optional[str] = None
 
+class ImageBlock(BaseContentBlock):
+    type: str = "image"
+    src: str
+    alt: Optional[str] = None
+    caption: Optional[str] = None
+    width: Optional[Union[int, str]] = None
+    height: Optional[Union[int, str]] = None
+    alignment: Optional[str] = "center"
+    borderRadius: Optional[str] = "8px"
+    maxWidth: Optional[str] = "100%"
+
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -4011,7 +4022,7 @@ class TableBlock(BaseContentBlock):
     caption: Optional[str] = None
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
