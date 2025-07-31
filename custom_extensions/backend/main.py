@@ -11696,7 +11696,10 @@ async def download_folder_as_pdf(
                 
                 context_for_jinja = {
                     'details': data_for_template_render,
-                    'locale': current_pdf_locale_strings
+                    'locale': current_pdf_locale_strings,
+                    'pdf_context': {
+                        'static_images_path': os.path.abspath(STATIC_DESIGN_IMAGES_DIR) + '/'
+                    }
                 }
                 
                 pdf_path = await generate_pdf_from_html_template(pdf_template_file, context_for_jinja, unique_output_filename)
@@ -12010,7 +12013,10 @@ async def download_project_instance_pdf(
             'details': data_for_template_render, 
             'locale': current_pdf_locale_strings,
             'parentProjectName': parentProjectName,
-            'lessonNumber': lessonNumber
+            'lessonNumber': lessonNumber,
+            'pdf_context': {
+                'static_images_path': os.path.abspath(STATIC_DESIGN_IMAGES_DIR) + '/'
+            }
         }
         
         # Add column visibility settings for Training Plan PDFs

@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
   BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock,
@@ -1090,14 +1089,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const currentWidth = width ? (typeof width === 'number' ? width : parseInt(width)) : 300;
       const imageWidth = Math.max(50, Math.min(currentWidth, 800)); // Constrain between 50px and 800px
       
+      // Ensure proper image path resolution
+      const imageSrc = src.startsWith('/') ? src : `/${src}`;
+      
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
           <div className="inline-block relative">
-            <Image
-              src={src}
+            {/* Use regular img tag for better compatibility in view mode */}
+            <img
+              src={imageSrc}
               alt={alt || 'Uploaded image'}
-              width={imageWidth}
-              height={imageWidth * 0.75} // Default aspect ratio, will be overridden by CSS
               className="h-auto shadow-sm"
               style={{
                 width: `${imageWidth}px`,
@@ -1105,7 +1106,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 borderRadius: borderRadius || '8px',
                 maxWidth: maxWidth || '100%'
               }}
-              unoptimized={true}
+              onError={(e) => {
+                console.error('Image failed to load:', imageSrc);
+                // Fallback: try with different path resolution
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes('/api/custom-projects-backend/')) {
+                  target.src = `/api/custom-projects-backend${imageSrc}`;
+                }
+              }}
             />
             
             {/* Scaling Controls in Edit Mode */}
