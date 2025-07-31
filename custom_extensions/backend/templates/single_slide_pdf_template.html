@@ -1024,16 +1024,22 @@
                 </div>
                 
             {% elif slide.templateId == 'big-numbers' %}
+                <!-- DEBUG: big-numbers template -->
                 <div class="big-numbers">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="numbers-grid">
-                        {% for item in slide.props.items %}
-                            <div class="number-item">
-                                <div class="number-value">{{ item.value or 'Click to add value' }}</div>
-                                <div class="number-label">{{ item.label or 'Click to add label' }}</div>
-                                <div class="number-description">{{ item.description or 'Click to add description' }}</div>
-                            </div>
-                        {% endfor %}
+                        {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
+                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length }} items -->
+                            {% for item in slide.props.items %}
+                                <div class="number-item">
+                                    <div class="number-value">{{ item.value or 'Click to add value' }}</div>
+                                    <div class="number-label">{{ item.label or 'Click to add label' }}</div>
+                                    <div class="number-description">{{ item.description or 'Click to add description' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- DEBUG: items is not iterable or is callable, using fallback -->
+                        {% endif %}
                         {% if not slide.props.items or slide.props.items|length == 0 %}
                             <div class="number-item">
                                 <div class="number-value">100+</div>

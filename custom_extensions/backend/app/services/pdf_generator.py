@@ -438,19 +438,37 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         # Add safety checks for slide data
         safe_slide_data = slide_data.copy() if slide_data else {}
         if 'props' not in safe_slide_data or not safe_slide_data['props']:
-            safe_slide_data['props'] = {
-                'title': 'Untitled Slide',
-                'subtitle': '',
-                'content': '',
-                'bullets': [],
-                'steps': [],
-                'challenges': [],
-                'solutions': [],
-                'items': [],
-                'boxes': [],
-                'levels': [],
-                'events': []
-            }
+            safe_slide_data['props'] = {}
+        
+        # Ensure all required properties exist with safe defaults
+        default_props = {
+            'title': 'Untitled Slide',
+            'subtitle': '',
+            'content': '',
+            'bullets': [],
+            'steps': [],
+            'challenges': [],
+            'solutions': [],
+            'items': [],
+            'boxes': [],
+            'levels': [],
+            'events': []
+        }
+        
+        # Merge existing props with defaults, preserving existing data
+        for key, default_value in default_props.items():
+            if key not in safe_slide_data['props']:
+                safe_slide_data['props'][key] = default_value
+        
+        # Special safety check for 'items' property to prevent it from being overwritten with dict.items()
+        if 'items' in safe_slide_data['props']:
+            items_value = safe_slide_data['props']['items']
+            if callable(items_value):
+                logger.warning(f"WARNING: 'items' property is callable (type: {type(items_value)}), replacing with empty list")
+                safe_slide_data['props']['items'] = []
+            elif not hasattr(items_value, '__iter__') or isinstance(items_value, str):
+                logger.warning(f"WARNING: 'items' property is not iterable (type: {type(items_value)}), replacing with empty list")
+                safe_slide_data['props']['items'] = []
         
         context_data = {
             'slide': safe_slide_data,
@@ -460,6 +478,11 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         
         # Render the single slide template
         try:
+            # Debug logging to see the data structure
+            logger.info(f"DEBUG: Template data for {template_id}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
+            if safe_slide_data.get('props', {}).get('items'):
+                logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
         except Exception as template_error:
@@ -594,19 +617,37 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         # Add safety checks for slide data
         safe_slide_data = slide_data.copy() if slide_data else {}
         if 'props' not in safe_slide_data or not safe_slide_data['props']:
-            safe_slide_data['props'] = {
-                'title': 'Untitled Slide',
-                'subtitle': '',
-                'content': '',
-                'bullets': [],
-                'steps': [],
-                'challenges': [],
-                'solutions': [],
-                'items': [],
-                'boxes': [],
-                'levels': [],
-                'events': []
-            }
+            safe_slide_data['props'] = {}
+        
+        # Ensure all required properties exist with safe defaults
+        default_props = {
+            'title': 'Untitled Slide',
+            'subtitle': '',
+            'content': '',
+            'bullets': [],
+            'steps': [],
+            'challenges': [],
+            'solutions': [],
+            'items': [],
+            'boxes': [],
+            'levels': [],
+            'events': []
+        }
+        
+        # Merge existing props with defaults, preserving existing data
+        for key, default_value in default_props.items():
+            if key not in safe_slide_data['props']:
+                safe_slide_data['props'][key] = default_value
+        
+        # Special safety check for 'items' property to prevent it from being overwritten with dict.items()
+        if 'items' in safe_slide_data['props']:
+            items_value = safe_slide_data['props']['items']
+            if callable(items_value):
+                logger.warning(f"WARNING: 'items' property is callable (type: {type(items_value)}), replacing with empty list")
+                safe_slide_data['props']['items'] = []
+            elif not hasattr(items_value, '__iter__') or isinstance(items_value, str):
+                logger.warning(f"WARNING: 'items' property is not iterable (type: {type(items_value)}), replacing with empty list")
+                safe_slide_data['props']['items'] = []
         
         context_data = {
             'slide': safe_slide_data,
@@ -616,6 +657,11 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         
         # Render the single slide template
         try:
+            # Debug logging to see the data structure
+            logger.info(f"DEBUG: Template data for {slide_info}{template_info}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
+            if safe_slide_data.get('props', {}).get('items'):
+                logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
         except Exception as template_error:
