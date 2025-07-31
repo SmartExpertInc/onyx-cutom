@@ -582,29 +582,35 @@
          <div class="section-break-block none"></div>
     {% endif %}
 {% elif block_type == 'image' %}
-    {% set local_image_src = block_data.src %}
-    {% if block_data.src.startswith('/static_design_images/') %}
-        {% set local_image_src = 'file://' + (static_design_images_dir or 'static_design_images') + '/' + block_data.src.split('/')[-1] %}
-    {% endif %}
-    <div class="image-block-wrapper" 
-         style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
-        <img src="{{ local_image_src }}" 
-             alt="{{ block_data.alt or 'Image' }}" 
-             style="max-width: {{ block_data.maxWidth or '100%' }}; 
-                    height: auto; 
-                    border-radius: {{ block_data.borderRadius or '8px' }};
-                    {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
-                    {% if block_data.height %}height: {{ block_data.height }}{% if block_data.height|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
-        {% if block_data.caption %}
-            <p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
-                {% set segments = block_data.caption.split('**') %}
-                {% for segment in segments %}
-                    {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
-                {% endfor %}
-            </p>
+    {% if block_data and block_data.get('src') %}
+        {% set local_image_src = block_data.src %}
+        {% if block_data.src.startswith('/static_design_images/') %}
+            {% set local_image_src = 'file://' + (static_design_images_dir or 'static_design_images') + '/' + block_data.src.split('/')[-1] %}
         {% endif %}
-    </div>
+        <div class="image-block-wrapper" 
+             style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
+            <img src="{{ local_image_src }}" 
+                 alt="{{ block_data.alt or 'Image' }}" 
+                 style="max-width: {{ block_data.maxWidth or '100%' }}; 
+                        height: auto; 
+                        border-radius: {{ block_data.borderRadius or '8px' }};
+                        {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
+                        {% if block_data.height %}height: {{ block_data.height }}{% if block_data.height|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+            {% if block_data.caption %}
+                <p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
+                    {% set segments = block_data.caption.split('**') %}
+                    {% for segment in segments %}
+                        {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
+                    {% endfor %}
+                </p>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="image-block-error" style="text-align: center; margin: 16px 0; padding: 10px; background: #f0f0f0; color: #666; font-size: 12px;">
+            <p>Image data missing or invalid</p>
+        </div>
+    {% endif %}
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
 {% endif %}

@@ -1085,7 +1085,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Fix image path to work with backend proxy
-      const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
       const imageSrc = src?.startsWith('/static_design_images') ? `${CUSTOM_BACKEND_URL}${src}` : src;
       
       return (
