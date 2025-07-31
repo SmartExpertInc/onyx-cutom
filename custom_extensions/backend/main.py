@@ -1979,7 +1979,7 @@ class SectionBreakBlock(BaseContentBlock):
     style: Optional[str] = "solid"
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -3003,7 +3003,7 @@ class SectionBreakBlock(BaseContentBlock):
     style: Optional[str] = "solid"
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -5046,7 +5046,7 @@ class SectionBreakBlock(BaseContentBlock):
     style: Optional[str] = "solid"
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -6040,7 +6040,7 @@ class SectionBreakBlock(BaseContentBlock):
     style: Optional[str] = "solid"
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -7064,7 +7064,7 @@ class SectionBreakBlock(BaseContentBlock):
     style: Optional[str] = "solid"
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -8058,7 +8058,7 @@ class SectionBreakBlock(BaseContentBlock):
     style: Optional[str] = "solid"
 
 AnyContentBlockValue = Union[
-    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock
+    HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
 ]
 
 class PdfLessonDetails(BaseModel):
@@ -11556,6 +11556,9 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     component_name = row_dict.get("component_name")
     details_data = row_dict.get("microproduct_content")
     
+    # 🔍 BACKEND VIEW LOGGING: What we retrieved from database for view
+    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}, value: {json.dumps(details_data, indent=2) if details_data else 'None'}")
+    
     # Parse the details_data if it's a JSON string
     parsed_details = None
     if details_data:
@@ -11566,12 +11569,21 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
                 # Round hours to integers before returning
                 details_dict = round_hours_in_content(details_dict)
                 parsed_details = details_dict
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
             except (json.JSONDecodeError, TypeError) as e:
                 logger.error(f"Failed to parse microproduct_content JSON for project {project_id}: {e}")
                 parsed_details = None
         else:
             # Already a dict, just round hours
             parsed_details = round_hours_in_content(details_data)
+            logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
+    
+    # 🔍 BACKEND VIEW RESULT LOGGING
+    if parsed_details and 'contentBlocks' in parsed_details:
+        image_blocks = [block for block in parsed_details['contentBlocks'] if block.get('type') == 'image']
+        logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Final image blocks for frontend: {json.dumps(image_blocks, indent=2)}")
+    else:
+        logger.info(f"📋 [BACKEND VIEW] Project {project_id} - No contentBlocks in parsed_details or parsed_details is None")
     
     web_link_path = None
     pdf_link_path = None
@@ -16249,6 +16261,15 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             if design_row: db_microproduct_name_to_store = design_row["template_name"]
 
         content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
+        
+        # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
+        if content_to_store_for_db:
+            logger.info(f"💾 [BACKEND SAVE] Project {project_id} - Storing content to DB: {json.dumps(content_to_store_for_db, indent=2)}")
+            if 'contentBlocks' in content_to_store_for_db:
+                image_blocks = [block for block in content_to_store_for_db['contentBlocks'] if block.get('type') == 'image']
+                logger.info(f"💾 [BACKEND SAVE] Project {project_id} - Image blocks to store: {json.dumps(image_blocks, indent=2)}")
+        else:
+            logger.info(f"💾 [BACKEND SAVE] Project {project_id} - No content to store (content_to_store_for_db is None)")
 
         derived_product_type = None; derived_microproduct_type = None
         if project_update_data.design_template_id is not None:
@@ -16319,6 +16340,13 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
 
         db_content = row["microproduct_content"]
+        
+        # 🔍 BACKEND RETRIEVE LOGGING: What we got back from database
+        logger.info(f"📥 [BACKEND RETRIEVE] Project {project_id} - Retrieved content from DB: {json.dumps(db_content, indent=2) if db_content else 'None'}")
+        if db_content and isinstance(db_content, dict) and 'contentBlocks' in db_content:
+            image_blocks = [block for block in db_content['contentBlocks'] if block.get('type') == 'image']
+            logger.info(f"📥 [BACKEND RETRIEVE] Project {project_id} - Image blocks retrieved: {json.dumps(image_blocks, indent=2)}")
+        
         final_content_for_model: Optional[MicroProductContentType] = None
         if db_content and isinstance(db_content, dict):
             # Round hours to integers before parsing to prevent float validation errors
@@ -16326,10 +16354,13 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 db_content = round_hours_in_content(db_content)
             
             try:
+                logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - About to validate with component: {current_component_name}")
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
+                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
                     final_content_for_model = TextPresentationDetails(**db_content)
+                    logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
@@ -16340,8 +16371,17 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
                     final_content_for_model = TrainingPlanDetails(**db_content)
+                
+                # 🔍 BACKEND VALIDATION RESULT LOGGING
+                if final_content_for_model and hasattr(final_content_for_model, 'contentBlocks'):
+                    result_dict = final_content_for_model.model_dump(mode='json', exclude_none=True)
+                    logger.info(f"✅ [BACKEND VALIDATION RESULT] Project {project_id} - Final validated content: {json.dumps(result_dict, indent=2)}")
+                    if 'contentBlocks' in result_dict:
+                        result_image_blocks = [block for block in result_dict['contentBlocks'] if block.get('type') == 'image']
+                        logger.info(f"✅ [BACKEND VALIDATION RESULT] Project {project_id} - Final image blocks: {json.dumps(result_image_blocks, indent=2)}")
+                
             except Exception as e_parse:
-                logger.error(f"Error parsing updated content from DB (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
+                logger.error(f"❌ [BACKEND VALIDATION ERROR] Project {project_id} - Error parsing updated content from DB: {e_parse}", exc_info=not IS_PRODUCTION)
 
         return ProjectDB(
             id=row["id"], onyx_user_id=row["onyx_user_id"], project_name=row["project_name"],
