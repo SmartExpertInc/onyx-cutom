@@ -142,8 +142,8 @@ async def generate_pdf_from_html_template(
             document.head.appendChild(testElement);
         """)
         
-        # Set viewport to match frontend slide dimensions exactly
-        await page.setViewport({'width': 900, 'height': 1200})  # Match frontend slide width, allow for dynamic height
+        # Set viewport to match PDF slide dimensions exactly
+        await page.setViewport({'width': 1174, 'height': 1200})  # Match PDF slide width, allow for dynamic height
         
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
@@ -187,7 +187,7 @@ async def generate_pdf_from_html_template(
                             height: Math.ceil(finalHeight)
                         });
                         
-                        console.log(`Slide ${index + 1} height: ${finalHeight}px`);
+                        console.log(`Slide ${index + 1} height: ${finalHeight}px (width: 1174px)`);
                     } else {
                         // Fallback to minimum height
                         heights.push({
