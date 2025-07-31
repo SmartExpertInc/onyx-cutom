@@ -5,7 +5,7 @@ import os
 from fastapi import HTTPException
 import logging
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader, select_autoescape # Import Jinja2
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import random
 
 # Attempt to import settings (as before)
@@ -15,26 +15,22 @@ except ImportError:
     class DummySettings: CUSTOM_FRONTEND_URL = os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
     settings = DummySettings()
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 PDF_CACHE_DIR = Path("/tmp/pdf_cache")
 PDF_CACHE_DIR.mkdir(exist_ok=True)
 
-CHROME_EXEC_PATH = '/usr/bin/chromium' # Or use find_chrome_executable()
+CHROME_EXEC_PATH = '/usr/bin/chromium'
 
 # --- Setup Jinja2 Environment ---
-# Assuming your templates are in a 'templates' subdirectory relative to this file or your main.py
-TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates") # Adjust if main.py is not in app/
-if not os.path.exists(TEMPLATE_DIR): # Fallback if main.py is in app/ and templates is sibling to app/
+TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+if not os.path.exists(TEMPLATE_DIR):
     TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates")
-
 
 logger.info(f"PDF Template Directory expected at: {TEMPLATE_DIR}")
 if not os.path.isdir(TEMPLATE_DIR):
     logger.error(f"Jinja2 TEMPLATE_DIR does not exist: {TEMPLATE_DIR}")
-    # Create a dummy one for the service to not crash on import, but PDF will fail
     os.makedirs(TEMPLATE_DIR, exist_ok=True)
 
 jinja_env = Environment(
@@ -51,7 +47,6 @@ def shuffle_filter(seq):
         return seq
 
 jinja_env.filters['shuffle'] = shuffle_filter
-# --- End Jinja2 Setup ---
 
 async def generate_pdf_from_html_template(
     template_name: str,
@@ -80,7 +75,7 @@ async def generate_pdf_from_html_template(
             logger.info(f"PDF GEN Context Data['details']['details'] Type: {type(context_data.get('details', {}).get('details'))}")
             if isinstance(context_data.get('details', {}).get('details'), dict):
                 logger.info(f"PDF GEN ContentBlocks Type: {type(context_data.get('details', {}).get('details', {}).get('contentBlocks'))}")
-        html_content = template.render(**context_data) # Pass context_data as keyword arguments to template
+        html_content = template.render(**context_data)
         logger.info("HTML content rendered from template.")
     except Exception as e:
         logger.error(f"Error rendering HTML template '{template_name}': {e}", exc_info=True)
@@ -142,11 +137,11 @@ async def generate_pdf_from_html_template(
             document.head.appendChild(testElement);
         """)
         
-        # Set viewport to match PDF slide dimensions exactly
-        await page.setViewport({'width': 1174, 'height': 1200})  # Match PDF slide width, set initial height for rendering
+        # Set viewport to match PDF slide dimensions exactly - CRITICAL FIX
+        await page.setViewport({'width': 1174, 'height': 600})  # Start with minimum height
         
         # Set content from string - waitUntil option is important
-        await page.setContent(html_content)
+        await page.setContent(html_content, {'waitUntil': 'networkidle0'})
         logger.info("HTML content set in Pyppeteer page.")
         
         # Wait for fonts to load and rendering to complete
@@ -157,47 +152,61 @@ async def generate_pdf_from_html_template(
         """, timeout=10000)
         
         # Additional delay for complex rendering
-        await asyncio.sleep(3)
+        await asyncio.sleep(2)
 
-        # Calculate dynamic page heights for each slide
+        # *** CRITICAL FIX: Calculate accurate slide heights ***
         slide_heights = await page.evaluate("""
             () => {
                 const slidePages = document.querySelectorAll('.slide-page');
                 const heights = [];
                 
                 slidePages.forEach((slidePage, index) => {
-                    // Get the actual rendered height of each slide
-                    const slideContent = slidePage.querySelector('.slide-content > div');
+                    // Force a reflow to ensure accurate measurements
+                    slidePage.offsetHeight;
+                    
+                    // Get the actual computed height including all content
+                    const slideRect = slidePage.getBoundingClientRect();
+                    const slideComputedStyle = window.getComputedStyle(slidePage);
+                    
+                    // Get all child elements to find the true content bounds
+                    const slideContent = slidePage.querySelector('.slide-content');
                     if (slideContent) {
-                        const rect = slideContent.getBoundingClientRect();
-                        const computedStyle = window.getComputedStyle(slideContent);
-                        const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
-                        const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
-                        const marginTop = parseFloat(computedStyle.marginTop) || 0;
-                        const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+                        slideContent.offsetHeight; // Force reflow
+                        const contentRect = slideContent.getBoundingClientRect();
                         
-                        // Calculate total height including padding and margins
-                        const totalHeight = rect.height + paddingTop + paddingBottom + marginTop + marginBottom;
+                        // Find the actual bottom-most element
+                        const allElements = slideContent.querySelectorAll('*');
+                        let maxBottom = contentRect.bottom;
                         
-                        // Ensure minimum height of 600px (matching frontend) and maximum reasonable height
-                        const finalHeight = Math.max(600, Math.min(totalHeight, 2000));
+                        allElements.forEach(el => {
+                            const elRect = el.getBoundingClientRect();
+                            if (elRect.bottom > maxBottom) {
+                                maxBottom = elRect.bottom;
+                            }
+                        });
                         
-                        // Ensure we have a valid number
-                        const validHeight = Math.ceil(finalHeight) || 600;
+                        // Calculate total height from top of slide to bottom of content
+                        const totalHeight = maxBottom - slideRect.top;
+                        
+                        // Ensure minimum height of 600px and reasonable maximum
+                        const finalHeight = Math.max(600, Math.min(Math.ceil(totalHeight), 3000));
                         
                         heights.push({
                             index: index,
-                            height: validHeight
+                            height: finalHeight,
+                            contentHeight: Math.ceil(contentRect.height),
+                            maxBottom: Math.ceil(maxBottom - slideRect.top)
                         });
                         
-                        console.log(`Slide ${index + 1} height: ${validHeight}px (width: 1174px)`);
+                        console.log(`Slide ${index + 1}: Final height: ${finalHeight}px, Content: ${Math.ceil(contentRect.height)}px, MaxBottom: ${Math.ceil(maxBottom - slideRect.top)}px`);
                     } else {
-                        // Fallback to minimum height
                         heights.push({
                             index: index,
-                            height: 600
+                            height: 600,
+                            contentHeight: 600,
+                            maxBottom: 600
                         });
-                        console.log(`Slide ${index + 1} fallback height: 600px`);
+                        console.log(`Slide ${index + 1}: Fallback height: 600px`);
                     }
                 });
                 
@@ -205,12 +214,12 @@ async def generate_pdf_from_html_template(
             }
         """)
         
-        logger.info(f"Calculated slide heights: {slide_heights}")
+        logger.info(f"Calculated accurate slide heights: {slide_heights}")
 
-        # Validate slide heights before applying
+        # Validate and sanitize slide heights
         if not slide_heights or not isinstance(slide_heights, list) or len(slide_heights) == 0:
             logger.warning("No valid slide heights calculated, using fallback heights")
-            slide_heights = [{'index': i, 'height': 600} for i in range(10)]  # Fallback for 10 slides
+            slide_heights = [{'index': i, 'height': 600} for i in range(10)]
         
         # Ensure all heights are valid numbers
         for slide_height in slide_heights:
@@ -219,72 +228,129 @@ async def generate_pdf_from_html_template(
             elif not isinstance(slide_height['height'], (int, float)) or slide_height['height'] <= 0:
                 slide_height['height'] = 600
             else:
-                # Ensure height is within reasonable bounds
-                slide_height['height'] = max(600, min(int(slide_height['height']), 2000))
+                slide_height['height'] = max(600, min(int(slide_height['height']), 3000))
 
-        # Apply individual page heights using CSS custom properties
+        # *** CRITICAL FIX: Apply individual CSS page sizes ***
         await page.evaluate("""
             (heights) => {
+                // Create dynamic CSS for each page with exact dimensions
+                let dynamicCSS = '';
+                
                 heights.forEach((slideHeight, index) => {
-                    const slidePage = document.querySelectorAll('.slide-page')[index];
-                    if (slidePage && slideHeight && typeof slideHeight.height === 'number' && slideHeight.height > 0) {
-                        // Ensure height is a valid positive number
-                        const validHeight = Math.max(600, Math.min(slideHeight.height, 2000));
-                        
-                        // Set custom CSS property for page height
-                        slidePage.style.setProperty('--page-height', validHeight + 'px');
-                        slidePage.style.height = validHeight + 'px';
-                        
-                        // Also set the slide content height
-                        const slideContent = slidePage.querySelector('.slide-content');
-                        if (slideContent) {
-                            slideContent.style.height = validHeight + 'px';
+                    const height = Math.max(600, Math.min(slideHeight.height, 3000));
+                    
+                    // Create CSS for this specific page
+                    dynamicCSS += `
+                        .slide-page:nth-child(${index + 1}) {
+                            width: 1174px !important;
+                            height: ${height}px !important;
+                            min-height: ${height}px !important;
+                            max-height: ${height}px !important;
+                            page-break-after: always;
+                            page-break-inside: avoid;
+                            overflow: visible;
+                            box-sizing: border-box;
                         }
                         
-                        console.log(`Applied height ${validHeight}px to slide ${index + 1}`);
-                    } else {
-                        // Fallback to minimum height
-                        const fallbackHeight = 600;
-                        if (slidePage) {
-                            slidePage.style.setProperty('--page-height', fallbackHeight + 'px');
-                            slidePage.style.height = fallbackHeight + 'px';
-                            
-                            const slideContent = slidePage.querySelector('.slide-content');
-                            if (slideContent) {
-                                slideContent.style.height = fallbackHeight + 'px';
-                            }
+                        .slide-page:nth-child(${index + 1}) .slide-content {
+                            width: 1174px !important;
+                            height: ${height}px !important;
+                            min-height: ${height}px !important;
+                            max-height: ${height}px !important;
+                            overflow: visible;
+                            box-sizing: border-box;
                         }
-                        console.log(`Applied fallback height ${fallbackHeight}px to slide ${index + 1}`);
-                    }
+                        
+                        .slide-page:nth-child(${index + 1}) .slide,
+                        .slide-page:nth-child(${index + 1}) .title-slide,
+                        .slide-page:nth-child(${index + 1}) .big-image-left,
+                        .slide-page:nth-child(${index + 1}) .bullet-points,
+                        .slide-page:nth-child(${index + 1}) .process-steps,
+                        .slide-page:nth-child(${index + 1}) .challenges-solutions {
+                            width: 1174px !important;
+                            height: ${height}px !important;
+                            min-height: ${height}px !important;
+                            max-height: ${height}px !important;
+                            box-sizing: border-box;
+                        }
+                    `;
+                    
+                    console.log(`Applied CSS for slide ${index + 1}: ${height}px height`);
                 });
+                
+                // Remove last page break
+                if (heights.length > 0) {
+                    dynamicCSS += `
+                        .slide-page:nth-child(${heights.length}) {
+                            page-break-after: auto !important;
+                        }
+                    `;
+                }
+                
+                // Inject the dynamic CSS
+                const styleElement = document.createElement('style');
+                styleElement.textContent = dynamicCSS;
+                document.head.appendChild(styleElement);
+                
+                console.log('Dynamic CSS applied for individual page sizing');
             }
         """, slide_heights)
 
-        # Generate PDF with individual page sizing
-        logger.info("Generating PDF from HTML content with individual page heights...")
+        # Force a final reflow to ensure all styles are applied
+        await asyncio.sleep(1)
+        await page.evaluate("() => { document.body.offsetHeight; }")
+
+        # *** CRITICAL FIX: Generate PDF with proper page sizing ***
+        logger.info("Generating PDF with individual page heights...")
+         
+        # Calculate total document height for debugging
+        total_height = await page.evaluate("""
+            () => {
+                const slidePages = document.querySelectorAll('.slide-page');
+                let totalHeight = 0;
+                slidePages.forEach(slide => {
+                    totalHeight += slide.offsetHeight;
+                });
+                return totalHeight;
+            }
+        """)
+        
+        logger.info(f"Total document height: {total_height}px")
+        
+        # *** FINAL CRITICAL FIX: Remove width/height parameters to let CSS control everything ***
         await page.pdf({
             'path': temp_pdf_path, 
             'landscape': landscape,
             'printBackground': True,
             'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
-            'preferCSSPageSize': False, # Disable CSS page size to use our custom heights
+            'preferCSSPageSize': True,  # *** CRITICAL: Enable CSS page sizing ***
             'displayHeaderFooter': False,
             'omitBackground': False
+            # *** REMOVED: format, width, height - let CSS @page control everything ***
         })
-        logger.info(f"PDF generated from HTML successfully at {temp_pdf_path}")
+        
+        logger.info(f"PDF generated with dynamic page heights at {temp_pdf_path}")
 
-        if os.path.exists(pdf_path_in_cache): os.remove(pdf_path_in_cache)
+        if os.path.exists(pdf_path_in_cache): 
+            os.remove(pdf_path_in_cache)
         os.rename(temp_pdf_path, pdf_path_in_cache)
-        logger.info(f"PDF from HTML moved to cache: {pdf_path_in_cache}")
+        logger.info(f"PDF moved to cache: {pdf_path_in_cache}")
         return str(pdf_path_in_cache)
+        
     except Exception as e:
-        logger.error(f"Error during PDF generation from HTML: {e}", exc_info=True)
+        logger.error(f"Error during PDF generation: {e}", exc_info=True)
         if browser and browser.process and browser.process.returncode is not None:
-             logger.error(f"Browser process (HTML) exited with code: {browser.process.returncode}")
+             logger.error(f"Browser process exited with code: {browser.process.returncode}")
         if os.path.exists(temp_pdf_path):
-            try: os.remove(temp_pdf_path)
-            except OSError: pass
-        raise HTTPException(status_code=500, detail=f"PDF generation from HTML failed: {str(e)[:200]}")
+            try: 
+                os.remove(temp_pdf_path)
+            except OSError: 
+                pass
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)[:200]}")
+        
     finally:
-        if page and not page.isClosed(): await page.close()
-        if browser: await browser.close(); logger.info("Browser for HTML PDF closed.")
+        if page and not page.isClosed(): 
+            await page.close()
+        if browser: 
+            await browser.close()
+            logger.info("Browser for HTML PDF closed.")
