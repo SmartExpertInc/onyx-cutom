@@ -159,10 +159,9 @@ async def generate_pdf_from_html_template(
         logger.info("Generating PDF from HTML content...")
         await page.pdf({
             'path': temp_pdf_path, 
-            'format': 'A4', 
             'landscape': landscape,
             'printBackground': True,
-            'margin': {'top': '20px', 'right': '20px', 'bottom': '20px', 'left': '20px'},
+            'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
             'preferCSSPageSize': True,
             'displayHeaderFooter': False,
             'omitBackground': False
