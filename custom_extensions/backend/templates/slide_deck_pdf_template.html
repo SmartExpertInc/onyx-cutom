@@ -38,7 +38,7 @@
         
         /* Page setup for PDF - EXACT SLIDE MATCHING */
         @page {
-            size: 1174px auto; /* Width fixed to 1174px, height auto */
+            size: auto; /* Let content determine size */
             margin: 0;
             padding: 0;
         }
@@ -47,20 +47,29 @@
         .slide-page {
             width: 1174px; /* Updated slide width as requested */
             min-height: 600px; /* Minimum height from frontend templates */
-            height: auto; /* Allow height to grow with content */
+            height: fit-content; /* Fit exactly to content */
             page-break-after: always;
             page-break-inside: avoid;
             position: relative;
-            overflow: visible; /* Allow content to expand */
+            overflow: hidden; /* Prevent any overflow */
             margin: 0;
             padding: 0;
             background: transparent;
             display: block;
+            box-sizing: border-box;
+            /* Ensure no extra space */
+            line-height: 1;
+            font-size: 16px;
+        }
+        
+        /* Ensure last slide doesn't have page break */
+        .slide-page:last-child {
+            page-break-after: auto;
         }
         
         .slide-content {
             width: 100%;
-            height: auto;
+            height: fit-content;
             min-height: 600px;
             padding: 0;
             margin: 0;
@@ -69,6 +78,7 @@
             justify-content: center;
             align-items: center;
             background: transparent;
+            box-sizing: border-box;
         }
         
         /* Theme color definitions - EXACT FRONTEND MATCH */
@@ -99,7 +109,7 @@
         /* Common slide styles - EXACT FRONTEND MATCH */
         .slide {
             width: 100%;
-            height: auto;
+            height: fit-content;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             color: var(--content-color);
@@ -111,6 +121,7 @@
             padding: 80px; /* Exact frontend match */
             position: relative;
             margin: 0;
+            box-sizing: border-box;
         }
         
         /* Title styles - EXACT FRONTEND MATCH */
@@ -155,10 +166,11 @@
             align-items: center;
             padding: 80px; /* Exact frontend match */
             width: 100%;
-            height: auto;
+            height: fit-content;
             min-height: 600px; /* Exact frontend match */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
+            box-sizing: border-box;
         }
         
         .title-slide .slide-title {
@@ -197,13 +209,14 @@
         .big-image-left {
             min-height: 600px; /* Exact frontend match */
             width: 100%;
-            height: auto;
+            height: fit-content;
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
             display: flex;
             align-items: stretch;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
         
         .big-image-left .image-container {
@@ -218,7 +231,7 @@
         
         .big-image-left .image-placeholder {
             width: 100%;
-            height: 100%;
+            height: 350px; /* Fixed height for image placeholder */
             background-color: #e9ecef;
             border: 2px dashed #adb5bd;
             border-radius: 8px; /* Exact frontend match */
@@ -263,7 +276,7 @@
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         .bullet-points {
             width: 100%;
-            height: auto;
+            height: fit-content;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             display: flex;
@@ -274,6 +287,7 @@
             position: relative;
             font-family: 'Martel Sans', sans-serif;
             margin: 0;
+            box-sizing: border-box;
         }
         
         .bullet-points .slide-title {
@@ -363,7 +377,7 @@
         .process-steps {
             padding: 40px; /* Exact frontend match */
             width: 100%;
-            height: auto;
+            height: fit-content;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
@@ -371,6 +385,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            box-sizing: border-box;
         }
         
         .process-steps .slide-title {
@@ -418,7 +433,7 @@
         /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
         .challenges-solutions {
             width: 100%;
-            height: auto;
+            height: fit-content;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             padding: 60px; /* Exact frontend match */
@@ -428,6 +443,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            box-sizing: border-box;
         }
         
         .challenges-solutions .slide-title {
@@ -522,7 +538,7 @@
             display: flex;
             gap: 40px; /* Exact frontend match */
             width: 100%;
-            height: auto;
+            height: fit-content;
         }
         
         .column {

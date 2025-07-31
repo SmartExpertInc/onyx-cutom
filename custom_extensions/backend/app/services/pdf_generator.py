@@ -142,6 +142,9 @@ async def generate_pdf_from_html_template(
             document.head.appendChild(testElement);
         """)
         
+        # Set viewport to match slide width
+        await page.setViewport({'width': 1174, 'height': 800})
+        
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
         logger.info("HTML content set in Pyppeteer page.")
@@ -155,6 +158,35 @@ async def generate_pdf_from_html_template(
         
         # Additional delay for complex rendering
         await asyncio.sleep(3)
+        
+        # Debug: Check the actual dimensions of the content
+        content_info = await page.evaluate("""
+            () => {
+                const slides = document.querySelectorAll('.slide-page');
+                const info = {
+                    slideCount: slides.length,
+                    slideDimensions: []
+                };
+                
+                slides.forEach((slide, index) => {
+                    const rect = slide.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(slide);
+                    info.slideDimensions.push({
+                        index: index + 1,
+                        width: rect.width,
+                        height: rect.height,
+                        offsetHeight: slide.offsetHeight,
+                        scrollHeight: slide.scrollHeight,
+                        computedHeight: computedStyle.height,
+                        computedMinHeight: computedStyle.minHeight
+                    });
+                });
+                
+                return info;
+            }
+        """)
+        
+        logger.info(f"Content debug info: {content_info}")
 
         logger.info("Generating PDF from HTML content...")
         await page.pdf({
@@ -162,7 +194,7 @@ async def generate_pdf_from_html_template(
             'landscape': landscape,
             'printBackground': True,
             'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
-            'preferCSSPageSize': True,
+            'preferCSSPageSize': True, # Re-enable to use CSS @page sizing
             'displayHeaderFooter': False,
             'omitBackground': False
         })
