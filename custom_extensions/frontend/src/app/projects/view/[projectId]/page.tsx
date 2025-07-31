@@ -190,6 +190,17 @@ export default function ProjectInstanceViewPage() {
         throw new Error(errorDetail);
       }
       const instanceData: ProjectInstanceDetail = await instanceRes.json();
+      
+      // 🔍 FETCH DATA LOGGING: What we got back from backend
+      console.log('📥 [FETCH DATA] Received from backend:', {
+        instanceData,
+        instanceDataStringified: JSON.stringify(instanceData, null, 2),
+        details: instanceData.details,
+        detailsStringified: JSON.stringify(instanceData.details, null, 2),
+        componentName: instanceData.component_name,
+        hasDetails: !!instanceData.details
+      });
+      
       setProjectInstanceData(instanceData);
       
       if (typeof window !== 'undefined' && instanceData.sourceChatSessionId) {
@@ -228,6 +239,22 @@ export default function ProjectInstanceViewPage() {
         } else if (instanceData.component_name === COMPONENT_NAME_QUIZ) {
           setEditableData(copiedDetails as QuizData);
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+          console.log('📥 [TEXT PRESENTATION DATA] Setting editableData from backend details:', {
+            copiedDetails,
+            copiedDetailsStringified: JSON.stringify(copiedDetails, null, 2),
+            contentBlocks: copiedDetails.contentBlocks,
+            contentBlocksStringified: JSON.stringify(copiedDetails.contentBlocks, null, 2),
+            imageBlocksFromBackend: Array.isArray(copiedDetails.contentBlocks) 
+              ? copiedDetails.contentBlocks.filter((block: any) => block.type === 'image').map((block: any, index: number) => ({
+                  index,
+                  block,
+                  blockStringified: JSON.stringify(block, null, 2),
+                  blockKeys: Object.keys(block),
+                  isValid: !!(block.src && typeof block.src === 'string'),
+                  hasCorruptProps: 'style' in block
+                }))
+              : 'No content blocks or not array'
+          });
           setEditableData(copiedDetails as TextPresentationData);
         } else {
           setEditableData(copiedDetails); 
@@ -322,13 +349,40 @@ export default function ProjectInstanceViewPage() {
   }, [displayOptsSynced, projectId, editableData, projectInstanceData, searchParams]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
-    console.log('handleTextChange called with:', { path, newValue, currentEditableData: editableData });
+    console.log('🔄 [HANDLE TEXT CHANGE] Called with:', { 
+      path, 
+      newValueType: typeof newValue,
+      newValueLength: Array.isArray(newValue) ? newValue.length : 'N/A',
+      currentEditableData: editableData 
+    });
+
+    // 🔍 DETAILED ANALYSIS: If this is updating contentBlocks
+    if (path.length === 1 && path[0] === 'contentBlocks' && Array.isArray(newValue)) {
+      console.log('🔄 [CONTENT BLOCKS UPDATE] Detailed analysis:', {
+        totalBlocks: newValue.length,
+        blockTypes: newValue.map((block, index) => ({ index, type: block.type })),
+        imageBlocks: newValue.filter(block => block.type === 'image').map((block, index) => ({
+          arrayIndex: newValue.indexOf(block),
+          block,
+          blockStringified: JSON.stringify(block, null, 2),
+          blockKeys: Object.keys(block),
+          isValidImageBlock: !!(block.src && typeof block.src === 'string' && block.src.startsWith('/static_design_images/')),
+          hasCorruptProperties: 'style' in block
+        })),
+        fullNewValueStringified: JSON.stringify(newValue, null, 2)
+      });
+    }
 
     setEditableData(currentData => {
       if (currentData === null || currentData === undefined) {
         console.warn("Attempted to update null or undefined editableData at path:", path);
         return null;
       }
+
+      console.log('🔄 [BEFORE UPDATE] Current editableData:', {
+        currentDataStringified: JSON.stringify(currentData, null, 2),
+        currentContentBlocks: (currentData as any)?.contentBlocks || 'No contentBlocks'
+      });
 
       const newData = JSON.parse(JSON.stringify(currentData));
       let target: any = newData;
@@ -361,7 +415,19 @@ export default function ProjectInstanceViewPage() {
         return currentData;
       }
       
-      console.log('handleTextChange: Updated data:', JSON.stringify(newData, null, 2));
+      console.log('🔄 [AFTER UPDATE] Updated data:', {
+        newDataStringified: JSON.stringify(newData, null, 2),
+        updatedContentBlocks: (newData as any)?.contentBlocks || 'No contentBlocks',
+        imageBlocksInResult: Array.isArray((newData as any)?.contentBlocks) 
+          ? (newData as any).contentBlocks.filter((block: any) => block.type === 'image').map((block: any, index: number) => ({
+              index,
+              block,
+              blockStringified: JSON.stringify(block, null, 2),
+              isValid: !!(block.src && typeof block.src === 'string')
+            }))
+          : 'Not an array'
+      });
+      
       return newData;
     });
   }, [editableData]);
@@ -422,6 +488,25 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const payload = { microProductContent: editableData };
+      
+      // 🔍 CRITICAL SAVE LOGGING: What we're sending to backend
+      console.log('💾 [SAVE OPERATION] Sending to backend:', {
+        payload,
+        payloadStringified: JSON.stringify(payload, null, 2),
+        editableData,
+        editableDataStringified: JSON.stringify(editableData, null, 2),
+        imageBlocksBeforeSave: Array.isArray((editableData as any)?.contentBlocks) 
+          ? (editableData as any).contentBlocks.filter((block: any) => block.type === 'image').map((block: any, index: number) => ({
+              index,
+              block,
+              blockStringified: JSON.stringify(block, null, 2),
+              blockKeys: Object.keys(block),
+              isValid: !!(block.src && typeof block.src === 'string'),
+              hasCorruptProps: 'style' in block
+            }))
+          : 'No content blocks or not array'
+      });
+      
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
       });
@@ -447,8 +532,10 @@ export default function ProjectInstanceViewPage() {
         catch (e) { /* ignore */ }
         throw new Error(errorDetail);
       }
+      console.log('💾 [SAVE SUCCESS] Save completed, refetching data...');
       setIsEditing(false);
       await fetchPageData(projectId);
+      console.log('💾 [SAVE COMPLETE] Data refetched after save');
       alert(t('interface.projectView.contentSavedSuccessfully', 'Content saved successfully!'));
     } catch (err: any) {
       setSaveError(err.message || t('interface.projectView.couldNotSaveData', 'Could not save data.'));

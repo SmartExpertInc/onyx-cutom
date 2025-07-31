@@ -1491,7 +1491,22 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       console.log('🖼️ [IMAGE UPLOAD] Updated content blocks:', {
         totalBlocks: updatedContentBlocks.length,
         lastBlock: updatedContentBlocks[updatedContentBlocks.length - 1],
-        allBlockTypes: updatedContentBlocks.map(block => block.type)
+        allBlockTypes: updatedContentBlocks.map(block => block.type),
+        fullContentBlocksString: JSON.stringify(updatedContentBlocks, null, 2)
+      });
+      
+      // 🔍 CRITICAL SAVE TRACKING: Log exactly what we're passing to onTextChange
+      console.log('🔄 [CRITICAL SAVE] About to call onTextChange with:', {
+        path: ['contentBlocks'],
+        valueType: typeof updatedContentBlocks,
+        valueLength: updatedContentBlocks.length,
+        valueStringified: JSON.stringify(updatedContentBlocks, null, 2),
+        imageBlocks: updatedContentBlocks.filter(block => block.type === 'image').map((block, index) => ({
+          index: updatedContentBlocks.indexOf(block),
+          block,
+          blockStringified: JSON.stringify(block, null, 2),
+          blockKeys: Object.keys(block)
+        }))
       });
       
       onTextChange(['contentBlocks'], updatedContentBlocks);
