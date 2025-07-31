@@ -141,7 +141,7 @@ async def generate_pdf_from_html_template(
         await page.setViewport({'width': 1174, 'height': 600})  # Start with minimum height
         
         # Set content from string - waitUntil option is important
-        await page.setContent(html_content, {'waitUntil': 'networkidle0'})
+        await page.setContent(html_content, waitUntil='networkidle0')
         logger.info("HTML content set in Pyppeteer page.")
         
         # Wait for fonts to load and rendering to complete
