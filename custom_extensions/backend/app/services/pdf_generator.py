@@ -143,7 +143,7 @@ async def generate_pdf_from_html_template(
         """)
         
         # Set viewport to match PDF slide dimensions exactly
-        await page.setViewport({'width': 1174, 'height': 1200})  # Match PDF slide width, allow for dynamic height
+        await page.setViewport({'width': 1174})  # Match PDF slide width, allow for dynamic height
         
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
@@ -203,14 +203,36 @@ async def generate_pdf_from_html_template(
         
         logger.info(f"Calculated slide heights: {slide_heights}")
 
-        # Generate PDF with dynamic page sizing based on actual content
-        logger.info("Generating PDF from HTML content with dynamic heights...")
+        # Apply individual page heights using CSS custom properties
+        await page.evaluate("""
+            (heights) => {
+                heights.forEach((slideHeight, index) => {
+                    const slidePage = document.querySelectorAll('.slide-page')[index];
+                    if (slidePage) {
+                        // Set custom CSS property for page height
+                        slidePage.style.setProperty('--page-height', slideHeight.height + 'px');
+                        slidePage.style.height = slideHeight.height + 'px';
+                        
+                        // Also set the slide content height
+                        const slideContent = slidePage.querySelector('.slide-content');
+                        if (slideContent) {
+                            slideContent.style.height = slideHeight.height + 'px';
+                        }
+                        
+                        console.log(`Applied height ${slideHeight.height}px to slide ${index + 1}`);
+                    }
+                });
+            }
+        """, slide_heights)
+
+        # Generate PDF with individual page sizing
+        logger.info("Generating PDF from HTML content with individual page heights...")
         await page.pdf({
             'path': temp_pdf_path, 
             'landscape': landscape,
             'printBackground': True,
             'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
-            'preferCSSPageSize': True, # Use CSS @page sizing for dynamic heights
+            'preferCSSPageSize': False, # Disable CSS page size to use our custom heights
             'displayHeaderFooter': False,
             'omitBackground': False
         })
