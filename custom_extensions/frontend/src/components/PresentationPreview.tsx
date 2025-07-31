@@ -91,6 +91,13 @@ const EditableBlock: React.FC<{
   const [isEditMode, setIsEditMode] = useState(false);
   const [editContent, setEditContent] = useState(block.content);
 
+  // Sync editContent with block.content changes to prevent stale data
+  useEffect(() => {
+    if (!isEditMode) {
+      setEditContent(block.content);
+    }
+  }, [block.content, isEditMode]);
+
   const handleSave = () => {
     onContentChange(editContent);
     setIsEditMode(false);
@@ -115,25 +122,30 @@ const EditableBlock: React.FC<{
     case 'heading':
       const headingLevel = Math.min(block.level || 2, 6);
       const headingClasses = {
-        1: 'text-3xl md:text-4xl font-bold text-gray-900 mb-6',
-        2: 'text-2xl md:text-3xl font-bold text-gray-900 mb-4',
-        3: 'text-xl md:text-2xl font-semibold text-gray-800 mb-3',
-        4: 'text-lg md:text-xl font-semibold text-gray-800 mb-3',
-        5: 'text-base md:text-lg font-medium text-gray-700 mb-2',
-        6: 'text-sm md:text-base font-medium text-gray-700 mb-2'
+        1: 'text-3xl md:text-4xl font-bold text-gray-900 mb-6 break-words',
+        2: 'text-2xl md:text-3xl font-bold text-gray-900 mb-4 break-words',
+        3: 'text-xl md:text-2xl font-semibold text-gray-800 mb-3 break-words',
+        4: 'text-lg md:text-xl font-semibold text-gray-800 mb-3 break-words',
+        5: 'text-base md:text-lg font-medium text-gray-700 mb-2 break-words',
+        6: 'text-sm md:text-base font-medium text-gray-700 mb-2 break-words'
       }[headingLevel];
 
       if (isEditMode && isEditing) {
         return (
           <div className="mb-4">
-            <input
-              type="text"
+            <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleSave}
-              className="w-full p-2 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none text-lg font-semibold"
+              className="w-full p-2 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none text-lg font-semibold resize-none overflow-hidden break-words"
               autoFocus
+              rows={1}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = target.scrollHeight + 'px';
+              }}
             />
           </div>
         );
@@ -197,7 +209,7 @@ const EditableBlock: React.FC<{
           className={`group cursor-pointer ${isEditing ? 'hover:bg-gray-50 rounded-md p-2 -m-2' : ''}`}
           onClick={() => isEditing && setIsEditMode(true)}
         >
-          <p className="text-gray-700 leading-relaxed mb-4 text-base">
+          <p className="text-gray-700 leading-relaxed mb-4 text-base break-words whitespace-pre-wrap">
             {block.content}
             {isEditing && (
               <Edit3 className="inline-block w-4 h-4 ml-2 opacity-0 group-hover:opacity-50 transition-opacity" />
@@ -214,14 +226,19 @@ const EditableBlock: React.FC<{
               <li key={index} className="flex items-start">
                 <span className="text-blue-600 font-bold mr-3 mt-1">•</span>
                 {isEditing ? (
-                  <input
-                    type="text"
+                  <textarea
                     value={item}
                     onChange={(e) => onItemChange?.(index, e.target.value)}
-                    className="flex-1 p-1 border-b border-transparent hover:border-yellow-400 focus:border-yellow-400 focus:bg-yellow-50 outline-none transition-colors"
+                    className="flex-1 p-1 border-b border-transparent hover:border-yellow-400 focus:border-yellow-400 focus:bg-yellow-50 outline-none transition-colors resize-none overflow-hidden break-words"
+                    rows={1}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = target.scrollHeight + 'px';
+                    }}
                   />
                 ) : (
-                  <span className="text-gray-700 flex-1">{item}</span>
+                  <span className="text-gray-700 flex-1 break-words">{item}</span>
                 )}
               </li>
             ))}
@@ -304,7 +321,7 @@ const SlideDisplay: React.FC<{
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 min-h-[500px] relative overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-200 min-h-[500px] relative overflow-hidden break-words">
       {/* Slide header */}
       <div className="border-b border-gray-200 p-4 bg-gray-50">
         <div className="flex items-center justify-between">
@@ -325,10 +342,8 @@ const SlideDisplay: React.FC<{
 
       {/* Slide content */}
       <div className="relative">
-        {slide.imageInfo?.position === 'BACKGROUND' && (
-          <ImagePlaceholder imageInfo={slide.imageInfo} />
-        )}
-        <div className="relative z-10">
+        {/* Background images hidden in preview - preserved for finalization */}
+        <div className="relative p-6 space-y-4 break-words overflow-wrap-anywhere">
           {renderSlideContent()}
         </div>
       </div>
