@@ -143,7 +143,7 @@ async def generate_pdf_from_html_template(
         """)
         
         # Set viewport to match PDF slide dimensions exactly
-        await page.setViewport({'width': 1174})  # Match PDF slide width, allow for dynamic height
+        await page.setViewport({'width': 1174, 'height': 1200})  # Match PDF slide width, set initial height for rendering
         
         # Set content from string - waitUntil option is important
         await page.setContent(html_content)
@@ -171,29 +171,33 @@ async def generate_pdf_from_html_template(
                     if (slideContent) {
                         const rect = slideContent.getBoundingClientRect();
                         const computedStyle = window.getComputedStyle(slideContent);
-                        const paddingTop = parseFloat(computedStyle.paddingTop);
-                        const paddingBottom = parseFloat(computedStyle.paddingBottom);
-                        const marginTop = parseFloat(computedStyle.marginTop);
-                        const marginBottom = parseFloat(computedStyle.marginBottom);
+                        const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+                        const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+                        const marginTop = parseFloat(computedStyle.marginTop) || 0;
+                        const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
                         
                         // Calculate total height including padding and margins
                         const totalHeight = rect.height + paddingTop + paddingBottom + marginTop + marginBottom;
                         
-                        // Ensure minimum height of 600px (matching frontend)
-                        const finalHeight = Math.max(totalHeight, 600);
+                        // Ensure minimum height of 600px (matching frontend) and maximum reasonable height
+                        const finalHeight = Math.max(600, Math.min(totalHeight, 2000));
+                        
+                        // Ensure we have a valid number
+                        const validHeight = Math.ceil(finalHeight) || 600;
                         
                         heights.push({
                             index: index,
-                            height: Math.ceil(finalHeight)
+                            height: validHeight
                         });
                         
-                        console.log(`Slide ${index + 1} height: ${finalHeight}px (width: 1174px)`);
+                        console.log(`Slide ${index + 1} height: ${validHeight}px (width: 1174px)`);
                     } else {
                         // Fallback to minimum height
                         heights.push({
                             index: index,
                             height: 600
                         });
+                        console.log(`Slide ${index + 1} fallback height: 600px`);
                     }
                 });
                 
@@ -203,23 +207,54 @@ async def generate_pdf_from_html_template(
         
         logger.info(f"Calculated slide heights: {slide_heights}")
 
+        # Validate slide heights before applying
+        if not slide_heights or not isinstance(slide_heights, list) or len(slide_heights) == 0:
+            logger.warning("No valid slide heights calculated, using fallback heights")
+            slide_heights = [{'index': i, 'height': 600} for i in range(10)]  # Fallback for 10 slides
+        
+        # Ensure all heights are valid numbers
+        for slide_height in slide_heights:
+            if not isinstance(slide_height, dict) or 'height' not in slide_height:
+                slide_height['height'] = 600
+            elif not isinstance(slide_height['height'], (int, float)) or slide_height['height'] <= 0:
+                slide_height['height'] = 600
+            else:
+                # Ensure height is within reasonable bounds
+                slide_height['height'] = max(600, min(int(slide_height['height']), 2000))
+
         # Apply individual page heights using CSS custom properties
         await page.evaluate("""
             (heights) => {
                 heights.forEach((slideHeight, index) => {
                     const slidePage = document.querySelectorAll('.slide-page')[index];
-                    if (slidePage) {
+                    if (slidePage && slideHeight && typeof slideHeight.height === 'number' && slideHeight.height > 0) {
+                        // Ensure height is a valid positive number
+                        const validHeight = Math.max(600, Math.min(slideHeight.height, 2000));
+                        
                         // Set custom CSS property for page height
-                        slidePage.style.setProperty('--page-height', slideHeight.height + 'px');
-                        slidePage.style.height = slideHeight.height + 'px';
+                        slidePage.style.setProperty('--page-height', validHeight + 'px');
+                        slidePage.style.height = validHeight + 'px';
                         
                         // Also set the slide content height
                         const slideContent = slidePage.querySelector('.slide-content');
                         if (slideContent) {
-                            slideContent.style.height = slideHeight.height + 'px';
+                            slideContent.style.height = validHeight + 'px';
                         }
                         
-                        console.log(`Applied height ${slideHeight.height}px to slide ${index + 1}`);
+                        console.log(`Applied height ${validHeight}px to slide ${index + 1}`);
+                    } else {
+                        // Fallback to minimum height
+                        const fallbackHeight = 600;
+                        if (slidePage) {
+                            slidePage.style.setProperty('--page-height', fallbackHeight + 'px');
+                            slidePage.style.height = fallbackHeight + 'px';
+                            
+                            const slideContent = slidePage.querySelector('.slide-content');
+                            if (slideContent) {
+                                slideContent.style.height = fallbackHeight + 'px';
+                            }
+                        }
+                        console.log(`Applied fallback height ${fallbackHeight}px to slide ${index + 1}`);
                     }
                 });
             }
