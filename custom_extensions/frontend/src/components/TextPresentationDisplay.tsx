@@ -146,7 +146,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-green-50',
         borderColor: 'border-green-500',
-        textColor: 'text-black', // Changed from text-green-800 to text-black
+        textColor: 'text-black',
         iconColorClass: 'text-green-500',
         Icon: CheckCircle
       };
@@ -154,7 +154,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-yellow-50',
         borderColor: 'border-yellow-500',
-        textColor: 'text-black', // Changed from text-yellow-800 to text-black
+        textColor: 'text-black',
         iconColorClass: 'text-yellow-500',
         Icon: AlertTriangle
       };
@@ -162,7 +162,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-red-50',
         borderColor: 'border-red-500',
-        textColor: 'text-black', // Changed from text-red-800 to text-black
+        textColor: 'text-black',
         iconColorClass: 'text-red-500',
         Icon: XCircle
       };
@@ -171,7 +171,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
       return {
         bgColor: 'bg-blue-50',
         borderColor: 'border-blue-500',
-        textColor: 'text-black', // Changed from text-blue-800 to text-black
+        textColor: 'text-black',
         iconColorClass: 'text-blue-500',
         Icon: InfoIconLucide
       };
@@ -1089,7 +1089,18 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const currentWidth = width ? (typeof width === 'number' ? width : parseInt(width)) : 300;
       const imageWidth = Math.max(50, Math.min(currentWidth, 800)); // Constrain between 50px and 800px
       
-      // Ensure proper image path resolution
+      // Ensure proper image path resolution with null check
+      if (!src) {
+        return (
+          <div className={`my-4 ${alignmentClass}`}>
+            <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-center">
+              <p>Image source not available</p>
+              {caption && <p className="text-sm mt-2 italic">{caption}</p>}
+            </div>
+          </div>
+        );
+      }
+      
       const imageSrc = src.startsWith('/') ? src : `/${src}`;
       
       return (
