@@ -12,6 +12,13 @@
     
     <style>
         /* Reset and base styles */
+        html {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            min-height: auto;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -25,6 +32,8 @@
             margin: 0;
             padding: 0;
             background: transparent;
+            height: auto;
+            min-height: auto;
         }
         
         /* Page setup for PDF - EXACT SLIDE MATCHING */
@@ -46,12 +55,13 @@
             margin: 0;
             padding: 0;
             background: transparent;
+            display: block;
         }
         
         .slide-content {
             width: 100%;
-            height: 100%;
-            min-height: 100%;
+            height: auto;
+            min-height: 600px;
             padding: 0;
             margin: 0;
             display: flex;
@@ -89,7 +99,7 @@
         /* Common slide styles - EXACT FRONTEND MATCH */
         .slide {
             width: 100%;
-            height: 100%;
+            height: auto;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             color: var(--content-color);
@@ -145,7 +155,7 @@
             align-items: center;
             padding: 80px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: auto;
             min-height: 600px; /* Exact frontend match */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
@@ -187,7 +197,7 @@
         .big-image-left {
             min-height: 600px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: auto;
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
             display: flex;
@@ -253,7 +263,7 @@
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         .bullet-points {
             width: 100%;
-            height: 100%;
+            height: auto;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             display: flex;
@@ -353,7 +363,7 @@
         .process-steps {
             padding: 40px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: auto;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
@@ -408,7 +418,7 @@
         /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
         .challenges-solutions {
             width: 100%;
-            height: 100%;
+            height: auto;
             min-height: 600px; /* Exact frontend match */
             background-color: var(--bg-color);
             padding: 60px; /* Exact frontend match */
@@ -512,7 +522,7 @@
             display: flex;
             gap: 40px; /* Exact frontend match */
             width: 100%;
-            height: 100%;
+            height: auto;
         }
         
         .column {
