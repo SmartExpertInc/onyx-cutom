@@ -584,11 +584,15 @@
 {% elif block_type == 'image' %}
     <div class="image-block-wrapper" 
          style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
-        {% set image_src = block_data.src %}
-        {% if image_src.startswith('/static_design_images/') %}
-            {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/static_design_images/', '') %}
-        {% elif image_src.startswith('/') %}
-            {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/', '') %}
+        {% if block_data.src %}
+            {% set image_src = block_data.src %}
+            {% if image_src.startswith('/static_design_images/') %}
+                {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/static_design_images/', '') %}
+            {% elif image_src.startswith('/') %}
+                {% set image_src = 'file://' + pdf_context.static_images_path + image_src.replace('/', '') %}
+            {% endif %}
+        {% else %}
+            {% set image_src = '' %}
         {% endif %}
         <img src="{{ image_src }}" 
              alt="{{ block_data.alt or 'Image' }}" 

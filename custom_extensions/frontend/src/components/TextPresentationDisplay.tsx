@@ -950,7 +950,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     case 'alert': {
       const { alertType, title, text, iconName, backgroundColor, borderColor, textColor, iconColor, fontSize } = block as AlertBlock;
       const { bgColor, borderColor: defaultBorderColor, textColor: defaultTextColor, iconColorClass, Icon } = getAlertColors(alertType);
-      const effectiveTextColor = textColor || defaultTextColor;
+      // Force black text color for all alerts regardless of custom settings
+      const effectiveTextColor = 'black';
       
       // Use custom icon if specified, otherwise use default for alert type
       const AlertIconComponent = iconName ? iconMap[iconName] : Icon;
@@ -1083,6 +1084,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     }
     case 'image': {
       const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
+      console.log('🖼️ [One-Pager Image] Rendering image block:', { src, alt, caption, width, height, alignment, borderRadius, maxWidth });
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Calculate current width for scaling controls
@@ -1091,6 +1093,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Ensure proper image path resolution with null check
       if (!src) {
+        console.log('🖼️ [One-Pager Image] ❌ No src found in image block, showing fallback');
         return (
           <div className={`my-4 ${alignmentClass}`}>
             <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-center">
@@ -1101,12 +1104,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         );
       }
       
+      // Copy exact logic from design templates: use Next.js Image with unoptimized
       const imageSrc = src.startsWith('/') ? src : `/${src}`;
+      console.log('🖼️ [One-Pager Image] Final imageSrc:', imageSrc);
       
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
           <div className="inline-block relative">
-            {/* Use regular img tag for better compatibility in view mode */}
+            {/* Use img tag with exact same path logic as design templates */}
             <img
               src={imageSrc}
               alt={alt || 'Uploaded image'}
@@ -1117,13 +1122,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 borderRadius: borderRadius || '8px',
                 maxWidth: maxWidth || '100%'
               }}
-              onError={(e) => {
-                console.error('Image failed to load:', imageSrc);
-                // Fallback: try with different path resolution
-                const target = e.target as HTMLImageElement;
-                if (!target.src.includes('/api/custom-projects-backend/')) {
-                  target.src = `/api/custom-projects-backend${imageSrc}`;
-                }
+              onError={(e: any) => {
+                console.error('🖼️ [One-Pager Image] Image failed to load:', imageSrc);
               }}
             />
             
@@ -1346,6 +1346,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleImageUploaded = useCallback((imagePath: string) => {
+    console.log('🖼️ [One-Pager Image] Image uploaded successfully:', imagePath);
     if (onTextChange && dataToDisplay) {
       const newImageBlock: ImageBlock = {
         type: 'image',
@@ -1357,14 +1358,20 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         maxWidth: '100%'
       };
       
+      console.log('🖼️ [One-Pager Image] Created new image block:', newImageBlock);
       const updatedContentBlocks = [...(dataToDisplay.contentBlocks || []), newImageBlock];
+      console.log('🖼️ [One-Pager Image] Updated content blocks:', updatedContentBlocks);
       onTextChange(['contentBlocks'], updatedContentBlocks);
     }
   }, [onTextChange, dataToDisplay]);
 
   if (!dataToDisplay) {
+    console.log('🖼️ [One-Pager Image] ❌ No dataToDisplay received');
     return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
   }
+  
+  console.log('🖼️ [One-Pager Image] Component received dataToDisplay:', dataToDisplay);
+  console.log('🖼️ [One-Pager Image] Content blocks:', dataToDisplay.contentBlocks);
   
   const renderableItems: RenderableItem[] = [];
   let i = 0;
