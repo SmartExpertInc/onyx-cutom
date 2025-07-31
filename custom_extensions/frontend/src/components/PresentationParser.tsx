@@ -267,9 +267,41 @@ export function parsePresentationMarkdown(markdown: string): PresentationData {
   };
 }
 
+// Utility function to convert content blocks back to markdown
+export function contentBlocksToMarkdown(blocks: ContentBlock[]): string {
+  return blocks.map(block => {
+    switch (block.type) {
+      case 'heading':
+        const prefix = '#'.repeat(block.level || 2);
+        return `${prefix} ${block.content}`;
+      case 'paragraph':
+        return block.content;
+      case 'list':
+        return block.items?.map(item => `- ${item}`).join('\n') || '';
+      case 'image':
+        return block.content; // Preserve original image placeholder text
+      default:
+        return block.content;
+    }
+  }).join('\n\n');
+}
+
 // Utility function to convert parsed data back to markdown
 export function convertToMarkdown(presentationData: PresentationData): string {
   return presentationData.slides
-    .map(slide => slide.content)
+    .map(slide => {
+      // If the slide has parsed content that might have been edited, reconstruct from blocks
+      if (slide.parsedContent && slide.parsedContent.length > 0) {
+        const slideTitle = slide.title;
+        const layout = slide.layout ? ` \`${slide.layout}\`` : '';
+        const reconstructedContent = contentBlocksToMarkdown(slide.parsedContent);
+        
+        // Reconstruct the slide with title and content
+        return `**${slideTitle}**${layout}\n\n${reconstructedContent}`;
+      }
+      
+      // Fallback to original content if no parsed content
+      return slide.content;
+    })
     .join('\n\n---\n\n');
 } 

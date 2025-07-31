@@ -7,7 +7,8 @@ import {
   ContentBlock, 
   ImageInfo,
   parsePresentationMarkdown,
-  convertToMarkdown 
+  convertToMarkdown,
+  contentBlocksToMarkdown
 } from './PresentationParser';
 import { useLanguage } from '../contexts/LanguageContext';
 import { 
@@ -138,13 +139,25 @@ const EditableBlock: React.FC<{
               onChange={(e) => setEditContent(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleSave}
-              className="w-full p-2 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none text-lg font-semibold resize-none overflow-hidden break-words"
+              className="w-full p-2 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none text-lg font-semibold resize-none break-words min-h-[2.5rem]"
               autoFocus
-              rows={1}
+              rows={Math.max(1, Math.ceil(editContent.length / 50))}
+              style={{
+                height: 'auto',
+                minHeight: '2.5rem'
+              }}
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = 'auto';
-                target.style.height = target.scrollHeight + 'px';
+                target.style.height = Math.max(40, target.scrollHeight) + 'px';
+              }}
+              onFocus={(e) => {
+                // Ensure proper sizing on focus
+                const target = e.target as HTMLTextAreaElement;
+                setTimeout(() => {
+                  target.style.height = 'auto';
+                  target.style.height = Math.max(40, target.scrollHeight) + 'px';
+                }, 0);
               }}
             />
           </div>
@@ -197,8 +210,26 @@ const EditableBlock: React.FC<{
               onChange={(e) => setEditContent(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleSave}
-              className="w-full p-3 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none min-h-[100px] leading-relaxed"
+              className="w-full p-3 border border-yellow-400 rounded-md bg-yellow-50 focus:ring-1 focus:ring-yellow-500 outline-none leading-relaxed resize-none break-words min-h-[4rem]"
               autoFocus
+              rows={Math.max(2, Math.ceil(editContent.length / 60))}
+              style={{
+                height: 'auto',
+                minHeight: '4rem'
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.max(64, target.scrollHeight) + 'px';
+              }}
+              onFocus={(e) => {
+                // Ensure proper sizing on focus
+                const target = e.target as HTMLTextAreaElement;
+                setTimeout(() => {
+                  target.style.height = 'auto';
+                  target.style.height = Math.max(64, target.scrollHeight) + 'px';
+                }, 0);
+              }}
             />
           </div>
         );
@@ -229,12 +260,23 @@ const EditableBlock: React.FC<{
                   <textarea
                     value={item}
                     onChange={(e) => onItemChange?.(index, e.target.value)}
-                    className="flex-1 p-1 border-b border-transparent hover:border-yellow-400 focus:border-yellow-400 focus:bg-yellow-50 outline-none transition-colors resize-none overflow-hidden break-words"
-                    rows={1}
+                    className="flex-1 p-1 border-b border-transparent hover:border-yellow-400 focus:border-yellow-400 focus:bg-yellow-50 outline-none transition-colors resize-none break-words min-h-[1.5rem]"
+                    rows={Math.max(1, Math.ceil(item.length / 40))}
+                    style={{
+                      height: 'auto',
+                      minHeight: '1.5rem'
+                    }}
                     onInput={(e) => {
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
-                      target.style.height = target.scrollHeight + 'px';
+                      target.style.height = Math.max(24, target.scrollHeight) + 'px';
+                    }}
+                    onFocus={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      setTimeout(() => {
+                        target.style.height = 'auto';
+                        target.style.height = Math.max(24, target.scrollHeight) + 'px';
+                      }, 0);
                     }}
                   />
                 ) : (
@@ -268,7 +310,17 @@ const SlideDisplay: React.FC<{
     const updatedBlocks = [...slide.parsedContent];
     updatedBlocks[blockIndex] = { ...updatedBlocks[blockIndex], content: newContent };
     
-    const updatedSlide = { ...slide, parsedContent: updatedBlocks };
+    // Reconstruct the slide content from updated blocks
+    const reconstructedContent = contentBlocksToMarkdown(updatedBlocks);
+    const slideTitle = slide.title;
+    const layout = slide.layout ? ` \`${slide.layout}\`` : '';
+    const newSlideContent = `**${slideTitle}**${layout}\n\n${reconstructedContent}`;
+    
+    const updatedSlide = { 
+      ...slide, 
+      parsedContent: updatedBlocks,
+      content: newSlideContent // Update the raw content too
+    };
     onSlideChange(updatedSlide);
   };
 
@@ -281,7 +333,17 @@ const SlideDisplay: React.FC<{
       updatedItems[itemIndex] = newContent;
       updatedBlocks[blockIndex] = { ...listBlock, items: updatedItems };
       
-      const updatedSlide = { ...slide, parsedContent: updatedBlocks };
+      // Reconstruct the slide content from updated blocks
+      const reconstructedContent = contentBlocksToMarkdown(updatedBlocks);
+      const slideTitle = slide.title;
+      const layout = slide.layout ? ` \`${slide.layout}\`` : '';
+      const newSlideContent = `**${slideTitle}**${layout}\n\n${reconstructedContent}`;
+      
+      const updatedSlide = { 
+        ...slide, 
+        parsedContent: updatedBlocks,
+        content: newSlideContent // Update the raw content too
+      };
       onSlideChange(updatedSlide);
     }
   };
@@ -290,20 +352,114 @@ const SlideDisplay: React.FC<{
   const renderSlideContent = () => {
     const { layout, parsedContent } = slide;
     
-    // Apply layout-specific styling
+    // Special handling for two-column layout
+    if (layout === 'two-column') {
+      const headings = parsedContent.filter(block => block.type === 'heading');
+      const otherContent = parsedContent.filter(block => block.type !== 'heading');
+      const midPoint = Math.ceil(otherContent.length / 2);
+      const leftContent = otherContent.slice(0, midPoint);
+      const rightContent = otherContent.slice(midPoint);
+      
+      return (
+        <div className="p-6">
+          {/* Main headings */}
+          {headings.map((block, index) => (
+            <EditableBlock
+              key={`heading-${index}`}
+              block={block}
+              isEditing={isEditing}
+              onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
+              onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+            />
+          ))}
+          
+          {/* Two column content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+            <div className="space-y-4">
+              {leftContent.map((block, index) => (
+                <EditableBlock
+                  key={`left-${index}`}
+                  block={block}
+                  isEditing={isEditing}
+                  onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
+                  onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+                />
+              ))}
+            </div>
+            <div className="space-y-4">
+              {rightContent.map((block, index) => (
+                <EditableBlock
+                  key={`right-${index}`}
+                  block={block}
+                  isEditing={isEditing}
+                  onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
+                  onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // Special handling for process-steps layout
+    if (layout === 'process-steps') {
+      const headings = parsedContent.filter(block => block.type === 'heading');
+      const lists = parsedContent.filter(block => block.type === 'list');
+      const paragraphs = parsedContent.filter(block => block.type === 'paragraph');
+      
+      return (
+        <div className="p-6">
+          {/* Main headings */}
+          {headings.map((block, index) => (
+            <EditableBlock
+              key={`heading-${index}`}
+              block={block}
+              isEditing={isEditing}
+              onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
+              onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+            />
+          ))}
+          
+          {/* Process steps */}
+          <div className="space-y-6 mt-6">
+            {lists.map((block, index) => (
+              <div key={`step-${index}`} className="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-500">
+                <EditableBlock
+                  block={block}
+                  isEditing={isEditing}
+                  onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
+                  onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+                />
+              </div>
+            ))}
+            {paragraphs.map((block, index) => (
+              <div key={`para-${index}`} className="bg-gray-50 rounded-lg p-4 border-l-4 border-green-500">
+                <EditableBlock
+                  block={block}
+                  isEditing={isEditing}
+                  onContentChange={(newContent) => updateSlideContent(parsedContent.indexOf(block), newContent)}
+                  onItemChange={(itemIndex, newContent) => updateListItem(parsedContent.indexOf(block), itemIndex, newContent)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
+    // Default layout with improved spacing
     const layoutClasses = {
       'title-slide': 'text-center py-16',
       'hero-title-slide': 'text-center py-20 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg',
       'big-image-left': 'grid grid-cols-1 md:grid-cols-2 gap-8 items-start',
       'big-image-right': 'grid grid-cols-1 md:grid-cols-2 gap-8 items-start',
-      'bullet-points': '',
+      'bullet-points': 'space-y-4',
       'bullet-points-right': 'grid grid-cols-1 md:grid-cols-2 gap-8',
-      'two-column': 'grid grid-cols-1 md:grid-cols-2 gap-8',
-      'process-steps': 'space-y-6',
       'big-numbers': 'text-center space-y-8',
       'four-box-grid': 'grid grid-cols-1 md:grid-cols-2 gap-6',
-      'content-slide': ''
-    }[layout] || '';
+      'content-slide': 'space-y-4'
+    }[layout] || 'space-y-4';
 
     return (
       <div className={`${layoutClasses} p-6`}>
