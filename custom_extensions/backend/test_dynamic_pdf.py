@@ -99,24 +99,6 @@ test_slides = [
         }
     },
     {
-        "templateId": "content-slide",
-        "props": {
-            "title": "The Beginning of Our Journey",
-            "content": "Our company was founded in [Year] by [Founder's Name] with a vision to [Founder's Vision]. The initial goal was to [Initial Goal], which laid the foundation for our growth and success.",
-            "alignment": "left",
-            "backgroundImage": ""
-        }
-    },
-    {
-        "templateId": "content-slide",
-        "props": {
-            "title": "Our Mission Statement",
-            "content": "We are committed to delivering exceptional value to our customers through innovative solutions and unwavering dedication to quality. Our mission drives everything we do, from product development to customer service.",
-            "alignment": "center",
-            "backgroundImage": ""
-        }
-    },
-    {
         "templateId": "four-box-grid",
         "props": {
             "title": "Voices from Our Team",
