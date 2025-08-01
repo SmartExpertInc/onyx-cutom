@@ -244,6 +244,7 @@
         
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
+/* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
 .bullet-points {
     width: 100%;                      /* CRITICAL: Ensures full width occupation in PDF */
     min-height: 600px;
@@ -282,14 +283,12 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    height: 507px;
-    width: 507px;
-
 }
 
 .bullet-points .placeholder {
-    width: 507px;
-    height: 507px;
+    width: 100%;
+    height: 0;                        /* FIXED: Use padding-bottom technique instead of aspect-ratio */
+    padding-bottom: 100%;             /* FIXED: Creates 1:1 aspect ratio (100% of width) */
     background-color: #e9ecef;
     border: 2px dashed #adb5bd;
     border-radius: 8px;
@@ -297,11 +296,25 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 20px;                    /* This will be overridden by padding-bottom */
     text-align: center;
     color: #6c757d;
     margin: 0 auto;
-    max-width: none;                  /* FIXED: Ensure placeholder can grow to full container size */
+    max-width: none;
+    position: relative;               /* FIXED: Needed for absolute positioning of content */
+}
+
+.bullet-points .placeholder-content {     /* FIXED: New wrapper for placeholder content */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
 .bullet-points .bullets-container {
@@ -869,7 +882,8 @@
                     <div class="content-text" style="text-align: left;">{{ slide.props.subtitle or 'Click to add content' }}</div>
                 </div>
                 
-                {% elif slide.templateId == 'bullet-points' %}
+                /* FIXED HTML TEMPLATE */
+{% elif slide.templateId == 'bullet-points' %}
                 <div class="bullet-points">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="content-row">
