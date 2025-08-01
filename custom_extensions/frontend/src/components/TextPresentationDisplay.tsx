@@ -1571,6 +1571,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 {caption}
               </p>
             )}
+            
+            {/* Settings Modal for inline layout */}
+            <BlockSettingsModal
+              isOpen={showSettings}
+              onClose={() => setShowSettings(false)}
+              block={block}
+              onTextChange={onTextChange}
+              basePath={basePath}
+            />
           </div>
         );
       } else if (layoutMode === 'side-by-side-left' || layoutMode === 'side-by-side-right') {
@@ -1645,6 +1654,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 {caption}
               </p>
             )}
+            
+            {/* Settings Modal for side-by-side layout */}
+            <BlockSettingsModal
+              isOpen={showSettings}
+              onClose={() => setShowSettings(false)}
+              block={block}
+              onTextChange={onTextChange}
+              basePath={basePath}
+            />
           </div>
         );
       }
