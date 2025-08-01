@@ -582,18 +582,47 @@
          <div class="section-break-block none"></div>
     {% endif %}
 {% elif block_type == 'image' %}
+    <!-- DEBUG: Image block data -->
+    <!-- block_data.alignment: {{ block_data.alignment }} -->
+    <!-- block_data.maxWidth: {{ block_data.maxWidth }} -->
+    <!-- block_data.width: {{ block_data.width }} -->
+    <!-- block_data.height: {{ block_data.height }} -->
+    <!-- block_data.borderRadius: {{ block_data.borderRadius }} -->
+    <!-- block_data.src: {{ block_data.src[:50] }}... -->
+    
     <div class="image-block-wrapper" 
          style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
         {% set image_src = block_data.src %}
+        {% set img_style = "max-width: " + (block_data.maxWidth or '100%') + ";" %}
+        {% if block_data.width %}
+            {% set img_style = img_style + " width: " + block_data.width %}
+            {% if block_data.width|string|regex_match('^\d+$') %}
+                {% set img_style = img_style + "px" %}
+            {% endif %}
+            {% set img_style = img_style + ";" %}
+        {% endif %}
+        {% set img_style = img_style + " height: " %}
+        {% if block_data.height %}
+            {% set img_style = img_style + block_data.height %}
+            {% if block_data.height|string|regex_match('^\d+$') %}
+                {% set img_style = img_style + "px" %}
+            {% endif %}
+        {% else %}
+            {% set img_style = img_style + "auto" %}
+        {% endif %}
+        {% set img_style = img_style + "; border-radius: " + (block_data.borderRadius or '8px') + ";" %}
+        {% if block_data.alignment == 'left' %}
+            {% set img_style = img_style + " margin-left: 0; margin-right: auto;" %}
+        {% elif block_data.alignment == 'right' %}
+            {% set img_style = img_style + " margin-left: auto; margin-right: 0;" %}
+        {% else %}
+            {% set img_style = img_style + " margin-left: auto; margin-right: auto;" %}
+        {% endif %}
+        {% set img_style = img_style + " display: block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %}
+        
         <img src="{{ image_src }}" 
              alt="{{ block_data.alt or 'Image' }}" 
-             style="max-width: {{ block_data.maxWidth or '100%' }}; 
-                    {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width|string|regex_match('^\d+$') %}px{% endif %};{% endif %}
-                    height: {% if block_data.height %}{{ block_data.height }}{% if block_data.height|string|regex_match('^\d+$') %}px{% endif %}{% else %}auto{% endif %};
-                    border-radius: {{ block_data.borderRadius or '8px' }};
-                    {% if block_data.alignment == 'left' %}margin-left: 0; margin-right: auto;{% elif block_data.alignment == 'right' %}margin-left: auto; margin-right: 0;{% else %}margin-left: auto; margin-right: auto;{% endif %}
-                    display: block;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
+             style="{{ img_style }}" 
              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
         <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
             {{ block_data.alt or 'Image not available' }}

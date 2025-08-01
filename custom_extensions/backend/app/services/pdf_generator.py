@@ -106,6 +106,7 @@ async def generate_pdf_from_html_template(
                 if block.get('type') == 'image':
                     original_src = block.get('src', '')
                     logger.info(f"PDF GEN: Processing image block with src: {original_src}")
+                    logger.info(f"PDF GEN: Image attributes - alignment: {block.get('alignment')}, maxWidth: {block.get('maxWidth')}, width: {block.get('width')}, height: {block.get('height')}, borderRadius: {block.get('borderRadius')}")
                     
                     # Only transform if not already a data URL
                     if original_src and not original_src.startswith('data:'):
@@ -140,6 +141,7 @@ async def generate_pdf_from_html_template(
                                         
                                         block['src'] = data_url
                                         logger.info(f"PDF GEN: Successfully converted to data URL")
+                                        logger.info(f"PDF GEN: Final image attributes - alignment: {block.get('alignment')}, maxWidth: {block.get('maxWidth')}, width: {block.get('width')}, height: {block.get('height')}, borderRadius: {block.get('borderRadius')}")
                                         
                                 except Exception as e:
                                     logger.error(f"PDF GEN: Failed to read image file {full_path}: {e}")
@@ -185,6 +187,7 @@ async def generate_pdf_from_html_template(
                             logger.info(f"PDF GEN: Keeping original src: {original_src}")
                     else:
                         logger.info(f"PDF GEN: Already transformed or no src: {original_src}")
+                        logger.info(f"PDF GEN: Final image attributes - alignment: {block.get('alignment')}, maxWidth: {block.get('maxWidth')}, width: {block.get('width')}, height: {block.get('height')}, borderRadius: {block.get('borderRadius')}")
         
         html_content = template.render(**context_data) # Pass context_data as keyword arguments to template
         logger.info("HTML content rendered from template.")
