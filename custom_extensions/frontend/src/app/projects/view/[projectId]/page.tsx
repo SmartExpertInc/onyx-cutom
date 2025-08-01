@@ -1032,7 +1032,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
@@ -1062,6 +1062,32 @@ export default function ProjectInstanceViewPage() {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Edit button for editable content types */}
+            {canEditContent && (
+              <button
+                onClick={handleToggleEdit}
+                disabled={isSaving}
+                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center ${
+                  isEditing 
+                    ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
+                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
+                }`}
+                title={isEditing ? t('interface.projectView.save', 'Save changes') : t('interface.projectView.edit', 'Edit content')}
+              >
+                {isEditing ? (
+                  <>
+                    <Save size={16} className="mr-2" />
+                    {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
+                  </>
+                ) : (
+                  <>
+                    <Edit size={16} className="mr-2" />
+                    {t('interface.projectView.edit', 'Edit')}
+                  </>
+                )}
+              </button>
+            )}
+            
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
                   <button
                     onClick={handlePdfDownload}
@@ -1178,27 +1204,6 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
           </div>
-
-          {/* Add Edit button here */}
-          {canEditContent && (
-            <button
-              onClick={handleToggleEdit}
-              className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white ${isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center`}
-              disabled={isSaving}
-            >
-              {isEditing ? (
-                <>
-                  <Save size={16} className="mr-2" />
-                  {t('interface.projectView.save', 'Save')}
-                </>
-              ) : (
-                <>
-                  <Edit size={16} className="mr-2" />
-                  {t('interface.projectView.edit', 'Edit')}
-                </>
-              )}
-            </button>
-          )}
         </div>
 
         {saveError &&
