@@ -189,6 +189,11 @@ interface RenderBlockProps {
   onTextChange?: (path: (string | number)[], newValue: any) => void;
   basePath?: (string | number)[];
   suppressRecommendationStripe?: boolean;
+  contentBlockIndex?: number;
+  onMoveBlockUp?: (index: number) => void;
+  onMoveBlockDown?: (index: number) => void;
+  isFirstBlock?: boolean;
+  isLastBlock?: boolean;
 }
 
 // Modern Settings Modal Component
@@ -649,7 +654,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     block, depth = 0, isFirstInBox, isLastInBox, 
     isMiniSectionHeadline, isListItemContent,
     isEditing, onTextChange, basePath = [],
-    suppressRecommendationStripe
+    suppressRecommendationStripe, contentBlockIndex,
+    onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock
   } = props;
 
   const [showSettings, setShowSettings] = useState(false);
@@ -712,6 +718,32 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       return (
         <div className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'}`}>
+          {/* Arrow buttons for reordering */}
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <button
+                onClick={() => onMoveBlockUp(contentBlockIndex)}
+                disabled={isFirstBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveBlockDown(contentBlockIndex)}
+                disabled={isLastBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          )}
+          
           <Tag
             className={finalClassName}
             style={{ 
@@ -756,6 +788,32 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         const currentRawText = (block as ParagraphBlock).text;
         return (
           <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
+            {/* Arrow buttons for reordering */}
+            {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+                <button
+                  onClick={() => onMoveBlockUp(contentBlockIndex)}
+                  disabled={isFirstBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move up"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => onMoveBlockDown(contentBlockIndex)}
+                  disabled={isLastBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move down"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
             <textarea 
               value={currentRawText} 
               onChange={(e) => handleInputChangeEvent(fieldPath('text'), e)}
@@ -800,7 +858,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       return (
         <div className={`${containerClasses.trim()} group relative`}>
-          {/* No settings button for lists */}
+          {/* Arrow buttons for reordering */}
+          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <button
+                onClick={() => onMoveBlockUp(contentBlockIndex)}
+                disabled={isFirstBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveBlockDown(contentBlockIndex)}
+                disabled={isLastBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          )}
           
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
@@ -943,6 +1025,32 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       return (
         <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative`} role="alert">
+          {/* Arrow buttons for reordering */}
+          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <button
+                onClick={() => onMoveBlockUp(contentBlockIndex)}
+                disabled={isFirstBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveBlockDown(contentBlockIndex)}
+                disabled={isLastBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          )}
+          
           <div className="flex">
             <div className="py-1">
               <AlertIconComponent className={`h-4 w-4 ${iconColorClass} mr-2`} style={{ color: iconColor || undefined }} />
@@ -1148,6 +1256,32 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
+          {/* Arrow buttons for reordering */}
+          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <button
+                onClick={() => onMoveBlockUp(contentBlockIndex)}
+                disabled={isFirstBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveBlockDown(contentBlockIndex)}
+                disabled={isLastBlock}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          )}
+          
           <div className="inline-block relative">
             {/* Use regular img tag for better compatibility in view mode */}
             <img
@@ -1615,30 +1749,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
                   <div key={index} className={reorderClasses}>
-                    {isEditing && originalHeadlineIndex !== -1 && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
-                        <button
-                          onClick={() => handleMoveBlockUp(originalHeadlineIndex)}
-                          disabled={originalHeadlineIndex === 0}
-                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Move up"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleMoveBlockDown(originalHeadlineIndex)}
-                          disabled={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Move down"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
+
                     <section className="mb-4 p-3 rounded-md text-left">
                       {!item._skipRenderHeadline && (
                         <RenderBlock
@@ -1646,6 +1757,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           basePath={['contentBlocks', originalHeadlineIndex]}
                           isEditing={isEditing}
                           onTextChange={onTextChange}
+                          contentBlockIndex={originalHeadlineIndex}
+                          onMoveBlockUp={handleMoveBlockUp}
+                          onMoveBlockDown={handleMoveBlockDown}
+                          isFirstBlock={originalHeadlineIndex === 0}
+                          isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                         />
                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
@@ -1663,6 +1779,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   basePath={['contentBlocks', originalMiniHeadlineIndex]}
                                   isEditing={isEditing}
                                   onTextChange={onTextChange}
+                                  contentBlockIndex={originalMiniHeadlineIndex}
+                                  onMoveBlockUp={handleMoveBlockUp}
+                                  onMoveBlockDown={handleMoveBlockDown}
+                                  isFirstBlock={originalMiniHeadlineIndex === 0}
+                                  isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -1670,6 +1791,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   basePath={['contentBlocks', originalMiniListIndex]}
                                   isEditing={isEditing}
                                   onTextChange={onTextChange}
+                                  contentBlockIndex={originalMiniListIndex}
+                                  onMoveBlockUp={handleMoveBlockUp}
+                                  onMoveBlockDown={handleMoveBlockDown}
+                                  isFirstBlock={originalMiniListIndex === 0}
+                                  isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                                 />
                               </div>
                             );
@@ -1682,6 +1808,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                               basePath={['contentBlocks', originalSubIndex]}
                               isEditing={isEditing}
                               onTextChange={onTextChange}
+                              contentBlockIndex={originalSubIndex}
+                              onMoveBlockUp={handleMoveBlockUp}
+                              onMoveBlockDown={handleMoveBlockDown}
+                              isFirstBlock={originalSubIndex === 0}
+                              isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                             />;
                           }
                         })}
@@ -1696,30 +1827,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
                   <div key={index} className={reorderClasses}>
-                    {isEditing && originalHeadlineIndex !== -1 && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
-                        <button
-                          onClick={() => handleMoveBlockUp(originalHeadlineIndex)}
-                          disabled={originalHeadlineIndex === 0}
-                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Move up"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleMoveBlockDown(originalHeadlineIndex)}
-                          disabled={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Move down"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
+
                     <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
                       <RenderBlock
                         block={item.headline}
@@ -1728,6 +1836,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         basePath={['contentBlocks', originalHeadlineIndex]}
                         isEditing={isEditing}
                         onTextChange={onTextChange}
+                        contentBlockIndex={originalHeadlineIndex}
+                        onMoveBlockUp={handleMoveBlockUp}
+                        onMoveBlockDown={handleMoveBlockDown}
+                        isFirstBlock={originalHeadlineIndex === 0}
+                        isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                       />
                       <RenderBlock
                         block={item.list}
@@ -1735,6 +1848,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         basePath={['contentBlocks', originalListIndex]}
                         isEditing={isEditing}
                         onTextChange={onTextChange}
+                        contentBlockIndex={originalListIndex}
+                        onMoveBlockUp={handleMoveBlockUp}
+                        onMoveBlockDown={handleMoveBlockDown}
+                        isFirstBlock={originalListIndex === 0}
+                        isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                       />
                     </div>
                   </div>
@@ -1745,36 +1863,18 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalIndex = findOriginalIndex(item.content);
                 return (
                   <div key={index} className={reorderClasses}>
-                    {isEditing && originalIndex !== -1 && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
-                        <button
-                          onClick={() => handleMoveBlockUp(originalIndex)}
-                          disabled={originalIndex === 0}
-                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Move up"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleMoveBlockDown(originalIndex)}
-                          disabled={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Move down"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
+
                     <RenderBlock
                       block={item.content}
                       isLastInBox={isLastItem}
                       basePath={['contentBlocks', originalIndex]}
                       isEditing={isEditing}
                       onTextChange={onTextChange}
+                      contentBlockIndex={originalIndex}
+                      onMoveBlockUp={handleMoveBlockUp}
+                      onMoveBlockDown={handleMoveBlockDown}
+                      isFirstBlock={originalIndex === 0}
+                      isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                     />
                   </div>
                 );

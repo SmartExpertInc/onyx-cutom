@@ -79,6 +79,46 @@ async def generate_pdf_from_html_template(
             logger.info(f"PDF GEN Context Data['details']['details'] Type: {type(context_data.get('details', {}).get('details'))}")
             if isinstance(context_data.get('details', {}).get('details'), dict):
                 logger.info(f"PDF GEN ContentBlocks Type: {type(context_data.get('details', {}).get('details', {}).get('contentBlocks'))}")
+        
+        # Transform image paths for PDF generation if not already transformed
+        if isinstance(context_data.get('details'), dict) and 'contentBlocks' in context_data['details']:
+            content_blocks = context_data['details']['contentBlocks']
+            static_images_path = context_data.get('pdf_context', {}).get('static_images_path', '/app/static_design_images/')
+            
+            logger.info(f"PDF GEN: Processing {len(content_blocks)} content blocks for image path transformation")
+            logger.info(f"PDF GEN: Static images path: {static_images_path}")
+            
+            for block in content_blocks:
+                if block.get('type') == 'image':
+                    original_src = block.get('src', '')
+                    logger.info(f"PDF GEN: Processing image block with src: {original_src}")
+                    
+                    # Only transform if not already a file:// URL
+                    if original_src and not original_src.startswith('file://'):
+                        if original_src.startswith('/static_design_images/'):
+                            filename = original_src.replace('/static_design_images/', '')
+                            full_path = static_images_path + filename
+                            file_url = f"file://{full_path}"
+                            
+                            logger.info(f"PDF GEN: Original: {original_src}")
+                            logger.info(f"PDF GEN: Filename: {filename}")
+                            logger.info(f"PDF GEN: Full path: {full_path}")
+                            logger.info(f"PDF GEN: File URL: {file_url}")
+                            
+                            block['src'] = file_url
+                            logger.info(f"PDF GEN: Transformed src to: {block['src']}")
+                        elif original_src.startswith('/'):
+                            filename = original_src.lstrip('/')
+                            full_path = static_images_path + filename
+                            file_url = f"file://{full_path}"
+                            
+                            logger.info(f"PDF GEN: Absolute path: {original_src} -> {file_url}")
+                            block['src'] = file_url
+                        else:
+                            logger.info(f"PDF GEN: Keeping original src: {original_src}")
+                    else:
+                        logger.info(f"PDF GEN: Already transformed or no src: {original_src}")
+        
         html_content = template.render(**context_data) # Pass context_data as keyword arguments to template
         logger.info("HTML content rendered from template.")
     except Exception as e:
