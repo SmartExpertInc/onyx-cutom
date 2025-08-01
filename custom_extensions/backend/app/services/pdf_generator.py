@@ -118,7 +118,7 @@ async def generate_pdf_from_html_template(
                             logger.info(f"PDF GEN: File exists: {os.path.exists(full_path)}")
                             logger.info(f"PDF GEN: File URL: {file_url}")
                             
-                            block['src'] = file_url
+                            block['src'] = full_path
                             logger.info(f"PDF GEN: Transformed src to: {block['src']}")
                         elif original_src.startswith('/'):
                             filename = original_src.lstrip('/')
