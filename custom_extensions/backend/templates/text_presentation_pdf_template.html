@@ -595,7 +595,7 @@
         {% set image_src = block_data.src %}
         {% set img_style = "max-width: " + (block_data.maxWidth or '100%') + ";" %}
         {% if block_data.width %}
-            {% set img_style = img_style + " width: " + block_data.width %}
+            {% set img_style = img_style + " width: " + block_data.width|string %}
             {% if block_data.width|string|regex_match('^\d+$') %}
                 {% set img_style = img_style + "px" %}
             {% endif %}
@@ -603,7 +603,7 @@
         {% endif %}
         {% set img_style = img_style + " height: " %}
         {% if block_data.height %}
-            {% set img_style = img_style + block_data.height %}
+            {% set img_style = img_style + block_data.height|string %}
             {% if block_data.height|string|regex_match('^\d+$') %}
                 {% set img_style = img_style + "px" %}
             {% endif %}
