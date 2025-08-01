@@ -1419,8 +1419,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // 🔍 COMPREHENSIVE LOGGING: Print entire content when one-pager opens
   useEffect(() => {
@@ -1515,57 +1513,40 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     }
   }, [onTextChange, dataToDisplay]);
 
-  // 🔄 DRAG & DROP HANDLERS
-  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
-    console.log('🎯 [DRAG START] Block index:', index);
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', index.toString());
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverIndex(index);
-  }, []);
-
-  const handleDragLeave = useCallback(() => {
-    setDragOverIndex(null);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    console.log('🎯 [DROP] From index:', draggedIndex, 'to index:', dropIndex);
+  // 🔄 ARROW REORDERING HANDLERS
+  const handleMoveBlockUp = useCallback((index: number) => {
+    if (index <= 0 || !dataToDisplay || !onTextChange) return;
     
-    if (draggedIndex === null || draggedIndex === dropIndex || !dataToDisplay || !onTextChange) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
-
     const currentBlocks = [...(dataToDisplay.contentBlocks || [])];
-    const draggedBlock = currentBlocks[draggedIndex];
+    const blockToMove = currentBlocks[index];
+    const blockAbove = currentBlocks[index - 1];
     
-    // Remove the dragged block from its current position
-    currentBlocks.splice(draggedIndex, 1);
+    // Swap the blocks
+    currentBlocks[index] = blockAbove;
+    currentBlocks[index - 1] = blockToMove;
     
-    // Insert it at the new position (adjust index if we removed an item before the drop position)
-    const insertIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
-    currentBlocks.splice(insertIndex, 0, draggedBlock);
-    
-    console.log('🎯 [DROP RESULT] New blocks order:', currentBlocks.map((block, i) => ({ index: i, type: block.type })));
+    console.log('⬆️ [MOVE UP] Block moved from index:', index, 'to index:', index - 1);
     
     // Update the content blocks
     onTextChange(['contentBlocks'], currentBlocks);
-    
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  }, [draggedIndex, dataToDisplay, onTextChange]);
+  }, [dataToDisplay, onTextChange]);
 
-  const handleDragEnd = useCallback(() => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  }, []);
+  const handleMoveBlockDown = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange || index >= (dataToDisplay.contentBlocks?.length || 0) - 1) return;
+    
+    const currentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const blockToMove = currentBlocks[index];
+    const blockBelow = currentBlocks[index + 1];
+    
+    // Swap the blocks
+    currentBlocks[index] = blockBelow;
+    currentBlocks[index + 1] = blockToMove;
+    
+    console.log('⬇️ [MOVE DOWN] Block moved from index:', index, 'to index:', index + 1);
+    
+    // Update the content blocks
+    onTextChange(['contentBlocks'], currentBlocks);
+  }, [dataToDisplay, onTextChange]);
 
   if (!dataToDisplay) {
     return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
@@ -1649,33 +1630,39 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           <main className="text-left">
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
-              const isDragging = draggedIndex === index;
-              const isDragOver = dragOverIndex === index;
               
-              // 🎯 DRAG & DROP STYLING
-              const dragClasses = isEditing ? [
+              // 🎯 ARROW REORDERING STYLING
+              const reorderClasses = isEditing ? [
                 'transition-all duration-200',
-                isDragging ? 'opacity-50 scale-95' : '',
-                isDragOver ? 'border-2 border-dashed border-blue-400 bg-blue-50' : '',
                 'relative group'
               ].filter(Boolean).join(' ') : '';
-
-              const dragProps = isEditing ? {
-                draggable: true,
-                onDragStart: (e: React.DragEvent) => handleDragStart(e, index),
-                onDragOver: (e: React.DragEvent) => handleDragOver(e, index),
-                onDragLeave: handleDragLeave,
-                onDrop: (e: React.DragEvent) => handleDrop(e, index),
-                onDragEnd: handleDragEnd,
-              } : {};
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
-                  <div key={index} className={dragClasses} {...dragProps}>
+                  <div key={index} className={reorderClasses}>
                     {isEditing && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10">
-                        ⋮⋮ Drag to reorder
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+                        <button
+                          onClick={() => handleMoveBlockUp(index)}
+                          disabled={index === 0}
+                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleMoveBlockDown(index)}
+                          disabled={index === renderableItems.length - 1}
+                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
                       </div>
                     )}
                     <section className="mb-4 p-3 rounded-md text-left">
@@ -1734,10 +1721,29 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
-                  <div key={index} className={dragClasses} {...dragProps}>
+                  <div key={index} className={reorderClasses}>
                     {isEditing && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10">
-                        ⋮⋮ Drag to reorder
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+                        <button
+                          onClick={() => handleMoveBlockUp(index)}
+                          disabled={index === 0}
+                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleMoveBlockDown(index)}
+                          disabled={index === renderableItems.length - 1}
+                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
                       </div>
                     )}
                     <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
@@ -1764,10 +1770,29 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'standalone_block') {
                 const originalIndex = findOriginalIndex(item.content);
                 return (
-                  <div key={index} className={dragClasses} {...dragProps}>
+                  <div key={index} className={reorderClasses}>
                     {isEditing && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10">
-                        ⋮⋮ Drag to reorder
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+                        <button
+                          onClick={() => handleMoveBlockUp(index)}
+                          disabled={index === 0}
+                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleMoveBlockDown(index)}
+                          disabled={index === renderableItems.length - 1}
+                          className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
                       </div>
                     )}
                     <RenderBlock
