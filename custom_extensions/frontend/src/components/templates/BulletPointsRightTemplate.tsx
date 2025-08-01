@@ -291,7 +291,10 @@ function UnifiedBulletEditor({
           borderRadius: '4px',
           border: '1px solid #3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.05)',
-          position: 'relative'
+          position: 'relative',
+          width: '100%',
+          minWidth: 0,
+          boxSizing: 'border-box'
         }}
       >
         <ul style={{
@@ -314,7 +317,8 @@ function UnifiedBulletEditor({
                 alignItems: 'flex-start', 
                 gap: '12px', 
                 marginBottom: '16px',
-                minHeight: '1.6em'
+                minHeight: '1.6em',
+                width: '100%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -326,7 +330,7 @@ function UnifiedBulletEditor({
                     {getBulletIcon(bulletStyle, index)}
                   </span>
                 )}
-                <div style={{ flex: 1, position: 'relative' }}>
+                <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
                   <textarea
                     ref={(el) => {
                       textareaRefs.current[index] = el;
@@ -457,7 +461,7 @@ function UnifiedBulletEditor({
     <div 
       onClick={startEditing}
       className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px' }}
+      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
     >
       <ul style={{
         listStyle: 'none',
@@ -470,12 +474,13 @@ function UnifiedBulletEditor({
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px' 
+            marginBottom: '16px',
+            width: '100%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
             </span>
-            <span style={bulletTextStyles}>
+            <span style={{ ...bulletTextStyles, flex: 1, minWidth: 0 }}>
               {bullet || 'Click to add bullet point'}
             </span>
           </li>
@@ -485,10 +490,11 @@ function UnifiedBulletEditor({
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px' 
+            marginBottom: '16px',
+            width: '100%'
           }}>
             <span style={bulletIconStyles}>•</span>
-            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic' }}>
+            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic', flex: 1, minWidth: 0 }}>
               Click to add bullet points...
             </span>
           </li>
