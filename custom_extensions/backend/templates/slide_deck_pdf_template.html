@@ -250,118 +250,102 @@
             word-wrap: break-word;
         }
         
- /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
-.bullet-points {
-    width: 100%;                      /* CRITICAL: Ensures full width occupation in PDF */
-    min-height: 600px;
-    background-color: var(--bg-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    padding: 80px;                    /* FIXED: Changed from 40px to 80px to match React */
-    position: relative;
-    font-family: 'Martel Sans', sans-serif;
-    height: 100%;
-}
-
-.bullet-points .slide-title {
-    font-family: 'Kanit', sans-serif;
-    font-size: 45px;
-    color: var(--title-color);
-    text-align: left;
-    margin-bottom: 32px;
-    word-wrap: break-word;
-    line-height: 1.2;
-}
-
-.bullet-points .content-row {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-evenly;
-    flex: 1;
-}
-
-.bullet-points .placeholder-container {
-    flex: 0 0 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-}
-
-.bullet-points .placeholder {
-    width: 100%;
-    height: 0;                        /* FIXED: Use padding-bottom technique instead of aspect-ratio */
-    padding-bottom: 100%;             /* FIXED: Creates 1:1 aspect ratio (100% of width) */
-    background-color: #e9ecef;
-    border: 2px dashed #adb5bd;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;                    /* This will be overridden by padding-bottom */
-    text-align: center;
-    color: #6c757d;
-    margin: 0 auto;
-    max-width: none;
-    position: relative;               /* FIXED: Needed for absolute positioning of content */
-}
-
-.bullet-points .placeholder-content {     /* FIXED: New wrapper for placeholder content */
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.bullet-points .bullets-container {
-    flex: 1 1 50%;
-    font-size: 20px;                  /* FIXED: Increased from 18px to 20px to better match React */
-    font-family: 'Martel Sans', sans-serif;
-    color: var(--content-color);
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding-left: 40px;
-}
-
-.bullet-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-}
-
-.bullet-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.bullet-icon {
-    color: var(--accent-color);
-    font-weight: 600;
-    min-width: 20px;
-    font-size: 1.2rem;
-    font-family: 'Kanit', sans-serif;
-}
-
-.bullet-text {
-    font-family: 'Martel Sans', sans-serif;
-    font-size: 20px;                  /* FIXED: Increased from 18px to 20px to match bullets-container */
-    color: var(--content-color);
-    line-height: 1.6;
-}
+        /* Bullet Points Template - EXACT FRONTEND MATCH */
+        .bullet-points {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 80px; /* Exact frontend match */
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .bullet-points .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 32px; /* Exact frontend match */
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        .bullet-points .content-row {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-evenly;
+            flex: 1;
+        }
+        
+        .bullet-points .placeholder-container {
+            flex: 0 0 50%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+        
+        .bullet-points .placeholder {
+            width: 320px;
+            height: 320px;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+            margin: 0 auto;
+        }
+        
+        .bullet-points .bullets-container {
+            flex: 1 1 50%; /* Exact frontend match */
+            font-size: 18px; /* Exact frontend match */
+            font-family: 'Martel Sans', sans-serif;
+            color: var(--content-color);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding-left: 40px; /* Exact frontend match */
+        }
+        
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        
+        .bullet-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px; /* Exact frontend match */
+            margin-bottom: 16px; /* Exact frontend match */
+        }
+        
+        .bullet-icon {
+            color: var(--accent-color);
+            font-weight: 600;
+            min-width: 20px; /* Exact frontend match */
+            font-size: 1.2rem; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .bullet-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+        }
         
         /* Process Steps Template - EXACT FRONTEND MATCH */
         .process-steps {
@@ -715,7 +699,7 @@
                     
                 {% elif slide.templateId == 'big-image-top' %}
                     <div class="slide">
-                        <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px;">
+                        <div style="width: 100%; height: 350px; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px;">
                             <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                             <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
                             <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant image' }}"</div>
@@ -724,43 +708,43 @@
                         <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
                     </div>
                     
-                    {% elif slide.templateId == 'bullet-points' %}
-                <div class="bullet-points">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    <div class="content-row">
-                        <div class="placeholder-container">
-                            <div class="placeholder">
-                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                {% elif slide.templateId == 'bullet-points' %}
+                    <div class="bullet-points">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="content-row">
+                            <div class="placeholder-container">
+                                <div class="placeholder">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
+                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                </div>
+                            </div>
+                            <div class="bullets-container">
+                                <ul class="bullet-list">
+                                    {% for bullet in slide.props.bullets %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">
+                                                {% if slide.props.bulletStyle == 'arrow' %}→
+                                                {% elif slide.props.bulletStyle == 'check' %}✓
+                                                {% elif slide.props.bulletStyle == 'star' %}★
+                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                                {% else %}•
+                                                {% endif %}
+                                            </span>
+                                            <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                                        </li>
+                                    {% endfor %}
+                                    {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">•</span>
+                                            <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
                             </div>
                         </div>
-                        <div class="bullets-container">
-                            <ul class="bullet-list">
-                                {% for bullet in slide.props.bullets %}
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">
-                                            {% if slide.props.bulletStyle == 'arrow' %}→
-                                            {% elif slide.props.bulletStyle == 'check' %}✓
-                                            {% elif slide.props.bulletStyle == 'star' %}★
-                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                            {% else %}•
-                                            {% endif %}
-                                        </span>
-                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
-                                    </li>
-                                {% endfor %}
-                                {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">•</span>
-                                        <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </div>
                     </div>
-                </div>
                     
                 {% elif slide.templateId == 'process-steps' %}
                     <div class="process-steps">
