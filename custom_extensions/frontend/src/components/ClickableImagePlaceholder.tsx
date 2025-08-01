@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Image, Upload } from 'lucide-react';
+import { Image, Upload, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 
 interface ClickableImagePlaceholderProps {
@@ -43,7 +43,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   };
 
   const handleClick = () => {
-    if (isEditable && !imagePath) {
+    if (isEditable) {
       setShowUploadModal(true);
     }
   };
@@ -52,14 +52,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onImageUploaded(newImagePath);
   };
 
-  // If we have an image, display it
+  // If we have an image, display it with replace overlay
   if (imagePath) {
     return (
       <div 
         className={`
           ${sizeClasses[size]} 
           ${positionClasses[position]} 
-          rounded-lg overflow-hidden
+          rounded-lg overflow-hidden relative
           ${position === 'BACKGROUND' ? 'opacity-20' : ''}
           ${className}
         `}
@@ -69,9 +69,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           src={imagePath} 
           alt={description}
           className="w-full h-full object-cover"
-          onClick={handleClick}
           style={{ cursor: isEditable ? 'pointer' : 'default' }}
         />
+        {isEditable && (
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer"
+            onClick={handleClick}
+            title="Click to replace image"
+          >
+            <div className="text-center text-white">
+              <Replace className="w-6 h-6 mx-auto mb-1" />
+              <div className="text-xs font-medium">Replace</div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
