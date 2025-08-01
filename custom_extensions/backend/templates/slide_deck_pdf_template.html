@@ -250,8 +250,7 @@
             word-wrap: break-word;
         }
         
-        /* Bullet Points Template - EXACT FRONTEND MATCH */
-        /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
+ /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
 .bullet-points {
     width: 100%;                      /* CRITICAL: Ensures full width occupation in PDF */
     min-height: 600px;
@@ -726,44 +725,42 @@
                     </div>
                     
                     {% elif slide.templateId == 'bullet-points' %}
-                    <div class="bullet-points">
-                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                        <div class="content-row">
-                            <div class="placeholder-container">
-                                <div class="placeholder">
-                                    <div class="placeholder-content">
-                                        <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                        <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                        <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bullets-container">
-                                <ul class="bullet-list">
-                                    {% for bullet in slide.props.bullets %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">
-                                                {% if slide.props.bulletStyle == 'arrow' %}→
-                                                {% elif slide.props.bulletStyle == 'check' %}✓
-                                                {% elif slide.props.bulletStyle == 'star' %}★
-                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                                {% else %}•
-                                                {% endif %}
-                                            </span>
-                                            <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
-                                        </li>
-                                    {% endfor %}
-                                    {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">•</span>
-                                            <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
-                                        </li>
-                                    {% endif %}
-                                </ul>
+                <div class="bullet-points">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="content-row">
+                        <div class="placeholder-container">
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
                             </div>
                         </div>
+                        <div class="bullets-container">
+                            <ul class="bullet-list">
+                                {% for bullet in slide.props.bullets %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
+                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                                    </li>
+                                {% endfor %}
+                                {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     </div>
+                </div>
                     
                 {% elif slide.templateId == 'process-steps' %}
                     <div class="process-steps">
