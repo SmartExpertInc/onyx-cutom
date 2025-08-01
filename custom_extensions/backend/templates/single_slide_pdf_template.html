@@ -529,7 +529,7 @@
         
         .big-image-left .image-placeholder {
             width: 100%;
-            height: 100%; /* Fixed height for image placeholder */
+            height: 350px; /* Fixed height for image placeholder - EXACT OLD MATCH */
             background-color: #e9ecef;
             border: 2px dashed #adb5bd;
             border-radius: 8px; /* Exact frontend match */
@@ -603,6 +603,7 @@
             width: 100%;
             justify-content: space-evenly;
             flex: 1;
+            min-height: 400px; /* Ensure enough height for square placeholder */
         }
         
         .bullet-points .placeholder-container {
@@ -852,7 +853,7 @@
         .placeholder {
             width: 100%;
             max-width: 320px;
-            max-height: 200px;
+            aspect-ratio: 1 / 1; /* Make it square like the text suggests */
             background-color: #e9ecef;
             border: 2px dashed #adb5bd;
             border-radius: 8px;
