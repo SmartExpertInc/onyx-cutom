@@ -63,10 +63,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           ${position === 'BACKGROUND' ? 'opacity-20' : ''}
           ${className}
         `}
-        style={{ 
-          minWidth: size === 'LARGE' ? '300px' : size === 'MEDIUM' ? '200px' : '150px',
-          ...style 
-        }}
+        style={style}
       >
         <img 
           src={imagePath} 
@@ -75,11 +72,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onClick={handleClick}
           style={{ cursor: isEditable ? 'pointer' : 'default' }}
         />
-        {isEditable && (
-          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
-            <Upload className="w-6 h-6 text-white" />
-          </div>
-        )}
       </div>
     );
   }
@@ -99,10 +91,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           ${isEditable ? 'cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
           ${className}
         `}
-        style={{ 
-          minWidth: size === 'LARGE' ? '300px' : size === 'MEDIUM' ? '200px' : '150px',
-          ...style 
-        }}
+        style={style}
         onClick={handleClick}
       >
         <div className="text-center p-4">
