@@ -1531,100 +1531,46 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     }
   } 
 
-  // 🔄 ARROW REORDERING HANDLERS
-  const handleMoveBlockUp = useCallback((renderableIndex: number) => {
-    if (renderableIndex <= 0 || !dataToDisplay || !onTextChange) return;
+  // 🔄 ARROW REORDERING HANDLERS - Work directly with contentBlocks
+  const handleMoveBlockUp = useCallback((contentBlockIndex: number) => {
+    if (contentBlockIndex <= 0 || !dataToDisplay || !onTextChange) return;
     
-    // Get the actual content block indices for the renderable items
-    const contentBlocks = dataToDisplay.contentBlocks || [];
-    const currentRenderableItem = renderableItems[renderableIndex];
-    const previousRenderableItem = renderableItems[renderableIndex - 1];
-    
-    // Find the actual content block indices
-    let currentBlockIndex = -1;
-    let previousBlockIndex = -1;
-    
-    // Find the first block of the current renderable item
-    if (currentRenderableItem.type === 'major_section') {
-      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
-    } else if (currentRenderableItem.type === 'mini_section') {
-      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
-    } else if (currentRenderableItem.type === 'standalone_block') {
-      currentBlockIndex = findOriginalIndex(currentRenderableItem.content);
-    }
-    
-    // Find the first block of the previous renderable item
-    if (previousRenderableItem.type === 'major_section') {
-      previousBlockIndex = findOriginalIndex(previousRenderableItem.headline);
-    } else if (previousRenderableItem.type === 'mini_section') {
-      previousBlockIndex = findOriginalIndex(previousRenderableItem.headline);
-    } else if (previousRenderableItem.type === 'standalone_block') {
-      previousBlockIndex = findOriginalIndex(previousRenderableItem.content);
-    }
-    
-    if (currentBlockIndex === -1 || previousBlockIndex === -1) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    if (contentBlockIndex >= contentBlocks.length) return;
     
     // Swap the blocks
-    const newBlocks = [...contentBlocks];
-    const blockToMove = newBlocks[currentBlockIndex];
-    const blockAbove = newBlocks[previousBlockIndex];
+    const blockToMove = contentBlocks[contentBlockIndex];
+    const blockAbove = contentBlocks[contentBlockIndex - 1];
     
-    newBlocks[currentBlockIndex] = blockAbove;
-    newBlocks[previousBlockIndex] = blockToMove;
+    contentBlocks[contentBlockIndex] = blockAbove;
+    contentBlocks[contentBlockIndex - 1] = blockToMove;
     
-    console.log('⬆️ [MOVE UP] Block moved from renderable index:', renderableIndex, 'to renderable index:', renderableIndex - 1);
-    console.log('⬆️ [MOVE UP] Content block moved from index:', currentBlockIndex, 'to index:', previousBlockIndex);
+    console.log('⬆️ [MOVE UP] Content block moved from index:', contentBlockIndex, 'to index:', contentBlockIndex - 1);
+    console.log('⬆️ [MOVE UP] Block type:', blockToMove.type, 'moved above:', blockAbove.type);
     
     // Update the content blocks
-    onTextChange(['contentBlocks'], newBlocks);
-  }, [dataToDisplay, onTextChange, renderableItems]);
+    onTextChange(['contentBlocks'], contentBlocks);
+  }, [dataToDisplay, onTextChange]);
 
-  const handleMoveBlockDown = useCallback((renderableIndex: number) => {
-    if (!dataToDisplay || !onTextChange || renderableIndex >= renderableItems.length - 1) return;
+  const handleMoveBlockDown = useCallback((contentBlockIndex: number) => {
+    if (!dataToDisplay || !onTextChange) return;
     
-    // Get the actual content block indices for the renderable items
-    const contentBlocks = dataToDisplay.contentBlocks || [];
-    const currentRenderableItem = renderableItems[renderableIndex];
-    const nextRenderableItem = renderableItems[renderableIndex + 1];
-    
-    // Find the actual content block indices
-    let currentBlockIndex = -1;
-    let nextBlockIndex = -1;
-    
-    // Find the first block of the current renderable item
-    if (currentRenderableItem.type === 'major_section') {
-      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
-    } else if (currentRenderableItem.type === 'mini_section') {
-      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
-    } else if (currentRenderableItem.type === 'standalone_block') {
-      currentBlockIndex = findOriginalIndex(currentRenderableItem.content);
-    }
-    
-    // Find the first block of the next renderable item
-    if (nextRenderableItem.type === 'major_section') {
-      nextBlockIndex = findOriginalIndex(nextRenderableItem.headline);
-    } else if (nextRenderableItem.type === 'mini_section') {
-      nextBlockIndex = findOriginalIndex(nextRenderableItem.headline);
-    } else if (nextRenderableItem.type === 'standalone_block') {
-      nextBlockIndex = findOriginalIndex(nextRenderableItem.content);
-    }
-    
-    if (currentBlockIndex === -1 || nextBlockIndex === -1) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    if (contentBlockIndex >= contentBlocks.length - 1) return;
     
     // Swap the blocks
-    const newBlocks = [...contentBlocks];
-    const blockToMove = newBlocks[currentBlockIndex];
-    const blockBelow = newBlocks[nextBlockIndex];
+    const blockToMove = contentBlocks[contentBlockIndex];
+    const blockBelow = contentBlocks[contentBlockIndex + 1];
     
-    newBlocks[currentBlockIndex] = blockBelow;
-    newBlocks[nextBlockIndex] = blockToMove;
+    contentBlocks[contentBlockIndex] = blockBelow;
+    contentBlocks[contentBlockIndex + 1] = blockToMove;
     
-    console.log('⬇️ [MOVE DOWN] Block moved from renderable index:', renderableIndex, 'to renderable index:', renderableIndex + 1);
-    console.log('⬇️ [MOVE DOWN] Content block moved from index:', currentBlockIndex, 'to index:', nextBlockIndex);
+    console.log('⬇️ [MOVE DOWN] Content block moved from index:', contentBlockIndex, 'to index:', contentBlockIndex + 1);
+    console.log('⬇️ [MOVE DOWN] Block type:', blockToMove.type, 'moved below:', blockBelow.type);
     
     // Update the content blocks
-    onTextChange(['contentBlocks'], newBlocks);
-  }, [dataToDisplay, onTextChange, renderableItems]);
+    onTextChange(['contentBlocks'], contentBlocks);
+  }, [dataToDisplay, onTextChange]);
 
   const findOriginalIndex = (blockToFind: AnyContentBlock | HeadlineBlock | BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock): number => {
       return (dataToDisplay?.contentBlocks || []).findIndex(cb => cb === blockToFind);
@@ -1669,11 +1615,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
                   <div key={index} className={reorderClasses}>
-                    {isEditing && (
+                    {isEditing && originalHeadlineIndex !== -1 && (
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
                         <button
-                          onClick={() => handleMoveBlockUp(index)}
-                          disabled={index === 0}
+                          onClick={() => handleMoveBlockUp(originalHeadlineIndex)}
+                          disabled={originalHeadlineIndex === 0}
                           className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Move up"
                         >
@@ -1682,8 +1628,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleMoveBlockDown(index)}
-                          disabled={index === renderableItems.length - 1}
+                          onClick={() => handleMoveBlockDown(originalHeadlineIndex)}
+                          disabled={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                           className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Move down"
                         >
@@ -1750,11 +1696,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
                   <div key={index} className={reorderClasses}>
-                    {isEditing && (
+                    {isEditing && originalHeadlineIndex !== -1 && (
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
                         <button
-                          onClick={() => handleMoveBlockUp(index)}
-                          disabled={index === 0}
+                          onClick={() => handleMoveBlockUp(originalHeadlineIndex)}
+                          disabled={originalHeadlineIndex === 0}
                           className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Move up"
                         >
@@ -1763,8 +1709,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleMoveBlockDown(index)}
-                          disabled={index === renderableItems.length - 1}
+                          onClick={() => handleMoveBlockDown(originalHeadlineIndex)}
+                          disabled={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                           className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Move down"
                         >
@@ -1799,11 +1745,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalIndex = findOriginalIndex(item.content);
                 return (
                   <div key={index} className={reorderClasses}>
-                    {isEditing && (
+                    {isEditing && originalIndex !== -1 && (
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
                         <button
-                          onClick={() => handleMoveBlockUp(index)}
-                          disabled={index === 0}
+                          onClick={() => handleMoveBlockUp(originalIndex)}
+                          disabled={originalIndex === 0}
                           className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Move up"
                         >
@@ -1812,8 +1758,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleMoveBlockDown(index)}
-                          disabled={index === renderableItems.length - 1}
+                          onClick={() => handleMoveBlockDown(originalIndex)}
+                          disabled={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                           className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Move down"
                         >
