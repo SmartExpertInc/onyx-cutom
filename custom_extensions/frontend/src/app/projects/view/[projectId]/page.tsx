@@ -1072,7 +1072,7 @@ export default function ProjectInstanceViewPage() {
                     ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
                     : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
                 }`}
-                title={isEditing ? t('interface.projectView.save', 'Save changes') : t('interface.projectView.edit', 'Edit content')}
+                title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
               >
                 {isEditing ? (
                   <>
@@ -1082,7 +1082,7 @@ export default function ProjectInstanceViewPage() {
                 ) : (
                   <>
                     <Edit size={16} className="mr-2" />
-                    {t('interface.projectView.edit', 'Edit')}
+                    {t('interface.projectView.editContent', 'Edit Content')}
                   </>
                 )}
               </button>
