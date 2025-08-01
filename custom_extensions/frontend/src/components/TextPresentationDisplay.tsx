@@ -1419,6 +1419,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // 🔍 COMPREHENSIVE LOGGING: Print entire content when one-pager opens
   useEffect(() => {
@@ -1513,6 +1515,58 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     }
   }, [onTextChange, dataToDisplay]);
 
+  // 🔄 DRAG & DROP HANDLERS
+  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+    console.log('🎯 [DRAG START] Block index:', index);
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index.toString());
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    console.log('🎯 [DROP] From index:', draggedIndex, 'to index:', dropIndex);
+    
+    if (draggedIndex === null || draggedIndex === dropIndex || !dataToDisplay || !onTextChange) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const currentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const draggedBlock = currentBlocks[draggedIndex];
+    
+    // Remove the dragged block from its current position
+    currentBlocks.splice(draggedIndex, 1);
+    
+    // Insert it at the new position (adjust index if we removed an item before the drop position)
+    const insertIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
+    currentBlocks.splice(insertIndex, 0, draggedBlock);
+    
+    console.log('🎯 [DROP RESULT] New blocks order:', currentBlocks.map((block, i) => ({ index: i, type: block.type })));
+    
+    // Update the content blocks
+    onTextChange(['contentBlocks'], currentBlocks);
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  }, [draggedIndex, dataToDisplay, onTextChange]);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  }, []);
+
   if (!dataToDisplay) {
     return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
   }
@@ -1595,58 +1649,84 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           <main className="text-left">
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
+              const isDragging = draggedIndex === index;
+              const isDragOver = dragOverIndex === index;
+              
+              // 🎯 DRAG & DROP STYLING
+              const dragClasses = isEditing ? [
+                'transition-all duration-200',
+                isDragging ? 'opacity-50 scale-95' : '',
+                isDragOver ? 'border-2 border-dashed border-blue-400 bg-blue-50' : '',
+                'relative group'
+              ].filter(Boolean).join(' ') : '';
+
+              const dragProps = isEditing ? {
+                draggable: true,
+                onDragStart: (e: React.DragEvent) => handleDragStart(e, index),
+                onDragOver: (e: React.DragEvent) => handleDragOver(e, index),
+                onDragLeave: handleDragLeave,
+                onDrop: (e: React.DragEvent) => handleDrop(e, index),
+                onDragEnd: handleDragEnd,
+              } : {};
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 return (
-                  <section key={index} className="mb-4 p-3 rounded-md text-left">
-                    {!item._skipRenderHeadline && (
-                      <RenderBlock
-                        block={item.headline}
-                        basePath={['contentBlocks', originalHeadlineIndex]}
-                        isEditing={isEditing}
-                        onTextChange={onTextChange}
-                      />
+                  <div key={index} className={dragClasses} {...dragProps}>
+                    {isEditing && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10">
+                        ⋮⋮ Drag to reorder
+                      </div>
                     )}
-                    <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
-                      {item.items.map((subItem, subIndex) => {
-                        const isLastSubItem = subIndex === item.items.length - 1;
-                        if (subItem.type === 'mini_section') {
-                          const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
-                          const originalMiniListIndex = findOriginalIndex(subItem.list);
-                          return (
-                            <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
-                              <RenderBlock
-                                block={subItem.headline}
-                                isMiniSectionHeadline={true}
-                                isFirstInBox={subIndex === 0}
-                                basePath={['contentBlocks', originalMiniHeadlineIndex]}
-                                isEditing={isEditing}
-                                onTextChange={onTextChange}
-                              />
-                              <RenderBlock
-                                block={subItem.list}
-                                isLastInBox={isLastSubItem}
-                                basePath={['contentBlocks', originalMiniListIndex]}
-                                isEditing={isEditing}
-                                onTextChange={onTextChange}
-                              />
-                            </div>
-                          );
-                        } else { // It's an AnyContentBlock
-                          const originalSubIndex = findOriginalIndex(subItem);
-                          return <RenderBlock
-                            key={subIndex}
-                            block={subItem}
-                            isLastInBox={isLastSubItem}
-                            basePath={['contentBlocks', originalSubIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                          />;
-                        }
-                      })}
-                    </div>
-                  </section>
+                    <section className="mb-4 p-3 rounded-md text-left">
+                      {!item._skipRenderHeadline && (
+                        <RenderBlock
+                          block={item.headline}
+                          basePath={['contentBlocks', originalHeadlineIndex]}
+                          isEditing={isEditing}
+                          onTextChange={onTextChange}
+                        />
+                      )}
+                      <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
+                        {item.items.map((subItem, subIndex) => {
+                          const isLastSubItem = subIndex === item.items.length - 1;
+                          if (subItem.type === 'mini_section') {
+                            const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
+                            const originalMiniListIndex = findOriginalIndex(subItem.list);
+                            return (
+                              <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                                <RenderBlock
+                                  block={subItem.headline}
+                                  isMiniSectionHeadline={true}
+                                  isFirstInBox={subIndex === 0}
+                                  basePath={['contentBlocks', originalMiniHeadlineIndex]}
+                                  isEditing={isEditing}
+                                  onTextChange={onTextChange}
+                                />
+                                <RenderBlock
+                                  block={subItem.list}
+                                  isLastInBox={isLastSubItem}
+                                  basePath={['contentBlocks', originalMiniListIndex]}
+                                  isEditing={isEditing}
+                                  onTextChange={onTextChange}
+                                />
+                              </div>
+                            );
+                          } else { // It's an AnyContentBlock
+                            const originalSubIndex = findOriginalIndex(subItem);
+                            return <RenderBlock
+                              key={subIndex}
+                              block={subItem}
+                              isLastInBox={isLastSubItem}
+                              basePath={['contentBlocks', originalSubIndex]}
+                              isEditing={isEditing}
+                              onTextChange={onTextChange}
+                            />;
+                          }
+                        })}
+                      </div>
+                    </section>
+                  </div>
                 );
               }
 
@@ -1654,22 +1734,29 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
                 const originalListIndex = findOriginalIndex(item.list);
                 return (
-                  <div key={index} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
-                    <RenderBlock
-                      block={item.headline}
-                      isMiniSectionHeadline={true}
-                      isFirstInBox={index === 0}
-                      basePath={['contentBlocks', originalHeadlineIndex]}
-                      isEditing={isEditing}
-                      onTextChange={onTextChange}
-                    />
-                    <RenderBlock
-                      block={item.list}
-                      isLastInBox={isLastItem}
-                      basePath={['contentBlocks', originalListIndex]}
-                      isEditing={isEditing}
-                      onTextChange={onTextChange}
-                    />
+                  <div key={index} className={dragClasses} {...dragProps}>
+                    {isEditing && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10">
+                        ⋮⋮ Drag to reorder
+                      </div>
+                    )}
+                    <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                      <RenderBlock
+                        block={item.headline}
+                        isMiniSectionHeadline={true}
+                        isFirstInBox={index === 0}
+                        basePath={['contentBlocks', originalHeadlineIndex]}
+                        isEditing={isEditing}
+                        onTextChange={onTextChange}
+                      />
+                      <RenderBlock
+                        block={item.list}
+                        isLastInBox={isLastItem}
+                        basePath={['contentBlocks', originalListIndex]}
+                        isEditing={isEditing}
+                        onTextChange={onTextChange}
+                      />
+                    </div>
                   </div>
                 );
               }
@@ -1677,14 +1764,20 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               if (item.type === 'standalone_block') {
                 const originalIndex = findOriginalIndex(item.content);
                 return (
-                  <RenderBlock
-                    key={index}
-                    block={item.content}
-                    isLastInBox={isLastItem}
-                    basePath={['contentBlocks', originalIndex]}
-                    isEditing={isEditing}
-                    onTextChange={onTextChange}
-                  />
+                  <div key={index} className={dragClasses} {...dragProps}>
+                    {isEditing && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10">
+                        ⋮⋮ Drag to reorder
+                      </div>
+                    )}
+                    <RenderBlock
+                      block={item.content}
+                      isLastInBox={isLastItem}
+                      basePath={['contentBlocks', originalIndex]}
+                      isEditing={isEditing}
+                      onTextChange={onTextChange}
+                    />
+                  </div>
                 );
               }
 

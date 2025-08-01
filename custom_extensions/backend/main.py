@@ -12047,15 +12047,33 @@ async def download_project_instance_pdf(
         unique_output_filename = f"{project_id}_{document_name_slug}_{uuid.uuid4().hex[:12]}.pdf"
         
         # Pass the locale strings to the template context
+        static_images_abs_path = os.path.abspath(STATIC_DESIGN_IMAGES_DIR) + '/'
+        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Static images path: {static_images_abs_path}")
+        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Path exists: {os.path.exists(static_images_abs_path.rstrip('/'))}")
+        
         context_for_jinja = {
             'details': data_for_template_render, 
             'locale': current_pdf_locale_strings,
             'parentProjectName': parentProjectName,
             'lessonNumber': lessonNumber,
             'pdf_context': {
-                'static_images_path': os.path.abspath(STATIC_DESIGN_IMAGES_DIR) + '/'
+                'static_images_path': static_images_abs_path
             }
         }
+        
+        # 🔍 PDF CONTEXT LOGGING: What we're passing to the template
+        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Full context keys: {list(context_for_jinja.keys())}")
+        if 'details' in context_for_jinja and isinstance(context_for_jinja['details'], dict) and 'contentBlocks' in context_for_jinja['details']:
+            image_blocks = [block for block in context_for_jinja['details']['contentBlocks'] if block.get('type') == 'image']
+            logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Image blocks for PDF: {json.dumps(image_blocks, indent=2)}")
+            for img_block in image_blocks:
+                original_src = img_block.get('src', '')
+                if original_src.startswith('/static_design_images/'):
+                    filename = original_src.replace('/static_design_images/', '')
+                    full_path = static_images_abs_path + filename
+                    logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Image path mapping: {original_src} -> {full_path} (exists: {os.path.exists(full_path)})")
+        else:
+            logger.info(f"📄 [PDF CONTEXT] Project {project_id} - No contentBlocks found in details")
         
         # Add column visibility settings for Training Plan PDFs
         if component_name == COMPONENT_NAME_TRAINING_PLAN:
