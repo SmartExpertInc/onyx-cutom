@@ -530,6 +530,55 @@ const BlockSettingsModal = ({
           <p className="text-xs text-gray-500 mt-1">Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)</p>
         </div>
 
+        {/* Size Controls */}
+        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <label className="block text-sm font-semibold text-blue-900 mb-3">
+            Quick Size Controls
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
+                const newWidth = Math.max(50, currentWidth - 50);
+                onTextChange?.(fieldPath('width'), newWidth);
+              }}
+              className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+              </svg>
+              Smaller
+            </button>
+            <button
+              onClick={() => {
+                const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
+                const newWidth = Math.min(800, currentWidth + 50);
+                onTextChange?.(fieldPath('width'), newWidth);
+              }}
+              className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+              </svg>
+              Larger
+            </button>
+            <button
+              onClick={() => {
+                onTextChange?.(fieldPath('width'), 300);
+              }}
+              className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+              title="Reset to default size"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+          <p className="text-xs text-blue-600 mt-2">
+            Current width: {typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : 'auto'}
+          </p>
+        </div>
+
         {/* Basic Settings */}
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -563,7 +612,12 @@ const BlockSettingsModal = ({
 
         {/* Layout Settings */}
         <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Layout Options</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            Layout Options
+          </h3>
           
           {/* Layout Mode */}
           <div className="mb-4">
@@ -572,7 +626,10 @@ const BlockSettingsModal = ({
             </label>
             <select
               value={imageBlock.layoutMode || 'standalone'}
-              onChange={e => onTextChange?.(fieldPath('layoutMode'), e.target.value)}
+              onChange={e => {
+                console.log('🔄 [LAYOUT CHANGE] Setting layoutMode:', e.target.value, 'for block:', imageBlock);
+                onTextChange?.(fieldPath('layoutMode'), e.target.value);
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
               <option value="standalone">📄 Standalone (full width)</option>
@@ -594,7 +651,11 @@ const BlockSettingsModal = ({
               </label>
               <select
                 value={imageBlock.layoutPartnerIndex || ''}
-                onChange={e => onTextChange?.(fieldPath('layoutPartnerIndex'), e.target.value ? parseInt(e.target.value) : null)}
+                onChange={e => {
+                  const value = e.target.value ? parseInt(e.target.value) : null;
+                  console.log('🔄 [LAYOUT CHANGE] Setting layoutPartnerIndex:', value, 'for block:', imageBlock);
+                  onTextChange?.(fieldPath('layoutPartnerIndex'), value);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
                 <option value="">Select content block...</option>
@@ -617,7 +678,10 @@ const BlockSettingsModal = ({
               </label>
               <select
                 value={imageBlock.layoutProportion || '50-50'}
-                onChange={e => onTextChange?.(fieldPath('layoutProportion'), e.target.value)}
+                onChange={e => {
+                  console.log('🔄 [LAYOUT CHANGE] Setting layoutProportion:', e.target.value, 'for block:', imageBlock);
+                  onTextChange?.(fieldPath('layoutProportion'), e.target.value);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
                 <option value="50-50">⚖️ Equal (50% each)</option>
@@ -634,32 +698,32 @@ const BlockSettingsModal = ({
 
           {/* Layout Preview */}
           {(imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') && (
-            <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-dashed border-blue-200">
               <div className="text-center">
-                <div className="text-gray-500 text-sm mb-2">Layout Preview</div>
+                <div className="text-blue-600 text-sm font-medium mb-2">Layout Preview</div>
                 <div className="flex items-center justify-center space-x-2 text-xs">
                   {imageBlock.layoutMode === 'side-by-side-left' && (
                     <>
                       <div className="bg-blue-200 px-2 py-1 rounded">🖼️ Image</div>
-                      <div className="text-gray-400">+</div>
+                      <div className="text-blue-400">+</div>
                       <div className="bg-green-200 px-2 py-1 rounded">📄 Content</div>
                     </>
                   )}
                   {imageBlock.layoutMode === 'side-by-side-right' && (
                     <>
                       <div className="bg-green-200 px-2 py-1 rounded">📄 Content</div>
-                      <div className="text-gray-400">+</div>
+                      <div className="text-blue-400">+</div>
                       <div className="bg-blue-200 px-2 py-1 rounded">🖼️ Image</div>
                     </>
                   )}
                   {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
-                    <div className="text-gray-600">
+                    <div className="text-blue-600">
                       Text will wrap around the image
                     </div>
                   )}
                 </div>
                 {imageBlock.layoutProportion && (
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-blue-500 mt-1">
                     Space: {imageBlock.layoutProportion}
                   </div>
                 )}
@@ -708,32 +772,53 @@ const BlockSettingsModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto border border-gray-100" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            {getBlockIcon()}
-            <h2 className="text-xl font-bold text-gray-900">{getBlockTitle()}</h2>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200`}>
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
+      <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white bg-opacity-20 rounded-lg">
+                {getBlockIcon()}
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">{getBlockTitle()}</h2>
+                <p className="text-blue-100 text-sm">Customize your content</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
-        
-        <div className="p-6">
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
           {renderSettings()}
         </div>
-        
-        <div className="flex justify-end p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
-          >
-            Close
-          </button>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 rounded-b-xl border-t border-gray-200">
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Apply Changes
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1399,7 +1484,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {isEditing && (
               <button
                 onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded p-1 text-xs text-gray-600 z-10 hover:bg-gray-200"
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-10"
                 title="Image settings"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1474,7 +1559,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {isEditing && (
               <button
                 onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded p-1 text-xs text-gray-600 z-10 hover:bg-gray-200"
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-10"
                 title="Image settings"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1567,39 +1652,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             />
             
             {/* Scaling Controls in Edit Mode */}
-            {isEditing && onTextChange && (
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md shadow-lg p-1">
-                <button
-                  onClick={() => {
-                    const newWidth = Math.max(50, imageWidth - 50);
-                    onTextChange(fieldPath('width'), newWidth);
-                  }}
-                  className="p-1 hover:bg-gray-100 rounded text-gray-600 text-xs"
-                  title="Make smaller"
-                >
-                  <ZoomOut className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={() => {
-                    const newWidth = Math.min(800, imageWidth + 50);
-                    onTextChange(fieldPath('width'), newWidth);
-                  }}
-                  className="p-1 hover:bg-gray-100 rounded text-gray-600 text-xs"
-                  title="Make larger"
-                >
-                  <ZoomIn className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={() => {
-                    onTextChange(fieldPath('width'), 300); // Reset to default
-                  }}
-                  className="p-1 hover:bg-gray-100 rounded text-gray-600 text-xs"
-                  title="Reset size"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                </button>
-              </div>
-            )}
+
             
             {caption && (
               <p className="text-xs text-gray-600 mt-2 italic">
