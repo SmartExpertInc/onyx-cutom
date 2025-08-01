@@ -293,6 +293,146 @@
             word-wrap: break-word;
         }
         
+        /* Pyramid Template - EXACT FRONTEND MATCH */
+        .pyramid-template {
+            background-color: var(--bg-color);
+            padding: 64px;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Martel Sans', sans-serif;
+            min-height: 600px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .pyramid-template .slide-title {
+            color: var(--title-color);
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 16px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        .pyramid-template .slide-subtitle {
+            color: var(--content-color);
+            font-size: 18px;
+            font-family: 'Martel Sans', sans-serif;
+            margin-bottom: 48px;
+            max-width: 80%;
+            line-height: 1.6;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        .pyramid-template .main-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 48px;
+        }
+        
+        .pyramid-template .pyramid-container {
+            flex: 0 0 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .pyramid-template .items-container {
+            flex: 1 1 55%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 400px;
+        }
+        
+        .pyramid-template .item-wrapper {
+            position: absolute;
+            width: 100%;
+            transform: translateY(-50%);
+        }
+        
+        .pyramid-template .item-wrapper.level-0 {
+            top: 16.7%;
+            left: -250px;
+        }
+        
+        .pyramid-template .item-wrapper.level-1 {
+            top: 50%;
+            left: -190px;
+        }
+        
+        .pyramid-template .item-wrapper.level-2 {
+            top: 83.3%;
+            left: -120px;
+        }
+        
+        .pyramid-template .separator-line {
+            position: absolute;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .pyramid-template .separator-line.level-0 {
+            left: -250px;
+            right: 0;
+            top: 33.3%;
+        }
+        
+        .pyramid-template .separator-line.level-1 {
+            left: -190px;
+            right: 0;
+            top: 66.6%;
+        }
+        
+        .pyramid-template .item-heading {
+            color: var(--title-color);
+            font-size: 24px;
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+        
+        .pyramid-template .item-description {
+            color: var(--content-color);
+            font-size: 18px;
+            word-wrap: break-word;
+        }
+        
+        /* Pyramid SVG Styles */
+        .pyramid-svg {
+            width: 560px;
+            height: 120px;
+        }
+        
+        .pyramid-svg-1 {
+            viewBox: "66 0 68 60";
+        }
+        
+        .pyramid-svg-2 {
+            viewBox: "33 60 134 60";
+        }
+        
+        .pyramid-svg-3 {
+            viewBox: "0 120 200 60";
+        }
+        
+        .pyramid-path {
+            fill: rgba(255, 255, 255, 0.1);
+            stroke-width: 0.5;
+        }
+        
+        .pyramid-text {
+            fill: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
         /* Title styles - EXACT FRONTEND MATCH */
         .slide-title {
             font-family: 'Kanit', sans-serif;
@@ -1470,6 +1610,60 @@
                             text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
                             text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
                         ">{{ slide.props.subtitle or 'Click to add subtitle' }}</div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'pyramid' %}
+                <div class="pyramid-template">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.subtitle %}
+                        <div class="slide-subtitle">{{ slide.props.subtitle }}</div>
+                    {% endif %}
+                    <div class="main-content">
+                        <div class="pyramid-container">
+                            <!-- Pyramid SVG 1 (Top Triangle) -->
+                            <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
+                                <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <text x="100" y="35" class="pyramid-text">1</text>
+                            </svg>
+                            <!-- Pyramid SVG 2 (Middle Trapezoid) -->
+                            <svg class="pyramid-svg pyramid-svg-2" width="560" height="120" viewBox="33 60 134 60">
+                                <path d="M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <text x="100" y="95" class="pyramid-text">2</text>
+                            </svg>
+                            <!-- Pyramid SVG 3 (Bottom Trapezoid) -->
+                            <svg class="pyramid-svg pyramid-svg-3" width="560" height="120" viewBox="0 120 200 60">
+                                <path d="M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <text x="100" y="155" class="pyramid-text">3</text>
+                            </svg>
+                        </div>
+                        <div class="items-container">
+                            {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
+                                {% for item in slide.props.items %}
+                                    {% if loop.index0 < 3 %}
+                                        <div class="item-wrapper level-{{ loop.index0 }}">
+                                            <div class="item-heading">{{ item.heading or 'Click to add heading' }}</div>
+                                            <div class="item-description">{{ item.description or 'Click to add description' }}</div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="item-wrapper level-0">
+                                    <div class="item-heading">User Satisfaction</div>
+                                    <div class="item-description">Achieving user delight</div>
+                                </div>
+                                <div class="item-wrapper level-1">
+                                    <div class="item-heading">Operational Efficiency</div>
+                                    <div class="item-description">Optimizing resources</div>
+                                </div>
+                                <div class="item-wrapper level-2">
+                                    <div class="item-heading">System Reliability</div>
+                                    <div class="item-description">Ensuring stability</div>
+                                </div>
+                            {% endif %}
+                            <div class="separator-line level-0"></div>
+                            <div class="separator-line level-1"></div>
+                        </div>
                     </div>
                 </div>
                 
