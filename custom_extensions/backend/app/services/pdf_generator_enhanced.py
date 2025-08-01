@@ -1,4 +1,4 @@
-# custom_extensions/backend/app/services/pdf_generator.py
+# custom_extensions/backend/app/services/pdf_generator_enhanced.py
 import pyppeteer
 import asyncio
 import os
@@ -12,6 +12,7 @@ import uuid
 import gc
 import time
 import json
+import traceback
 from datetime import datetime
 
 # Attempt to import settings (as before)
@@ -33,7 +34,7 @@ except ImportError:
         PDF_MERGER_AVAILABLE = False
         logger.warning("PDF merging library not available. Install PyPDF2 or pypdf for slide deck PDF generation.")
 
-# Enhanced logging configuration for debugging
+# Enhanced logging configuration
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -87,7 +88,43 @@ def shuffle_filter(seq):
 
 jinja_env.filters['shuffle'] = shuffle_filter
 
-# Enhanced logging functions for debugging
+# Enhanced browser launch options with debugging
+def get_browser_launch_options():
+    """Get optimized browser launch options for better stability and debugging."""
+    logger.info("Configuring browser launch options for enhanced debugging")
+    return {
+        'headless': 'new',
+        'args': [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox', 
+            '--disable-dev-shm-usage', 
+            '--disable-gpu', 
+            '--no-zygote', 
+            f'--js-flags=--max-old-space-size={BROWSER_MEMORY_LIMIT}', 
+            '--single-process', 
+            '--disable-extensions', 
+            '--disable-background-networking', 
+            '--disable-default-apps', 
+            '--disable-sync', 
+            '--disable-translate', 
+            '--hide-scrollbars', 
+            '--metrics-recording-only', 
+            '--mute-audio', 
+            '--no-first-run', 
+            '--safeBrowse-disable-auto-update',
+            '--font-render-hinting=none',
+            '--enable-font-antialiasing',
+            '--enable-logging',
+            '--v=1',
+            '--enable-logging=stderr',
+            '--log-level=0'
+        ],
+        'dumpio': True,  # Capture browser console output
+        'devtools': False,
+        'ignoreHTTPSErrors': True,
+        'defaultViewport': None
+    }
+
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
     """Log detailed information about slide data structure."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
@@ -132,6 +169,19 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             for key, value in props.items():
                 if key not in ['bullets', 'title', 'content']:
                     logger.info(f"Additional prop '{key}': type={type(value)}, value={value}")
+        
+        # Log other template types
+        elif template_id == 'pyramid':
+            logger.info("=== PYRAMID TEMPLATE ANALYSIS ===")
+            items = props.get('items', [])
+            logger.info(f"Items type: {type(items)}")
+            logger.info(f"Items length: {len(items) if hasattr(items, '__len__') else 'Not iterable'}")
+            
+            if hasattr(items, '__iter__') and not isinstance(items, str):
+                for i, item in enumerate(items):
+                    logger.info(f"  Item {i}: type={type(item)}, value={item}")
+            else:
+                logger.warning(f"Items is not iterable: {items}")
     
     logger.info(f"=== END SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
 
@@ -304,53 +354,87 @@ async def log_computed_styles(page, slide_index: int = None, template_id: str = 
     except Exception as e:
         logger.error(f"Failed to capture computed styles: {e}")
 
-# Optimized browser launch options
-def get_browser_launch_options():
-    """Get optimized browser launch options for better stability and debugging."""
-    logger.info("Configuring browser launch options for enhanced debugging")
-    return {
-        'headless': 'new',
-        'args': [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox', 
-            '--disable-dev-shm-usage', 
-            '--disable-gpu', 
-            '--no-zygote', 
-            f'--js-flags=--max-old-space-size={BROWSER_MEMORY_LIMIT}', 
-            '--single-process', 
-            '--disable-extensions', 
-            '--disable-background-networking', 
-            '--disable-default-apps', 
-            '--disable-sync', 
-            '--disable-translate', 
-            '--hide-scrollbars', 
-            '--metrics-recording-only', 
-            '--mute-audio', 
-            '--no-first-run', 
-            '--safeBrowse-disable-auto-update',
-            '--font-render-hinting=none',
-            '--enable-font-antialiasing',
-            '--enable-logging',
-            '--v=1',
-            '--enable-logging=stderr',
-            '--log-level=0'
-        ],
-        'dumpio': True,  # Capture browser console output
-        'devtools': False,
-        'ignoreHTTPSErrors': True,
-        'defaultViewport': None,
-        'executablePath': CHROME_EXEC_PATH,
-        'timeout': PDF_GENERATION_TIMEOUT
-    }
+async def log_page_lifecycle_events(page, slide_index: int = None, template_id: str = None):
+    """Log page lifecycle events."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    try:
+        # Set up event listeners
+        await page.evaluate("""
+            () => {
+                window.pageEvents = [];
+                
+                const events = ['DOMContentLoaded', 'load', 'beforeunload', 'unload'];
+                events.forEach(eventType => {
+                    window.addEventListener(eventType, (e) => {
+                        window.pageEvents.push({
+                            type: eventType,
+                            timestamp: Date.now(),
+                            detail: e.type
+                        });
+                    });
+                });
+                
+                // Monitor font loading
+                if (document.fonts) {
+                    document.fonts.ready.then(() => {
+                        window.pageEvents.push({
+                            type: 'fontsReady',
+                            timestamp: Date.now(),
+                            detail: 'All fonts loaded'
+                        });
+                    });
+                }
+                
+                // Monitor CSS loading
+                const styleSheets = document.styleSheets;
+                for (let i = 0; i < styleSheets.length; i++) {
+                    try {
+                        const rules = styleSheets[i].cssRules || styleSheets[i].rules;
+                        if (rules) {
+                            window.pageEvents.push({
+                                type: 'stylesheetLoaded',
+                                timestamp: Date.now(),
+                                detail: `Stylesheet ${i} loaded with ${rules.length} rules`
+                            });
+                        }
+                    } catch (e) {
+                        window.pageEvents.push({
+                            type: 'stylesheetError',
+                            timestamp: Date.now(),
+                            detail: `Stylesheet ${i} error: ${e.message}`
+                        });
+                    }
+                }
+            }
+        """)
+        
+        # Wait a bit for events to occur
+        await asyncio.sleep(2)
+        
+        # Get events
+        events = await page.evaluate("() => window.pageEvents || []")
+        
+        if events:
+            logger.info(f"=== PAGE LIFECYCLE EVENTS for {slide_info}{template_info} ===")
+            for event in events:
+                logger.info(f"Event: {event}")
+            logger.info(f"=== END PAGE LIFECYCLE EVENTS for {slide_info}{template_info} ===")
+        else:
+            logger.info(f"No page lifecycle events captured for {slide_info}{template_info}")
+            
+    except Exception as e:
+        logger.error(f"Failed to capture page lifecycle events: {e}")
 
-async def generate_pdf_from_html_template(
+async def generate_pdf_from_html_template_enhanced(
     template_name: str,
     context_data: dict,
     output_filename: str,
     use_cache: bool = True,
     landscape: bool = False
 ) -> str:
-    """Enhanced PDF generation with extensive logging for debugging."""
+    """Enhanced version with extensive logging."""
     
     logger.info(f"=== STARTING ENHANCED PDF GENERATION ===")
     logger.info(f"Template: {template_name}")
@@ -451,12 +535,18 @@ async def generate_pdf_from_html_template(
         
         # Set viewport to match PDF slide dimensions exactly - CRITICAL FIX
         await page.setViewport({'width': 1174, 'height': 600})  # Start with minimum height
+        logger.info("Viewport set to 1174x600")
         
         # Set content from string
+        logger.info("=== CONTENT SETTING PHASE ===")
         await page.setContent(html_content)
-        logger.info("HTML content set in Pyppeteer page.")
+        logger.info("HTML content set in Pyppeteer page successfully.")
+        
+        # Log page lifecycle events
+        await log_page_lifecycle_events(page)
         
         # Wait for fonts to load and rendering to complete
+        logger.info("Waiting for fonts to load...")
         await page.waitForFunction("""
             () => {
                 return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
@@ -465,12 +555,19 @@ async def generate_pdf_from_html_template(
         
         # Additional delay for complex rendering
         await asyncio.sleep(2)
+        logger.info("Rendering delay completed")
+
+        # Log computed styles before height calculation
+        await log_computed_styles(page)
 
         # *** CRITICAL FIX: Calculate accurate slide heights ***
+        logger.info("=== HEIGHT CALCULATION PHASE ===")
         slide_heights = await page.evaluate("""
             () => {
                 const slidePages = document.querySelectorAll('.slide-page');
                 const heights = [];
+                
+                console.log(`Found ${slidePages.length} slide pages`);
                 
                 slidePages.forEach((slidePage, index) => {
                     // Force a reflow to ensure accurate measurements
@@ -479,6 +576,13 @@ async def generate_pdf_from_html_template(
                     // Get the actual computed height including all content
                     const slideRect = slidePage.getBoundingClientRect();
                     const slideComputedStyle = window.getComputedStyle(slidePage);
+                    
+                    console.log(`Slide ${index + 1} computed style:`, {
+                        width: slideComputedStyle.width,
+                        height: slideComputedStyle.height,
+                        minHeight: slideComputedStyle.minHeight,
+                        maxHeight: slideComputedStyle.maxHeight
+                    });
                     
                     // Get all child elements to find the true content bounds
                     const slideContent = slidePage.querySelector('.slide-content');
@@ -543,6 +647,7 @@ async def generate_pdf_from_html_template(
                 slide_height['height'] = max(600, min(int(slide_height['height']), 3000))
 
         # *** CRITICAL FIX: Apply individual CSS page sizes ***
+        logger.info("=== CSS APPLICATION PHASE ===")
         await page.evaluate("""
             (heights) => {
                 // Create dynamic CSS for each page with exact dimensions
@@ -611,9 +716,13 @@ async def generate_pdf_from_html_template(
         # Force a final reflow to ensure all styles are applied
         await asyncio.sleep(1)
         await page.evaluate("() => { document.body.offsetHeight; }")
+        logger.info("Final reflow completed")
+
+        # Log computed styles after CSS application
+        await log_computed_styles(page)
 
         # *** CRITICAL FIX: Generate PDF with proper page sizing ***
-        logger.info("Generating PDF with individual page heights...")
+        logger.info("=== PDF GENERATION PHASE ===")
          
         # Calculate total document height for debugging
         total_height = await page.evaluate("""
@@ -628,6 +737,9 @@ async def generate_pdf_from_html_template(
         """)
         
         logger.info(f"Total document height: {total_height}px")
+        
+        # Log browser console output before PDF generation
+        await log_browser_console_output(page)
         
         # *** FINAL CRITICAL FIX: Remove width/height parameters to let CSS control everything ***
         await page.pdf({
@@ -647,10 +759,12 @@ async def generate_pdf_from_html_template(
             os.remove(pdf_path_in_cache)
         os.rename(temp_pdf_path, pdf_path_in_cache)
         logger.info(f"PDF moved to cache: {pdf_path_in_cache}")
+        
+        logger.info("=== ENHANCED PDF GENERATION COMPLETED SUCCESSFULLY ===")
         return str(pdf_path_in_cache)
         
     except Exception as e:
-        logger.error(f"Error during PDF generation: {e}", exc_info=True)
+        logger.error(f"Error during enhanced PDF generation: {e}", exc_info=True)
         if browser and browser.process and browser.process.returncode is not None:
              logger.error(f"Browser process exited with code: {browser.process.returncode}")
         if os.path.exists(temp_pdf_path):
@@ -667,194 +781,9 @@ async def generate_pdf_from_html_template(
             await browser.close()
             logger.info("Browser for HTML PDF closed.")
 
-async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None) -> int:
-    """
-    Calculate the exact height needed for a single slide.
+async def generate_single_slide_pdf_enhanced(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None) -> bool:
+    """Enhanced version of single slide PDF generation with extensive logging."""
     
-    Args:
-        slide_data: The slide data dictionary
-        theme: The theme name
-        browser: Optional browser instance to reuse
-    
-    Returns:
-        int: The calculated height in pixels
-    """
-    should_close_browser = browser is None
-    page = None
-    
-    # Get slide info for logging
-    template_id = slide_data.get('templateId', 'unknown')
-    
-    try:
-        if browser is None:
-            browser = await pyppeteer.launch(**get_browser_launch_options())
-        
-        page = await browser.newPage()
-        
-        # Set viewport to match slide width
-        await page.setViewport({'width': 1174, 'height': 800})
-        
-        # Create context for single slide
-        # Add safety checks for slide data
-        safe_slide_data = slide_data.copy() if slide_data else {}
-        if 'props' not in safe_slide_data or not safe_slide_data['props']:
-            safe_slide_data['props'] = {}
-        
-        # Ensure all required properties exist with safe defaults
-        default_props = {
-            'title': 'Untitled Slide',
-            'subtitle': '',
-            'content': '',
-            'bullets': [],
-            'steps': [],
-            'challenges': [],
-            'solutions': [],
-            'items': [],
-            'boxes': [],
-            'levels': [],
-            'events': []
-        }
-        
-        # Merge existing props with defaults, preserving existing data
-        for key, default_value in default_props.items():
-            if key not in safe_slide_data['props']:
-                safe_slide_data['props'][key] = default_value
-        
-        # Special safety check for 'items' property to prevent it from being overwritten with dict.items()
-        if 'items' in safe_slide_data['props']:
-            items_value = safe_slide_data['props']['items']
-            if callable(items_value):
-                logger.warning(f"WARNING: 'items' property is callable (type: {type(items_value)}), replacing with empty list")
-                safe_slide_data['props']['items'] = []
-            elif not hasattr(items_value, '__iter__') or isinstance(items_value, str):
-                logger.warning(f"WARNING: 'items' property is not iterable (type: {type(items_value)}), replacing with empty list")
-                safe_slide_data['props']['items'] = []
-        
-        context_data = {
-            'slide': safe_slide_data,
-            'theme': theme,
-            'slide_height': 600  # Start with minimum height
-        }
-        
-        # Render the single slide template
-        try:
-            # Debug logging to see the data structure
-            logger.info(f"DEBUG: Template data for {template_id}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
-            if safe_slide_data.get('props', {}).get('items'):
-                logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
-            
-            template = jinja_env.get_template("single_slide_pdf_template.html")
-            html_content = template.render(**context_data)
-        except Exception as template_error:
-            logger.error(f"Template rendering error for {template_id}: {template_error}", exc_info=True)
-            # Fallback to a simple template
-            html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head><style>
-                body {{ margin: 0; padding: 40px; font-family: Arial, sans-serif; background: #f0f0f0; }}
-                .slide-page {{ width: 1174px; height: 600px; background: white; padding: 40px; border-radius: 8px; }}
-                .slide-content {{ display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }}
-                .slide-title {{ font-size: 32px; font-weight: bold; margin-bottom: 20px; }}
-                .content {{ font-size: 18px; }}
-            </style></head>
-            <body>
-                <div class="slide-page">
-                    <div class="slide-content">
-                        <div class="slide-title">{safe_slide_data.get('props', {}).get('title', 'Untitled Slide')}</div>
-                        <div class="content">Slide content could not be rendered properly.</div>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """
-        
-        # Set content and wait for rendering
-        await page.setContent(html_content)
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=PDF_PAGE_TIMEOUT)
-        
-        # Additional delay for complex rendering
-        await asyncio.sleep(1)
-        
-        # Calculate the actual height needed
-        height_result = await page.evaluate("""
-            () => {
-                const slidePage = document.querySelector('.slide-page');
-                if (!slidePage) return 600;
-                
-                // Force a reflow to ensure accurate measurements
-                slidePage.offsetHeight;
-                
-                // Get the actual computed height including all content
-                const slideRect = slidePage.getBoundingClientRect();
-                const slideContent = slidePage.querySelector('.slide-content');
-                
-                if (slideContent) {
-                    slideContent.offsetHeight; // Force reflow
-                    const contentRect = slideContent.getBoundingClientRect();
-                    
-                    // Find the actual bottom-most element
-                    const allElements = slideContent.querySelectorAll('*');
-                    let maxBottom = contentRect.bottom;
-                    
-                    allElements.forEach(el => {
-                        const elRect = el.getBoundingClientRect();
-                        if (elRect.bottom > maxBottom) {
-                            maxBottom = elRect.bottom;
-                        }
-                    });
-                    
-                    // Calculate total height from top of slide to bottom of content
-                    const totalHeight = maxBottom - slideRect.top;
-                    
-                    // Ensure minimum height and reasonable maximum
-                    const finalHeight = Math.max(600, Math.min(Math.ceil(totalHeight), 3000));
-                    
-                    console.log(`Slide height calculation: Final: ${finalHeight}px, Content: ${Math.ceil(contentRect.height)}px, MaxBottom: ${Math.ceil(maxBottom - slideRect.top)}px`);
-                    
-                    return finalHeight;
-                }
-                
-                return 600;
-            }
-        """)
-        
-        # Add safety margin
-        final_height = max(PDF_MIN_SLIDE_HEIGHT, min(int(height_result) + PDF_HEIGHT_SAFETY_MARGIN, PDF_MAX_SLIDE_HEIGHT))
-        
-        logger.info(f"Calculated height for {template_id}: {final_height}px (original: {height_result}px)")
-        return final_height
-        
-    except Exception as e:
-        logger.error(f"Error calculating slide dimensions for {template_id}: {e}", exc_info=True)
-        return PDF_MIN_SLIDE_HEIGHT
-        
-    finally:
-        if page and not page.isClosed():
-            await page.close()
-        if should_close_browser and browser:
-            await browser.close()
-
-async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None) -> bool:
-    """
-    Generate a PDF for a single slide with exact dimensions.
-    
-    Args:
-        slide_data: The slide data dictionary
-        theme: The theme name
-        slide_height: The calculated height for this slide
-        output_path: Where to save the PDF
-        browser: Optional browser instance to reuse
-        slide_index: Optional slide index for logging (1-based)
-        template_id: Optional template ID for logging
-    
-    Returns:
-        bool: True if successful, False otherwise
-    """
     logger.info(f"=== STARTING ENHANCED SINGLE SLIDE PDF GENERATION ===")
     
     # Log slide data structure
@@ -904,6 +833,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         
         # Set viewport to match slide dimensions exactly
         await page.setViewport({'width': 1174, 'height': slide_height})
+        logger.info(f"Viewport set to 1174x{slide_height}")
         
         # Create context for single slide with calculated height
         # Add safety checks for slide data
@@ -1000,28 +930,40 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         await asyncio.sleep(1)
         logger.info("Rendering delay completed")
         
+        # Log page lifecycle events
+        await log_page_lifecycle_events(page, slide_index, template_id)
+        
         # Log computed styles
         await log_computed_styles(page, slide_index, template_id)
         
         # Log browser console output
         await log_browser_console_output(page, slide_index, template_id)
         
-        # Generate PDF with exact dimensions
+        # Generate PDF
+        logger.info("Generating PDF")
         await page.pdf({
             'path': output_path,
-            'landscape': False,
+            'width': '1174px',
+            'height': f'{slide_height}px',
             'printBackground': True,
             'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
-            'preferCSSPageSize': True,
             'displayHeaderFooter': False,
             'omitBackground': False
         })
         
-        logger.info(f"✓ Generated PDF for {slide_info}{template_info}: {output_path}")
-        return True
+        logger.info(f"PDF generated successfully at {output_path}")
+        
+        # Verify file was created
+        if os.path.exists(output_path):
+            file_size = os.path.getsize(output_path)
+            logger.info(f"PDF file created successfully. Size: {file_size} bytes")
+            return True
+        else:
+            logger.error(f"PDF file was not created at {output_path}")
+            return False
         
     except Exception as e:
-        logger.error(f"✗ Error generating PDF for {slide_info}{template_info}: {e}", exc_info=True)
+        logger.error(f"Error during enhanced single slide PDF generation for {slide_info}{template_info}: {e}", exc_info=True)
         return False
         
     finally:
@@ -1029,337 +971,15 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             await page.close()
         if should_close_browser and browser:
             await browser.close()
+            logger.info("Browser closed")
 
-async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> list:
-    """
-    Process a batch of slides in parallel for better performance.
-    
-    Args:
-        slides_batch: List of (slide_data, slide_height, output_path, slide_index, template_id) tuples
-        theme: The theme name
-        browser: Optional browser instance to reuse
-    
-    Returns:
-        list: List of successful output paths
-    """
-    tasks = []
-    for slide_data, slide_height, output_path, slide_index, template_id in slides_batch:
-        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
-        tasks.append(task)
-    
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    
-    successful_paths = []
-    for i, result in enumerate(results):
-        slide_index = slides_batch[i][3] + 1  # Convert to 1-based index
-        template_id = slides_batch[i][4]
-        if isinstance(result, Exception):
-            logger.error(f"✗ Failed to generate slide {slide_index} ({template_id}): {result}", exc_info=True)
-        elif result:
-            successful_paths.append(slides_batch[i][2])  # output_path
-            logger.info(f"✓ Successfully generated slide {slide_index} ({template_id})")
-    
-    return successful_paths
-
-async def generate_slide_deck_pdf_with_dynamic_height(
-    slides_data: list,
-    theme: str,
-    output_filename: str,
-    use_cache: bool = True
-) -> str:
-    """
-    Generate a PDF slide deck with dynamic height per slide.
-    OPTIMIZED VERSION with better resource management and parallel processing.
-    
-    Args:
-        slides_data: List of slide data dictionaries
-        theme: The theme name
-        output_filename: The output filename
-        use_cache: Whether to use caching
-    
-    Returns:
-        str: Path to the generated PDF
-    """
-    pdf_path_in_cache = PDF_CACHE_DIR / output_filename
-    
-    if use_cache and pdf_path_in_cache.exists():
-        logger.info(f"PDF CACHE: Serving cached PDF: {pdf_path_in_cache}")
-        return str(pdf_path_in_cache)
-    
-    if not PDF_MERGER_AVAILABLE:
-        raise HTTPException(status_code=500, detail="PDF merging library not available. Install PyPDF2 or pypdf.")
-    
-    browser = None
-    temp_pdf_paths = []
-    start_time = time.time()
-    
-    try:
-        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}")
-        
-        # Step 1: Calculate heights for all slides with a single browser instance
-        logger.info("Calculating slide heights...")
-        browser = await pyppeteer.launch(**get_browser_launch_options())
-        
-        slide_heights = []
-        for i, slide_data in enumerate(slides_data):
-            template_id = slide_data.get('templateId', 'unknown')
-            logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)} (templateId: {template_id})")
-            try:
-                height = await calculate_slide_dimensions(slide_data, theme, browser)
-                slide_heights.append(height)
-                logger.info(f"✓ Slide {i + 1} ({template_id}) height calculated: {height}px")
-            except Exception as e:
-                logger.error(f"✗ Failed to calculate height for slide {i + 1} ({template_id}): {e}", exc_info=True)
-                slide_heights.append(PDF_MIN_SLIDE_HEIGHT)
-        
-        # Close the height calculation browser to free memory
-        await browser.close()
-        browser = None
-        
-        # Step 2: Generate individual PDFs in batches for better performance
-        logger.info("Generating individual slide PDFs...")
-        
-        # Create temporary paths for all slides
-        slide_tasks = []
-        for i, (slide_data, slide_height) in enumerate(zip(slides_data, slide_heights)):
-            template_id = slide_data.get('templateId', 'unknown')
-            temp_pdf_path = f"/tmp/slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
-            slide_tasks.append((slide_data, slide_height, temp_pdf_path, i, template_id))
-        
-        # Process slides in batches to avoid memory issues
-        batch_size = MAX_CONCURRENT_SLIDES
-        successful_paths = []
-        
-        for batch_start in range(0, len(slide_tasks), batch_size):
-            batch_end = min(batch_start + batch_size, len(slide_tasks))
-            batch = slide_tasks[batch_start:batch_end]
-            
-            logger.info(f"Processing batch {batch_start//batch_size + 1}/{(len(slide_tasks) + batch_size - 1)//batch_size} ({len(batch)} slides)")
-            
-            # Log batch details
-            for slide_data, slide_height, temp_pdf_path, slide_index, template_id in batch:
-                logger.info(f"  - Slide {slide_index + 1} ({template_id}): height={slide_height}px, output={temp_pdf_path}")
-            
-            # Launch a new browser for each batch to prevent memory accumulation
-            batch_browser = await pyppeteer.launch(**get_browser_launch_options())
-            
-            try:
-                batch_results = await process_slide_batch(batch, theme, batch_browser)
-                successful_paths.extend(batch_results)
-                temp_pdf_paths.extend(batch_results)
-            except Exception as e:
-                logger.error(f"Failed to process batch: {e}", exc_info=True)
-                # Clean up any generated PDFs in this batch
-                for _, _, path, slide_index, template_id in batch:
-                    try:
-                        if os.path.exists(path):
-                            os.remove(path)
-                    except:
-                        pass
-                raise HTTPException(status_code=500, detail=f"Failed to process slide batch: {str(e)[:200]}")
-            finally:
-                await batch_browser.close()
-                # Force garbage collection after each batch
-                gc.collect()
-        
-        if len(successful_paths) != len(slides_data):
-            logger.error(f"Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully")
-            # Clean up any generated PDFs
-            for path in temp_pdf_paths:
-                try:
-                    os.remove(path)
-                except:
-                    pass
-            raise HTTPException(status_code=500, detail=f"Failed to generate all slides. Only {len(successful_paths)}/{len(slides_data)} were successful.")
-        
-        # Step 3: Merge all PDFs into final document
-        logger.info(f"Merging {len(temp_pdf_paths)} slide PDFs...")
-        merger = PdfMerger()
-        
-        try:
-            for pdf_path in temp_pdf_paths:
-                if os.path.exists(pdf_path):
-                    merger.append(pdf_path)
-                else:
-                    logger.warning(f"PDF file not found: {pdf_path}")
-            
-            # Write the merged PDF
-            if os.path.exists(pdf_path_in_cache):
-                os.remove(pdf_path_in_cache)
-            
-            merger.write(str(pdf_path_in_cache))
-            merger.close()
-            
-        except Exception as e:
-            logger.error(f"Failed to merge PDFs: {e}")
-            merger.close()
-            raise HTTPException(status_code=500, detail=f"Failed to merge PDFs: {str(e)[:200]}")
-        
-        # Clean up temporary PDF files
-        for pdf_path in temp_pdf_paths:
-            try:
-                if os.path.exists(pdf_path):
-                    os.remove(pdf_path)
-            except Exception as e:
-                logger.warning(f"Failed to clean up temporary PDF {pdf_path}: {e}")
-        
-        total_time = time.time() - start_time
-        logger.info(f"Slide deck PDF generated successfully in {total_time:.2f}s: {pdf_path_in_cache}")
-        return str(pdf_path_in_cache)
-        
-    except Exception as e:
-        logger.error(f"Error generating slide deck PDF: {e}", exc_info=True)
-        
-        # Clean up any generated PDFs
-        for path in temp_pdf_paths:
-            try:
-                if os.path.exists(path):
-                    os.remove(path)
-            except:
-                pass
-        
-        raise HTTPException(status_code=500, detail=f"Failed to generate slide deck PDF: {str(e)[:200]}")
-        
-    finally:
-        if browser:
-            try:
-                await browser.close()
-            except:
-                pass
-        # Force garbage collection
-        gc.collect()
-
-async def test_single_slide_generation(slide_data: dict, theme: str, slide_index: int = None) -> dict:
-    """
-    Test generation of a single slide in isolation to identify issues.
-    
-    Args:
-        slide_data: The slide data dictionary
-        theme: The theme name
-        slide_index: Optional slide index for logging
-    
-    Returns:
-        dict: Test results with success status and details
-    """
-    template_id = slide_data.get('templateId', 'unknown')
-    slide_info = f"slide {slide_index}" if slide_index else "slide"
-    
-    logger.info(f"🧪 Testing {slide_info} ({template_id}) in isolation...")
-    
-    result = {
-        'success': False,
-        'slide_index': slide_index,
-        'template_id': template_id,
-        'error': None,
-        'height_calculation_success': False,
-        'pdf_generation_success': False,
-        'calculated_height': None
-    }
-    
-    browser = None
-    temp_pdf_path = None
-    
-    try:
-        # Test 1: Height calculation
-        logger.info(f"  📏 Testing height calculation for {slide_info} ({template_id})...")
-        try:
-            browser = await pyppeteer.launch(**get_browser_launch_options())
-            height = await calculate_slide_dimensions(slide_data, theme, browser)
-            result['height_calculation_success'] = True
-            result['calculated_height'] = height
-            logger.info(f"  ✅ Height calculation successful: {height}px")
-        except Exception as e:
-            result['error'] = f"Height calculation failed: {str(e)}"
-            logger.error(f"  ❌ Height calculation failed for {slide_info} ({template_id}): {e}", exc_info=True)
-            return result
-        finally:
-            if browser:
-                await browser.close()
-                browser = None
-        
-        # Test 2: PDF generation
-        logger.info(f"  📄 Testing PDF generation for {slide_info} ({template_id})...")
-        try:
-            temp_pdf_path = f"/tmp/test_slide_{slide_index}_{uuid.uuid4().hex[:8]}.pdf"
-            browser = await pyppeteer.launch(**get_browser_launch_options())
-            success = await generate_single_slide_pdf(slide_data, theme, result['calculated_height'], temp_pdf_path, browser, slide_index, template_id)
-            
-            if success:
-                result['pdf_generation_success'] = True
-                result['success'] = True
-                logger.info(f"  ✅ PDF generation successful: {temp_pdf_path}")
-            else:
-                result['error'] = "PDF generation returned False"
-                logger.error(f"  ❌ PDF generation returned False for {slide_info} ({template_id})")
-        except Exception as e:
-            result['error'] = f"PDF generation failed: {str(e)}"
-            logger.error(f"  ❌ PDF generation failed for {slide_info} ({template_id}): {e}", exc_info=True)
-        finally:
-            if browser:
-                await browser.close()
-        
-        return result
-        
-    except Exception as e:
-        result['error'] = f"General test failure: {str(e)}"
-        logger.error(f"  ❌ General test failure for {slide_info} ({template_id}): {e}", exc_info=True)
-        return result
-    finally:
-        # Clean up temporary file
-        if temp_pdf_path and os.path.exists(temp_pdf_path):
-            try:
-                os.remove(temp_pdf_path)
-            except:
-                pass
-
-async def test_all_slides_individually(slides_data: list, theme: str) -> dict:
-    """
-    Test each slide individually to identify which one is causing issues.
-    
-    Args:
-        slides_data: List of slide data dictionaries
-        theme: The theme name
-    
-    Returns:
-        dict: Summary of test results
-    """
-    logger.info(f"🧪 Testing all {len(slides_data)} slides individually...")
-    
-    results = []
-    failed_slides = []
-    
-    for i, slide_data in enumerate(slides_data):
-        slide_index = i + 1  # 1-based index
-        result = await test_single_slide_generation(slide_data, theme, slide_index)
-        results.append(result)
-        
-        if not result['success']:
-            failed_slides.append({
-                'slide_index': slide_index,
-                'template_id': result['template_id'],
-                'error': result['error']
-            })
-    
-    # Summary
-    successful_count = len([r for r in results if r['success']])
-    failed_count = len(failed_slides)
-    
-    summary = {
-        'total_slides': len(slides_data),
-        'successful_slides': successful_count,
-        'failed_slides': failed_count,
-        'failed_slide_details': failed_slides,
-        'all_results': results
-    }
-    
-    logger.info(f"🧪 Individual slide test summary:")
-    logger.info(f"  📊 Total slides: {summary['total_slides']}")
-    logger.info(f"  ✅ Successful: {summary['successful_slides']}")
-    logger.info(f"  ❌ Failed: {summary['failed_slides']}")
-    
-    if failed_slides:
-        logger.error(f"  🚨 Failed slides:")
-        for failed in failed_slides:
-            logger.error(f"    - Slide {failed['slide_index']} ({failed['template_id']}): {failed['error']}")
-    
-    return summary
+# Export the enhanced functions
+__all__ = [
+    'generate_pdf_from_html_template_enhanced',
+    'generate_single_slide_pdf_enhanced',
+    'log_slide_data_structure',
+    'log_html_content',
+    'log_browser_console_output',
+    'log_computed_styles',
+    'log_page_lifecycle_events'
+] 
