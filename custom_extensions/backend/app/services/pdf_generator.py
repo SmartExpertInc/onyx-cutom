@@ -129,6 +129,12 @@ async def generate_pdf_from_html_template(
                             logger.info(f"PDF GEN: Keeping original src: {original_src}")
                     else:
                         logger.info(f"PDF GEN: Already transformed or no src: {original_src}")
+            
+            # Log final image blocks after transformation
+            image_blocks = [block for block in content_blocks if block.get('type') == 'image']
+            logger.info(f"PDF GEN: Final image blocks after transformation: {len(image_blocks)}")
+            for img_block in image_blocks:
+                logger.info(f"PDF GEN: Final image src: {img_block.get('src', 'NO_SRC')}")
         
         html_content = template.render(**context_data) # Pass context_data as keyword arguments to template
         logger.info("HTML content rendered from template.")
