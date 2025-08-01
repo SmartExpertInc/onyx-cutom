@@ -273,7 +273,6 @@
         .hero-title-slide .slide-title {
             font-family: 'Kanit', sans-serif;
             font-size: 50px;
-            font-weight: 700;
             color: var(--title-color);
             text-align: center;
             margin-bottom: 24px;
@@ -285,7 +284,6 @@
         .hero-title-slide .slide-subtitle {
             font-family: 'Martel Sans', sans-serif;
             font-size: 22px;
-            font-weight: 400;
             color: var(--subtitle-color);
             text-align: center;
             line-height: 1.6;
@@ -429,7 +427,6 @@
         .pyramid-text {
             fill: rgba(255, 255, 255, 0.9);
             font-size: 12px;
-            font-weight: bold;
             text-anchor: middle;
         }
         
@@ -838,7 +835,6 @@
         .two-column .slide-title {
             text-align: left;
             margin-bottom: 40px;
-            font-weight: 700;
             font-family: 'Kanit', sans-serif;
             font-size: 45px;
             color: var(--title-color);
@@ -1511,42 +1507,7 @@
                     </div>
                 </div>
                 
-            {% elif slide.templateId == 'two-column-diversity' %}
-                <div class="slide">
-                    <h1 class="slide-title" style="text-align: center;">{{ slide.props.title or 'Click to add title' }}</h1>
-                    <div class="two-column-layout">
-                        <div class="column">
-                            <div style="width: 100%; height: 320px; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
-                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImage.prompt or slide.props.leftImage.alt or 'man sitting on a chair' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                            </div>
-                            <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.leftTitle or 'Our Commitment' }}</h2>
-                            <div class="content-text" style="text-align: left;">{{ slide.props.leftContent or 'We are dedicated to fostering a diverse and inclusive workplace where everyone feels valued and respected.' }}</div>
-                        </div>
-                        <div class="column">
-                            <div style="width: 100%; height: 320px; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px;">
-                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImage.prompt or slide.props.rightImage.alt or 'man sitting on a chair' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                            </div>
-                            <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px; text-align: left;">{{ slide.props.rightTitle or 'Benefits of Diversity' }}</h2>
-                            <div class="content-text" style="text-align: left;">
-                                {% if slide.props.rightBullets %}
-                                    {% for bullet in slide.props.rightBullets %}
-                                        <div style="margin-bottom: 8px;">• {{ bullet }}</div>
-                                    {% endfor %}
-                                {% else %}
-                                    <div style="margin-bottom: 8px;">• Enhances creativity and innovation.</div>
-                                    <div style="margin-bottom: 8px;">• Reflects the diverse communities we serve.</div>
-                                    <div style="margin-bottom: 8px;">• Improves employee satisfaction and retention.</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
                 
             {% elif slide.templateId == 'comparison-slide' %}
                 <div class="slide">
