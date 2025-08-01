@@ -540,17 +540,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '1 / 1',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d',
-    margin: '0 auto'
+    height: '100%'
   };
 
   // Right (bullets) styles
@@ -655,11 +645,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             description="Click to upload image"
             prompt={displayPrompt}
             isEditable={isEditable}
-            style={{
-              width: '100%',
-              aspectRatio: '1 / 1',
-              margin: '0 auto'
-            }}
+            style={placeholderStyles}
           />
         </div>
         {/* Right: Unified bullet points editor */}
