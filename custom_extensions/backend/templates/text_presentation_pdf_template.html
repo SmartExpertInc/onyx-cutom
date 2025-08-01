@@ -509,7 +509,7 @@
                 {% set text_content = block_data.text | default('') %}
                 {% set alert_title_content = block_data.title | default('') %}
 
-                <div class="content-block-wrapper type-{{block_type}}">
+                <div class="content-block-wrapper type-{{block_type}}"{% if block_type == 'image' and block_data.get('layoutMode') in ['inline-left', 'inline-right'] %} style="margin-bottom: 0;"{% endif %}>
                     {% if block_type == 'headline' %}
                         <div class="headline-block h{{ level }}"
                              style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %} {% if block_data.textColor %}color: {{ block_data.textColor }}; fill: {{block_data.textColor}};{% elif is_in_mini_section %}color: var(--color-primary-accent); fill: var(--color-primary-accent);{% endif %} {% if block_data.fontSize %}font-size: {{ block_data.fontSize }};{% endif %}">
@@ -594,72 +594,67 @@
   <!-- block_data.borderRadius: {{ block_data.borderRadius }} -->
   <!-- block_data.src: {{ block_data.src[:50] }}... -->
   
-  <div class="image-block-wrapper" style="margin: 16px 0; {% if block_data.float or block_data.layoutMode in ['inline-left', 'inline-right'] %} overflow: hidden; {% endif %}">
-    {% set image_src = block_data.src %}
-    {% set img_style = "max-width: " + (block_data.maxWidth or '100%') + ";" %}
-    
-    {% if block_data.layoutMode == 'inline-left' or block_data.layoutMode == 'inline-right' %}
-      <!-- Inline layout - text wraps around image -->
-      {% set float_direction = 'left' if block_data.layoutMode == 'inline-left' else 'right' %}
-      {% set img_style = img_style + " float: " + float_direction + "; max-width: 50%;" %}
-      {% if float_direction == 'left' %}
-        {% set img_style = img_style + " margin: 16px 16px 16px 0;" %}
-      {% else %}
-        {% set img_style = img_style + " margin: 16px 0 16px 16px;" %}
-      {% endif %}
-    {% elif block_data.float %}
-      <!-- Legacy float support -->
-      {% set img_style = img_style + " float: " + block_data.float + "; max-width: 50%;" %}
-      {% if block_data.float == 'left' %}
-        {% set img_style = img_style + " margin: 16px 16px 16px 0;" %}
-      {% else %}
-        {% set img_style = img_style + " margin: 16px 0 16px 16px;" %}
-      {% endif %}
-    {% elif block_data.layoutMode in ['side-by-side-left', 'side-by-side-right'] %}
-      <!-- Side-by-side layout - for PDF, treat as centered for now -->
-      <!-- TODO: Implement proper side-by-side rendering when partner content is available -->
-      {% set img_style = img_style + " display: block; margin-left: auto; margin-right: auto;" %}
+  {% set image_src = block_data.src %}
+  {% set img_style = "max-width: " + (block_data.maxWidth or '100%') + ";" %}
+  
+  {% if block_data.layoutMode == 'inline-left' or block_data.layoutMode == 'inline-right' %}
+    <!-- Inline layout - text wraps around image -->
+    {% set float_direction = 'left' if block_data.layoutMode == 'inline-left' else 'right' %}
+    {% set img_style = img_style + " float: " + float_direction + "; max-width: 50%;" %}
+    {% if float_direction == 'left' %}
+      {% set img_style = img_style + " margin: 16px 16px 16px 0;" %}
     {% else %}
-      <!-- Standalone layout -->
-      {% set img_style = img_style + " display: block; margin-left: auto; margin-right: auto;" %}
+      {% set img_style = img_style + " margin: 16px 0 16px 16px;" %}
     {% endif %}
-    
-    {% if block_data.width %}
-      {% set img_style = img_style + " width: " + block_data.width|string %}
-      {% if block_data.width is number %}
-        {% set img_style = img_style + "px" %}
-      {% endif %}
-      {% set img_style = img_style + ";" %}
-    {% endif %}
-    {% set img_style = img_style + " height: " %}
-    {% if block_data.height %}
-      {% set img_style = img_style + block_data.height|string %}
-      {% if block_data.height is number %}
-        {% set img_style = img_style + "px" %}
-      {% endif %}
+  {% elif block_data.float %}
+    <!-- Legacy float support -->
+    {% set img_style = img_style + " float: " + block_data.float + "; max-width: 50%;" %}
+    {% if block_data.float == 'left' %}
+      {% set img_style = img_style + " margin: 16px 16px 16px 0;" %}
     {% else %}
-      {% set img_style = img_style + "auto" %}
+      {% set img_style = img_style + " margin: 16px 0 16px 16px;" %}
     {% endif %}
-    {% set img_style = img_style + "; border-radius: " + (block_data.borderRadius or '8px') + "; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %}
-    
-    <img src="{{ image_src }}" 
-         alt="{{ block_data.alt or 'Image' }}" 
-         style="{{ img_style }}" 
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-    <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
-      {{ block_data.alt or 'Image not available' }}
-    </div>
-    {% if block_data.caption %}
-      <p style="font-size: 10px; color: #666; text-align: {{ block_data.alignment or 'center' }}; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
-        {% set segments = block_data.caption.split('**') %}
-        {% for segment in segments %}
-          {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
-        {% endfor %}
-      </p>
+  {% elif block_data.layoutMode in ['side-by-side-left', 'side-by-side-right'] %}
+    <!-- Side-by-side layout - for PDF, treat as centered for now -->
+    <!-- TODO: Implement proper side-by-side rendering when partner content is available -->
+    {% set img_style = img_style + " display: block; margin-left: auto; margin-right: auto;" %}
+  {% else %}
+    <!-- Standalone layout -->
+    {% set img_style = img_style + " display: block; margin-left: auto; margin-right: auto;" %}
+  {% endif %}
+  
+  {% if block_data.width %}
+    {% set img_style = img_style + " width: " + block_data.width|string %}
+    {% if block_data.width is number %}
+      {% set img_style = img_style + "px" %}
     {% endif %}
+    {% set img_style = img_style + ";" %}
+  {% endif %}
+  {% set img_style = img_style + " height: " %}
+  {% if block_data.height %}
+    {% set img_style = img_style + block_data.height|string %}
+    {% if block_data.height is number %}
+      {% set img_style = img_style + "px" %}
+    {% endif %}
+  {% else %}
+    {% set img_style = img_style + "auto" %}
+  {% endif %}
+  {% set img_style = img_style + "; border-radius: " + (block_data.borderRadius or '8px') + "; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %}
+  
+  <img src="{{ image_src }}" 
+       alt="{{ block_data.alt or 'Image' }}" 
+       style="{{ img_style }}" 
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+  <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
+    {{ block_data.alt or 'Image not available' }}
   </div>
-  {% if block_data.float or block_data.layoutMode in ['inline-left', 'inline-right'] %}
-    <div style="clear: both;"></div>
+  {% if block_data.caption %}
+    <p style="font-size: 10px; color: #666; text-align: {{ block_data.alignment or 'center' }}; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
+      {% set segments = block_data.caption.split('**') %}
+      {% for segment in segments %}
+        {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
+      {% endfor %}
+    </p>
   {% endif %}
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
@@ -680,18 +675,33 @@
         {% endif %}
 
         {% set next_block_in_box_content = [false] %}
+        {% set skip_next_block = [false] %}
         {% for loop_index in range(blocks_to_render | length) %}
             {% set current_block_item = blocks_to_render[loop_index] %}
             {% set next_block_item = blocks_to_render[loop_index+1] if (loop_index+1) < (blocks_to_render | length) else none %}
             {% set is_last_block_overall = loop_index == (blocks_to_render | length) - 1 %}
             
-            {% if next_block_in_box_content[0] %}
+            {% if skip_next_block[0] %}
+                {% set _ = skip_next_block.pop() %}{% set _ = skip_next_block.append(false) %}
+            {% elif next_block_in_box_content[0] %}
                 {% set _ = next_block_in_box_content.pop() %}{% set _ = next_block_in_box_content.append(false) %}
             {% else %}
                 {% set is_important_headline_check = current_block_item is mapping and current_block_item.get('type') == 'headline' and current_block_item.get('isImportant') %}
                 {% set is_relevant_content_following_for_box_check = next_block_item is mapping and next_block_item.get('type') in ['bullet_list', 'numbered_list', 'paragraph', 'alert'] %}
                 
-                {% if is_important_headline_check %} 
+                {# Check for inline image layout #}
+                {% set is_inline_image = current_block_item is mapping and current_block_item.get('type') == 'image' and current_block_item.get('layoutMode') in ['inline-left', 'inline-right'] %}
+                {% set has_wrapping_content = next_block_item is mapping and next_block_item.get('type') in ['paragraph', 'bullet_list', 'numbered_list'] %}
+                
+                {% if is_inline_image and has_wrapping_content %}
+                    {# Render inline image with wrapping content #}
+                    <div class="content-block-wrapper inline-layout-container" style="overflow: hidden; margin-bottom: calc(var(--space-sm) * var(--dynamic-spacing-multiplier));">
+                        {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                        {{ render_single_block_recursive_macro(next_block_item, 0) }}
+                        <div style="clear: both;"></div>
+                    </div>
+                    {% set _ = skip_next_block.pop() %}{% set _ = skip_next_block.append(true) %}
+                {% elif is_important_headline_check %} 
                     <div class="mini-section-box-wrapper"> <div class="mini-section-box">
                         {{ render_single_block_recursive_macro(current_block_item, 0, is_in_mini_section=true) }}
                         {% if is_relevant_content_following_for_box_check %}
