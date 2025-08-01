@@ -210,9 +210,27 @@ const BlockSettingsModal = ({
   onTextChange?: (path: (string | number)[], newValue: any) => void;
   basePath: (string | number)[];
 }) => {
-  const fieldPath = (fieldKey: string) => [...basePath, fieldKey];
+  const fieldPath = (fieldKey: string) => {
+    const path = [...basePath, fieldKey];
+    console.log('🔧 [FIELD PATH] Creating path:', {
+      fieldKey,
+      basePath,
+      resultPath: path,
+      basePathString: JSON.stringify(basePath),
+      resultPathString: JSON.stringify(path)
+    });
+    return path;
+  };
   
   if (!isOpen) return null;
+
+  // Debug modal when it opens
+  console.log('🏗️ [MODAL OPENED] BlockSettingsModal props:', {
+    blockType: block.type,
+    basePath,
+    onTextChangeAvailable: !!onTextChange,
+    blockData: block
+  });
 
   const renderHeadlineSettings = () => {
     const headlineBlock = block as HeadlineBlock;
@@ -627,8 +645,32 @@ const BlockSettingsModal = ({
             <select
               value={imageBlock.layoutMode || 'standalone'}
               onChange={e => {
-                console.log('🔄 [LAYOUT CHANGE] Setting layoutMode:', e.target.value, 'for block:', imageBlock);
-                onTextChange?.(fieldPath('layoutMode'), e.target.value);
+                const newLayoutMode = e.target.value;
+                console.log('🔄 [LAYOUT CHANGE] Setting layoutMode:', newLayoutMode, 'for block:', {
+                  originalBlock: imageBlock,
+                  currentLayoutMode: imageBlock.layoutMode,
+                  newLayoutMode: newLayoutMode,
+                  blockIndex: contentBlockIndex,
+                  fieldPath: fieldPath('layoutMode'),
+                  fullPath: [...(basePath || []), 'layoutMode']
+                });
+                
+                // Call onTextChange and verify it's working
+                const result = onTextChange?.(fieldPath('layoutMode'), newLayoutMode);
+                console.log('🔄 [LAYOUT CHANGE] onTextChange result:', result);
+                console.log('🔄 [LAYOUT CHANGE] onTextChange function:', onTextChange);
+                console.log('🔄 [LAYOUT CHANGE] basePath from modal:', basePath);
+                
+                // Add a timeout to check if the value actually changed
+                setTimeout(() => {
+                  console.log('🔄 [LAYOUT CHANGE] Verifying change after 100ms:', {
+                    expectedValue: newLayoutMode,
+                    actualValue: imageBlock.layoutMode,
+                    changed: imageBlock.layoutMode === newLayoutMode,
+                    currentBlock: imageBlock,
+                    blockUpdated: JSON.stringify(imageBlock)
+                  });
+                }, 100);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
@@ -773,7 +815,7 @@ const BlockSettingsModal = ({
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200`}>
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
+      <div className="absolute inset-0 backdrop-blur-sm bg-white bg-opacity-30" onClick={onClose}></div>
       <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-xl">
@@ -852,7 +894,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
   const [showSettings, setShowSettings] = useState(false);
 
-  const fieldPath = (fieldKey: string) => [...basePath, fieldKey];
+  const fieldPath = (fieldKey: string) => {
+    const path = [...basePath, fieldKey];
+    console.log('🔧 [FIELD PATH] Creating path:', {
+      fieldKey,
+      basePath,
+      resultPath: path,
+      basePathString: JSON.stringify(basePath),
+      resultPathString: JSON.stringify(path)
+    });
+    return path;
+  };
   const listItemPath = (itemIndex: number, fieldKey?: string) => {
       const path = [...basePath, 'items', itemIndex];
       return fieldKey ? [...path, fieldKey] : path;
