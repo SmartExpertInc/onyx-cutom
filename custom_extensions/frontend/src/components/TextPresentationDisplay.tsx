@@ -534,30 +534,30 @@ const BlockSettingsModal = ({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Alignment</label>
-            <select
-              value={imageBlock.alignment || 'center'}
-              onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
+          <select
+            value={imageBlock.alignment || 'center'}
+            onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            >
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-            </select>
-          </div>
-          
-          <div>
+          >
+            <option value="left">Left</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+        
+        <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Border Radius</label>
-            <select
-              value={imageBlock.borderRadius || '8px'}
-              onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
+          <select
+            value={imageBlock.borderRadius || '8px'}
+            onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            >
-              <option value="0px">None</option>
+          >
+            <option value="0px">None</option>
               <option value="4px">Small</option>
               <option value="8px">Medium</option>
               <option value="12px">Large</option>
-              <option value="50%">Circular</option>
-            </select>
+            <option value="50%">Circular</option>
+          </select>
           </div>
         </div>
 
@@ -968,16 +968,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           {/* Arrow buttons for reordering */}
           {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
-              <button
+            <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Move up"
-              >
+            >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                 </svg>
-              </button>
+            </button>
               <button
                 onClick={() => onMoveBlockDown(contentBlockIndex)}
                 disabled={isLastBlock}
@@ -1398,7 +1398,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {/* Settings button */}
             {isEditing && (
               <button
-                onClick={() => setSettingsModalOpen(true)}
+                onClick={() => setShowSettings(true)}
                 className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded p-1 text-xs text-gray-600 z-10 hover:bg-gray-200"
                 title="Image settings"
               >
@@ -1473,7 +1473,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {/* Settings button */}
             {isEditing && (
               <button
-                onClick={() => setSettingsModalOpen(true)}
+                onClick={() => setShowSettings(true)}
                 className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded p-1 text-xs text-gray-600 z-10 hover:bg-gray-200"
                 title="Image settings"
               >
