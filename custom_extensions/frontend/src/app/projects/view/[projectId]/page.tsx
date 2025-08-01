@@ -531,7 +531,7 @@ export default function ProjectInstanceViewPage() {
   };
 
   // Auto-save function that doesn't refresh the page or show alerts
-  const handleAutoSave = async () => {
+  const handleAutoSave = useCallback(async () => {
     console.log('Auto-save triggered'); // Debug log
     if (!projectId || !editableData || !projectInstanceData) {
       console.log('Auto-save: Missing required data', { projectId, hasEditableData: !!editableData, hasProjectInstance: !!projectInstanceData });
@@ -704,7 +704,7 @@ export default function ProjectInstanceViewPage() {
     } catch (err: any) {
       console.error('🔍 Auto-save error:', err.message);
     }
-  };
+  }, [projectId, editableData, projectInstanceData]);
 
   // Expose auto-save function to window so modal can trigger it
   useEffect(() => {
@@ -718,7 +718,7 @@ export default function ProjectInstanceViewPage() {
         }
       };
     }
-  }, [handleAutoSave]);
+  }, [handleAutoSave]); // Now safe since handleAutoSave is stable with useCallback
 
   const handleToggleEdit = () => {
     if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }
