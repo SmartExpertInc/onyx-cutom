@@ -286,21 +286,6 @@ export default function ProjectInstanceViewPage() {
   }, []);
 
   useEffect(() => {
-    if (projectId) {
-      const needsFetch = pageState === 'initial_loading' ||
-        (projectInstanceData && projectInstanceData.project_id?.toString() !== projectId) ||
-        (!projectInstanceData && (pageState === 'error' || pageState === 'nodata'));
-
-      if (needsFetch) {
-        fetchPageData(projectId);
-      }
-    } else if (params && Object.keys(params).length > 0 && !projectId) {
-      setErrorMessage(t('interface.projectView.projectIdMissing', 'Project ID is missing in URL.'));
-      setPageState('error');
-    }
-  }, [projectId, params, fetchPageData, pageState, projectInstanceData]);
-
-  useEffect(() => {
     if (displayOptsSynced) return;
     if (!projectId || !editableData || !projectInstanceData) return;
     if (projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN) return;
@@ -720,6 +705,20 @@ export default function ProjectInstanceViewPage() {
       console.error('🔍 Auto-save error:', err.message);
     }
   };
+
+  // Expose auto-save function to window so modal can trigger it
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).triggerAutoSave = handleAutoSave;
+      
+      // Cleanup function to remove the global function when component unmounts
+      return () => {
+        if (typeof window !== 'undefined') {
+          delete (window as any).triggerAutoSave;
+        }
+      };
+    }
+  }, [handleAutoSave]);
 
   const handleToggleEdit = () => {
     if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }

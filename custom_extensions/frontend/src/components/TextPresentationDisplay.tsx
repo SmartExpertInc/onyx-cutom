@@ -664,10 +664,106 @@ const BlockSettingsModal = ({
                 console.log('✅ [LAYOUT CHANGE] Change applied successfully! The layoutMode should now be saved to the backend.');
                 console.log('ℹ️ [LAYOUT CHANGE] Note: The modal block reference may show old data due to React state timing, but the actual data is updated correctly.');
                 
-                // Close modal after successful change
-                setTimeout(() => {
-                  console.log('🔄 [LAYOUT CHANGE] Closing modal after successful change application.');
-                }, 50);
+                // Show saving indicator
+                const savingIndicator = document.createElement('div');
+                savingIndicator.id = 'layout-saving-indicator';
+                savingIndicator.innerHTML = `
+                  <div style="position: fixed; top: 20px; right: 20px; background: #10B981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 16px; height: 16px; border: 2px solid #ffffff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <style>
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    </style>
+                    Saving layout changes...
+                  </div>
+                `;
+                document.body.appendChild(savingIndicator);
+                
+                // Trigger auto-save after a short delay to ensure state is updated
+                setTimeout(async () => {
+                  console.log('🔄 [LAYOUT CHANGE] Triggering auto-save for layoutMode change...');
+                  
+                  // Try to find and call the parent's auto-save function
+                  if (typeof window !== 'undefined' && (window as any).triggerAutoSave) {
+                    try {
+                      await (window as any).triggerAutoSave();
+                      console.log('✅ [LAYOUT CHANGE] Auto-save completed successfully');
+                      
+                      // Update indicator to show success
+                      const indicator = document.getElementById('layout-saving-indicator');
+                      if (indicator) {
+                        indicator.innerHTML = `
+                          <div style="position: fixed; top: 20px; right: 20px; background: #10B981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                            </svg>
+                            Layout changes saved!
+                          </div>
+                        `;
+                        
+                        // Remove indicator after 2 seconds
+                        setTimeout(() => {
+                          const indicatorToRemove = document.getElementById('layout-saving-indicator');
+                          if (indicatorToRemove) {
+                            indicatorToRemove.remove();
+                          }
+                        }, 2000);
+                      }
+                    } catch (error) {
+                      console.error('❌ [LAYOUT CHANGE] Auto-save failed:', error);
+                      
+                      // Update indicator to show error
+                      const indicator = document.getElementById('layout-saving-indicator');
+                      if (indicator) {
+                        indicator.innerHTML = `
+                          <div style="position: fixed; top: 20px; right: 20px; background: #EF4444; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                            </svg>
+                            Save failed - please save manually
+                          </div>
+                        `;
+                        
+                        // Remove indicator after 4 seconds for errors
+                        setTimeout(() => {
+                          const indicatorToRemove = document.getElementById('layout-saving-indicator');
+                          if (indicatorToRemove) {
+                            indicatorToRemove.remove();
+                          }
+                        }, 4000);
+                      }
+                    }
+                  } else {
+                    console.warn('⚠️ [LAYOUT CHANGE] No auto-save function found on window object');
+                    
+                    // Update indicator to show warning
+                    const indicator = document.getElementById('layout-saving-indicator');
+                    if (indicator) {
+                      indicator.innerHTML = `
+                        <div style="position: fixed; top: 20px; right: 20px; background: #F59E0B; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                          </svg>
+                          Please save manually (Ctrl+S)
+                        </div>
+                      `;
+                      
+                      // Remove indicator after 4 seconds
+                      setTimeout(() => {
+                        const indicatorToRemove = document.getElementById('layout-saving-indicator');
+                        if (indicatorToRemove) {
+                          indicatorToRemove.remove();
+                        }
+                      }, 4000);
+                    }
+                  }
+                  
+                  // Close modal after save attempt
+                  console.log('🔄 [LAYOUT CHANGE] Closing modal after save attempt');
+                  onClose();
+                }, 100);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
