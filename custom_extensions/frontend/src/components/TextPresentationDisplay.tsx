@@ -1497,8 +1497,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Handle different layout modes
       if (layoutMode === 'inline-left' || layoutMode === 'inline-right') {
-        // For inline layouts, render as a simple block since parent handles the layout
-        // Don't use CSS float as it interferes with the flexbox approach
+        // Inline layout - text wraps around image
+        const floatDirection = layoutMode === 'inline-left' ? 'left' : 'right';
+        const marginDirection = layoutMode === 'inline-left' ? 'right' : 'left';
+        
         return (
           <div className={`my-4 group relative`}>
             {/* Arrow buttons for reordering */}
@@ -1544,12 +1546,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <img 
               src={imageSrc} 
               alt={alt || 'Image'} 
-              className="rounded-lg shadow-md w-full h-auto"
+              className="rounded-lg shadow-md"
               style={{
-                maxWidth: maxWidth || '100%',
+                maxWidth: maxWidth || '200px',
                 width: width || 'auto',
                 height: height || 'auto',
                 borderRadius: borderRadius || '8px',
+                float: floatDirection,
+                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`,
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
               onError={(e) => {
@@ -1563,7 +1567,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               {alt || 'Image not available'}
             </div>
             {caption && (
-              <p style={{ fontSize: '10px', color: '#666', textAlign: 'center', margin: '8px 0 0 0', fontStyle: 'italic' }}>
+              <p style={{ fontSize: '10px', color: '#666', textAlign: 'center', margin: '8px 0 0 0', fontStyle: 'italic', clear: 'both' }}>
                 {caption}
               </p>
             )}
@@ -2105,78 +2109,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 'transition-all duration-200',
                 'relative group'
               ].filter(Boolean).join(' ') : '';
-
-              // 🔧 CHECK FOR INLINE LAYOUT COMBINATION
-              // If this is a standalone image block with inline layout, combine it with the next block
-              if (item.type === 'standalone_block' && 
-                  item.content.type === 'image' && 
-                  (item.content as ImageBlock).layoutMode && 
-                  ['inline-left', 'inline-right'].includes((item.content as ImageBlock).layoutMode!) &&
-                  index < renderableItems.length - 1) {
-                
-                const imageBlock = item.content as ImageBlock;
-                const nextItem = renderableItems[index + 1];
-                const originalImageIndex = findOriginalIndex(imageBlock);
-                
-                // Skip rendering the next item since we'll render it here
-                const skipNext = nextItem.type === 'standalone_block';
-                
-                if (skipNext) {
-                  const nextBlock = nextItem.content;
-                  const originalNextIndex = findOriginalIndex(nextBlock);
-                  const isImageLeft = imageBlock.layoutMode === 'inline-left';
-                  
-                  return (
-                    <div key={`inline-${index}`} className={`my-4 group relative ${reorderClasses}`}>
-                      {/* Container for inline layout */}
-                      <div className={`flex ${isImageLeft ? 'flex-row' : 'flex-row-reverse'} gap-4 items-start`}>
-                        {/* Image Block */}
-                        <div className="flex-shrink-0" style={{ maxWidth: '50%' }}>
-                          <RenderBlock
-                            block={imageBlock}
-                            basePath={['contentBlocks', originalImageIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                            contentBlockIndex={originalImageIndex}
-                            onMoveBlockUp={handleMoveBlockUp}
-                            onMoveBlockDown={handleMoveBlockDown}
-                            isFirstBlock={originalImageIndex === 0}
-                            isLastBlock={originalImageIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          />
-                        </div>
-                        
-                        {/* Content Block */}
-                        <div className="flex-grow min-w-0">
-                          <RenderBlock
-                            block={nextBlock}
-                            basePath={['contentBlocks', originalNextIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                            contentBlockIndex={originalNextIndex}
-                            onMoveBlockUp={handleMoveBlockUp}
-                            onMoveBlockDown={handleMoveBlockDown}
-                            isFirstBlock={originalNextIndex === 0}
-                            isLastBlock={originalNextIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-              }
-
-              // 🚫 SKIP NEXT ITEM IF IT WAS ALREADY RENDERED WITH INLINE IMAGE
-              if (index > 0) {
-                const prevItem = renderableItems[index - 1];
-                if (prevItem.type === 'standalone_block' && 
-                    prevItem.content.type === 'image' && 
-                    (prevItem.content as ImageBlock).layoutMode && 
-                    ['inline-left', 'inline-right'].includes((prevItem.content as ImageBlock).layoutMode!) &&
-                    item.type === 'standalone_block') {
-                  // This item was already rendered with the previous inline image
-                  return null;
-                }
-              }
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);

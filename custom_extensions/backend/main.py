@@ -983,6 +983,11 @@ class ImageBlock(BaseContentBlock):
     alignment: Optional[str] = "center"
     borderRadius: Optional[str] = "8px"
     maxWidth: Optional[str] = "100%"
+    # Layout mode fields for positioning
+    layoutMode: Optional[str] = None  # 'standalone', 'side-by-side-left', 'side-by-side-right', 'inline-left', 'inline-right'
+    layoutPartnerIndex: Optional[int] = None  # Index of the content block to pair with for side-by-side layouts
+    layoutProportion: Optional[str] = None  # '50-50', '60-40', '40-60', '70-30', '30-70'
+    float: Optional[str] = None  # Legacy field for backward compatibility: 'left', 'right'
 
 AnyContentBlockValue = Union[
     HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
