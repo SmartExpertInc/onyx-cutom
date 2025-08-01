@@ -286,6 +286,21 @@ export default function ProjectInstanceViewPage() {
   }, []);
 
   useEffect(() => {
+    if (projectId) {
+      const needsFetch = pageState === 'initial_loading' ||
+        (projectInstanceData && projectInstanceData.project_id?.toString() !== projectId) ||
+        (!projectInstanceData && (pageState === 'error' || pageState === 'nodata'));
+
+      if (needsFetch) {
+        fetchPageData(projectId);
+      }
+    } else if (params && Object.keys(params).length > 0 && !projectId) {
+      setErrorMessage(t('interface.projectView.projectIdMissing', 'Project ID is missing in URL.'));
+      setPageState('error');
+    }
+  }, [projectId, params, fetchPageData, pageState, projectInstanceData]);
+
+  useEffect(() => {
     if (displayOptsSynced) return;
     if (!projectId || !editableData || !projectInstanceData) return;
     if (projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN) return;
@@ -531,7 +546,7 @@ export default function ProjectInstanceViewPage() {
   };
 
   // Auto-save function that doesn't refresh the page or show alerts
-  const handleAutoSave = useCallback(async () => {
+  const handleAutoSave = async () => {
     console.log('Auto-save triggered'); // Debug log
     if (!projectId || !editableData || !projectInstanceData) {
       console.log('Auto-save: Missing required data', { projectId, hasEditableData: !!editableData, hasProjectInstance: !!projectInstanceData });
@@ -704,21 +719,7 @@ export default function ProjectInstanceViewPage() {
     } catch (err: any) {
       console.error('🔍 Auto-save error:', err.message);
     }
-  }, [projectId, editableData, projectInstanceData]);
-
-  // Expose auto-save function to window so modal can trigger it
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).triggerAutoSave = handleAutoSave;
-      
-      // Cleanup function to remove the global function when component unmounts
-      return () => {
-        if (typeof window !== 'undefined') {
-          delete (window as any).triggerAutoSave;
-        }
-      };
-    }
-  }, [handleAutoSave]); // Now safe since handleAutoSave is stable with useCallback
+  };
 
   const handleToggleEdit = () => {
     if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }

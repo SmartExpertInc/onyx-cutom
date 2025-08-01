@@ -664,106 +664,10 @@ const BlockSettingsModal = ({
                 console.log('✅ [LAYOUT CHANGE] Change applied successfully! The layoutMode should now be saved to the backend.');
                 console.log('ℹ️ [LAYOUT CHANGE] Note: The modal block reference may show old data due to React state timing, but the actual data is updated correctly.');
                 
-                // Show saving indicator
-                const savingIndicator = document.createElement('div');
-                savingIndicator.id = 'layout-saving-indicator';
-                savingIndicator.innerHTML = `
-                  <div style="position: fixed; top: 20px; right: 20px; background: #10B981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 16px; height: 16px; border: 2px solid #ffffff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <style>
-                      @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                      }
-                    </style>
-                    Saving layout changes...
-                  </div>
-                `;
-                document.body.appendChild(savingIndicator);
-                
-                // Trigger auto-save after a short delay to ensure state is updated
-                setTimeout(async () => {
-                  console.log('🔄 [LAYOUT CHANGE] Triggering auto-save for layoutMode change...');
-                  
-                  // Try to find and call the parent's auto-save function
-                  if (typeof window !== 'undefined' && (window as any).triggerAutoSave) {
-                    try {
-                      await (window as any).triggerAutoSave();
-                      console.log('✅ [LAYOUT CHANGE] Auto-save completed successfully');
-                      
-                      // Update indicator to show success
-                      const indicator = document.getElementById('layout-saving-indicator');
-                      if (indicator) {
-                        indicator.innerHTML = `
-                          <div style="position: fixed; top: 20px; right: 20px; background: #10B981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                            </svg>
-                            Layout changes saved!
-                          </div>
-                        `;
-                        
-                        // Remove indicator after 2 seconds
-                        setTimeout(() => {
-                          const indicatorToRemove = document.getElementById('layout-saving-indicator');
-                          if (indicatorToRemove) {
-                            indicatorToRemove.remove();
-                          }
-                        }, 2000);
-                      }
-                    } catch (error) {
-                      console.error('❌ [LAYOUT CHANGE] Auto-save failed:', error);
-                      
-                      // Update indicator to show error
-                      const indicator = document.getElementById('layout-saving-indicator');
-                      if (indicator) {
-                        indicator.innerHTML = `
-                          <div style="position: fixed; top: 20px; right: 20px; background: #EF4444; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
-                            </svg>
-                            Save failed - please save manually
-                          </div>
-                        `;
-                        
-                        // Remove indicator after 4 seconds for errors
-                        setTimeout(() => {
-                          const indicatorToRemove = document.getElementById('layout-saving-indicator');
-                          if (indicatorToRemove) {
-                            indicatorToRemove.remove();
-                          }
-                        }, 4000);
-                      }
-                    }
-                  } else {
-                    console.warn('⚠️ [LAYOUT CHANGE] No auto-save function found on window object');
-                    
-                    // Update indicator to show warning
-                    const indicator = document.getElementById('layout-saving-indicator');
-                    if (indicator) {
-                      indicator.innerHTML = `
-                        <div style="position: fixed; top: 20px; right: 20px; background: #F59E0B; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 9999; font-family: Inter, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
-                          </svg>
-                          Please save manually (Ctrl+S)
-                        </div>
-                      `;
-                      
-                      // Remove indicator after 4 seconds
-                      setTimeout(() => {
-                        const indicatorToRemove = document.getElementById('layout-saving-indicator');
-                        if (indicatorToRemove) {
-                          indicatorToRemove.remove();
-                        }
-                      }, 4000);
-                    }
-                  }
-                  
-                  // Close modal after save attempt
-                  console.log('🔄 [LAYOUT CHANGE] Closing modal after save attempt');
-                  onClose();
-                }, 100);
+                // Close modal after successful change
+                setTimeout(() => {
+                  console.log('🔄 [LAYOUT CHANGE] Closing modal after successful change application.');
+                }, 50);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
@@ -1593,10 +1497,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Handle different layout modes
       if (layoutMode === 'inline-left' || layoutMode === 'inline-right') {
-        // Inline layout - text wraps around image
-        const floatDirection = layoutMode === 'inline-left' ? 'left' : 'right';
-        const marginDirection = layoutMode === 'inline-left' ? 'right' : 'left';
-        
+        // For inline layouts, render as a simple block since parent handles the layout
+        // Don't use CSS float as it interferes with the flexbox approach
         return (
           <div className={`my-4 group relative`}>
             {/* Arrow buttons for reordering */}
@@ -1642,14 +1544,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <img 
               src={imageSrc} 
               alt={alt || 'Image'} 
-              className="rounded-lg shadow-md"
+              className="rounded-lg shadow-md w-full h-auto"
               style={{
-                maxWidth: maxWidth || '200px',
+                maxWidth: maxWidth || '100%',
                 width: width || 'auto',
                 height: height || 'auto',
                 borderRadius: borderRadius || '8px',
-                float: floatDirection,
-                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`,
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
               onError={(e) => {
@@ -1663,7 +1563,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               {alt || 'Image not available'}
             </div>
             {caption && (
-              <p style={{ fontSize: '10px', color: '#666', textAlign: 'center', margin: '8px 0 0 0', fontStyle: 'italic', clear: 'both' }}>
+              <p style={{ fontSize: '10px', color: '#666', textAlign: 'center', margin: '8px 0 0 0', fontStyle: 'italic' }}>
                 {caption}
               </p>
             )}
@@ -2205,6 +2105,78 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 'transition-all duration-200',
                 'relative group'
               ].filter(Boolean).join(' ') : '';
+
+              // 🔧 CHECK FOR INLINE LAYOUT COMBINATION
+              // If this is a standalone image block with inline layout, combine it with the next block
+              if (item.type === 'standalone_block' && 
+                  item.content.type === 'image' && 
+                  (item.content as ImageBlock).layoutMode && 
+                  ['inline-left', 'inline-right'].includes((item.content as ImageBlock).layoutMode!) &&
+                  index < renderableItems.length - 1) {
+                
+                const imageBlock = item.content as ImageBlock;
+                const nextItem = renderableItems[index + 1];
+                const originalImageIndex = findOriginalIndex(imageBlock);
+                
+                // Skip rendering the next item since we'll render it here
+                const skipNext = nextItem.type === 'standalone_block';
+                
+                if (skipNext) {
+                  const nextBlock = nextItem.content;
+                  const originalNextIndex = findOriginalIndex(nextBlock);
+                  const isImageLeft = imageBlock.layoutMode === 'inline-left';
+                  
+                  return (
+                    <div key={`inline-${index}`} className={`my-4 group relative ${reorderClasses}`}>
+                      {/* Container for inline layout */}
+                      <div className={`flex ${isImageLeft ? 'flex-row' : 'flex-row-reverse'} gap-4 items-start`}>
+                        {/* Image Block */}
+                        <div className="flex-shrink-0" style={{ maxWidth: '50%' }}>
+                          <RenderBlock
+                            block={imageBlock}
+                            basePath={['contentBlocks', originalImageIndex]}
+                            isEditing={isEditing}
+                            onTextChange={onTextChange}
+                            contentBlockIndex={originalImageIndex}
+                            onMoveBlockUp={handleMoveBlockUp}
+                            onMoveBlockDown={handleMoveBlockDown}
+                            isFirstBlock={originalImageIndex === 0}
+                            isLastBlock={originalImageIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                          />
+                        </div>
+                        
+                        {/* Content Block */}
+                        <div className="flex-grow min-w-0">
+                          <RenderBlock
+                            block={nextBlock}
+                            basePath={['contentBlocks', originalNextIndex]}
+                            isEditing={isEditing}
+                            onTextChange={onTextChange}
+                            contentBlockIndex={originalNextIndex}
+                            onMoveBlockUp={handleMoveBlockUp}
+                            onMoveBlockDown={handleMoveBlockDown}
+                            isFirstBlock={originalNextIndex === 0}
+                            isLastBlock={originalNextIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              }
+
+              // 🚫 SKIP NEXT ITEM IF IT WAS ALREADY RENDERED WITH INLINE IMAGE
+              if (index > 0) {
+                const prevItem = renderableItems[index - 1];
+                if (prevItem.type === 'standalone_block' && 
+                    prevItem.content.type === 'image' && 
+                    (prevItem.content as ImageBlock).layoutMode && 
+                    ['inline-left', 'inline-right'].includes((prevItem.content as ImageBlock).layoutMode!) &&
+                    item.type === 'standalone_block') {
+                  // This item was already rendered with the previous inline image
+                  return null;
+                }
+              }
 
               if (item.type === 'major_section') {
                 const originalHeadlineIndex = findOriginalIndex(item.headline);
