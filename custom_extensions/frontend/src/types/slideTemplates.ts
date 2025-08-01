@@ -104,6 +104,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   backgroundColor?: string;
+  imagePath?: string; // Path to uploaded image
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -128,6 +129,7 @@ export interface BulletPointsProps extends BaseTemplateProps {
   backgroundColor?: string;
   imagePrompt?: string;
   imageAlt?: string;
+  imagePath?: string;
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {
