@@ -252,18 +252,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     width: '100%',
     maxWidth: '320px',
     maxHeight: '200px',
-    // aspectRatio: '1 / 1',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d',
-    // margin: '0 auto 24px auto'
+    margin: '0',
     marginBottom: '24px'
   };
 
