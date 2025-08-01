@@ -1178,6 +1178,27 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
           </div>
+
+          {/* Add Edit button here */}
+          {canEditContent && (
+            <button
+              onClick={handleToggleEdit}
+              className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white ${isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center`}
+              disabled={isSaving}
+            >
+              {isEditing ? (
+                <>
+                  <Save size={16} className="mr-2" />
+                  {t('interface.projectView.save', 'Save')}
+                </>
+              ) : (
+                <>
+                  <Edit size={16} className="mr-2" />
+                  {t('interface.projectView.edit', 'Edit')}
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {saveError &&

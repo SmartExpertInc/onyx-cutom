@@ -582,112 +582,42 @@
          <div class="section-break-block none"></div>
     {% endif %}
             {% elif block_type == 'image' %}
-                <!-- DEBUG: Image block data -->
-                <!-- block_data.alignment: {{ block_data.alignment }} -->
-                <!-- block_data.maxWidth: {{ block_data.maxWidth }} -->
-                <!-- block_data.width: {{ block_data.width }} -->
-                <!-- block_data.height: {{ block_data.height }} -->
-                <!-- block_data.borderRadius: {{ block_data.borderRadius }} -->
-                <!-- block_data.layoutMode: {{ block_data.layoutMode }} -->
-                <!-- block_data.layoutPartnerIndex: {{ block_data.layoutPartnerIndex }} -->
-                <!-- block_data.layoutProportion: {{ block_data.layoutProportion }} -->
-                <!-- block_data.src: {{ block_data.src[:50] }}... -->
-    
-                    {% set layout_mode = block_data.layoutMode or 'standalone' %}
-                {% if layout_mode == 'inline-left' or layout_mode == 'inline-right' %}
-                    <!-- Inline layout - text wraps around image -->
-                    {% set float_direction = 'left' if layout_mode == 'inline-left' else 'right' %}
-                    {% set margin_direction = 'right' if layout_mode == 'inline-left' else 'left' %}
-                    
-                    <div class="image-block-wrapper" style="margin: 16px 0;">
-                        {% set image_src = block_data.src %}
-                        {% set img_style = "max-width: " + (block_data.maxWidth or '200px') + ";" %}
-                        {% if block_data.width %}
-                            {% set img_style = img_style + " width: " + block_data.width|string %}
-                            {% if block_data.width is number %}
-                                {% set img_style = img_style + "px" %}
-                            {% endif %}
-                            {% set img_style = img_style + ";" %}
-                        {% endif %}
-                        {% set img_style = img_style + " height: " %}
-                        {% if block_data.height %}
-                            {% set img_style = img_style + block_data.height|string %}
-                            {% if block_data.height is number %}
-                                {% set img_style = img_style + "px" %}
-                            {% endif %}
-                        {% else %}
-                            {% set img_style = img_style + "auto" %}
-                        {% endif %}
-                        {% set img_style = img_style + "; border-radius: " + (block_data.borderRadius or '8px') + ";" %}
-                        {% set img_style = img_style + " float: " + float_direction + ";" %}
-                        {% set img_style = img_style + " margin: 0 " + ('16px' if margin_direction == 'right' else '0') + " 16px " + ('16px' if margin_direction == 'left' else '0') + ";" %}
-                        {% set img_style = img_style + " box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %}
-                        
-                        <img src="{{ image_src }}" 
-                             alt="{{ block_data.alt or 'Image' }}" 
-                             style="{{ img_style }}" 
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-                        <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
-                            {{ block_data.alt or 'Image not available' }}
-                        </div>
-                        {% if block_data.caption %}
-                            <p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji); clear: both;">
-                                {% set segments = block_data.caption.split('**') %}
-                                {% for segment in segments %}
-                                    {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <!-- Standard standalone layout -->
-                    <div class="image-block-wrapper" 
-                         style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
-                        {% set image_src = block_data.src %}
-                        {% set img_style = "max-width: " + (block_data.maxWidth or '100%') + ";" %}
-                        {% if block_data.width %}
-                            {% set img_style = img_style + " width: " + block_data.width|string %}
-                            {% if block_data.width is number %}
-                                {% set img_style = img_style + "px" %}
-                            {% endif %}
-                            {% set img_style = img_style + ";" %}
-                        {% endif %}
-                        {% set img_style = img_style + " height: " %}
-                        {% if block_data.height %}
-                            {% set img_style = img_style + block_data.height|string %}
-                            {% if block_data.height is number %}
-                                {% set img_style = img_style + "px" %}
-                            {% endif %}
-                        {% else %}
-                            {% set img_style = img_style + "auto" %}
-                        {% endif %}
-                        {% set img_style = img_style + "; border-radius: " + (block_data.borderRadius or '8px') + ";" %}
-                        {% if block_data.alignment == 'left' %}
-                            {% set img_style = img_style + " margin-left: 0; margin-right: auto;" %}
-                        {% elif block_data.alignment == 'right' %}
-                            {% set img_style = img_style + " margin-left: auto; margin-right: 0;" %}
-                        {% else %}
-                            {% set img_style = img_style + " margin-left: auto; margin-right: auto;" %}
-                        {% endif %}
-                        {% set img_style = img_style + " display: block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %}
-                        
-                        <img src="{{ image_src }}" 
-                             alt="{{ block_data.alt or 'Image' }}" 
-                             style="{{ img_style }}" 
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-                        <div style="display: none; padding: 20px; border: 2px dashed #ccc; text-align: center; color: #666; font-style: italic;">
-                            {{ block_data.alt or 'Image not available' }}
-                        </div>
-                        {% if block_data.caption %}
-                            <p style="font-size: 10px; color: #666; text-align: {{ block_data.alignment or 'center' }}; margin: 8px 0 0 0; font-style: italic; font-family: var(--font-primary), var(--font-emoji);">
-                                {% set segments = block_data.caption.split('**') %}
-                                {% for segment in segments %}
-                                    {% if loop.index0 is odd %}<span style="font-weight: bold;">{{ segment }}</span>{% else %}{{ segment }}{% endif %}
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                    </div>
-                {% endif %}
+  <!-- DEBUG: Image block data -->
+  <!-- block_data.alignment: {{ block_data.alignment }} -->
+  <!-- block_data.float: {{ block_data.float }} -->  <!-- New debug for float -->
+  <!-- block_data.layoutMode: {{ block_data.layoutMode or 'standalone' }} -->
+  <!-- block_data.layoutPartnerIndex: {{ block_data.layoutPartnerIndex }} -->
+  <!-- block_data.layoutProportion: {{ block_data.layoutProportion or '50-50' }} -->
+  <!-- ... existing debug ... -->
+  
+  {% if block_data.layoutMode and block_data.layoutMode.startswith('side-by-side') %}
+    <!-- Side-by-side layout -->
+    <div style="display: flex; flex-direction: {% if block_data.layoutMode == 'side-by-side-left' %}row{% else %}row-reverse{% endif %}; gap: 16px; margin: 16px 0;">
+      <div style="flex: {{ block_data.layoutProportion.split('-')[0] }};">
+        <!-- Render image -->
+        {% set image_src = block_data.src %}
+        {% set img_style = "max-width: " + (block_data.maxWidth or '100%') + "; width: 100%; height: auto; border-radius: " + (block_data.borderRadius or '8px') + "; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %}
+        <img src="{{ image_src }}" alt="{{ block_data.alt or 'Image' }}" style="{{ img_style }}" />
+        {% if block_data.caption %}<p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic;">{{ block_data.caption }}</p>{% endif %}
+      </div>
+      <div style="flex: {{ block_data.layoutProportion.split('-')[1] }};">
+        <!-- Render partner content here - but since PDF template doesn't have all blocks, assume it's handled externally -->
+        <p>[Partner content placeholder - implement rendering]</p>
+      </div>
+    </div>
+  {% elif block_data.layoutMode and block_data.layoutMode.startswith('inline') %}
+    <!-- Inline layout -->
+    {% set float_dir = 'left' if block_data.layoutMode == 'inline-left' else 'right' %}
+    {% set margin_dir = 'right' if float_dir == 'left' else 'left' %}
+    <img src="{{ block_data.src }}" alt="{{ block_data.alt }}" style="float: {{ float_dir }}; margin: 0 {{ '16px' if margin_dir == 'right' else '0' }} 16px {{ '16px' if margin_dir == 'left' else '0' }}; max-width: {{ block_data.maxWidth or '200px' }}; border-radius: {{ block_data.borderRadius or '8px' }}; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+    {% if block_data.caption %}<p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic; clear: both;">{{ block_data.caption }}</p>{% endif %}
+  {% else %}
+    <!-- Standalone -->
+    <div style="text-align: {{ block_data.alignment or 'center' }}; margin: 16px 0;">
+      <img src="{{ block_data.src }}" alt="{{ block_data.alt }}" style="max-width: {{ block_data.maxWidth or '100%' }}; border-radius: {{ block_data.borderRadius or '8px' }}; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block; margin: 0 auto;" />
+      {% if block_data.caption %}<p style="font-size: 10px; color: #666; text-align: center; margin: 8px 0 0 0; font-style: italic;">{{ block_data.caption }}</p>{% endif %}
+    </div>
+  {% endif %}
 {% else %}
     <p class="error-message">Unsupported block type: {{ block_type }}</p>
 {% endif %}

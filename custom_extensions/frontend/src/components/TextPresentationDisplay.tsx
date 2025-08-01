@@ -27,7 +27,11 @@ type MajorSection = {
   items: Array<AnyContentBlock | MiniSection>;
   _skipRenderHeadline?: boolean
 };
-type RenderableItem = MajorSection | MiniSection | StandaloneBlock;
+type RenderableItem = MajorSection | MiniSection | StandaloneBlock | SideBySide;
+
+// First, add new type for side-by-side
+// Below type MajorSection | MiniSection | StandaloneBlock;
+type SideBySide = { type: 'side_by_side'; image: ImageBlock; partner: AnyContentBlock; proportion: string; isLeftImage: boolean };
 
 const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] => {
   if (!text) return [];
