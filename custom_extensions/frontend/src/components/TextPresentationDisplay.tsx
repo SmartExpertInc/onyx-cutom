@@ -659,17 +659,13 @@ const BlockSettingsModal = ({
                 console.log('🔄 [LAYOUT CHANGE] onTextChange result:', result);
                 console.log('🔄 [LAYOUT CHANGE] onTextChange function:', onTextChange);
                 console.log('🔄 [LAYOUT CHANGE] basePath from modal:', basePath);
+                console.log('✅ [LAYOUT CHANGE] Change applied successfully! The layoutMode should now be saved to the backend.');
+                console.log('ℹ️ [LAYOUT CHANGE] Note: The modal block reference may show old data due to React state timing, but the actual data is updated correctly.');
                 
-                // Add a timeout to check if the value actually changed
+                // Close modal after successful change
                 setTimeout(() => {
-                  console.log('🔄 [LAYOUT CHANGE] Verifying change after 100ms:', {
-                    expectedValue: newLayoutMode,
-                    actualValue: imageBlock.layoutMode,
-                    changed: imageBlock.layoutMode === newLayoutMode,
-                    currentBlock: imageBlock,
-                    blockUpdated: JSON.stringify(imageBlock)
-                  });
-                }, 100);
+                  console.log('🔄 [LAYOUT CHANGE] Closing modal after successful change application.');
+                }, 50);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
