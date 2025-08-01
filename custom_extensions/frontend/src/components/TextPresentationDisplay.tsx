@@ -210,6 +210,8 @@ const BlockSettingsModal = ({
   onTextChange?: (path: (string | number)[], newValue: any) => void;
   basePath: (string | number)[];
 }) => {
+  const { t } = useLanguage();
+  
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
     console.log('🔧 [FIELD PATH] Creating path:', {
@@ -237,7 +239,7 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Important Section</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.importantSection')}</label>
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -245,57 +247,57 @@ const BlockSettingsModal = ({
               onChange={e => onTextChange?.(fieldPath('isImportant'), String(e.target.checked))}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="text-sm text-gray-700">Mark as important section (adds visual emphasis)</span>
+            <span className="text-sm text-gray-700">{t('interface.blockSettings.importantSectionDescription')}</span>
           </div>
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.icon')}</label>
           <select
             value={headlineBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="">No icon</option>
-            <option value="info">ℹ️ Info</option>
-            <option value="goal">🎯 Goal</option>
-            <option value="star">⭐ Star</option>
-            <option value="apple">🍎 Apple</option>
-            <option value="award">🏆 Award</option>
-            <option value="boxes">📦 Boxes</option>
-            <option value="calendar">📅 Calendar</option>
-            <option value="chart">📊 Chart</option>
-            <option value="clock">⏰ Clock</option>
-            <option value="globe">🌍 Globe</option>
+            <option value="">{t('interface.blockSettings.noIcon')}</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Heading Level</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.headingLevel')}</label>
           <select
             value={headlineBlock.level || 1}
             onChange={e => onTextChange?.(fieldPath('level'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value={1}>Large (H1)</option>
-            <option value={2}>Medium (H2)</option>
-            <option value={3}>Small (H3)</option>
-            <option value={4}>Extra Small (H4)</option>
+            <option value={1}>{t('interface.blockSettings.large')} (H1)</option>
+            <option value={2}>{t('interface.blockSettings.medium')} (H2)</option>
+            <option value={3}>{t('interface.blockSettings.small')} (H3)</option>
+            <option value={4}>{t('interface.blockSettings.extraSmall')} (H4)</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Font Size</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.fontSize')}</label>
           <select
             value={headlineBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="8px">Extra Small (8px)</option>
-            <option value="10px">Small (10px)</option>
-            <option value="12px">Medium (12px)</option>
-            <option value="14px">Large (14px)</option>
-            <option value="16px">Extra Large (16px)</option>
+            <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
+            <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
+            <option value="12px">{t('interface.blockSettings.medium')} (12px)</option>
+            <option value="14px">{t('interface.blockSettings.large')} (14px)</option>
+            <option value="16px">{t('interface.blockSettings.extraLarge')} (16px)</option>
           </select>
         </div>
       </div>
@@ -307,7 +309,7 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Recommendation</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.recommendation')}</label>
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -315,22 +317,22 @@ const BlockSettingsModal = ({
               onChange={e => onTextChange?.(fieldPath('isRecommendation'), String(e.target.checked))}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="text-sm text-gray-700">Mark as recommendation (adds red border)</span>
+            <span className="text-sm text-gray-700">{t('interface.blockSettings.recommendationDescription')}</span>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textSize')}</label>
           <select
             value={paragraphBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="8px">Extra Small (8px)</option>
-            <option value="10px">Small (10px)</option>
-            <option value="12px">Medium (12px)</option>
-            <option value="14px">Large (14px)</option>
-            <option value="16px">Extra Large (16px)</option>
+            <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
+            <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
+            <option value="12px">{t('interface.blockSettings.medium')} (12px)</option>
+            <option value="14px">{t('interface.blockSettings.large')} (14px)</option>
+            <option value="16px">{t('interface.blockSettings.extraLarge')} (16px)</option>
           </select>
         </div>
       </div>
@@ -487,11 +489,11 @@ const BlockSettingsModal = ({
         {/* Image Preview */}
         <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200">
           <div className="text-center">
-            <div className="text-gray-500 text-sm mb-2">Image Preview</div>
+            <div className="text-gray-500 text-sm mb-2">{t('interface.imageSettings.imagePreview', 'Image Preview')}</div>
             {imageBlock.src ? (
               <img 
                 src={imageBlock.src} 
-                alt={imageBlock.alt || 'Preview'} 
+                alt={imageBlock.alt || t('interface.imageSettings.preview', 'Preview')} 
                 className="max-w-full h-auto max-h-32 mx-auto rounded"
                 style={{ 
                   maxWidth: imageBlock.maxWidth || '100%',
@@ -499,7 +501,7 @@ const BlockSettingsModal = ({
                 }}
               />
             ) : (
-              <div className="text-gray-400 text-sm">No image loaded</div>
+              <div className="text-gray-400 text-sm">{t('interface.imageSettings.noImageLoaded', 'No image loaded')}</div>
             )}
           </div>
         </div>
@@ -507,51 +509,51 @@ const BlockSettingsModal = ({
         {/* Alt Text */}
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Alt Text <span className="text-gray-500 font-normal">(for accessibility)</span>
+            {t('interface.imageSettings.altText', 'Alt Text')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.forAccessibility', 'for accessibility')})</span>
           </label>
           <input
             type="text"
             value={imageBlock.alt || ''}
             onChange={e => onTextChange?.(fieldPath('alt'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder="Describe what this image shows..."
+            placeholder={t('interface.imageSettings.altTextPlaceholder', 'Describe what this image shows...')}
           />
-          <p className="text-xs text-gray-500 mt-1">This helps screen readers describe the image to users</p>
+          <p className="text-xs text-gray-500 mt-1">{t('interface.imageSettings.altTextHelp', 'This helps screen readers describe the image to users')}</p>
         </div>
         
         {/* Caption */}
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Caption <span className="text-gray-500 font-normal">(optional)</span>
+            {t('interface.imageSettings.caption', 'Caption')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.optional', 'optional')})</span>
           </label>
           <input
             type="text"
             value={imageBlock.caption || ''}
             onChange={e => onTextChange?.(fieldPath('caption'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder="Add a caption below the image..."
+            placeholder={t('interface.imageSettings.captionPlaceholder', 'Add a caption below the image...')}
           />
         </div>
         
         {/* Max Width */}
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Max Width <span className="text-gray-500 font-normal">(controls image size)</span>
+            {t('interface.imageSettings.maxWidth', 'Max Width')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.controlsImageSize', 'controls image size')})</span>
           </label>
           <input
             type="text"
             value={imageBlock.maxWidth || '100%'}
             onChange={e => onTextChange?.(fieldPath('maxWidth'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder="e.g., 100%, 500px, 50vw"
+            placeholder={t('interface.imageSettings.maxWidthPlaceholder', 'e.g., 100%, 500px, 50vw')}
           />
-          <p className="text-xs text-gray-500 mt-1">Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)</p>
+          <p className="text-xs text-gray-500 mt-1">{t('interface.imageSettings.maxWidthHelp', 'Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)')}</p>
         </div>
 
         {/* Size Controls */}
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <label className="block text-sm font-semibold text-blue-900 mb-3">
-            Quick Size Controls
+            {t('interface.imageSettings.quickSizeControls', 'Quick Size Controls')}
           </label>
           <div className="flex gap-2">
             <button
@@ -565,7 +567,7 @@ const BlockSettingsModal = ({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
               </svg>
-              Smaller
+              {t('interface.imageSettings.smaller', 'Smaller')}
             </button>
             <button
               onClick={() => {
@@ -578,14 +580,14 @@ const BlockSettingsModal = ({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
               </svg>
-              Larger
+              {t('interface.imageSettings.larger', 'Larger')}
             </button>
             <button
               onClick={() => {
                 onTextChange?.(fieldPath('width'), 300);
               }}
               className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
-              title="Reset to default size"
+              title={t('interface.imageSettings.resetToDefaultSize', 'Reset to default size')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -593,37 +595,37 @@ const BlockSettingsModal = ({
             </button>
           </div>
           <p className="text-xs text-blue-600 mt-2">
-            Current width: {typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : 'auto'}
+            {t('interface.imageSettings.currentWidth', 'Current width')}: {typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : t('interface.imageSettings.auto', 'auto')}
           </p>
         </div>
 
         {/* Basic Settings */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Alignment</label>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">{t('interface.imageSettings.alignment', 'Alignment')}</label>
           <select
             value={imageBlock.alignment || 'center'}
             onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
+            <option value="left">{t('interface.imageSettings.left', 'Left')}</option>
+            <option value="center">{t('interface.imageSettings.center', 'Center')}</option>
+            <option value="right">{t('interface.imageSettings.right', 'Right')}</option>
           </select>
         </div>
         
         <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Border Radius</label>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">{t('interface.imageSettings.borderRadius', 'Border Radius')}</label>
           <select
             value={imageBlock.borderRadius || '8px'}
             onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="0px">None</option>
-              <option value="4px">Small</option>
-              <option value="8px">Medium</option>
-              <option value="12px">Large</option>
-            <option value="50%">Circular</option>
+            <option value="0px">{t('interface.imageSettings.none', 'None')}</option>
+              <option value="4px">{t('interface.imageSettings.small', 'Small')}</option>
+              <option value="8px">{t('interface.imageSettings.medium', 'Medium')}</option>
+              <option value="12px">{t('interface.imageSettings.large', 'Large')}</option>
+            <option value="50%">{t('interface.imageSettings.circular', 'Circular')}</option>
           </select>
           </div>
         </div>
@@ -634,13 +636,13 @@ const BlockSettingsModal = ({
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
-            Layout Options
+            {t('interface.imageSettings.layoutOptions', 'Layout Options')}
           </h3>
           
           {/* Layout Mode */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Layout Mode <span className="text-gray-500 font-normal">(how image appears with other content)</span>
+              {t('interface.imageSettings.layoutMode', 'Layout Mode')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.layoutModeHelp', 'how image appears with other content')})</span>
             </label>
             <select
               value={imageBlock.layoutMode || 'standalone'}
@@ -669,14 +671,14 @@ const BlockSettingsModal = ({
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
-              <option value="standalone">📄 Standalone (full width)</option>
-              <option value="side-by-side-left">⬅️ Side-by-side (image left)</option>
-              <option value="side-by-side-right">➡️ Side-by-side (image right)</option>
-              <option value="inline-left">⬅️ Inline (image left, text wraps)</option>
-              <option value="inline-right">➡️ Inline (image right, text wraps)</option>
+              <option value="standalone">📄 {t('interface.imageSettings.standalone', 'Standalone (full width)')}</option>
+              <option value="side-by-side-left">⬅️ {t('interface.imageSettings.sideBySideLeft', 'Side-by-side (image left)')}</option>
+              <option value="side-by-side-right">➡️ {t('interface.imageSettings.sideBySideRight', 'Side-by-side (image right)')}</option>
+              <option value="inline-left">⬅️ {t('interface.imageSettings.inlineLeft', 'Inline (image left, text wraps)')}</option>
+              <option value="inline-right">➡️ {t('interface.imageSettings.inlineRight', 'Inline (image right, text wraps)')}</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              Side-by-side: Image and content are equal height. Inline: Text flows around the image.
+              {t('interface.imageSettings.layoutModeDescription', 'Side-by-side: Image and content are equal height. Inline: Text flows around the image.')}
             </p>
           </div>
 
@@ -684,7 +686,7 @@ const BlockSettingsModal = ({
           {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Partner Content <span className="text-gray-500 font-normal">(content to place alongside image)</span>
+                {t('interface.imageSettings.partnerContent', 'Partner Content')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.partnerContentHelp', 'content to place alongside image')})</span>
               </label>
               <select
                 value={imageBlock.layoutPartnerIndex || ''}
@@ -695,14 +697,14 @@ const BlockSettingsModal = ({
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
-                <option value="">Select content block...</option>
+                <option value="">{t('interface.imageSettings.selectContentBlock', 'Select content block...')}</option>
                 {/* This will be populated dynamically based on available content blocks */}
-                <option value="0">Block 1: Headline/Paragraph</option>
-                <option value="1">Block 2: List/Content</option>
-                <option value="2">Block 3: Another content block</option>
+                <option value="0">{t('interface.imageSettings.block1', 'Block 1: Headline/Paragraph')}</option>
+                <option value="1">{t('interface.imageSettings.block2', 'Block 2: List/Content')}</option>
+                <option value="2">{t('interface.imageSettings.block3', 'Block 3: Another content block')}</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
-                Choose which content block should appear alongside this image.
+                {t('interface.imageSettings.partnerContentDescription', 'Choose which content block should appear alongside this image.')}
               </p>
             </div>
           )}
@@ -711,7 +713,7 @@ const BlockSettingsModal = ({
           {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Space Distribution <span className="text-gray-500 font-normal">(how much space each element gets)</span>
+                {t('interface.imageSettings.spaceDistribution', 'Space Distribution')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.spaceDistributionHelp', 'how much space each element gets')})</span>
               </label>
               <select
                 value={imageBlock.layoutProportion || '50-50'}
@@ -721,14 +723,14 @@ const BlockSettingsModal = ({
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
-                <option value="50-50">⚖️ Equal (50% each)</option>
-                <option value="60-40">📊 Image larger (60% image, 40% content)</option>
-                <option value="40-60">📝 Content larger (40% image, 60% content)</option>
-                <option value="70-30">🖼️ Image dominant (70% image, 30% content)</option>
-                <option value="30-70">📄 Content dominant (30% image, 70% content)</option>
+                <option value="50-50">⚖️ {t('interface.imageSettings.equal', 'Equal (50% each)')}</option>
+                <option value="60-40">📊 {t('interface.imageSettings.imageLarger', 'Image larger (60% image, 40% content)')}</option>
+                <option value="40-60">📝 {t('interface.imageSettings.contentLarger', 'Content larger (40% image, 60% content)')}</option>
+                <option value="70-30">🖼️ {t('interface.imageSettings.imageDominant', 'Image dominant (70% image, 30% content)')}</option>
+                <option value="30-70">📄 {t('interface.imageSettings.contentDominant', 'Content dominant (30% image, 70% content)')}</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
-                Controls how much horizontal space the image and content each take up.
+                {t('interface.imageSettings.spaceDistributionDescription', 'Controls how much horizontal space the image and content each take up.')}
               </p>
             </div>
           )}
@@ -737,31 +739,31 @@ const BlockSettingsModal = ({
           {(imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-dashed border-blue-200">
               <div className="text-center">
-                <div className="text-blue-600 text-sm font-medium mb-2">Layout Preview</div>
+                <div className="text-blue-600 text-sm font-medium mb-2">{t('interface.imageSettings.layoutPreview', 'Layout Preview')}</div>
                 <div className="flex items-center justify-center space-x-2 text-xs">
                   {imageBlock.layoutMode === 'side-by-side-left' && (
                     <>
-                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ Image</div>
+                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image', 'Image')}</div>
                       <div className="text-blue-400">+</div>
-                      <div className="bg-green-200 px-2 py-1 rounded">📄 Content</div>
+                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content', 'Content')}</div>
                     </>
                   )}
                   {imageBlock.layoutMode === 'side-by-side-right' && (
                     <>
-                      <div className="bg-green-200 px-2 py-1 rounded">📄 Content</div>
+                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content', 'Content')}</div>
                       <div className="text-blue-400">+</div>
-                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ Image</div>
+                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image', 'Image')}</div>
                     </>
                   )}
                   {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
                     <div className="text-blue-600">
-                      Text will wrap around the image
+                      {t('interface.imageSettings.textWillWrap', 'Text will wrap around the image')}
                     </div>
                   )}
                 </div>
                 {imageBlock.layoutProportion && (
                   <div className="text-xs text-blue-500 mt-1">
-                    Space: {imageBlock.layoutProportion}
+                    {t('interface.imageSettings.space', 'Space')}: {imageBlock.layoutProportion}
                   </div>
                 )}
               </div>
@@ -774,13 +776,13 @@ const BlockSettingsModal = ({
 
   const getBlockTitle = () => {
     switch (block.type) {
-      case 'headline': return 'Headline Settings';
-      case 'paragraph': return 'Paragraph Settings';
-      case 'bullet_list': return 'Bullet List Settings';
-      case 'numbered_list': return 'Numbered List Settings';
-      case 'alert': return 'Alert Settings';
-      case 'image': return 'Image Settings';
-      default: return 'Block Settings';
+      case 'headline': return t('interface.blockSettings.headlineSettings');
+      case 'paragraph': return t('interface.blockSettings.paragraphSettings');
+      case 'bullet_list': return t('interface.blockSettings.bulletListSettings');
+      case 'numbered_list': return t('interface.blockSettings.numberedListSettings');
+      case 'alert': return t('interface.blockSettings.alertSettings');
+      case 'image': return t('interface.blockSettings.imageSettings');
+      default: return t('interface.blockSettings.blockSettings');
     }
   };
 
@@ -817,11 +819,11 @@ const BlockSettingsModal = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white bg-opacity-20 rounded-lg">
-                {getBlockIcon()}
+            {getBlockIcon()}
               </div>
               <div>
                 <h2 className="text-lg font-semibold">{getBlockTitle()}</h2>
-                <p className="text-blue-100 text-sm">Customize your content</p>
+                <p className="text-blue-100 text-sm">{t('interface.modal.customizeContent', 'Customize your content')}</p>
               </div>
             </div>
             <button
@@ -834,12 +836,12 @@ const BlockSettingsModal = ({
             </button>
           </div>
         </div>
-
+        
         {/* Content */}
         <div className="p-6 space-y-6">
           {renderSettings()}
         </div>
-
+        
         {/* Footer */}
         <div className="sticky bottom-0 bg-gray-50 px-6 py-4 rounded-b-xl border-t border-gray-200">
           <div className="flex justify-end gap-3">
@@ -847,13 +849,13 @@ const BlockSettingsModal = ({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              {t('interface.modal.cancel', 'Cancel')}
             </button>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Apply Changes
+              {t('interface.modal.applyChanges', 'Apply Changes')}
             </button>
           </div>
         </div>
@@ -959,7 +961,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         <div className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'}`}>
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1029,7 +1031,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
             {/* Arrow buttons for reordering */}
             {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1099,7 +1101,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         <div className={`${containerClasses.trim()} group relative`}>
           {/* Arrow buttons for reordering */}
           {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
             <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1266,7 +1268,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative`} role="alert">
           {/* Arrow buttons for reordering */}
           {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1503,7 +1505,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div className={`my-4 group relative`}>
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1531,7 +1533,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {isEditing && (
               <button
                 onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-10"
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-50"
                 title="Image settings"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1578,7 +1580,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div className={`my-4 ${alignmentClass} group relative`} data-layout-mode={layoutMode} data-partner-index={layoutPartnerIndex} data-proportion={layoutProportion}>
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1606,7 +1608,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             {isEditing && (
               <button
                 onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-10"
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-50"
                 title="Image settings"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1652,7 +1654,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         <div className={`my-4 ${alignmentClass} group relative`}>
           {/* Arrow buttons for reordering */}
           {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1760,6 +1762,7 @@ const ImageUploadModal: React.FC<{
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const uploadImage = async (file: File) => {
     setUploading(true);
@@ -1811,7 +1814,7 @@ const ImageUploadModal: React.FC<{
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Upload Image</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('interface.imageUpload.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -1832,7 +1835,7 @@ const ImageUploadModal: React.FC<{
           {uploading ? (
             <div className="flex flex-col items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
-              <p className="text-sm text-gray-600">Uploading...</p>
+              <p className="text-sm text-gray-600">{t('interface.imageUpload.uploadingText')}</p>
             </div>
           ) : (
             <>
@@ -1842,7 +1845,7 @@ const ImageUploadModal: React.FC<{
                 </svg>
               </div>
               <p className="text-sm text-gray-600 mb-2">
-                Drag and drop an image here, or click to browse
+                {t('interface.imageUpload.dragAndDropText')}
               </p>
               <input
                 type="file"
@@ -1856,7 +1859,7 @@ const ImageUploadModal: React.FC<{
                 htmlFor="image-upload"
                 className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Choose File
+                {t('interface.imageUpload.chooseFileButton')}
               </label>
             </>
           )}
@@ -1869,7 +1872,7 @@ const ImageUploadModal: React.FC<{
         )}
         
         <div className="mt-4 text-xs text-gray-500">
-          Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)
+          {t('interface.imageUpload.supportedFormatsText')}
         </div>
       </div>
     </div>

@@ -353,6 +353,78 @@ export const es = {
     noFoldersFound: "No se encontraron carpetas.",
     done: "Hecho",
     
+    // Image Upload Modal
+    imageUpload: {
+      title: "Subir imagen",
+      uploadingText: "Subiendo...",
+      dragAndDropText: "Arrastra y suelta una imagen aquí, o haz clic para navegar",
+      chooseFileButton: "Elegir archivo",
+      supportedFormatsText: "Formatos compatibles: PNG, JPG, JPEG, GIF, WebP (máx. 10MB)"
+    },
+    
+    // Block Settings Modal
+    blockSettings: {
+      customizeContent: "Personaliza tu contenido",
+      headlineSettings: "Configuración de encabezado",
+      paragraphSettings: "Configuración de párrafo", 
+      bulletListSettings: "Configuración de lista con viñetas",
+      numberedListSettings: "Configuración de lista numerada",
+      alertSettings: "Configuración de alerta",
+      imageSettings: "Configuración de imagen"
+    },
+    
+    // Modal common
+    modal: {
+      customizeContent: "Personaliza tu contenido"
+    },
+
+    // Image Settings
+    imageSettings: {
+      imagePreview: "Vista previa de imagen",
+      preview: "Vista previa",
+      noImageLoaded: "No hay imagen cargada",
+      altText: "Texto alternativo",
+      forAccessibility: "para accesibilidad",
+      altTextPlaceholder: "Describe lo que muestra esta imagen...",
+      altTextHelp: "Esto ayuda a los lectores de pantalla a describir la imagen a los usuarios",
+      caption: "Leyenda",
+      captionPlaceholder: "Agrega una leyenda para esta imagen...",
+      captionHelp: "Las leyendas aparecen debajo de la imagen",
+      maxWidth: "Ancho máximo",
+      maxWidthHelp: "Ancho máximo que puede ocupar la imagen",
+      width: "Ancho", 
+      widthHelp: "Ancho específico para la imagen",
+      height: "Alto",
+      heightHelp: "Alto específico para la imagen",
+      borderRadius: "Radio del borde",
+      borderRadiusHelp: "Redondea las esquinas de la imagen",
+      alignment: "Alineación",
+      alignmentHelp: "Cómo se posiciona la imagen",
+      layoutMode: "Modo de diseño",
+      layoutModeHelp: "Cómo se relaciona la imagen con el contenido circundante",
+      standalone: "Independiente",
+      sideBySideLeft: "Lado a lado (imagen a la izquierda)",
+      sideBySideRight: "Lado a lado (imagen a la derecha)",
+      inlineLeft: "En línea (imagen a la izquierda, texto envuelve)",
+      inlineRight: "En línea (imagen a la derecha, texto envuelve)",
+      layoutModeDescription: "Lado a lado: La imagen y el contenido tienen la misma altura. En línea: El texto fluye alrededor de la imagen.",
+      layoutPartner: "Compañero de diseño",
+      layoutPartnerHelp: "Elige qué bloque de contenido emparejar con esta imagen",
+      layoutProportion: "Proporción del diseño",
+      layoutProportionHelp: "Cuánto espacio ocupa la imagen en el diseño",
+      layoutPreview: "Vista previa del diseño",
+      image: "Imagen",
+      content: "Contenido",
+      textWillWrap: "El texto se ajustará alrededor de la imagen",
+      space: "Espacio",
+      selectContentBlock: "Selecciona un bloque de contenido...",
+      proportionEqual: "50% - 50% (Igual)",
+      proportionImageLarger: "60% - 40% (Imagen más grande)",
+      proportionImageSmaller: "40% - 60% (Imagen más pequeña)",
+      proportionImageMuchLarger: "70% - 30% (Imagen mucho más grande)",
+      proportionImageMuchSmaller: "30% - 70% (Imagen mucho más pequeña)"
+    },
+    
     // Quality tiers
     basic: "Básico",
     interactive: "Interactivo",
@@ -428,7 +500,6 @@ export const es = {
     checkingAuthentication: "Verificando autenticación...",
 
     // Block settings
-    blockSettings: "Configuración de bloque",
     noSettingsAvailable: "No hay configuraciones disponibles para este tipo de bloque.",
     close: "Cerrar",
     // Analytics page
