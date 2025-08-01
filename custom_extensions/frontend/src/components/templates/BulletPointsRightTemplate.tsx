@@ -302,18 +302,9 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '1 / 1',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d',
+    height: '100%',
     margin: '0 auto'
+    
   };
 
   return (
