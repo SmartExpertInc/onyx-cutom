@@ -598,40 +598,40 @@
         }
         
         .bullet-points .content-row {
-            display: flex !important;
-            flex-direction: row !important;
-            width: 100% !important;
-            justify-content: space-evenly !important;
-            flex: 1 !important;
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-evenly;
+            flex: 1;
         }
         
         .bullet-points .placeholder-container {
-            flex: 0 0 50% !important; /* Exact frontend match */
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            min-width: 0 !important;
-            width: 50% !important;
-            height: 100% !important;
+            flex: 0 0 50%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            width: 50%;
+            height: 100%;
         }
         
         .bullet-points .placeholder {
-            width: 100% !important;
-            max-width: none !important;
-            height: auto !important;
-            max-height: none !important;
-            aspect-ratio: 1 / 1 !important;
-            background-color: #e9ecef !important;
-            border: 2px dashed #adb5bd !important;
-            border-radius: 8px !important; /* Exact frontend match */
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 20px !important; /* Exact frontend match */
-            text-align: center !important;
-            color: #6c757d !important;
-            margin: 0 auto !important;
+            width: 100%;
+            max-width: none;
+            height: auto;
+            max-height: none;
+            aspect-ratio: 1 / 1;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+            margin: 0 auto;
         }
         
         .bullet-points .bullets-container {
@@ -643,6 +643,86 @@
             flex-direction: column;
             min-width: 0;
             padding-left: 40px; /* Exact frontend match */
+        }
+        
+        /* Bullet-Points-Right Template - Separate from regular bullet-points */
+        .bullet-points-right {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 80px;
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .bullet-points-right .slide-title {
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            color: var(--title-color);
+            margin-bottom: 32px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        .bullet-points-right .content-row {
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100% !important;
+            justify-content: space-between !important;
+            flex: 1 !important;
+        }
+        
+        .bullet-points-right .bullets-container {
+            flex: 1 1 50% !important;
+            font-size: 18px !important;
+            font-family: 'Martel Sans', sans-serif;
+            color: var(--content-color);
+            display: flex !important;
+            flex-direction: column !important;
+            min-width: 0 !important;
+            padding-right: 40px !important;
+        }
+        
+        .bullet-points-right .placeholder-container {
+            flex: 0 0 40% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 0 !important;
+            width: 40% !important;
+            height: 100% !important;
+        }
+        
+        .bullet-points-right .placeholder {
+            width: 100% !important;
+            max-width: 320px !important;
+            height: 320px !important;
+            max-height: 320px !important;
+            aspect-ratio: 1 / 1 !important;
+            background-color: #e9ecef !important;
+            border: 2px dashed #adb5bd !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px !important;
+            text-align: center !important;
+            color: #6c757d !important;
+            margin: 0 auto !important;
+        }
+        
+        .bullet-points-right .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px;
+            color: var(--content-color);
+            margin-bottom: 32px;
+            text-align: left;
+            line-height: 1.6;
         }
         
         .bullet-list {
@@ -854,7 +934,10 @@
             flex-direction: column;
         }
         
-        .placeholder {
+        /* Global placeholder styles removed - each template now has its own scoped styles */
+        
+        /* Two-Column Template Placeholder */
+        .two-column .placeholder {
             width: 100%;
             max-width: 320px;
             max-height: 200px;
@@ -1242,13 +1325,13 @@
                 
                 
             {% elif slide.templateId == 'bullet-points-right' %}
-                <div class="bullet-points">
-                    <h1 class="slide-title" style="text-align: left;">{{ slide.props.title or 'Click to add title' }}</h1>
+                <div class="bullet-points-right">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     {% if slide.props.subtitle %}
-                        <div class="content-text" style="text-align: left; margin-bottom: 32px;">{{ slide.props.subtitle }}</div>
+                        <div class="content-text">{{ slide.props.subtitle }}</div>
                     {% endif %}
                     <div class="content-row">
-                        <div class="bullets-container" style="flex: 1 1 50%; padding-right: 40px;">
+                        <div class="bullets-container">
                             <ul class="bullet-list">
                                 {% for bullet in slide.props.bullets %}
                                     <li class="bullet-item">
@@ -1283,8 +1366,8 @@
                                 {% endif %}
                             </ul>
                         </div>
-                        <div class="placeholder-container" style="flex: 0 0 50%; width: 507px !important; height: 507px !important;">
-                            <div class="placeholder" style="width: 507px !important; height: 507px !important;">
+                        <div class="placeholder-container">
+                            <div class="placeholder">
                                 <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
                                 <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A relevant illustration for the bullet points' }}"</div>
