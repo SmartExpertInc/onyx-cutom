@@ -55,39 +55,48 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // If we have an image, display it with replace overlay
   if (imagePath) {
     return (
-      <div 
-        className={`
-          ${sizeClasses[size]} 
-          ${positionClasses[position]} 
-          rounded-lg overflow-hidden relative
-          ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-          ${className}
-        `}
-        style={style}
-      >
-        <img 
-          src={imagePath} 
-          alt={description}
-          className="w-full h-full object-cover"
-          style={{ cursor: isEditable ? 'pointer' : 'default' }}
-        />
-        {isEditable && (
-          <div 
-            className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
-            onClick={handleClick}
-            title="Click to replace image"
-            style={{
-              pointerEvents: 'auto',
-              zIndex: 10
-            }}
-          >
-            <div className="text-center text-white">
-              <Replace className="w-6 h-6 mx-auto mb-1" />
-              <div className="text-xs font-medium">Replace</div>
+      <>
+        <div 
+          className={`
+            ${sizeClasses[size]} 
+            ${positionClasses[position]} 
+            rounded-lg overflow-hidden relative
+            ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+            ${className}
+          `}
+          style={style}
+        >
+          <img 
+            src={imagePath} 
+            alt={description}
+            className="w-full h-full object-cover"
+            style={{ cursor: isEditable ? 'pointer' : 'default' }}
+          />
+          {isEditable && (
+            <div 
+              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
+              onClick={handleClick}
+              title="Click to replace image"
+              style={{
+                pointerEvents: 'auto',
+                zIndex: 10
+              }}
+            >
+              <div className="text-center text-white">
+                <Replace className="w-6 h-6 mx-auto mb-1" />
+                <div className="text-xs font-medium">Replace</div>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={handleImageUploaded}
+          title="Upload Presentation Image"
+        />
+      </>
     );
   }
 
