@@ -650,7 +650,6 @@ const BlockSettingsModal = ({
                   originalBlock: imageBlock,
                   currentLayoutMode: imageBlock.layoutMode,
                   newLayoutMode: newLayoutMode,
-                  blockIndex: contentBlockIndex,
                   fieldPath: fieldPath('layoutMode'),
                   fullPath: [...(basePath || []), 'layoutMode']
                 });
