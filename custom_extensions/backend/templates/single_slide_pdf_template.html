@@ -1443,20 +1443,7 @@
                     </div>
                 </div>
                 
-            {% elif slide.templateId == 'pyramid' %}
-                <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    <div class="pyramid-container">
-                        {% for level in slide.props.levels %}
-                            <div class="pyramid-level">
-                                <div class="level-content">{{ level.heading or 'Level Heading' }}</div>
-                                {% if level.description %}
-                                    <div class="level-content" style="font-size: 14px; margin-top: 8px;">{{ level.description }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+            
                 
             {% elif slide.templateId == 'timeline' %}
                 <div class="timeline">
