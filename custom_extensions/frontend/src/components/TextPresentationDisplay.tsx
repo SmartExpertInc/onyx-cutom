@@ -485,72 +485,8 @@ const BlockSettingsModal = ({
   const renderImageSettings = () => {
     const imageBlock = block as ImageBlock;
     return (
-      <div className="space-y-8">
-        {/* Image Preview */}
-        <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200">
-          <div className="text-center">
-            <div className="text-gray-500 text-sm mb-2">{t('interface.imageSettings.imagePreview', 'Image Preview')}</div>
-            {imageBlock.src ? (
-              <img 
-                src={imageBlock.src} 
-                alt={imageBlock.alt || t('interface.imageSettings.preview', 'Preview')} 
-                className="max-w-full h-auto max-h-32 mx-auto rounded"
-                style={{ 
-                  maxWidth: imageBlock.maxWidth || '100%',
-                  borderRadius: imageBlock.borderRadius || '8px'
-                }}
-              />
-            ) : (
-              <div className="text-gray-400 text-sm">{t('interface.imageSettings.noImageLoaded', 'No image loaded')}</div>
-            )}
-          </div>
-        </div>
-
-        {/* Alt Text */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            {t('interface.imageSettings.altText', 'Alt Text')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.forAccessibility', 'for accessibility')})</span>
-          </label>
-          <input
-            type="text"
-            value={imageBlock.alt || ''}
-            onChange={e => onTextChange?.(fieldPath('alt'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder={t('interface.imageSettings.altTextPlaceholder', 'Describe what this image shows...')}
-          />
-          <p className="text-xs text-gray-500 mt-1">{t('interface.imageSettings.altTextHelp', 'This helps screen readers describe the image to users')}</p>
-        </div>
-        
-        {/* Caption */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            {t('interface.imageSettings.caption', 'Caption')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.optional', 'optional')})</span>
-          </label>
-          <input
-            type="text"
-            value={imageBlock.caption || ''}
-            onChange={e => onTextChange?.(fieldPath('caption'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder={t('interface.imageSettings.captionPlaceholder', 'Add a caption below the image...')}
-          />
-        </div>
-        
-        {/* Max Width */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            {t('interface.imageSettings.maxWidth', 'Max Width')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.controlsImageSize', 'controls image size')})</span>
-          </label>
-          <input
-            type="text"
-            value={imageBlock.maxWidth || '100%'}
-            onChange={e => onTextChange?.(fieldPath('maxWidth'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder={t('interface.imageSettings.maxWidthPlaceholder', 'e.g., 100%, 500px, 50vw')}
-          />
-          <p className="text-xs text-gray-500 mt-1">{t('interface.imageSettings.maxWidthHelp', 'Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)')}</p>
-        </div>
-
-        {/* Size Controls */}
+      <div className="space-y-6">
+        {/* Quick Size Controls */}
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <label className="block text-sm font-semibold text-blue-900 mb-3">
             {t('interface.imageSettings.quickSizeControls', 'Quick Size Controls')}
@@ -599,39 +535,8 @@ const BlockSettingsModal = ({
           </p>
         </div>
 
-        {/* Basic Settings */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">{t('interface.imageSettings.alignment', 'Alignment')}</label>
-          <select
-            value={imageBlock.alignment || 'center'}
-            onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-          >
-            <option value="left">{t('interface.imageSettings.left', 'Left')}</option>
-            <option value="center">{t('interface.imageSettings.center', 'Center')}</option>
-            <option value="right">{t('interface.imageSettings.right', 'Right')}</option>
-          </select>
-        </div>
-        
-        <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">{t('interface.imageSettings.borderRadius', 'Border Radius')}</label>
-          <select
-            value={imageBlock.borderRadius || '8px'}
-            onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-          >
-            <option value="0px">{t('interface.imageSettings.none', 'None')}</option>
-              <option value="4px">{t('interface.imageSettings.small', 'Small')}</option>
-              <option value="8px">{t('interface.imageSettings.medium', 'Medium')}</option>
-              <option value="12px">{t('interface.imageSettings.large', 'Large')}</option>
-            <option value="50%">{t('interface.imageSettings.circular', 'Circular')}</option>
-          </select>
-          </div>
-        </div>
-
         {/* Layout Settings */}
-        <div className="border-t pt-6">
+        <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
