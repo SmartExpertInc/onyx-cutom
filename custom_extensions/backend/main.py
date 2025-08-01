@@ -12064,45 +12064,20 @@ async def download_project_instance_pdf(
         # 🔍 PDF CONTEXT LOGGING: What we're passing to the template
         logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Full context keys: {list(context_for_jinja.keys())}")
         
-        # Transform image paths in content blocks for PDF
+        # Log image blocks without transforming them (let PDF generator handle the transformation)
         if 'details' in context_for_jinja and isinstance(context_for_jinja['details'], dict) and 'contentBlocks' in context_for_jinja['details']:
             content_blocks = context_for_jinja['details']['contentBlocks']
             logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Processing {len(content_blocks)} content blocks")
             
-            for block in content_blocks:
-                if block.get('type') == 'image':
-                    original_src = block.get('src', '')
-                    logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Processing image block with src: {original_src}")
-                    
-                    if original_src.startswith('/static_design_images/'):
-                        filename = original_src.replace('/static_design_images/', '')
-                        full_path = static_images_abs_path + filename
-                        file_url = f"file://{full_path}"
-                        
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Original: {original_src}")
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Filename: {filename}")
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Full path: {full_path}")
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - File exists: {os.path.exists(full_path)}")
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - File URL: {file_url}")
-                        
-                        # Transform the src for PDF generation
-                        block['src'] = file_url
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Transformed src to: {block['src']}")
-                    elif original_src.startswith('/'):
-                        # Handle other absolute paths
-                        filename = original_src.lstrip('/')
-                        full_path = static_images_abs_path + filename
-                        file_url = f"file://{full_path}"
-                        
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Absolute path: {original_src} -> {file_url}")
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - File exists: {os.path.exists(full_path)}")
-                        
-                        block['src'] = file_url
-                    else:
-                        logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Keeping original src: {original_src}")
-            
             image_blocks = [block for block in content_blocks if block.get('type') == 'image']
-            logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Final image blocks: {json.dumps(image_blocks, indent=2)}")
+            logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Found {len(image_blocks)} image blocks")
+            for img_block in image_blocks:
+                original_src = img_block.get('src', '')
+                logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Image block src (before PDF generation): {original_src}")
+                if original_src.startswith('/static_design_images/'):
+                    filename = original_src.replace('/static_design_images/', '')
+                    full_path = static_images_abs_path + filename
+                    logger.info(f"📄 [PDF CONTEXT] Project {project_id} - Expected file path: {full_path} (exists: {os.path.exists(full_path)})")
         else:
             logger.info(f"📄 [PDF CONTEXT] Project {project_id} - No contentBlocks found in details")
         

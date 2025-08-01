@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape # Import Jinja2
 import random
+import base64
+import mimetypes
 
 # Attempt to import settings (as before)
 try:
@@ -80,7 +82,7 @@ async def generate_pdf_from_html_template(
             if isinstance(context_data.get('details', {}).get('details'), dict):
                 logger.info(f"PDF GEN ContentBlocks Type: {type(context_data.get('details', {}).get('details', {}).get('contentBlocks'))}")
         
-        # Transform image paths for PDF generation if not already transformed
+        # Transform image paths for PDF generation using base64 data URLs
         if isinstance(context_data.get('details'), dict) and 'contentBlocks' in context_data['details']:
             content_blocks = context_data['details']['contentBlocks']
             
@@ -105,21 +107,47 @@ async def generate_pdf_from_html_template(
                     original_src = block.get('src', '')
                     logger.info(f"PDF GEN: Processing image block with src: {original_src}")
                     
-                    # Only transform if not already a file:// URL
-                    if original_src and not original_src.startswith('file://'):
+                    # Only transform if not already a data URL
+                    if original_src and not original_src.startswith('data:'):
                         if original_src.startswith('/static_design_images/'):
                             filename = original_src.replace('/static_design_images/', '')
                             full_path = os.path.join(static_images_abs_path, filename)
-                            file_url = f"file://{full_path}"
                             
                             logger.info(f"PDF GEN: Original: {original_src}")
                             logger.info(f"PDF GEN: Filename: {filename}")
                             logger.info(f"PDF GEN: Full path: {full_path}")
                             logger.info(f"PDF GEN: File exists: {os.path.exists(full_path)}")
-                            logger.info(f"PDF GEN: File URL: {file_url}")
                             
-                            block['src'] = full_path
-                            logger.info(f"PDF GEN: Transformed src to: {block['src']}")
+                            if os.path.exists(full_path):
+                                try:
+                                    # Read the image file and convert to base64
+                                    with open(full_path, 'rb') as image_file:
+                                        image_data = image_file.read()
+                                        image_base64 = base64.b64encode(image_data).decode('utf-8')
+                                        
+                                        # Determine MIME type
+                                        mime_type, _ = mimetypes.guess_type(full_path)
+                                        if not mime_type:
+                                            mime_type = 'image/jpeg'  # Default fallback
+                                        
+                                        # Create data URL
+                                        data_url = f"data:{mime_type};base64,{image_base64}"
+                                        
+                                        logger.info(f"PDF GEN: MIME type: {mime_type}")
+                                        logger.info(f"PDF GEN: Image size: {len(image_data)} bytes")
+                                        logger.info(f"PDF GEN: Base64 length: {len(image_base64)} chars")
+                                        logger.info(f"PDF GEN: Data URL length: {len(data_url)} chars")
+                                        
+                                        block['src'] = data_url
+                                        logger.info(f"PDF GEN: Successfully converted to data URL")
+                                        
+                                except Exception as e:
+                                    logger.error(f"PDF GEN: Failed to read image file {full_path}: {e}")
+                                    logger.info(f"PDF GEN: Keeping original src: {original_src}")
+                            else:
+                                logger.warning(f"PDF GEN: Image file not found: {full_path}")
+                                logger.info(f"PDF GEN: Keeping original src: {original_src}")
+                                
                         elif original_src.startswith('/'):
                             filename = original_src.lstrip('/')
                             # Handle case where it might be just the filename without the static_design_images prefix
@@ -127,11 +155,32 @@ async def generate_pdf_from_html_template(
                                 full_path = os.path.join(static_images_abs_path, filename)
                             else:
                                 full_path = os.path.join(root_dir, filename)
-                            file_url = f"file://{full_path}"
                             
-                            logger.info(f"PDF GEN: Absolute path: {original_src} -> {file_url}")
+                            logger.info(f"PDF GEN: Absolute path: {original_src} -> {full_path}")
                             logger.info(f"PDF GEN: File exists: {os.path.exists(full_path)}")
-                            block['src'] = file_url
+                            
+                            if os.path.exists(full_path):
+                                try:
+                                    # Read the image file and convert to base64
+                                    with open(full_path, 'rb') as image_file:
+                                        image_data = image_file.read()
+                                        image_base64 = base64.b64encode(image_data).decode('utf-8')
+                                        
+                                        # Determine MIME type
+                                        mime_type, _ = mimetypes.guess_type(full_path)
+                                        if not mime_type:
+                                            mime_type = 'image/jpeg'  # Default fallback
+                                        
+                                        # Create data URL
+                                        data_url = f"data:{mime_type};base64,{image_base64}"
+                                        
+                                        block['src'] = data_url
+                                        logger.info(f"PDF GEN: Successfully converted absolute path to data URL")
+                                        
+                                except Exception as e:
+                                    logger.error(f"PDF GEN: Failed to read image file {full_path}: {e}")
+                            else:
+                                logger.warning(f"PDF GEN: Image file not found: {full_path}")
                         else:
                             logger.info(f"PDF GEN: Keeping original src: {original_src}")
                     else:
