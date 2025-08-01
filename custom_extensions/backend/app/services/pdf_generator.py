@@ -34,19 +34,13 @@ except ImportError:
         logger.warning("PDF merging library not available. Install PyPDF2 or pypdf for slide deck PDF generation.")
 
 # Enhanced logging configuration for debugging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('/tmp/pdf_generation_debug.log'),
-        logging.StreamHandler()
-    ]
-)
+# Note: Using getLogger instead of basicConfig to avoid conflicts with main.py
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Create a separate logger for HTML content debugging
 html_logger = logging.getLogger('pdf_html_debug')
-html_logger.setLevel(logging.DEBUG)
+html_logger.setLevel(logging.INFO)
 
 PDF_CACHE_DIR = Path("/tmp/pdf_cache")
 PDF_CACHE_DIR.mkdir(exist_ok=True)
@@ -319,7 +313,6 @@ def get_browser_launch_options():
             f'--js-flags=--max-old-space-size={BROWSER_MEMORY_LIMIT}', 
             '--single-process', 
             '--disable-extensions', 
-            '--disable-background-networking', 
             '--disable-default-apps', 
             '--disable-sync', 
             '--disable-translate', 
@@ -329,11 +322,7 @@ def get_browser_launch_options():
             '--no-first-run', 
             '--safeBrowse-disable-auto-update',
             '--font-render-hinting=none',
-            '--enable-font-antialiasing',
-            '--enable-logging',
-            '--v=1',
-            '--enable-logging=stderr',
-            '--log-level=0'
+            '--enable-font-antialiasing'
         ],
         'dumpio': True,  # Capture browser console output
         'devtools': False,

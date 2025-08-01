@@ -418,6 +418,7 @@ services:
     depends_on:
       - api_server
       - web_server
+      - custom_backend
     environment:
       - DOMAIN=localhost
     ports:
@@ -448,6 +449,80 @@ services:
     # persistence. explicitly setting save and appendonly forces ephemeral behavior.
     command: redis-server --save "" --appendonly no
 
+  # --- Custom Extension Services ---
+  custom_projects_db:
+    image: postgres:15.2-alpine
+    container_name: onyx-stack-custom-projects-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${CUSTOM_PROJECTS_DB_USER:-custom_user}
+      POSTGRES_PASSWORD: ${CUSTOM_PROJECTS_DB_PASSWORD:-custom_password}
+      POSTGRES_DB: ${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - custom_projects_db_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CUSTOM_PROJECTS_DB_USER:-custom_user} -d ${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  custom_frontend:
+    build:
+      context: ../../custom_extensions/frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_BASE_URL_ARG=/api/custom-projects-backend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_CUSTOM_BACKEND_URL=/api/custom-projects-backend
+      - PORT=3001
+    depends_on:
+      custom_backend:
+        condition: service_started
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  custom_backend:
+    build:
+      context: ../../custom_extensions/backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CUSTOM_PROJECTS_DATABASE_URL=postgresql://${CUSTOM_PROJECTS_DB_USER:-custom_user}:${CUSTOM_PROJECTS_DB_PASSWORD:-custom_password}@custom_projects_db:5432/${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db}
+      - ONYX_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@relational_db:5432/${POSTGRES_DB:-onyx_db}
+      - CUSTOM_FRONTEND_URL=http://custom_frontend:3001
+    shm_size: '2gb'
+    depends_on:
+      relational_db:
+        condition: service_healthy
+      custom_projects_db:
+        condition: service_healthy
+      api_server:
+        condition: service_started
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    volumes:
+      - ../../custom_extensions/backend:/app
+
 volumes:
   db_volume:
   vespa_volume: # Created by the container itself
@@ -459,3 +534,6 @@ volumes:
   background_logs:
   inference_model_server_logs:
   indexing_model_server_logs:
+  custom_projects_db_volume:
+  custom_frontend_logs:
+  custom_backend_logs:
