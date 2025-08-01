@@ -84,24 +84,17 @@ async def generate_pdf_from_html_template(
         if isinstance(context_data.get('details'), dict) and 'contentBlocks' in context_data['details']:
             content_blocks = context_data['details']['contentBlocks']
             
-            # Calculate the correct path relative to the PDF generator's location
-            # PDF generator is in app/services/, so we need to go up to find static_design_images
-            pdf_generator_dir = os.path.dirname(__file__)  # app/services/
-            app_dir = os.path.dirname(pdf_generator_dir)   # app/
-            backend_dir = os.path.dirname(app_dir)         # backend/
-            static_images_relative_path = os.path.join(backend_dir, 'static_design_images')
+            # Calculate the correct absolute path to static_design_images
+            # The pdf_generator is in /app/services/, but static_design_images is at backend root level
+            # So we need to go up two levels from /app/services/ to reach the backend root
+            current_dir = os.path.dirname(os.path.abspath(__file__))  # /app/services/
+            backend_root = os.path.dirname(os.path.dirname(current_dir))  # Go up two levels to backend root
+            static_design_images_dir = os.path.join(backend_root, 'static_design_images')
             
-            # Also try the absolute path from main.py as fallback
-            static_images_abs_path = context_data.get('pdf_context', {}).get('static_images_path', '/app/static_design_images/')
-            
-            logger.info(f"PDF GEN: Processing {len(content_blocks)} content blocks for image path transformation")
-            logger.info(f"PDF GEN: PDF generator directory: {pdf_generator_dir}")
-            logger.info(f"PDF GEN: App directory: {app_dir}")
-            logger.info(f"PDF GEN: Backend directory: {backend_dir}")
-            logger.info(f"PDF GEN: Static images relative path: {static_images_relative_path}")
-            logger.info(f"PDF GEN: Static images absolute path: {static_images_abs_path}")
-            logger.info(f"PDF GEN: Relative path exists: {os.path.exists(static_images_relative_path)}")
-            logger.info(f"PDF GEN: Absolute path exists: {os.path.exists(static_images_abs_path.rstrip('/'))}")
+            logger.info(f"PDF GEN: Current directory: {current_dir}")
+            logger.info(f"PDF GEN: Backend root: {backend_root}")
+            logger.info(f"PDF GEN: Static design images directory: {static_design_images_dir}")
+            logger.info(f"PDF GEN: Directory exists: {os.path.exists(static_design_images_dir)}")
             
             for block in content_blocks:
                 if block.get('type') == 'image':
@@ -112,37 +105,22 @@ async def generate_pdf_from_html_template(
                     if original_src and not original_src.startswith('file://'):
                         if original_src.startswith('/static_design_images/'):
                             filename = original_src.replace('/static_design_images/', '')
-                            
-                            # Try relative path first, then absolute path
-                            if os.path.exists(static_images_relative_path):
-                                full_path = os.path.join(static_images_relative_path, filename)
-                                file_url = f"file://{full_path}"
-                                logger.info(f"PDF GEN: Using relative path: {full_path}")
-                            else:
-                                full_path = static_images_abs_path + filename
-                                file_url = f"file://{full_path}"
-                                logger.info(f"PDF GEN: Using absolute path: {full_path}")
+                            # Use the absolute path to the static_design_images directory
+                            full_path = os.path.join(static_design_images_dir, filename)
+                            file_url = f"file://{full_path}"
                             
                             logger.info(f"PDF GEN: Original: {original_src}")
                             logger.info(f"PDF GEN: Filename: {filename}")
                             logger.info(f"PDF GEN: Full path: {full_path}")
-                            logger.info(f"PDF GEN: File URL: {file_url}")
                             logger.info(f"PDF GEN: File exists: {os.path.exists(full_path)}")
+                            logger.info(f"PDF GEN: File URL: {file_url}")
                             
                             block['src'] = file_url
                             logger.info(f"PDF GEN: Transformed src to: {block['src']}")
                         elif original_src.startswith('/'):
                             filename = original_src.lstrip('/')
-                            
-                            # Try relative path first, then absolute path
-                            if os.path.exists(static_images_relative_path):
-                                full_path = os.path.join(static_images_relative_path, filename)
-                                file_url = f"file://{full_path}"
-                                logger.info(f"PDF GEN: Using relative path: {full_path}")
-                            else:
-                                full_path = static_images_abs_path + filename
-                                file_url = f"file://{full_path}"
-                                logger.info(f"PDF GEN: Using absolute path: {full_path}")
+                            full_path = os.path.join(static_design_images_dir, filename)
+                            file_url = f"file://{full_path}"
                             
                             logger.info(f"PDF GEN: Absolute path: {original_src} -> {file_url}")
                             logger.info(f"PDF GEN: File exists: {os.path.exists(full_path)}")
