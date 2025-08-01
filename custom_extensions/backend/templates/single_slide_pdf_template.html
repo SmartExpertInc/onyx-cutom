@@ -243,102 +243,103 @@
         }
         
         /* Bullet Points Template - EXACT FRONTEND MATCH */
-        .bullet-points {
-            width: 100%;
-            min-height: 600px;
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 40px;
-            position: relative;
-            font-family: 'Martel Sans', sans-serif;
-            height: 100%;
-        }
-        
-        .bullet-points .slide-title {
-            font-family: 'Kanit', sans-serif;
-            font-size: 45px; /* Exact frontend match */
-            color: var(--title-color);
-            text-align: left;
-            margin-bottom: 32px; /* Exact frontend match */
-            word-wrap: break-word;
-            line-height: 1.2;
-        }
-        
-        .bullet-points .content-row {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-            justify-content: space-evenly;
-            flex: 1;
-        }
-        
-        .bullet-points .placeholder-container {
-            flex: 0 0 50%; /* Exact frontend match */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 0;
-        }
-        
-        .bullet-points .placeholder {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            background-color: #e9ecef;
-            border: 2px dashed #adb5bd;
-            border-radius: 8px; /* Exact frontend match */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px; /* Exact frontend match */
-            text-align: center;
-            color: #6c757d;
-            margin: 0 auto;
-        }
-        
-        .bullet-points .bullets-container {
-            flex: 1 1 50%; /* Exact frontend match */
-            font-size: 18px; /* Exact frontend match */
-            font-family: 'Martel Sans', sans-serif;
-            color: var(--content-color);
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            padding-left: 40px; /* Exact frontend match */
-        }
-        
-        .bullet-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-        }
-        
-        .bullet-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px; /* Exact frontend match */
-            margin-bottom: 16px; /* Exact frontend match */
-        }
-        
-        .bullet-icon {
-            color: var(--accent-color);
-            font-weight: 600;
-            min-width: 20px; /* Exact frontend match */
-            font-size: 1.2rem; /* Exact frontend match */
-            font-family: 'Kanit', sans-serif;
-        }
-        
-        .bullet-text {
-            font-family: 'Martel Sans', sans-serif;
-            font-size: 18px; /* Exact frontend match */
-            color: var(--content-color);
-            line-height: 1.6;
-        }
-        
+        /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
+.bullet-points {
+    width: 100%;                      /* CRITICAL: Ensures full width occupation in PDF */
+    min-height: 600px;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 80px;                    /* FIXED: Changed from 40px to 80px to match React */
+    position: relative;
+    font-family: 'Martel Sans', sans-serif;
+    height: 100%;
+}
+
+.bullet-points .slide-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: 45px;
+    color: var(--title-color);
+    text-align: left;
+    margin-bottom: 32px;
+    word-wrap: break-word;
+    line-height: 1.2;
+}
+
+.bullet-points .content-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-evenly;
+    flex: 1;
+}
+
+.bullet-points .placeholder-container {
+    flex: 0 0 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.bullet-points .placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #e9ecef;
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    margin: 0 auto;
+    max-width: none;                  /* FIXED: Ensure placeholder can grow to full container size */
+}
+
+.bullet-points .bullets-container {
+    flex: 1 1 50%;
+    font-size: 20px;                  /* FIXED: Increased from 18px to 20px to better match React */
+    font-family: 'Martel Sans', sans-serif;
+    color: var(--content-color);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-left: 40px;
+}
+
+.bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.bullet-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.bullet-icon {
+    color: var(--accent-color);
+    font-weight: 600;
+    min-width: 20px;
+    font-size: 1.2rem;
+    font-family: 'Kanit', sans-serif;
+}
+
+.bullet-text {
+    font-family: 'Martel Sans', sans-serif;
+    font-size: 20px;                  /* FIXED: Increased from 18px to 20px to match bullets-container */
+    color: var(--content-color);
+    line-height: 1.6;
+}
         /* Process Steps Template - EXACT FRONTEND MATCH */
         .process-steps {
             padding: 40px; /* Exact frontend match */
@@ -865,7 +866,7 @@
                     <div class="content-text" style="text-align: left;">{{ slide.props.subtitle or 'Click to add content' }}</div>
                 </div>
                 
-            {% elif slide.templateId == 'bullet-points' %}
+                {% elif slide.templateId == 'bullet-points' %}
                 <div class="bullet-points">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="content-row">
