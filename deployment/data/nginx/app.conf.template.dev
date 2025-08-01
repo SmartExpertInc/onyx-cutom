@@ -64,7 +64,8 @@ server {
     # Location for Custom Backend API
     # Use ^~ for higher precedence for this prefix match
     location ^~ /api/custom-projects-backend/ { # ADDED ^~ modifier
-        proxy_pass http://custom_backend_server/api/custom/; # Path replacement
+        rewrite ^/api/custom-projects-backend/(.*)$ /api/custom/$1 break;
+        proxy_pass http://custom_backend_server; # Remove the path replacement
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

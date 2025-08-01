@@ -31,5 +31,26 @@ while true; do
   fi
 done
 
+# wait for the custom_backend to be ready
+echo "Waiting for Custom Backend to boot up..."
+echo "If this takes more than ~5 minutes, check the logs of the custom backend container for errors with the following command:"
+echo
+echo "docker logs onyx-stack-custom_backend-1"
+echo
+
+while true; do
+  # Use curl to send a request and capture the HTTP status code
+  status_code=$(curl -o /dev/null -s -w "%{http_code}\n" "http://custom_backend:8001/api/custom/health")
+  
+  # Check if the status code is 200
+  if [ "$status_code" -eq 200 ]; then
+    echo "Custom Backend responded with 200, starting nginx..."
+    break  # Exit the loop
+  else
+    echo "Custom Backend responded with $status_code, retrying in 5 seconds..."
+    sleep 5  # Sleep for 5 seconds before retrying
+  fi
+done
+
 # Start nginx and reload every 6 hours
 while :; do sleep 6h & wait; nginx -s reload; done & nginx -g "daemon off;"

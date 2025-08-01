@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 export interface PyramidItem {
@@ -12,6 +12,132 @@ export interface PyramidTemplateProps {
   subtitle: string;
   items: PyramidItem[];
   theme?: SlideTheme;
+  onUpdate?: (props: any) => void;
+  isEditable?: boolean;
+}
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  // Set initial height for textarea to match content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          // Only override browser defaults, preserve all passed styles
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        // Only override browser defaults, preserve all passed styles
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
+        boxSizing: 'border-box',
+        display: 'block'
+      }}
+    />
+  );
 }
 
 export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
@@ -20,9 +146,27 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   subtitle,
   items = [],
   theme,
+  onUpdate,
+  isEditable = false
 }: PyramidTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingItemHeadings, setEditingItemHeadings] = useState<number[]>([]);
+  const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const slideStyles: React.CSSProperties = {
     backgroundColor,
@@ -40,6 +184,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     fontFamily: currentTheme.fonts.titleFont,
     marginBottom: '16px',
     textAlign: 'left',
+    wordWrap: 'break-word'
   };
 
   const subtitleStyles: React.CSSProperties = {
@@ -50,6 +195,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     maxWidth: '80%',
     lineHeight: 1.6,
     textAlign: 'left',
+    wordWrap: 'break-word'
   };
 
   const mainContentStyles: React.CSSProperties = {
@@ -107,11 +253,73 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     fontSize: '1.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     marginBottom: '8px',
+    wordWrap: 'break-word'
   };
 
   const itemDescriptionStyles: React.CSSProperties = {
     color: contentColor,
     fontSize: currentTheme.fonts.contentSize,
+    wordWrap: 'break-word'
+  };
+
+  // Handle title editing
+  const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+    setEditingTitle(false);
+  };
+
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
+  };
+
+  // Handle subtitle editing
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (onUpdate) {
+      onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
+  };
+
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
+  };
+
+  // Handle item heading editing
+  const handleItemHeadingSave = (index: number, newHeading: string) => {
+    if (onUpdate && items) {
+      const updatedItems = [...items];
+      updatedItems[index] = { ...updatedItems[index], heading: newHeading };
+      onUpdate({ items: updatedItems });
+    }
+    setEditingItemHeadings(editingItemHeadings.filter(i => i !== index));
+  };
+
+  const handleItemHeadingCancel = (index: number) => {
+    setEditingItemHeadings(editingItemHeadings.filter(i => i !== index));
+  };
+
+  // Handle item description editing
+  const handleItemDescriptionSave = (index: number, newDescription: string) => {
+    if (onUpdate && items) {
+      const updatedItems = [...items];
+      updatedItems[index] = { ...updatedItems[index], description: newDescription };
+      onUpdate({ items: updatedItems });
+    }
+    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
+  };
+
+  const handleItemDescriptionCancel = (index: number) => {
+    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
+  };
+
+  const startEditingItemHeading = (index: number) => {
+    setEditingItemHeadings([...editingItemHeadings, index]);
+  };
+
+  const startEditingItemDescription = (index: number) => {
+    setEditingItemDescriptions([...editingItemDescriptions, index]);
   };
 
   const PyramidSVG1 = () => {
@@ -150,8 +358,84 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   return (
     <div className="pyramid-template" style={slideStyles}>
-      <h1 style={titleStyles}>{title}</h1>
-      {subtitle && <p style={subtitleStyles}>{subtitle}</p>}
+      {/* Title */}
+      {isEditable && editingTitle ? (
+        <InlineEditor
+          initialValue={title || ''}
+          onSave={handleTitleSave}
+          onCancel={handleTitleCancel}
+          multiline={true}
+          placeholder="Enter slide title..."
+          className="inline-editor-title"
+          style={{
+            ...titleStyles,
+            // Ensure title behaves exactly like h1 element
+            margin: '0',
+            padding: '0',
+            border: 'none',
+            outline: 'none',
+            resize: 'none',
+            overflow: 'hidden',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
+            boxSizing: 'border-box',
+            display: 'block'
+          }}
+        />
+      ) : (
+        <h1 
+          style={titleStyles}
+          onClick={() => {
+            if (isEditable) {
+              setEditingTitle(true);
+            }
+          }}
+          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+        >
+          {title || 'Click to add title'}
+        </h1>
+      )}
+
+      {/* Subtitle */}
+      {subtitle && (
+        isEditable && editingSubtitle ? (
+          <InlineEditor
+            initialValue={subtitle || ''}
+            onSave={handleSubtitleSave}
+            onCancel={handleSubtitleCancel}
+            multiline={true}
+            placeholder="Enter subtitle..."
+            className="inline-editor-subtitle"
+            style={{
+              ...subtitleStyles,
+              // Ensure subtitle behaves exactly like p element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <p 
+            style={subtitleStyles}
+            onClick={() => {
+              if (isEditable) {
+                setEditingSubtitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {subtitle}
+          </p>
+        )
+      )}
+
       <div style={mainContentStyles}>
         <div style={pyramidContainerStyles}>
           <PyramidSVG1 />
@@ -161,8 +445,81 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         <div style={itemsContainerStyles}>
           {Array.isArray(items) && items.slice(0, 3).map((item, index) => (
             <div key={index} style={itemWrapperStyles(index)}>
-              <div style={itemHeadingStyles}>{item.heading || 'Heading'}</div>
-              <div style={itemDescriptionStyles}>{item.description || 'Description'}</div>
+              {/* Item Heading */}
+              {isEditable && editingItemHeadings.includes(index) ? (
+                <InlineEditor
+                  initialValue={item.heading || ''}
+                  onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
+                  onCancel={() => handleItemHeadingCancel(index)}
+                  multiline={true}
+                  placeholder="Enter heading..."
+                  className="inline-editor-item-heading"
+                  style={{
+                    ...itemHeadingStyles,
+                    // Ensure heading behaves exactly like div element
+                    margin: '0',
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={itemHeadingStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      startEditingItemHeading(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {item.heading || 'Click to add heading'}
+                </div>
+              )}
+
+              {/* Item Description */}
+              {isEditable && editingItemDescriptions.includes(index) ? (
+                <InlineEditor
+                  initialValue={item.description || ''}
+                  onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
+                  onCancel={() => handleItemDescriptionCancel(index)}
+                  multiline={true}
+                  placeholder="Enter description..."
+                  className="inline-editor-item-description"
+                  style={{
+                    ...itemDescriptionStyles,
+                    // Ensure description behaves exactly like div element
+                    margin: '0',
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={itemDescriptionStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      startEditingItemDescription(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {item.description || 'Click to add description'}
+                </div>
+              )}
             </div>
           ))}
           <div style={separatorLineStyles(0)}></div>

@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Slide PDF</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset and base styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Dynamic page setup for PDF - HEIGHT IS SET BY PYTHON */
+        @page {
+            size: 1174px {{ slide_height }}px; /* Dynamic height from Python */
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Single slide container - EXACT FRONTEND MATCH */
+        .slide-page {
+            width: 1174px;
+            height: {{ slide_height }}px; /* Dynamic height from Python */
+            min-height: {{ slide_height }}px;
+            max-height: {{ slide_height }}px;
+            position: relative;
+            overflow: visible; /* Allow content to determine height */
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            display: block;
+        }
+        
+        .slide-content {
+            width: 100%;
+            height: 100%; /* Fill the page height */
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+        
+        /* Theme color definitions - EXACT FRONTEND MATCH */
+        .theme-dark-purple {
+            --bg-color: #110c35;
+            --title-color: #ffffff;
+            --subtitle-color: #d9e1ff;
+            --content-color: #d9e1ff;
+            --accent-color: #f35657;
+        }
+        
+        .theme-light-modern {
+            --bg-color: #ffffff;
+            --title-color: #1a1a1a;
+            --subtitle-color: #6b7280;
+            --content-color: #374151;
+            --accent-color: #3b82f6;
+        }
+        
+        .theme-corporate-blue {
+            --bg-color: #1e3a8a;
+            --title-color: #ffffff;
+            --subtitle-color: #bfdbfe;
+            --content-color: #e0e7ff;
+            --accent-color: #60a5fa;
+        }
+        
+        /* Common slide styles - EXACT FRONTEND MATCH */
+        .slide {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+        }
+        
+        /* Content Slide Template - EXACT FRONTEND MATCH */
+        .content-slide {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 80px;
+            position: relative;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .content-slide .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 40px;
+            line-height: 1.3;
+            max-width: 900px;
+            word-wrap: break-word;
+        }
+        
+        .content-slide .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px;
+            color: var(--content-color);
+            text-align: left;
+            line-height: 1.6;
+            max-width: 800px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        
+        /* Big Image Top Template - EXACT FRONTEND MATCH */
+        .big-image-top {
+            min-height: 600px;
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: space-between;
+            padding-bottom: 50px;
+            height: 100%;
+        }
+        
+        .big-image-top .image-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            min-width: 0;
+            margin-bottom: 32px;
+        }
+        
+        .big-image-top .image-placeholder {
+            width: 100%;
+            height: 240px;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .big-image-top .content-container {
+            width: 100%;
+            padding: 60px 60px 60px 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            min-width: 0;
+        }
+        
+        .big-image-top .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px;
+            color: var(--title-color);
+            margin-bottom: 24px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+        
+        .big-image-top .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px;
+            color: var(--content-color);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* Hero Title Slide Template - EXACT FRONTEND MATCH */
+        .hero-title-slide {
+            width: 100%;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px;
+            position: relative;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .hero-title-slide .accent-element {
+            position: absolute;
+            background-color: var(--accent-color);
+            z-index: 1;
+        }
+        
+        .hero-title-slide .accent-left {
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+        }
+        
+        .hero-title-slide .accent-right {
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+        }
+        
+        .hero-title-slide .accent-top {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+        }
+        
+        .hero-title-slide .accent-bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+        }
+        
+        .hero-title-slide .content-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            position: relative;
+            width: 100%;
+        }
+        
+        .hero-title-slide .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 50px;
+            color: var(--title-color);
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            max-width: 900px;
+            word-wrap: break-word;
+        }
+        
+        .hero-title-slide .slide-subtitle {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 22px;
+            color: var(--subtitle-color);
+            text-align: center;
+            line-height: 1.6;
+            max-width: 700px;
+            word-wrap: break-word;
+        }
+        
+        /* Pyramid Template - EXACT FRONTEND MATCH */
+        .pyramid-template {
+            background-color: var(--bg-color);
+            padding: 64px;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Martel Sans', sans-serif;
+            min-height: 600px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .pyramid-template .slide-title {
+            color: var(--title-color);
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 16px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        .pyramid-template .slide-subtitle {
+            color: var(--content-color);
+            font-size: 18px;
+            font-family: 'Martel Sans', sans-serif;
+            margin-bottom: 48px;
+            max-width: 80%;
+            line-height: 1.6;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        .pyramid-template .main-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 48px;
+        }
+        
+        .pyramid-template .pyramid-container {
+            flex: 0 0 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .pyramid-template .items-container {
+            flex: 1 1 55%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 400px;
+        }
+        
+        .pyramid-template .item-wrapper {
+            position: absolute;
+            width: 100%;
+            transform: translateY(-50%);
+        }
+        
+        .pyramid-template .item-wrapper.level-0 {
+            top: 16.7%;
+            left: -250px;
+        }
+        
+        .pyramid-template .item-wrapper.level-1 {
+            top: 50%;
+            left: -190px;
+        }
+        
+        .pyramid-template .item-wrapper.level-2 {
+            top: 83.3%;
+            left: -120px;
+        }
+        
+        .pyramid-template .separator-line {
+            position: absolute;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .pyramid-template .separator-line.level-0 {
+            left: -250px;
+            right: 0;
+            top: 33.3%;
+        }
+        
+        .pyramid-template .separator-line.level-1 {
+            left: -190px;
+            right: 0;
+            top: 66.6%;
+        }
+        
+        .pyramid-template .item-heading {
+            color: var(--title-color);
+            font-size: 24px;
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+        
+        .pyramid-template .item-description {
+            color: var(--content-color);
+            font-size: 18px;
+            word-wrap: break-word;
+        }
+        
+        /* Pyramid SVG Styles */
+        .pyramid-svg {
+            width: 560px;
+            height: 120px;
+        }
+        
+        .pyramid-svg-1 {
+            viewBox: "66 0 68 60";
+        }
+        
+        .pyramid-svg-2 {
+            viewBox: "33 60 134 60";
+        }
+        
+        .pyramid-svg-3 {
+            viewBox: "0 120 200 60";
+        }
+        
+        .pyramid-path {
+            fill: rgba(255, 255, 255, 0.1);
+            stroke-width: 0.5;
+        }
+        
+        .pyramid-text {
+            fill: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            text-anchor: middle;
+        }
+        
+        /* Title styles - EXACT FRONTEND MATCH */
+        .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            text-align: left; /* Default to left alignment */
+            margin-bottom: 24px; /* Exact frontend match */
+            line-height: 1.2;
+            max-width: 1174px; /* Updated to match new slide width */
+            word-wrap: break-word;
+        }
+        
+        .slide-subtitle {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 26px; /* Exact frontend match */
+            color: var(--subtitle-color);
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            line-height: 1.4;
+            max-width: 700px; /* Exact frontend match */
+            word-wrap: break-word;
+        }
+        
+        /* Content text styles - EXACT FRONTEND MATCH */
+        .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        /* Title Slide Template - EXACT FRONTEND MATCH */
+        .title-slide {
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .title-slide .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            text-align: center;
+            margin-bottom: 24px; /* Exact frontend match */
+            line-height: 1.2;
+            max-width: 1174px; /* Updated to match new slide width */
+            word-wrap: break-word;
+        }
+        
+        .title-slide .slide-subtitle {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 26px; /* Exact frontend match */
+            color: var(--subtitle-color);
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            line-height: 1.4;
+            max-width: 700px; /* Exact frontend match */
+            word-wrap: break-word;
+        }
+        
+        .title-slide .metadata {
+            display: flex;
+            gap: 32px; /* Exact frontend match */
+            font-size: 16px; /* Exact frontend match */
+            color: var(--subtitle-color);
+            text-align: center;
+            opacity: 0.8;
+        }
+        
+        /* Big Image Left Template - EXACT FRONTEND MATCH */
+        .big-image-left {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            align-items: stretch;
+            padding: 0;
+        }
+        
+        .big-image-left .image-container {
+            flex: 0 0 40%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            position: relative;
+            min-width: 0;
+        }
+        
+        .big-image-left .image-placeholder {
+            width: 100%;
+            height: 100%; /* Fixed height for image placeholder */
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .big-image-left .content-container {
+            flex: 1 1 60%; /* Exact frontend match */
+            padding: 40px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+        
+        .big-image-left .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            margin-bottom: 24px; /* Exact frontend match */
+            line-height: 1.2;
+            word-wrap: break-word;
+            text-align: left;
+        }
+        
+        .big-image-left .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* Bullet Points Template - EXACT FRONTEND MATCH */
+        /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
+         /* Bullet Points Template - EXACT FRONTEND MATCH */
+         .bullet-points {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 80px; /* Exact frontend match */
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .bullet-points .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 32px; /* Exact frontend match */
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        .bullet-points .content-row {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-evenly;
+            flex: 1;
+        }
+        
+        .bullet-points .placeholder-container {
+            flex: 0 0 50%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            width: 50%;
+            height: 100%;
+        }
+        
+        .bullet-points .placeholder {
+            width: 100%;
+            max-width: none;
+            height: auto;
+            max-height: none;
+            aspect-ratio: 1 / 1;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+            margin: 0 auto;
+        }
+        
+        .bullet-points .bullets-container {
+            flex: 1 1 50%; /* Exact frontend match */
+            font-size: 18px; /* Exact frontend match */
+            font-family: 'Martel Sans', sans-serif;
+            color: var(--content-color);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding-left: 40px; /* Exact frontend match */
+        }
+        
+        /* Bullet-Points-Right Template - Separate from regular bullet-points */
+        .bullet-points-right {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 80px;
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .bullet-points-right .slide-title {
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            color: var(--title-color);
+            margin-bottom: 32px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        .bullet-points-right .content-row {
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100% !important;
+            justify-content: space-between !important;
+            flex: 1 !important;
+            align-items: flex-start !important;
+        }
+        
+        .bullet-points-right .bullets-container {
+            flex: 1 1 60% !important;
+            font-size: 18px !important;
+            font-family: 'Martel Sans', sans-serif;
+            color: var(--content-color);
+            display: flex !important;
+            flex-direction: column !important;
+            min-width: 0 !important;
+            padding-right: 40px !important;
+        }
+        
+        .bullet-points-right .placeholder-container {
+            flex: 0 0 40% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 0 !important;
+        }
+        
+        .bullet-points-right .placeholder {
+            width: 100% !important;
+            aspect-ratio: 1 / 1 !important;
+            background-color: #e9ecef !important;
+            border: 2px dashed #adb5bd !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px !important;
+            text-align: center !important;
+            color: #6c757d !important;
+            margin: 0 auto !important;
+        }
+        
+        .bullet-points-right .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px;
+            color: var(--content-color);
+            margin-bottom: 32px;
+            text-align: left;
+            line-height: 1.6;
+        }
+        
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        
+        .bullet-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px; /* Exact frontend match */
+            margin-bottom: 16px; /* Exact frontend match */
+        }
+        
+        .bullet-icon {
+            color: var(--accent-color);
+            font-weight: 600;
+            min-width: 20px; /* Exact frontend match */
+            font-size: 1.2rem; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .bullet-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+        }
+        /* Process Steps Template - EXACT FRONTEND MATCH */
+        .process-steps {
+            padding: 40px; /* Exact frontend match */
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .process-steps .slide-title {
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            word-wrap: break-word;
+        }
+        
+        .process-steps .steps-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: start;
+            gap: 32px; /* Exact frontend match */
+            flex: 1;
+        }
+        
+        .process-step {
+            text-align: center;
+            max-width: 220px; /* Exact frontend match */
+            background: rgba(0,0,0,0.08);
+            border-radius: 12px; /* Exact frontend match */
+            padding: 24px 16px; /* Exact frontend match */
+        }
+        
+        .step-number {
+            font-size: 2rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 10px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .step-description {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            margin: 0;
+            word-wrap: break-word;
+        }
+        
+        /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
+        .challenges-solutions {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            padding: 40px;
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .challenges-solutions .slide-title {
+            font-size: 45px; /* Exact frontend match */
+            color: var(--title-color);
+            font-family: 'Kanit', sans-serif;
+            text-align: center;
+            margin-bottom: 50px; /* Exact frontend match */
+            line-height: 1.3;
+            max-width: 1174px; /* Updated to match new slide width */
+            margin: 0 auto 50px auto;
+            word-wrap: break-word;
+        }
+        
+        .challenges-solutions .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px; /* Exact frontend match */
+            max-width: 1000px; /* Exact frontend match */
+            margin: 0 auto;
+            flex: 1;
+        }
+        
+        .callout-box {
+            background-color: var(--bg-color);
+            border-radius: 12px; /* Exact frontend match */
+            padding: 24px; /* Exact frontend match */
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .callout-header {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Exact frontend match */
+            margin-bottom: 20px; /* Exact frontend match */
+        }
+        
+        .section-title {
+            font-size: 1.25rem; /* Exact frontend match */
+            color: var(--content-color);
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            word-wrap: break-word;
+        }
+        
+        .callout-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .callout-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px; /* Exact frontend match */
+            margin-bottom: 12px; /* Exact frontend match */
+            font-size: 18px; /* Exact frontend match */
+            line-height: 1.5;
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .callout-bullet {
+            min-width: 6px; /* Exact frontend match */
+            width: 6px;
+            height: 6px;
+            background-color: var(--content-color);
+            border-radius: 50%;
+            margin-top: 8px; /* Exact frontend match */
+        }
+        
+        /* SVG Icons for Challenges & Solutions */
+        .icon-xmark {
+            width: 24px; /* Exact frontend match */
+            height: 24px;
+            fill: var(--accent-color);
+            flex-shrink: 0;
+        }
+        
+        .icon-check {
+            width: 24px; /* Exact frontend match */
+            height: 24px;
+            fill: var(--accent-color);
+            flex-shrink: 0;
+        }
+        
+        /* Two Column Template - EXACT FRONTEND MATCH */
+        .two-column {
+            height: 100%;
+            padding: 40px;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .two-column .slide-title {
+            text-align: left;
+            margin-bottom: 40px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px;
+            color: var(--title-color);
+            word-wrap: break-word;
+        }
+        
+        .two-column-layout {
+            display: flex;
+            gap: 40px; /* Exact frontend match */
+            width: 100%;
+        }
+        
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Global placeholder styles removed - each template now has its own scoped styles */
+        
+        /* Two-Column Template Placeholder */
+        .two-column .placeholder {
+            width: 100%;
+            max-width: 320px;
+            max-height: 200px;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 24px;
+        }
+        
+        .column-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 27px;
+            color: var(--title-color);
+            margin: 16px 0 16px 0;
+            align-self: flex-start;
+            word-wrap: break-word;
+        }
+        
+        .column-content {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px;
+            color: var(--content-color);
+            margin: 0;
+            align-self: flex-start;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        /* Big Numbers Template - EXACT FRONTEND MATCH */
+        .big-numbers {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .big-numbers .slide-title {
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 56px;
+            width: 100%;
+            word-wrap: break-word;
+        }
+        
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 32px; /* Exact frontend match */
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .number-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 16px;
+        }
+        
+        .number-value {
+            font-size: 4.5rem;
+            color: var(--content-color);
+            margin-bottom: 16px;
+            font-family: 'Kanit', sans-serif;
+            word-wrap: break-word;
+        }
+        
+        .number-label {
+            font-size: 1.4rem;
+            color: var(--content-color);
+            margin-bottom: 10px;
+            font-family: 'Kanit', sans-serif;
+            word-wrap: break-word;
+        }
+        
+        .number-description {
+            font-size: 18px;
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        /* Four Box Grid Template - EXACT FRONTEND MATCH */
+        .four-box-grid {
+            width: 100%;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+            height: 100%;
+        }
+        
+        .four-box-grid .slide-title {
+            font-size: 45px;
+            font-family: 'Kanit', sans-serif;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 40px;
+            word-wrap: break-word;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            flex: 1;
+        }
+        
+        .box-item {
+            background-color: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 20px;
+            color: var(--content-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 1px 0 0 #393963;
+            border: 1px solid #393963;
+            min-height: 160px;
+        }
+        
+        .box-heading {
+            font-size: 1.5rem;
+            color: var(--content-color);
+            margin-bottom: 12px;
+            font-family: 'Kanit', sans-serif;
+            word-wrap: break-word;
+        }
+        
+        .box-text {
+            font-size: 18px;
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            word-wrap: break-word;
+        }
+        
+        /* Pyramid Template - EXACT FRONTEND MATCH */
+        .pyramid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px; /* Exact frontend match */
+            width: 100%;
+            max-width: 600px; /* Exact frontend match */
+            margin: 0 auto;
+        }
+        
+        .pyramid-level {
+            background: rgba(0,0,0,0.08);
+            border-radius: 8px; /* Exact frontend match */
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            width: 100%;
+        }
+        
+        .pyramid-level:nth-child(1) { width: 100%; }
+        .pyramid-level:nth-child(2) { width: 80%; }
+        .pyramid-level:nth-child(3) { width: 60%; }
+        .pyramid-level:nth-child(4) { width: 40%; }
+        .pyramid-level:nth-child(5) { width: 20%; }
+        
+        .level-content {
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.5;
+        }
+        
+        /* Timeline Template - EXACT FRONTEND MATCH */
+        /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
+.timeline {
+    min-height: 600px;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
+    font-family: 'Martel Sans', sans-serif;
+    align-items: stretch;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+}
+
+.timeline .slide-title {
+    font-size: 45px;
+    font-family: 'Kanit', sans-serif;
+    color: var(--title-color);
+    margin-bottom: 80px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.timeline-container {
+    position: relative;
+    width: 100%;
+    height: 350px;                    /* FIXED: Changed from flex: 1 to fixed height: 350px */
+    display: flex;
+    /* REMOVED: min-height: 400px; */
+}
+
+.timeline-line {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    width: 90%;
+    height: 2px;
+    background: rgba(255,255,255,0.25);
+}
+
+.step-wrapper {
+    position: relative;
+    width: 25%;
+    height: 100%;
+    display: flex;
+    align-items: center;              /* ADDED: This wasn't in original but helps with alignment */
+}
+
+.milestone-content {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;                        /* FIXED: Changed from 15px to 10px to match React */
+    /* REMOVED: padding: 10px 0; */
+}
+
+.text-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;                         /* FIXED: Changed from 12px to 8px to match React */
+    /* REMOVED: max-width: 200px; - React doesn't have this constraint */
+}
+
+.step-heading {
+    font-size: 1.2rem;                /* FIXED: Changed from 1.4rem to 1.2rem to match React */
+    color: var(--title-color);
+    font-family: 'Kanit', sans-serif;
+    word-wrap: break-word;
+}
+
+.step-description {
+    font-size: 20px;                  /* This should match React's contentSize */
+    color: var(--content-color);
+    font-family: 'Martel Sans', sans-serif;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.vertical-line {
+    width: 2px;
+    height: 20px;
+    background: rgba(255,255,255,0.25);
+}
+
+.number-square {
+    width: 40px;
+    height: 40px;
+    border-radius: 3px;
+    background: var(--accent-color);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+    </style>
+</head>
+<body>
+    <div class="slide-page">
+        <div class="slide-content theme-{{ theme or 'dark-purple' }}">
+            {% if slide.templateId == 'title-slide' %}
+                <div class="title-slide">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.subtitle %}
+                        <h2 class="slide-subtitle">{{ slide.props.subtitle }}</h2>
+                    {% endif %}
+                    {% if slide.props.author or slide.props.date %}
+                        <div class="metadata">
+                            {% if slide.props.author %}
+                                <div>{{ slide.props.author }}</div>
+                            {% endif %}
+                            {% if slide.props.date %}
+                                <div>{{ slide.props.date }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+            {% elif slide.templateId == 'big-image-left' %}
+                <div class="big-image-left">
+                    <div class="image-container">
+                        <div class="image-placeholder">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                            <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'man sitting on a chair' }}"</div>
+                            <div style="font-size: 12px; color: #868e96;">500px × 350px</div>
+                        </div>
+                    </div>
+                    <div class="content-container">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'big-image-top' %}
+                <div class="big-image-top">
+                    <div class="image-container">
+                        <div class="image-placeholder">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                            <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A high-quality illustration for the topic' }}"</div>
+                            <div style="font-size: 12px; color: #868e96;">100% × 240px</div>
+                        </div>
+                    </div>
+                    <div class="content-container">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                    </div>
+                </div>
+                
+                {% elif slide.templateId == 'bullet-points' %}
+                <div class="bullet-points">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="content-row">
+                        <div class="placeholder-container">
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">50% × 50%</div>
+                            </div>
+                        </div>
+                        <div class="bullets-container">
+                            <ul class="bullet-list">
+                                {% for bullet in slide.props.bullets %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
+                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                                    </li>
+                                {% endfor %}
+                                {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            {% elif slide.templateId == 'bullet-points-right' %}
+                <div class="bullet-points-right">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    
+                    <div class="content-row">
+                    
+                        <div class="bullets-container">
+                            {% if slide.props.subtitle %}
+                        <div class="content-text">{{ slide.props.subtitle }}</div>
+                    {% endif %}
+                            <ul class="bullet-list">
+                                {% for bullet in slide.props.bullets %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
+                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                                    </li>
+                                {% endfor %}
+                                {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Building Trust: Values create a foundation of trust among employees and with clients.</span>
+                                    </li>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Guiding Decisions: They serve as a compass for decision-making at all levels.</span>
+                                    </li>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Fostering Culture: Values shape our company culture and work environment.</span>
+                                    </li>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">•</span>
+                                        <span class="bullet-text">Driving Success: Aligning with our values leads to greater success and fulfillment.</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="placeholder-container">
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A relevant illustration for the bullet points' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'process-steps' %}
+                <div class="process-steps">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="steps-container">
+                        {% for step in slide.props.steps %}
+                            <div class="process-step">
+                                <div class="step-number">{{ loop.index }}</div>
+                                <p class="step-description">{{ step.description if step.description else (step if step is string else 'Click to add step description') }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'challenges-solutions' %}
+                <div class="challenges-solutions">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="grid">
+                        <div class="callout-box">
+                            <div class="callout-header">
+                                <svg class="icon-xmark" viewBox="0 0 512 512">
+                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+                                </svg>
+                                <h2 class="section-title">{{ slide.props.challengesTitle or 'Виклики' }}</h2>
+                            </div>
+                            <ul class="callout-list">
+                                {% for challenge in slide.props.challenges %}
+                                    <li class="callout-item">
+                                        <div class="callout-bullet"></div>
+                                        <span>{{ challenge or 'Click to add challenge' }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="callout-box">
+                            <div class="callout-header">
+                                <svg class="icon-check" viewBox="0 0 512 512">
+                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
+                                </svg>
+                                <h2 class="section-title">{{ slide.props.solutionsTitle or 'Рішення' }}</h2>
+                            </div>
+                            <ul class="callout-list">
+                                {% for solution in slide.props.solutions %}
+                                    <li class="callout-item">
+                                        <div class="callout-bullet"></div>
+                                        <span>{{ solution or 'Click to add solution' }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'two-column' %}
+                <div class="two-column">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="two-column-layout">
+                        <div class="column">
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImagePrompt or slide.props.leftImageAlt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                            <h2 class="column-title">{{ slide.props.leftTitle or 'Click to add left title' }}</h2>
+                            <p class="column-content">{{ slide.props.leftContent or 'Click to add left content' }}</p>
+                        </div>
+                        <div class="column">
+                            <div class="placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImagePrompt or slide.props.rightImageAlt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                            </div>
+                            <h2 class="column-title">{{ slide.props.rightTitle or 'Click to add right title' }}</h2>
+                            <p class="column-content">{{ slide.props.rightContent or 'Click to add right content' }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'big-numbers' %}
+                <!-- DEBUG: big-numbers template -->
+                <div class="big-numbers">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="numbers-grid">
+                        {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
+                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
+                            {% for item in slide.props.items %}
+                                <div class="number-item">
+                                    <div class="number-value">{{ item.value or 'Click to add value' }}</div>
+                                    <div class="number-label">{{ item.label or 'Click to add label' }}</div>
+                                    <div class="number-description">{{ item.description or 'Click to add description' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- DEBUG: items is not iterable or is callable, using fallback -->
+                        {% endif %}
+                        {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
+                            <div class="number-item">
+                                <div class="number-value">100+</div>
+                                <div class="number-label">Countries Served</div>
+                                <div class="number-description">We have expanded our operations to over 100 countries worldwide.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">5</div>
+                                <div class="number-label">Years in Business</div>
+                                <div class="number-description">Celebrating over 5 years of successful operations.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">20%</div>
+                                <div class="number-label">Employee Satisfaction Rate</div>
+                                <div class="number-description">Our employee satisfaction rate stands at an impressive 20%.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'four-box-grid' %}
+                <div class="four-box-grid">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="grid-container">
+                        {% for box in slide.props.boxes %}
+                            <div class="box-item">
+                                <div class="box-heading">{{ box.heading or 'Click to add heading' }}</div>
+                                <div class="box-text">{{ box.text or 'Click to add text' }}</div>
+                            </div>
+                        {% endfor %}
+                        {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">The teamwork culture makes every project enjoyable and successful.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Our commitment to customer focus is evident in everything we do.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            
+                
+            {% elif slide.templateId == 'timeline' %}
+                <div class="timeline">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="timeline-container">
+                        <div class="timeline-line"></div>
+                        {% for step in slide.props.steps %}
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
+                                    <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
+                                        <div class="step-heading">{{ step.heading or 'Click to add heading' }}</div>
+                                        {% if step.description %}
+                                            <div class="step-description">{{ step.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
+                                        {{ loop.index }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="top: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 3;">
+                                        <div class="step-heading">Phase 1</div>
+                                        <div class="step-description">Initial planning and setup</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 1;">1</div>
+                                </div>
+                            </div>
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 1;">
+                                        <div class="step-heading">Phase 2</div>
+                                        <div class="step-description">Development and implementation</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 3;">2</div>
+                                </div>
+                            </div>
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="top: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 3;">
+                                        <div class="step-heading">Phase 3</div>
+                                        <div class="step-description">Testing and refinement</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 1;">3</div>
+                                </div>
+                            </div>
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
+                                    <div class="text-block" style="order: 1;">
+                                        <div class="step-heading">Phase 4</div>
+                                        <div class="step-description">Launch and deployment</div>
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: 3;">4</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            
+                
+            {% elif slide.templateId == 'comparison-slide' %}
+                <div class="slide">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="two-column-layout">
+                        <div class="column">
+                            <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.leftTitle or 'Left Side' }}</h2>
+                            <div class="content-text">{{ slide.props.leftContent or 'Left content' }}</div>
+                        </div>
+                        <div class="column">
+                            <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.rightTitle or 'Right Side' }}</h2>
+                            <div class="content-text">{{ slide.props.rightContent or 'Right content' }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'content-slide' %}
+                <div class="content-slide" style="
+                    background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
+                    align-items: {% if slide.props.alignment == 'center' %}center{% elif slide.props.alignment == 'right' %}flex-end{% else %}flex-start{% endif %};
+                ">
+                    <h1 class="slide-title" style="
+                        text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
+                        text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
+                    ">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="content-text" style="
+                        text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
+                        text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
+                    ">{{ slide.props.content or 'Click to add content' }}</div>
+                </div>
+                
+            {% elif slide.templateId == 'hero-title-slide' %}
+                <div class="hero-title-slide" style="
+                    background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
+                    align-items: {% if slide.props.textAlign == 'center' %}center{% elif slide.props.textAlign == 'right' %}flex-end{% else %}flex-start{% endif %};
+                ">
+                    {% if slide.props.showAccent %}
+                        <div class="accent-element accent-{{ slide.props.accentPosition or 'left' }}"></div>
+                    {% endif %}
+                    <div class="content-container" style="
+                        align-items: {% if slide.props.textAlign == 'center' %}center{% elif slide.props.textAlign == 'right' %}flex-end{% else %}flex-start{% endif %};
+                    ">
+                        <h1 class="slide-title" style="
+                            text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
+                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
+                        ">{{ slide.props.title or 'Click to add hero title' }}</h1>
+                        <div class="slide-subtitle" style="
+                            text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
+                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
+                        ">{{ slide.props.subtitle or 'Click to add subtitle' }}</div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'pyramid' %}
+                <div class="pyramid-template">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.subtitle %}
+                        <div class="slide-subtitle">{{ slide.props.subtitle }}</div>
+                    {% endif %}
+                    <div class="main-content">
+                        <div class="pyramid-container">
+                            <!-- Pyramid SVG 1 (Top Triangle) -->
+                            <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
+                                <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <text x="100" y="35" class="pyramid-text">1</text>
+                            </svg>
+                            <!-- Pyramid SVG 2 (Middle Trapezoid) -->
+                            <svg class="pyramid-svg pyramid-svg-2" width="560" height="120" viewBox="33 60 134 60">
+                                <path d="M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <text x="100" y="95" class="pyramid-text">2</text>
+                            </svg>
+                            <!-- Pyramid SVG 3 (Bottom Trapezoid) -->
+                            <svg class="pyramid-svg pyramid-svg-3" width="560" height="120" viewBox="0 120 200 60">
+                                <path d="M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <text x="100" y="155" class="pyramid-text">3</text>
+                            </svg>
+                        </div>
+                        <div class="items-container">
+                            {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
+                                {% for item in slide.props.items %}
+                                    {% if loop.index0 < 3 %}
+                                        <div class="item-wrapper level-{{ loop.index0 }}">
+                                            <div class="item-heading">{{ item.heading or 'Click to add heading' }}</div>
+                                            <div class="item-description">{{ item.description or 'Click to add description' }}</div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="item-wrapper level-0">
+                                    <div class="item-heading">User Satisfaction</div>
+                                    <div class="item-description">Achieving user delight</div>
+                                </div>
+                                <div class="item-wrapper level-1">
+                                    <div class="item-heading">Operational Efficiency</div>
+                                    <div class="item-description">Optimizing resources</div>
+                                </div>
+                                <div class="item-wrapper level-2">
+                                    <div class="item-heading">System Reliability</div>
+                                    <div class="item-description">Ensuring stability</div>
+                                </div>
+                            {% endif %}
+                            <div class="separator-line level-0"></div>
+                            <div class="separator-line level-1"></div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <div class="slide">
+                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    <div class="content-text">{{ slide.props.content or 'Click to add content' }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

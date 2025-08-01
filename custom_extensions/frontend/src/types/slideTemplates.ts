@@ -152,19 +152,6 @@ export interface TwoColumnProps extends BaseTemplateProps {
   contentColor?: string;
 }
 
-export interface ComparisonSlideProps extends BaseTemplateProps {
-  title: string;
-  beforeTitle: string;
-  beforeContent: string;
-  afterTitle: string;
-  afterContent: string;
-  beforeImage?: string;
-  afterImage?: string;
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-}
-
 export interface ProcessStepsProps extends BaseTemplateProps {
   title: string;
   steps: Array<{

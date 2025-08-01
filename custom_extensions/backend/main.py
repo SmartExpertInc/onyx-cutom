@@ -11804,6 +11804,110 @@ async def download_folder_as_pdf(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate folder PDF: {str(e)[:200]}")
     
 
+# Move slide deck route BEFORE the general route to avoid path conflicts
+@app.get("/api/custom/pdf/slide-deck/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+async def download_slide_deck_pdf(
+    project_id: int,
+    theme: Optional[str] = Query("dark-purple"),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download slide deck as multi-page PDF"""
+    try:
+        async with pool.acquire() as conn:
+            target_row_dict = await conn.fetchrow(
+                """
+                SELECT p.project_name, p.microproduct_name, p.microproduct_content,
+                       dt.component_name as design_component_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.id = $1 AND p.onyx_user_id = $2;
+                """,
+                project_id, onyx_user_id
+            )
+        if not target_row_dict:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found for user.")
+
+        component_name = target_row_dict.get("design_component_name")
+        if component_name != COMPONENT_NAME_SLIDE_DECK:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This endpoint is only for slide deck projects.")
+
+        mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+        user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+
+        content_json = target_row_dict.get('microproduct_content')
+        if not content_json or not isinstance(content_json, dict):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid slide deck content.")
+
+        # Prepare slide deck data for PDF generation
+        slide_deck_data = {
+            'lessonTitle': content_json.get('lessonTitle', mp_name_for_pdf_context),
+            'slides': content_json.get('slides', []),
+            'theme': theme,
+            'detectedLanguage': content_json.get('detectedLanguage', 'en')
+        }
+
+        # Validate slides structure
+        if not isinstance(slide_deck_data['slides'], list):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid slides structure.")
+
+        logger.info(f"Slide Deck PDF Gen (Project {project_id}): Generating PDF with {len(slide_deck_data['slides'])} slides, theme: {theme}")
+
+        # Prepare template context
+        context_for_jinja = {
+            'details': slide_deck_data
+        }
+
+        unique_output_filename = f"slide_deck_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
+        
+        # Generate PDF using the new dynamic height slide deck generation
+        from app.services.pdf_generator import generate_slide_deck_pdf_with_dynamic_height
+        
+        pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
+            slides_data=slide_deck_data['slides'],
+            theme=theme,
+            output_filename=unique_output_filename,
+            use_cache=True
+        )
+        
+        if not os.path.exists(pdf_path):
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")
+        
+        return FileResponse(
+            path=pdf_path, 
+            filename=user_friendly_pdf_filename, 
+            media_type='application/pdf', 
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating slide deck PDF for project {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate slide deck PDF: {str(e)[:200]}")
+
+
+@app.post("/api/custom/pdf/debug/slides", response_class=JSONResponse)
+async def debug_slide_generation(
+    slides_data: List[Dict[str, Any]],
+    theme: Optional[str] = Query("light-modern"),
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Debug endpoint to test individual slide generation and identify problematic slides."""
+    try:
+        from app.services.pdf_generator import test_all_slides_individually
+        
+        logger.info(f"Debug slide generation: Testing {len(slides_data)} slides with theme: {theme}")
+        
+        # Test all slides individually
+        summary = await test_all_slides_individually(slides_data, theme)
+        
+        return JSONResponse(content=summary)
+        
+    except Exception as e:
+        logger.error(f"Error in debug slide generation: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Debug failed: {str(e)[:200]}")
+
+
 @app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_project_instance_pdf_no_slug(
     project_id: int,

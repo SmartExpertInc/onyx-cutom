@@ -24,7 +24,7 @@ import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download } from 'lucide-react';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 
 // Localization config for column labels based on product language
@@ -630,45 +630,94 @@ export default function ProjectInstanceViewPage() {
         }
       }
       
-      console.log('Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
+      // Add validation for Slide Deck data
+      if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+        const slideDeckData = editableData as ComponentBasedSlideDeck;
+        console.log('Auto-save: Slide deck validation check:', {
+          hasLessonTitle: !!slideDeckData.lessonTitle,
+          hasSlides: !!slideDeckData.slides,
+          slidesLength: slideDeckData.slides?.length || 0,
+          hasTheme: !!slideDeckData.theme,
+          slidesStructure: slideDeckData.slides?.map(slide => ({
+            hasSlideId: !!slide.slideId,
+            hasTemplateId: !!slide.templateId,
+            hasProps: !!slide.props,
+            propsKeys: slide.props ? Object.keys(slide.props) : []
+          }))
+        });
+        
+        // Validate and fix slide deck structure before sending
+        if (slideDeckData.slides) {
+          slideDeckData.slides.forEach((slide, index) => {
+            // Ensure slide has required properties
+            if (!slide.slideId) {
+              slide.slideId = `slide-${Date.now()}-${index}`;
+            }
+            if (!slide.templateId) {
+              slide.templateId = 'content-slide';
+            }
+            if (!slide.props) {
+              slide.props = {};
+            }
+            // Ensure props have required fields
+            if (!slide.props.title) {
+              slide.props.title = `Slide ${index + 1}`;
+            }
+            if (!slide.props.content) {
+              slide.props.content = '';
+            }
+          });
+        }
+      }
+      
+      console.log('🔍 Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
       });
       if (!response.ok) {
-        console.warn('Auto-save failed:', response.status);
+        console.error('🔍 Auto-save failed:', response.status);
         const errorText = await response.text();
-        console.warn('Auto-save error details:', errorText);
+        console.error('🔍 Auto-save error details:', errorText);
         
         // Try to parse error details for better debugging
         try {
           const errorJson = JSON.parse(errorText);
-          console.warn('Auto-save parsed error:', errorJson);
+          console.error('🔍 Auto-save parsed error:', errorJson);
           if (errorJson.detail) {
-            console.warn('Auto-save validation errors:', errorJson.detail);
+            console.error('🔍 Auto-save validation errors:', errorJson.detail);
           }
         } catch (e) {
-          console.warn('Could not parse error response as JSON');
+          console.error('🔍 Could not parse error response as JSON');
         }
       } else {
-        console.log('Auto-save successful');
+        console.log('🔍 Auto-save successful');
         const responseData = await response.json();
-        console.log('Auto-save response data:', JSON.stringify(responseData, null, 2));
+        console.log('🔍 Auto-save response data:', JSON.stringify(responseData, null, 2));
         
-        // Check if the response data matches what we sent (only for TrainingPlanData)
+        // Check if the response data matches what we sent
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           const trainingPlanData = editableData as TrainingPlanData;
-          console.log('Auto-save: Data comparison:', {
+          console.log('🔍 Auto-save: Training plan data comparison:', {
             sentMainTitle: trainingPlanData.mainTitle,
             receivedMainTitle: responseData.microproduct_content?.mainTitle,
             sentSectionsCount: trainingPlanData.sections?.length || 0,
             receivedSectionsCount: responseData.microproduct_content?.sections?.length || 0,
             dataMatches: JSON.stringify(trainingPlanData) === JSON.stringify(responseData.microproduct_content)
           });
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+          const slideDeckData = editableData as ComponentBasedSlideDeck;
+          console.log('🔍 Auto-save: Slide deck data comparison:', {
+            sentLessonTitle: slideDeckData.lessonTitle,
+            receivedLessonTitle: responseData.microproduct_content?.lessonTitle,
+            sentSlidesCount: slideDeckData.slides?.length || 0,
+            receivedSlidesCount: responseData.microproduct_content?.slides?.length || 0,
+            dataMatches: JSON.stringify(slideDeckData) === JSON.stringify(responseData.microproduct_content)
+          });
         }
       }
       // Don't refresh page or show alerts for auto-save
     } catch (err: any) {
-      console.warn('Auto-save error:', err.message);
+      console.error('🔍 Auto-save error:', err.message);
     }
   };
 
@@ -717,6 +766,17 @@ export default function ProjectInstanceViewPage() {
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
         return;
     }
+    
+    // Special handling for slide decks
+    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+        const slideDeckData = editableData as ComponentBasedSlideDeck;
+        const theme = slideDeckData?.theme || 'dark-purple';
+        const pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`;
+        window.open(pdfUrl, '_blank');
+        return;
+    }
+    
+    // Original PDF download logic for other component types
     const nameForSlug = projectInstanceData.name || 'document';
     const docNameSlug = slugify(nameForSlug);
     const pdfProjectId = projectInstanceData.project_id;
@@ -882,13 +942,52 @@ export default function ProjectInstanceViewPage() {
           }}>
             <SmartSlideDeckViewer
               deck={slideDeckData}
-              isEditable={isEditing}
+              isEditable={true}
               onSave={(updatedDeck) => {
-                // Convert the updated deck back to the format expected by handleTextChange
-                if (handleTextChange) {
-                  handleTextChange([], updatedDeck as any);
-                }
+                // Update the editableData state with the new deck and trigger save
+                console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
+                setEditableData(updatedDeck);
+                
+                // Use the updated deck directly for immediate save
+                console.log('🔍 page.tsx: Triggering auto-save with updated data');
+                // Create a temporary auto-save function that uses the updated deck
+                const tempAutoSave = async () => {
+                  if (!projectId || !projectInstanceData) {
+                    console.log('🔍 page.tsx: Missing required data for auto-save');
+                    return;
+                  }
+                  
+                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+                  if (devUserId && process.env.NODE_ENV === 'development') {
+                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+                  }
+
+                  try {
+                    const payload = { microProductContent: updatedDeck };
+                    console.log('🔍 page.tsx: Sending updated deck to backend:', JSON.stringify(payload, null, 2));
+                    
+                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
+                    });
+                    
+                    if (!response.ok) {
+                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
+                      const errorText = await response.text();
+                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
+                    } else {
+                      console.log('🔍 page.tsx: Auto-save successful with updated data');
+                      const responseData = await response.json();
+                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
+                    }
+                  } catch (err: any) {
+                    console.error('🔍 page.tsx: Auto-save error:', err.message);
+                  }
+                };
+                
+                tempAutoSave();
               }}
+              // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
               theme="dark-purple"
             />
@@ -968,9 +1067,17 @@ export default function ProjectInstanceViewPage() {
                     onClick={handlePdfDownload}
                     disabled={isSaving}
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
+                    title={
+                      projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
+                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
+                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
+                    }
                   >
-                   <ArrowDownToLine size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                   <Download size={16} className="mr-2" /> {
+                     projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
+                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
+                       : t('interface.projectView.downloadPdf', 'Download PDF')
+                   }
                   </button>
             )}
             {/* Smart Edit button for Training Plans */}
@@ -983,22 +1090,7 @@ export default function ProjectInstanceViewPage() {
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
-            {/* Edit mode toggle for other content types */}
-            {canEditContent && projectId && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center
-                                ${isEditing ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500'}`}
-                title={isEditing ? t('interface.projectView.saveContent', 'Save current changes') : t('interface.projectView.editContent', 'Edit content')}
-              >
-                {isEditing ? (
-                  <> <Save size={16} className="mr-2" /> {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.saveContent', 'Save Content')} </>
-                ) : (
-                  <> <Edit size={16} className="mr-2" /> {t('interface.projectView.editContent', 'Edit Content')} </>
-                )}
-              </button>
-            )}
+
             {/* Column Visibility Dropdown - only for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
               <div className="relative" ref={columnDropdownRef}>

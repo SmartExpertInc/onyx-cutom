@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 export interface TimelineStep {
@@ -11,16 +11,159 @@ export interface TimelineTemplateProps {
   title: string;
   steps: TimelineStep[];
   theme?: SlideTheme;
+  onUpdate?: (props: any) => void;
+  isEditable?: boolean;
+}
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  // Set initial height for textarea to match content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          // Only override browser defaults, preserve all passed styles
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        // Only override browser defaults, preserve all passed styles
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
+        boxSizing: 'border-box',
+        display: 'block'
+      }}
+    />
+  );
 }
 
 export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   slideId,
   title,
   steps = [],
-  theme
+  theme,
+  onUpdate,
+  isEditable = false
 }: TimelineTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
+  
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingStepHeadings, setEditingStepHeadings] = useState<number[]>([]);
+  const [editingStepDescriptions, setEditingStepDescriptions] = useState<number[]>([]);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
@@ -39,6 +182,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     color: titleColor,
     marginBottom: '80px',
     textAlign: 'left',
+    wordWrap: 'break-word'
   };
 
   const timelineContainerStyles: React.CSSProperties = {
@@ -108,6 +252,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     fontSize: '1.2rem',
     color: titleColor,
     fontFamily: currentTheme.fonts.titleFont,
+    wordWrap: 'break-word'
   };
 
   const descriptionStyles: React.CSSProperties = {
@@ -115,11 +260,97 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     color: contentColor,
     fontFamily: currentTheme.fonts.contentFont,
     lineHeight: 1.5,
+    wordWrap: 'break-word'
+  };
+
+  // Handle title editing
+  const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+    setEditingTitle(false);
+  };
+
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
+  };
+
+  // Handle step heading editing
+  const handleStepHeadingSave = (index: number, newHeading: string) => {
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
+      onUpdate({ steps: updatedSteps });
+    }
+    setEditingStepHeadings(editingStepHeadings.filter(i => i !== index));
+  };
+
+  const handleStepHeadingCancel = (index: number) => {
+    setEditingStepHeadings(editingStepHeadings.filter(i => i !== index));
+  };
+
+  // Handle step description editing
+  const handleStepDescriptionSave = (index: number, newDescription: string) => {
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
+      onUpdate({ steps: updatedSteps });
+    }
+    setEditingStepDescriptions(editingStepDescriptions.filter(i => i !== index));
+  };
+
+  const handleStepDescriptionCancel = (index: number) => {
+    setEditingStepDescriptions(editingStepDescriptions.filter(i => i !== index));
+  };
+
+  const startEditingStepHeading = (index: number) => {
+    setEditingStepHeadings([...editingStepHeadings, index]);
+  };
+
+  const startEditingStepDescription = (index: number) => {
+    setEditingStepDescriptions([...editingStepDescriptions, index]);
   };
 
   return (
     <div className="timeline-template" style={slideStyles}>
-      <h1 style={titleStyles}>{title}</h1>
+      {/* Title */}
+      {isEditable && editingTitle ? (
+        <InlineEditor
+          initialValue={title || ''}
+          onSave={handleTitleSave}
+          onCancel={handleTitleCancel}
+          multiline={true}
+          placeholder="Enter slide title..."
+          className="inline-editor-title"
+          style={{
+            ...titleStyles,
+            // Ensure title behaves exactly like h1 element
+            margin: '0',
+            padding: '0',
+            border: 'none',
+            outline: 'none',
+            resize: 'none',
+            overflow: 'hidden',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
+            boxSizing: 'border-box',
+            display: 'block'
+          }}
+        />
+      ) : (
+        <h1 
+          style={titleStyles}
+          onClick={() => {
+            if (isEditable) {
+              setEditingTitle(true);
+            }
+          }}
+          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+        >
+          {title || 'Click to add title'}
+        </h1>
+      )}
+
       <div style={timelineContainerStyles}>
         <div style={timelineLineStyles}></div>
         {steps.slice(0, 4).map((step: TimelineStep, index: number) => {
@@ -129,8 +360,81 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
             <div key={index} style={stepWrapperStyles}>
               <div style={milestoneContentStyles(isTop)}>
                 <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
-                  <div style={headingStyles}>{step.heading}</div>
-                  <div style={descriptionStyles}>{step.description}</div>
+                  {/* Step Heading */}
+                  {isEditable && editingStepHeadings.includes(index) ? (
+                    <InlineEditor
+                      initialValue={step.heading || ''}
+                      onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
+                      onCancel={() => handleStepHeadingCancel(index)}
+                      multiline={true}
+                      placeholder="Enter step heading..."
+                      className="inline-editor-step-heading"
+                      style={{
+                        ...headingStyles,
+                        // Ensure heading behaves exactly like div element
+                        margin: '0',
+                        padding: '0',
+                        border: 'none',
+                        outline: 'none',
+                        resize: 'none',
+                        overflow: 'hidden',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        boxSizing: 'border-box',
+                        display: 'block'
+                      }}
+                    />
+                  ) : (
+                    <div 
+                      style={headingStyles}
+                      onClick={() => {
+                        if (isEditable) {
+                          startEditingStepHeading(index);
+                        }
+                      }}
+                      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    >
+                      {step.heading || 'Click to add heading'}
+                    </div>
+                  )}
+
+                  {/* Step Description */}
+                  {isEditable && editingStepDescriptions.includes(index) ? (
+                    <InlineEditor
+                      initialValue={step.description || ''}
+                      onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
+                      onCancel={() => handleStepDescriptionCancel(index)}
+                      multiline={true}
+                      placeholder="Enter step description..."
+                      className="inline-editor-step-description"
+                      style={{
+                        ...descriptionStyles,
+                        // Ensure description behaves exactly like div element
+                        margin: '0',
+                        padding: '0',
+                        border: 'none',
+                        outline: 'none',
+                        resize: 'none',
+                        overflow: 'hidden',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        boxSizing: 'border-box',
+                        display: 'block'
+                      }}
+                    />
+                  ) : (
+                    <div 
+                      style={descriptionStyles}
+                      onClick={() => {
+                        if (isEditable) {
+                          startEditingStepDescription(index);
+                        }
+                      }}
+                      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    >
+                      {step.description || 'Click to add description'}
+                    </div>
+                  )}
                 </div>
                 <div style={{...verticalLineStyles, order: 2}} />
                 <div style={{...numberSquareStyles, order: isTop ? 3 : 1}}>
