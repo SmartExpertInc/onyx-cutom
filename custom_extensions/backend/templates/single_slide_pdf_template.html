@@ -1323,10 +1323,11 @@
             {% elif slide.templateId == 'bullet-points-right' %}
                 <div class="bullet-points-right">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    {% if slide.props.subtitle %}
+
+                    <div class="content-row">
+                        {% if slide.props.subtitle %}
                         <div class="content-text">{{ slide.props.subtitle }}</div>
                     {% endif %}
-                    <div class="content-row">
                         <div class="bullets-container">
                             <ul class="bullet-list">
                                 {% for bullet in slide.props.bullets %}
