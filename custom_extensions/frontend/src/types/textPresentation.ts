@@ -47,6 +47,10 @@ export interface ImageBlock {
   alignment?: 'left' | 'center' | 'right' | null;
   borderRadius?: string | null;
   maxWidth?: string | null;
+  // New layout properties for side-by-side functionality
+  layoutMode?: 'standalone' | 'side-by-side-left' | 'side-by-side-right' | 'inline-left' | 'inline-right' | null;
+  layoutPartnerIndex?: number | null; // Index of the content block to pair with
+  layoutProportion?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70' | null; // Space distribution
 }
 
 // --- List Block Types ---

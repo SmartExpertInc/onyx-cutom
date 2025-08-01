@@ -515,7 +515,22 @@ const BlockSettingsModal = ({
           />
         </div>
         
-        {/* Layout Settings */}
+        {/* Max Width */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            Max Width <span className="text-gray-500 font-normal">(controls image size)</span>
+          </label>
+          <input
+            type="text"
+            value={imageBlock.maxWidth || '100%'}
+            onChange={e => onTextChange?.(fieldPath('maxWidth'), e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            placeholder="e.g., 100%, 500px, 50vw"
+          />
+          <p className="text-xs text-gray-500 mt-1">Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)</p>
+        </div>
+
+        {/* Basic Settings */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Alignment</label>
@@ -545,20 +560,112 @@ const BlockSettingsModal = ({
             </select>
           </div>
         </div>
-        
-        {/* Max Width */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Max Width <span className="text-gray-500 font-normal">(controls image size)</span>
-          </label>
-          <input
-            type="text"
-            value={imageBlock.maxWidth || '100%'}
-            onChange={e => onTextChange?.(fieldPath('maxWidth'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder="e.g., 100%, 500px, 50vw"
-          />
-          <p className="text-xs text-gray-500 mt-1">Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)</p>
+
+        {/* Layout Settings */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Layout Options</h3>
+          
+          {/* Layout Mode */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Layout Mode <span className="text-gray-500 font-normal">(how image appears with other content)</span>
+            </label>
+            <select
+              value={imageBlock.layoutMode || 'standalone'}
+              onChange={e => onTextChange?.(fieldPath('layoutMode'), e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            >
+              <option value="standalone">📄 Standalone (full width)</option>
+              <option value="side-by-side-left">⬅️ Side-by-side (image left)</option>
+              <option value="side-by-side-right">➡️ Side-by-side (image right)</option>
+              <option value="inline-left">⬅️ Inline (image left, text wraps)</option>
+              <option value="inline-right">➡️ Inline (image right, text wraps)</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Side-by-side: Image and content are equal height. Inline: Text flows around the image.
+            </p>
+          </div>
+
+          {/* Layout Partner Selection - Only show for side-by-side modes */}
+          {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Partner Content <span className="text-gray-500 font-normal">(content to place alongside image)</span>
+              </label>
+              <select
+                value={imageBlock.layoutPartnerIndex || ''}
+                onChange={e => onTextChange?.(fieldPath('layoutPartnerIndex'), e.target.value ? parseInt(e.target.value) : null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              >
+                <option value="">Select content block...</option>
+                {/* This will be populated dynamically based on available content blocks */}
+                <option value="0">Block 1: Headline/Paragraph</option>
+                <option value="1">Block 2: List/Content</option>
+                <option value="2">Block 3: Another content block</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Choose which content block should appear alongside this image.
+              </p>
+            </div>
+          )}
+
+          {/* Layout Proportion - Only show for side-by-side modes */}
+          {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Space Distribution <span className="text-gray-500 font-normal">(how much space each element gets)</span>
+              </label>
+              <select
+                value={imageBlock.layoutProportion || '50-50'}
+                onChange={e => onTextChange?.(fieldPath('layoutProportion'), e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              >
+                <option value="50-50">⚖️ Equal (50% each)</option>
+                <option value="60-40">📊 Image larger (60% image, 40% content)</option>
+                <option value="40-60">📝 Content larger (40% image, 60% content)</option>
+                <option value="70-30">🖼️ Image dominant (70% image, 30% content)</option>
+                <option value="30-70">📄 Content dominant (30% image, 70% content)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Controls how much horizontal space the image and content each take up.
+              </p>
+            </div>
+          )}
+
+          {/* Layout Preview */}
+          {(imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') && (
+            <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200">
+              <div className="text-center">
+                <div className="text-gray-500 text-sm mb-2">Layout Preview</div>
+                <div className="flex items-center justify-center space-x-2 text-xs">
+                  {imageBlock.layoutMode === 'side-by-side-left' && (
+                    <>
+                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ Image</div>
+                      <div className="text-gray-400">+</div>
+                      <div className="bg-green-200 px-2 py-1 rounded">📄 Content</div>
+                    </>
+                  )}
+                  {imageBlock.layoutMode === 'side-by-side-right' && (
+                    <>
+                      <div className="bg-green-200 px-2 py-1 rounded">📄 Content</div>
+                      <div className="text-gray-400">+</div>
+                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ Image</div>
+                    </>
+                  )}
+                  {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
+                    <div className="text-gray-600">
+                      Text will wrap around the image
+                    </div>
+                  )}
+                </div>
+                {imageBlock.layoutProportion && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Space: {imageBlock.layoutProportion}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -1159,7 +1266,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       );
     }
     case 'image': {
-      const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth } = block as ImageBlock;
+      const { src, alt, caption, width, height, alignment = 'center', borderRadius, maxWidth, layoutMode = 'standalone', layoutPartnerIndex, layoutProportion = '50-50' } = block as ImageBlock;
       
       console.log('🖼️ [IMAGE RENDER] Rendering image block:', {
         block,
@@ -1254,6 +1361,161 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       const imageSrc = src.startsWith('/') ? src : `/${src}`;
       
+      // Handle different layout modes
+      if (layoutMode === 'inline-left' || layoutMode === 'inline-right') {
+        // Inline layout - text wraps around image
+        const floatDirection = layoutMode === 'inline-left' ? 'left' : 'right';
+        const marginDirection = layoutMode === 'inline-left' ? 'right' : 'left';
+        
+        return (
+          <div className={`my-4 group relative`}>
+            {/* Arrow buttons for reordering */}
+            {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+                <button
+                  onClick={() => onMoveBlockUp(contentBlockIndex)}
+                  disabled={isFirstBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move up"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => onMoveBlockDown(contentBlockIndex)}
+                  disabled={isLastBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move down"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
+            {/* Settings button */}
+            {isEditing && (
+              <button
+                onClick={() => setSettingsModalOpen(true)}
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded p-1 text-xs text-gray-600 z-10 hover:bg-gray-200"
+                title="Image settings"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            )}
+            
+            <img 
+              src={imageSrc} 
+              alt={alt || 'Image'} 
+              className="rounded-lg shadow-md"
+              style={{
+                maxWidth: maxWidth || '200px',
+                width: width || 'auto',
+                height: height || 'auto',
+                borderRadius: borderRadius || '8px',
+                float: floatDirection,
+                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
+            <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
+              {alt || 'Image not available'}
+            </div>
+            {caption && (
+              <p style={{ fontSize: '10px', color: '#666', textAlign: 'center', margin: '8px 0 0 0', fontStyle: 'italic', clear: 'both' }}>
+                {caption}
+              </p>
+            )}
+          </div>
+        );
+      } else if (layoutMode === 'side-by-side-left' || layoutMode === 'side-by-side-right') {
+        // Side-by-side layout - this will be handled by the parent component
+        // For now, render as standalone but with layout info
+        return (
+          <div className={`my-4 ${alignmentClass} group relative`} data-layout-mode={layoutMode} data-partner-index={layoutPartnerIndex} data-proportion={layoutProportion}>
+            {/* Arrow buttons for reordering */}
+            {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-10 flex gap-1">
+                <button
+                  onClick={() => onMoveBlockUp(contentBlockIndex)}
+                  disabled={isFirstBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move up"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => onMoveBlockDown(contentBlockIndex)}
+                  disabled={isLastBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move down"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
+            {/* Settings button */}
+            {isEditing && (
+              <button
+                onClick={() => setSettingsModalOpen(true)}
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded p-1 text-xs text-gray-600 z-10 hover:bg-gray-200"
+                title="Image settings"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            )}
+            
+            <img 
+              src={imageSrc} 
+              alt={alt || 'Image'} 
+              className="rounded-lg shadow-md"
+              style={{
+                maxWidth: maxWidth || '100%',
+                width: width || 'auto',
+                height: height || 'auto',
+                borderRadius: borderRadius || '8px',
+                display: 'block',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
+            <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
+              {alt || 'Image not available'}
+            </div>
+            {caption && (
+              <p style={{ fontSize: '10px', color: '#666', textAlign: alignment as 'left' | 'center' | 'right', margin: '8px 0 0 0', fontStyle: 'italic' }}>
+                {caption}
+              </p>
+            )}
+          </div>
+        );
+      }
+      
+      // Standard standalone layout
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
           {/* Arrow buttons for reordering */}
