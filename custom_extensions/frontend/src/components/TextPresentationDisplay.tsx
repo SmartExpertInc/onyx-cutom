@@ -460,44 +460,92 @@ const BlockSettingsModal = ({
   const renderImageSettings = () => {
     const imageBlock = block as ImageBlock;
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* Image Preview */}
+        <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200">
+          <div className="text-center">
+            <div className="text-gray-500 text-sm mb-2">Image Preview</div>
+            {imageBlock.src ? (
+              <img 
+                src={imageBlock.src} 
+                alt={imageBlock.alt || 'Preview'} 
+                className="max-w-full h-auto max-h-32 mx-auto rounded"
+                style={{ 
+                  maxWidth: imageBlock.maxWidth || '100%',
+                  borderRadius: imageBlock.borderRadius || '8px'
+                }}
+              />
+            ) : (
+              <div className="text-gray-400 text-sm">No image loaded</div>
+            )}
+          </div>
+        </div>
+
+        {/* Alt Text */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Alt Text</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            Alt Text <span className="text-gray-500 font-normal">(for accessibility)</span>
+          </label>
           <input
             type="text"
             value={imageBlock.alt || ''}
             onChange={e => onTextChange?.(fieldPath('alt'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder="Describe the image"
+            placeholder="Describe what this image shows..."
           />
+          <p className="text-xs text-gray-500 mt-1">This helps screen readers describe the image to users</p>
         </div>
         
+        {/* Caption */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Caption</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            Caption <span className="text-gray-500 font-normal">(optional)</span>
+          </label>
           <input
             type="text"
             value={imageBlock.caption || ''}
             onChange={e => onTextChange?.(fieldPath('caption'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-            placeholder="Image caption"
+            placeholder="Add a caption below the image..."
           />
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Alignment</label>
-          <select
-            value={imageBlock.alignment || 'center'}
-            onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-          >
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
-          </select>
+        {/* Layout Settings */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Alignment</label>
+            <select
+              value={imageBlock.alignment || 'center'}
+              onChange={e => onTextChange?.(fieldPath('alignment'), e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Border Radius</label>
+            <select
+              value={imageBlock.borderRadius || '8px'}
+              onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            >
+              <option value="0px">None</option>
+              <option value="4px">Small</option>
+              <option value="8px">Medium</option>
+              <option value="12px">Large</option>
+              <option value="50%">Circular</option>
+            </select>
+          </div>
         </div>
         
+        {/* Max Width */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Max Width</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            Max Width <span className="text-gray-500 font-normal">(controls image size)</span>
+          </label>
           <input
             type="text"
             value={imageBlock.maxWidth || '100%'}
@@ -505,21 +553,7 @@ const BlockSettingsModal = ({
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             placeholder="e.g., 100%, 500px, 50vw"
           />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Border Radius</label>
-          <select
-            value={imageBlock.borderRadius || '8px'}
-            onChange={e => onTextChange?.(fieldPath('borderRadius'), e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-          >
-            <option value="0px">None</option>
-            <option value="4px">Small (4px)</option>
-            <option value="8px">Medium (8px)</option>
-            <option value="12px">Large (12px)</option>
-            <option value="50%">Circular</option>
-          </select>
+          <p className="text-xs text-gray-500 mt-1">Examples: 100% (full width), 500px (fixed width), 50vw (half viewport width)</p>
         </div>
       </div>
     );
@@ -700,24 +734,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             ) : ( styledText )}
           </Tag>
           
-          {/* Modern Settings Button */}
-          {isEditing && onTextChange && (
-            <button
-              onClick={() => setShowSettings(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
-              title="Block settings"
-            >
-              <Settings className="w-4 h-4 text-gray-600" />
-            </button>
-          )}
-          
-          <BlockSettingsModal
-            isOpen={showSettings}
-            onClose={() => setShowSettings(false)}
-            block={block}
-            onTextChange={onTextChange}
-            basePath={basePath}
-          />
+          {/* Settings Button - Only for images (headlines don't have settings) */}
         </div>
       );
     }
@@ -746,22 +763,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               style={{ fontSize: fontSize || '10px' }}
             />
             
-            {/* Modern Settings Button */}
-            <button
-              onClick={() => setShowSettings(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
-              title="Block settings"
-            >
-              <Settings className="w-4 h-4 text-gray-600" />
-            </button>
-            
-            <BlockSettingsModal
-              isOpen={showSettings}
-              onClose={() => setShowSettings(false)}
-              block={block}
-              onTextChange={onTextChange}
-              basePath={basePath}
-            />
+            {/* No settings button for paragraphs */}
           </div>
         );
       }
@@ -798,16 +800,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       return (
         <div className={`${containerClasses.trim()} group relative`}>
-          {/* Modern Settings Button */}
-          {isEditing && onTextChange && (
-            <button
-              onClick={() => setShowSettings(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
-              title="Block settings"
-            >
-              <Settings className="w-4 h-4 text-gray-600" />
-            </button>
-          )}
+          {/* No settings button for lists */}
           
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
@@ -936,14 +929,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               );
             })}
           </ListTag>
-          
-          <BlockSettingsModal
-            isOpen={showSettings}
-            onClose={() => setShowSettings(false)}
-            block={block}
-            onTextChange={onTextChange}
-            basePath={basePath}
-          />
         </div>
       );
     }
@@ -992,24 +977,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           </div>
           
-          {/* Modern Settings Button */}
-          {isEditing && onTextChange && (
-            <button
-              onClick={() => setShowSettings(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
-              title="Block settings"
-            >
-              <Settings className="w-4 h-4 text-gray-600" />
-            </button>
-          )}
-          
-          <BlockSettingsModal
-            isOpen={showSettings}
-            onClose={() => setShowSettings(false)}
-            block={block}
-            onTextChange={onTextChange}
-            basePath={basePath}
-          />
+          {/* No settings button for alerts */}
         </div>
       );
     }
@@ -1513,41 +1481,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     }
   }, [onTextChange, dataToDisplay]);
 
-  // 🔄 ARROW REORDERING HANDLERS
-  const handleMoveBlockUp = useCallback((index: number) => {
-    if (index <= 0 || !dataToDisplay || !onTextChange) return;
-    
-    const currentBlocks = [...(dataToDisplay.contentBlocks || [])];
-    const blockToMove = currentBlocks[index];
-    const blockAbove = currentBlocks[index - 1];
-    
-    // Swap the blocks
-    currentBlocks[index] = blockAbove;
-    currentBlocks[index - 1] = blockToMove;
-    
-    console.log('⬆️ [MOVE UP] Block moved from index:', index, 'to index:', index - 1);
-    
-    // Update the content blocks
-    onTextChange(['contentBlocks'], currentBlocks);
-  }, [dataToDisplay, onTextChange]);
-
-  const handleMoveBlockDown = useCallback((index: number) => {
-    if (!dataToDisplay || !onTextChange || index >= (dataToDisplay.contentBlocks?.length || 0) - 1) return;
-    
-    const currentBlocks = [...(dataToDisplay.contentBlocks || [])];
-    const blockToMove = currentBlocks[index];
-    const blockBelow = currentBlocks[index + 1];
-    
-    // Swap the blocks
-    currentBlocks[index] = blockBelow;
-    currentBlocks[index + 1] = blockToMove;
-    
-    console.log('⬇️ [MOVE DOWN] Block moved from index:', index, 'to index:', index + 1);
-    
-    // Update the content blocks
-    onTextChange(['contentBlocks'], currentBlocks);
-  }, [dataToDisplay, onTextChange]);
-
   if (!dataToDisplay) {
     return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
   }
@@ -1597,6 +1530,101 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       i++; 
     }
   } 
+
+  // 🔄 ARROW REORDERING HANDLERS
+  const handleMoveBlockUp = useCallback((renderableIndex: number) => {
+    if (renderableIndex <= 0 || !dataToDisplay || !onTextChange) return;
+    
+    // Get the actual content block indices for the renderable items
+    const contentBlocks = dataToDisplay.contentBlocks || [];
+    const currentRenderableItem = renderableItems[renderableIndex];
+    const previousRenderableItem = renderableItems[renderableIndex - 1];
+    
+    // Find the actual content block indices
+    let currentBlockIndex = -1;
+    let previousBlockIndex = -1;
+    
+    // Find the first block of the current renderable item
+    if (currentRenderableItem.type === 'major_section') {
+      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
+    } else if (currentRenderableItem.type === 'mini_section') {
+      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
+    } else if (currentRenderableItem.type === 'standalone_block') {
+      currentBlockIndex = findOriginalIndex(currentRenderableItem.content);
+    }
+    
+    // Find the first block of the previous renderable item
+    if (previousRenderableItem.type === 'major_section') {
+      previousBlockIndex = findOriginalIndex(previousRenderableItem.headline);
+    } else if (previousRenderableItem.type === 'mini_section') {
+      previousBlockIndex = findOriginalIndex(previousRenderableItem.headline);
+    } else if (previousRenderableItem.type === 'standalone_block') {
+      previousBlockIndex = findOriginalIndex(previousRenderableItem.content);
+    }
+    
+    if (currentBlockIndex === -1 || previousBlockIndex === -1) return;
+    
+    // Swap the blocks
+    const newBlocks = [...contentBlocks];
+    const blockToMove = newBlocks[currentBlockIndex];
+    const blockAbove = newBlocks[previousBlockIndex];
+    
+    newBlocks[currentBlockIndex] = blockAbove;
+    newBlocks[previousBlockIndex] = blockToMove;
+    
+    console.log('⬆️ [MOVE UP] Block moved from renderable index:', renderableIndex, 'to renderable index:', renderableIndex - 1);
+    console.log('⬆️ [MOVE UP] Content block moved from index:', currentBlockIndex, 'to index:', previousBlockIndex);
+    
+    // Update the content blocks
+    onTextChange(['contentBlocks'], newBlocks);
+  }, [dataToDisplay, onTextChange, renderableItems]);
+
+  const handleMoveBlockDown = useCallback((renderableIndex: number) => {
+    if (!dataToDisplay || !onTextChange || renderableIndex >= renderableItems.length - 1) return;
+    
+    // Get the actual content block indices for the renderable items
+    const contentBlocks = dataToDisplay.contentBlocks || [];
+    const currentRenderableItem = renderableItems[renderableIndex];
+    const nextRenderableItem = renderableItems[renderableIndex + 1];
+    
+    // Find the actual content block indices
+    let currentBlockIndex = -1;
+    let nextBlockIndex = -1;
+    
+    // Find the first block of the current renderable item
+    if (currentRenderableItem.type === 'major_section') {
+      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
+    } else if (currentRenderableItem.type === 'mini_section') {
+      currentBlockIndex = findOriginalIndex(currentRenderableItem.headline);
+    } else if (currentRenderableItem.type === 'standalone_block') {
+      currentBlockIndex = findOriginalIndex(currentRenderableItem.content);
+    }
+    
+    // Find the first block of the next renderable item
+    if (nextRenderableItem.type === 'major_section') {
+      nextBlockIndex = findOriginalIndex(nextRenderableItem.headline);
+    } else if (nextRenderableItem.type === 'mini_section') {
+      nextBlockIndex = findOriginalIndex(nextRenderableItem.headline);
+    } else if (nextRenderableItem.type === 'standalone_block') {
+      nextBlockIndex = findOriginalIndex(nextRenderableItem.content);
+    }
+    
+    if (currentBlockIndex === -1 || nextBlockIndex === -1) return;
+    
+    // Swap the blocks
+    const newBlocks = [...contentBlocks];
+    const blockToMove = newBlocks[currentBlockIndex];
+    const blockBelow = newBlocks[nextBlockIndex];
+    
+    newBlocks[currentBlockIndex] = blockBelow;
+    newBlocks[nextBlockIndex] = blockToMove;
+    
+    console.log('⬇️ [MOVE DOWN] Block moved from renderable index:', renderableIndex, 'to renderable index:', renderableIndex + 1);
+    console.log('⬇️ [MOVE DOWN] Content block moved from index:', currentBlockIndex, 'to index:', nextBlockIndex);
+    
+    // Update the content blocks
+    onTextChange(['contentBlocks'], newBlocks);
+  }, [dataToDisplay, onTextChange, renderableItems]);
 
   const findOriginalIndex = (blockToFind: AnyContentBlock | HeadlineBlock | BulletListBlock | NumberedListBlock | ParagraphBlock | AlertBlock): number => {
       return (dataToDisplay?.contentBlocks || []).findIndex(cb => cb === blockToFind);
