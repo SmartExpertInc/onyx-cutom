@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 export interface BulletPointsRightProps extends BulletPointsProps {
   subtitle?: string;
@@ -145,8 +146,10 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   imagePrompt,
   imageAlt,
   theme,
-  isEditable = false
+  isEditable = false,
+  imagePath
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
   // Inline editing state
@@ -287,6 +290,14 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     setEditingBullets([...editingBullets, index]);
   };
 
+  // Handle image upload
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ imagePath: newImagePath });
+    }
+  };
+
+  // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   const placeholderStyles: React.CSSProperties = {
@@ -460,20 +471,18 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
             })}
           </ul>
         </div>
-        {/* Right: Placeholder */}
+        {/* Right: Clickable Image Placeholder */}
         <div style={rightColStyles}>
-          <div style={placeholderStyles}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-              Image Placeholder
-            </div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{displayPrompt}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 320px
-            </div>
-          </div>
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt={displayPrompt}
+            isEditable={isEditable}
+            style={placeholderStyles}
+          />
         </div>
       </div>
     </div>

@@ -143,11 +143,13 @@ export interface TwoColumnProps extends BaseTemplateProps {
   leftImageUrl?: string;
   leftImageAlt?: string;
   leftImagePrompt?: string;
+  leftImagePath?: string; // Path to uploaded image for left column
   rightTitle: string;
   rightContent: string;
   rightImageUrl?: string;
   rightImageAlt?: string;
   rightImagePrompt?: string;
+  rightImagePath?: string; // Path to uploaded image for right column
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
   backgroundColor?: string;
   titleColor?: string;

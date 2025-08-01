@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -138,15 +139,18 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   leftContent,
   leftImageAlt,
   leftImagePrompt,
+  leftImagePath,
   rightTitle,
   rightContent,
   rightImageAlt,
   rightImagePrompt,
+  rightImagePath,
   columnRatio,
   theme,
   onUpdate,
   isEditable = false
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
   // Inline editing state
@@ -165,58 +169,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       }
     };
   }, []);
-
-  // AI prompt logic (like BigImageLeftTemplate)
-  const leftDisplayPrompt = leftImagePrompt || leftImageAlt || "man sitting on a chair";
-  const rightDisplayPrompt = rightImagePrompt || rightImageAlt || "man sitting on a chair";
-
-  const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    maxWidth: '320px',
-    maxHeight: '200px',
-    // aspectRatio: '1 / 1',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d',
-    // margin: '0 auto 24px auto'
-    marginBottom: '24px'
-  };
-
-  const titleStyles: React.CSSProperties = {
-    textAlign: 'left',
-    marginBottom: '40px',
-    fontWeight: '700',
-    fontFamily: currentTheme.fonts.titleFont,
-    fontSize: currentTheme.fonts.titleSize,
-    color: currentTheme.colors.titleColor,
-    wordWrap: 'break-word'
-  };
-
-  const columnTitleStyles: React.CSSProperties = {
-    fontFamily: currentTheme.fonts.titleFont,
-    fontSize: '27px',
-    color: currentTheme.colors.titleColor,
-    margin: '16px 0 16px 0',
-    alignSelf: 'flex-start',
-    wordWrap: 'break-word'
-  };
-
-  const columnContentStyles: React.CSSProperties = {
-    fontFamily: currentTheme.fonts.contentFont,
-    fontSize: currentTheme.fonts.contentSize,
-    color: currentTheme.colors.contentColor,
-    margin: 0,
-    alignSelf: 'flex-start',
-    lineHeight: 1.6,
-    wordWrap: 'break-word'
-  };
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
@@ -278,6 +230,72 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     setEditingRightContent(false);
   };
 
+  // Handle left image upload
+  const handleLeftImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ leftImagePath: newImagePath });
+    }
+  };
+
+  // Handle right image upload
+  const handleRightImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ rightImagePath: newImagePath });
+    }
+  };
+
+  // AI prompt logic
+  const leftDisplayPrompt = leftImagePrompt || leftImageAlt || 'relevant illustration for the left column';
+  const rightDisplayPrompt = rightImagePrompt || rightImageAlt || 'relevant illustration for the right column';
+
+  const placeholderStyles: React.CSSProperties = {
+    width: '100%',
+    maxWidth: '320px',
+    maxHeight: '200px',
+    // aspectRatio: '1 / 1',
+    backgroundColor: '#e9ecef',
+    border: '2px dashed #adb5bd',
+    borderRadius: '8px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '20px',
+    textAlign: 'center',
+    color: '#6c757d',
+    // margin: '0 auto 24px auto'
+    marginBottom: '24px'
+  };
+
+  const titleStyles: React.CSSProperties = {
+    textAlign: 'left',
+    marginBottom: '40px',
+    fontWeight: '700',
+    fontFamily: currentTheme.fonts.titleFont,
+    fontSize: currentTheme.fonts.titleSize,
+    color: currentTheme.colors.titleColor,
+    wordWrap: 'break-word'
+  };
+
+  const columnTitleStyles: React.CSSProperties = {
+    fontFamily: currentTheme.fonts.titleFont,
+    fontSize: '27px',
+    color: currentTheme.colors.titleColor,
+    margin: '16px 0 16px 0',
+    alignSelf: 'flex-start',
+    wordWrap: 'break-word'
+  };
+
+  const columnContentStyles: React.CSSProperties = {
+    fontFamily: currentTheme.fonts.contentFont,
+    fontSize: currentTheme.fonts.contentSize,
+    color: currentTheme.colors.contentColor,
+    margin: 0,
+    alignSelf: 'flex-start',
+    lineHeight: 1.6,
+    wordWrap: 'break-word'
+  };
+
   return (
     <div
       style={{
@@ -332,19 +350,17 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         }}
       >
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Placeholder first */}
-          <div style={placeholderStyles}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-              Image Placeholder
-            </div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{leftDisplayPrompt}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 320px
-            </div>
-          </div>
+          {/* Left Clickable Image Placeholder */}
+          <ClickableImagePlaceholder
+            imagePath={leftImagePath}
+            onImageUploaded={handleLeftImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt={leftDisplayPrompt}
+            isEditable={isEditable}
+            style={placeholderStyles}
+          />
           {/* Left Mini title */}
           {isEditable && editingLeftTitle ? (
             <InlineEditor
@@ -421,19 +437,17 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           )}
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
-          {/* Placeholder first */}
-          <div style={placeholderStyles}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-              Image Placeholder
-            </div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{rightDisplayPrompt}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 320px
-            </div>
-          </div>
+          {/* Right Clickable Image Placeholder */}
+          <ClickableImagePlaceholder
+            imagePath={rightImagePath}
+            onImageUploaded={handleRightImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt={rightDisplayPrompt}
+            isEditable={isEditable}
+            style={placeholderStyles}
+          />
           {/* Right Mini title */}
           {isEditable && editingRightTitle ? (
             <InlineEditor
