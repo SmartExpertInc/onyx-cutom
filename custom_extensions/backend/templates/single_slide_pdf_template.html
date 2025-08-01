@@ -244,7 +244,6 @@
         
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
-/* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
 .bullet-points {
     width: 100%;                      /* CRITICAL: Ensures full width occupation in PDF */
     min-height: 600px;
@@ -283,12 +282,14 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
+    /* REMOVED: Fixed height and width - let flexbox control sizing */
 }
 
 .bullet-points .placeholder {
-    width: 100%;
-    height: 0;                        /* FIXED: Use padding-bottom technique instead of aspect-ratio */
-    padding-bottom: 100%;             /* FIXED: Creates 1:1 aspect ratio (100% of width) */
+    width: 100%;                      /* FIXED: Use 100% width like React template */
+    max-width: 507px;                 /* FIXED: Set maximum size to prevent overflow */
+    height: 0;                        /* FIXED: Use padding-bottom technique for aspect ratio */
+    padding-bottom: 100%;             /* FIXED: Creates 1:1 aspect ratio (square) */
     background-color: #e9ecef;
     border: 2px dashed #adb5bd;
     border-radius: 8px;
@@ -296,15 +297,17 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;                    /* This will be overridden by padding-bottom */
+    padding: 20px;
     text-align: center;
     color: #6c757d;
     margin: 0 auto;
-    max-width: none;
-    position: relative;               /* FIXED: Needed for absolute positioning of content */
+    position: relative;               /* FIXED: Required for absolute positioning of content */
+    /* REMOVED: aspect-ratio - not well supported in PDF generation */
+    /* REMOVED: max-width: none - not needed with proper sizing */
 }
 
-.bullet-points .placeholder-content {     /* FIXED: New wrapper for placeholder content */
+/* FIXED: Add wrapper for placeholder content to work with padding-bottom technique */
+.bullet-points .placeholder-content {
     position: absolute;
     top: 0;
     left: 0;
@@ -315,6 +318,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    text-align: center;
 }
 
 .bullet-points .bullets-container {
@@ -882,17 +886,18 @@
                     <div class="content-text" style="text-align: left;">{{ slide.props.subtitle or 'Click to add content' }}</div>
                 </div>
                 
-                /* FIXED HTML TEMPLATE */
-{% elif slide.templateId == 'bullet-points' %}
+                {% elif slide.templateId == 'bullet-points' %}
                 <div class="bullet-points">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="content-row">
                         <div class="placeholder-container">
                             <div class="placeholder">
-                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                <div class="placeholder-content">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
+                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                </div>
                             </div>
                         </div>
                         <div class="bullets-container">
@@ -965,10 +970,12 @@
                         </div>
                         <div class="placeholder-container" style="flex: 0 0 50%;">
                             <div class="placeholder">
-                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A relevant illustration for the bullet points' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                <div class="placeholder-content">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A relevant illustration for the bullet points' }}"</div>
+                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                </div>
                             </div>
                         </div>
                     </div>
