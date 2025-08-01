@@ -709,105 +709,106 @@
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH */
-        .timeline {
-            min-height: 600px;
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            padding: 40px;
-            font-family: 'Martel Sans', sans-serif;
-            align-items: stretch;
-            text-align: center;
-            height: 100%;
-        }
-        
-        .timeline .slide-title {
-            font-size: 45px;
-            font-family: 'Kanit', sans-serif;
-            color: var(--title-color);
-            margin-bottom: 80px;
-            text-align: left;
-            word-wrap: break-word;
-        }
-        
-        .timeline-container {
-            position: relative;
-            width: 100%;
-            flex: 1;
-            display: flex;
-            min-height: 400px;
-        }
-        
-        .timeline-line {
-            position: absolute;
-            top: 50%;
-            left: 5%;
-            width: 90%;
-            height: 2px;
-            background: rgba(255,255,255,0.25);
-        }
-        
-        .step-wrapper {
-            position: relative;
-            width: 25%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-        }
-        
-        .milestone-content {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            padding: 10px 0;
-        }
-        
-        .text-block {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 12px;
-            max-width: 200px;
-        }
-        
-        .step-heading {
-            font-size: 1.4rem;
-            color: var(--title-color);
-            font-family: 'Kanit', sans-serif;
-            word-wrap: break-word;
-        }
-        
-        .step-description {
-            font-size: 20px;
-            color: var(--content-color);
-            font-family: 'Martel Sans', sans-serif;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        
-        .vertical-line {
-            width: 2px;
-            height: 20px;
-            background: rgba(255,255,255,0.25);
-        }
-        
-        .number-square {
-            width: 40px;
-            height: 40px;
-            border-radius: 3px;
-            background: var(--accent-color);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
+        /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
+.timeline {
+    min-height: 600px;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
+    font-family: 'Martel Sans', sans-serif;
+    align-items: stretch;
+    text-align: center;
+    height: 100%;
+}
+
+.timeline .slide-title {
+    font-size: 45px;
+    font-family: 'Kanit', sans-serif;
+    color: var(--title-color);
+    margin-bottom: 80px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.timeline-container {
+    position: relative;
+    width: 100%;
+    height: 350px;                    /* FIXED: Changed from flex: 1 to fixed height: 350px */
+    display: flex;
+    /* REMOVED: min-height: 400px; */
+}
+
+.timeline-line {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    width: 90%;
+    height: 2px;
+    background: rgba(255,255,255,0.25);
+}
+
+.step-wrapper {
+    position: relative;
+    width: 25%;
+    height: 100%;
+    display: flex;
+    align-items: center;              /* ADDED: This wasn't in original but helps with alignment */
+}
+
+.milestone-content {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;                        /* FIXED: Changed from 15px to 10px to match React */
+    /* REMOVED: padding: 10px 0; */
+}
+
+.text-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;                         /* FIXED: Changed from 12px to 8px to match React */
+    /* REMOVED: max-width: 200px; - React doesn't have this constraint */
+}
+
+.step-heading {
+    font-size: 1.2rem;                /* FIXED: Changed from 1.4rem to 1.2rem to match React */
+    color: var(--title-color);
+    font-family: 'Kanit', sans-serif;
+    word-wrap: break-word;
+}
+
+.step-description {
+    font-size: 20px;                  /* This should match React's contentSize */
+    color: var(--content-color);
+    font-family: 'Martel Sans', sans-serif;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.vertical-line {
+    width: 2px;
+    height: 20px;
+    background: rgba(255,255,255,0.25);
+}
+
+.number-square {
+    width: 40px;
+    height: 40px;
+    border-radius: 3px;
+    background: var(--accent-color);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
     </style>
 </head>
 <body>
