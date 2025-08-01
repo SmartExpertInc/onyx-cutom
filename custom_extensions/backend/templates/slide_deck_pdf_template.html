@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Deck PDF</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset and base styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Page setup for PDF - FIXED 16:9 ASPECT RATIO */
+        @page {
+            size: 1174px 661px; /* Exact 16:9 aspect ratio */
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Each slide gets its own page - EXACT FRONTEND MATCH */
+        .slide-page {
+            width: 1174px;
+            height: 661px; /* Match page height */
+            page-break-after: always;
+            page-break-inside: avoid;
+            position: relative;
+            overflow: hidden; /* Hide any overflow */
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            display: block;
+        }
+        
+        /* Ensure last slide doesn't have page break */
+        .slide-page:last-child {
+            page-break-after: auto;
+        }
+        
+        .slide-content {
+            width: 100%;
+            height: 100%; /* Fill the page height */
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+        
+        /* Theme color definitions - EXACT FRONTEND MATCH */
+        .theme-dark-purple {
+            --bg-color: #110c35;
+            --title-color: #ffffff;
+            --subtitle-color: #d9e1ff;
+            --content-color: #d9e1ff;
+            --accent-color: #f35657;
+        }
+        
+        .theme-light-modern {
+            --bg-color: #ffffff;
+            --title-color: #1a1a1a;
+            --subtitle-color: #6b7280;
+            --content-color: #374151;
+            --accent-color: #3b82f6;
+        }
+        
+        .theme-corporate-blue {
+            --bg-color: #1e3a8a;
+            --title-color: #ffffff;
+            --subtitle-color: #bfdbfe;
+            --content-color: #e0e7ff;
+            --accent-color: #60a5fa;
+        }
+        
+        /* Common slide styles - EXACT FRONTEND MATCH */
+        .slide {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px; /* Exact frontend match */
+            position: relative;
+        }
+        
+        /* Title styles - EXACT FRONTEND MATCH */
+        .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: center;
+            margin-bottom: 24px; /* Exact frontend match */
+            line-height: 1.2;
+            max-width: 1174px; /* Updated to match new slide width */
+            word-wrap: break-word;
+        }
+        
+        .slide-subtitle {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 26px; /* Exact frontend match */
+            color: var(--subtitle-color);
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            line-height: 1.4;
+            max-width: 700px; /* Exact frontend match */
+            word-wrap: break-word;
+        }
+        
+        /* Content text styles - EXACT FRONTEND MATCH */
+        .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        /* Title Slide Template - EXACT FRONTEND MATCH */
+        .title-slide {
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px; /* Exact frontend match */
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .title-slide .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: center;
+            margin-bottom: 24px; /* Exact frontend match */
+            line-height: 1.2;
+            max-width: 1174px; /* Updated to match new slide width */
+            word-wrap: break-word;
+        }
+        
+        .title-slide .slide-subtitle {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 26px; /* Exact frontend match */
+            color: var(--subtitle-color);
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            line-height: 1.4;
+            max-width: 700px; /* Exact frontend match */
+            word-wrap: break-word;
+        }
+        
+        .title-slide .metadata {
+            display: flex;
+            gap: 32px; /* Exact frontend match */
+            font-size: 16px; /* Exact frontend match */
+            color: var(--subtitle-color);
+            text-align: center;
+            opacity: 0.8;
+        }
+        
+        /* Big Image Left Template - EXACT FRONTEND MATCH */
+        .big-image-left {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            align-items: stretch;
+            padding: 0;
+        }
+        
+        .big-image-left .image-container {
+            flex: 0 0 40%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            position: relative;
+            min-width: 0;
+        }
+        
+        .big-image-left .image-placeholder {
+            width: 100%;
+            height: 350px; /* Fixed height for image placeholder */
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .big-image-left .content-container {
+            flex: 1 1 60%; /* Exact frontend match */
+            padding: 40px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+        
+        .big-image-left .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            margin-bottom: 24px; /* Exact frontend match */
+            line-height: 1.2;
+            word-wrap: break-word;
+            text-align: left;
+        }
+        
+        .big-image-left .content-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* Bullet Points Template - EXACT FRONTEND MATCH */
+        .bullet-points {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 80px; /* Exact frontend match */
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .bullet-points .slide-title {
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 32px; /* Exact frontend match */
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        .bullet-points .content-row {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-evenly;
+            flex: 1;
+        }
+        
+        .bullet-points .placeholder-container {
+            flex: 0 0 50%; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+        
+        .bullet-points .placeholder {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 8px; /* Exact frontend match */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            color: #6c757d;
+            margin: 0 auto;
+        }
+        
+        .bullet-points .bullets-container {
+            flex: 1 1 50%; /* Exact frontend match */
+            font-size: 18px; /* Exact frontend match */
+            font-family: 'Martel Sans', sans-serif;
+            color: var(--content-color);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding-left: 40px; /* Exact frontend match */
+        }
+        
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        
+        .bullet-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px; /* Exact frontend match */
+            margin-bottom: 16px; /* Exact frontend match */
+        }
+        
+        .bullet-icon {
+            color: var(--accent-color);
+            font-weight: 600;
+            min-width: 20px; /* Exact frontend match */
+            font-size: 1.2rem; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .bullet-text {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.6;
+        }
+        
+        /* Process Steps Template - EXACT FRONTEND MATCH */
+        .process-steps {
+            padding: 40px; /* Exact frontend match */
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .process-steps .slide-title {
+            text-align: center;
+            margin-bottom: 40px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            word-wrap: break-word;
+        }
+        
+        .process-steps .steps-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: start;
+            gap: 32px; /* Exact frontend match */
+            flex: 1;
+        }
+        
+        .process-step {
+            text-align: center;
+            max-width: 220px; /* Exact frontend match */
+            background: rgba(0,0,0,0.08);
+            border-radius: 12px; /* Exact frontend match */
+            padding: 24px 16px; /* Exact frontend match */
+        }
+        
+        .step-number {
+            font-size: 2rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 10px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .step-description {
+            font-family: 'Martel Sans', sans-serif;
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            margin: 0;
+            word-wrap: break-word;
+        }
+        
+        /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
+        .challenges-solutions {
+            width: 100%;
+            height: 100%; /* Fill the entire slide content area */
+            background-color: var(--bg-color);
+            padding: 60px; /* Exact frontend match */
+            position: relative;
+            font-family: 'Martel Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .challenges-solutions .slide-title {
+            font-size: 45px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            font-family: 'Kanit', sans-serif;
+            text-align: center;
+            margin-bottom: 50px; /* Exact frontend match */
+            line-height: 1.3;
+            max-width: 1174px; /* Updated to match new slide width */
+            margin: 0 auto 50px auto;
+            word-wrap: break-word;
+        }
+        
+        .challenges-solutions .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px; /* Exact frontend match */
+            max-width: 1000px; /* Exact frontend match */
+            margin: 0 auto;
+            flex: 1;
+        }
+        
+        .callout-box {
+            background-color: var(--bg-color);
+            border-radius: 12px; /* Exact frontend match */
+            padding: 24px; /* Exact frontend match */
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .callout-header {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Exact frontend match */
+            margin-bottom: 20px; /* Exact frontend match */
+        }
+        
+        .section-title {
+            font-size: 1.25rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--content-color);
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            word-wrap: break-word;
+        }
+        
+        .callout-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .callout-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px; /* Exact frontend match */
+            margin-bottom: 12px; /* Exact frontend match */
+            font-size: 18px; /* Exact frontend match */
+            line-height: 1.5;
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .callout-bullet {
+            min-width: 6px; /* Exact frontend match */
+            width: 6px;
+            height: 6px;
+            background-color: var(--content-color);
+            border-radius: 50%;
+            margin-top: 8px; /* Exact frontend match */
+        }
+        
+        /* SVG Icons for Challenges & Solutions */
+        .icon-xmark {
+            width: 24px; /* Exact frontend match */
+            height: 24px;
+            fill: var(--accent-color);
+            flex-shrink: 0;
+        }
+        
+        .icon-check {
+            width: 24px; /* Exact frontend match */
+            height: 24px;
+            fill: var(--accent-color);
+            flex-shrink: 0;
+        }
+        
+        /* Two Column Template - EXACT FRONTEND MATCH */
+        .two-column-layout {
+            display: flex;
+            gap: 40px; /* Exact frontend match */
+            width: 100%;
+            height: fit-content;
+        }
+        
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Numbers Grid Template - EXACT FRONTEND MATCH */
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px; /* Exact frontend match */
+            width: 100%;
+            max-width: 800px; /* Exact frontend match */
+            margin: 0 auto;
+        }
+        
+        .number-item {
+            text-align: center;
+            padding: 24px; /* Exact frontend match */
+        }
+        
+        .number-value {
+            font-size: 3rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--accent-color);
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 12px; /* Exact frontend match */
+        }
+        
+        .number-label {
+            font-size: 1.25rem; /* Exact frontend match */
+            font-weight: 600;
+            color: var(--title-color);
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 8px; /* Exact frontend match */
+        }
+        
+        .number-description {
+            font-size: 16px; /* Exact frontend match */
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.5;
+        }
+        
+        /* Four Box Grid Template - EXACT FRONTEND MATCH */
+        .four-box-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px; /* Exact frontend match */
+            width: 100%;
+            max-width: 800px; /* Exact frontend match */
+            margin: 0 auto;
+        }
+        
+        .box-item {
+            background: rgba(0,0,0,0.08);
+            border-radius: 12px; /* Exact frontend match */
+            padding: 32px 24px; /* Exact frontend match */
+            text-align: center;
+        }
+        
+        .box-title {
+            font-size: 1.5rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 16px; /* Exact frontend match */
+        }
+        
+        .box-content {
+            font-size: 16px; /* Exact frontend match */
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+        }
+        
+        /* Pyramid Template - EXACT FRONTEND MATCH */
+        .pyramid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px; /* Exact frontend match */
+            width: 100%;
+            max-width: 600px; /* Exact frontend match */
+            margin: 0 auto;
+        }
+        
+        .pyramid-level {
+            background: rgba(0,0,0,0.08);
+            border-radius: 8px; /* Exact frontend match */
+            padding: 20px; /* Exact frontend match */
+            text-align: center;
+            width: 100%;
+        }
+        
+        .pyramid-level:nth-child(1) { width: 100%; }
+        .pyramid-level:nth-child(2) { width: 80%; }
+        .pyramid-level:nth-child(3) { width: 60%; }
+        .pyramid-level:nth-child(4) { width: 40%; }
+        .pyramid-level:nth-child(5) { width: 20%; }
+        
+        .level-content {
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.5;
+        }
+        
+        /* Timeline Template - EXACT FRONTEND MATCH */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px; /* Exact frontend match */
+            width: 100%;
+            max-width: 800px; /* Exact frontend match */
+            margin: 0 auto;
+        }
+        
+        .timeline-event {
+            display: flex;
+            align-items: flex-start;
+            gap: 24px; /* Exact frontend match */
+        }
+        
+        .event-date {
+            font-size: 1.25rem; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--accent-color);
+            font-family: 'Kanit', sans-serif;
+            min-width: 120px; /* Exact frontend match */
+        }
+        
+        .event-content {
+            font-size: 18px; /* Exact frontend match */
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: none;">
+        <p>Debug: details object exists: {{ details is defined }}</p>
+        <p>Debug: slides count: {{ details.slides|length if details and details.slides else 0 }}</p>
+        <p>Debug: theme: {{ details.theme if details else 'none' }}</p>
+        <p>Debug: lessonTitle: {{ details.lessonTitle if details else 'none' }}</p>
+    </div>
+
+    {% if details and details.slides %}
+        {% for slide in details.slides %}
+        <div class="slide-page">
+            <div class="slide-content theme-{{ details.theme or 'dark-purple' }}">
+                {% if slide.templateId == 'title-slide' %}
+                    <div class="title-slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        {% if slide.props.subtitle %}
+                            <h2 class="slide-subtitle">{{ slide.props.subtitle }}</h2>
+                        {% endif %}
+                        {% if slide.props.author or slide.props.date %}
+                            <div class="metadata">
+                                {% if slide.props.author %}
+                                    <div>{{ slide.props.author }}</div>
+                                {% endif %}
+                                {% if slide.props.date %}
+                                    <div>{{ slide.props.date }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                {% elif slide.templateId == 'big-image-left' %}
+                    <div class="big-image-left">
+                        <div class="image-container">
+                            <div class="image-placeholder">
+                                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'man sitting on a chair' }}"</div>
+                                <div style="font-size: 12px; color: #868e96;">500px × 350px</div>
+                            </div>
+                        </div>
+                        <div class="content-container">
+                            <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                            <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'big-image-top' %}
+                    <div class="slide">
+                        <div style="width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; border: 2px dashed #adb5bd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                            <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant image' }}"</div>
+                        </div>
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                    </div>
+                    
+                {% elif slide.templateId == 'bullet-points' %}
+                    <div class="bullet-points">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="content-row">
+                            <div class="placeholder-container">
+                                <div class="placeholder">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
+                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                </div>
+                            </div>
+                            <div class="bullets-container">
+                                <ul class="bullet-list">
+                                    {% for bullet in slide.props.bullets %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">
+                                                {% if slide.props.bulletStyle == 'arrow' %}→
+                                                {% elif slide.props.bulletStyle == 'check' %}✓
+                                                {% elif slide.props.bulletStyle == 'star' %}★
+                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                                {% else %}•
+                                                {% endif %}
+                                            </span>
+                                            <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
+                                        </li>
+                                    {% endfor %}
+                                    {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">•</span>
+                                            <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'process-steps' %}
+                    <div class="process-steps">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="steps-container">
+                            {% for step in slide.props.steps %}
+                                <div class="process-step">
+                                    <div class="step-number">{{ loop.index }}</div>
+                                    <p class="step-description">{{ step.description if step.description else (step if step is string else 'Click to add step description') }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'challenges-solutions' %}
+                    <div class="challenges-solutions">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="grid">
+                            <div class="callout-box">
+                                <div class="callout-header">
+                                    <svg class="icon-xmark" viewBox="0 0 512 512">
+                                        <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+                                    </svg>
+                                    <h2 class="section-title">{{ slide.props.challengesTitle or 'Виклики' }}</h2>
+                                </div>
+                                <ul class="callout-list">
+                                    {% for challenge in slide.props.challenges %}
+                                        <li class="callout-item">
+                                            <div class="callout-bullet"></div>
+                                            <span>{{ challenge or 'Click to add challenge' }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="callout-box">
+                                <div class="callout-header">
+                                    <svg class="icon-check" viewBox="0 0 512 512">
+                                        <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
+                                    </svg>
+                                    <h2 class="section-title">{{ slide.props.solutionsTitle or 'Рішення' }}</h2>
+                                </div>
+                                <ul class="callout-list">
+                                    {% for solution in slide.props.solutions %}
+                                        <li class="callout-item">
+                                            <div class="callout-bullet"></div>
+                                            <span>{{ solution or 'Click to add solution' }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'two-column' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="two-column-layout">
+                            <div class="column">
+                                <div class="content-text">{{ slide.props.leftContent or 'Left column content' }}</div>
+                            </div>
+                            <div class="column">
+                                <div class="content-text">{{ slide.props.rightContent or 'Right column content' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'big-numbers' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="numbers-grid">
+                            {% for number in slide.props.numbers %}
+                                <div class="number-item">
+                                    <div class="number-value">{{ number.value or '0' }}</div>
+                                    <div class="number-label">{{ number.label or 'Label' }}</div>
+                                    <div class="number-description">{{ number.description or 'Description' }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'four-box-grid' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="four-box-grid">
+                            {% for box in slide.props.boxes %}
+                                <div class="box-item">
+                                    <div class="box-title">{{ box.title or 'Box Title' }}</div>
+                                    <div class="box-content">{{ box.content or 'Box content' }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'pyramid' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="pyramid-container">
+                            {% for level in slide.props.levels %}
+                                <div class="pyramid-level">
+                                    <div class="level-content">{{ level.heading or 'Level Heading' }}</div>
+                                    {% if level.description %}
+                                        <div class="level-content" style="font-size: 14px; margin-top: 8px;">{{ level.description }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'timeline' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="timeline-container">
+                            {% for event in slide.props.events %}
+                                <div class="timeline-event">
+                                    <div class="event-date">{{ event.date or 'Date' }}</div>
+                                    <div class="event-content">{{ event.content or 'Event content' }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'comparison-slide' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="two-column-layout">
+                            <div class="column">
+                                <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.leftTitle or 'Left Side' }}</h2>
+                                <div class="content-text">{{ slide.props.leftContent or 'Left content' }}</div>
+                            </div>
+                            <div class="column">
+                                <h2 style="font-family: 'Kanit', sans-serif; font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.rightTitle or 'Right Side' }}</h2>
+                                <div class="content-text">{{ slide.props.rightContent or 'Right content' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                {% else %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="content-text">{{ slide.props.content or 'Click to add content' }}</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="slide-page">
+            <div class="slide-content theme-dark-purple">
+                <div class="slide">
+                    <h1 class="slide-title">No Slides Available</h1>
+                    <div class="content-text">The slide deck appears to be empty or the data structure is invalid.</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html>
