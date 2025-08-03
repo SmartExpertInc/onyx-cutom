@@ -1804,7 +1804,7 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Video Lesson Configuration */}
+                {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
           <div className="flex flex-col items-center gap-4 mb-4">
             {/* Step 1: Choose source */}
