@@ -6,7 +6,7 @@ import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCente
 import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import VideoLessonPreview from "../../../components/VideoLessonPreview";
+import PresentationPreview from "../../../components/PresentationPreview";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -448,9 +448,9 @@ export default function VideoLessonClient() {
 
             {generatedContent && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <VideoLessonPreview 
+                <PresentationPreview 
                   markdown={generatedContent}
-                  isEditable={false}
+                  isEditing={false}
                 />
               </div>
             )}
