@@ -66,8 +66,7 @@ export const CreateContentTypeModal = ({
       label: t('modals.createContent.videoLesson'),
       description: t('modals.createContent.videoLessonDescription'),
       color: "orange",
-      disabled: true,
-      soon: true
+      disabled: false
     },
   ];
 
@@ -192,11 +191,6 @@ export const CreateContentTypeModal = ({
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
                       <h3 className="text-lg font-semibold text-black">{type.label}</h3>
-                      {type.soon && (
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
-                          {t('modals.createContent.soon')}
-                        </span>
-                      )}
                       {isAlreadyCreated && (
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                           {t('modals.createContent.alreadyCreated')}

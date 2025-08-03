@@ -268,7 +268,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager" | "Video Lesson">("Course Outline");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -285,9 +285,11 @@ function GenerateProductPicker() {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
     } else if (product === 'quiz' && lessonType && lessonTitle && moduleName && lessonNumber) {
       lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
-    } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
-      lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
-    } else {
+          } else if (product === 'text-presentation' && lessonType && lessonTitle && moduleName && lessonNumber) {
+        lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+      } else if (product === 'video-lesson' && lessonType && lessonTitle && moduleName && lessonNumber) {
+        lessonContext = { product, lessonType, lessonTitle, moduleName, lessonNumber };
+      } else {
       // Try to get from sessionStorage
       try {
         const lessonContextData = sessionStorage.getItem('lessonContext');
@@ -316,6 +318,10 @@ function GenerateProductPicker() {
       } else if (lessonContext.product === 'text-presentation') {
         setActiveProduct("One-Pager");
         setUseExistingTextOutline(true);
+        sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
+      } else if (lessonContext.product === 'video-lesson') {
+        setActiveProduct("Video Lesson");
+        setUseExistingVideoOutline(true);
         sessionStorage.setItem('lessonContextForDropdowns', JSON.stringify(lessonContext));
       } else {
         setActiveProduct("Presentation");
@@ -373,6 +379,15 @@ function GenerateProductPicker() {
         setSelectedTextModuleIndex(null);
         setTextLessonsForModule([]);
         setSelectedTextLesson("");
+      }
+      
+      // Clear video lesson context when switching away from Video Lesson
+      if (activeProduct !== "Video Lesson") {
+        setUseExistingVideoOutline(null);
+        setSelectedVideoOutlineId(null);
+        setSelectedVideoModuleIndex(null);
+        setVideoLessonsForModule([]);
+        setSelectedVideoLesson("");
       }
     }, 100); // 100ms delay
 
@@ -725,6 +740,18 @@ function GenerateProductPicker() {
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 
+  // Video Lesson state (similar to presentation pattern)
+  const [useExistingVideoOutline, setUseExistingVideoOutline] = useState<boolean | null>(null);
+  const [videoOutlines, setVideoOutlines] = useState<{ id: number; name: string }[]>([]);
+  const [videoModulesForOutline, setVideoModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
+  const [selectedVideoModuleIndex, setSelectedVideoModuleIndex] = useState<number | null>(null);
+  const [videoLessonsForModule, setVideoLessonsForModule] = useState<string[]>([]);
+  const [selectedVideoOutlineId, setSelectedVideoOutlineId] = useState<number | null>(null);
+  const [selectedVideoLesson, setSelectedVideoLesson] = useState<string>("");
+  const [videoLengthOption, setVideoLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
+  const [videoSlidesCount, setVideoSlidesCount] = useState<number>(5);
+  const [videoLanguage, setVideoLanguage] = useState("en");
+
   // Fetch one-pager outlines when product is selected
   useEffect(() => {
     if (activeProduct !== "One-Pager" || useExistingTextOutline !== true) return;
@@ -818,6 +845,98 @@ function GenerateProductPicker() {
     fetchTextLessons();
   }, [selectedTextOutlineId, activeProduct, useExistingTextOutline, textModulesForOutline.length]);
 
+  // Fetch video lesson outlines when switching to Video Lesson tab and user chooses to use existing outline
+  useEffect(() => {
+    if (activeProduct !== "Video Lesson" || useExistingVideoOutline !== true) return;
+    const fetchVideoOutlines = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
+        setVideoOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
+        
+        // Check if we have video lesson context to pre-select outline
+        try {
+          const lessonContextData = sessionStorage.getItem('lessonContextForDropdowns');
+          if (lessonContextData) {
+            const lessonContext = JSON.parse(lessonContextData);
+            // Find the outline that contains the specific module and lesson
+            // We'll need to fetch each outline to check its modules and lessons
+            for (const outline of onlyOutlines) {
+              const outlineRes = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${outline.id}`);
+              if (outlineRes.ok) {
+                const outlineData = await outlineRes.json();
+                const sections = outlineData?.details?.sections || [];
+                const modules = sections.map((sec: any) => ({
+                  name: sec.title || "Unnamed module",
+                  lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+                }));
+                
+                // Check if this outline contains the target module and lesson
+                const targetModuleIndex = modules.findIndex((m: any) => 
+                  m.name.toLowerCase().includes(lessonContext.moduleName.toLowerCase()) ||
+                  lessonContext.moduleName.toLowerCase().includes(m.name.toLowerCase())
+                );
+                
+                if (targetModuleIndex !== -1) {
+                  const targetModule = modules[targetModuleIndex];
+                  const targetLessonIndex = targetModule.lessons.findIndex((l: string) => 
+                    l.toLowerCase().includes(lessonContext.lessonTitle.toLowerCase()) ||
+                    lessonContext.lessonTitle.toLowerCase().includes(l.toLowerCase())
+                  );
+                  
+                  if (targetLessonIndex !== -1) {
+                    // Found the matching outline, module, and lesson
+                    setSelectedVideoOutlineId(outline.id);
+                    setVideoModulesForOutline(modules);
+                    setSelectedVideoModuleIndex(targetModuleIndex);
+                    setVideoLessonsForModule(targetModule.lessons);
+                    setSelectedVideoLesson(targetModule.lessons[targetLessonIndex]);
+                    
+                    // Clear the stored context
+                    sessionStorage.removeItem('lessonContextForDropdowns');
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error pre-selecting video outline:', error);
+        }
+      } catch (_) {}
+    };
+    fetchVideoOutlines();
+  }, [activeProduct, useExistingVideoOutline]);
+
+  // Fetch lessons when video outline changes
+  useEffect(() => {
+    if (activeProduct !== "Video Lesson" || selectedVideoOutlineId == null || useExistingVideoOutline !== true) return;
+    
+    // Skip if we already have modules loaded (from pre-selection)
+    if (videoModulesForOutline.length > 0) return;
+    
+    const fetchVideoLessons = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${selectedVideoOutlineId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const sections = data?.details?.sections || [];
+        const modules = sections.map((sec: any) => ({
+          name: sec.title || "Unnamed module",
+          lessons: (sec.lessons || []).map((ls: any) => ls.title || ""),
+        }));
+        setVideoModulesForOutline(modules);
+        // reset downstream selections
+        setSelectedVideoModuleIndex(null);
+        setVideoLessonsForModule([]);
+        setSelectedVideoLesson("");
+      } catch (_) {}
+    };
+    fetchVideoLessons();
+  }, [selectedVideoOutlineId, activeProduct, useExistingVideoOutline, videoModulesForOutline.length]);
+
   // Click outside handler for text styles dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -881,6 +1000,47 @@ function GenerateProductPicker() {
     }
 
     router.push(`/create/text-presentation?${params.toString()}`);
+  };
+
+  const handleVideoLessonStart = () => {
+    // If using existing outline, check if outline and lesson selected
+    if (useExistingVideoOutline === true) {
+      if (!selectedVideoOutlineId || !selectedVideoLesson) return;
+    } else {
+      // If standalone video lesson, check if prompt entered or coming from files/text
+      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    }
+
+    const params = new URLSearchParams();
+    if (useExistingVideoOutline === true && selectedVideoOutlineId) {
+      params.set("outlineId", String(selectedVideoOutlineId));
+    }
+    if (useExistingVideoOutline === true && selectedVideoLesson) {
+      params.set("lesson", selectedVideoLesson);
+    }
+    params.set("length", lengthRangeForOption(videoLengthOption));
+    params.set("slidesCount", String(videoSlidesCount));
+    
+    // Handle file-based prompts
+    if (isFromFiles) {
+      params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
+      params.set("fromFiles", "true");
+      if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+      if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    } else if (isFromText) {
+      params.set("prompt", prompt.trim() || (textMode === 'context' 
+        ? "Create video lesson content using the provided text as context"
+        : "Create video lesson content based on the provided text structure"));
+      params.set("fromText", "true");
+      params.set("textMode", textMode || 'context');
+      // userText stays in sessionStorage - don't pass via URL
+    } else if (prompt.trim()) {
+      params.set("prompt", prompt.trim());
+    }
+    
+    params.set("lang", videoLanguage);
+
+    router.push(`/create/video-lesson?${params.toString()}`);
   };
 
   return (
@@ -961,7 +1121,7 @@ function GenerateProductPicker() {
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
-          <TabButton label={t('interface.generate.videoLesson', 'Video Lesson')} Icon={VideoScriptIcon} />
+          <TabButton label={t('interface.generate.videoLesson', 'Video Lesson')} Icon={VideoScriptIcon} active={activeProduct === "Video Lesson"} onClick={() => setActiveProduct("Video Lesson")} />
           <TabButton 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon} 
@@ -1644,11 +1804,181 @@ function GenerateProductPicker() {
           </div>
         )}
 
+        {/* Video Lesson Configuration */}
+        {activeProduct === "Video Lesson" && (
+          <div className="flex flex-col items-center gap-4 mb-4">
+            {/* Step 1: Choose source */}
+            {useExistingVideoOutline === null && (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-lg font-medium text-gray-700">{t('interface.generate.videoLessonQuestion', 'Do you want to create a video lesson from an existing Course Outline?')}</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setUseExistingVideoOutline(true)}
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
+                  >
+                    {t('interface.generate.yesContentFromOutline', 'Yes, content for the video lesson from the outline')}
+                  </button>
+                  <button
+                    onClick={() => setUseExistingVideoOutline(false)}
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
+                  >
+                    {t('interface.generate.noStandalone', 'No, I want standalone video lesson')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2+: Show dropdowns based on choice */}
+            {useExistingVideoOutline !== null && (
+              <div className="flex flex-wrap justify-center gap-2">
+                {/* Show outline flow if user chose existing outline */}
+                {useExistingVideoOutline === true && (
+                  <>
+                    {/* Outline dropdown */}
+                    <select
+                      value={selectedVideoOutlineId ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedVideoOutlineId(val ? Number(val) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedVideoModuleIndex(null);
+                        setVideoLessonsForModule([]);
+                        setSelectedVideoLesson("");
+                      }}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="">Select Outline</option>
+                      {videoOutlines.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
+
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedVideoOutlineId && (
+                      <select
+                        value={selectedVideoModuleIndex ?? ""}
+                        onChange={(e) => {
+                          const idx = e.target.value ? Number(e.target.value) : null;
+                          setSelectedVideoModuleIndex(idx);
+                          setVideoLessonsForModule(idx !== null ? videoModulesForOutline[idx].lessons : []);
+                          setSelectedVideoLesson("");
+                        }}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Module</option>
+                        {videoModulesForOutline.map((m, idx) => (
+                          <option key={idx} value={idx}>{m.name}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedVideoModuleIndex !== null && (
+                      <select
+                        value={selectedVideoLesson}
+                        onChange={(e) => setSelectedVideoLesson(e.target.value)}
+                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">Select Lesson</option>
+                        {videoLessonsForModule.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Show final dropdowns when lesson is selected */}
+                    {selectedVideoLesson && (
+                      <>
+                        <select
+                          value={videoLengthOption}
+                          onChange={(e) => setVideoLengthOption(e.target.value as "Short" | "Medium" | "Long")}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="Short">Short ({lengthRangeForOption("Short")})</option>
+                          <option value="Medium">Medium ({lengthRangeForOption("Medium")})</option>
+                          <option value="Long">Long ({lengthRangeForOption("Long")})</option>
+                        </select>
+                        <select
+                          value={videoSlidesCount}
+                          onChange={(e) => setVideoSlidesCount(Number(e.target.value))}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          {Array.from({ length: 15 }, (_, i) => i + 3).map((count) => (
+                            <option key={count} value={count}>{count} slides</option>
+                          ))}
+                        </select>
+                        <select
+                          value={videoLanguage}
+                          onChange={(e) => setVideoLanguage(e.target.value)}
+                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="en">{t('interface.english', 'English')}</option>
+                          <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                          <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                          <option value="ru">{t('interface.russian', 'Russian')}</option>
+                        </select>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Show standalone video lesson dropdowns if user chose standalone */}
+                {useExistingVideoOutline === false && (
+                  <>
+                    <select
+                      value={videoLengthOption}
+                      onChange={(e) => setVideoLengthOption(e.target.value as "Short" | "Medium" | "Long")}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="Short">Short ({lengthRangeForOption("Short")})</option>
+                      <option value="Medium">Medium ({lengthRangeForOption("Medium")})</option>
+                      <option value="Long">Long ({lengthRangeForOption("Long")})</option>
+                    </select>
+                    <select
+                      value={videoSlidesCount}
+                      onChange={(e) => setVideoSlidesCount(Number(e.target.value))}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      {Array.from({ length: 15 }, (_, i) => i + 3).map((count) => (
+                        <option key={count} value={count}>{count} slides</option>
+                      ))}
+                    </select>
+                    <select
+                      value={videoLanguage}
+                      onChange={(e) => setVideoLanguage(e.target.value)}
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                    >
+                      <option value="en">{t('interface.english', 'English')}</option>
+                      <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                      <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                      <option value="ru">{t('interface.russian', 'Russian')}</option>
+                    </select>
+                  </>
+                )}
+
+                <button
+                  onClick={() => {
+                    setUseExistingVideoOutline(null);
+                    setSelectedVideoOutlineId(null);
+                    setSelectedVideoModuleIndex(null);
+                    setVideoLessonsForModule([]);
+                    setSelectedVideoLesson("");
+                  }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
+                >
+                  ← Back
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course Outline") || 
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
-          (activeProduct === "Presentation" && useExistingOutline === false)) && (
+          (activeProduct === "Presentation" && useExistingOutline === false) ||
+          (activeProduct === "Video Lesson" && useExistingVideoOutline === false)) && (
           <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
             {/* Simple prompt input */}
             <div className="w-full">
@@ -1711,7 +2041,9 @@ function GenerateProductPicker() {
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "Video Lesson" && useExistingVideoOutline === true && selectedVideoOutlineId && selectedVideoLesson) ||
+          (activeProduct === "Video Lesson" && useExistingVideoOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {
@@ -1728,6 +2060,9 @@ function GenerateProductPicker() {
                   case "Presentation":
                     handleSlideDeckStart();
                     break;
+                  case "Video Lesson":
+                    handleVideoLessonStart();
+                    break;
                 }
               }}
               className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors cursor-pointer"
@@ -1738,6 +2073,7 @@ function GenerateProductPicker() {
               {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
               {activeProduct === "Quiz" && t('interface.generate.generateQuiz', 'Generate Quiz')}
               {activeProduct === "One-Pager" && t('interface.generate.generateOnePager', 'Generate One-Pager')}
+              {activeProduct === "Video Lesson" && t('interface.generate.generateVideoLesson', 'Generate Video Lesson')}
             </button>
           </div>
         )}
