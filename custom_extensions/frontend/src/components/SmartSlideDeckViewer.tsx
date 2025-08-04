@@ -266,41 +266,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 Add Slide
               </button>
             )}
-            {hasAnyVoiceover && (
-              <button 
-                className="control-button voiceover-button"
-                onClick={() => setIsVoiceoverPanelOpen(true)}
-                title="Open Voiceover Panel"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#3b82f6';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-                }}
-              >
-                <Volume2 className="w-4 h-4" />
-                Voiceover
-              </button>
-            )}
+            {/* Voiceover button removed from header - only on right panel */}
           </div>
         </div>
       </div>
@@ -315,11 +281,23 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           position: 'relative',
           zIndex: 5,
           backgroundColor: 'white',
-          minHeight: 'calc(100vh - 80px)' // Adjust based on header height
+          minHeight: 'calc(100vh - 80px)', // Adjust based on header height
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          padding: '20px'
         }}
       >
-        {/* Slides Container */}
-        <div className="slides-container">
+        {/* Slides Container - 30% smaller */}
+        <div 
+          className="slides-container"
+          style={{
+            transform: 'scale(0.7)', // 30% smaller (70% of original size)
+            transformOrigin: 'top center',
+            width: '100%',
+            maxWidth: '1200px'
+          }}
+        >
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
             <div
               key={slide.slideId}
@@ -341,7 +319,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Small Vertical Panel on the Right (when voiceover panel is closed) */}
+      {/* Small White Vertical Panel on the Right (when voiceover panel is closed) */}
       {hasAnyVoiceover && !isVoiceoverPanelOpen && (
         <div
           style={{
@@ -349,37 +327,72 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             top: '50%',
             right: '0',
             transform: 'translateY(-50%)',
-            width: '48px',
-            height: '120px',
-            backgroundColor: '#3b82f6',
+            width: '60px',
+            height: '200px',
+            backgroundColor: 'white',
             borderTopLeftRadius: '12px',
             borderBottomLeftRadius: '12px',
             boxShadow: '-4px 0 12px rgba(0, 0, 0, 0.15)',
             zIndex: 30,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
+            gap: '12px',
+            padding: '16px 8px'
           }}
-          onClick={() => setIsVoiceoverPanelOpen(true)}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#2563eb';
-            e.currentTarget.style.width = '56px';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#3b82f6';
-            e.currentTarget.style.width = '48px';
-          }}
-          title="Open Voiceover Panel"
         >
-          <Volume2 
-            className="w-6 h-6 text-white" 
-            style={{ 
-              transform: 'translateY(-20px)', // Position slightly more to the top
-              transition: 'transform 0.2s ease'
+          {/* Voiceover Button */}
+          <button
+            onClick={() => setIsVoiceoverPanelOpen(true)}
+            style={{
+              width: '44px',
+              height: '44px',
+              backgroundColor: '#3b82f6',
+              border: 'none',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}
-          />
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2563eb';
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#3b82f6';
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            title="Open Voiceover Panel"
+          >
+            <Volume2 className="w-5 h-5 text-white" />
+          </button>
+          
+          {/* Future buttons can be added here */}
+          {/* Example:
+          <button
+            style={{
+              width: '44px',
+              height: '44px',
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            title="Another Action"
+          >
+            <SomeIcon className="w-5 h-5 text-gray-600" />
+          </button>
+          */}
         </div>
       )}
 
