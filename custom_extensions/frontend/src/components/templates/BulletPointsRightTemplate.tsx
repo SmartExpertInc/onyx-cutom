@@ -629,7 +629,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     margin: '0 auto',
-    height: '100%'
+    height: '100%',
+    aspectRatio: '1/1'
   };
 
   return (
