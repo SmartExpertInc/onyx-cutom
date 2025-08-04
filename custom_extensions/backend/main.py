@@ -4828,6 +4828,18 @@ async def startup_event():
                                             ))
         async with DB_POOL.acquire() as connection:
             await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+
+            await connection.execute("""
                 CREATE TABLE IF NOT EXISTS projects (
                     id SERIAL PRIMARY KEY,
                     onyx_user_id TEXT NOT NULL,
@@ -4862,18 +4874,6 @@ async def startup_event():
             """)
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
             logger.info("'microproduct_pipelines' table ensured.")
-
-            await connection.execute("""
-                CREATE TABLE IF NOT EXISTS design_templates (
-                    id SERIAL PRIMARY KEY,
-                    template_name TEXT NOT NULL UNIQUE,
-                    template_structuring_prompt TEXT NOT NULL,
-                    design_image_path TEXT,
-                    microproduct_type TEXT,
-                    component_name TEXT NOT NULL,
-                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                );
-            """)
 
             col_type_row = await connection.fetchrow(
                 "SELECT data_type FROM information_schema.columns "
