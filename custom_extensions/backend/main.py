@@ -1035,6 +1035,7 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
+    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -1044,6 +1045,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -3126,6 +3128,7 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
+    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -3135,6 +3138,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -5169,6 +5173,7 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
+    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -5178,6 +5183,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -7187,6 +7193,7 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
+    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -7196,6 +7203,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
