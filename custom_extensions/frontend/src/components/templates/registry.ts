@@ -473,7 +473,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
 
   'challenges-solutions': {
     id: 'challenges-solutions',
-    name: 'Виклики та Рішення',
+    name: 'Challenges Solutions',
     description: 'Порівняння проблем і рішень з візуальними іконками',
     category: 'layout',
     icon: '⚖️',
