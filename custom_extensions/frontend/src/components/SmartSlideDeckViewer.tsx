@@ -326,8 +326,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       <div 
         className="professional-header"
         style={{
-          transform: isVoiceoverPanelOpen ? 'translateX(192px)' : 'translateX(0)', // Half the shift
-          transition: 'transform 0.3s ease-in-out',
           width: '100%',
           position: 'relative',
           zIndex: 10
@@ -352,15 +350,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       <div 
         className="main-content"
         style={{
-          transform: isVoiceoverPanelOpen ? 'translateX(192px)' : 'translateX(0)', // Half the shift
-          transition: 'transform 0.3s ease-in-out',
           width: '100%',
           position: 'relative',
           zIndex: 5,
           backgroundColor: 'white',
           minHeight: 'calc(100vh - 80px)', // Adjust based on header height
           transformOrigin: 'center center',
-          overflow: 'hidden' // Prevent container scroll
+          overflow: 'hidden', // Prevent container scroll
+          display: 'flex',
+          justifyContent: 'flex-end', // Align slides to the right
+          alignItems: 'flex-start' // Align to top
         }}
       >
         {/* Slides Container - Scrollable and scalable */}
@@ -370,7 +369,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           style={{
             transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
             transition: 'transform 0.3s ease-in-out',
-            transformOrigin: 'top center', // Changed to top center to prevent downward movement
+            transformOrigin: 'top right', // Changed to top right to stick to right side
             position: 'relative',
             width: '100%',
             height: '100%',

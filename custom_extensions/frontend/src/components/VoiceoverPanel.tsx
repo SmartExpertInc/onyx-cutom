@@ -231,9 +231,9 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
                         <textarea
                           value={editingText}
                           onChange={(e) => setEditingText(e.target.value)}
-                          className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none text-black"
+                          className="w-full p-4 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none text-black"
                           style={{
-                            minHeight: '60px',
+                            minHeight: '120px',
                             height: 'auto',
                             overflow: 'hidden'
                           }}
