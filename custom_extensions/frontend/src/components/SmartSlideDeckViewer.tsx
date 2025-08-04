@@ -353,7 +353,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           width: '100%',
           position: 'relative',
           zIndex: 5,
-          backgroundColor: 'white',
+          backgroundColor: '#f8f9fa',
           minHeight: 'calc(100vh - 80px)', // Adjust based on header height
           transformOrigin: 'center center',
           overflow: 'hidden', // Prevent container scroll
