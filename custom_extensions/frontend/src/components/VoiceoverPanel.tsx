@@ -231,10 +231,19 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
                         <textarea
                           value={editingText}
                           onChange={(e) => setEditingText(e.target.value)}
-                          className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none"
-                          rows={4}
+                          className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none text-black"
+                          style={{
+                            minHeight: '60px',
+                            height: 'auto',
+                            overflow: 'hidden'
+                          }}
                           placeholder="Enter voiceover text for this slide..."
                           autoFocus
+                          onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement;
+                            target.style.height = 'auto';
+                            target.style.height = target.scrollHeight + 'px';
+                          }}
                         />
                         <div className="flex gap-2">
                           <button
