@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, useRef, forwardRef } from 'react';
 import { X, Volume2 } from 'lucide-react';
 
 interface VoiceoverPanelProps {
@@ -23,9 +23,9 @@ const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
 }, ref) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const currentSlideRef = useRef<HTMLDivElement>(null);
-
-  // Expose the panel ref to parent component
-  useImperativeHandle(ref, () => panelRef.current!, []);
+  
+  // Use the forwarded ref or fall back to local ref
+  const contentRef = ref || panelRef;
 
   // Auto-scroll to current slide when panel opens
   useEffect(() => {
@@ -85,8 +85,11 @@ const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="h-full overflow-y-auto">
+        {/* Content - with ref for synchronized scrolling */}
+        <div 
+          ref={contentRef}
+          className="h-full overflow-y-auto"
+        >
           <div className="p-4 space-y-4">
             {slides.map((slide) => {
               const isCurrentSlide = slide.slideId === currentSlideId;
