@@ -25,9 +25,7 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const currentSlideRef = useRef<HTMLDivElement>(null);
-  const [editingSlideId, setEditingSlideId] = useState<string | null>(null);
-  const [editingText, setEditingText] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
+  const [savingStates, setSavingStates] = useState<Record<string, boolean>>({});
 
   // Auto-scroll to current slide when panel opens
   useEffect(() => {
@@ -39,53 +37,17 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
     }
   }, [isOpen, currentSlideId]);
 
-  // Synchronized scrolling with main content
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleScroll = () => {
-      const mainContent = document.querySelector('.main-content');
-      const panelContent = panelRef.current?.querySelector('.panel-content');
-      
-      if (mainContent && panelContent) {
-        const mainScrollTop = mainContent.scrollTop;
-        const mainScrollHeight = mainContent.scrollHeight;
-        const mainClientHeight = mainContent.clientHeight;
-        const panelScrollHeight = panelContent.scrollHeight;
-        const panelClientHeight = panelContent.clientHeight;
-        
-        // Calculate scroll percentage and apply to panel
-        const scrollPercentage = mainScrollTop / (mainScrollHeight - mainClientHeight);
-        const panelScrollTop = scrollPercentage * (panelScrollHeight - panelClientHeight);
-        
-        panelContent.scrollTop = panelScrollTop;
-      }
-    };
-
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.addEventListener('scroll', handleScroll);
-      return () => mainContent.removeEventListener('scroll', handleScroll);
-    }
-  }, [isOpen]);
-
   // Close panel on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
-        if (editingSlideId) {
-          // Cancel editing if currently editing
-          setEditingSlideId(null);
-          setEditingText('');
-        } else {
-          onClose();
-        }
+        onClose();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose, editingSlideId]);
+  }, [isOpen, onClose]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -100,47 +62,21 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
     };
   }, [isOpen]);
 
-  const handleEditVoiceover = (slideId: string, currentText: string) => {
-    setEditingSlideId(slideId);
-    setEditingText(currentText || '');
-  };
+  const handleVoiceoverChange = async (slideId: string, newText: string) => {
+    if (!onVoiceoverUpdate) return;
 
-  const handleSaveVoiceover = async () => {
-    if (!editingSlideId || !onVoiceoverUpdate) return;
+    // Set saving state for this slide
+    setSavingStates(prev => ({ ...prev, [slideId]: true }));
 
-    setIsSaving(true);
     try {
-      await onVoiceoverUpdate(editingSlideId, editingText);
-      setEditingSlideId(null);
-      setEditingText('');
+      await onVoiceoverUpdate(slideId, newText);
     } catch (error) {
       console.error('Failed to save voiceover:', error);
     } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingSlideId(null);
-    setEditingText('');
-  };
-
-  const handlePanelScroll = () => {
-    const panelContent = panelRef.current?.querySelector('.panel-content');
-    const mainContent = document.querySelector('.main-content');
-    
-    if (panelContent && mainContent) {
-      const panelScrollTop = panelContent.scrollTop;
-      const panelScrollHeight = panelContent.scrollHeight;
-      const panelClientHeight = panelContent.clientHeight;
-      const mainScrollHeight = mainContent.scrollHeight;
-      const mainClientHeight = mainContent.clientHeight;
-      
-      // Calculate scroll percentage and apply to main content
-      const scrollPercentage = panelScrollTop / (panelScrollHeight - panelClientHeight);
-      const mainScrollTop = scrollPercentage * (mainScrollHeight - mainClientHeight);
-      
-      mainContent.scrollTop = mainScrollTop;
+      // Clear saving state after a short delay to show feedback
+      setTimeout(() => {
+        setSavingStates(prev => ({ ...prev, [slideId]: false }));
+      }, 500);
     }
   };
 
@@ -168,14 +104,11 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
         </div>
 
         {/* Content */}
-        <div 
-          className="panel-content h-full overflow-y-auto"
-          onScroll={handlePanelScroll}
-        >
+        <div className="h-full overflow-y-auto">
           <div className="p-4 space-y-4">
             {slides.map((slide) => {
               const isCurrentSlide = slide.slideId === currentSlideId;
-              const isEditing = editingSlideId === slide.slideId;
+              const isSaving = savingStates[slide.slideId] || false;
               const hasVoiceover = slide.voiceoverText && slide.voiceoverText.trim().length > 0;
 
               return (
@@ -216,59 +149,29 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
                         <Volume2 className="w-3 h-3" />
                         <span>Voiceover</span>
                       </div>
-                      {!isEditing && (
-                        <button
-                          onClick={() => handleEditVoiceover(slide.slideId, slide.voiceoverText || '')}
-                          className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                        >
-                          Edit
-                        </button>
+                      {isSaving && (
+                        <div className="flex items-center gap-1 text-xs text-blue-600">
+                          <Save className="w-3 h-3 animate-spin" />
+                          <span>Saving...</span>
+                        </div>
                       )}
                     </div>
                     
-                    {isEditing ? (
-                      <div className="space-y-2">
-                        <textarea
-                          value={editingText}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none"
-                          rows={4}
-                          placeholder="Enter voiceover text for this slide..."
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={handleSaveVoiceover}
-                            disabled={isSaving}
-                            className="flex items-center gap-1 px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                          >
-                            <Save className="w-3 h-3" />
-                            {isSaving ? 'Saving...' : 'Save'}
-                          </button>
-                          <button
-                            onClick={handleCancelEdit}
-                            className="px-3 py-1 text-xs bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div 
-                        className="cursor-pointer"
+                    <div className="space-y-2">
+                      <textarea
+                        value={slide.voiceoverText || ''}
+                        onChange={(e) => handleVoiceoverChange(slide.slideId, e.target.value)}
+                        className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none transition-colors"
+                        rows={4}
+                        placeholder="Enter voiceover text for this slide..."
                         onClick={() => onSlideSelect?.(slide.slideId)}
-                      >
-                        {hasVoiceover ? (
-                          <p className="text-sm text-gray-700 leading-relaxed">
-                            {slide.voiceoverText}
-                          </p>
-                        ) : (
-                          <div className="text-sm text-gray-400 italic">
-                            No voiceover available for this slide
-                          </div>
-                        )}
-                      </div>
-                    )}
+                      />
+                      {!hasVoiceover && (
+                        <div className="text-xs text-gray-400 italic">
+                          Start typing to add voiceover text for this slide
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -279,7 +182,7 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
           <div className="text-xs text-gray-500 text-center">
-            Click on any slide to navigate to it • Click Edit to modify voiceover text
+            Click on any slide to navigate to it • Text is saved automatically as you type
           </div>
         </div>
       </div>

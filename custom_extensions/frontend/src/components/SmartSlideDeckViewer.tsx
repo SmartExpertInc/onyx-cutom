@@ -306,7 +306,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           zIndex: 5,
           backgroundColor: 'white',
           minHeight: 'calc(100vh - 80px)', // Adjust based on header height
-          transformOrigin: 'center center'
+          transformOrigin: 'center center',
+          overflowY: 'auto' // Enable scrolling
         }}
       >
         {/* Slides Container */}
@@ -315,7 +316,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           style={{
             transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
             transition: 'transform 0.3s ease-in-out',
-            transformOrigin: 'center center'
+            transformOrigin: 'top center', // Changed to top center to prevent downward movement
+            paddingTop: isVoiceoverPanelOpen ? '20px' : '0', // Add padding to maintain position
+            paddingBottom: isVoiceoverPanelOpen ? '20px' : '0'
           }}
         >
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
