@@ -360,23 +360,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           backgroundColor: 'white',
           minHeight: 'calc(100vh - 80px)', // Adjust based on header height
           transformOrigin: 'center center',
-          overflow: 'hidden', // Prevent container scroll
-          display: 'flex',
-          justifyContent: 'center', // Center the slides container
-          alignItems: 'flex-start' // Align to top
+          overflow: 'hidden' // Prevent container scroll
         }}
       >
-        {/* Slides Container - Scrollable, scalable, and width-responsive */}
+        {/* Slides Container - Scrollable and scalable */}
         <div 
           ref={slidesContainerRef}
           className="slides-container"
           style={{
             transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
-            transition: 'all 0.3s ease-in-out', // Changed to 'all' to include width
+            transition: 'transform 0.3s ease-in-out',
             transformOrigin: 'top center', // Changed to top center to prevent downward movement
             position: 'relative',
-            width: isVoiceoverPanelOpen ? '70%' : '100%', // Width scales with slides
-            maxWidth: isVoiceoverPanelOpen ? '70%' : '100%', // Max width also scales
+            width: '100%',
             height: '100%',
             overflowY: 'auto', // Make slides scrollable
             overflowX: 'hidden'
@@ -393,8 +389,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 position: 'relative',
                 transform: 'none', // Prevent any additional transforms
                 transition: 'none', // Prevent slide-specific transitions
-                marginBottom: '20px', // Add spacing between slides
-                width: '100%' // Ensure slides take full width of container
+                marginBottom: '20px' // Add spacing between slides
               }}
             >
               {/* Component-based slide content */}
