@@ -924,40 +924,40 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
         </div>
       )}
 
+      {/* Fixed Add Slide Button - Global Floating Button */}
+      <div className="fixed-add-slide-button" ref={templateDropdownRef}>
+        <button 
+          className={`floating-add-button ${isSaving ? 'saving' : ''}`}
+          onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+          title={isSaving ? "Saving..." : "Add new slide"}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <div className="loading-spinner"></div>
+          ) : (
+            <Plus size={20} />
+          )}
+        </button>
+        
+        {showTemplateDropdown && (
+          <div className="floating-template-dropdown">
+            {Object.entries(SLIDE_TEMPLATES).map(([templateId, template]) => (
+              <button
+                key={templateId}
+                className="floating-template-option"
+                onClick={() => addSlide(templateId)}
+                title={template.description}
+              >
+                <span className="template-icon">{template.icon}</span>
+                <span className="template-name">{template.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Main Content Area */}
       <div className="main-content">
-        {/* Fixed Add Slide Button */}
-        <div className="fixed-add-slide-button" ref={templateDropdownRef}>
-          <button 
-            className={`floating-add-button ${isSaving ? 'saving' : ''}`}
-            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-            title={isSaving ? "Saving..." : "Add new slide"}
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <div className="loading-spinner"></div>
-            ) : (
-              <Plus size={20} />
-            )}
-          </button>
-          
-          {showTemplateDropdown && (
-            <div className="floating-template-dropdown">
-              {Object.entries(SLIDE_TEMPLATES).map(([templateId, template]) => (
-                <button
-                  key={templateId}
-                  className="floating-template-option"
-                  onClick={() => addSlide(templateId)}
-                  title={template.description}
-                >
-                  <span className="template-icon">{template.icon}</span>
-                  <span className="template-name">{template.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Left Sidebar - Slide Thumbnails */}
         <div className="left-sidebar">
           <div className="sidebar-header">
@@ -974,39 +974,6 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
               <button className="control-icon">
                 <Clipboard size={16} />
               </button>
-            </div>
-            
-            <div className="new-slide-container" ref={templateDropdownRef}>
-              <button 
-                className="new-slide-button"
-                onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-              >
-                <span className="plus-icon">
-                  <Plus size={16} />
-                </span>
-                {t('editorPage.newSlide', 'New')}
-                <span className="dropdown-arrow">
-                  <ChevronDown size={12} />
-                </span>
-              </button>
-              
-              {showTemplateDropdown && (
-                <div className="template-dropdown">
-                  {Object.entries(SLIDE_TEMPLATES).map(([templateId, template]) => (
-                    <button
-                      key={templateId}
-                      className="template-option"
-                      onClick={() => addSlide(templateId)}
-                    >
-                      <span className="template-icon">{template.icon}</span>
-                      <div className="template-info">
-                        <div className="template-name">{template.name}</div>
-                        <div className="template-description">{template.description}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="slide-thumbnails">
