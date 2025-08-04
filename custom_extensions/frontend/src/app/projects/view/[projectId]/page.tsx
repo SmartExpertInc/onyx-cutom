@@ -232,28 +232,20 @@ export default function ProjectInstanceViewPage() {
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData(copiedDetails as PdfLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
-          // Transform DeckSlide format from backend to ComponentBasedSlide format for frontend
-          if (copiedDetails.slides && Array.isArray(copiedDetails.slides)) {
-            const transformedSlides = copiedDetails.slides.map((slide: any, index: number) => {
-              // Transform from DeckSlide to ComponentBasedSlide format
-              const componentSlide = {
-                slideId: slide.slideId,
-                slideNumber: slide.slideNumber || (index + 1),
-                templateId: slide.templateId,
-                props: slide.props || {},
-                metadata: slide.metadata || {}
-              };
-              
-              // If the slide has a slideTitle but props.title is empty, use slideTitle as props.title
-              if (slide.slideTitle && (!slide.props || !slide.props.title)) {
-                componentSlide.props.title = slide.slideTitle;
-              }
-              
-              return componentSlide;
-            });
-            
-            copiedDetails.slides = transformedSlides;
-          }
+          // 🔍 DEBUG: Log component-based slides received from backend
+          console.log('🔍 [FRONTEND] Component-based slides received from backend:', {
+            slidesCount: copiedDetails.slides?.length || 0,
+            slides: copiedDetails.slides?.map((slide: any, index: number) => ({
+              index,
+              slideId: slide.slideId,
+              slideNumber: slide.slideNumber,
+              templateId: slide.templateId,
+              hasProps: !!slide.props,
+              propsKeys: slide.props ? Object.keys(slide.props) : [],
+              propsTitle: slide.props?.title,
+              metadata: slide.metadata
+            })) || []
+          });
           
           console.log('📥 [SLIDE DECK DATA] Setting editableData from backend details:', {
             copiedDetails,
@@ -609,7 +601,24 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const payload = { microProductContent: editableData };
-      console.log('Auto-save: Payload being sent:', JSON.stringify(payload, null, 2));
+      console.log('🔍 [FRONTEND PAYLOAD] Final payload being sent to backend:', JSON.stringify(payload, null, 2));
+      
+      // 🔍 DEBUG: Log the slides in the final payload
+      if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+        const slideDeckData = editableData as ComponentBasedSlideDeck;
+        console.log('🔍 [FRONTEND PAYLOAD] Slides in final payload:', {
+          slidesCount: slideDeckData.slides?.length || 0,
+          slides: slideDeckData.slides?.map((slide, index) => ({
+            index,
+            slideId: slide.slideId,
+            slideNumber: slide.slideNumber,
+            slideTitle: (slide as any).slideTitle, // Check if slideTitle exists
+            templateId: slide.templateId,
+            hasProps: !!slide.props,
+            propsKeys: slide.props ? Object.keys(slide.props) : []
+          })) || []
+        });
+      }
       
       // Only do detailed validation for TrainingPlanData
       if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
@@ -681,41 +690,20 @@ export default function ProjectInstanceViewPage() {
           }))
         });
         
-        // Transform ComponentBasedSlide to DeckSlide format for backend compatibility
-        if (slideDeckData.slides) {
-          const transformedSlides = slideDeckData.slides.map((slide, index) => {
-            // Ensure slide has required properties
-            if (!slide.slideId) {
-              slide.slideId = `slide-${Date.now()}-${index}`;
-            }
-            if (!slide.templateId) {
-              slide.templateId = 'content-slide';
-            }
-            if (!slide.props) {
-              slide.props = {};
-            }
-            // Ensure props have required fields
-            if (!slide.props.title) {
-              slide.props.title = `Slide ${index + 1}`;
-            }
-            if (!slide.props.content) {
-              slide.props.content = '';
-            }
-            
-            // Transform to DeckSlide format with slideTitle field
-            return {
-              slideId: slide.slideId,
-              slideNumber: slide.slideNumber || (index + 1),
-              slideTitle: slide.props.title || `Slide ${index + 1}`, // Add the required slideTitle field
-              templateId: slide.templateId,
-              props: slide.props,
-              metadata: slide.metadata || {}
-            };
-          });
-          
-          // Replace the slides array with the transformed version
-          slideDeckData.slides = transformedSlides;
-        }
+        // 🔍 DEBUG: Log slide data being sent to backend
+        console.log('🔍 [FRONTEND] Component-based slides being sent to backend:', {
+          slidesCount: slideDeckData.slides?.length || 0,
+          slides: slideDeckData.slides?.map((slide, index) => ({
+            index,
+            slideId: slide.slideId,
+            slideNumber: slide.slideNumber,
+            templateId: slide.templateId,
+            hasProps: !!slide.props,
+            propsKeys: slide.props ? Object.keys(slide.props) : [],
+            propsTitle: slide.props?.title,
+            metadata: slide.metadata
+          })) || []
+        });
       }
       
       console.log('🔍 Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);

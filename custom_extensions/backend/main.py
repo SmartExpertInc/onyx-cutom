@@ -1,4 +1,4 @@
-# custom_extensions/backend/main.py
+﻿# custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -1026,11 +1026,12 @@ class ImagePlaceholder(BaseModel):
 class DeckSlide(BaseModel):
     slideId: str               
     slideNumber: int           
-    slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
+    slideTitle: Optional[str] = None
     model_config = {"from_attributes": True}
+    
 
 class SlideDeckDetails(BaseModel):
     lessonTitle: str
@@ -3041,14 +3042,7 @@ class ImagePlaceholder(BaseModel):
     description: str   # Description of the image content
     model_config = {"from_attributes": True}
 
-class DeckSlide(BaseModel):
-    slideId: str               
-    slideNumber: int           
-    slideTitle: str            
-    templateId: str            # Зробити обов'язковим (без Optional)
-    props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
-    model_config = {"from_attributes": True}
+
 
 class SlideDeckDetails(BaseModel):
     lessonTitle: str
@@ -5084,14 +5078,7 @@ class ImagePlaceholder(BaseModel):
     description: str   # Description of the image content
     model_config = {"from_attributes": True}
 
-class DeckSlide(BaseModel):
-    slideId: str               
-    slideNumber: int           
-    slideTitle: str            
-    templateId: str            # Зробити обов'язковим (без Optional)
-    props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
-    model_config = {"from_attributes": True}
+
 
 class SlideDeckDetails(BaseModel):
     lessonTitle: str
@@ -7102,14 +7089,7 @@ class ImagePlaceholder(BaseModel):
     description: str   # Description of the image content
     model_config = {"from_attributes": True}
 
-class DeckSlide(BaseModel):
-    slideId: str               
-    slideNumber: int           
-    slideTitle: str            
-    templateId: str            # Зробити обов'язковим (без Optional)
-    props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
-    model_config = {"from_attributes": True}
+
 
 class SlideDeckDetails(BaseModel):
     lessonTitle: str
@@ -16521,7 +16501,17 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 elif current_component_name == COMPONENT_NAME_QUIZ:
                     final_content_for_model = QuizData(**db_content)
                 elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
-                    final_content_for_model = SlideDeckDetails(**db_content)
+                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as SlideDeckDetails")
+                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - SlideDeckDetails input: {json.dumps(db_content, indent=2)}")
+                    try:
+                        final_content_for_model = SlideDeckDetails(**db_content)
+                        logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - SlideDeckDetails validation successful")
+                        logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - Validated slides count: {len(final_content_for_model.slides) if final_content_for_model.slides else 0}")
+                    except Exception as slide_validation_error:
+                        logger.error(f"❌ [BACKEND VALIDATION ERROR] Project {project_id} - SlideDeckDetails validation failed: {slide_validation_error}")
+                        logger.error(f"❌ [BACKEND VALIDATION ERROR] Project {project_id} - Validation error details: {slide_validation_error}")
+                        # Continue with None to avoid breaking the response
+                        final_content_for_model = None
                 else:
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 
