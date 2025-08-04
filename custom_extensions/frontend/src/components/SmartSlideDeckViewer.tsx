@@ -39,7 +39,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(true); // Open by default
+  const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   
   // Refs for synchronized scrolling
@@ -309,8 +309,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         <div 
           className="header-content"
           style={{
-            width: '70%', // Match the 70% scale of slides
-            maxWidth: '840px', // 70% of 1200px max width
+            width: '100%', // Back to 100% to match original slide size
+            maxWidth: '1200px', // Back to original max width
             display: 'flex',
             justifyContent: 'center',
             padding: '0 20px'
@@ -348,13 +348,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           padding: '20px'
         }}
       >
-        {/* Slides Container - 30% smaller with scroll ref */}
+        {/* Slides Container - back to 100% size */}
         <div 
           ref={slidesContainerRef}
           className="slides-container"
           style={{
-            transform: 'scale(0.7)', // 30% smaller (70% of original size)
-            transformOrigin: 'top center',
             width: '100%',
             maxWidth: '1200px',
             overflowY: 'auto',
