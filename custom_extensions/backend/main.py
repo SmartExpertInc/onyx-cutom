@@ -10888,6 +10888,74 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 slides=[]
             )
             llm_json_example = DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM  # Force use of new template format
+            component_specific_instructions = """
+            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON. Parse all slides provided without filtering or removing any content. Maintain original language and slide count.
+
+            **CRITICAL: Parse Component-Based Slides with templateId and props**
+            You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
+
+            **Global Fields:**
+            1.  `lessonTitle` (string): Main title of the lesson/presentation.
+                - Look for patterns like "**Course Name** : **Lesson Presentation** : **Title**" or similar
+                - Extract ONLY the title part (the last part after the last "**")
+                - If no clear pattern is found, use the first meaningful title or heading
+            2.  `slides` (array): Ordered list of ALL slide objects in COMPONENT-BASED format.
+            3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
+            4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
+            5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
+
+            **SLIDE PARSING RULES - PARSE ALL SLIDES:**
+            - Parse every slide section marked by "---" or slide separators in the input text
+            - If input contains 15 slides, output exactly 15 slides in JSON
+            - Do NOT filter or skip slides based on their titles or content
+            - Do NOT remove slides with titles like "Questions", "Thank You", "Further Reading", etc.
+            - Your job is to PARSE, not to validate or filter content
+
+            **Component-Based Slide Object (`slides` array items):**
+            * `slideId` (string): Generate unique identifier like "slide_1_intro", "slide_2_concepts" based on slide number and title.
+            * `slideNumber` (integer): Sequential slide number from input (1, 2, 3, ...).
+            * `slideTitle` (string): Extract descriptive title exactly as provided in the input.
+            * `templateId` (string): Assign appropriate template based on content structure (see template guidelines below).
+            * `props` (object): Template-specific properties containing the actual content from the slide.
+
+            **Template Assignment Guidelines:**
+            Assign templateId based on the content structure of each slide:
+            - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
+            - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
+            - If slide has two distinct sections → use "two-column" or "comparison-slide"
+            - If slide has numbered steps → use "process-steps"
+            - If slide has 4 distinct points → use "four-box-grid"
+            - If slide has metrics/statistics → use "big-numbers"
+            - If slide has hierarchical content → use "pyramid"
+            - If slide has timeline content → use "timeline"
+            - For standard content → use "content-slide"
+
+            **Content Parsing Instructions:**
+            - Extract slide titles from headings or "**Slide N: Title**" format
+            - Parse slide content and map to appropriate template props
+            - For bullet-points: extract list items into "bullets" array
+            - For two-column: split content into left and right sections
+            - For process-steps: extract numbered or sequential items into "steps" array
+            - For four-box-grid: parse "Box N:" format into "boxes" array
+            - For big-numbers: parse table format into "items" array with value/label/description
+            - For timeline: parse chronological content into "steps" array
+            - For pyramid: parse hierarchical content into "items" array
+
+            **Critical Parsing Rules:**
+            - Parse ALL slides provided in the input text - do not skip any
+            - Maintain the exact number of slides from input to output
+            - Assign appropriate templateId based on content structure, not validation rules
+            - Preserve all content exactly as provided in the input
+            - Generate sequential slideNumber values (1, 2, 3, ...)
+            - Create descriptive slideId values based on number and title
+
+            Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
+
+            Return ONLY the JSON object.
+            """
         elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
             target_content_model = SlideDeckDetails
             default_error_instance = SlideDeckDetails(
