@@ -792,7 +792,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Big Numbers',
     description: 'Three-column layout for highlighting key metrics or statistics with big numbers, labels, and descriptions.',
     category: 'content',
-    icon: 'bar_chart',
+    icon: '📊',
     component: BigNumbersTemplate,
     defaultProps: {
       title: 'Add title',
@@ -812,7 +812,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Pyramid',
     description: 'Pyramid diagram with 3 levels and descriptions.',
     category: 'layout',
-    icon: 'signal_cellular_alt',
+    icon: '📶',
     component: PyramidTemplate,
     defaultProps: {
       title: 'Add title',

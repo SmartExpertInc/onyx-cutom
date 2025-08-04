@@ -350,7 +350,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
                 padding: '8px 0',
                 minWidth: '280px',
-                maxHeight: '400px',
+                maxHeight: '420px',
                 overflowY: 'auto',
                 zIndex: 1001
               }}
@@ -524,7 +524,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                overflow: 'hidden'
               }}
             >
               {/* Slide Header with Template Info and Delete Button */}
