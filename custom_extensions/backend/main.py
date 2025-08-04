@@ -10890,6 +10890,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON. Parse all slides provided without filtering or removing any content. Maintain original language and slide count.
+            
+            **VIDEO LESSON MODE: You are creating a Video Lesson Presentation with voiceover.**
+            - This is NOT a regular slide deck - it's a Video Lesson that requires voiceover for every slide
+            - You MUST generate voiceover text for each slide regardless of the input content
+            - The voiceover is essential for the video lesson functionality
 
             **CRITICAL: Parse Component-Based Slides with templateId and props**
             You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
@@ -10904,6 +10909,21 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Use inclusive language ("we", "you", "let's") to create connection with the learner
             - Provide context and background information not visible on the slide
             - End with smooth transitions to the next slide
+            
+            **CRITICAL: You MUST generate voiceover text for EVERY slide in Video Lesson Presentations.**
+            - Each slide object MUST include a "voiceoverText" field
+            - The voiceover should be 2-4 sentences explaining the slide content
+            - Set "hasVoiceover": true in the root object
+            - If you don't see voiceover text in the input, GENERATE it based on the slide content
+            
+            **MANDATORY VOICEOVER GENERATION:**
+            - For Video Lesson Presentations, you MUST create voiceover text for EVERY slide
+            - Do NOT skip voiceover generation under any circumstances
+            - Generate conversational, engaging voiceover that explains the slide content
+            - Each voiceover should be 2-4 sentences (approximately 30-60 seconds of speaking time)
+            - Use inclusive language ("we", "you", "let's") to create connection with the learner
+            - Provide context and background information not visible on the slide
+            - End with smooth transitions to the next slide
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
@@ -10914,7 +10934,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
             4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
             5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
-            6.  `hasVoiceover` (boolean, optional): For Video Lesson Presentations, set to true if any slide has voiceover text.
+            6.  `hasVoiceover` (boolean, MANDATORY for Video Lessons): For Video Lesson Presentations, you MUST set this to true since every slide will have voiceover text.
 
             **SLIDE PARSING RULES - PARSE ALL SLIDES:**
             - Parse every slide section marked by "---" or slide separators in the input text
@@ -10929,7 +10949,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `slideTitle` (string): Extract descriptive title exactly as provided in the input.
             * `templateId` (string): Assign appropriate template based on content structure (see template guidelines below).
             * `props` (object): Template-specific properties containing the actual content from the slide.
-            * `voiceoverText` (string, optional): For Video Lesson Presentations, include conversational voiceover text that explains the slide content in detail.
+            * `voiceoverText` (string, MANDATORY for Video Lessons): For Video Lesson Presentations, you MUST include conversational voiceover text that explains the slide content in detail. This field is REQUIRED for every slide in video lessons.
 
             **Template Assignment Guidelines:**
             Assign templateId based on the content structure of each slide:
