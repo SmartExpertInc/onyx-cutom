@@ -295,30 +295,30 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Static grey container */}
       <div 
         className="main-content"
         style={{
           transform: isVoiceoverPanelOpen ? 'translateX(192px)' : 'translateX(0)', // Half the shift
-          transition: 'all 0.3s ease-in-out',
+          transition: 'transform 0.3s ease-in-out',
           width: '100%',
           position: 'relative',
           zIndex: 5,
           backgroundColor: 'white',
           minHeight: 'calc(100vh - 80px)', // Adjust based on header height
-          transformOrigin: 'center center',
-          overflowY: 'auto' // Enable scrolling
+          transformOrigin: 'center center'
         }}
       >
-        {/* Slides Container */}
+        {/* Slides Container - Only slides scale, not the container */}
         <div 
           className="slides-container"
           style={{
             transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
             transition: 'transform 0.3s ease-in-out',
             transformOrigin: 'top center', // Changed to top center to prevent downward movement
-            paddingTop: isVoiceoverPanelOpen ? '20px' : '0', // Add padding to maintain position
-            paddingBottom: isVoiceoverPanelOpen ? '20px' : '0'
+            position: 'relative',
+            width: '100%',
+            height: '100%'
           }}
         >
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
@@ -326,6 +326,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               key={slide.slideId}
               className="professional-slide relative"
               id={`slide-${slide.slideId}`}
+              style={{
+                // Ensure slides maintain their exact position
+                position: 'relative',
+                transform: 'none', // Prevent any additional transforms
+                transition: 'none' // Prevent slide-specific transitions
+              }}
             >
               {/* Component-based slide content */}
               <div className="slide-content">
