@@ -5,7 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { VoiceoverButton } from './VoiceoverButton';
+import VoiceoverPanel from './VoiceoverPanel';
+import { Volume2 } from 'lucide-react';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -40,6 +41,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
+  const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   
   // Get the current theme
   const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
@@ -255,10 +258,17 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   return (
     <div className="slide-deck-viewer">
       {/* Professional Header */}
-      <div className="professional-header">
+      <div 
+        className="professional-header"
+        style={{
+          transform: isVoiceoverPanelOpen ? 'translateX(384px)' : 'translateX(0)',
+          transition: 'transform 0.3s ease-in-out',
+          width: '100%'
+        }}
+      >
         <div className="header-content">
-          {isEditable && (
-            <div className="header-controls">
+          <div className="header-controls">
+            {isEditable && (
               <button 
                 className="control-button add-button"
                 onClick={addSlide}
@@ -266,13 +276,55 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 <span className="button-icon">+</span>
                 Add Slide
               </button>
-            </div>
-          )}
+            )}
+            {hasAnyVoiceover && (
+              <button 
+                className="control-button voiceover-button"
+                onClick={() => setIsVoiceoverPanelOpen(true)}
+                title="Open Voiceover Panel"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                <Volume2 className="w-4 h-4" />
+                Voiceover
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="main-content">
+      <div 
+        className="main-content"
+        style={{
+          transform: isVoiceoverPanelOpen ? 'translateX(384px)' : 'translateX(0)',
+          transition: 'transform 0.3s ease-in-out',
+          width: '100%'
+        }}
+      >
         {/* Slides Container */}
         <div className="slides-container">
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
@@ -281,30 +333,43 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               className="professional-slide relative"
               id={`slide-${slide.slideId}`}
             >
-              {/* Voiceover button - show on all slides if any slide has voiceover */}
-              {hasAnyVoiceover && (
-                <div className="absolute top-4 right-4 z-10">
-                  <VoiceoverButton 
-                    voiceoverText={slide.voiceoverText || slide.props?.voiceoverText}
-                    className="shadow-lg"
-                  />
-                </div>
-              )}
-
               {/* Component-based slide content */}
               <div className="slide-content">
-        <ComponentBasedSlideDeckRenderer
+                <ComponentBasedSlideDeckRenderer
                   slides={[slide]}
-          isEditable={isEditable}
-          onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-          onTemplateChange={isEditable ? handleTemplateChange : undefined}
-          theme={componentDeck.theme}
-        />
+                  isEditable={isEditable}
+                  onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+                  onTemplateChange={isEditable ? handleTemplateChange : undefined}
+                  theme={componentDeck.theme}
+                />
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Voiceover Panel */}
+      {hasAnyVoiceover && (
+        <VoiceoverPanel
+          isOpen={isVoiceoverPanelOpen}
+          onClose={() => setIsVoiceoverPanelOpen(false)}
+          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
+            slideId: slide.slideId,
+            slideNumber: slide.slideNumber || 0,
+            slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
+            voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
+          }))}
+          currentSlideId={currentSlideId}
+          onSlideSelect={(slideId) => {
+            setCurrentSlideId(slideId);
+            // Scroll to the selected slide
+            const slideElement = document.getElementById(`slide-${slideId}`);
+            if (slideElement) {
+              slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

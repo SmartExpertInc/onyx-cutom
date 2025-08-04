@@ -1688,15 +1688,6 @@ function GenerateProductPicker() {
         {activeProduct === "Video Lesson" && (
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             <select
-              value={lengthOption}
-              onChange={(e) => setLengthOption(e.target.value as "Short" | "Medium" | "Long")}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              <option value="Short">{t('interface.generate.short', 'Short')}</option>
-              <option value="Medium">{t('interface.generate.medium', 'Medium')}</option>
-              <option value="Long">{t('interface.generate.long', 'Long')}</option>
-            </select>
-            <select
               value={slidesCount}
               onChange={(e) => setSlidesCount(Number(e.target.value))}
               className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
