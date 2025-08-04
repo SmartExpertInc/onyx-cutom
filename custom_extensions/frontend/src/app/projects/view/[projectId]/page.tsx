@@ -490,12 +490,13 @@ export default function ProjectInstanceViewPage() {
       // Apply same validation as auto-save for slide decks
       let processedEditableData = editableData;
       if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && editableData) {
-        const slideDeckData = editableData as any;
+        const slideDeckData = editableData as ComponentBasedSlideDeck;
         processedEditableData = JSON.parse(JSON.stringify(slideDeckData)); // Deep clone
         
-        // Apply same validation as auto-save
-        if (processedEditableData.slides) {
-          processedEditableData.slides.forEach((slide: any, index: number) => {
+        // Apply same validation as auto-save - with proper type checking
+        const processedSlideDeck = processedEditableData as ComponentBasedSlideDeck;
+        if (processedSlideDeck.slides && Array.isArray(processedSlideDeck.slides)) {
+          processedSlideDeck.slides.forEach((slide: any, index: number) => {
             if (!slide.slideId) {
               slide.slideId = `slide-${Date.now()}-${index}`;
             }
