@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, Volume2 } from 'lucide-react';
 
 interface VoiceoverPanelProps {
@@ -14,18 +14,15 @@ interface VoiceoverPanelProps {
   onSlideSelect?: (slideId: string) => void;
 }
 
-const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
+const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
   isOpen,
   onClose,
   slides,
   currentSlideId,
   onSlideSelect
-}, ref) => {
+}) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const currentSlideRef = useRef<HTMLDivElement>(null);
-  
-  // Use the forwarded ref or fall back to local ref
-  const contentRef = ref || panelRef;
 
   // Auto-scroll to current slide when panel opens
   useEffect(() => {
@@ -64,7 +61,7 @@ const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
 
   return (
     <>
-      {/* Sliding Panel - No backdrop darkening */}
+      {/* Sliding Panel */}
       <div
         ref={panelRef}
         className={`fixed top-0 left-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
@@ -85,11 +82,8 @@ const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
           </button>
         </div>
 
-        {/* Content - with ref for synchronized scrolling */}
-        <div 
-          ref={contentRef}
-          className="h-full overflow-y-auto"
-        >
+        {/* Content */}
+        <div className="h-full overflow-y-auto">
           <div className="p-4 space-y-4">
             {slides.map((slide) => {
               const isCurrentSlide = slide.slideId === currentSlideId;
@@ -158,8 +152,6 @@ const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
       </div>
     </>
   );
-});
-
-VoiceoverPanel.displayName = 'VoiceoverPanel';
+};
 
 export default VoiceoverPanel; 

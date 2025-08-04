@@ -42,11 +42,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   
-  // Refs for synchronized scrolling
-  const slidesContainerRef = useRef<HTMLDivElement>(null);
-  const voiceoverPanelRef = useRef<HTMLDivElement>(null);
-  const isScrollingRef = useRef(false);
-  
   // Get the current theme
   const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
 
@@ -54,50 +49,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
     slide.voiceoverText || slide.props?.voiceoverText
   );
-
-  // Synchronized scrolling effect
-  useEffect(() => {
-    const slidesContainer = slidesContainerRef.current;
-    const voiceoverPanel = voiceoverPanelRef.current;
-
-    if (!slidesContainer || !voiceoverPanel || !isVoiceoverPanelOpen) return;
-
-    const handleSlidesScroll = () => {
-      if (isScrollingRef.current) return;
-      isScrollingRef.current = true;
-      
-      const scrollPercentage = slidesContainer.scrollTop / (slidesContainer.scrollHeight - slidesContainer.clientHeight);
-      const voiceoverScrollTop = scrollPercentage * (voiceoverPanel.scrollHeight - voiceoverPanel.clientHeight);
-      
-      voiceoverPanel.scrollTop = voiceoverScrollTop;
-      
-      setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 50);
-    };
-
-    const handleVoiceoverScroll = () => {
-      if (isScrollingRef.current) return;
-      isScrollingRef.current = true;
-      
-      const scrollPercentage = voiceoverPanel.scrollTop / (voiceoverPanel.scrollHeight - voiceoverPanel.clientHeight);
-      const slidesScrollTop = scrollPercentage * (slidesContainer.scrollHeight - slidesContainer.clientHeight);
-      
-      slidesContainer.scrollTop = slidesScrollTop;
-      
-      setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 50);
-    };
-
-    slidesContainer.addEventListener('scroll', handleSlidesScroll);
-    voiceoverPanel.addEventListener('scroll', handleVoiceoverScroll);
-
-    return () => {
-      slidesContainer.removeEventListener('scroll', handleSlidesScroll);
-      voiceoverPanel.removeEventListener('scroll', handleVoiceoverScroll);
-    };
-  }, [isVoiceoverPanelOpen, componentDeck]);
 
   // Process deck - expect component-based format only
   useEffect(() => {
@@ -293,7 +244,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Success: Render component-based viewer with classic UX and sidebar navigation
   return (
     <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
-      {/* Professional Header - width matches slide size */}
+      {/* Professional Header */}
       <div 
         className="professional-header"
         style={{
@@ -301,21 +252,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           transition: 'transform 0.3s ease-in-out',
           width: '100%',
           position: 'relative',
-          zIndex: 10,
-          display: 'flex',
-          justifyContent: 'center'
+          zIndex: 10
         }}
       >
-        <div 
-          className="header-content"
-          style={{
-            width: '100%', // Back to 100% to match original slide size
-            maxWidth: '1200px', // Back to original max width
-            display: 'flex',
-            justifyContent: 'center',
-            padding: '0 20px'
-          }}
-        >
+        <div className="header-content">
           <div className="header-controls">
             {isEditable && (
               <button 
@@ -326,7 +266,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 Add Slide
               </button>
             )}
-            {/* Voiceover button removed from header - only on right panel */}
           </div>
         </div>
       </div>
@@ -341,24 +280,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           position: 'relative',
           zIndex: 5,
           backgroundColor: 'white',
-          minHeight: 'calc(100vh - 80px)', // Adjust based on header height
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          padding: '20px'
+          minHeight: 'calc(100vh - 80px)' // Adjust based on header height
         }}
       >
-        {/* Slides Container - back to 100% size */}
-        <div 
-          ref={slidesContainerRef}
-          className="slides-container"
-          style={{
-            width: '100%',
-            maxWidth: '1200px',
-            overflowY: 'auto',
-            maxHeight: 'calc(100vh - 120px)'
-          }}
-        >
+        {/* Slides Container */}
+        <div className="slides-container">
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
             <div
               key={slide.slideId}
@@ -380,38 +306,34 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Small White Vertical Panel on the Right (2x bigger height) */}
+      {/* White Vertical Panel on the Right (when voiceover panel is closed) */}
       {hasAnyVoiceover && !isVoiceoverPanelOpen && (
         <div
           style={{
             position: 'fixed',
-            top: '50%',
+            top: '0',
             right: '0',
-            transform: 'translateY(-50%)',
-            width: '60px',
-            height: '400px', // 2x bigger (was 200px)
+            width: '48px',
+            height: '100vh',
             backgroundColor: 'white',
-            borderTopLeftRadius: '12px',
-            borderBottomLeftRadius: '12px',
-            boxShadow: '-4px 0 12px rgba(0, 0, 0, 0.15)',
+            borderLeft: '1px solid #e5e7eb',
+            boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
             zIndex: 30,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            padding: '16px 8px'
+            paddingTop: '20px',
+            gap: '16px'
           }}
         >
           {/* Voiceover Button */}
           <button
-            onClick={() => setIsVoiceoverPanelOpen(true)}
             style={{
-              width: '44px',
-              height: '44px',
+              width: '32px',
+              height: '32px',
               backgroundColor: '#3b82f6',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -419,6 +341,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               transition: 'all 0.2s ease',
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}
+            onClick={() => setIsVoiceoverPanelOpen(true)}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#2563eb';
               e.currentTarget.style.transform = 'scale(1.05)';
@@ -431,36 +354,36 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             }}
             title="Open Voiceover Panel"
           >
-            <Volume2 className="w-5 h-5 text-white" />
+            <Volume2 className="w-4 h-4 text-white" />
           </button>
-          
+
           {/* Future buttons can be added here */}
           {/* Example:
           <button
             style={{
-              width: '44px',
-              height: '44px',
-              backgroundColor: '#f3f4f6',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
+              width: '32px',
+              height: '32px',
+              backgroundColor: '#6b7280',
+              border: 'none',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}
             title="Another Action"
           >
-            <SomeIcon className="w-5 h-5 text-gray-600" />
+            <SomeIcon className="w-4 h-4 text-white" />
           </button>
           */}
         </div>
       )}
 
-      {/* Voiceover Panel with scroll ref for synchronization */}
+      {/* Voiceover Panel */}
       {hasAnyVoiceover && (
         <VoiceoverPanel
-          ref={voiceoverPanelRef}
           isOpen={isVoiceoverPanelOpen}
           onClose={() => setIsVoiceoverPanelOpen(false)}
           slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
