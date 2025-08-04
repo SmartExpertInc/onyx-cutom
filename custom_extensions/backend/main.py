@@ -8932,15 +8932,18 @@ def calculate_product_credits(product_type: str, content_data: dict = None) -> i
     if product_type == "course_outline":
         return 5  # Course outline finalization costs 5 credits
     elif product_type in ["lesson_presentation", "video_lesson"]:
-        # Calculate based on slide count (video lessons cost slightly more due to voiceover)
+        # Calculate based on slide count
         if content_data and isinstance(content_data, dict):
             slides = content_data.get("slides", [])
             slide_count = len(slides) if slides else 0
             
-            base_cost = 3 if slide_count <= 5 else (5 if slide_count <= 10 else 10)
-            # Video lessons cost +1 credit due to voiceover generation
-            return base_cost + (1 if product_type == "video_lesson" else 0)
-        return 6 if product_type == "video_lesson" else 5  # Default if we can't determine slide count
+            if slide_count <= 5:
+                return 3
+            elif slide_count <= 10:
+                return 5
+            else:
+                return 10
+        return 5  # Default if we can't determine slide count
     elif product_type in ["quiz", "one_pager"]:
         return 5  # Quiz and one-pager both cost 5 credits
     else:
@@ -14778,6 +14781,111 @@ async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
         )
         return row["id"]
 
+# Ensure a design template for Video Lesson exists, return its ID
+async def _ensure_video_lesson_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_VIDEO_LESSON)
+        if row:
+            return row["id"]
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "Video Lesson", DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM, "Video Lesson", COMPONENT_NAME_VIDEO_LESSON,
+        )
+        return row["id"]
+
+async def generate_voiceover_for_slides(slide_deck_content: str, language: str = "en") -> str:
+    """
+    Generate voiceover text for each slide in a slide deck.
+    This function parses the slide deck content and adds voiceover text to each slide.
+    """
+    try:
+        # Parse the slide deck content
+        slide_data = json.loads(slide_deck_content)
+        
+        if not isinstance(slide_data, dict) or "slides" not in slide_data:
+            logger.warning("[VOICEOVER] Invalid slide deck format, returning original content")
+            return slide_deck_content
+        
+        slides = slide_data["slides"]
+        if not slides:
+            logger.warning("[VOICEOVER] No slides found, returning original content")
+            return slide_deck_content
+        
+        # Generate voiceover for each slide
+        for slide in slides:
+            if not isinstance(slide, dict):
+                continue
+                
+            # Extract slide content for voiceover generation
+            slide_content = ""
+            props = slide.get("props", {})
+            
+            # Collect all text content from slide props
+            for key, value in props.items():
+                if isinstance(value, str):
+                    slide_content += value + " "
+                elif isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, str):
+                            slide_content += item + " "
+                        elif isinstance(item, dict) and "text" in item:
+                            slide_content += item["text"] + " "
+            
+            if slide_content.strip():
+                # Generate voiceover text using AI
+                voiceover_prompt = f"""
+                Create a natural, engaging voiceover script for this slide content. 
+                The voiceover should be conversational and explain the key points clearly.
+                Keep it concise (2-3 sentences maximum) and suitable for video narration.
+                
+                Slide content: {slide_content.strip()}
+                
+                Language: {language}
+                
+                Return only the voiceover text, no additional formatting.
+                """
+                
+                try:
+                    # Use OpenAI to generate voiceover
+                    voiceover_response = await stream_openai_response_sync(voiceover_prompt)
+                    if voiceover_response and voiceover_response.strip():
+                        slide["voiceoverText"] = voiceover_response.strip()
+                        logger.info(f"[VOICEOVER] Generated voiceover for slide {slide.get('slideId', 'unknown')}")
+                    else:
+                        slide["voiceoverText"] = ""
+                except Exception as e:
+                    logger.error(f"[VOICEOVER_ERROR] Failed to generate voiceover for slide: {e}")
+                    slide["voiceoverText"] = ""
+            else:
+                slide["voiceoverText"] = ""
+        
+        # Return the updated slide deck with voiceover
+        return json.dumps(slide_data, ensure_ascii=False)
+        
+    except Exception as e:
+        logger.error(f"[VOICEOVER_ERROR] Failed to generate voiceover: {e}")
+        return slide_deck_content
+
+async def stream_openai_response_sync(prompt: str) -> str:
+    """
+    Synchronous wrapper for OpenAI streaming to get a single response.
+    """
+    try:
+        response = ""
+        async for chunk_data in stream_openai_response(prompt):
+            if chunk_data["type"] == "delta":
+                response += chunk_data["text"]
+            elif chunk_data["type"] == "error":
+                logger.error(f"[OPENAI_SYNC_ERROR] {chunk_data['text']}")
+                return ""
+        return response
+    except Exception as e:
+        logger.error(f"[OPENAI_SYNC_ERROR] Exception: {e}")
+        return ""
+
 
 # Ensure a design template for Text Presentation exists, return its ID
 async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
@@ -14826,6 +14934,7 @@ class LessonWizardPreview(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
+    productType: Optional[str] = None      # "video_lesson" or "lesson_presentation"
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -14843,6 +14952,7 @@ class LessonWizardFinalize(BaseModel):
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
+    productType: Optional[str] = None      # "video_lesson" or "lesson_presentation"
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
@@ -14999,7 +15109,18 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
                 
-                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                # Generate voiceover if this is a video lesson
+                if payload.productType == "video_lesson":
+                    try:
+                        logger.info(f"[VIDEO_LESSON] Generating voiceover for video lesson")
+                        assistant_reply_with_voiceover = await generate_voiceover_for_slides(assistant_reply, payload.language)
+                        yield (json.dumps({"type": "done", "content": assistant_reply_with_voiceover}) + "\n").encode()
+                    except Exception as e:
+                        logger.error(f"[VIDEO_LESSON_ERROR] Failed to generate voiceover: {e}")
+                        # Fallback to original content without voiceover
+                        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                else:
+                    yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
             except Exception as e:
@@ -15039,7 +15160,18 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
                 
-                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                # Generate voiceover if this is a video lesson
+                if payload.productType == "video_lesson":
+                    try:
+                        logger.info(f"[VIDEO_LESSON] Generating voiceover for video lesson")
+                        assistant_reply_with_voiceover = await generate_voiceover_for_slides(assistant_reply, payload.language)
+                        yield (json.dumps({"type": "done", "content": assistant_reply_with_voiceover}) + "\n").encode()
+                    except Exception as e:
+                        logger.error(f"[VIDEO_LESSON_ERROR] Failed to generate voiceover: {e}")
+                        # Fallback to original content without voiceover
+                        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                else:
+                    yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
             except Exception as e:
@@ -15075,10 +15207,12 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
     # Parse AI response to determine slide count for credit calculation
     try:
         slides_data = json.loads(payload.aiResponse)
-        credits_needed = calculate_product_credits("lesson_presentation", slides_data)
+        product_type = "video_lesson" if payload.productType == "video_lesson" else "lesson_presentation"
+        credits_needed = calculate_product_credits(product_type, slides_data)
     except:
         # If parsing fails, use default credit cost
-        credits_needed = calculate_product_credits("lesson_presentation")
+        product_type = "video_lesson" if payload.productType == "video_lesson" else "lesson_presentation"
+        credits_needed = calculate_product_credits(product_type)
 
     # Get user ID and deduct credits for lesson presentation
     try:
@@ -15103,20 +15237,23 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     try:
-        # Get the slide deck template with retry mechanism
+        # Get the appropriate template based on product type
         max_retries = 3
-        slide_deck_template_id = None
+        template_id = None
         for attempt in range(max_retries):
             try:
-                slide_deck_template_id = await _ensure_slide_deck_template(pool)
+                if payload.productType == "video_lesson":
+                    template_id = await _ensure_video_lesson_template(pool)
+                else:
+                    template_id = await _ensure_slide_deck_template(pool)
                 break
             except Exception as e:
                 if attempt == max_retries - 1:
-                    logger.error(f"Failed to get slide deck template after {max_retries} attempts: {e}")
+                    logger.error(f"Failed to get template after {max_retries} attempts: {e}")
                     raise HTTPException(status_code=500, detail="Unable to initialize template")
                 await asyncio.sleep(0.5)  # Brief delay before retry
 
-        if not slide_deck_template_id:
+        if not template_id:
             raise HTTPException(status_code=500, detail="Template initialization failed")
 
         # Get user ID
@@ -15142,7 +15279,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         # Create project data
         project_data = ProjectCreateRequest(
             projectName=project_name,
-            design_template_id=slide_deck_template_id,
+            design_template_id=template_id,
             microProductName=None,
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
@@ -15183,223 +15320,6 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             status_code=500, 
             detail="An unexpected error occurred during finalization"
         )
-
-# --- Video Lesson Endpoints ---
-
-class VideoLessonWizardPreview(BaseModel):
-    outlineProjectId: Optional[int] = None  # Parent Training Plan project id
-    lessonTitle: Optional[str] = None      # Specific lesson to generate, optional when prompt-based
-    lengthRange: Optional[str] = None      # e.g. "400-500 words"
-    prompt: Optional[str] = None           # Fallback free-form prompt
-    language: str = "en"
-    chatSessionId: Optional[str] = None
-    slidesCount: Optional[int] = 5         # Number of slides to generate
-    # NEW: file context for creation from documents
-    fromFiles: Optional[bool] = None
-    folderIds: Optional[str] = None  # comma-separated folder IDs
-    fileIds: Optional[str] = None    # comma-separated file IDs
-    # NEW: text context for creation from user text
-    fromText: Optional[bool] = None
-    textMode: Optional[str] = None   # "context" or "base"
-    userText: Optional[str] = None   # User's pasted text
-
-class VideoLessonWizardFinalize(BaseModel):
-    outlineProjectId: Optional[int] = None
-    lessonTitle: str
-    lengthRange: Optional[str] = None
-    aiResponse: str                        # User-edited markdown / plain text
-    chatSessionId: Optional[str] = None
-    slidesCount: Optional[int] = 5         # Number of slides to generate
-    # NEW: folder context for creation from inside a folder
-    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-
-@app.post("/api/custom/video-lesson/preview")
-async def wizard_video_lesson_preview(payload: VideoLessonWizardPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-    if not cookies[ONYX_SESSION_COOKIE_NAME]:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    # Ensure chat session
-    if payload.chatSessionId:
-        chat_id = payload.chatSessionId
-    else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
-        chat_id = await create_onyx_chat_session(persona_id, cookies)
-
-    # Build wizard request for assistant persona (same as lesson-presentation but for video lesson)
-    wizard_dict: Dict[str, Any] = {
-        "product": "Video Lesson",  # Different product type
-        "action": "preview",
-        "language": payload.language,
-        "slidesCount": payload.slidesCount or 5,
-    }
-    if payload.outlineProjectId is not None:
-        wizard_dict["outlineProjectId"] = payload.outlineProjectId
-        
-        # Fetch outline name to include in wizard request
-        try:
-            # Get current user ID to fetch the outline
-            onyx_user_id = await get_current_onyx_user_id(request)
-            
-            # Fetch outline name from database
-            async with pool.acquire() as conn:
-                outline_row = await conn.fetchrow(
-                    "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                    payload.outlineProjectId, onyx_user_id
-                )
-                if outline_row:
-                    wizard_dict["outlineName"] = outline_row["project_name"]
-        except Exception as e:
-            logger.warning(f"Failed to fetch outline name for project {payload.outlineProjectId}: {e}")
-            # Continue without outline name - not critical for preview
-            
-    if payload.lessonTitle:
-        wizard_dict["lessonTitle"] = payload.lessonTitle
-    if payload.prompt:
-        wizard_dict["prompt"] = payload.prompt
-    
-    # Add file context if provided
-    if payload.fromFiles:
-        wizard_dict["fromFiles"] = True
-        if payload.folderIds:
-            wizard_dict["folderIds"] = payload.folderIds
-        if payload.fileIds:
-            wizard_dict["fileIds"] = payload.fileIds
-    
-    # Add text context if provided
-    if payload.fromText:
-        wizard_dict["fromText"] = True
-        wizard_dict["textMode"] = payload.textMode
-        if payload.userText:
-            wizard_dict["userText"] = payload.userText
-
-    # Send wizard request to assistant - same flow as lesson-presentation
-    wizard_response = await send_wizard_request(wizard_dict, chat_id, cookies)
-    
-    if wizard_response.status_code != 200:
-        raise HTTPException(status_code=wizard_response.status_code, detail="Failed to generate video lesson")
-    
-    # Return the streaming response from the assistant
-    return StreamingResponse(wizard_response.iter_content(chunk_size=8192), media_type="text/plain")
-
-
-@app.post("/api/custom/video-lesson/finalize")
-async def wizard_video_lesson_finalize(payload: VideoLessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    logger.info(f"Finalizing video lesson: {payload.lessonTitle}")
-    
-    # Validate required fields early
-    if not payload.lessonTitle or not payload.lessonTitle.strip():
-        raise HTTPException(status_code=400, detail="Lesson title is required")
-    
-    if not payload.aiResponse or not payload.aiResponse.strip():
-        raise HTTPException(status_code=400, detail="AI response content is required")
-
-    # Parse AI response to determine slide count for credit calculation
-    try:
-        slides_data = json.loads(payload.aiResponse)
-        credits_needed = calculate_product_credits("video_lesson", slides_data)
-    except:
-        # If parsing fails, use default credit cost
-        credits_needed = calculate_product_credits("video_lesson")
-
-    # Get user ID and deduct credits for video lesson
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        # Check and deduct credits
-        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
-        if user_credits.credits_balance < credits_needed:
-            raise HTTPException(
-                status_code=402, 
-                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
-            )
-        
-        # Deduct credits
-        await deduct_credits(onyx_user_id, credits_needed, pool, "Video lesson finalization")
-        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for video lesson")
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error processing credits for video lesson: {e}")
-        raise HTTPException(status_code=500, detail="Failed to process credits")
-
-    try:
-        # Get the slide deck template with retry mechanism (same as lesson presentation)
-        max_retries = 3
-        slide_deck_template_id = None
-        for attempt in range(max_retries):
-            try:
-                slide_deck_template_id = await _ensure_slide_deck_template(pool)
-                break
-            except Exception as e:
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get slide deck template after {max_retries} attempts: {e}")
-                    raise HTTPException(status_code=500, detail="Unable to initialize template")
-                await asyncio.sleep(0.5)  # Brief delay before retry
-
-        if not slide_deck_template_id:
-            raise HTTPException(status_code=500, detail="Template initialization failed")
-
-        # Determine the project name - same logic as lesson presentation
-        project_name = payload.lessonTitle.strip()
-        if payload.outlineProjectId:
-            try:
-                outline_project = await get_project_by_id(payload.outlineProjectId, onyx_user_id, pool)
-                if outline_project:
-                    project_name = f"{outline_project.project_name} - {payload.lessonTitle}"
-            except Exception as e:
-                logger.warning(f"Failed to get outline project name: {e}")
-                # Continue with plain lesson title if outline fetch fails
-
-        # Create project data (same structure as lesson presentation)
-        project_data = ProjectCreateRequest(
-            projectName=project_name,
-            design_template_id=slide_deck_template_id,
-            microProductName=None,
-            aiResponse=payload.aiResponse.strip(),
-            chatSessionId=payload.chatSessionId,
-            outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-            folder_id=int(payload.folderId) if payload.folderId else None  # Add folder assignment
-        )
-        
-        # Create project with proper error handling
-        try:
-            created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
-        except HTTPException as e:
-            # Re-raise HTTP exceptions as-is
-            raise e
-        except Exception as e:
-            logger.error(f"Failed to create project: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail="Failed to create video lesson project")
-
-        # Validate the created project
-        if not created_project or not created_project.id:
-            logger.error("Project creation returned invalid result")
-            raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
-
-        logger.info(f"Successfully finalized video lesson with project ID: {created_project.id}")
-        
-        # Return response in the expected format
-        return {
-            "id": created_project.id,
-            "projectName": created_project.project_name,
-            "message": "Video lesson finalized successfully"
-        }
-    
-    except HTTPException:
-        # Re-raise HTTP exceptions without modification
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in video lesson finalization: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, 
-            detail="An unexpected error occurred during finalization"
-        )
-
-
-
-
 
 # --- New endpoint: list trashed projects for user ---
 

@@ -410,6 +410,8 @@ export default function LessonPresentationClient() {
             prompt: promptQuery || undefined,
             chatSessionId: chatId || undefined,
             slidesCount: slidesCount,
+            // Add product type to indicate if this is a video lesson
+            productType: params?.get("productType") || "lesson_presentation",
           };
 
           // Add file context if creating from files
@@ -590,6 +592,7 @@ export default function LessonPresentationClient() {
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           folderId: folderContext?.folderId || undefined,
+          productType: params?.get("productType") || "lesson_presentation",
         }),
       });
 

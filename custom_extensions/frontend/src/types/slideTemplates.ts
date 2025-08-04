@@ -47,6 +47,7 @@ export interface ComponentBasedSlide {
   slideNumber: number;
   templateId: string;
   props: Record<string, any>;
+  voiceoverText?: string; // Optional voiceover text for video lessons
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
