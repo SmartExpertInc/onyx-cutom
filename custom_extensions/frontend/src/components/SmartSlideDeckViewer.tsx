@@ -121,7 +121,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       setIsLoading(false);
       setError('No slide deck provided');
     }
-  }, [deck]);
+  }, [deck, theme]);
 
   // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {

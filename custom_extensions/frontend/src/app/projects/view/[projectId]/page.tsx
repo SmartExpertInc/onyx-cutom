@@ -24,8 +24,10 @@ import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
+import { ThemePicker } from '@/components/theme/ThemePicker';
+import { useTheme } from '@/hooks/useTheme';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -129,6 +131,9 @@ export default function ProjectInstanceViewPage() {
     qualityTier: false, // Hidden by default
   });
   const columnDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Theme picker state for slide decks
+  const [showThemePicker, setShowThemePicker] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -861,6 +866,29 @@ export default function ProjectInstanceViewPage() {
     window.open(pdfUrl, '_blank');
   };
 
+  // Theme management for slide decks
+  const slideDeckData = projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK 
+    ? (editableData as ComponentBasedSlideDeck) 
+    : null;
+
+  const { currentTheme, changeTheme, isChangingTheme } = useTheme({
+    initialTheme: slideDeckData?.theme,
+    slideDeck: slideDeckData || undefined,
+    onThemeChange: (newTheme, updatedDeck) => {
+      console.log('🎨 Theme changed:', { newTheme, updatedDeck });
+      
+      // Update the editable data with new theme
+      if (updatedDeck && projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK) {
+        setEditableData(updatedDeck);
+        
+        // Auto-save the theme change
+        if (isEditing) {
+          handleAutoSave();
+        }
+      }
+    }
+  });
+
   /* --- Send single non-outline item to trash --- */
   const handleMoveToTrash = async () => {
     if (!projectInstanceData) return;
@@ -1038,7 +1066,7 @@ export default function ProjectInstanceViewPage() {
               }}
               // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
-              theme="dark-purple"
+              theme={currentTheme}
             />
           </div>
         );
@@ -1128,6 +1156,22 @@ export default function ProjectInstanceViewPage() {
                        : t('interface.projectView.downloadPdf', 'Download PDF')
                    }
                   </button>
+            )}
+            
+            {/* Theme button for slide decks */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && (
+              <button
+                onClick={() => setShowThemePicker(true)}
+                disabled={isSaving || isChangingTheme}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                title={t('interface.projectView.changeTheme', 'Change presentation theme')}
+              >
+                <Palette size={16} className="mr-2" />
+                {isChangingTheme 
+                  ? t('interface.projectView.changingTheme', 'Changing...')
+                  : t('interface.projectView.theme', 'Theme')
+                }
+              </button>
             )}
             {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
@@ -1242,6 +1286,17 @@ export default function ProjectInstanceViewPage() {
             </Suspense>
         </div>
       </div>
+
+      {/* Theme Picker Panel for Slide Decks */}
+      {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && (
+        <ThemePicker
+          isOpen={showThemePicker}
+          onClose={() => setShowThemePicker(false)}
+          selectedTheme={currentTheme}
+          onThemeSelect={changeTheme}
+          isChanging={isChangingTheme}
+        />
+      )}
     </main>
   );
 }
