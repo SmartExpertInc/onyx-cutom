@@ -62,6 +62,7 @@ COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
 COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
 COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
 COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
+COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 
@@ -1355,6 +1356,79 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
   ],
   "currentSlideId": "slide_1_intro",
   "detectedLanguage": "en"
+}
+"""
+
+DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
+{
+  "lessonTitle": "Example Video Lesson with Voiceover",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "templateId": "big-image-left",
+      "voiceoverText": "Welcome to this comprehensive lesson. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This introduction sets the stage for what you're about to learn.",
+      "props": {
+          "title": "Welcome to the Lesson",
+          "subtitle": "This slide introduces the main topic.",
+          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
+          "imageAlt": "Descriptive alt text",
+          "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
+          "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_2_main",
+      "slideNumber": 2,
+      "slideTitle": "Main Concepts",
+      "templateId": "content-slide",
+      "voiceoverText": "Now let's dive into the core concepts. These fundamental ideas form the foundation of our understanding. We'll explore each concept in detail, ensuring you have a solid grasp before moving forward.",
+      "props": {
+        "title": "Core Ideas",
+        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
+        "alignment": "left"
+      }
+    },
+    {
+      "slideId": "slide_3_bullets",
+      "slideNumber": 3,
+      "slideTitle": "Key Points",
+      "templateId": "bullet-points",
+      "voiceoverText": "Here are the key takeaways from our lesson. Each of these points represents a critical insight that you should remember. Let me walk you through each one to ensure you understand their significance.",
+      "props": {
+        "title": "Key Points",
+        "bullets": [
+          "First important point",
+          "Second key insight",
+          "Third critical element"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "dot",
+        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
+        "imageAlt": "Illustration for bullet points"
+      }
+    },
+    {
+      "slideId": "slide_4_process",
+      "slideNumber": 4,
+      "slideTitle": "Step-by-Step Process",
+      "templateId": "process-steps",
+      "voiceoverText": "Finally, let's look at the practical implementation. This step-by-step process shows you exactly how to apply what you've learned. Follow along carefully as we go through each step together.",
+      "props": {
+        "title": "Implementation Steps",
+        "steps": [
+          "Analyze the requirements carefully",
+          "Design the solution architecture",
+          "Implement core functionality",
+          "Test and validate results"
+        ]
+      }
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en",
+  "hasVoiceover": true
 }
 """
 
@@ -8931,7 +9005,7 @@ def calculate_product_credits(product_type: str, content_data: dict = None) -> i
     """Calculate credit cost for product creation"""
     if product_type == "course_outline":
         return 5  # Course outline finalization costs 5 credits
-    elif product_type in ["lesson_presentation", "video_lesson"]:
+    elif product_type == "lesson_presentation":
         # Calculate based on slide count
         if content_data and isinstance(content_data, dict):
             slides = content_data.get("slides", [])
@@ -14781,10 +14855,11 @@ async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
         )
         return row["id"]
 
-# Ensure a design template for Video Lesson exists, return its ID
-async def _ensure_video_lesson_template(pool: asyncpg.Pool) -> int:
+
+# Ensure a design template for Video Lesson Presentation exists, return its ID
+async def _ensure_video_lesson_presentation_template(pool: asyncpg.Pool) -> int:
     async with pool.acquire() as conn:
-        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_VIDEO_LESSON)
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_VIDEO_LESSON_PRESENTATION)
         if row:
             return row["id"]
         row = await conn.fetchrow(
@@ -14792,99 +14867,9 @@ async def _ensure_video_lesson_template(pool: asyncpg.Pool) -> int:
             INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
             VALUES ($1, $2, $3, $4) RETURNING id;
             """,
-            "Video Lesson", DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM, "Video Lesson", COMPONENT_NAME_VIDEO_LESSON,
+            "Video Lesson Presentation", DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM, "Video Lesson Presentation", COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
         )
         return row["id"]
-
-async def generate_voiceover_for_slides(slide_deck_content: str, language: str = "en") -> str:
-    """
-    Generate voiceover text for each slide in a slide deck.
-    This function parses the slide deck content and adds voiceover text to each slide.
-    """
-    try:
-        # Parse the slide deck content
-        slide_data = json.loads(slide_deck_content)
-        
-        if not isinstance(slide_data, dict) or "slides" not in slide_data:
-            logger.warning("[VOICEOVER] Invalid slide deck format, returning original content")
-            return slide_deck_content
-        
-        slides = slide_data["slides"]
-        if not slides:
-            logger.warning("[VOICEOVER] No slides found, returning original content")
-            return slide_deck_content
-        
-        # Generate voiceover for each slide
-        for slide in slides:
-            if not isinstance(slide, dict):
-                continue
-                
-            # Extract slide content for voiceover generation
-            slide_content = ""
-            props = slide.get("props", {})
-            
-            # Collect all text content from slide props
-            for key, value in props.items():
-                if isinstance(value, str):
-                    slide_content += value + " "
-                elif isinstance(value, list):
-                    for item in value:
-                        if isinstance(item, str):
-                            slide_content += item + " "
-                        elif isinstance(item, dict) and "text" in item:
-                            slide_content += item["text"] + " "
-            
-            if slide_content.strip():
-                # Generate voiceover text using AI
-                voiceover_prompt = f"""
-                Create a natural, engaging voiceover script for this slide content. 
-                The voiceover should be conversational and explain the key points clearly.
-                Keep it concise (2-3 sentences maximum) and suitable for video narration.
-                
-                Slide content: {slide_content.strip()}
-                
-                Language: {language}
-                
-                Return only the voiceover text, no additional formatting.
-                """
-                
-                try:
-                    # Use OpenAI to generate voiceover
-                    voiceover_response = await stream_openai_response_sync(voiceover_prompt)
-                    if voiceover_response and voiceover_response.strip():
-                        slide["voiceoverText"] = voiceover_response.strip()
-                        logger.info(f"[VOICEOVER] Generated voiceover for slide {slide.get('slideId', 'unknown')}")
-                    else:
-                        slide["voiceoverText"] = ""
-                except Exception as e:
-                    logger.error(f"[VOICEOVER_ERROR] Failed to generate voiceover for slide: {e}")
-                    slide["voiceoverText"] = ""
-            else:
-                slide["voiceoverText"] = ""
-        
-        # Return the updated slide deck with voiceover
-        return json.dumps(slide_data, ensure_ascii=False)
-        
-    except Exception as e:
-        logger.error(f"[VOICEOVER_ERROR] Failed to generate voiceover: {e}")
-        return slide_deck_content
-
-async def stream_openai_response_sync(prompt: str) -> str:
-    """
-    Synchronous wrapper for OpenAI streaming to get a single response.
-    """
-    try:
-        response = ""
-        async for chunk_data in stream_openai_response(prompt):
-            if chunk_data["type"] == "delta":
-                response += chunk_data["text"]
-            elif chunk_data["type"] == "error":
-                logger.error(f"[OPENAI_SYNC_ERROR] {chunk_data['text']}")
-                return ""
-        return response
-    except Exception as e:
-        logger.error(f"[OPENAI_SYNC_ERROR] Exception: {e}")
-        return ""
 
 
 # Ensure a design template for Text Presentation exists, return its ID
@@ -14934,7 +14919,7 @@ class LessonWizardPreview(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
-    productType: Optional[str] = None      # "video_lesson" or "lesson_presentation"
+    productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -14952,7 +14937,7 @@ class LessonWizardFinalize(BaseModel):
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
-    productType: Optional[str] = None      # "video_lesson" or "lesson_presentation"
+    productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
@@ -14971,11 +14956,13 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Build wizard request for assistant persona
+    is_video_lesson = payload.productType == "video_lesson_presentation"
     wizard_dict: Dict[str, Any] = {
-        "product": "Slides Deck",
+        "product": "Video Lesson Slides Deck" if is_video_lesson else "Slides Deck",
         "action": "preview",
         "language": payload.language,
         "slidesCount": payload.slidesCount or 5,
+        "generateVoiceover": is_video_lesson,  # Flag to indicate voiceover generation
     }
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
@@ -15109,18 +15096,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
                 
-                # Generate voiceover if this is a video lesson
-                if payload.productType == "video_lesson":
-                    try:
-                        logger.info(f"[VIDEO_LESSON] Generating voiceover for video lesson")
-                        assistant_reply_with_voiceover = await generate_voiceover_for_slides(assistant_reply, payload.language)
-                        yield (json.dumps({"type": "done", "content": assistant_reply_with_voiceover}) + "\n").encode()
-                    except Exception as e:
-                        logger.error(f"[VIDEO_LESSON_ERROR] Failed to generate voiceover: {e}")
-                        # Fallback to original content without voiceover
-                        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                else:
-                    yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
             except Exception as e:
@@ -15160,18 +15136,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
                     logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
                 
-                # Generate voiceover if this is a video lesson
-                if payload.productType == "video_lesson":
-                    try:
-                        logger.info(f"[VIDEO_LESSON] Generating voiceover for video lesson")
-                        assistant_reply_with_voiceover = await generate_voiceover_for_slides(assistant_reply, payload.language)
-                        yield (json.dumps({"type": "done", "content": assistant_reply_with_voiceover}) + "\n").encode()
-                    except Exception as e:
-                        logger.error(f"[VIDEO_LESSON_ERROR] Failed to generate voiceover: {e}")
-                        # Fallback to original content without voiceover
-                        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                else:
-                    yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
             except Exception as e:
@@ -15207,12 +15172,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
     # Parse AI response to determine slide count for credit calculation
     try:
         slides_data = json.loads(payload.aiResponse)
-        product_type = "video_lesson" if payload.productType == "video_lesson" else "lesson_presentation"
-        credits_needed = calculate_product_credits(product_type, slides_data)
+        credits_needed = calculate_product_credits("lesson_presentation", slides_data)
     except:
         # If parsing fails, use default credit cost
-        product_type = "video_lesson" if payload.productType == "video_lesson" else "lesson_presentation"
-        credits_needed = calculate_product_credits(product_type)
+        credits_needed = calculate_product_credits("lesson_presentation")
 
     # Get user ID and deduct credits for lesson presentation
     try:
@@ -15237,13 +15200,16 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     try:
-        # Get the appropriate template based on product type
+        # Determine if this is a video lesson presentation
+        is_video_lesson = payload.productType == "video_lesson_presentation"
+        
+        # Get the appropriate template with retry mechanism
         max_retries = 3
         template_id = None
         for attempt in range(max_retries):
             try:
-                if payload.productType == "video_lesson":
-                    template_id = await _ensure_video_lesson_template(pool)
+                if is_video_lesson:
+                    template_id = await _ensure_video_lesson_presentation_template(pool)
                 else:
                     template_id = await _ensure_slide_deck_template(pool)
                 break

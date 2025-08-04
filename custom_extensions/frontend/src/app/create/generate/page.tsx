@@ -268,7 +268,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Presentation" | "Quiz" | "One-Pager" | "Video Lesson">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -836,37 +836,6 @@ function GenerateProductPicker() {
     };
   }, [showTextStylesDropdown]);
 
-  const handleVideoLessonStart = () => {
-    // Video lessons work the same as presentations but with voiceover enabled
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
-
-    const params = new URLSearchParams();
-    params.set("productType", "video_lesson"); // Indicate this is a video lesson
-    params.set("length", lengthRangeForOption(lengthOption));
-    params.set("slidesCount", String(slidesCount));
-    
-    // Handle file-based prompts
-    if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
-      params.set("fromFiles", "true");
-      if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
-      if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
-    } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
-        ? "Create video lesson content using the provided text as context"
-        : "Create video lesson content based on the provided text structure"));
-      params.set("fromText", "true");
-      params.set("textMode", textMode || 'context');
-      // userText stays in sessionStorage - don't pass via URL
-    } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
-    }
-    
-    params.set("lang", language);
-
-    router.push(`/create/lesson-presentation?${params.toString()}`);
-  };
-
   const handleTextPresentationStart = () => {
     // If using existing outline, check if outline and lesson selected
     if (useExistingTextOutline === true) {
@@ -912,6 +881,36 @@ function GenerateProductPicker() {
     }
 
     router.push(`/create/text-presentation?${params.toString()}`);
+  };
+
+  const handleVideoLessonStart = () => {
+    // Check if prompt entered or coming from files/text
+    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+
+    const params = new URLSearchParams();
+    params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
+    params.set("length", lengthRangeForOption(lengthOption));
+    params.set("slidesCount", String(slidesCount));
+    params.set("lang", language);
+    
+    // Handle file-based prompts
+    if (isFromFiles) {
+      params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
+      params.set("fromFiles", "true");
+      if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
+      if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
+    } else if (isFromText) {
+      params.set("prompt", prompt.trim() || (textMode === 'context' 
+        ? "Create video lesson content using the provided text as context"
+        : "Create video lesson content based on the provided text structure"));
+      params.set("fromText", "true");
+      params.set("textMode", textMode || 'context');
+      // userText stays in sessionStorage - don't pass via URL
+    } else if (prompt.trim()) {
+      params.set("prompt", prompt.trim());
+    }
+
+    router.push(`/create/lesson-presentation?${params.toString()}`);
   };
 
   return (
@@ -1682,7 +1681,6 @@ function GenerateProductPicker() {
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course Outline") || 
-          (activeProduct === "Video Lesson") ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Presentation" && useExistingOutline === false)) && (

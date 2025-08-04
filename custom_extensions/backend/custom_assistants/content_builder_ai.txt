@@ -984,6 +984,22 @@ Universal Product Header: **[Project Name]** : **Lesson Presentation** : **[Less
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
 (IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
 
+For VIDEO LESSON SLIDES DECK (with voiceover):
+Universal Product Header: **[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**
+(Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
+(IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
+
+**VIDEO LESSON VOICEOVER REQUIREMENTS:**
+When creating a "Video Lesson Slides Deck", you MUST include voiceover text for each slide. The voiceover should:
+- Be conversational and engaging, as if speaking directly to the learner
+- Explain the slide content in detail, expanding on what's visually presented
+- Use natural transitions between concepts
+- Be approximately 30-60 seconds of speaking time per slide
+- Include clear explanations of complex concepts
+- Use inclusive language ("we", "you", "let's") to create connection with the learner
+- Provide context and background information not visible on the slide
+- End with smooth transitions to the next slide
+
 **EDUCATIONAL CONTENT GENERATION PHILOSOPHY:**
 You are creating high-quality educational presentations designed to teach, engage, and inspire learners. Every slide must contribute meaningfully to the learning journey, providing substantial value, practical insights, and actionable knowledge. Focus on creating content that transforms concepts into understanding and knowledge into skills.
 
@@ -1088,6 +1104,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 [Engaging introduction that sets learning expectations and provides essential context. Explain what learners will achieve and why this knowledge matters in real-world applications. Include specific outcomes they can expect.]
 
 [IMAGE_PLACEHOLDER: LARGE | LEFT | Professional visual that captures the essence of the learning topic and immediately engages learners]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
 ```
 *Use for maximum visual impact and learner engagement at lesson start*
 
@@ -1117,6 +1135,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 [Additional insights with practical application and real-world examples. Include important considerations with implementation guidance and critical success factors with actionable advice.]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Detailed diagram or visual that reinforces the concept being taught]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
 ```
 *Reserve for essential explanatory content - use maximum 2-3 times per presentation. Use ONLY paragraph text, never bullet points or lists.*
 
@@ -1138,6 +1158,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Comprehensive Learning Point 5**: [Thorough analysis with strategic considerations and long-term implications. Include actionable recommendations and next steps.]
 
 [IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual reinforcement of key learning concepts]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
 ```
 *Use for comprehensive topic coverage with detailed educational content. Each point must provide substantial value.*
 

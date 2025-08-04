@@ -214,6 +214,9 @@ export default function LessonPresentationClient() {
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
   
+  // Product type for video lesson vs regular presentation
+  const productType = params?.get("productType") || "lesson_presentation";
+  
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
   const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
@@ -410,8 +413,7 @@ export default function LessonPresentationClient() {
             prompt: promptQuery || undefined,
             chatSessionId: chatId || undefined,
             slidesCount: slidesCount,
-            // Add product type to indicate if this is a video lesson
-            productType: params?.get("productType") || "lesson_presentation",
+            productType: productType, // Pass product type for video lesson vs regular presentation
           };
 
           // Add file context if creating from files
@@ -591,8 +593,8 @@ export default function LessonPresentationClient() {
           aiResponse: content,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
+          productType: productType, // Pass product type for video lesson vs regular presentation
           folderId: folderContext?.folderId || undefined,
-          productType: params?.get("productType") || "lesson_presentation",
         }),
       });
 

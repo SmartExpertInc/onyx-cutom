@@ -9,6 +9,7 @@ export interface BaseTemplateProps {
   slideId: string;
   isEditable?: boolean;
   onUpdate?: (props: any) => void;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface TemplateComponentInfo {
@@ -64,6 +65,7 @@ export interface ComponentBasedSlideDeck {
   detectedLanguage?: string | null;
   templateVersion?: string;
   theme?: string; // Theme ID for the slide deck
+  hasVoiceover?: boolean; // Flag indicating if any slide has voiceover
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
@@ -83,6 +85,7 @@ export interface TitleSlideProps extends BaseTemplateProps {
   titleColor?: string;
   subtitleColor?: string;
   backgroundImage?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface ContentSlideProps extends BaseTemplateProps {
@@ -93,6 +96,7 @@ export interface ContentSlideProps extends BaseTemplateProps {
   contentColor?: string;
   alignment?: 'left' | 'center' | 'right';
   backgroundImage?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface BigImageLeftProps extends BaseTemplateProps {
@@ -105,6 +109,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   backgroundColor?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -117,6 +122,7 @@ export interface QuoteCenterProps extends BaseTemplateProps {
   quoteColor?: string;
   authorColor?: string;
   fontSize?: 'small' | 'medium' | 'large' | 'xlarge';
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface BulletPointsProps extends BaseTemplateProps {
@@ -129,6 +135,7 @@ export interface BulletPointsProps extends BaseTemplateProps {
   backgroundColor?: string;
   imagePrompt?: string;
   imageAlt?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {
@@ -151,6 +158,7 @@ export interface TwoColumnProps extends BaseTemplateProps {
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface ProcessStepsProps extends BaseTemplateProps {
@@ -164,6 +172,7 @@ export interface ProcessStepsProps extends BaseTemplateProps {
   stepColor?: string;
   backgroundColor?: string;
   titleColor?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface ChallengesSolutionsProps extends BaseTemplateProps {
@@ -179,6 +188,7 @@ export interface ChallengesSolutionsProps extends BaseTemplateProps {
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 export interface HeroTitleSlideProps extends BaseTemplateProps {
@@ -194,6 +204,7 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   textAlign?: 'left' | 'center' | 'right';
   titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
   subtitleSize?: 'small' | 'medium' | 'large';
+  voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
 
