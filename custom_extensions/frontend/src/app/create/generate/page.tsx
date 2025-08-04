@@ -374,6 +374,11 @@ function GenerateProductPicker() {
         setTextLessonsForModule([]);
         setSelectedTextLesson("");
       }
+      
+      // Clear video lesson context when switching away from Video Lesson
+      if (activeProduct !== "Video Lesson") {
+        // Video Lesson uses the same state as Presentation, so no additional cleanup needed
+      }
     }, 100); // 100ms delay
 
     return () => clearTimeout(timer);
@@ -1679,8 +1684,43 @@ function GenerateProductPicker() {
           </div>
         )}
 
+        {/* Video Lesson Configuration */}
+        {activeProduct === "Video Lesson" && (
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
+            <select
+              value={lengthOption}
+              onChange={(e) => setLengthOption(e.target.value as "Short" | "Medium" | "Long")}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="Short">{t('interface.generate.short', 'Short')}</option>
+              <option value="Medium">{t('interface.generate.medium', 'Medium')}</option>
+              <option value="Long">{t('interface.generate.long', 'Long')}</option>
+            </select>
+            <select
+              value={slidesCount}
+              onChange={(e) => setSlidesCount(Number(e.target.value))}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => (
+                <option key={count} value={count}>{count} {t('interface.generate.slides', 'slides')}</option>
+              ))}
+            </select>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            >
+              <option value="en">{t('interface.english', 'English')}</option>
+              <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+              <option value="es">{t('interface.spanish', 'Spanish')}</option>
+              <option value="ru">{t('interface.russian', 'Russian')}</option>
+            </select>
+          </div>
+        )}
+
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
         {((activeProduct === "Course Outline") || 
+          (activeProduct === "Video Lesson") ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
