@@ -52,6 +52,7 @@ export interface ComponentBasedSlide {
     updatedAt?: string;
     version?: string;
     notes?: string;
+    templateName?: string;
   };
 }
 
