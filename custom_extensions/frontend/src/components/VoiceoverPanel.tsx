@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { X, Volume2 } from 'lucide-react';
 
 interface VoiceoverPanelProps {
@@ -14,15 +14,18 @@ interface VoiceoverPanelProps {
   onSlideSelect?: (slideId: string) => void;
 }
 
-const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
+const VoiceoverPanel = forwardRef<HTMLDivElement, VoiceoverPanelProps>(({
   isOpen,
   onClose,
   slides,
   currentSlideId,
   onSlideSelect
-}) => {
+}, ref) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const currentSlideRef = useRef<HTMLDivElement>(null);
+
+  // Expose the panel ref to parent component
+  useImperativeHandle(ref, () => panelRef.current!, []);
 
   // Auto-scroll to current slide when panel opens
   useEffect(() => {
@@ -152,6 +155,8 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
       </div>
     </>
   );
-};
+});
+
+VoiceoverPanel.displayName = 'VoiceoverPanel';
 
 export default VoiceoverPanel; 

@@ -42,6 +42,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   
+  // Refs for synchronized scrolling
+  const slidesContainerRef = useRef<HTMLDivElement>(null);
+  const voiceoverPanelRef = useRef<HTMLDivElement>(null);
+  
   // Get the current theme
   const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
 
@@ -49,6 +53,38 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
     slide.voiceoverText || slide.props?.voiceoverText
   );
+
+  // Synchronized scrolling effect
+  useEffect(() => {
+    if (!isVoiceoverPanelOpen || !slidesContainerRef.current || !voiceoverPanelRef.current) return;
+
+    const slidesContainer = slidesContainerRef.current;
+    const voiceoverPanel = voiceoverPanelRef.current;
+
+    const handleSlidesScroll = () => {
+      if (voiceoverPanel) {
+        const scrollPercentage = slidesContainer.scrollTop / (slidesContainer.scrollHeight - slidesContainer.clientHeight);
+        const maxScroll = voiceoverPanel.scrollHeight - voiceoverPanel.clientHeight;
+        voiceoverPanel.scrollTop = scrollPercentage * maxScroll;
+      }
+    };
+
+    const handleVoiceoverScroll = () => {
+      if (slidesContainer) {
+        const scrollPercentage = voiceoverPanel.scrollTop / (voiceoverPanel.scrollHeight - voiceoverPanel.clientHeight);
+        const maxScroll = slidesContainer.scrollHeight - slidesContainer.clientHeight;
+        slidesContainer.scrollTop = scrollPercentage * maxScroll;
+      }
+    };
+
+    slidesContainer.addEventListener('scroll', handleSlidesScroll, { passive: true });
+    voiceoverPanel.addEventListener('scroll', handleVoiceoverScroll, { passive: true });
+
+    return () => {
+      slidesContainer.removeEventListener('scroll', handleSlidesScroll);
+      voiceoverPanel.removeEventListener('scroll', handleVoiceoverScroll);
+    };
+  }, [isVoiceoverPanelOpen]);
 
   // Process deck - expect component-based format only
   useEffect(() => {
@@ -271,7 +307,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Smaller to match slide size */}
       <div 
         className="main-content"
         style={{
@@ -285,17 +321,23 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          padding: '20px'
+          padding: '20px',
+          maxHeight: 'calc(100vh - 80px)', // Limit height to match slide size
+          overflow: 'hidden' // Prevent scrolling on main container
         }}
       >
-        {/* Slides Container - 30% smaller */}
+        {/* Slides Container - 30% smaller with scroll */}
         <div 
+          ref={slidesContainerRef}
           className="slides-container"
           style={{
             transform: 'scale(0.7)', // 30% smaller (70% of original size)
             transformOrigin: 'top center',
             width: '100%',
-            maxWidth: '1200px'
+            maxWidth: '1200px',
+            height: '100%',
+            overflowY: 'auto', // Enable scrolling
+            overflowX: 'hidden'
           }}
         >
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
@@ -319,7 +361,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Small White Vertical Panel on the Right (when voiceover panel is closed) */}
+      {/* Small White Vertical Panel on the Right - 2x bigger height */}
       {hasAnyVoiceover && !isVoiceoverPanelOpen && (
         <div
           style={{
@@ -328,7 +370,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             right: '0',
             transform: 'translateY(-50%)',
             width: '60px',
-            height: '200px',
+            height: '400px', // 2x bigger (was 200px)
             backgroundColor: 'white',
             borderTopLeftRadius: '12px',
             borderBottomLeftRadius: '12px',
@@ -396,9 +438,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       )}
 
-      {/* Voiceover Panel */}
+      {/* Voiceover Panel with synchronized scrolling */}
       {hasAnyVoiceover && (
         <VoiceoverPanel
+          ref={voiceoverPanelRef}
           isOpen={isVoiceoverPanelOpen}
           onClose={() => setIsVoiceoverPanelOpen(false)}
           slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
@@ -412,7 +455,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             setCurrentSlideId(slideId);
             // Scroll to the selected slide
             const slideElement = document.getElementById(`slide-${slideId}`);
-            if (slideElement) {
+            if (slideElement && slidesContainerRef.current) {
               slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }}
