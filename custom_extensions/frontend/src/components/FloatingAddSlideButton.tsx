@@ -74,7 +74,7 @@ export const FloatingAddSlideButton: React.FC<FloatingAddSlideButtonProps> = ({
         ) : (
           <>
             <Plus size={16} />
-            <span>Add Slide</span>
+            <span>Add New Slide</span>
           </>
         )}
       </button>

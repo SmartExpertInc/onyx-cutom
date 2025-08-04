@@ -170,8 +170,42 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slides: [...componentDeck.slides, newSlide]
     };
 
+    console.log('🔍 SmartSlideDeckViewer: Updated deck before save:', {
+      totalSlides: updatedDeck.slides.length,
+      slides: updatedDeck.slides.map((slide, index) => ({
+        index,
+        slideId: slide.slideId,
+        templateId: slide.templateId,
+        hasProps: !!slide.props
+      })),
+      deckKeys: Object.keys(updatedDeck)
+    });
+
     setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
+    
+    // Ensure we're passing the correct data structure
+    const deckToSave: ComponentBasedSlideDeck = {
+      ...updatedDeck,
+      slides: updatedDeck.slides.map(slide => ({
+        ...slide,
+        slideId: slide.slideId,
+        templateId: slide.templateId,
+        props: slide.props || {},
+        metadata: slide.metadata || {}
+      }))
+    };
+    
+    console.log('🔍 SmartSlideDeckViewer: Final deck being saved:', {
+      totalSlides: deckToSave.slides.length,
+      slides: deckToSave.slides.map((slide, index) => ({
+        index,
+        slideId: slide.slideId,
+        templateId: slide.templateId,
+        propsKeys: Object.keys(slide.props || {})
+      }))
+    });
+    
+    onSave?.(deckToSave);
   };
 
   // Delete slide
