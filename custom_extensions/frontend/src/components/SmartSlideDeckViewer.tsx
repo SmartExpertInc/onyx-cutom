@@ -140,6 +140,31 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     onSave?.(updatedDeck);
   };
 
+  const handleVoiceoverUpdate = async (slideId: string, newVoiceoverText: string) => {
+    if (!componentDeck) return;
+
+    const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
+      slide.slideId === slideId 
+        ? { 
+            ...slide, 
+            voiceoverText: newVoiceoverText,
+            props: {
+              ...slide.props,
+              voiceoverText: newVoiceoverText
+            }
+          }
+        : slide
+    );
+
+    const updatedDeck = {
+      ...componentDeck,
+      slides: updatedSlides
+    };
+
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
+  };
+
   const addSlide = () => {
     if (!componentDeck) return;
 
@@ -248,7 +273,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       <div 
         className="professional-header"
         style={{
-          transform: isVoiceoverPanelOpen ? 'translateX(384px)' : 'translateX(0)',
+          transform: isVoiceoverPanelOpen ? 'translateX(192px)' : 'translateX(0)', // Half the shift
           transition: 'transform 0.3s ease-in-out',
           width: '100%',
           position: 'relative',
@@ -274,17 +299,25 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       <div 
         className="main-content"
         style={{
-          transform: isVoiceoverPanelOpen ? 'translateX(384px)' : 'translateX(0)',
-          transition: 'transform 0.3s ease-in-out',
+          transform: isVoiceoverPanelOpen ? 'translateX(192px)' : 'translateX(0)', // Half the shift
+          transition: 'all 0.3s ease-in-out',
           width: '100%',
           position: 'relative',
           zIndex: 5,
           backgroundColor: 'white',
-          minHeight: 'calc(100vh - 80px)' // Adjust based on header height
+          minHeight: 'calc(100vh - 80px)', // Adjust based on header height
+          transformOrigin: 'center center'
         }}
       >
         {/* Slides Container */}
-        <div className="slides-container">
+        <div 
+          className="slides-container"
+          style={{
+            transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
+            transition: 'transform 0.3s ease-in-out',
+            transformOrigin: 'center center'
+          }}
+        >
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
             <div
               key={slide.slideId}
@@ -401,6 +434,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }}
+          onVoiceoverUpdate={handleVoiceoverUpdate}
         />
       )}
     </div>
