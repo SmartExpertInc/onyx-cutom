@@ -24,7 +24,8 @@ import {
   Edit,
   ChevronRight,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown
 } from 'lucide-react';
 import './EditorPage.css';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -34,6 +35,35 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/c
 interface EditorPageProps {
   projectId?: string;
 }
+
+// Available slide templates
+const SLIDE_TEMPLATES = {
+  'content-slide': {
+    name: 'Content Slide',
+    description: 'Standard content with title and text',
+    icon: '📄'
+  },
+  'title-slide': {
+    name: 'Title Slide',
+    description: 'Main title slide',
+    icon: '🎯'
+  },
+  'bullet-points': {
+    name: 'Bullet Points',
+    description: 'List with bullet points',
+    icon: '📋'
+  },
+  'two-column': {
+    name: 'Two Column',
+    description: 'Content split into two columns',
+    icon: '📊'
+  },
+  'image-slide': {
+    name: 'Image Slide',
+    description: 'Slide with image placeholder',
+    icon: '🖼️'
+  }
+};
 
 const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const router = useRouter();
@@ -46,11 +76,28 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
   const [parentProjectName, setParentProjectName] = useState<string | null>(null);
   const [parentProjectId, setParentProjectId] = useState<number | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const templateDropdownRef = useRef<HTMLDivElement>(null);
 
   const { t } = useLanguage();
+
+  // Close template dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (templateDropdownRef.current && !templateDropdownRef.current.contains(event.target as Node)) {
+        setShowTemplateDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Fetch slide deck data and parent project information
   useEffect(() => {
@@ -328,6 +375,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     }
 
     setEditingSlideDeckData(updatedData);
+    
+    // Auto-save after content changes (with debounce)
+    clearTimeout((window as any).autoSaveTimeout);
+    (window as any).autoSaveTimeout = setTimeout(() => {
+      saveChanges();
+    }, 1000); // Save after 1 second of inactivity
   };
 
   // Function to update slide title
@@ -337,14 +390,106 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
     const updatedData = { ...editingSlideDeckData };
     updatedData.slides[slideIndex].slideTitle = newTitle;
     setEditingSlideDeckData(updatedData);
+    
+    // Auto-save after title changes
+    clearTimeout((window as any).autoSaveTimeout);
+    (window as any).autoSaveTimeout = setTimeout(() => {
+      saveChanges();
+    }, 1000);
   };
 
-  // Auto-save changes
-  const saveChanges = () => {
-    if (editingSlideDeckData) {
+  // Save changes to backend
+  const saveChanges = async () => {
+    if (!editingSlideDeckData || !projectId || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      const commonHeaders: HeadersInit = {
+        'Content-Type': 'application/json'
+      };
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const payload = { 
+        microProductContent: editingSlideDeckData 
+      };
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+        method: 'PUT',
+        headers: commonHeaders,
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save: ${response.status}`);
+      }
+
       setSlideDeckData(editingSlideDeckData);
-      // Here you would typically save to backend
-      console.log("Auto-saving changes:", editingSlideDeckData);
+      console.log("Successfully saved changes to backend");
+    } catch (error) {
+      console.error("Failed to save changes:", error);
+      // You might want to show an error message to the user
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Add new slide with template
+  const addSlide = (templateId: string = 'content-slide') => {
+    if (!editingSlideDeckData) return;
+
+    const newSlide: DeckSlide = {
+      slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      slideNumber: editingSlideDeckData.slides.length + 1,
+      slideTitle: `Slide ${editingSlideDeckData.slides.length + 1}`,
+      deckgoTemplate: templateId === 'two-column' ? 'deckgo-slide-split' : undefined,
+      contentBlocks: createTemplateContent(templateId)
+    };
+
+    const updatedData = {
+      ...editingSlideDeckData,
+      slides: [...editingSlideDeckData.slides, newSlide]
+    };
+
+    setEditingSlideDeckData(updatedData);
+    setActiveSlideIndex(updatedData.slides.length - 1);
+    setShowTemplateDropdown(false);
+    
+    // Auto-save the new slide
+    setTimeout(() => saveChanges(), 100);
+  };
+
+  // Create content blocks based on template
+  const createTemplateContent = (templateId: string): AnyContentBlock[] => {
+    switch (templateId) {
+      case 'title-slide':
+        return [
+          { type: 'headline', text: 'Main Title', level: 1 } as any,
+          { type: 'paragraph', text: 'Subtitle or description goes here' } as any
+        ];
+      case 'bullet-points':
+        return [
+          { type: 'headline', text: 'Bullet Points', level: 2 } as any,
+          { type: 'bullet_list', items: ['Point 1', 'Point 2', 'Point 3', 'Point 4'] } as any
+        ];
+      case 'two-column':
+        return [
+          { type: 'headline', text: 'Two Column Layout', level: 2 } as any,
+          { type: 'paragraph', text: 'Left column content' } as any,
+          { type: 'paragraph', text: 'Right column content' } as any
+        ];
+      case 'image-slide':
+        return [
+          { type: 'headline', text: 'Image Slide', level: 2 } as any,
+          { type: 'paragraph', text: 'Add your content here...' } as any
+        ];
+      default: // content-slide
+        return [
+          { type: 'headline', text: 'Content Slide', level: 2 } as any,
+          { type: 'paragraph', text: 'Add your content here...' } as any
+        ];
     }
   };
 
@@ -781,6 +926,38 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
 
       {/* Main Content Area */}
       <div className="main-content">
+        {/* Fixed Add Slide Button */}
+        <div className="fixed-add-slide-button" ref={templateDropdownRef}>
+          <button 
+            className={`floating-add-button ${isSaving ? 'saving' : ''}`}
+            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+            title={isSaving ? "Saving..." : "Add new slide"}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <div className="loading-spinner"></div>
+            ) : (
+              <Plus size={20} />
+            )}
+          </button>
+          
+          {showTemplateDropdown && (
+            <div className="floating-template-dropdown">
+              {Object.entries(SLIDE_TEMPLATES).map(([templateId, template]) => (
+                <button
+                  key={templateId}
+                  className="floating-template-option"
+                  onClick={() => addSlide(templateId)}
+                  title={template.description}
+                >
+                  <span className="template-icon">{template.icon}</span>
+                  <span className="template-name">{template.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Left Sidebar - Slide Thumbnails */}
         <div className="left-sidebar">
           <div className="sidebar-header">
@@ -799,13 +976,38 @@ const EditorPage: React.FC<EditorPageProps> = ({ projectId }) => {
               </button>
             </div>
             
-            <button className="new-slide-button">
-              <span className="plus-icon">
-                <Plus size={16} />
-              </span>
-              {t('editorPage.newSlide', 'New')}
-              <span className="dropdown-arrow">▼</span>
-            </button>
+            <div className="new-slide-container" ref={templateDropdownRef}>
+              <button 
+                className="new-slide-button"
+                onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+              >
+                <span className="plus-icon">
+                  <Plus size={16} />
+                </span>
+                {t('editorPage.newSlide', 'New')}
+                <span className="dropdown-arrow">
+                  <ChevronDown size={12} />
+                </span>
+              </button>
+              
+              {showTemplateDropdown && (
+                <div className="template-dropdown">
+                  {Object.entries(SLIDE_TEMPLATES).map(([templateId, template]) => (
+                    <button
+                      key={templateId}
+                      className="template-option"
+                      onClick={() => addSlide(templateId)}
+                    >
+                      <span className="template-icon">{template.icon}</span>
+                      <div className="template-info">
+                        <div className="template-name">{template.name}</div>
+                        <div className="template-description">{template.description}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="slide-thumbnails">
               {filteredSlides.map((slide, index) => {
