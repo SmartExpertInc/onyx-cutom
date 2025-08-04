@@ -5,6 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import FloatingAddSlideButton from './FloatingAddSlideButton';
+import './FloatingAddSlideButton.css';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -137,20 +139,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   };
 
   // Add new slide
-  const addSlide = () => {
+  const addSlide = (newSlide: ComponentBasedSlide) => {
     if (!componentDeck) return;
-
-    const newSlide: ComponentBasedSlide = {
-      slideId: `slide-${Date.now()}`,
-      slideNumber: componentDeck.slides.length + 1,
-      templateId: 'content-slide',
-      props: {
-        title: `Slide ${componentDeck.slides.length + 1}`,
-        content: 'Add your content here...'
-        // Colors will be applied by theme, not props
-      },
-      metadata: {}
-    };
 
     const updatedDeck: ComponentBasedSlideDeck = {
       ...componentDeck,
@@ -244,22 +234,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Success: Render component-based viewer with classic UX and sidebar navigation
   return (
     <div className="slide-deck-viewer">
-      {/* Professional Header */}
-      <div className="professional-header">
-        <div className="header-content">
-          {isEditable && (
-            <div className="header-controls">
-              <button 
-                className="control-button add-button"
-                onClick={addSlide}
-              >
-                <span className="button-icon">+</span>
-                Add Slide
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Floating Add Slide Button - Only show when editable */}
+      {isEditable && (
+        <FloatingAddSlideButton
+          onAddSlide={addSlide}
+          disabled={false}
+          currentSlideCount={componentDeck.slides.length}
+        />
+      )}
 
       {/* Main Content Area */}
       <div className="main-content">
