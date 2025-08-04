@@ -77,8 +77,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       }
     };
 
-    slidesContainer.addEventListener('scroll', handleSlidesScroll, { passive: true });
-    voiceoverPanel.addEventListener('scroll', handleVoiceoverScroll, { passive: true });
+    slidesContainer.addEventListener('scroll', handleSlidesScroll);
+    voiceoverPanel.addEventListener('scroll', handleVoiceoverScroll);
 
     return () => {
       slidesContainer.removeEventListener('scroll', handleSlidesScroll);
@@ -307,7 +307,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area - Smaller to match slide size */}
+      {/* Main Content Area */}
       <div 
         className="main-content"
         style={{
@@ -321,23 +321,20 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          padding: '20px',
-          maxHeight: 'calc(100vh - 80px)', // Limit height to match slide size
-          overflow: 'hidden' // Prevent scrolling on main container
+          padding: '20px'
         }}
       >
-        {/* Slides Container - 30% smaller with scroll */}
+        {/* Slides Container - 30% smaller with reduced width */}
         <div 
           ref={slidesContainerRef}
           className="slides-container"
           style={{
             transform: 'scale(0.7)', // 30% smaller (70% of original size)
             transformOrigin: 'top center',
-            width: '100%',
-            maxWidth: '1200px',
-            height: '100%',
-            overflowY: 'auto', // Enable scrolling
-            overflowX: 'hidden'
+            width: '70%', // Reduced width to match scaled slides
+            maxWidth: '840px', // 70% of 1200px
+            overflowY: 'auto',
+            maxHeight: 'calc(100vh - 120px)'
           }}
         >
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
@@ -361,7 +358,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       </div>
 
-      {/* Small White Vertical Panel on the Right - 2x bigger height */}
+      {/* Small White Vertical Panel on the Right (when voiceover panel is closed) - 2x bigger height */}
       {hasAnyVoiceover && !isVoiceoverPanelOpen && (
         <div
           style={{
@@ -438,7 +435,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         </div>
       )}
 
-      {/* Voiceover Panel with synchronized scrolling */}
+      {/* Voiceover Panel */}
       {hasAnyVoiceover && (
         <VoiceoverPanel
           ref={voiceoverPanelRef}
@@ -455,7 +452,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             setCurrentSlideId(slideId);
             // Scroll to the selected slide
             const slideElement = document.getElementById(`slide-${slideId}`);
-            if (slideElement && slidesContainerRef.current) {
+            if (slideElement) {
               slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }}
