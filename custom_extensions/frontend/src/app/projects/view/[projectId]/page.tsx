@@ -232,6 +232,29 @@ export default function ProjectInstanceViewPage() {
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
           setEditableData(copiedDetails as PdfLessonData);
         } else if (instanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+          // Transform DeckSlide format from backend to ComponentBasedSlide format for frontend
+          if (copiedDetails.slides && Array.isArray(copiedDetails.slides)) {
+            const transformedSlides = copiedDetails.slides.map((slide: any, index: number) => {
+              // Transform from DeckSlide to ComponentBasedSlide format
+              const componentSlide = {
+                slideId: slide.slideId,
+                slideNumber: slide.slideNumber || (index + 1),
+                templateId: slide.templateId,
+                props: slide.props || {},
+                metadata: slide.metadata || {}
+              };
+              
+              // If the slide has a slideTitle but props.title is empty, use slideTitle as props.title
+              if (slide.slideTitle && (!slide.props || !slide.props.title)) {
+                componentSlide.props.title = slide.slideTitle;
+              }
+              
+              return componentSlide;
+            });
+            
+            copiedDetails.slides = transformedSlides;
+          }
+          
           console.log('📥 [SLIDE DECK DATA] Setting editableData from backend details:', {
             copiedDetails,
             copiedDetailsStringified: JSON.stringify(copiedDetails, null, 2),
@@ -658,9 +681,9 @@ export default function ProjectInstanceViewPage() {
           }))
         });
         
-        // Validate and fix slide deck structure before sending
+        // Transform ComponentBasedSlide to DeckSlide format for backend compatibility
         if (slideDeckData.slides) {
-          slideDeckData.slides.forEach((slide, index) => {
+          const transformedSlides = slideDeckData.slides.map((slide, index) => {
             // Ensure slide has required properties
             if (!slide.slideId) {
               slide.slideId = `slide-${Date.now()}-${index}`;
@@ -678,7 +701,20 @@ export default function ProjectInstanceViewPage() {
             if (!slide.props.content) {
               slide.props.content = '';
             }
+            
+            // Transform to DeckSlide format with slideTitle field
+            return {
+              slideId: slide.slideId,
+              slideNumber: slide.slideNumber || (index + 1),
+              slideTitle: slide.props.title || `Slide ${index + 1}`, // Add the required slideTitle field
+              templateId: slide.templateId,
+              props: slide.props,
+              metadata: slide.metadata || {}
+            };
           });
+          
+          // Replace the slides array with the transformed version
+          slideDeckData.slides = transformedSlides;
         }
       }
       
