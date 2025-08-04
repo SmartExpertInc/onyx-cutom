@@ -28,8 +28,6 @@ interface SmartSlideDeckViewerProps {
   hasVoiceover?: boolean;
 }
 
-
-
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   deck,
   isEditable = false,
@@ -101,71 +99,62 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
-        setError(`Error processing slide deck: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setError('Failed to process slide deck data.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (deck) {
-      processDeck();
-    } else {
-      setIsLoading(false);
-      setError('No slide deck provided');
-    }
-  }, [deck]);
+    processDeck();
+  }, [deck, theme, currentTheme.colors]);
 
-  // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
-    console.log('🔍 SmartSlideDeckViewer: handleSlideUpdate called with:', updatedSlide);
-    
-    if (componentDeck) {
-      const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentDeck,
-        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
-          slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-        )
-      };
-      console.log('🔍 SmartSlideDeckViewer: Updated deck:', updatedDeck);
-      setComponentDeck(updatedDeck);
-      onSave?.(updatedDeck);
-    } else {
-      console.warn('🔍 SmartSlideDeckViewer: componentDeck is null');
-    }
+    if (!componentDeck) return;
+
+    const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
+      slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+    );
+
+    const updatedDeck = {
+      ...componentDeck,
+      slides: updatedSlides
+    };
+
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
   };
 
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
-    if (componentDeck) {
-      const updatedDeck: ComponentBasedSlideDeck = {
-        ...componentDeck,
-        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
-          slide.slideId === slideId 
-            ? { ...slide, templateId: newTemplateId }
-            : slide
-        )
-      };
-      setComponentDeck(updatedDeck);
-      onSave?.(updatedDeck);
-    }
+    if (!componentDeck) return;
+
+    const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
+      slide.slideId === slideId ? { ...slide, templateId: newTemplateId } : slide
+    );
+
+    const updatedDeck = {
+      ...componentDeck,
+      slides: updatedSlides
+    };
+
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
   };
 
-  // Add new slide
   const addSlide = () => {
     if (!componentDeck) return;
 
+    const newSlideNumber = componentDeck.slides.length + 1;
     const newSlide: ComponentBasedSlide = {
-      slideId: `slide-${Date.now()}`,
-      slideNumber: componentDeck.slides.length + 1,
+      slideId: `slide_${newSlideNumber}_new`,
+      slideNumber: newSlideNumber,
       templateId: 'content-slide',
       props: {
-        title: `Slide ${componentDeck.slides.length + 1}`,
+        title: `New Slide ${newSlideNumber}`,
         content: 'Add your content here...'
-        // Colors will be applied by theme, not props
-      },
-      metadata: {}
+      }
     };
 
-    const updatedDeck: ComponentBasedSlideDeck = {
+    const updatedDeck = {
       ...componentDeck,
       slides: [...componentDeck.slides, newSlide]
     };
@@ -174,32 +163,30 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     onSave?.(updatedDeck);
   };
 
-  // Delete slide
   const deleteSlide = (slideId: string) => {
     if (!componentDeck || componentDeck.slides.length <= 1) return;
 
-    const updatedDeck: ComponentBasedSlideDeck = {
+    const updatedSlides = componentDeck.slides
+      .filter((slide: ComponentBasedSlide) => slide.slideId !== slideId)
+      .map((slide: ComponentBasedSlide, index: number) => ({
+        ...slide,
+        slideNumber: index + 1
+      }));
+
+    const updatedDeck = {
       ...componentDeck,
-      slides: componentDeck.slides.filter((s: ComponentBasedSlide) => s.slideId !== slideId)
+      slides: updatedSlides
     };
 
-    // Update slide numbers
-    updatedDeck.slides.forEach((slide: ComponentBasedSlide, index: number) => {
-      slide.slideNumber = index + 1;
-    });
-
     setComponentDeck(updatedDeck);
-    
-    // Slide deleted - no need to select next slide since navigation is removed
-    
     onSave?.(updatedDeck);
   };
 
   // Loading state
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
+      <div style={{
+        display: 'flex',
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '400px',
@@ -256,14 +243,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Success: Render component-based viewer with classic UX and sidebar navigation
   return (
-    <div className="slide-deck-viewer">
+    <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
       {/* Professional Header */}
       <div 
         className="professional-header"
         style={{
           transform: isVoiceoverPanelOpen ? 'translateX(384px)' : 'translateX(0)',
           transition: 'transform 0.3s ease-in-out',
-          width: '100%'
+          width: '100%',
+          position: 'relative',
+          zIndex: 10
         }}
       >
         <div className="header-content">
@@ -322,7 +311,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         style={{
           transform: isVoiceoverPanelOpen ? 'translateX(384px)' : 'translateX(0)',
           transition: 'transform 0.3s ease-in-out',
-          width: '100%'
+          width: '100%',
+          position: 'relative',
+          zIndex: 5,
+          backgroundColor: 'white',
+          minHeight: 'calc(100vh - 80px)' // Adjust based on header height
         }}
       >
         {/* Slides Container */}
@@ -347,6 +340,48 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Small Vertical Panel on the Right (when voiceover panel is closed) */}
+      {hasAnyVoiceover && !isVoiceoverPanelOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            right: '0',
+            transform: 'translateY(-50%)',
+            width: '48px',
+            height: '120px',
+            backgroundColor: '#3b82f6',
+            borderTopLeftRadius: '12px',
+            borderBottomLeftRadius: '12px',
+            boxShadow: '-4px 0 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 30,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}
+          onClick={() => setIsVoiceoverPanelOpen(true)}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#2563eb';
+            e.currentTarget.style.width = '56px';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#3b82f6';
+            e.currentTarget.style.width = '48px';
+          }}
+          title="Open Voiceover Panel"
+        >
+          <Volume2 
+            className="w-6 h-6 text-white" 
+            style={{ 
+              transform: 'translateY(-20px)', // Position slightly more to the top
+              transition: 'transform 0.2s ease'
+            }}
+          />
+        </div>
+      )}
 
       {/* Voiceover Panel */}
       {hasAnyVoiceover && (
