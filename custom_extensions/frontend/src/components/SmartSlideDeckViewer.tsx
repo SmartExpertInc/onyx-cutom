@@ -59,6 +59,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         );
 
         if (!hasValidFormat) {
+          console.error('❌ Invalid slide format detected:', {
+            slideCount: deck.slides.length,
+            slides: deck.slides.map((slide: any, index: number) => ({
+              index,
+              hasTemplateId: slide.hasOwnProperty('templateId'),
+              hasProps: slide.hasOwnProperty('props'),
+              slideKeys: Object.keys(slide),
+              slideType: typeof slide
+            }))
+          });
           setError('Slides must be in component-based format with templateId and props.');
           return;
         }
@@ -141,6 +151,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Add new slide
   const addSlide = (newSlide: ComponentBasedSlide) => {
     if (!componentDeck) return;
+
+    // Validate the new slide structure
+    if (!newSlide.templateId || !newSlide.props) {
+      console.error('❌ Invalid new slide structure:', newSlide);
+      return;
+    }
+
+    console.log('✅ Adding new slide with valid structure:', {
+      slideId: newSlide.slideId,
+      templateId: newSlide.templateId,
+      propsKeys: Object.keys(newSlide.props),
+      metadata: newSlide.metadata
+    });
 
     const updatedDeck: ComponentBasedSlideDeck = {
       ...componentDeck,

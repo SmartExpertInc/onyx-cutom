@@ -72,7 +72,10 @@ export const FloatingAddSlideButton: React.FC<FloatingAddSlideButtonProps> = ({
         {disabled ? (
           <div className="loading-spinner" />
         ) : (
-          <Plus size={20} />
+          <>
+            <Plus size={16} />
+            <span>Add Slide</span>
+          </>
         )}
       </button>
 

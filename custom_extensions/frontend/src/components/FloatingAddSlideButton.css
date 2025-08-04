@@ -10,26 +10,31 @@
 
 /* Main Floating Button */
 .floating-add-button {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
-  border: none;
+  min-width: 120px;
+  height: 48px;
+  border-radius: 24px;
+  background: #000000;
+  border: 2px solid #000000;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10000;
   position: relative;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 0 16px;
 }
 
 .floating-add-button:hover:not(.disabled) {
-  background: linear-gradient(135deg, #1557b0 0%, #0d47a1 100%);
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(26, 115, 232, 0.4);
+  background: #333333;
+  border-color: #333333;
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .floating-add-button:active:not(.disabled) {
@@ -222,8 +227,10 @@
   }
   
   .floating-add-button {
-    width: 48px;
-    height: 48px;
+    min-width: 100px;
+    height: 44px;
+    font-size: 13px;
+    padding: 0 12px;
   }
   
   .template-dropdown {
@@ -239,8 +246,10 @@
   }
   
   .floating-add-button {
-    width: 44px;
-    height: 44px;
+    min-width: 90px;
+    height: 40px;
+    font-size: 12px;
+    padding: 0 10px;
   }
   
   .template-dropdown {
