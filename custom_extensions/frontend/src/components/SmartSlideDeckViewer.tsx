@@ -39,7 +39,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
+  const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(true); // Open by default
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   
   // Refs for synchronized scrolling

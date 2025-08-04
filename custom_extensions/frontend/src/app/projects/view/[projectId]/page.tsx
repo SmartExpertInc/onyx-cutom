@@ -935,7 +935,9 @@ export default function ProjectInstanceViewPage() {
                 // For slide decks, use the new SmartSlideDeckViewer with component-based templates
         return (
           <div style={{ 
-            width: '100%',
+            width: '70%', // Match the 70% scale of slides
+            maxWidth: '840px', // 70% of 1200px max width
+            margin: '0 auto', // Center the container
             minHeight: '600px',
             backgroundColor: '#f8f9fa',
             padding: '20px',
@@ -1002,7 +1004,9 @@ export default function ProjectInstanceViewPage() {
         // For video lesson presentations, use the same SmartSlideDeckViewer but with voiceover support
         return (
           <div style={{ 
-            width: '100%',
+            width: '70%', // Match the 70% scale of slides
+            maxWidth: '840px', // 70% of 1200px max width
+            margin: '0 auto', // Center the container
             minHeight: '600px',
             backgroundColor: '#f8f9fa',
             padding: '20px',
