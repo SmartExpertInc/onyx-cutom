@@ -10878,6 +10878,13 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 slides=[]
             )
             llm_json_example = DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM  # Force use of new template format
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
+            target_content_model = SlideDeckDetails
+            default_error_instance = SlideDeckDetails(
+                lessonTitle=f"LLM Parsing Error for {project_data.projectName}",
+                slides=[]
+            )
+            llm_json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM  # Use video lesson template with voiceover
             component_specific_instructions = """
             You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
@@ -10886,6 +10893,17 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
 
             **CRITICAL: Parse Component-Based Slides with templateId and props**
             You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
+            
+            **VIDEO LESSON VOICEOVER REQUIREMENTS:**
+            When parsing a Video Lesson Presentation, you MUST include voiceover text for each slide. The voiceover should:
+            - Be conversational and engaging, as if speaking directly to the learner
+            - Explain the slide content in detail, expanding on what's visually presented
+            - Use natural transitions between concepts
+            - Be approximately 30-60 seconds of speaking time per slide
+            - Include clear explanations of complex concepts
+            - Use inclusive language ("we", "you", "let's") to create connection with the learner
+            - Provide context and background information not visible on the slide
+            - End with smooth transitions to the next slide
 
             **Global Fields:**
             1.  `lessonTitle` (string): Main title of the lesson/presentation.
@@ -10896,6 +10914,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
             4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
             5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
+            6.  `hasVoiceover` (boolean, optional): For Video Lesson Presentations, set to true if any slide has voiceover text.
 
             **SLIDE PARSING RULES - PARSE ALL SLIDES:**
             - Parse every slide section marked by "---" or slide separators in the input text
@@ -10910,6 +10929,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             * `slideTitle` (string): Extract descriptive title exactly as provided in the input.
             * `templateId` (string): Assign appropriate template based on content structure (see template guidelines below).
             * `props` (object): Template-specific properties containing the actual content from the slide.
+            * `voiceoverText` (string, optional): For Video Lesson Presentations, include conversational voiceover text that explains the slide content in detail.
 
             **Template Assignment Guidelines:**
             Assign templateId based on the content structure of each slide:
@@ -11463,6 +11483,9 @@ Return ONLY the JSON object.
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails.")
+                elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
+                    final_content_for_response = SlideDeckDetails(**db_content_dict)
+                    logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
@@ -11546,6 +11569,8 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_QUIZ:
                     parsed_content_for_response = QuizData(**db_content_json)
                 elif component_name == COMPONENT_NAME_SLIDE_DECK:
+                    parsed_content_for_response = SlideDeckDetails(**db_content_json)
+                elif component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 else:
                     logger.warning(f"Unknown component_name '{component_name}' for project {project_id}. Trying fallbacks.", exc_info=not IS_PRODUCTION)
