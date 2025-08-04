@@ -28,8 +28,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🎯',
     component: TitleSlideTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      subtitle: 'Add your subtitle...',
+      title: 'Presentation Title',
+      subtitle: 'Compelling subtitle that captures attention',
       author: '',
       date: '',
       backgroundColor: '#261c4e',
@@ -94,8 +94,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📄',
     component: ContentSlideTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      content: 'Add your content...',
+      title: 'Slide Title',
+      content: 'Your content goes here. This is where you explain your key points with detailed information that supports your presentation narrative.',
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
       contentColor: '#d9e1ff',
@@ -158,11 +158,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🖼️',
     component: BigImageLeftTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      subtitle: 'Add your subtitle...',
-      imageUrl: '',
-      imageAlt: 'Add image description...',
-      imagePrompt: '',
+      title: 'Image Title',
+      subtitle: 'Subtitle that complements the image and provides context or explanation.',
+      imageUrl: 'https://via.placeholder.com/600x400?text=Your+Image',
+      imageAlt: 'Descriptive alt text',
+      imagePrompt: 'man sitting on a chair',
       imageSize: 'large',
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
@@ -236,15 +236,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📝',
     component: BulletPointsTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      bullets: ['Add your first point...', 'Add your second point...', 'Add your third point...'],
+      title: 'Bullet Points',
+      bullets: ['First point', 'Second point', 'Third point'],
       maxColumns: 2,
       bulletStyle: 'dot',
       titleColor: '#1a1a1a',
       bulletColor: '#333333',
       backgroundColor: '#ffffff',
-      imagePrompt: '',
-      imageAlt: 'Add image description...'
+      imagePrompt: 'A relevant illustration for the bullet points',
+      imageAlt: 'Description of the image'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -297,16 +297,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📋',
     component: BulletPointsRightTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      subtitle: 'Add your subtitle...',
-      bullets: ['Add your first point...', 'Add your second point...', 'Add your third point...'],
+      title: 'Key Points',
+      subtitle: 'Short intro or context before the list',
+      bullets: ['First point', 'Second point', 'Third point'],
       maxColumns: 1,
       bulletStyle: 'dot',
       titleColor: '#1a1a1a',
       bulletColor: '#333333',
       backgroundColor: '#ffffff',
-      imagePrompt: '',
-      imageAlt: 'Add image description...'
+      imagePrompt: 'A relevant illustration for the bullet points',
+      imageAlt: 'Description of the image'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -358,16 +358,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📑',
     component: TwoColumnTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      leftTitle: 'Add left title...',
-      leftContent: 'Add left content...',
+      title: 'Two Column Layout',
+      leftTitle: 'Left Column',
+      leftContent: 'Content for the left side',
       leftImageUrl: '',
-      leftImageAlt: 'Add left image description...',
+      leftImageAlt: '',
       leftImagePrompt: '',
-      rightTitle: 'Add right title...',
-      rightContent: 'Add right content...',
+      rightTitle: 'Right Column',
+      rightContent: 'Content for the right side',
       rightImageUrl: '',
-      rightImageAlt: 'Add right image description...',
+      rightImageAlt: '',
       rightImagePrompt: '',
       columnRatio: '50-50',
       backgroundColor: '#261c4e',
@@ -403,21 +403,21 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🔄',
     component: ProcessStepsTemplate,
     defaultProps: {
-      title: 'Add your title...',
+      title: 'Process Steps',
       steps: [
         {
-          title: 'Add step 1...',
-          description: 'Add step 1 description...',
+          title: 'Step 1',
+          description: 'First step in the process',
           icon: '1️⃣'
         },
         {
-          title: 'Add step 2...',
-          description: 'Add step 2 description...',
+          title: 'Step 2',
+          description: 'Second step in the process',
           icon: '2️⃣'
         },
         {
-          title: 'Add step 3...',
-          description: 'Add step 3 description...',
+          title: 'Step 3',
+          description: 'Third step in the process',
           icon: '3️⃣'
         }
       ],
@@ -479,18 +479,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '⚖️',
     component: ChallengesSolutionsTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      challengesTitle: 'Challenges',
-      solutionsTitle: 'Solutions',
+      title: 'Виклики у Просуванні та Як Їх Подолати',
+      challengesTitle: 'Виклики',
+      solutionsTitle: 'Рішення',
       challenges: [
-        'Add challenge 1...',
-        'Add challenge 2...',
-        'Add challenge 3...'
+        'Відмова та низький відгук на холодні контакти',
+        'Відсутність чіткої кваліфікації лідів',
+        'Перевантаження інформацією потенційних клієнтів'
       ],
       solutions: [
-        'Add solution 1...',
-        'Add solution 2...',
-        'Add solution 3...'
+        'Інтенсивні тренінги для продавців із техніки просування',
+        'Впровадження автоматизації для ефективності',
+        'Ретельна сегментація ринку та персоналізація'
       ],
       challengeColor: '#fef2f2',
       solutionColor: '#f0fdf4',
@@ -594,8 +594,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🚀',
     component: HeroTitleSlideTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      subtitle: 'Add your subtitle...',
+      title: 'Виявлення та Просування Нових Лідів для Генерації Продажів',
+      subtitle: 'Визначення лідів, перспектив і можливостей: шлях до успіху в продажах 2025 року.',
       showAccent: true,
       accentColor: '#3b82f6',
       accentPosition: 'left',
@@ -707,10 +707,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🖼️',
     component: BigImageTopTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      subtitle: 'Add your subtitle...',
+      title: 'Main Title',
+      subtitle: 'Subtitle or content goes here',
       imageUrl: '',
-      imageAlt: 'Add image description...',
+      imageAlt: '',
       imagePrompt: '',
       imageSize: 'large',
       backgroundColor: '#261c4e',
@@ -738,12 +738,12 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🟪',
     component: FourBoxGridTemplate,
     defaultProps: {
-      title: 'Add your title...',
+      title: 'Main Title',
       boxes: [
-        { heading: 'Add box 1 heading...', text: 'Add box 1 description...' },
-        { heading: 'Add box 2 heading...', text: 'Add box 2 description...' },
-        { heading: 'Add box 3 heading...', text: 'Add box 3 description...' },
-        { heading: 'Add box 4 heading...', text: 'Add box 4 description...' }
+        { heading: 'Box 1', text: 'Description for box 1.' },
+        { heading: 'Box 2', text: 'Description for box 2.' },
+        { heading: 'Box 3', text: 'Description for box 3.' },
+        { heading: 'Box 4', text: 'Description for box 4.' }
       ]
     },
     propSchema: {
@@ -767,12 +767,12 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '⏳',
     component: TimelineTemplate,
     defaultProps: {
-      title: 'Add your title...',
+      title: 'History and Evolution',
       steps: [
-        { heading: 'Add step 1 heading...', description: 'Add step 1 description...' },
-        { heading: 'Add step 2 heading...', description: 'Add step 2 description...' },
-        { heading: 'Add step 3 heading...', description: 'Add step 3 description...' },
-        { heading: 'Add step 4 heading...', description: 'Add step 4 description...' }
+        { heading: 'Hip-Hop Influence', description: 'Deeply intertwined with hip-hop culture, early street art was a raw, authentic voice of the streets.' },
+        { heading: '1960s NYC Graffiti', description: 'Street art\'s roots trace back to graffiti tagging in New York City, an underground movement defining urban identity.' },
+        { heading: 'Transition to Commissioned Works', description: 'From illicit markings to celebrated public art, its evolution saw a shift towards acceptance and commissioned projects.' },
+        { heading: 'Pioneers Emerge', description: 'Artists like Basquiat, Haring, and Banksy transformed the landscape, bringing street art into mainstream consciousness.' }
       ]
     },
     propSchema: {
@@ -795,11 +795,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: 'bar_chart',
     component: BigNumbersTemplate,
     defaultProps: {
-      title: 'Add your title...',
+      title: 'Key Metrics',
       items: [
-        { value: 'Add value 1...', label: 'Add label 1...', description: 'Add description 1...' },
-        { value: 'Add value 2...', label: 'Add label 2...', description: 'Add description 2...' },
-        { value: 'Add value 3...', label: 'Add label 3...', description: 'Add description 3...' },
+        { value: '25%', label: 'Reduced Costs', description: 'Efficient architecture can decrease development and maintenance expenses by up to 25%.' },
+        { value: '3x', label: 'Faster Time-to-Market', description: 'Well-defined architectures accelerate feature deployment, bringing products to market 3 times faster.' },
+        { value: '50%', label: 'Improved Stability', description: 'Robust designs lead to a 50% reduction in critical system outages and performance issues.' },
       ],
     },
     propSchema: {
@@ -815,12 +815,12 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: 'signal_cellular_alt',
     component: PyramidTemplate,
     defaultProps: {
-      title: 'Add your title...',
-      subtitle: 'Add your subtitle...',
+      title: 'Key Metrics of Effective System Architecture',
+      subtitle: 'Effective system architecture is measured by how well it delivers on key objectives, balancing user needs, operational demands, and technical robustness.',
       items: [
-        { heading: 'Add heading 1...', description: 'Add description 1...' },
-        { heading: 'Add heading 2...', description: 'Add description 2...' },
-        { heading: 'Add heading 3...', description: 'Add description 3...' },
+        { heading: 'User Satisfaction', description: 'Achieving user delight' },
+        { heading: 'Operational Efficiency', description: 'Optimizing resources' },
+        { heading: 'System Reliability', description: 'Ensuring stability' },
       ],
     },
     propSchema: {
