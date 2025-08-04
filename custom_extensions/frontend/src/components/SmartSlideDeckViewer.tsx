@@ -113,8 +113,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   useEffect(() => {
     if (!isVoiceoverPanelOpen || !slidesContainerRef.current) return;
 
-    const handlePanelScroll = (event: Event) => {
-      const panelContent = event.target as HTMLElement;
+    const handlePanelScroll = () => {
+      const panelContent = document.querySelector('.panel-content');
       const slidesContainer = slidesContainerRef.current;
       
       if (panelContent && slidesContainer) {
@@ -128,10 +128,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         const scrollPercentage = panelScrollTop / (panelScrollHeight - panelClientHeight);
         const slidesScrollTop = scrollPercentage * (slidesScrollHeight - slidesClientHeight);
         
-        // Prevent infinite loop by checking if scroll is significantly different
-        if (Math.abs(slidesContainer.scrollTop - slidesScrollTop) > 5) {
-          slidesContainer.scrollTop = slidesScrollTop;
-        }
+        slidesContainer.scrollTop = slidesScrollTop;
       }
     };
 
@@ -144,10 +141,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Handle slides scroll to sync with panel
   const handleSlidesScroll = () => {
-    if (!isVoiceoverPanelOpen || !slidesContainerRef.current) return;
+    if (!isVoiceoverPanelOpen) return;
 
     const slidesContainer = slidesContainerRef.current;
-    const panelContent = document.querySelector('.panel-content') as HTMLElement;
+    const panelContent = document.querySelector('.panel-content');
     
     if (slidesContainer && panelContent) {
       const slidesScrollTop = slidesContainer.scrollTop;
@@ -160,10 +157,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       const scrollPercentage = slidesScrollTop / (slidesScrollHeight - slidesClientHeight);
       const panelScrollTop = scrollPercentage * (panelScrollHeight - panelClientHeight);
       
-      // Prevent infinite loop by checking if scroll is significantly different
-      if (Math.abs(panelContent.scrollTop - panelScrollTop) > 5) {
-        panelContent.scrollTop = panelScrollTop;
-      }
+      panelContent.scrollTop = panelScrollTop;
     }
   };
 
@@ -365,10 +359,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           zIndex: 5,
           backgroundColor: 'white',
           minHeight: 'calc(100vh - 80px)', // Adjust based on header height
-          transformOrigin: 'center center'
+          transformOrigin: 'center center',
+          overflow: 'hidden' // Prevent container scroll
         }}
       >
-        {/* Slides Container - Scrollable and synchronized */}
+        {/* Slides Container - Scrollable and scalable */}
         <div 
           ref={slidesContainerRef}
           className="slides-container"

@@ -39,6 +39,36 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
     }
   }, [isOpen, currentSlideId]);
 
+  // Synchronized scrolling with main content
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleScroll = () => {
+      const mainContent = document.querySelector('.main-content');
+      const panelContent = panelRef.current?.querySelector('.panel-content');
+      
+      if (mainContent && panelContent) {
+        const mainScrollTop = mainContent.scrollTop;
+        const mainScrollHeight = mainContent.scrollHeight;
+        const mainClientHeight = mainContent.clientHeight;
+        const panelScrollHeight = panelContent.scrollHeight;
+        const panelClientHeight = panelContent.clientHeight;
+        
+        // Calculate scroll percentage and apply to panel
+        const scrollPercentage = mainScrollTop / (mainScrollHeight - mainClientHeight);
+        const panelScrollTop = scrollPercentage * (panelScrollHeight - panelClientHeight);
+        
+        panelContent.scrollTop = panelScrollTop;
+      }
+    };
+
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.addEventListener('scroll', handleScroll);
+      return () => mainContent.removeEventListener('scroll', handleScroll);
+    }
+  }, [isOpen]);
+
   // Close panel on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -95,6 +125,25 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
     setEditingText('');
   };
 
+  const handlePanelScroll = () => {
+    const panelContent = panelRef.current?.querySelector('.panel-content');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (panelContent && mainContent) {
+      const panelScrollTop = panelContent.scrollTop;
+      const panelScrollHeight = panelContent.scrollHeight;
+      const panelClientHeight = panelContent.clientHeight;
+      const mainScrollHeight = mainContent.scrollHeight;
+      const mainClientHeight = mainContent.clientHeight;
+      
+      // Calculate scroll percentage and apply to main content
+      const scrollPercentage = panelScrollTop / (panelScrollHeight - panelClientHeight);
+      const mainScrollTop = scrollPercentage * (mainScrollHeight - mainClientHeight);
+      
+      mainContent.scrollTop = mainScrollTop;
+    }
+  };
+
   return (
     <>
       {/* Sliding Panel */}
@@ -121,6 +170,7 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
         {/* Content */}
         <div 
           className="panel-content h-full overflow-y-auto"
+          onScroll={handlePanelScroll}
         >
           <div className="p-4 space-y-4">
             {slides.map((slide) => {
