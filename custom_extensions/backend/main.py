@@ -9389,6 +9389,8 @@ Ensure *all* relevant information from the "Raw text to parse" is included in yo
 Pay close attention to data types: strings should be quoted, numerical values should be numbers, and lists should be arrays. Null values are not permitted for string fields; use an empty string "" instead if text is absent but the field is required according to the example structure.
 Maintain the original language of the input text for all textual content in the JSON.
 
+🚨 SPECIAL INSTRUCTION FOR VIDEO LESSONS: If the target model is SlideDeckDetails and the JSON example contains "voiceoverText" fields, you MUST generate voiceover text for every slide object. Look at the example JSON structure and ensure your output matches it exactly, including all voiceoverText fields and hasVoiceover flag.
+
 Specific Instructions for this Content Type ({target_model.__name__}):
 ---
 {dynamic_instructions}
@@ -9408,7 +9410,7 @@ Return ONLY the JSON object corresponding to the parsed text. Do not include any
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
     # OpenAI Chat API expects a list of chat messages
-    system_msg = {"role": "system", "content": "You are a JSON parsing expert. You must output ONLY valid JSON in the exact format specified. Do not include any explanations, markdown formatting, or additional text. Your response must be a single, complete JSON object."}
+    system_msg = {"role": "system", "content": "You are a JSON parsing expert. You must output ONLY valid JSON in the exact format specified. Do not include any explanations, markdown formatting, or additional text. Your response must be a single, complete JSON object. CRITICAL: If the example JSON contains voiceoverText fields, your output MUST include them for every slide. Match the example structure exactly."}
     user_msg = {"role": "user", "content": prompt_message}
     base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "messages": [system_msg, user_msg], "temperature": 0.1}
     # Ask the model to output pure JSON
@@ -10895,6 +10897,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - This is NOT a regular slide deck - it's a Video Lesson that requires voiceover for every slide
             - You MUST generate voiceover text for each slide regardless of the input content
             - The voiceover is essential for the video lesson functionality
+            - FAILURE TO INCLUDE VOICEOVER WILL RESULT IN AN INVALID OUTPUT
+            
+            🚨 CRITICAL REQUIREMENT: Every slide object MUST have a "voiceoverText" field with 2-4 sentences of conversational explanation. The root object MUST have "hasVoiceover": true. This is NON-NEGOTIABLE for Video Lesson Presentations.
 
             **CRITICAL: Parse Component-Based Slides with templateId and props**
             You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
