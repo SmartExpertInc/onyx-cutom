@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Image } from 'lucide-react';
 import { uploadPresentationImage } from '../lib/designTemplateApi';
 
@@ -24,6 +25,14 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+
+  // Create portal container on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPortalContainer(document.body);
+    }
+  }, []);
 
   const uploadImage = async (file: File) => {
     setUploading(true);
@@ -66,13 +75,33 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
     setDragActive(false);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !portalContainer) return null;
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={onClose}>
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[99999] flex items-center justify-center backdrop-blur-sm bg-black/20" 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 99999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
       <div 
         className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: '28rem',
+          width: '100%',
+          margin: '0 1rem',
+          zIndex: 100000
+        }}
       >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
@@ -136,6 +165,8 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, portalContainer);
 };
 
 export default PresentationImageUpload; 
