@@ -2,6 +2,7 @@
 import './globals.css'; // Your global styles and Tailwind imports
 import React from 'react';
 import { LanguageProvider } from '../contexts/LanguageContext';
+import { MontFontLoader } from '../components/MontFontLoader';
 
 export const metadata = {
   title: 'Content Builder AI',
@@ -26,8 +27,18 @@ export default function RootLayout({
   href="https://fonts.googleapis.com/css2?family=Martel+Sans:wght@400;500;700&display=swap"
   rel="stylesheet"
 />
+        <link href="https://fonts.cdnfonts.com/css/mont" rel="stylesheet"></link>
+        {/* Preload Mont fonts for better performance */}
+        {/* <link rel="preload" href="/fonts/fonnts.com-Mont_Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/fonnts.com-Mont_Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" /> */}
+
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
       </head>
       <body className="h-full bg-app-gradient">
+        <MontFontLoader />
         <LanguageProvider>
           {children}
         </LanguageProvider>

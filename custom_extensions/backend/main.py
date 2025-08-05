@@ -1,4 +1,4 @@
-# custom_extensions/backend/main.py
+﻿# custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -645,6 +645,7 @@ class SlideDeckDetails(BaseModel):
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
     hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -1936,6 +1937,7 @@ class SlideDeckDetails(BaseModel):
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
     hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -3179,6 +3181,7 @@ class SlideDeckDetails(BaseModel):
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
     hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -4397,6 +4400,7 @@ class SlideDeckDetails(BaseModel):
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
     hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -5486,6 +5490,7 @@ class ProjectCreateRequest(BaseModel):
     chatSessionId: Optional[uuid.UUID] = None
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     folder_id: Optional[int] = None  # Add folder_id for automatic folder assignment
+    theme: Optional[str] = None      # Selected theme for presentations
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -6953,6 +6958,31 @@ async def upload_onepager_image(file: UploadFile = File(...)):
         with open(file_path_on_disk, "wb") as buffer: shutil.copyfileobj(file.file, buffer)
     except Exception as e:
         logger.error(f"Error saving one-pager image: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Could not save image." if IS_PRODUCTION else f"Could not save image: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    finally:
+        await file.close()
+    web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
+    return {"file_path": web_accessible_path}
+
+@app.post("/api/custom/presentation/upload_image", responses={200: {"description": "Image uploaded successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/your_image_name.png"}}}},400: {"description": "Invalid file type or other error", "model": ErrorDetail},413: {"description": "File too large", "model": ErrorDetail}})
+async def upload_presentation_image(file: UploadFile = File(...)):
+    """Upload an image for use in presentations"""
+    allowed_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp"}; max_file_size = 10 * 1024 * 1024  # 10MB for presentation images
+    file_content = await file.read()
+    if len(file_content) > max_file_size:
+        detail_msg = "File too large." if IS_PRODUCTION else f"File too large. Max size {max_file_size // (1024*1024)}MB."
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=detail_msg)
+    await file.seek(0)
+    file_extension = os.path.splitext(file.filename)[1].lower() if file.filename else ".png"
+    if file_extension not in allowed_extensions:
+        detail_msg = "Invalid file type." if IS_PRODUCTION else f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_msg)
+    safe_filename_base = str(uuid.uuid4()); unique_filename = f"presentation_{safe_filename_base}{file_extension}"; file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
+    try:
+        with open(file_path_on_disk, "wb") as buffer: shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        logger.error(f"Error saving presentation image: {e}", exc_info=not IS_PRODUCTION)
         detail_msg = "Could not save image." if IS_PRODUCTION else f"Could not save image: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
     finally:
@@ -8691,6 +8721,14 @@ Return ONLY the JSON object.
 
         logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
         logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
+
+        # Inject theme for slide decks from the finalize request
+        if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
+            hasattr(parsed_content_model_instance, 'theme') and 
+            hasattr(project_data, 'theme') and 
+            project_data.theme):
+            parsed_content_model_instance.theme = project_data.theme
+            logger.info(f"Injected theme '{project_data.theme}' into slide deck")
 
         # Post-process module IDs for training plans to ensure № character is preserved
         if hasattr(parsed_content_model_instance, 'sections') and parsed_content_model_instance.sections:
@@ -12240,6 +12278,7 @@ class LessonWizardPreview(BaseModel):
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
     productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
+    theme: Optional[str] = None            # Selected theme for presentation
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -12258,6 +12297,7 @@ class LessonWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
     productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
+    theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
@@ -12283,6 +12323,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         "language": payload.language,
         "slidesCount": payload.slidesCount or 5,
         "generateVoiceover": is_video_lesson,  # Flag to indicate voiceover generation
+        "theme": payload.theme or "dark-purple",  # Use selected theme or default
     }
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
@@ -12570,7 +12611,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-            folder_id=int(payload.folderId) if payload.folderId else None  # Add folder assignment
+            folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
+            theme=payload.theme  # Pass selected theme
         )
         
         # Create project with proper error handling

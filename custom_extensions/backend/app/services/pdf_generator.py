@@ -1046,6 +1046,70 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             'slide_height': slide_height
         }
         
+        # Process presentation slide images (convert imagePath to base64 data URLs)
+        if safe_slide_data.get('props'):
+            props = safe_slide_data['props']
+            
+            # Calculate the correct path to static_design_images from pdf_generator.py location
+            current_dir = os.path.dirname(__file__)  # app/services/
+            root_dir = os.path.dirname(os.path.dirname(current_dir))  # Go up 2 levels to root
+            static_images_dir = os.path.join(root_dir, 'static_design_images')
+            static_images_abs_path = os.path.abspath(static_images_dir)
+            
+            logger.info(f"PDF GEN: Processing presentation slide images")
+            logger.info(f"PDF GEN: Static images absolute path: {static_images_abs_path}")
+            
+            # List of image path properties to process
+            image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
+            
+            for prop_name in image_props:
+                if prop_name in props and props[prop_name]:
+                    original_src = props[prop_name]
+                    logger.info(f"PDF GEN: Processing {prop_name}: {original_src}")
+                    
+                    # Only transform if not already a data URL
+                    if original_src and not original_src.startswith('data:'):
+                        if original_src.startswith('/static_design_images/'):
+                            filename = original_src.replace('/static_design_images/', '')
+                            full_path = os.path.join(static_images_abs_path, filename)
+                            
+                            logger.info(f"PDF GEN: {prop_name} - Original: {original_src}")
+                            logger.info(f"PDF GEN: {prop_name} - Filename: {filename}")
+                            logger.info(f"PDF GEN: {prop_name} - Full path: {full_path}")
+                            logger.info(f"PDF GEN: {prop_name} - File exists: {os.path.exists(full_path)}")
+                            
+                            if os.path.exists(full_path):
+                                try:
+                                    # Read the image file and convert to base64
+                                    with open(full_path, 'rb') as image_file:
+                                        image_data = image_file.read()
+                                        image_base64 = base64.b64encode(image_data).decode('utf-8')
+                                        
+                                        # Determine MIME type
+                                        mime_type, _ = mimetypes.guess_type(full_path)
+                                        if not mime_type:
+                                            mime_type = 'image/jpeg'  # Default fallback
+                                        
+                                        # Create data URL
+                                        data_url = f"data:{mime_type};base64,{image_base64}"
+                                        
+                                        logger.info(f"PDF GEN: {prop_name} - MIME type: {mime_type}")
+                                        logger.info(f"PDF GEN: {prop_name} - Image size: {len(image_data)} bytes")
+                                        logger.info(f"PDF GEN: {prop_name} - Successfully converted to data URL")
+                                        
+                                        props[prop_name] = data_url
+                                        
+                                except Exception as e:
+                                    logger.error(f"PDF GEN: Failed to read image file {full_path}: {e}")
+                                    logger.info(f"PDF GEN: Keeping original {prop_name}: {original_src}")
+                            else:
+                                logger.warning(f"PDF GEN: Image file not found: {full_path}")
+                                logger.info(f"PDF GEN: Keeping original {prop_name}: {original_src}")
+                        else:
+                            logger.info(f"PDF GEN: {prop_name} - Keeping original src: {original_src}")
+                    else:
+                        logger.info(f"PDF GEN: {prop_name} - Already data URL or empty: {original_src}")
+        
         # Render the single slide template
         try:
             # Debug logging to see the data structure

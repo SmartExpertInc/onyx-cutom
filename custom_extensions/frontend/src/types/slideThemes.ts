@@ -74,6 +74,80 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       titleSize: '40px',
       contentSize: '16px'
     }
+  },
+
+  'chudo-theme': {
+    id: 'chudo-theme',
+    name: 'Chudo Theme',
+     colors: {
+    backgroundColor: '#ffffff',
+    titleColor: '#d01510',
+    subtitleColor: '#3a3a3a',
+    contentColor: '#3a3a3a',
+    accentColor: '#ed6c00',
+    borderColor: '#d01510'
+  },
+  fonts: {
+    titleFont: 'Mont Bold, sans-serif',
+    contentFont: 'Mont Regular, sans-serif',
+    titleSize: '40px',
+    contentSize: '16px'
+  }
+  },
+
+  'chudo-2': {
+    id: 'chudo-2',
+    name: 'Chudo 2',
+    colors: {
+      backgroundColor: '#ed6c00',
+      titleColor: '#ffffff',
+      subtitleColor: '#3a3a3a',
+      contentColor: '#ffffff',
+      accentColor: '#d01510',
+      borderColor: '#3a3a3a'
+    },
+    fonts: {
+      titleFont: 'Mont Bold, sans-serif',
+      contentFont: 'Mont Regular, sans-serif',
+      titleSize: '40px',
+      contentSize: '16px'
+    }
+  },
+  'forta': {
+    id: 'forta',
+    name: 'Forta',
+    colors: {
+      backgroundColor: 'rgb(225, 211, 196)',
+      titleColor: 'rgb(238, 118, 35)',
+      subtitleColor: 'rgb(0, 102, 79)',
+      contentColor: 'rgb(65,67,73)',
+      accentColor: 'rgb(0, 102, 79)',
+      borderColor: 'rgb(0, 102, 79)'
+    },
+    fonts: {
+      titleFont: 'Montserrat, sans-serif',
+      contentFont: 'Montserrat, sans-serif',
+      titleSize: '40px',
+      contentSize: '16px'
+    }
+  },
+  'forta-2': {
+    id: 'forta-2',
+    name: 'Forta 2',
+    colors: {
+      backgroundColor: 'rgb(0, 102, 79)',      // Green background
+      titleColor: 'rgb(238, 118, 35)',         // Orange title (can also be white)
+      subtitleColor: '#ffffff',                // White subtitle
+      contentColor: '#ffffff',                 // White content text
+      accentColor: 'rgb(225, 211, 196)',        // Orange for bullet points
+      borderColor: 'rgb(238, 118, 35)'         // Orange border
+    },
+    fonts: {
+      titleFont: 'Montserrat, sans-serif',
+      contentFont: 'Montserrat, sans-serif',
+      titleSize: '40px',
+      contentSize: '16px'
+    }
   }
 };
 

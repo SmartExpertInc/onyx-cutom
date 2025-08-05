@@ -64,6 +64,23 @@ export async function uploadOnePagerImage(imageFile: File): Promise<ImageUploadR
   return response.json();
 }
 
+export async function uploadPresentationImage(imageFile: File): Promise<ImageUploadResponse> {
+  const formData = new FormData();
+  formData.append('file', imageFile);
+
+  const response = await fetch(`${API_BASE_URL}/presentation/upload_image`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to upload presentation image');
+  }
+
+  return response.json();
+}
+
 export async function addDesignTemplate(templateData: DesignTemplateFormData): Promise<DesignTemplate> {
   const response = await fetch(`${API_BASE_URL}/design_templates/add`, {
     method: 'POST',

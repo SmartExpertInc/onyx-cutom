@@ -655,6 +655,14 @@ export const en = {
 
     },
 
+    // Theme picker translations
+    themePicker: {
+      title: "Presentation Themes",
+      description: "Choose a theme to change the visual style of your presentation. Changes will be applied immediately.",
+      applying: "Applying...",
+      footerInfo: "Theme changes are automatically saved and will be applied to your PDF downloads."
+    },
+
     // Course Outline specific translations
     courseOutline: {
       additionalInfo: "Additional Info",
@@ -703,6 +711,7 @@ export const en = {
       backButton: "Back",
       openProducts: "Open Products",
       downloadPdf: "Download PDF",
+      downloadSlideDeckPdf: "Download PDF",
       smartEdit: "Smart Edit",
       editContent: "Edit Content",
       saveContent: "Save Content",
@@ -718,6 +727,10 @@ export const en = {
       editGeneralDetails: "You can typically edit the project's general details (like name or design template) via the main project editing page.",
       toggleRawContentPreview: "Toggle Raw Content Preview",
       noSlideDeckData: "No slide deck data available",
+      // Theme-related translations
+      theme: "Theme",
+      changeTheme: "Change presentation theme",
+      changingTheme: "Changing...",
       projectDataNotLoaded: "Project data not loaded yet.",
       contentEditingNotSupported: "Content editing is currently supported for {types} types on this page.",
       projectDataOrIdNotAvailable: "Project data or ID is not available for download.",

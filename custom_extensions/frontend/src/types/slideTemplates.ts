@@ -110,6 +110,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   contentColor?: string;
   backgroundColor?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  imagePath?: string; // Path to uploaded image
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -136,6 +137,7 @@ export interface BulletPointsProps extends BaseTemplateProps {
   imagePrompt?: string;
   imageAlt?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  imagePath?: string;
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {
@@ -149,11 +151,13 @@ export interface TwoColumnProps extends BaseTemplateProps {
   leftImageUrl?: string;
   leftImageAlt?: string;
   leftImagePrompt?: string;
+  leftImagePath?: string; // Path to uploaded image for left column
   rightTitle: string;
   rightContent: string;
   rightImageUrl?: string;
   rightImageAlt?: string;
   rightImagePrompt?: string;
+  rightImagePath?: string; // Path to uploaded image for right column
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
   backgroundColor?: string;
   titleColor?: string;

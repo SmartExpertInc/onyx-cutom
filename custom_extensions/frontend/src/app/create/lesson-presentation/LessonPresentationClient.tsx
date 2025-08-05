@@ -11,6 +11,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import PresentationPreview from "../../../components/PresentationPreview";
+import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
+import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
+import { useCreationTheme } from "../../../hooks/useCreationTheme";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -237,8 +240,12 @@ export default function LessonPresentationClient() {
     params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
   );
   
-  // UI state
-  const [selectedTheme, setSelectedTheme] = useState<string>("wine");
+  // Theme management with creation-specific persistence
+  const { currentTheme: selectedTheme, changeTheme: setSelectedTheme } = useCreationTheme({
+    templateType: 'lesson-presentation',
+    templateDefaultTheme: DEFAULT_SLIDE_THEME,
+    enablePersistence: true
+  });
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
@@ -414,6 +421,8 @@ export default function LessonPresentationClient() {
             chatSessionId: chatId || undefined,
             slidesCount: slidesCount,
             productType: productType, // Pass product type for video lesson vs regular presentation
+            // Include selected theme
+            theme: selectedTheme,
           };
 
           // Add file context if creating from files
@@ -595,6 +604,8 @@ export default function LessonPresentationClient() {
           slidesCount: slidesCount,
           productType: productType, // Pass product type for video lesson vs regular presentation
           folderId: folderContext?.folderId || undefined,
+          // Include selected theme
+          theme: selectedTheme,
         }),
       });
 
@@ -676,6 +687,8 @@ export default function LessonPresentationClient() {
         prompt: promptQuery,
         chatSessionId: chatId || undefined,
         slidesCount: slidesCount,
+        // Include selected theme
+        theme: selectedTheme,
       };
 
       // Add file context if creating from files
@@ -786,14 +799,8 @@ export default function LessonPresentationClient() {
     }
   };
 
-  const themeOptions = [
-    { id: "wine", label: "Wine" },
-    { id: "cherry", label: "Default" },
-    { id: "vanilla", label: "Engenuity" },
-    { id: "terracotta", label: "Deloitte" },
-    { id: "lunaria", label: "Lunaria" },
-    { id: "zephyr", label: "Zephyr" },
-  ];
+  // Use the actual theme options from our theme system
+  const themeOptions = THEME_OPTIONS;
 
   // Cleanup effect to prevent stuck states
   useEffect(() => {
@@ -1138,25 +1145,35 @@ export default function LessonPresentationClient() {
             <div className="flex flex-col gap-5">
               {/* Themes grid */}
               <div className="grid grid-cols-3 gap-5 justify-items-center">
-                {themeOptions.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setSelectedTheme(t.id)}
-                    className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
-                  >
-                    <div className="w-[214px] h-[116px] flex items-center justify-center">
-                      {(() => {
-                        const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                        return <Svg />;
-                      })()}
-                    </div>
-                    <div className="flex items-center gap-1 px-2">
-                      <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
-                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
-                    </div>
-                  </button>
-                ))}
+                {themeOptions.map((theme) => {
+                  const ThemeSvgComponent = getThemeSvg(theme.id);
+                  const isSelected = selectedTheme === theme.id;
+                  
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => setSelectedTheme(theme.id)}
+                      className={`flex flex-col rounded-lg overflow-hidden border-2 transition-all p-3 gap-3 ${
+                        isSelected 
+                          ? 'border-blue-500 bg-blue-50 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className="w-[214px] h-[116px] flex items-center justify-center border border-gray-200 rounded overflow-hidden">
+                        <ThemeSvgComponent />
+                      </div>
+                      <div className="flex items-center gap-2 px-1">
+                        <span className={`w-4 h-4 flex items-center justify-center text-blue-600 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
+                          ✓
+                        </span>
+                        <span className={`text-sm font-medium select-none ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+                          {theme.label}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Content section */}

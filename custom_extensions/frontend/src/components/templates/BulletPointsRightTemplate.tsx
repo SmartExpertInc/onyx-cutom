@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 export interface BulletPointsRightProps extends BulletPointsProps {
   subtitle?: string;
@@ -131,6 +132,378 @@ function InlineEditor({
   );
 }
 
+// New component for unified bullet points editing (adapted for bullet-points-right)
+interface UnifiedBulletEditorProps {
+  bullets: string[];
+  bulletStyle: string;
+  onUpdate: (bullets: string[]) => void;
+  theme: SlideTheme;
+  isEditable: boolean;
+}
+
+function UnifiedBulletEditor({ 
+  bullets, 
+  bulletStyle, 
+  onUpdate, 
+  theme, 
+  isEditable 
+}: UnifiedBulletEditorProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+
+  // Convert bullets array to text for editing
+  const bulletsToText = (bullets: string[]): string => {
+    return bullets.join('\n');
+  };
+
+  // Convert text back to bullets array
+  const textToBullets = (text: string): string[] => {
+    return text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0 && line !== 'Click to add bullet point' && line !== 'Click to add bullet points...');
+  };
+
+  const getBulletIcon = (style: string, index: number) => {
+    switch (style) {
+      case 'dot':
+        return '•';
+      case 'arrow':
+        return '→';
+      case 'check':
+        return '✓';
+      case 'star':
+        return '★';
+      case 'number':
+        return `${index + 1}.`;
+      default:
+        return '•';
+    }
+  };
+
+  const startEditing = () => {
+    if (!isEditable) return;
+    setEditValue(bulletsToText(bullets));
+    setIsEditing(true);
+    setFocusedIndex(0);
+  };
+
+  const handleSave = () => {
+    const newBullets = textToBullets(editValue);
+    onUpdate(newBullets);
+    setIsEditing(false);
+    setFocusedIndex(0);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFocusedIndex(0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    handleSave();
+  };
+
+  // Focus management
+  useEffect(() => {
+    if (isEditing && textareaRefs.current[focusedIndex]) {
+      textareaRefs.current[focusedIndex]?.focus();
+    }
+  }, [focusedIndex, isEditing]);
+
+  // Initialize refs array and set proper heights
+  useEffect(() => {
+    const editLines = editValue.split('\n');
+    textareaRefs.current = textareaRefs.current.slice(0, editLines.length);
+    
+    // Set proper heights for all textareas after a brief delay to ensure DOM is ready
+    if (isEditing) {
+      setTimeout(() => {
+        textareaRefs.current.forEach((textarea, index) => {
+          if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+          }
+        });
+      }, 10);
+    }
+  }, [editValue, isEditing]);
+
+  // Set initial heights when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      setTimeout(() => {
+        textareaRefs.current.forEach((textarea) => {
+          if (textarea) {
+            textarea.style.height = 'auto';
+            // Calculate proper height for wrapped text
+            const computedStyle = window.getComputedStyle(textarea);
+            const lineHeight = parseInt(computedStyle.lineHeight) || 20;
+            const padding = parseInt(computedStyle.paddingTop) + parseInt(computedStyle.paddingBottom);
+            const border = parseInt(computedStyle.borderTopWidth) + parseInt(computedStyle.borderBottomWidth);
+            
+            // Set a minimum height and ensure all wrapped content is visible
+            const minHeight = lineHeight + padding + border;
+            const contentHeight = textarea.scrollHeight;
+            textarea.style.height = Math.max(minHeight, contentHeight + 4) + 'px';
+          }
+        });
+      }, 50);
+    }
+  }, [isEditing]);
+
+  const bulletIconStyles: React.CSSProperties = {
+    color: theme.colors.accentColor,
+    fontWeight: 600,
+    minWidth: '20px',
+    fontSize: bulletStyle === 'number' ? '1.6rem' : '1.8rem',
+    fontFamily: theme.fonts.titleFont
+  };
+
+  const bulletTextStyles: React.CSSProperties = {
+    fontFamily: theme.fonts.contentFont,
+    fontSize: theme.fonts.contentSize,
+    color: theme.colors.contentColor,
+    lineHeight: '1.6'
+  };
+
+  if (isEditing) {
+    // WYSIWYG editing mode with visible bullet icons
+    const editLines = editValue.split('\n');
+    const currentBullets = textToBullets(editValue);
+    
+    return (
+      <div 
+        style={{ 
+          padding: '4px', 
+          borderRadius: '4px',
+          border: '1px solid #3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.05)',
+          position: 'relative',
+          width: '100%',
+          minWidth: 0,
+          boxSizing: 'border-box'
+        }}
+      >
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          width: '100%'
+        }}>
+          {editLines.map((line: string, index: number) => {
+            const trimmedLine = line.trim();
+            const isEmpty = trimmedLine.length === 0;
+            const isPlaceholder = trimmedLine === 'Click to add bullet point' || trimmedLine === 'Click to add bullet points...';
+            
+            // Only show bullet icon for non-empty lines that aren't placeholders
+            const shouldShowBullet = !isEmpty && !isPlaceholder;
+            
+            return (
+              <li key={index} style={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                gap: '12px', 
+                marginBottom: '16px',
+                minHeight: '1.6em',
+                width: '100%'
+              }}>
+                {shouldShowBullet && (
+                  <span style={bulletIconStyles}>
+                    {getBulletIcon(bulletStyle, currentBullets.indexOf(trimmedLine))}
+                  </span>
+                )}
+                {!shouldShowBullet && (
+                  <span style={{ ...bulletIconStyles, opacity: 0.3 }}>
+                    {getBulletIcon(bulletStyle, index)}
+                  </span>
+                )}
+                <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
+                  <textarea
+                    ref={(el) => {
+                      textareaRefs.current[index] = el;
+                    }}
+                    value={line}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                      const newLines = [...editLines];
+                      newLines[index] = e.target.value;
+                      setEditValue(newLines.join('\n'));
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        // Insert a new line at the current position
+                        const newLines = [...editLines];
+                        newLines.splice(index + 1, 0, '');
+                        setEditValue(newLines.join('\n'));
+                        
+                        // Focus the new line
+                        setFocusedIndex(index + 1);
+                      } else if (e.key === 'Backspace') {
+                        const target = e.target as HTMLTextAreaElement;
+                        const cursorPosition = target.selectionStart;
+                        
+                        if (cursorPosition === 0 && index > 0) {
+                          // Backspace at the beginning of a line - merge with previous
+                          e.preventDefault();
+                          const newLines = [...editLines];
+                          const currentText = newLines[index];
+                          const previousText = newLines[index - 1];
+                          
+                          // Merge current text with previous line
+                          newLines[index - 1] = previousText + currentText;
+                          newLines.splice(index, 1);
+                          setEditValue(newLines.join('\n'));
+                          
+                          // Focus the previous line and position cursor at the end
+                          setFocusedIndex(index - 1);
+                          setTimeout(() => {
+                            const prevTextarea = textareaRefs.current[index - 1];
+                            if (prevTextarea) {
+                              prevTextarea.focus();
+                              prevTextarea.setSelectionRange(prevTextarea.value.length, prevTextarea.value.length);
+                            }
+                          }, 10);
+                        } else if (line === '' && editLines.length > 1) {
+                          // Backspace on empty line - remove the line
+                          e.preventDefault();
+                          const newLines = editLines.filter((_, i) => i !== index);
+                          setEditValue(newLines.join('\n'));
+                          
+                          // Focus the previous line and position cursor at the end
+                          setFocusedIndex(Math.max(0, index - 1));
+                          setTimeout(() => {
+                            const prevTextarea = textareaRefs.current[Math.max(0, index - 1)];
+                            if (prevTextarea) {
+                              prevTextarea.focus();
+                              prevTextarea.setSelectionRange(prevTextarea.value.length, prevTextarea.value.length);
+                            }
+                          }, 10);
+                        }
+                      } else if (e.key === 'ArrowUp' && index > 0) {
+                        e.preventDefault();
+                        setFocusedIndex(index - 1);
+                      } else if (e.key === 'ArrowDown' && index < editLines.length - 1) {
+                        e.preventDefault();
+                        setFocusedIndex(index + 1);
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancel();
+                      } else if (e.key === 'Tab') {
+                        e.preventDefault();
+                        handleSave();
+                      }
+                    }}
+                    onFocus={() => {
+                      setFocusedIndex(index);
+                    }}
+                    onBlur={() => {
+                      // Only save on blur if we're not switching to another textarea
+                      setTimeout(() => {
+                        const activeElement = document.activeElement;
+                        const isStillInEditMode = activeElement?.classList.contains('bullet-edit-textarea');
+                        if (!isStillInEditMode) {
+                          handleSave();
+                        }
+                      }, 100);
+                    }}
+                    placeholder={index === 0 ? "Enter bullet points... Press Enter for new line" : ""}
+                    className="bullet-edit-textarea"
+                    style={{
+                      ...bulletTextStyles,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      width: '100%',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      minHeight: '1.6em',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      padding: '0',
+                      margin: '0',
+                      height: 'auto'
+                    }}
+                    rows={1}
+                    onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
+                      // Auto-resize this specific textarea with better wrapping support
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      // Add a small buffer to ensure all wrapped text is visible
+                      target.style.height = (target.scrollHeight + 2) + 'px';
+                    }}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      onClick={startEditing}
+      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+    >
+      <ul style={{
+        listStyle: 'none',
+        padding: 0,
+        margin: 0,
+        width: '100%'
+      }}>
+        {bullets.map((bullet: string, index: number) => (
+          <li key={index} style={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            gap: '12px', 
+            marginBottom: '16px',
+            width: '100%'
+          }}>
+            <span style={bulletIconStyles}>
+              {getBulletIcon(bulletStyle, index)}
+            </span>
+            <span style={{ ...bulletTextStyles, flex: 1, minWidth: 0 }}>
+              {bullet || 'Click to add bullet point'}
+            </span>
+          </li>
+        ))}
+        {bullets.length === 0 && isEditable && (
+          <li style={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            gap: '12px', 
+            marginBottom: '16px',
+            width: '100%'
+          }}>
+            <span style={bulletIconStyles}>•</span>
+            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic', flex: 1, minWidth: 0 }}>
+              Click to add bullet points...
+            </span>
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
 export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & { 
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -145,24 +518,15 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   imagePrompt,
   imageAlt,
   theme,
-  isEditable = false
+  isEditable = false,
+  imagePath
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
-  // Inline editing state
+  // Inline editing state for title and subtitle only
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
-  const [editingBullets, setEditingBullets] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -209,7 +573,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     color: currentTheme.colors.titleColor,
     textAlign: 'left',
     marginBottom: '24px',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    lineHeight: '1.2'
   };
 
   const subtitleStyles: React.CSSProperties = {
@@ -218,31 +583,6 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     marginBottom: '28px',
     fontFamily: currentTheme.fonts.contentFont,
     wordWrap: 'break-word'
-  };
-
-  const bulletIconStyles: React.CSSProperties = {
-    color: currentTheme.colors.accentColor,
-    fontWeight: 600,
-    minWidth: '20px',
-    fontSize: bulletStyle === 'number' ? '1.6rem' : '1.8rem',
-    fontFamily: currentTheme.fonts.titleFont
-  };
-
-  const getBulletIcon = (style: string, index: number) => {
-    switch (style) {
-      case 'dot':
-        return '•';
-      case 'arrow':
-        return '→';
-      case 'check':
-        return '✓';
-      case 'star':
-        return '★';
-      case 'number':
-        return `${index + 1}.`;
-      default:
-        return '•';
-    }
   };
 
   // Handle title editing
@@ -269,40 +609,28 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     setEditingSubtitle(false);
   };
 
-  // Handle bullet editing
-  const handleBulletSave = (index: number, newBullet: string) => {
-    if (onUpdate && bullets) {
-      const updatedBullets = [...bullets];
-      updatedBullets[index] = newBullet;
-      onUpdate({ bullets: updatedBullets });
+  // Handle bullet points update
+  const handleBulletsUpdate = (newBullets: string[]) => {
+    if (onUpdate) {
+      onUpdate({ bullets: newBullets });
     }
-    setEditingBullets(editingBullets.filter(i => i !== index));
   };
 
-  const handleBulletCancel = (index: number) => {
-    setEditingBullets(editingBullets.filter(i => i !== index));
+  // Handle image upload
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ imagePath: newImagePath });
+    }
   };
 
-  const startEditingBullet = (index: number) => {
-    setEditingBullets([...editingBullets, index]);
-  };
-
+  // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '1 / 1',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d',
-    margin: '0 auto'
+    margin: '0 auto',
+    height: '100%',
+    aspectRatio: '1/1'
   };
 
   return (
@@ -319,7 +647,6 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
           style={{
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
-            margin: '0',
             padding: '0',
             border: 'none',
             outline: 'none',
@@ -328,7 +655,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
             wordWrap: 'break-word',
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
-            display: 'block'
+            display: 'block',
+            lineHeight: '1.2'
           }}
         />
       ) : (
@@ -339,7 +667,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -361,7 +689,6 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
                 style={{
                   ...subtitleStyles,
                   // Ensure subtitle behaves exactly like div element
-                  margin: '0',
                   padding: '0',
                   border: 'none',
                   outline: 'none',
@@ -381,99 +708,34 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
                     setEditingSubtitle(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
                 {subtitle}
               </div>
             )
           )}
 
-          <ul style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: 0,
-            width: '100%'
-          }}>
-            {bullets?.map((bullet: string, index: number) => {
-              const colonIdx = bullet.indexOf(':');
-              let before = bullet;
-              let after = '';
-              if (colonIdx !== -1) {
-                before = bullet.slice(0, colonIdx + 1);
-                after = bullet.slice(colonIdx + 1);
-              }
-              return (
-                <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
-                  {React.createElement('span', { style: bulletIconStyles }, getBulletIcon(bulletStyle, index))}
-                  {isEditable && editingBullets.includes(index) ? (
-                    <InlineEditor
-                      initialValue={bullet || ''}
-                      onSave={(newBullet) => handleBulletSave(index, newBullet)}
-                      onCancel={() => handleBulletCancel(index)}
-                      multiline={true}
-                      placeholder="Enter bullet point..."
-                      className="inline-editor-bullet"
-                      style={{
-                        fontFamily: currentTheme.fonts.contentFont,
-                        fontSize: currentTheme.fonts.contentSize,
-                        color: currentTheme.colors.contentColor,
-                        background: 'transparent',
-                        border: 'none',
-                        outline: 'none',
-                        boxShadow: 'none',
-                        resize: 'none',
-                        overflow: 'hidden',
-                        width: '100%',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'pre-wrap',
-                        boxSizing: 'border-box',
-                        display: 'block',
-                        lineHeight: '1.6',
-                        margin: '0',
-                        padding: '0'
-                      }}
-                    />
-                  ) : (
-                    React.createElement(
-                      'span',
-                      { 
-                        style: { 
-                          fontFamily: currentTheme.fonts.contentFont, 
-                          fontSize: currentTheme.fonts.contentSize, 
-                          color: currentTheme.colors.contentColor, 
-                          paddingTop: '10px' 
-                        },
-                        onClick: () => {
-                          if (isEditable) {
-                            startEditingBullet(index);
-                          }
-                        },
-                        className: isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''
-                      },
-                      colonIdx !== -1
-                        ? [React.createElement('strong', { key: 'b' }, before), after]
-                        : bullet || 'Click to add bullet point'
-                    )
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          {/* Unified bullet points editor */}
+          <UnifiedBulletEditor
+            bullets={bullets || []}
+            bulletStyle={bulletStyle}
+            onUpdate={handleBulletsUpdate}
+            theme={currentTheme}
+            isEditable={isEditable}
+          />
         </div>
-        {/* Right: Placeholder */}
+        {/* Right: Clickable Image Placeholder */}
         <div style={rightColStyles}>
-          <div style={placeholderStyles}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-              Image Placeholder
-            </div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{displayPrompt}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 320px
-            </div>
-          </div>
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt={displayPrompt}
+            isEditable={isEditable}
+            style={placeholderStyles}
+          />
         </div>
       </div>
     </div>

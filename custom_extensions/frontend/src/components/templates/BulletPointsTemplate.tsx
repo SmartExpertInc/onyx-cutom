@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -506,7 +507,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   onUpdate,
   imagePrompt,
   imageAlt,
-  theme
+  theme,
+  imagePath
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -538,16 +540,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '1 / 1',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d',
+    height: '100%',
     margin: '0 auto'
   };
 
@@ -589,6 +582,13 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const handleBulletsUpdate = (newBullets: string[]) => {
     if (onUpdate) {
       onUpdate({ bullets: newBullets });
+    }
+  };
+
+  // Handle image upload
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ imagePath: newImagePath });
     }
   };
 
@@ -636,20 +636,18 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
-        {/* Left: Placeholder */}
+        {/* Left: Clickable Image Placeholder */}
         <div style={placeholderContainerStyles}>
-          <div style={placeholderStyles}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-              Image Placeholder
-            </div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{displayPrompt}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>
-              320px × 320px
-            </div>
-          </div>
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt={displayPrompt}
+            isEditable={isEditable}
+            style={placeholderStyles}
+          />
         </div>
         {/* Right: Unified bullet points editor */}
         <div style={bulletsContainerStyles}>

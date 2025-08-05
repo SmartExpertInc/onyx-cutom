@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 export interface BigImageTopProps extends BigImageLeftProps {
   // Можна додати додаткові пропси, якщо потрібно
@@ -144,8 +145,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   slideId,  
   onUpdate,
   theme,
-  isEditable = false
+  isEditable = false,
+  imagePath
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
@@ -199,16 +202,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     height: '240px',
-    backgroundColor: '#e9ecef',
-    border: '2px dashed #adb5bd',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    textAlign: 'center',
-    color: '#6c757d'
+    margin: '0 auto'
   };
 
   const contentContainerStyles: React.CSSProperties = {
@@ -263,27 +257,30 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     setEditingSubtitle(false);
   };
 
+  // Handle image upload
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ imagePath: newImagePath });
+    }
+  };
+
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
   const displayPrompt = imagePrompt || imageAlt || "man sitting on a chair";
 
   return (
     <div style={slideStyles}>
-      {/* Top - Image */}
+      {/* Top - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
-        {(
-          <div style={placeholderStyles}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-              Image Placeholder
-            </div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{displayPrompt}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>
-              {imageDimensions.width} × {imageDimensions.height}
-            </div>
-          </div>
-        )}
+        <ClickableImagePlaceholder
+          imagePath={imagePath}
+          onImageUploaded={handleImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Click to upload image"
+          prompt={displayPrompt}
+          isEditable={isEditable}
+          style={placeholderStyles}
+        />
       </div>
 
       {/* Bottom - Content */}

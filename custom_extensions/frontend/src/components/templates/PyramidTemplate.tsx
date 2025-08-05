@@ -150,14 +150,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   isEditable = false
 }: PyramidTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingItemHeadings, setEditingItemHeadings] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -244,7 +244,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           right: 0,
           top: topPositions[level],
           height: '1px',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          backgroundColor: `${contentColor}40`, // Use theme color with 40% opacity
       }
   };
 
@@ -322,35 +322,59 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemDescriptions([...editingItemDescriptions, index]);
   };
 
+  // Helper function to create semi-transparent version of a color
+  const getSemiTransparentColor = (color: string, opacity: number = 0.1): string => {
+    // Convert hex to rgba if needed
+    if (color.startsWith('#')) {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+    // If it's already rgba, extract and modify
+    if (color.startsWith('rgba')) {
+      const match = color.match(/rgba?\(([^)]+)\)/);
+      if (match) {
+        const parts = match[1].split(',').map(p => p.trim());
+        const r = parts[0];
+        const g = parts[1];
+        const b = parts[2];
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      }
+    }
+    // Fallback to original color
+    return color;
+  };
+
   const PyramidSVG1 = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
+    const pyramidFill = getSemiTransparentColor(accentColor, 0.2);
+    const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
       // Segment 1 (Top Triangle)
-      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
     );
   };
 
   const PyramidSVG2 = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
+    const pyramidFill = getSemiTransparentColor(accentColor, 0.15);
+    const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
       // Segment 2 (Middle Trapezoid)
-      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill,  strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
     );
   };
 
   const PyramidSVG3 = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
+    const pyramidFill = getSemiTransparentColor(accentColor, 0.1);
+    const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
       // Segment 3 (Bottom Trapezoid)
-      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
     );
   };
@@ -443,7 +467,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           <PyramidSVG3 />
         </div>
         <div style={itemsContainerStyles}>
-          {Array.isArray(items) && items.slice(0, 3).map((item, index) => (
+          {Array.isArray(items) && items.slice(0, 3).map((item, index: number) => (
             <div key={index} style={itemWrapperStyles(index)}>
               {/* Item Heading */}
               {isEditable && editingItemHeadings.includes(index) ? (
@@ -530,4 +554,4 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   );
 };
 
-export default PyramidTemplate; 
+export default PyramidTemplate;

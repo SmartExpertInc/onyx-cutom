@@ -93,7 +93,10 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   };
 
   return (
-    <div className={`slide-${slide.slideId} template-${slide.templateId}`}>
+    <div 
+      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}
+      data-theme={theme || DEFAULT_SLIDE_THEME}
+    >
       <TemplateComponent {...templateProps} />
     </div>
   );
