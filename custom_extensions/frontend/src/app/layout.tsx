@@ -26,6 +26,7 @@ export default function RootLayout({
   href="https://fonts.googleapis.com/css2?family=Martel+Sans:wght@400;500;700&display=swap"
   rel="stylesheet"
 />
+<link href="https://fonts.cdnfonts.com/css/mont" rel="stylesheet"></link>
       </head>
       <body className="h-full bg-app-gradient">
         <LanguageProvider>

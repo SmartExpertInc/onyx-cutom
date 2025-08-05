@@ -150,14 +150,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   isEditable = false
 }: PyramidTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingItemHeadings, setEditingItemHeadings] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -244,7 +244,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           right: 0,
           top: topPositions[level],
           height: '1px',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          backgroundColor: `${contentColor}40`, // Use theme color with 40% opacity
       }
   };
 
@@ -323,34 +323,34 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const PyramidSVG1 = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
+    const pyramidFill = accentColor;
+    const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
       // Segment 1 (Top Triangle)
-      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
     );
   };
 
   const PyramidSVG2 = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
+    const pyramidFill = accentColor;
+    const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
       // Segment 2 (Middle Trapezoid)
-      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill,  strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
     );
   };
 
   const PyramidSVG3 = () => {
-    const pyramidFill = "rgba(255, 255, 255, 0.1)";
-    const textFill = "rgba(255, 255, 255, 0.9)";
+    const pyramidFill = accentColor;
+    const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
       // Segment 3 (Bottom Trapezoid)
-      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, strokeWidth: "0.5" }),
+      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
       React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
     );
   };
@@ -443,7 +443,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           <PyramidSVG3 />
         </div>
         <div style={itemsContainerStyles}>
-          {Array.isArray(items) && items.slice(0, 3).map((item, index) => (
+          {Array.isArray(items) && items.slice(0, 3).map((item, index: number) => (
             <div key={index} style={itemWrapperStyles(index)}>
               {/* Item Heading */}
               {isEditable && editingItemHeadings.includes(index) ? (
