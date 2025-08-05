@@ -497,10 +497,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           ref={dropdownRef}
           style={{
             position: 'fixed',
-            top: '0',
+            top: '50%',
             right: '0',
             width: '48px',
-            height: '100vh',
+            height: '200px',
             backgroundColor: 'white',
             borderLeft: '1px solid #e5e7eb',
             boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
@@ -508,9 +508,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingTop: '80px',
+            paddingTop: '20px',
             gap: '16px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            transform: 'translateY(-50%)'
           }}
         >
           {/* Add Slide Button - moved from left side */}
