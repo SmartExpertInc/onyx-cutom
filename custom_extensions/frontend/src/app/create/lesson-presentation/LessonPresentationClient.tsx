@@ -13,6 +13,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import PresentationPreview from "../../../components/PresentationPreview";
 import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
+import { useCreationTheme } from "../../../hooks/useCreationTheme";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -236,8 +237,12 @@ export default function LessonPresentationClient() {
     params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
   );
   
-  // UI state
-  const [selectedTheme, setSelectedTheme] = useState<string>(DEFAULT_SLIDE_THEME);
+  // Theme management with creation-specific persistence
+  const { currentTheme: selectedTheme, changeTheme: setSelectedTheme } = useCreationTheme({
+    templateType: 'lesson-presentation',
+    templateDefaultTheme: DEFAULT_SLIDE_THEME,
+    enablePersistence: true
+  });
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");

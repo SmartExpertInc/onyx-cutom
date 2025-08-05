@@ -7,10 +7,16 @@ import { DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 // Storage key constants
 const THEME_STORAGE_PREFIX = 'theme-preference';
 const GLOBAL_THEME_KEY = `${THEME_STORAGE_PREFIX}-global`;
+const CREATION_THEME_KEY = `${THEME_STORAGE_PREFIX}-creation`;
 
 // Generate storage key for a specific project
 export const getThemeStorageKey = (projectId?: string): string => {
   return projectId ? `${THEME_STORAGE_PREFIX}-${projectId}` : GLOBAL_THEME_KEY;
+};
+
+// Generate storage key for creation context (template-specific)
+export const getCreationThemeStorageKey = (templateType?: string): string => {
+  return templateType ? `${CREATION_THEME_KEY}-${templateType}` : CREATION_THEME_KEY;
 };
 
 // Save theme preference to local storage
@@ -48,6 +54,41 @@ export const loadThemePreference = (projectId?: string): string | null => {
   return null;
 };
 
+// Save theme preference for creation context (template-specific)
+export const saveCreationThemePreference = (themeId: string, templateType?: string): boolean => {
+  try {
+    if (!isValidThemeId(themeId)) {
+      console.warn(`Invalid theme ID: ${themeId}`);
+      return false;
+    }
+
+    const storageKey = getCreationThemeStorageKey(templateType);
+    localStorage.setItem(storageKey, themeId);
+    
+    console.log(`💾 Creation theme preference saved: ${themeId} (key: ${storageKey})`);
+    return true;
+  } catch (error) {
+    console.error('Failed to save creation theme preference:', error);
+    return false;
+  }
+};
+
+// Load theme preference for creation context (template-specific)
+export const loadCreationThemePreference = (templateType?: string): string | null => {
+  try {
+    const storageKey = getCreationThemeStorageKey(templateType);
+    const savedTheme = localStorage.getItem(storageKey);
+    
+    if (savedTheme && isValidThemeId(savedTheme)) {
+      console.log(`📂 Creation theme preference loaded: ${savedTheme} (key: ${storageKey})`);
+      return savedTheme;
+    }
+  } catch (error) {
+    console.error('Failed to load creation theme preference:', error);
+  }
+  return null;
+};
+
 // Clear theme preference for a specific project
 export const clearThemePreference = (projectId?: string): boolean => {
   try {
@@ -58,6 +99,20 @@ export const clearThemePreference = (projectId?: string): boolean => {
     return true;
   } catch (error) {
     console.error('Failed to clear theme preference:', error);
+    return false;
+  }
+};
+
+// Clear theme preference for creation context
+export const clearCreationThemePreference = (templateType?: string): boolean => {
+  try {
+    const storageKey = getCreationThemeStorageKey(templateType);
+    localStorage.removeItem(storageKey);
+    
+    console.log(`🗑️ Creation theme preference cleared (key: ${storageKey})`);
+    return true;
+  } catch (error) {
+    console.error('Failed to clear creation theme preference:', error);
     return false;
   }
 };
@@ -138,6 +193,29 @@ export const getThemeWithFallback = (
   const savedTheme = loadThemePreference(projectId);
   if (savedTheme) {
     return savedTheme;
+  }
+  
+  return DEFAULT_SLIDE_THEME;
+};
+
+// Get theme preference with fallback chain for creation contexts
+export const getCreationThemeWithFallback = (
+  explicitTheme?: string,
+  templateType?: string,
+  templateDefaultTheme?: string
+): string => {
+  // Priority order: explicit > template-specific saved > template default > global default
+  if (explicitTheme && isValidThemeId(explicitTheme)) {
+    return explicitTheme;
+  }
+  
+  const savedCreationTheme = loadCreationThemePreference(templateType);
+  if (savedCreationTheme) {
+    return savedCreationTheme;
+  }
+  
+  if (templateDefaultTheme && isValidThemeId(templateDefaultTheme)) {
+    return templateDefaultTheme;
   }
   
   return DEFAULT_SLIDE_THEME;
