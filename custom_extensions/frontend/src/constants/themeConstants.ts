@@ -15,6 +15,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   { id: 'dark-purple', label: 'Dark Purple' },
   { id: 'light-modern', label: 'Light Modern' },
   { id: 'corporate-blue', label: 'Corporate Blue' },
+  { id: 'chudo-theme', label: 'Chudo Theme' },
 ];
 
 // Map slide theme IDs to their SVG components
@@ -22,6 +23,7 @@ export const THEME_SVG_MAP = {
   'dark-purple': ThemeSvgs.wine,     // Using wine SVG for dark-purple theme
   'light-modern': ThemeSvgs.cherry,  // Using cherry SVG for light-modern theme  
   'corporate-blue': ThemeSvgs.vanilla, // Using vanilla SVG for corporate-blue theme
+  'chudo-theme': ThemeSvgs.chudo,    // Using chudo SVG for chudo-theme
   default: ThemeSvgs.default
 };
 
@@ -31,7 +33,7 @@ export function getThemeOption(themeId: string): ThemeOption | undefined {
 }
 
 // Get theme SVG component by ID
-export function getThemeSvg(themeId: string): React.FC {
+export function getThemeSvg(themeId: string) {
   return THEME_SVG_MAP[themeId as keyof typeof THEME_SVG_MAP] || THEME_SVG_MAP.default;
 }
 

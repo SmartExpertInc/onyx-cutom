@@ -74,7 +74,24 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       titleSize: '40px',
       contentSize: '16px'
     }
-  }
+  },
+  'chudo-theme': {
+    id: 'chudo-theme',
+    name: 'Chudo Theme',
+    colors: {
+      backgroundColor: '#3a3a3a',      // темно-сірий фон
+      titleColor: '#d01510',           // червоні заголовки
+      subtitleColor: '#ed6c00',        // оранжеві підзаголовки
+      contentColor: '#ffffff',         // білий текст
+      accentColor: '#ed6c00',          // оранжеві акценти (наприклад, кнопки або іконки)
+      borderColor: '#d01510'           // опціонально: червоні межі або роздільники
+    },
+    fonts: {
+      titleFont: 'Montserrat, sans-serif',        // сучасний шрифт для заголовків
+      contentFont: 'Open Sans, sans-serif',       // легкий для читання шрифт
+      titleSize: '40px',
+      contentSize: '16px'
+    }
 };
 
 // Default theme
