@@ -7,7 +7,7 @@ import { locales } from '@/locales';
 import {
   AlertCircle, CheckCircle, Info, XCircle, Minus, Type, List, ListOrdered,
   Award, Brain, BookOpen, Edit3, Lightbulb, Search, Compass, CloudDrizzle, EyeOff,
-  ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle, Plus,
+  ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle,
 } from 'lucide-react';
 
 // --- Theme Colors (consistent with other displays) ---
@@ -246,7 +246,6 @@ const SlideDeckDisplay = ({
 }: SlideDeckDisplayProps): React.JSX.Element | null => {
   const searchParams = useSearchParams();
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
-  const [showAddSlideDropdown, setShowAddSlideDropdown] = useState(false);
 
   useEffect(() => {
     if (dataToDisplay?.slides && dataToDisplay.slides.length > 0) {
@@ -274,12 +273,6 @@ const SlideDeckDisplay = ({
     if (slideIndex !== -1) {
       onTextChange(['slides', slideIndex, 'slideTitle'], value);
     }
-  };
-
-  const handleAddSlide = () => {
-    // TODO: Implement add slide functionality for presentations
-    // For now, just close the dropdown
-    setShowAddSlideDropdown(false);
   };
 
   const handleMainTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -355,8 +348,8 @@ const SlideDeckDisplay = ({
           </nav>
         </div>
 
-        {/* Center Content Pane */}
-        <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
+        {/* Right Content Pane */}
+        <div className="w-full md:w-2/3 lg:w-3/4 p-4 sm:p-6 md:p-8 overflow-y-auto">
           {!currentSlide && slides.length > 0 && (
              <div className={`text-center ${THEME_COLORS.mutedText} pt-10`}>No slide selected</div>
           )}
@@ -393,49 +386,6 @@ const SlideDeckDisplay = ({
             </article>
           )}
         </div>
-
-        {/* Right Sidebar - Add Slide Controls */}
-        {isEditing && (
-          <div className="w-20 bg-white border-l border-gray-200 flex flex-col items-center py-4 gap-6 sticky top-0 h-[calc(100vh-220px)] overflow-y-auto">
-            <div className="flex flex-col gap-4">
-              <div className="relative">
-                <button
-                  onClick={() => setShowAddSlideDropdown(!showAddSlideDropdown)}
-                  className="w-12 h-12 rounded-lg bg-transparent hover:bg-gray-100 hover:scale-105 border-none cursor-pointer flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all duration-200"
-                  title="Add new slide"
-                >
-                  <Plus size={20} />
-                </button>
-                
-                {showAddSlideDropdown && (
-                  <div className="absolute right-full top-0 mr-4 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                      <span className="font-semibold text-gray-900">Add New Slide</span>
-                      <button 
-                        onClick={() => setShowAddSlideDropdown(false)}
-                        className="text-gray-500 hover:text-gray-700 text-lg leading-none"
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <div className="p-2">
-                      <button
-                        onClick={handleAddSlide}
-                        className="w-full p-3 text-left hover:bg-gray-50 rounded-md flex items-center gap-3"
-                      >
-                        <span className="text-xl">📄</span>
-                        <div>
-                          <div className="font-medium text-gray-900">Standard Slide</div>
-                          <div className="text-sm text-gray-600">Add a new presentation slide</div>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
