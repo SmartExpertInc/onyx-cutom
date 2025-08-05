@@ -29,8 +29,8 @@ export default function RootLayout({
 />
         <link href="https://fonts.cdnfonts.com/css/mont" rel="stylesheet"></link>
         {/* Preload Mont fonts for better performance */}
-        <link rel="preload" href="/fonts/fonnts.com-Mont_Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/fonnts.com-Mont_Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        {/* <link rel="preload" href="/fonts/fonnts.com-Mont_Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/fonnts.com-Mont_Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" /> */}
 
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />

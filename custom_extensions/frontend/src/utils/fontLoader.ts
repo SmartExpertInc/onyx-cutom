@@ -137,9 +137,11 @@ export const applyMontFontsToChudoThemes = (): void => {
       font-weight: 700 !important;
     }
 
-    /* Montserrat font application for Forta theme */
+    /* Montserrat font application for Forta themes */
     [data-theme="forta"] *,
-    .theme-forta * {
+    [data-theme="forta-2"] *,
+    .theme-forta *,
+    .theme-forta-2 * {
       font-family: 'Montserrat', system-ui, sans-serif !important;
       font-weight: 400 !important; /* Default to regular */
     }
@@ -148,10 +150,18 @@ export const applyMontFontsToChudoThemes = (): void => {
     [data-theme="forta"] h2,
     [data-theme="forta"] h3,
     [data-theme="forta"] .slide-title,
+    [data-theme="forta-2"] h1,
+    [data-theme="forta-2"] h2,
+    [data-theme="forta-2"] h3,
+    [data-theme="forta-2"] .slide-title,
     .theme-forta h1,
     .theme-forta h2,
     .theme-forta h3,
-    .theme-forta .slide-title {
+    .theme-forta .slide-title,
+    .theme-forta-2 h1,
+    .theme-forta-2 h2,
+    .theme-forta-2 h3,
+    .theme-forta-2 .slide-title {
       font-family: 'Montserrat', system-ui, sans-serif !important;
       font-weight: 700 !important; /* Bold for titles */
     }

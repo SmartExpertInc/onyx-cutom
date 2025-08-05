@@ -243,4 +243,28 @@ body:has([aria-modal="true"]) [draggable="true"] {
   font-weight: 400 !important; /* Regular for content */
 }
 
+/* Forta 2 theme with Montserrat font */
+.theme-forta-2 {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-weight: 400; /* Default to regular weight */
+}
+
+.theme-forta-2 h1,
+.theme-forta-2 h2,
+.theme-forta-2 h3,
+.theme-forta-2 .slide-title {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif !important;
+  font-weight: 700 !important; /* Bold for titles */
+}
+
+.theme-forta-2 p,
+.theme-forta-2 .slide-content,
+.theme-forta-2 .slide-subtitle,
+.theme-forta-2 .slide-text,
+.theme-forta-2 li,
+.theme-forta-2 span {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif !important;
+  font-weight: 400 !important; /* Regular for content */
+}
+
 /* Base styles for code blocks */

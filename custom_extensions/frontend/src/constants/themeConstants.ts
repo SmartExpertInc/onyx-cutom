@@ -18,6 +18,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   { id: 'chudo-theme', label: 'Chudo Theme' },
   { id: 'chudo-2', label: 'Chudo 2' },
   { id: 'forta', label: 'Forta' },
+  { id: 'forta-2', label: 'Forta 2' },
 ];
 
 // Map slide theme IDs to their SVG components
@@ -28,6 +29,7 @@ export const THEME_SVG_MAP = {
   'chudo-theme': ThemeSvgs.chudo,    // Using chudo SVG for chudo-theme
   'chudo-2': ThemeSvgs.chudo2,       // Using chudo2 SVG for chudo-2 theme
   'forta': ThemeSvgs.forta,          // Using forta SVG for forta theme
+  'forta-2': ThemeSvgs.forta,        // Using same forta SVG for forta-2 theme
   default: ThemeSvgs.default
 };
 
