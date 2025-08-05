@@ -53,18 +53,21 @@ export function useTheme({
   // Get current theme data
   const themeData = getSlideTheme(currentTheme);
 
-  // Effect to handle theme persistence on mount and when slide deck changes
+  // Effect to handle theme updates when slide deck changes (but respect user preferences)
   useEffect(() => {
+    // Only update theme if there's no user preference saved
     if (slideDeck?.theme && isValidThemeId(slideDeck.theme)) {
-      // If slide deck has a theme, use it and save to local storage
-      if (slideDeck.theme !== currentTheme) {
+      const savedTheme = enablePersistence ? loadThemePreference(projectId) : null;
+      
+      // Only apply slide deck theme if user hasn't manually selected a different theme
+      if (!savedTheme && slideDeck.theme !== currentTheme) {
+        console.log(`📥 Applying slide deck theme: ${slideDeck.theme} (no user preference found)`);
         setCurrentTheme(slideDeck.theme);
-        if (enablePersistence) {
-          saveThemePreference(slideDeck.theme, projectId);
-        }
+      } else if (savedTheme) {
+        console.log(`👤 Keeping user's preferred theme: ${savedTheme} (ignoring slide deck theme: ${slideDeck.theme})`);
       }
     }
-  }, [slideDeck?.theme, currentTheme, enablePersistence, projectId]);
+  }, [slideDeck?.theme, enablePersistence, projectId]); // Removed currentTheme to avoid loops
 
   // Change theme function
   const changeTheme = useCallback((newThemeId: string) => {

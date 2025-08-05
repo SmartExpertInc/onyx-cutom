@@ -181,18 +181,20 @@ export const getThemeWithFallback = (
   slideDeckTheme?: string,
   projectId?: string
 ): string => {
-  // Priority order: explicit > slide deck > local storage > default
+  // Priority order: explicit > user's manual selection (local storage) > slide deck > default
   if (explicitTheme && isValidThemeId(explicitTheme)) {
     return explicitTheme;
   }
   
-  if (slideDeckTheme && isValidThemeId(slideDeckTheme)) {
-    return slideDeckTheme;
-  }
-  
+  // User's manual selection takes precedence over slide deck theme
   const savedTheme = loadThemePreference(projectId);
   if (savedTheme) {
     return savedTheme;
+  }
+  
+  // Fall back to slide deck theme if no user preference
+  if (slideDeckTheme && isValidThemeId(slideDeckTheme)) {
+    return slideDeckTheme;
   }
   
   return DEFAULT_SLIDE_THEME;
