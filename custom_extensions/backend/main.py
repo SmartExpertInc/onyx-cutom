@@ -8205,6 +8205,7 @@ class ProjectCreateRequest(BaseModel):
     chatSessionId: Optional[uuid.UUID] = None
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     folder_id: Optional[int] = None  # Add folder_id for automatic folder assignment
+    theme: Optional[str] = None  # Selected theme for the presentation
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -14321,11 +14322,11 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             else:
                 logger.warning(f"Direct parser path: microproduct_content is None")
 
-            # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+            # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
             if payload.theme and content_valid:
                 async with pool.acquire() as conn:
                     design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
-                    if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                    if design_template and design_template.get("component_name") in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
                         await conn.execute(
                             """
                             UPDATE projects
@@ -14592,11 +14593,11 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 else:
                     logger.warning(f"Assistant + parser path: microproduct_content is None")
 
-                # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+                # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
                 if payload.theme and content_valid:
                     async with pool.acquire() as conn:
                         design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
-                        if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                        if design_template and design_template.get("component_name") in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
                             await conn.execute(
                                 """
                                 UPDATE projects
@@ -14857,6 +14858,7 @@ class LessonWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    theme: Optional[str] = None  # Selected theme for the presentation
 
 
 class LessonWizardFinalize(BaseModel):
@@ -14868,6 +14870,7 @@ class LessonWizardFinalize(BaseModel):
     slidesCount: Optional[int] = 5         # Number of slides to generate
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    theme: Optional[str] = None  # Selected theme for the presentation
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -14890,6 +14893,10 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         "language": payload.language,
         "slidesCount": payload.slidesCount or 5,
     }
+    
+    # Add theme if provided
+    if payload.theme:
+        wizard_dict["theme"] = payload.theme
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
         
@@ -15170,7 +15177,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-            folder_id=int(payload.folderId) if payload.folderId else None  # Add folder assignment
+            folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
+            theme=payload.theme  # Pass the selected theme
         )
         
         # Create project with proper error handling
