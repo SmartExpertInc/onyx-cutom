@@ -169,10 +169,14 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
 
         {/* Content */}
         <div 
-          className="panel-content h-full overflow-y-auto"
+          className="panel-content overflow-y-auto"
+          style={{
+            height: 'calc(100% - 120px)', // Account for header (~52px) + footer (68px)
+            paddingBottom: '20px' // Extra padding to ensure content doesn't get cut off
+          }}
           onScroll={handlePanelScroll}
         >
-          <div className="p-4 space-y-4">
+          <div className="space-y-4 p-4">
             {slides.map((slide) => {
               const isCurrentSlide = slide.slideId === currentSlideId;
               const isEditing = editingSlideId === slide.slideId;
@@ -211,57 +215,49 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
 
                   {/* Voiceover Content */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Volume2 className="w-3 h-3" />
-                        <span>Voiceover</span>
-                      </div>
-                      {!isEditing && (
-                        <button
-                          onClick={() => handleEditVoiceover(slide.slideId, slide.voiceoverText || '')}
-                          className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </div>
-                    
+                    {/* Edit Button */}
+                    {!isEditing && hasVoiceover && (
+                      <button
+                        onClick={() => handleEditVoiceover(slide.slideId, slide.voiceoverText || '')}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors duration-150"
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {/* Editing Mode */}
                     {isEditing ? (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <textarea
                           value={editingText}
                           onChange={(e) => setEditingText(e.target.value)}
-                          className="w-full p-4 text-sm border border-gray-300 rounded-md resize-none focus:border-blue-500 focus:outline-none text-black"
-                          style={{
-                            minHeight: '120px',
-                            height: 'auto',
-                            overflow: 'hidden'
-                          }}
+                          className="w-full p-3 text-sm border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          rows={6}
                           placeholder="Enter voiceover text for this slide..."
-                          autoFocus
-                          onInput={(e) => {
-                            const target = e.target as HTMLTextAreaElement;
-                            target.style.height = 'auto';
-                            target.style.height = target.scrollHeight + 'px';
-                          }}
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={handleSaveVoiceover}
                             disabled={isSaving}
-                            className="flex items-center gap-1 px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                            className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                              isSaving
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
                           >
-                            <Save className="w-3 h-3" />
+                            <Save size={12} />
                             {isSaving ? 'Saving...' : 'Save'}
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="px-3 py-1 text-xs bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                            disabled={isSaving}
+                            className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
                           >
                             Cancel
                           </button>
                         </div>
                       </div>
+
                     ) : (
                       <div 
                         className="cursor-pointer"
@@ -286,7 +282,7 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-gray-50" style={{ height: '68px' }}>
           <div className="text-xs text-gray-500 text-center">
             Click on any slide to navigate to it • Click Edit to modify voiceover text
           </div>
