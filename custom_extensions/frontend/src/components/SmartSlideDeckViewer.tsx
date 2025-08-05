@@ -500,7 +500,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             top: '50%',
             right: '0',
             width: '48px',
-            height: '200px',
+            height: '400px',
             backgroundColor: 'white',
             borderLeft: '1px solid #e5e7eb',
             boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
