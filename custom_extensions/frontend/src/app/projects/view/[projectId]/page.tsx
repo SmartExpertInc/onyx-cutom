@@ -206,13 +206,6 @@ export default function ProjectInstanceViewPage() {
         hasDetails: !!instanceData.details
       });
       
-      // 🔍 THEME DEBUGGING: Check theme in details
-      if (instanceData.details && typeof instanceData.details === 'object' && 'theme' in instanceData.details) {
-        console.log('🎨 [THEME DEBUG] Theme found in details:', instanceData.details.theme);
-      } else {
-        console.log('🎨 [THEME DEBUG] No theme found in details');
-      }
-      
       setProjectInstanceData(instanceData);
       
       if (typeof window !== 'undefined' && instanceData.sourceChatSessionId) {
@@ -905,9 +898,7 @@ export default function ProjectInstanceViewPage() {
         projectId,
         currentTheme,
         slideDeckTheme: slideDeckData?.theme,
-        hasSlideDeck: !!slideDeckData,
-        slideDeckDataKeys: slideDeckData ? Object.keys(slideDeckData) : [],
-        slideDeckDataStringified: slideDeckData ? JSON.stringify(slideDeckData, null, 2) : 'null'
+        hasSlideDeck: !!slideDeckData
       });
     }
   }, [projectId, currentTheme, slideDeckData, projectInstanceData?.component_name]);

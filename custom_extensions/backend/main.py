@@ -8205,7 +8205,6 @@ class ProjectCreateRequest(BaseModel):
     chatSessionId: Optional[uuid.UUID] = None
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     folder_id: Optional[int] = None  # Add folder_id for automatic folder assignment
-    theme: Optional[str] = None  # Selected theme for the presentation
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -11385,33 +11384,7 @@ Return ONLY the JSON object.
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create project entry.")
 
-        # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
-        logger.info(f"🎨 [THEME PATCH DEBUG] project_data.theme: {project_data.theme}, component_name: {selected_design_template.component_name}")
-        if project_data.theme and selected_design_template.component_name in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
-            logger.info(f"🎨 [THEME PATCH] Patching theme '{project_data.theme}' into project {row['id']} for component {selected_design_template.component_name}")
-            async with pool.acquire() as conn:
-                await conn.execute(
-                    """
-                    UPDATE projects
-                    SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
-                    WHERE id = $2
-                    """,
-                    project_data.theme, row["id"]
-                )
-                # Fetch the updated content
-                updated_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", row["id"])
-                if updated_row and updated_row["microproduct_content"] is not None:
-                    db_content_dict = updated_row["microproduct_content"]
-                    logger.info(f"🎨 [THEME PATCH] Successfully patched theme. Updated content: {json.dumps(db_content_dict, indent=2)}")
-                else:
-                    db_content_dict = row["microproduct_content"]
-                    logger.warning(f"🎨 [THEME PATCH] Failed to fetch updated content after theme patch")
-        else:
-            db_content_dict = row["microproduct_content"]
-            if project_data.theme:
-                logger.info(f"🎨 [THEME PATCH] Theme '{project_data.theme}' provided but not patching - component is {selected_design_template.component_name}")
-            else:
-                logger.info(f"🎨 [THEME PATCH] No theme provided in project_data")
+        db_content_dict = row["microproduct_content"]
         final_content_for_response: Optional[MicroProductContentType] = None
         if db_content_dict and isinstance(db_content_dict, dict):
             component_name_from_db = selected_design_template.component_name
@@ -11434,16 +11407,8 @@ Return ONLY the JSON object.
                     final_content_for_response = QuizData(**db_content_dict)
                     logger.info("Re-parsed as QuizData.")
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
-                    # Extract theme before parsing to preserve it
-                    theme = db_content_dict.get('theme')
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
-                    # Restore theme if it was present
-                    if theme and hasattr(final_content_for_response, 'theme'):
-                        final_content_for_response.theme = theme
-                    elif theme:
-                        # If the model doesn't have theme field, add it as a dynamic attribute
-                        setattr(final_content_for_response, 'theme', theme)
-                    logger.info(f"Re-parsed as SlideDeckDetails with theme: {theme}")
+                    logger.info("Re-parsed as SlideDeckDetails.")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
@@ -11618,21 +11583,6 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     
     # 🔍 BACKEND VIEW LOGGING: What we retrieved from database for view
     logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}, value: {json.dumps(details_data, indent=2) if details_data else 'None'}")
-    
-    # 🔍 THEME DEBUGGING: Check if theme is in the microproduct_content
-    if details_data and isinstance(details_data, dict) and 'theme' in details_data:
-        logger.info(f"🎨 [THEME DEBUG] Project {project_id} - Theme found in microproduct_content: {details_data['theme']}")
-    elif details_data and isinstance(details_data, str):
-        try:
-            parsed = json.loads(details_data)
-            if 'theme' in parsed:
-                logger.info(f"🎨 [THEME DEBUG] Project {project_id} - Theme found in JSON string: {parsed['theme']}")
-            else:
-                logger.info(f"🎨 [THEME DEBUG] Project {project_id} - No theme found in JSON string")
-        except:
-            logger.info(f"🎨 [THEME DEBUG] Project {project_id} - Could not parse JSON string for theme check")
-    else:
-        logger.info(f"🎨 [THEME DEBUG] Project {project_id} - No theme found in details_data")
     
     # Parse the details_data if it's a JSON string
     parsed_details = None
@@ -14371,11 +14321,11 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             else:
                 logger.warning(f"Direct parser path: microproduct_content is None")
 
-            # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
+            # --- Patch theme into DB if provided (only for TrainingPlan components) ---
             if payload.theme and content_valid:
                 async with pool.acquire() as conn:
                     design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
-                    if design_template and design_template.get("component_name") in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
+                    if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
                         await conn.execute(
                             """
                             UPDATE projects
@@ -14642,11 +14592,11 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 else:
                     logger.warning(f"Assistant + parser path: microproduct_content is None")
 
-                # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
+                # --- Patch theme into DB if provided (only for TrainingPlan components) ---
                 if payload.theme and content_valid:
                     async with pool.acquire() as conn:
                         design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
-                        if design_template and design_template.get("component_name") in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
+                        if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
                             await conn.execute(
                                 """
                                 UPDATE projects
@@ -14907,7 +14857,6 @@ class LessonWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
-    theme: Optional[str] = None  # Selected theme for the presentation
 
 
 class LessonWizardFinalize(BaseModel):
@@ -14919,7 +14868,6 @@ class LessonWizardFinalize(BaseModel):
     slidesCount: Optional[int] = 5         # Number of slides to generate
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    theme: Optional[str] = None  # Selected theme for the presentation
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -14942,10 +14890,6 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         "language": payload.language,
         "slidesCount": payload.slidesCount or 5,
     }
-    
-    # Add theme if provided
-    if payload.theme:
-        wizard_dict["theme"] = payload.theme
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
         
@@ -15219,7 +15163,6 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 # Continue with plain lesson title if outline fetch fails
 
         # Create project data
-        logger.info(f"🎨 [LESSON FINALIZE] Received theme from frontend: {payload.theme}")
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=slide_deck_template_id,
@@ -15227,10 +15170,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-            folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
-            theme=payload.theme  # Pass the selected theme
+            folder_id=int(payload.folderId) if payload.folderId else None  # Add folder assignment
         )
-        logger.info(f"🎨 [LESSON FINALIZE] Created project_data with theme: {project_data.theme}")
         
         # Create project with proper error handling
         try:

@@ -8,10 +8,11 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
+import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import PresentationPreview from "../../../components/PresentationPreview";
-import { saveThemePreference, loadThemePreference } from "../../../utils/themePersistence";
+import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
+import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -236,26 +237,13 @@ export default function LessonPresentationClient() {
   );
   
   // UI state
-  const [selectedTheme, setSelectedTheme] = useState<string>("dark-purple");
+  const [selectedTheme, setSelectedTheme] = useState<string>(DEFAULT_SLIDE_THEME);
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
-
-  // Load saved theme preference on mount
-  useEffect(() => {
-    try {
-      const savedTheme = loadThemePreference();
-      if (savedTheme) {
-        setSelectedTheme(savedTheme);
-        console.log(`📂 Theme preference loaded for lesson creation: ${savedTheme}`);
-      }
-    } catch (error) {
-      console.warn('Failed to load theme preference:', error);
-    }
-  }, []);
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -424,7 +412,8 @@ export default function LessonPresentationClient() {
             prompt: promptQuery || undefined,
             chatSessionId: chatId || undefined,
             slidesCount: slidesCount,
-            theme: selectedTheme, // Include the selected theme
+            // Include selected theme
+            theme: selectedTheme,
           };
 
           // Add file context if creating from files
@@ -583,14 +572,6 @@ export default function LessonPresentationClient() {
     setLoading(false);
     setError(null);
 
-    // Save theme preference for future use
-    try {
-      saveThemePreference(selectedTheme);
-      console.log(`💾 Theme preference saved for lesson creation: ${selectedTheme}`);
-    } catch (error) {
-      console.warn('Failed to save theme preference:', error);
-    }
-
     // Add timeout safeguard to prevent infinite loading
     const timeoutId = setTimeout(() => {
       setIsGenerating(false);
@@ -613,7 +594,8 @@ export default function LessonPresentationClient() {
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           folderId: folderContext?.folderId || undefined,
-          theme: selectedTheme, // Pass the selected theme to the backend
+          // Include selected theme
+          theme: selectedTheme,
         }),
       });
 
@@ -695,7 +677,8 @@ export default function LessonPresentationClient() {
         prompt: promptQuery,
         chatSessionId: chatId || undefined,
         slidesCount: slidesCount,
-        theme: selectedTheme, // Include the selected theme
+        // Include selected theme
+        theme: selectedTheme,
       };
 
       // Add file context if creating from files
@@ -806,19 +789,8 @@ export default function LessonPresentationClient() {
     }
   };
 
-  // Use the real theme options from our theme system
+  // Use the actual theme options from our theme system
   const themeOptions = THEME_OPTIONS;
-
-  // Handle theme selection with persistence
-  const handleThemeChange = (themeId: string) => {
-    setSelectedTheme(themeId);
-    try {
-      saveThemePreference(themeId);
-      console.log(`💾 Theme preference saved: ${themeId}`);
-    } catch (error) {
-      console.warn('Failed to save theme preference:', error);
-    }
-  };
 
   // Cleanup effect to prevent stuck states
   useEffect(() => {
@@ -1163,25 +1135,35 @@ export default function LessonPresentationClient() {
             <div className="flex flex-col gap-5">
               {/* Themes grid */}
               <div className="grid grid-cols-3 gap-5 justify-items-center">
-                {themeOptions.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => handleThemeChange(t.id)}
-                    className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
-                  >
-                    <div className="w-[214px] h-[116px] flex items-center justify-center">
-                      {(() => {
-                        const Svg = getThemeSvg(t.id);
-                        return <Svg />;
-                      })()}
-                    </div>
-                    <div className="flex items-center gap-1 px-2">
-                      <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
-                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
-                    </div>
-                  </button>
-                ))}
+                {themeOptions.map((theme) => {
+                  const ThemeSvgComponent = getThemeSvg(theme.id);
+                  const isSelected = selectedTheme === theme.id;
+                  
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => setSelectedTheme(theme.id)}
+                      className={`flex flex-col rounded-lg overflow-hidden border-2 transition-all p-3 gap-3 ${
+                        isSelected 
+                          ? 'border-blue-500 bg-blue-50 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className="w-[214px] h-[116px] flex items-center justify-center border border-gray-200 rounded overflow-hidden">
+                        <ThemeSvgComponent />
+                      </div>
+                      <div className="flex items-center gap-2 px-1">
+                        <span className={`w-4 h-4 flex items-center justify-center text-blue-600 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
+                          ✓
+                        </span>
+                        <span className={`text-sm font-medium select-none ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+                          {theme.label}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Content section */}
