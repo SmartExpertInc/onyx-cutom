@@ -643,7 +643,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 position: 'relative',
                 transform: 'none', // Prevent any additional transforms
                 transition: 'none', // Prevent slide-specific transitions
-                marginBottom: '20px' // Add spacing between slides
               }}
             >
               {/* Slide Header with Template Info and Delete Button */}
