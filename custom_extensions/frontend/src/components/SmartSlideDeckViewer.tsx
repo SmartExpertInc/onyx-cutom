@@ -506,6 +506,44 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 transition: 'none', // Prevent slide-specific transitions
               }}
             >
+              {/* Delete Button - floating in top-right corner */}
+              {isEditable && componentDeck.slides.length > 1 && (
+                <button
+                  onClick={() => deleteSlide(slide.slideId)}
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    zIndex: 10,
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fef2f2';
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                  }}
+                  title="Delete slide"
+                >
+                  <X size={16} />
+                </button>
+              )}
+
               {/* Component-based slide content */}
               <div className="slide-content">
                 <ComponentBasedSlideDeckRenderer
