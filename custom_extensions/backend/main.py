@@ -11385,7 +11385,32 @@ Return ONLY the JSON object.
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create project entry.")
 
-        db_content_dict = row["microproduct_content"]
+        # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
+        if project_data.theme and selected_design_template.component_name in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
+            logger.info(f"🎨 [THEME PATCH] Patching theme '{project_data.theme}' into project {row['id']} for component {selected_design_template.component_name}")
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    UPDATE projects
+                    SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                    WHERE id = $2
+                    """,
+                    project_data.theme, row["id"]
+                )
+                # Fetch the updated content
+                updated_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", row["id"])
+                if updated_row and updated_row["microproduct_content"] is not None:
+                    db_content_dict = updated_row["microproduct_content"]
+                    logger.info(f"🎨 [THEME PATCH] Successfully patched theme. Updated content: {json.dumps(db_content_dict, indent=2)}")
+                else:
+                    db_content_dict = row["microproduct_content"]
+                    logger.warning(f"🎨 [THEME PATCH] Failed to fetch updated content after theme patch")
+        else:
+            db_content_dict = row["microproduct_content"]
+            if project_data.theme:
+                logger.info(f"🎨 [THEME PATCH] Theme '{project_data.theme}' provided but not patching - component is {selected_design_template.component_name}")
+            else:
+                logger.info(f"🎨 [THEME PATCH] No theme provided in project_data")
         final_content_for_response: Optional[MicroProductContentType] = None
         if db_content_dict and isinstance(db_content_dict, dict):
             component_name_from_db = selected_design_template.component_name
@@ -11408,8 +11433,16 @@ Return ONLY the JSON object.
                     final_content_for_response = QuizData(**db_content_dict)
                     logger.info("Re-parsed as QuizData.")
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
+                    # Extract theme before parsing to preserve it
+                    theme = db_content_dict.get('theme')
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
-                    logger.info("Re-parsed as SlideDeckDetails.")
+                    # Restore theme if it was present
+                    if theme and hasattr(final_content_for_response, 'theme'):
+                        final_content_for_response.theme = theme
+                    elif theme:
+                        # If the model doesn't have theme field, add it as a dynamic attribute
+                        setattr(final_content_for_response, 'theme', theme)
+                    logger.info(f"Re-parsed as SlideDeckDetails with theme: {theme}")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
@@ -11584,6 +11617,21 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     
     # 🔍 BACKEND VIEW LOGGING: What we retrieved from database for view
     logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}, value: {json.dumps(details_data, indent=2) if details_data else 'None'}")
+    
+    # 🔍 THEME DEBUGGING: Check if theme is in the microproduct_content
+    if details_data and isinstance(details_data, dict) and 'theme' in details_data:
+        logger.info(f"🎨 [THEME DEBUG] Project {project_id} - Theme found in microproduct_content: {details_data['theme']}")
+    elif details_data and isinstance(details_data, str):
+        try:
+            parsed = json.loads(details_data)
+            if 'theme' in parsed:
+                logger.info(f"🎨 [THEME DEBUG] Project {project_id} - Theme found in JSON string: {parsed['theme']}")
+            else:
+                logger.info(f"🎨 [THEME DEBUG] Project {project_id} - No theme found in JSON string")
+        except:
+            logger.info(f"🎨 [THEME DEBUG] Project {project_id} - Could not parse JSON string for theme check")
+    else:
+        logger.info(f"🎨 [THEME DEBUG] Project {project_id} - No theme found in details_data")
     
     # Parse the details_data if it's a JSON string
     parsed_details = None
