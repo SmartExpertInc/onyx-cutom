@@ -550,7 +550,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       </div>
 
       {/* Right-side Vertical Panel - Always visible */}
-      {!isVoiceoverPanelOpen && !showThemePicker && (
+      {!showThemePicker && (hasAnyVoiceover || !isVoiceoverPanelOpen) && (
         <div
           ref={dropdownRef}
           style={{
