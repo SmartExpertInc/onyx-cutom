@@ -57,6 +57,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Theme picker state
   const [showThemePicker, setShowThemePicker] = useState(false);
 
+  // Scroll synchronization state
+  const [isScrollingSlidesFromPanel, setIsScrollingSlidesFromPanel] = useState(false);
+  const [isScrollingPanelFromSlides, setIsScrollingPanelFromSlides] = useState(false);
+
   // Theme management for slide decks
   const { currentTheme, changeTheme, isChangingTheme } = useTheme({
     initialTheme: deck?.theme || theme,
@@ -101,6 +105,15 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Ensure body scrolling remains enabled
+  useEffect(() => {
+    // Make sure document body scrolling is never disabled by this component
+    if (typeof window !== 'undefined') {
+      document.body.style.overflow = 'auto';
+      document.body.style.pointerEvents = 'auto';
+    }
+  }, [isVoiceoverPanelOpen]);
 
   // Process deck - expect component-based format only
   useEffect(() => {
@@ -160,15 +173,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     processDeck();
   }, [deck, theme, currentThemeData.colors]);
 
-  // Synchronized scrolling with voiceover panel
+  // Improved synchronized scrolling with voiceover panel
   useEffect(() => {
     if (!isVoiceoverPanelOpen || !slidesContainerRef.current) return;
 
     const handlePanelScroll = () => {
+      if (isScrollingPanelFromSlides) return; // Prevent circular updates
+      
       const panelContent = document.querySelector('.panel-content');
       const slidesContainer = slidesContainerRef.current;
       
       if (panelContent && slidesContainer) {
+        setIsScrollingSlidesFromPanel(true);
+        
         const panelScrollTop = panelContent.scrollTop;
         const panelScrollHeight = panelContent.scrollHeight;
         const panelClientHeight = panelContent.clientHeight;
@@ -180,6 +197,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         const slidesScrollTop = scrollPercentage * (slidesScrollHeight - slidesClientHeight);
         
         slidesContainer.scrollTop = slidesScrollTop;
+        
+        // Reset flag after a short delay
+        setTimeout(() => setIsScrollingSlidesFromPanel(false), 50);
       }
     };
 
@@ -188,16 +208,18 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       panelContent.addEventListener('scroll', handlePanelScroll);
       return () => panelContent.removeEventListener('scroll', handlePanelScroll);
     }
-  }, [isVoiceoverPanelOpen]);
+  }, [isVoiceoverPanelOpen, isScrollingPanelFromSlides]);
 
   // Handle slides scroll to sync with panel
   const handleSlidesScroll = () => {
-    if (!isVoiceoverPanelOpen) return;
+    if (!isVoiceoverPanelOpen || isScrollingSlidesFromPanel) return; // Prevent circular updates
 
     const slidesContainer = slidesContainerRef.current;
     const panelContent = document.querySelector('.panel-content');
     
     if (slidesContainer && panelContent) {
+      setIsScrollingPanelFromSlides(true);
+      
       const slidesScrollTop = slidesContainer.scrollTop;
       const slidesScrollHeight = slidesContainer.scrollHeight;
       const slidesClientHeight = slidesContainer.clientHeight;
@@ -209,6 +231,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       const panelScrollTop = scrollPercentage * (panelScrollHeight - panelClientHeight);
       
       panelContent.scrollTop = panelScrollTop;
+      
+      // Reset flag after a short delay
+      setTimeout(() => setIsScrollingPanelFromSlides(false), 50);
     }
   };
 
@@ -442,7 +467,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           overflow: 'hidden', // Prevent container scroll
           display: 'flex',
           justifyContent: 'flex-end', // Align slides to the right
-          alignItems: 'flex-start' // Align to top
+          alignItems: 'flex-start', // Align to top
+          pointerEvents: 'auto', // Ensure pointer events work
+          userSelect: 'auto' // Ensure text selection works
         }}
       >
         {/* Slides Container - Scrollable and scalable */}
@@ -457,7 +484,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             width: '100%',
             height: '100%',
             overflowY: 'auto', // Make slides scrollable
-            overflowX: 'hidden'
+            overflowX: 'hidden',
+            pointerEvents: 'auto', // Ensure pointer events are enabled
+            userSelect: 'auto', // Ensure text selection works
+            touchAction: 'auto' // Ensure touch scrolling works on mobile
           }}
           onScroll={handleSlidesScroll}
         >
