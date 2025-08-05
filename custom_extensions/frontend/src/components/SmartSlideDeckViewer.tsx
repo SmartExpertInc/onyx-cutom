@@ -476,64 +476,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 transition: 'none', // Prevent slide-specific transitions
               }}
             >
-              {/* Slide Header with Template Info and Delete Button */}
-              {isEditable && (
-                <div style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#f9fafb',
-                  borderBottom: '1px solid #e5e7eb',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <span style={{
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      color: '#6b7280',
-                      backgroundColor: '#e5e7eb',
-                      padding: '4px 8px',
-                      borderRadius: '4px'
-                    }}>
-                      {getTemplate(slide.templateId)?.name || slide.templateId}
-                    </span>
-                    <span style={{
-                      fontSize: '12px',
-                      color: '#9ca3af'
-                    }}>
-                      Slide {slide.slideNumber}
-                    </span>
-                  </div>
-                  {componentDeck.slides.length > 1 && (
-                    <button
-                      onClick={() => deleteSlide(slide.slideId)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '4px',
-                        borderRadius: '4px',
-                        color: '#ef4444',
-                        transition: 'background-color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fef2f2';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                      title="Delete slide"
-                    >
-                      <X size={16} />
-                    </button>
-                  )}
-                </div>
-              )}
-
               {/* Component-based slide content */}
               <div className="slide-content">
                 <ComponentBasedSlideDeckRenderer
@@ -566,7 +508,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingTop: '20px',
+            paddingTop: '80px',
             gap: '16px',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}
