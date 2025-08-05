@@ -1,0 +1,17 @@
+2025-08-05 19:55:47,599 - INFO - 🚀 Starting Elai slide conversion test...
+2025-08-05 19:55:47,600 - INFO - 📝 Converting slide to Elai format...
+2025-08-05 19:55:47,601 - INFO - 💾 Saved Elai slide structure to elai_slide_structure.json
+2025-08-05 19:55:47,601 - INFO - 🔑 Getting signed URL for image upload...
+2025-08-05 19:55:48,035 - ERROR - ❌ Error uploading image: 404 Client Error: Not Found for url: https://apis.elai.io/api/v1/media/signed-url?fileName=base_slide_image.jpg&fileType=image%2Fjpeg
+2025-08-05 19:55:48,036 - ERROR - Response content: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/v1/media/signed-url</pre>
+</body>
+</html>
+
+2025-08-05 19:55:48,039 - ERROR - ❌ Failed to create video

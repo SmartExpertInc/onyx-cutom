@@ -1,0 +1,25 @@
+2025-08-05 17:49:02,837 - INFO - Elai API Tester initialized
+2025-08-05 17:49:02,837 - INFO - Base URL: https://apis.elai.io/api/v1
+2025-08-05 17:49:02,838 - INFO - Starting full Elai API test...
+2025-08-05 17:49:02,838 - INFO - Creating video with avatar on custom background...
+2025-08-05 17:49:02,839 - INFO - Uploading background image: base_slide_image.jpg
+2025-08-05 17:49:03,302 - INFO - 
+============================================================
+2025-08-05 17:49:03,302 - INFO - REQUEST: GET https://apis.elai.io/api/v1/media/signed-url
+2025-08-05 17:49:03,303 - INFO - Headers: {
+  "User-Agent": "python-requests/2.31.0",
+  "Accept-Encoding": "gzip, deflate",
+  "Accept": "application/json",
+  "Connection": "keep-alive",
+  "Authorization": "Bearer 5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e",
+  "Content-Type": "application/json"
+}
+2025-08-05 17:49:03,376 - INFO - Request Body: {
+  "fileName": "base_slide_image.jpg",
+  "contentType": "image/jpeg"
+}
+2025-08-05 17:49:03,377 - INFO - ============================================================
+
+2025-08-05 17:49:03,378 - ERROR - Failed to get signed URL. Status: 404
+2025-08-05 17:49:03,378 - ERROR - Failed to upload background image
+2025-08-05 17:49:03,379 - ERROR - Test failed!
