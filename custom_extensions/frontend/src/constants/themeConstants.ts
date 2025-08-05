@@ -16,6 +16,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   { id: 'light-modern', label: 'Light Modern' },
   { id: 'corporate-blue', label: 'Corporate Blue' },
   { id: 'chudo-theme', label: 'Chudo Theme' },
+  { id: 'chudo-2', label: 'Chudo 2' },
 ];
 
 // Map slide theme IDs to their SVG components
@@ -24,6 +25,7 @@ export const THEME_SVG_MAP = {
   'light-modern': ThemeSvgs.cherry,  // Using cherry SVG for light-modern theme  
   'corporate-blue': ThemeSvgs.vanilla, // Using vanilla SVG for corporate-blue theme
   'chudo-theme': ThemeSvgs.chudo,    // Using chudo SVG for chudo-theme
+  'chudo-2': ThemeSvgs.chudo2,       // Using chudo2 SVG for chudo-2 theme
   default: ThemeSvgs.default
 };
 

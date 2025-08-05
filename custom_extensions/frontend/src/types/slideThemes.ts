@@ -93,6 +93,25 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     titleSize: '40px',
     contentSize: '16px'
   }
+  },
+
+  'chudo-2': {
+    id: 'chudo-2',
+    name: 'Chudo 2',
+    colors: {
+      backgroundColor: '#ed6c00',
+      titleColor: '#ffffff',
+      subtitleColor: '#3a3a3a',
+      contentColor: '#ffffff',
+      accentColor: '#d01510',
+      borderColor: '#3a3a3a'
+    },
+    fonts: {
+      titleFont: 'Mont Bold, sans-serif',
+      contentFont: 'Mont Regular, sans-serif',
+      titleSize: '40px',
+      contentSize: '16px'
+    }
   }
 };
 
