@@ -1,13 +1,13 @@
 // components/SmartSlideDeckViewer.tsx
 // Component-based slide viewer with classic UX (sidebar, navigation, inline editing)
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, Plus, ChevronDown, X } from 'lucide-react';
-import { ComponentBasedSlideDeck, ComponentBasedSlide, TemplateComponentInfo } from '@/types/slideTemplates';
+import React, { useState, useEffect, useRef } from 'react';
+import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import VoiceoverPanel from './VoiceoverPanel';
 import { getAllTemplates, getTemplate } from './templates/registry';
+import { Plus, ChevronDown, X, Volume2} from 'lucide-react';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -30,58 +30,34 @@ interface SmartSlideDeckViewerProps {
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
-  deck: initialDeck,
+  deck,
   isEditable = false,
   onSave,
   showFormatInfo = false,
   theme,
   hasVoiceover = false
 }: SmartSlideDeckViewerProps) => {
+  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
-  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
-  const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(initialDeck?.slides[0]?.slideId);
-  const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck>(initialDeck);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   const slidesContainerRef = useRef<HTMLDivElement>(null);
-  const availableTemplates = getAllTemplates();
+  
+  // Template dropdown state
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Get the current theme
+  const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
 
-  // Check if any slide has voiceover
-  const hasAnyVoiceover = componentDeck?.slides.some(
-    (slide: ComponentBasedSlide) => slide.voiceoverText || slide.props?.voiceoverText
+  // Check if any slide has voiceover text
+  const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
+    slide.voiceoverText || slide.props?.voiceoverText
   );
 
-  // Add new slide with template selection
-  const handleAddSlide = (templateId: string) => {
-    const template = getTemplate(templateId);
-    if (!template) {
-      console.error(`Template ${templateId} not found`);
-      return;
-    }
-
-    const newSlide: ComponentBasedSlide = {
-      slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      slideNumber: componentDeck.slides.length + 1,
-      templateId: templateId,
-      props: {
-        ...template.defaultProps,
-        title: template.defaultProps.title || `Slide ${componentDeck.slides.length + 1}`,
-        content: template.defaultProps.content || 'Add your content here...'
-      },
-      metadata: {
-        createdAt: new Date().toISOString(),
-        version: '1.0'
-      }
-    };
-
-    const updatedDeck = {
-      ...componentDeck,
-      slides: [...componentDeck.slides, newSlide]
-    };
-
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
-    setShowTemplateDropdown(false);
-  };
+  // Get available templates
+  const availableTemplates = getAllTemplates();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -100,28 +76,28 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Process deck - expect component-based format only
   useEffect(() => {
     const processDeck = async () => {
-      // setIsLoading(true); // Removed as per new_code
-      // setError(null); // Removed as per new_code
+      setIsLoading(true);
+      setError(null);
 
       try {
-        if (!initialDeck || !initialDeck.slides || !Array.isArray(initialDeck.slides)) {
-          // setError('Invalid slide deck format. Expected component-based slides.'); // Removed as per new_code
+        if (!deck || !deck.slides || !Array.isArray(deck.slides)) {
+          setError('Invalid slide deck format. Expected component-based slides.');
           return;
         }
 
         // Validate that slides have templateId and props (component-based format)
-        const hasValidFormat = initialDeck.slides.every((slide: any) => 
+        const hasValidFormat = deck.slides.every((slide: any) => 
           slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props')
         );
 
         if (!hasValidFormat) {
-          // setError('Slides must be in component-based format with templateId and props.'); // Removed as per new_code
+          setError('Slides must be in component-based format with templateId and props.');
           return;
         }
 
         // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
         console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
-        initialDeck.slides.forEach((slide: any, index: number) => {
+        deck.slides.forEach((slide: any, index: number) => {
           console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
             slideId: slide.slideId,
             templateId: slide.templateId,
@@ -131,29 +107,29 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
         // Set theme on the deck
         const deckWithTheme = {
-          ...initialDeck,
-          theme: theme || initialDeck.theme || DEFAULT_SLIDE_THEME
+          ...deck,
+          theme: theme || deck.theme || DEFAULT_SLIDE_THEME
         };
 
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
         console.log('✅ Component-based slides loaded with theme:', {
-          slideCount: initialDeck.slides.length,
+          slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
-          themeColors: getSlideTheme(theme || initialDeck.theme || DEFAULT_SLIDE_THEME).colors,
-          templates: initialDeck.slides.map((s: any) => s.templateId)
+          themeColors: currentTheme.colors,
+          templates: deck.slides.map((s: any) => s.templateId)
           });
         
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
-        // setError('Failed to process slide deck data.'); // Removed as per new_code
+        setError('Failed to process slide deck data.');
       } finally {
-        // setIsLoading(false); // Removed as per new_code
+        setIsLoading(false);
       }
     };
 
     processDeck();
-  }, [initialDeck, theme]); // Removed currentTheme.colors as per new_code
+  }, [deck, theme, currentTheme.colors]);
 
   // Synchronized scrolling with voiceover panel
   useEffect(() => {
@@ -264,122 +240,505 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     onSave?.(updatedDeck);
   };
 
+  // Add new slide with template selection - FIXED VERSION
+  const addSlide = (templateId: string = 'content-slide') => {
+    if (!componentDeck) return;
+
+    const template = getTemplate(templateId);
+    if (!template) {
+      console.error(`Template ${templateId} not found`);
+      return;
+    }
+
+    // Generate slide title from template props
+    const slideTitle = template.defaultProps.title || `Slide ${componentDeck.slides.length + 1}`;
+
+    // Create new slide with BOTH frontend and backend compatible structure
+    const newSlide: ComponentBasedSlide & { slideTitle?: string } = {
+      slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      slideNumber: componentDeck.slides.length + 1,
+      slideTitle: slideTitle, // ← CRITICAL: Add slideTitle for backend compatibility
+      templateId: templateId,
+      props: {
+        ...template.defaultProps,
+        title: slideTitle, // ← Keep title in props for frontend template rendering
+        content: template.defaultProps.content || 'Add your content here...'
+      },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    };
+
+    const updatedDeck = {
+      ...componentDeck,
+      slides: [...componentDeck.slides, newSlide as ComponentBasedSlide]
+    };
+
+    console.log('🔍 SmartSlideDeckViewer: Adding new slide with backend compatibility:', {
+      templateId,
+      template,
+      slideTitle,
+      newSlide,
+      hasSlideTitle: !!newSlide.slideTitle,
+      hasTitleInProps: !!newSlide.props.title,
+      updatedDeck
+    });
+
+    // Use the SAME save mechanism as inline editing
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
+    setShowTemplateDropdown(false);
+  };
+
+  const deleteSlide = (slideId: string) => {
+    if (!componentDeck || componentDeck.slides.length <= 1) return;
+
+    const updatedSlides = componentDeck.slides
+      .filter((slide: ComponentBasedSlide) => slide.slideId !== slideId)
+      .map((slide: ComponentBasedSlide, index: number) => ({
+        ...slide,
+        slideNumber: index + 1
+      }));
+
+    const updatedDeck = {
+      ...componentDeck,
+      slides: updatedSlides
+    };
+
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
+  };
+
   // Loading state
-  // if (isLoading) { // Removed as per new_code
-  //   return ( // Removed as per new_code
-  //     <div style={{ // Removed as per new_code
-  //       display: 'flex', // Removed as per new_code
-  //       justifyContent: 'center', // Removed as per new_code
-  //       alignItems: 'center', // Removed as per new_code
-  //       minHeight: '400px', // Removed as per new_code
-  //       fontSize: '16px', // Removed as per new_code
-  //       color: '#6b7280' // Removed as per new_code
-  //     }}> // Removed as per new_code
-  //       <div> // Removed as per new_code
-  //         <div style={{ marginBottom: '12px' }}>🔄 Loading slides...</div> // Removed as per new_code
-  //       </div> // Removed as per new_code
-  //     </div> // Removed as per new_code
-  //   ); // Removed as per new_code
-  // } // Removed as per new_code
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        fontSize: '16px',
+        color: '#6b7280'
+      }}>
+        <div>
+          <div style={{ marginBottom: '12px' }}>🔄 Loading slides...</div>
+        </div>
+      </div>
+    );
+  }
 
   // Error state
-  // if (error) { // Removed as per new_code
-  //   return ( // Removed as per new_code
-  //     <div style={{ // Removed as per new_code
-  //       padding: '40px', // Removed as per new_code
-  //       textAlign: 'center', // Removed as per new_code
-  //       backgroundColor: '#fef2f2', // Removed as per new_code
-  //       border: '1px solid #fecaca', // Removed as per new_code
-  //       borderRadius: '8px', // Removed as per new_code
-  //       color: '#dc2626' // Removed as per new_code
-  //     }}> // Removed as per new_code
-  //       <div style={{ fontSize: '24px', marginBottom: '16px' }}>⚠️</div> // Removed as per new_code
-  //       <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}> // Removed as per new_code
-  //         Error Loading Slides // Removed as per new_code
-  //       </div> // Removed as per new_code
-  //       <div style={{ fontSize: '14px' }}>{error}</div> // Removed as per new_code
-  //       {showFormatInfo && ( // Removed as per new_code
-  //         <div style={{  // Removed as per new_code
-  //           marginTop: '16px',  // Removed as per new_code
-  //           padding: '12px',  // Removed as per new_code
-  //           backgroundColor: '#f9fafb', // Removed as per new_code
-  //           border: '1px solid #e5e7eb', // Removed as per new_code
-  //           borderRadius: '6px', // Removed as per new_code
-  //           fontSize: '12px', // Removed as per new_code
-  //           color: '#6b7280' // Removed as per new_code
-  //         }}> // Removed as per new_code
-  //           Debug Info: Expected component-based format with templateId and props // Removed as per new_code
-  //         </div> // Removed as per new_code
-  //       )} // Removed as per new_code
-  //     </div> // Removed as per new_code
-  //   ); // Removed as per new_code
-  // } // Removed as per new_code
+  if (error) {
+    return (
+      <div style={{
+        padding: '40px',
+        textAlign: 'center',
+        backgroundColor: '#fef2f2',
+        border: '1px solid #fecaca',
+        borderRadius: '8px',
+        color: '#dc2626'
+      }}>
+        <div style={{ fontSize: '24px', marginBottom: '16px' }}>⚠️</div>
+        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+          Error Loading Slides
+        </div>
+        <div style={{ fontSize: '14px' }}>{error}</div>
+        {showFormatInfo && (
+          <div style={{ 
+            marginTop: '16px', 
+            padding: '12px', 
+            backgroundColor: '#f9fafb',
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#6b7280'
+          }}>
+            Debug Info: Expected component-based format with templateId and props
+          </div>
+        )}
+      </div>
+    );
+  }
 
-  // if (!componentDeck) { // Removed as per new_code
-  //   return ( // Removed as per new_code
-  //     <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}> // Removed as per new_code
-  //       No slide deck available // Removed as per new_code
-  //     </div> // Removed as per new_code
-  //   ); // Removed as per new_code
-  // } // Removed as per new_code
+  if (!componentDeck) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+        No slide deck available
+      </div>
+    );
+  }
 
-  // Success: Render component-based viewer
+  // Success: Render component-based viewer with fixed-position add button
   return (
     <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
-      {/* White Vertical Panel on the Right */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '0',
-          right: '0',
-          width: '48px',
-          height: '100vh',
-          backgroundColor: 'white',
-          borderLeft: '1px solid #e5e7eb',
-          boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
-          zIndex: 30,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          paddingTop: '20px',
-          gap: '16px'
-        }}
-      >
-        {/* Add Slide Button (if editable) */}
-        {isEditable && (
+      {/* Fixed Position Add Slide Button - IMPROVED VERSION */}
+      {isEditable && (
+        <div 
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            left: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}
+        >
+          {/* Main Add Button */}
           <button
+            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
             style={{
-              width: '32px',
-              height: '32px',
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
               backgroundColor: '#3b82f6',
+              color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              marginBottom: '8px'
             }}
-            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-            onMouseEnter={(e) => {
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.style.backgroundColor = '#2563eb';
               e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.style.backgroundColor = '#3b82f6';
               e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
             }}
             title="Add new slide"
           >
-            <Plus className="w-4 h-4 text-white" />
+            <Plus size={24} />
           </button>
-        )}
 
-        {/* Voiceover Button (only if has voiceover) */}
-        {hasAnyVoiceover && (
+          {/* Template Dropdown */}
+          {showTemplateDropdown && (
+            <div
+              style={{
+                position: 'absolute',
+                left: '70px',
+                top: '0',
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                padding: '8px 0',
+                minWidth: '280px',
+                maxHeight: '420px',
+                overflowY: 'auto',
+                zIndex: 1001
+              }}
+            >
+              {/* Header */}
+              <div style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid #f3f4f6',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <h3 style={{
+                  margin: 0,
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151'
+                }}>
+                  Choose Template
+                </h3>
+                <button
+                  onClick={() => setShowTemplateDropdown(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    borderRadius: '4px',
+                    color: '#6b7280'
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Template List - IMPROVED WITH CATEGORIES */}
+              <div style={{ padding: '8px 0', maxHeight: '350px', overflowY: 'auto' }}>
+                {/* Popular Templates Section */}
+                <div style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Popular Templates
+                </div>
+                {availableTemplates
+                  .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
+                  .map((template) => (
+                    <button
+                      key={template.id}
+                      onClick={() => addSlide(template.id)}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: 'none',
+                        background: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        textAlign: 'left',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.backgroundColor = '#f9fafb';
+                      }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>{template.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          color: '#111827',
+                          marginBottom: '2px'
+                        }}>
+                          {template.name}
+                        </div>
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#6b7280',
+                          lineHeight: '1.3'
+                        }}>
+                          {template.description}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+
+                {/* Divider */}
+                <div style={{ margin: '8px 16px', height: '1px', backgroundColor: '#e5e7eb' }}></div>
+
+                {/* All Templates Section */}
+                <div style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  All Templates
+                </div>
+                {availableTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => addSlide(template.id)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      border: 'none',
+                      background: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      textAlign: 'left',
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.currentTarget.style.backgroundColor = '#f9fafb';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <span style={{ fontSize: '16px' }}>{template.icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: '#111827'
+                      }}>
+                        {template.name}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Professional Header */}
+      <div 
+        className="professional-header"
+        style={{
+          width: '100%',
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        <div className="header-content">
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: '#111827',
+            margin: 0
+          }}>
+            {componentDeck.lessonTitle || 'Slide Deck'}
+          </h1>
+          <div style={{
+            fontSize: '14px',
+            color: '#6b7280',
+            marginTop: '4px'
+          }}>
+            {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area - Static white container */}
+      <div 
+        className="main-content"
+        style={{
+          width: '100%',
+          position: 'relative',
+          zIndex: 5,
+          backgroundColor: '#f8f9fa',
+          minHeight: 'calc(100vh - 80px)', // Adjust based on header height
+          transformOrigin: 'center center',
+          overflow: 'hidden', // Prevent container scroll
+          display: 'flex',
+          justifyContent: 'flex-end', // Align slides to the right
+          alignItems: 'flex-start' // Align to top
+        }}
+      >
+        {/* Slides Container - Scrollable and scalable */}
+        <div 
+          ref={slidesContainerRef}
+          className="slides-container"
+          style={{
+            transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
+            transition: 'transform 0.3s ease-in-out',
+            transformOrigin: 'top right', // Changed to top right to stick to right side
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            overflowY: 'auto', // Make slides scrollable
+            overflowX: 'hidden'
+          }}
+          onScroll={handleSlidesScroll}
+        >
+          {componentDeck.slides.map((slide: ComponentBasedSlide) => (
+            <div
+              key={slide.slideId}
+              className="professional-slide relative"
+              id={`slide-${slide.slideId}`}
+              style={{
+                marginBottom: '40px',
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                position: 'relative',
+                transform: 'none', // Prevent any additional transforms
+                transition: 'none', // Prevent slide-specific transitions
+              }}
+            >
+              {/* Slide Header with Template Info and Delete Button */}
+              {isEditable && (
+                <div style={{
+                  padding: '12px 16px',
+                  backgroundColor: '#f9fafb',
+                  borderBottom: '1px solid #e5e7eb',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      color: '#6b7280',
+                      backgroundColor: '#e5e7eb',
+                      padding: '4px 8px',
+                      borderRadius: '4px'
+                    }}>
+                      {getTemplate(slide.templateId)?.name || slide.templateId}
+                    </span>
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#9ca3af'
+                    }}>
+                      Slide {slide.slideNumber}
+                    </span>
+                  </div>
+                  {componentDeck.slides.length > 1 && (
+                    <button
+                      onClick={() => deleteSlide(slide.slideId)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        color: '#ef4444',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fef2f2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      title="Delete slide"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Component-based slide content */}
+              <div className="slide-content">
+                <ComponentBasedSlideDeckRenderer
+                  slides={[slide]}
+                  isEditable={isEditable}
+                  onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+                  onTemplateChange={isEditable ? handleTemplateChange : undefined}
+                  theme={componentDeck.theme}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* White Vertical Panel on the Right (when voiceover panel is closed) */}
+      {hasAnyVoiceover && !isVoiceoverPanelOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '0',
+            right: '0',
+            width: '48px',
+            height: '100vh',
+            backgroundColor: 'white',
+            borderLeft: '1px solid #e5e7eb',
+            boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
+            zIndex: 30,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingTop: '20px',
+            gap: '16px'
+          }}
+        >
+          {/* Voiceover Button */}
           <button
             style={{
               width: '32px',
@@ -409,74 +768,30 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           >
             <Volume2 className="w-4 h-4 text-white" />
           </button>
-        )}
 
-        {/* Future buttons can be added here */}
-      </div>
-
-      {/* Template Dropdown */}
-      {showTemplateDropdown && (
-        <div
-          ref={dropdownRef}
-          style={{
-            position: 'fixed',
-            right: '60px', // Position to the left of the right menu
-            top: '50%',
-            transform: 'translateY(-50%)',
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            padding: '16px',
-            zIndex: 1001,
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            width: '300px'
-          }}
-        >
-          {/* Template options */}
-          {Object.entries(availableTemplates).map(([id, template]: [string, TemplateComponentInfo]) => (
-            <button
-              key={id}
-              onClick={() => handleAddSlide(id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '12px',
-                width: '100%',
-                border: 'none',
-                borderRadius: '6px',
-                backgroundColor: 'transparent',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease',
-                textAlign: 'left'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <div style={{ marginRight: '12px' }}>{template.icon}</div>
-              <div>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{template.name}</div>
-                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{template.description}</div>
-              </div>
-            </button>
-          ))}
+          {/* Future buttons can be added here */}
+          {/* Example:
+          <button
+            style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: '#6b7280',
+              border: 'none',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            }}
+            title="Another Action"
+          >
+            <SomeIcon className="w-4 h-4 text-white" />
+          </button>
+          */}
         </div>
       )}
-
-      {/* Main Content */}
-      <div className="main-content">
-        <ComponentBasedSlideDeckRenderer
-          slides={componentDeck.slides}
-          isEditable={isEditable}
-          onSlideUpdate={handleSlideUpdate}
-          onTemplateChange={handleTemplateChange}
-          theme={theme || componentDeck.theme}
-        />
-      </div>
 
       {/* Voiceover Panel */}
       {hasAnyVoiceover && (
@@ -486,7 +801,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
             slideId: slide.slideId,
             slideNumber: slide.slideNumber || 0,
-            slideTitle: slide.props?.title || `Slide ${slide.slideNumber || 0}`,
+            slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
             voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
           }))}
           currentSlideId={currentSlideId}
@@ -498,18 +813,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }}
-          onVoiceoverUpdate={(slideId, newVoiceoverText) => {
-            const updatedDeck = {
-              ...componentDeck,
-              slides: componentDeck.slides.map((slide: ComponentBasedSlide) =>
-                slide.slideId === slideId
-                  ? { ...slide, voiceoverText: newVoiceoverText }
-                  : slide
-              )
-            };
-            setComponentDeck(updatedDeck);
-            onSave?.(updatedDeck);
-          }}
+          onVoiceoverUpdate={handleVoiceoverUpdate}
         />
       )}
     </div>
