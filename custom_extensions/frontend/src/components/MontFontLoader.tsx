@@ -1,7 +1,8 @@
 'use client';
 
-// Mont Font Loader Component
+// Font Loader Component
 // Ensures Mont fonts are properly loaded and applied to Chudo themes
+// Also handles Montserrat font for Forta theme
 
 import React, { useEffect } from 'react';
 import { preloadMontFonts, applyMontFontsToChudoThemes, debugMontFonts } from '../utils/fontLoader';
@@ -23,7 +24,7 @@ export const MontFontLoader: React.FC = () => {
           }, 1000); // Wait a bit for fonts to load
         }
         
-        console.log('🎨 Mont fonts initialized successfully for Chudo themes');
+        console.log('🎨 Fonts initialized successfully for Chudo and Forta themes');
       } catch (error) {
         console.error('❌ Failed to initialize Mont fonts:', error);
       }
