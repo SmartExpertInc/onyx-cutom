@@ -323,7 +323,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const PyramidSVG1 = () => {
-    const pyramidFill = accentColor;
+    const pyramidFill = contentColor;
     const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
@@ -334,7 +334,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const PyramidSVG2 = () => {
-    const pyramidFill = accentColor;
+    const pyramidFill = contentColor;
     const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
@@ -345,7 +345,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const PyramidSVG3 = () => {
-    const pyramidFill = accentColor;
+    const pyramidFill = contentColor;
     const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
