@@ -75,6 +75,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       contentSize: '16px'
     }
   },
+  
   'chudo-theme': {
     id: 'chudo-theme',
     name: 'Chudo Theme',
@@ -87,11 +88,12 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#d01510'           // опціонально: червоні межі або роздільники
     },
     fonts: {
-      titleFont: 'Montserrat, sans-serif',        // сучасний шрифт для заголовків
-      contentFont: 'Open Sans, sans-serif',       // легкий для читання шрифт
+      titleFont: 'Mont Bold, sans-serif',      // жирний Mont для заголовків
+      contentFont: 'Mont Regular, sans-serif', // звичайний Mont для тексту
       titleSize: '40px',
       contentSize: '16px'
     }
+  }
 };
 
 // Default theme
