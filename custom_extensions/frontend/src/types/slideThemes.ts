@@ -139,7 +139,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       titleColor: 'rgb(238, 118, 35)',         // Orange title (can also be white)
       subtitleColor: '#ffffff',                // White subtitle
       contentColor: '#ffffff',                 // White content text
-      accentColor: 'rgb(238, 118, 35)',        // Orange for bullet points
+      accentColor: 'rgb(225, 211, 196)',        // Orange for bullet points
       borderColor: 'rgb(238, 118, 35)'         // Orange border
     },
     fonts: {
