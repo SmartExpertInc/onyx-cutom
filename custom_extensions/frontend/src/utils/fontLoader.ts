@@ -97,7 +97,7 @@ export const getMontFontFamily = (
 };
 
 /**
- * Apply Mont fonts to Chudo theme elements
+ * Apply Mont fonts to Chudo theme elements and Montserrat to Forta theme
  */
 export const applyMontFontsToChudoThemes = (): void => {
   if (typeof document === 'undefined') return;
@@ -136,10 +136,28 @@ export const applyMontFontsToChudoThemes = (): void => {
       font-family: '${MONT_FONTS.bold}', 'Mont', system-ui, sans-serif !important;
       font-weight: 700 !important;
     }
+
+    /* Montserrat font application for Forta theme */
+    [data-theme="forta"] *,
+    .theme-forta * {
+      font-family: 'Montserrat', system-ui, sans-serif !important;
+    }
+    
+    [data-theme="forta"] h1,
+    [data-theme="forta"] h2,
+    [data-theme="forta"] h3,
+    [data-theme="forta"] .slide-title,
+    .theme-forta h1,
+    .theme-forta h2,
+    .theme-forta h3,
+    .theme-forta .slide-title {
+      font-family: 'Montserrat', system-ui, sans-serif !important;
+      font-weight: 700 !important;
+    }
   `;
   
   document.head.appendChild(style);
-  console.log('🎨 Mont font styles applied to Chudo themes');
+  console.log('🎨 Font styles applied to Chudo and Forta themes');
 };
 
 /**

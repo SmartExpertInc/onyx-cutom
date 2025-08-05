@@ -112,6 +112,24 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       titleSize: '40px',
       contentSize: '16px'
     }
+  },
+  'forta-theme': {
+    id: 'forta',
+    name: 'Forta',
+    colors: {
+      backgroundColor: 'rgb(225, 211, 196)',
+      titleColor: 'rgb(0, 102, 79)',
+      subtitleColor: 'rgb(238, 118, 35)',
+      contentColor: 'rgb(65,67,73)',
+      accentColor: 'rgb(238, 118, 35)',
+      borderColor: 'rgb(238, 118, 35)'
+    },
+    fonts: {
+      titleFont: 'Montserrat, sans-serif',
+      contentFont: 'Montserrat, sans-serif',
+      titleSize: '40px',
+      contentSize: '16px'
+    }
   }
 };
 
