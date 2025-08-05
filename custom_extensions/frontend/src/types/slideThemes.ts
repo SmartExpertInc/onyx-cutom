@@ -125,8 +125,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: 'rgb(238, 118, 35)'
     },
     fonts: {
-      titleFont: 'Montserrat Bold, sans-serif',
-      contentFont: 'Montserrat Regular, sans-serif',
+      titleFont: 'Montserrat, sans-serif',
+      contentFont: 'Montserrat, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
