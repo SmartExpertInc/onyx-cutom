@@ -1038,6 +1038,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -3056,6 +3057,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -5099,6 +5101,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -7117,6 +7120,7 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
+    theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
 # --- Start: Add New Quiz Models ---
@@ -8205,6 +8209,7 @@ class ProjectCreateRequest(BaseModel):
     chatSessionId: Optional[uuid.UUID] = None
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     folder_id: Optional[int] = None  # Add folder_id for automatic folder assignment
+    theme: Optional[str] = None      # Selected theme for presentations
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -11322,6 +11327,14 @@ Return ONLY the JSON object.
 
         logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
         logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
+
+        # Inject theme for slide decks from the finalize request
+        if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
+            hasattr(parsed_content_model_instance, 'theme') and 
+            hasattr(project_data, 'theme') and 
+            project_data.theme):
+            parsed_content_model_instance.theme = project_data.theme
+            logger.info(f"Injected theme '{project_data.theme}' into slide deck")
 
         # Post-process module IDs for training plans to ensure № character is preserved
         if hasattr(parsed_content_model_instance, 'sections') and parsed_content_model_instance.sections:
@@ -14849,6 +14862,7 @@ class LessonWizardPreview(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
+    theme: Optional[str] = None            # Selected theme for presentation
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
     folderIds: Optional[str] = None  # comma-separated folder IDs
@@ -14866,6 +14880,7 @@ class LessonWizardFinalize(BaseModel):
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
+    theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
@@ -14889,6 +14904,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         "action": "preview",
         "language": payload.language,
         "slidesCount": payload.slidesCount or 5,
+        "theme": payload.theme or "dark-purple",  # Use selected theme or default
     }
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
@@ -15170,7 +15186,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-            folder_id=int(payload.folderId) if payload.folderId else None  # Add folder assignment
+            folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
+            theme=payload.theme  # Pass selected theme
         )
         
         # Create project with proper error handling
