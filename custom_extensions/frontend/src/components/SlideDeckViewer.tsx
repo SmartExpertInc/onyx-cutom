@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SlideDeckData, DeckSlide, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock } from '@/types/pdfLesson';
+import { Plus, ChevronDown } from 'lucide-react';
 
 interface SlideDeckViewerProps {
   deck: SlideDeckData;
@@ -124,6 +125,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   const [showTemplates, setShowTemplates] = useState(false);
   const [editingBlock, setEditingBlock] = useState<{ slideId: string; blockIndex: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
 
   // Determine slide layout based on content
   const getSlideLayout = (slide: DeckSlide): string => {
@@ -440,13 +442,6 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                 <span className="button-icon">⊞</span>
                 Templates
               </button>
-              <button 
-                className="control-button add-button"
-                onClick={addSlide}
-              >
-                <span className="button-icon">+</span>
-                Add Slide
-              </button>
             </div>
           )}
         </div>
@@ -576,6 +571,55 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
             </div>
           ))}
         </div>
+
+        {/* Right Sidebar - Add Slide Controls */}
+        {isEditable && (
+          <div className="right-sidebar">
+            <div className="tools-panel">
+              <div className="tool-section">
+                                 <button
+                   className="tool-button add-slide-btn"
+                   onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+                   title="Add new slide"
+                 >
+                   <Plus size={20} />
+                 </button>
+                
+                {showTemplateDropdown && (
+                  <div className="template-dropdown">
+                    <div className="dropdown-header">
+                      <span>Choose template</span>
+                      <button 
+                        onClick={() => setShowTemplateDropdown(false)}
+                        className="close-dropdown"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className="template-list">
+                      {Object.entries(SLIDE_TEMPLATES).map(([key, template]) => (
+                        <button
+                          key={key}
+                          className="template-option"
+                          onClick={() => {
+                            applyTemplate(selectedSlideId, key as keyof typeof SLIDE_TEMPLATES);
+                            setShowTemplateDropdown(false);
+                          }}
+                        >
+                          <span className="template-icon-small">{template.icon}</span>
+                          <div className="template-info">
+                            <div className="template-name-small">{template.name}</div>
+                            <div className="template-desc-small">{template.description}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

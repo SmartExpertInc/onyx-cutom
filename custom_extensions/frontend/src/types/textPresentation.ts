@@ -107,5 +107,4 @@ export interface TextPresentationData {
   textTitle: string;
   contentBlocks: AnyContentBlock[];
   detectedLanguage?: string | null;
-  currentSlideId?: string | null;
 } 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock,
@@ -8,7 +8,7 @@ import {
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
-  Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw, Plus
+  Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -1809,48 +1809,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [activeSlideIndex, setActiveSlideIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (dataToDisplay?.contentBlocks && dataToDisplay.contentBlocks.length > 0) {
-      const currentIndex = dataToDisplay.currentSlideId ? parseInt(dataToDisplay.currentSlideId) : 0;
-      setActiveSlideIndex(currentIndex);
-    } else {
-      setActiveSlideIndex(null);
-    }
-  }, [dataToDisplay]);
-
-  const handleSlideNavClick = (index: number) => {
-    setActiveSlideIndex(index);
-    if (onTextChange && dataToDisplay) {
-      onTextChange(['currentSlideId'], String(index));
-    }
-  };
-
-  const handleAddSlide = useCallback(() => {
-    if (!onTextChange || !dataToDisplay) return;
-
-    // Create a new slide with a default headline
-    const newSlide: HeadlineBlock = {
-      type: 'headline',
-      level: 1,
-      text: 'New Slide',
-    };
-
-    // Add the new slide to contentBlocks
-    const updatedBlocks = [...(dataToDisplay.contentBlocks || []), newSlide];
-    onTextChange(['contentBlocks'], updatedBlocks);
-
-    // Set the new slide as active
-    const newIndex = updatedBlocks.length - 1;
-    setActiveSlideIndex(newIndex);
-    onTextChange(['currentSlideId'], String(newIndex));
-  }, [onTextChange, dataToDisplay]);
-
-  const currentSlide = useMemo(() => {
-    if (activeSlideIndex === null || !dataToDisplay?.contentBlocks) return null;
-    return dataToDisplay.contentBlocks[activeSlideIndex] || null;
-  }, [activeSlideIndex, dataToDisplay?.contentBlocks]);
 
   // 🔍 COMPREHENSIVE LOGGING: Print entire content when one-pager opens
   useEffect(() => {
@@ -2043,230 +2001,198 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const styledTextTitle = parseAndStyleText(dataToDisplay.textTitle);
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex flex-col md:flex-row h-full">
-        {/* Right Navigation Menu */}
-        <div className="w-full md:w-1/3 lg:w-1/4 bg-gray-50 border-r border-gray-200 p-4">
-          <div className="sticky top-0">
-            <header className="mb-6">
-              {parentProjectName && (
-                <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1">{parentProjectName}</p>
-              )}
+    <div className="min-h-screen bg-white p-4">
+      <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+        <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
+          {dataToDisplay.textTitle && (
+            <header className="mb-4 text-left">
+              {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
+              
               {isEditing && onTextChange ? (
-                <input 
-                  type="text" 
-                  value={dataToDisplay.textTitle} 
-                  onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
-                  className={`${editingInputClass} text-xl font-bold ${THEME_COLORS.headingText}`}
-                />
+                  <input 
+                      type="text" 
+                      value={dataToDisplay.textTitle} 
+                      onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
+                      className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
+                  />
               ) : (
-                <h1 className={`text-xl font-bold ${THEME_COLORS.headingText} mb-2`}>{dataToDisplay.textTitle}</h1>
+                  <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
               )}
+
+              <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} />
             </header>
+          )}
 
-            <nav>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-sm font-medium text-gray-600">Slides</h2>
-                {isEditing && (
-                  <button
-                    onClick={handleAddSlide}
-                    className="p-1.5 hover:bg-gray-200 rounded-full transition-colors"
-                    title="Add new slide"
-                  >
-                    <Plus className="w-5 h-5 text-gray-600" />
-                  </button>
-                )}
-              </div>
-              <ul className="space-y-2">
-                {dataToDisplay?.contentBlocks?.map((slide, index) => (
-                  <li key={index}>
-                    <button
-                      onClick={() => handleSlideNavClick(index)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        activeSlideIndex === index
-                          ? 'bg-white shadow-sm border border-gray-200'
-                          : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      <span className="text-sm font-medium text-gray-900">
-                        {slide.type === 'headline' ? slide.text : `Slide ${index + 1}`}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
+          <main className="text-left">
+            {renderableItems.map((item, index) => {
+              const isLastItem = index === renderableItems.length - 1;
+              
+              // 🎯 ARROW REORDERING STYLING
+              const reorderClasses = isEditing ? [
+                'transition-all duration-200',
+                'relative group'
+              ].filter(Boolean).join(' ') : '';
 
-        {/* Main Content Area */}
-        <div className="w-full md:w-2/3 lg:w-3/4 p-4 sm:p-6 md:p-8 overflow-y-auto">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
-              <main className="text-left">
-                {/* Only show the current slide's content */}
-                {activeSlideIndex !== null && renderableItems
-                  .filter((_, index) => index === activeSlideIndex)
-                  .map((item, index) => {
-                    const isLastItem = index === renderableItems.length - 1;
-                    const reorderClasses = isEditing ? [
-                      'transition-all duration-200',
-                      'relative group'
-                    ].filter(Boolean).join(' ') : '';
+              if (item.type === 'major_section') {
+                const originalHeadlineIndex = findOriginalIndex(item.headline);
+                return (
+                  <div key={index} className={reorderClasses}>
 
-                    if (item.type === 'major_section') {
-                      const originalHeadlineIndex = findOriginalIndex(item.headline);
-                      return (
-                        <div key={index} className={reorderClasses}>
-
-                          <section className="mb-4 p-3 rounded-md text-left">
-                            {!item._skipRenderHeadline && (
-                              <RenderBlock
-                                block={item.headline}
-                                basePath={['contentBlocks', originalHeadlineIndex]}
-                                isEditing={isEditing}
-                                onTextChange={onTextChange}
-                                contentBlockIndex={originalHeadlineIndex}
-                                onMoveBlockUp={handleMoveBlockUp}
-                                onMoveBlockDown={handleMoveBlockDown}
-                                isFirstBlock={originalHeadlineIndex === 0}
-                                isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                              />
-                            )}
-                            <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
-                              {item.items.map((subItem, subIndex) => {
-                                const isLastSubItem = subIndex === item.items.length - 1;
-                                if (subItem.type === 'mini_section') {
-                                  const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
-                                  const originalMiniListIndex = findOriginalIndex(subItem.list);
-                                  return (
-                                    <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
-                                      <RenderBlock
-                                        block={subItem.headline}
-                                        isMiniSectionHeadline={true}
-                                        isFirstInBox={subIndex === 0}
-                                        basePath={['contentBlocks', originalMiniHeadlineIndex]}
-                                        isEditing={isEditing}
-                                        onTextChange={onTextChange}
-                                        contentBlockIndex={originalMiniHeadlineIndex}
-                                        onMoveBlockUp={handleMoveBlockUp}
-                                        onMoveBlockDown={handleMoveBlockDown}
-                                        isFirstBlock={originalMiniHeadlineIndex === 0}
-                                        isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                                      />
-                                      <RenderBlock
-                                        block={subItem.list}
-                                        isLastInBox={isLastSubItem}
-                                        basePath={['contentBlocks', originalMiniListIndex]}
-                                        isEditing={isEditing}
-                                        onTextChange={onTextChange}
-                                        contentBlockIndex={originalMiniListIndex}
-                                        onMoveBlockUp={handleMoveBlockUp}
-                                        onMoveBlockDown={handleMoveBlockDown}
-                                        isFirstBlock={originalMiniListIndex === 0}
-                                        isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                                      />
-                                    </div>
-                                  );
-                                } else { // It's an AnyContentBlock
-                                  const originalSubIndex = findOriginalIndex(subItem);
-                                  return <RenderBlock
-                                    key={subIndex}
-                                    block={subItem}
-                                    isLastInBox={isLastSubItem}
-                                    basePath={['contentBlocks', originalSubIndex]}
-                                    isEditing={isEditing}
-                                    onTextChange={onTextChange}
-                                    contentBlockIndex={originalSubIndex}
-                                    onMoveBlockUp={handleMoveBlockUp}
-                                    onMoveBlockDown={handleMoveBlockDown}
-                                    isFirstBlock={originalSubIndex === 0}
-                                    isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                                  />;
-                                }
-                              })}
-                            </div>
-                          </section>
-                        </div>
-                      );
-                    }
-
-                    if (item.type === 'mini_section') {
-                      const originalHeadlineIndex = findOriginalIndex(item.headline);
-                      const originalListIndex = findOriginalIndex(item.list);
-                      return (
-                        <div key={index} className={reorderClasses}>
-
-                          <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
-                            <RenderBlock
-                              block={item.headline}
-                              isMiniSectionHeadline={true}
-                              isFirstInBox={index === 0}
-                              basePath={['contentBlocks', originalHeadlineIndex]}
+                    <section className="mb-4 p-3 rounded-md text-left">
+                      {!item._skipRenderHeadline && (
+                        <RenderBlock
+                          block={item.headline}
+                          basePath={['contentBlocks', originalHeadlineIndex]}
+                          isEditing={isEditing}
+                          onTextChange={onTextChange}
+                          contentBlockIndex={originalHeadlineIndex}
+                          onMoveBlockUp={handleMoveBlockUp}
+                          onMoveBlockDown={handleMoveBlockDown}
+                          isFirstBlock={originalHeadlineIndex === 0}
+                          isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                        />
+                      )}
+                      <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
+                        {item.items.map((subItem, subIndex) => {
+                          const isLastSubItem = subIndex === item.items.length - 1;
+                          if (subItem.type === 'mini_section') {
+                            const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
+                            const originalMiniListIndex = findOriginalIndex(subItem.list);
+                            return (
+                              <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                                <RenderBlock
+                                  block={subItem.headline}
+                                  isMiniSectionHeadline={true}
+                                  isFirstInBox={subIndex === 0}
+                                  basePath={['contentBlocks', originalMiniHeadlineIndex]}
+                                  isEditing={isEditing}
+                                  onTextChange={onTextChange}
+                                  contentBlockIndex={originalMiniHeadlineIndex}
+                                  onMoveBlockUp={handleMoveBlockUp}
+                                  onMoveBlockDown={handleMoveBlockDown}
+                                  isFirstBlock={originalMiniHeadlineIndex === 0}
+                                  isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                />
+                                <RenderBlock
+                                  block={subItem.list}
+                                  isLastInBox={isLastSubItem}
+                                  basePath={['contentBlocks', originalMiniListIndex]}
+                                  isEditing={isEditing}
+                                  onTextChange={onTextChange}
+                                  contentBlockIndex={originalMiniListIndex}
+                                  onMoveBlockUp={handleMoveBlockUp}
+                                  onMoveBlockDown={handleMoveBlockDown}
+                                  isFirstBlock={originalMiniListIndex === 0}
+                                  isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                />
+                              </div>
+                            );
+                          } else { // It's an AnyContentBlock
+                            const originalSubIndex = findOriginalIndex(subItem);
+                            return <RenderBlock
+                              key={subIndex}
+                              block={subItem}
+                              isLastInBox={isLastSubItem}
+                              basePath={['contentBlocks', originalSubIndex]}
                               isEditing={isEditing}
                               onTextChange={onTextChange}
-                              contentBlockIndex={originalHeadlineIndex}
+                              contentBlockIndex={originalSubIndex}
                               onMoveBlockUp={handleMoveBlockUp}
                               onMoveBlockDown={handleMoveBlockDown}
-                              isFirstBlock={originalHeadlineIndex === 0}
-                              isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                            />
-                            <RenderBlock
-                              block={item.list}
-                              isLastInBox={isLastItem}
-                              basePath={['contentBlocks', originalListIndex]}
-                              isEditing={isEditing}
-                              onTextChange={onTextChange}
-                              contentBlockIndex={originalListIndex}
-                              onMoveBlockUp={handleMoveBlockUp}
-                              onMoveBlockDown={handleMoveBlockDown}
-                              isFirstBlock={originalListIndex === 0}
-                              isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                            />
-                          </div>
-                        </div>
-                      );
-                    }
+                              isFirstBlock={originalSubIndex === 0}
+                              isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                            />;
+                          }
+                        })}
+                      </div>
+                    </section>
+                  </div>
+                );
+              }
 
-                    if (item.type === 'standalone_block') {
-                      const originalIndex = findOriginalIndex(item.content);
-                      return (
-                        <div key={index} className={reorderClasses}>
+              if (item.type === 'mini_section') {
+                const originalHeadlineIndex = findOriginalIndex(item.headline);
+                const originalListIndex = findOriginalIndex(item.list);
+                return (
+                  <div key={index} className={reorderClasses}>
 
-                          <RenderBlock
-                            block={item.content}
-                            isLastInBox={isLastItem}
-                            basePath={['contentBlocks', originalIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                            contentBlockIndex={originalIndex}
-                            onMoveBlockUp={handleMoveBlockUp}
-                            onMoveBlockDown={handleMoveBlockDown}
-                            isFirstBlock={originalIndex === 0}
-                            isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          />
-                        </div>
-                      );
-                    }
+                    <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                      <RenderBlock
+                        block={item.headline}
+                        isMiniSectionHeadline={true}
+                        isFirstInBox={index === 0}
+                        basePath={['contentBlocks', originalHeadlineIndex]}
+                        isEditing={isEditing}
+                        onTextChange={onTextChange}
+                        contentBlockIndex={originalHeadlineIndex}
+                        onMoveBlockUp={handleMoveBlockUp}
+                        onMoveBlockDown={handleMoveBlockDown}
+                        isFirstBlock={originalHeadlineIndex === 0}
+                        isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                      />
+                      <RenderBlock
+                        block={item.list}
+                        isLastInBox={isLastItem}
+                        basePath={['contentBlocks', originalListIndex]}
+                        isEditing={isEditing}
+                        onTextChange={onTextChange}
+                        contentBlockIndex={originalListIndex}
+                        onMoveBlockUp={handleMoveBlockUp}
+                        onMoveBlockDown={handleMoveBlockDown}
+                        isFirstBlock={originalListIndex === 0}
+                        isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                      />
+                    </div>
+                  </div>
+                );
+              }
 
-                    return null;
-                  })}
-              </main>
-            </div>
-          </div>
+              if (item.type === 'standalone_block') {
+                const originalIndex = findOriginalIndex(item.content);
+                return (
+                  <div key={index} className={reorderClasses}>
+
+                    <RenderBlock
+                      block={item.content}
+                      isLastInBox={isLastItem}
+                      basePath={['contentBlocks', originalIndex]}
+                      isEditing={isEditing}
+                      onTextChange={onTextChange}
+                      contentBlockIndex={originalIndex}
+                      onMoveBlockUp={handleMoveBlockUp}
+                      onMoveBlockDown={handleMoveBlockDown}
+                      isFirstBlock={originalIndex === 0}
+                      isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                    />
+                  </div>
+                );
+              }
+
+              return null;
+            })}
+          </main>
         </div>
       </div>
-
-      {/* Image Upload Modal */}
-      {showImageUpload && (
-        <ImageUploadModal
-          isOpen={showImageUpload}
-          onClose={() => setShowImageUpload(false)}
-          onImageUploaded={(imagePath) => {
-            // ... existing image upload logic ...
-          }}
-        />
+      
+      {/* Floating Add Image Button - Only show in editing mode */}
+      {isEditing && onTextChange && (
+        <button
+          onClick={() => setShowImageUpload(true)}
+          className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+          title="Add Image"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
       )}
+      
+      {/* Image Upload Modal */}
+      <ImageUploadModal
+        isOpen={showImageUpload}
+        onClose={() => setShowImageUpload(false)}
+        onImageUploaded={handleImageUploaded}
+      />
     </div>
   );
 };

@@ -369,452 +369,281 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
   }
 
-  // Success: Render component-based viewer with fixed-position add button
+  // Success: Render component-based viewer with right sidebar add button
   return (
-    <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
-      {/* Fixed Position Add Slide Button - IMPROVED VERSION */}
-      {isEditable && (
-        <div 
-          ref={dropdownRef}
-          style={{
-            position: 'fixed',
-            left: '20px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-          }}
-        >
-          {/* Main Add Button */}
-          <button
-            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-            style={{
-              width: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-              transition: 'all 0.2s ease',
-              marginBottom: '8px'
-            }}
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor = '#2563eb';
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor = '#3b82f6';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            title="Add new slide"
-          >
-            <Plus size={24} />
-          </button>
+    <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh', display: 'flex' }}>
+      
+      {/* Main Content Area */}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        {/* Format Detection Info */}
+        {showFormatInfo && (
+          <div style={{
+            background: '#f0f9ff',
+            border: '1px solid #0ea5e9',
+            borderRadius: '8px',
+            padding: '16px',
+            margin: '16px',
+            fontSize: '14px',
+            color: '#0c4a6e'
+          }}>
+            <strong>Format:</strong> Component-based slide deck detected. Using SmartSlideDeckViewer.
+          </div>
+        )}
 
-          {/* Template Dropdown */}
-          {showTemplateDropdown && (
-            <div
-              style={{
-                position: 'absolute',
-                left: '70px',
-                top: '0',
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-                padding: '8px 0',
-                minWidth: '280px',
-                maxHeight: '420px',
-                overflowY: 'auto',
-                zIndex: 1001
-              }}
-            >
-              {/* Header */}
-              <div style={{
-                padding: '12px 16px',
-                borderBottom: '1px solid #f3f4f6',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <h3 style={{
-                  margin: 0,
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#374151'
-                }}>
-                  Choose Template
-                </h3>
-                <button
-                  onClick={() => setShowTemplateDropdown(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    borderRadius: '4px',
-                    color: '#6b7280'
-                  }}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              {/* Template List - IMPROVED WITH CATEGORIES */}
-              <div style={{ padding: '8px 0', maxHeight: '350px', overflowY: 'auto' }}>
-                {/* Popular Templates Section */}
-                <div style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Popular Templates
-                </div>
-                {availableTemplates
-                  .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
-                  .map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => addSlide(template.id)}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: 'none',
-                        background: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        textAlign: 'left',
-                        transition: 'background-color 0.2s ease'
-                      }}
-                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                        e.currentTarget.style.backgroundColor = '#f9fafb';
-                      }}
-                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>{template.icon}</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{
-                          fontSize: '14px',
-                          fontWeight: '500',
-                          color: '#111827',
-                          marginBottom: '2px'
-                        }}>
-                          {template.name}
-                        </div>
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#6b7280',
-                          lineHeight: '1.3'
-                        }}>
-                          {template.description}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-
-                {/* Divider */}
-                <div style={{ margin: '8px 16px', height: '1px', backgroundColor: '#e5e7eb' }}></div>
-
-                {/* All Templates Section */}
-                <div style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  All Templates
-                </div>
-                {availableTemplates.map((template) => (
-                  <button
-                    key={template.id}
-                    onClick={() => addSlide(template.id)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 16px',
-                      border: 'none',
-                      background: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      textAlign: 'left',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.currentTarget.style.backgroundColor = '#f9fafb';
-                    }}
-                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <span style={{ fontSize: '16px' }}>{template.icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontSize: '13px',
-                        fontWeight: '500',
-                        color: '#111827'
-                      }}>
-                        {template.name}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+        {/* Slide Content */}
+        <div style={{ padding: '20px', height: '100%', overflow: 'auto' }}>
+          <ComponentBasedSlideDeckRenderer 
+            slides={componentDeck.slides}
+            isEditable={isEditable}
+            onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+            onTemplateChange={isEditable ? handleTemplateChange : undefined}
+            theme={componentDeck.theme}
+          />
+          
+          {/* Voiceover Panel */}
+          {hasAnyVoiceover && (
+            <div style={{ marginTop: '20px' }}>
+              <VoiceoverPanel 
+                isOpen={isVoiceoverPanelOpen}
+                onClose={() => setIsVoiceoverPanelOpen(false)}
+                slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
+                  slideId: slide.slideId,
+                  slideNumber: slide.slideNumber || 0,
+                  slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
+                  voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
+                }))}
+                currentSlideId={currentSlideId}
+                onSlideSelect={(slideId) => {
+                  setCurrentSlideId(slideId);
+                  // Scroll to the selected slide
+                  const slideElement = document.getElementById(`slide-${slideId}`);
+                  if (slideElement && slidesContainerRef.current) {
+                    slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
+                onVoiceoverUpdate={handleVoiceoverUpdate}
+              />
             </div>
           )}
         </div>
-      )}
-
-      {/* Professional Header */}
-      <div 
-        className="professional-header"
-        style={{
-          width: '100%',
-          position: 'relative',
-          zIndex: 10
-        }}
-      >
-        <div className="header-content">
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: '#111827',
-            margin: 0
-          }}>
-            {componentDeck.lessonTitle || 'Slide Deck'}
-          </h1>
-          <div style={{
-            fontSize: '14px',
-            color: '#6b7280',
-            marginTop: '4px'
-          }}>
-            {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
-          </div>
-        </div>
       </div>
 
-      {/* Main Content Area - Static white container */}
-      <div 
-        className="main-content"
-        style={{
-          width: '100%',
-          position: 'relative',
-          zIndex: 5,
-          backgroundColor: '#f8f9fa',
-          minHeight: 'calc(100vh - 80px)', // Adjust based on header height
-          transformOrigin: 'center center',
-          overflow: 'hidden', // Prevent container scroll
-          display: 'flex',
-          justifyContent: 'flex-end', // Align slides to the right
-          alignItems: 'flex-start' // Align to top
-        }}
-      >
-        {/* Slides Container - Scrollable and scalable */}
+      {/* Right Sidebar - Add Slide Controls */}
+      {isEditable && (
         <div 
-          ref={slidesContainerRef}
-          className="slides-container"
           style={{
-            transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
-            transition: 'transform 0.3s ease-in-out',
-            transformOrigin: 'top right', // Changed to top right to stick to right side
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            overflowY: 'auto', // Make slides scrollable
-            overflowX: 'hidden'
+            width: '80px',
+            background: 'white',
+            borderLeft: '1px solid #e5e7eb',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: '16px 0',
+            gap: '24px',
+            position: 'sticky',
+            top: '0',
+            height: '100vh',
+            overflowY: 'auto'
           }}
-          onScroll={handleSlidesScroll}
         >
-          {componentDeck.slides.map((slide: ComponentBasedSlide) => (
-            <div
-              key={slide.slideId}
-              className="professional-slide relative"
-              id={`slide-${slide.slideId}`}
-              style={{
-                marginBottom: '40px',
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                position: 'relative',
-                transform: 'none', // Prevent any additional transforms
-                transition: 'none', // Prevent slide-specific transitions
-              }}
-            >
-              {/* Slide Header with Template Info and Delete Button */}
-              {isEditable && (
-                <div style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#f9fafb',
-                  borderBottom: '1px solid #e5e7eb',
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+              <button
+                onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '8px',
+                  backgroundColor: showTemplateDropdown ? '#e8f0fe' : 'transparent',
+                  color: showTemplateDropdown ? '#1a73e8' : '#5f6368',
+                  border: 'none',
+                  cursor: 'pointer',
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  if (!showTemplateDropdown) {
+                    e.currentTarget.style.backgroundColor = '#f1f3f4';
+                    e.currentTarget.style.color = '#1a73e8';
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                  }
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  if (!showTemplateDropdown) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#5f6368';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }
+                }}
+                title="Add new slide"
+              >
+                <Plus size={20} />
+              </button>
+              
+              {/* Template Dropdown */}
+              {showTemplateDropdown && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: '100%',
+                    top: '0',
+                    marginRight: '16px',
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                    padding: '8px 0',
+                    minWidth: '280px',
+                    maxHeight: '420px',
+                    overflowY: 'auto',
+                    zIndex: 1001
+                  }}
+                >
+                  {/* Header */}
                   <div style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #f3f4f6',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}>
-                    <span style={{
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      color: '#6b7280',
-                      backgroundColor: '#e5e7eb',
-                      padding: '4px 8px',
-                      borderRadius: '4px'
+                    <h3 style={{
+                      margin: 0,
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151'
                     }}>
-                      {getTemplate(slide.templateId)?.name || slide.templateId}
-                    </span>
-                    <span style={{
-                      fontSize: '12px',
-                      color: '#9ca3af'
-                    }}>
-                      Slide {slide.slideNumber}
-                    </span>
-                  </div>
-                  {componentDeck.slides.length > 1 && (
+                      Choose Template
+                    </h3>
                     <button
-                      onClick={() => deleteSlide(slide.slideId)}
+                      onClick={() => setShowTemplateDropdown(false)}
                       style={{
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
                         padding: '4px',
                         borderRadius: '4px',
-                        color: '#ef4444',
-                        transition: 'background-color 0.2s ease'
+                        color: '#6b7280'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fef2f2';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                      title="Delete slide"
                     >
                       <X size={16} />
                     </button>
-                  )}
+                  </div>
+
+                  {/* Template List - IMPROVED WITH CATEGORIES */}
+                  <div style={{ padding: '8px 0', maxHeight: '350px', overflowY: 'auto' }}>
+                    {/* Popular Templates Section */}
+                    <div style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Popular Templates
+                    </div>
+                    {availableTemplates
+                      .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
+                      .map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => addSlide(template.id)}
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            border: 'none',
+                            background: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            textAlign: 'left',
+                            transition: 'background-color 0.2s ease'
+                          }}
+                          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                          }}
+                          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
+                        >
+                          <span style={{ fontSize: '20px' }}>{template.icon}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              color: '#111827',
+                              marginBottom: '2px'
+                            }}>
+                              {template.name}
+                            </div>
+                            <div style={{
+                              fontSize: '12px',
+                              color: '#6b7280',
+                              lineHeight: '1.3'
+                            }}>
+                              {template.description}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+
+                    {/* Spacer */}
+                    <div style={{ height: '8px' }} />
+
+                    {/* All Templates Section */}
+                    <div style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      All Templates
+                    </div>
+                    {availableTemplates.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => addSlide(template.id)}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          textAlign: 'left',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.currentTarget.style.backgroundColor = '#f9fafb';
+                        }}
+                        onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <span style={{ fontSize: '20px' }}>{template.icon}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            color: '#111827',
+                            marginBottom: '2px'
+                          }}>
+                            {template.name}
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            color: '#6b7280',
+                            lineHeight: '1.3'
+                          }}>
+                            {template.description}
+                          </div>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#9ca3af' }}>
+                          <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
-
-              {/* Component-based slide content */}
-              <div className="slide-content">
-                <ComponentBasedSlideDeckRenderer
-                  slides={[slide]}
-                  isEditable={isEditable}
-                  onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-                  onTemplateChange={isEditable ? handleTemplateChange : undefined}
-                  theme={componentDeck.theme}
-                />
-              </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-
-      {/* White Vertical Panel on the Right (when voiceover panel is closed) */}
-      {hasAnyVoiceover && !isVoiceoverPanelOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '0',
-            right: '0',
-            width: '48px',
-            height: '100vh',
-            backgroundColor: 'white',
-            borderLeft: '1px solid #e5e7eb',
-            boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
-            zIndex: 30,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            paddingTop: '20px',
-            gap: '16px'
-          }}
-        >
-          {/* Voiceover Button */}
-          <button
-            style={{
-              width: '32px',
-              height: '32px',
-              backgroundColor: '#3b82f6',
-              border: 'none',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-            }}
-            onClick={() => setIsVoiceoverPanelOpen(true)}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#2563eb';
-              e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#3b82f6';
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-            }}
-            title="Open Voiceover Panel"
-          >
-            <Volume2 className="w-4 h-4 text-white" />
-          </button>
-
-          {/* Future buttons can be added here */}
-          {/* Example:
-          <button
-            style={{
-              width: '32px',
-              height: '32px',
-              backgroundColor: '#6b7280',
-              border: 'none',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-            }}
-            title="Another Action"
-          >
-            <SomeIcon className="w-4 h-4 text-white" />
-          </button>
-          */}
-        </div>
-      )}
-
-      {/* Voiceover Panel */}
-      {hasAnyVoiceover && (
-        <VoiceoverPanel
-          isOpen={isVoiceoverPanelOpen}
-          onClose={() => setIsVoiceoverPanelOpen(false)}
-          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
-            slideId: slide.slideId,
-            slideNumber: slide.slideNumber || 0,
-            slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
-            voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
-          }))}
-          currentSlideId={currentSlideId}
-          onSlideSelect={(slideId) => {
-            setCurrentSlideId(slideId);
-            // Scroll to the selected slide
-            const slideElement = document.getElementById(`slide-${slideId}`);
-            if (slideElement && slidesContainerRef.current) {
-              slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }}
-          onVoiceoverUpdate={handleVoiceoverUpdate}
-        />
       )}
     </div>
   );
