@@ -739,7 +739,7 @@ async def generate_pdf_from_html_template(
             'omitBackground': False
             # *** REMOVED: format, width, height - let CSS @page control everything ***
         })
-
+        
         logger.info(f"PDF generated with dynamic page heights at {temp_pdf_path}")
 
         if os.path.exists(pdf_path_in_cache): 
