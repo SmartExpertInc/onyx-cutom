@@ -11386,6 +11386,7 @@ Return ONLY the JSON object.
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create project entry.")
 
         # --- Patch theme into DB if provided (for TrainingPlan and SlideDeck components) ---
+        logger.info(f"🎨 [THEME PATCH DEBUG] project_data.theme: {project_data.theme}, component_name: {selected_design_template.component_name}")
         if project_data.theme and selected_design_template.component_name in [COMPONENT_NAME_TRAINING_PLAN, COMPONENT_NAME_SLIDE_DECK]:
             logger.info(f"🎨 [THEME PATCH] Patching theme '{project_data.theme}' into project {row['id']} for component {selected_design_template.component_name}")
             async with pool.acquire() as conn:
@@ -15218,6 +15219,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 # Continue with plain lesson title if outline fetch fails
 
         # Create project data
+        logger.info(f"🎨 [LESSON FINALIZE] Received theme from frontend: {payload.theme}")
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=slide_deck_template_id,
@@ -15228,6 +15230,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
             theme=payload.theme  # Pass the selected theme
         )
+        logger.info(f"🎨 [LESSON FINALIZE] Created project_data with theme: {project_data.theme}")
         
         # Create project with proper error handling
         try:
