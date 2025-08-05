@@ -6,8 +6,10 @@ import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTempl
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import VoiceoverPanel from './VoiceoverPanel';
+import { ThemePicker } from './theme/ThemePicker';
+import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
-import { Plus, ChevronDown, X, Volume2} from 'lucide-react';
+import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -27,6 +29,9 @@ interface SmartSlideDeckViewerProps {
   
   /** Whether to enable voiceover features */
   hasVoiceover?: boolean;
+
+  /** Project ID for theme persistence */
+  projectId?: string;
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -35,7 +40,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   onSave,
   showFormatInfo = false,
   theme,
-  hasVoiceover = false
+  hasVoiceover = false,
+  projectId
 }: SmartSlideDeckViewerProps) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,9 +53,31 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Theme picker state
+  const [showThemePicker, setShowThemePicker] = useState(false);
+
+  // Theme management for slide decks
+  const { currentTheme, changeTheme, isChangingTheme } = useTheme({
+    initialTheme: deck?.theme || theme,
+    slideDeck: componentDeck || undefined,
+    projectId: projectId,
+    enablePersistence: true,
+    onThemeChange: (newTheme, updatedDeck) => {
+      console.log('🎨 Theme changed:', { newTheme, updatedDeck });
+      
+      // Update the component deck with new theme
+      if (updatedDeck) {
+        setComponentDeck(updatedDeck);
+        
+        // Call the parent's onSave callback
+        onSave?.(updatedDeck);
+      }
+    }
+  });
   
-  // Get the current theme
-  const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
+  // Get the current theme data
+  const currentThemeData = getSlideTheme(currentTheme || DEFAULT_SLIDE_THEME);
 
   // Check if any slide has voiceover text
   const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
@@ -64,6 +92,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowTemplateDropdown(false);
+        setShowThemePicker(false);
       }
     };
 
@@ -116,7 +145,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         console.log('✅ Component-based slides loaded with theme:', {
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
-          themeColors: currentTheme.colors,
+          themeColors: currentThemeData.colors,
           templates: deck.slides.map((s: any) => s.templateId)
           });
         
@@ -129,7 +158,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     };
 
     processDeck();
-  }, [deck, theme, currentTheme.colors]);
+  }, [deck, theme, currentThemeData.colors]);
 
   // Synchronized scrolling with voiceover panel
   useEffect(() => {
@@ -512,7 +541,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   isEditable={isEditable}
                   onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                   onTemplateChange={isEditable ? handleTemplateChange : undefined}
-                  theme={componentDeck.theme}
+                  theme={currentTheme}
                 />
               </div>
             </div>
@@ -521,7 +550,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       </div>
 
       {/* Right-side Vertical Panel - Always visible */}
-      {!isVoiceoverPanelOpen && (
+      {!isVoiceoverPanelOpen && !showThemePicker && (
         <div
           ref={dropdownRef}
           style={{
@@ -574,6 +603,43 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               <Plus size={16} />
             </button>
           )}
+
+          {/* Theme Button */}
+          <button
+            onClick={() => setShowThemePicker(true)}
+            disabled={isChangingTheme}
+            style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: isChangingTheme ? '#9ca3af' : '#6b7280',
+              border: 'none',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: isChangingTheme ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              opacity: isChangingTheme ? 0.6 : 1
+            }}
+            onMouseEnter={(e) => {
+              if (!isChangingTheme) {
+                e.currentTarget.style.backgroundColor = '#374151';
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isChangingTheme) {
+                e.currentTarget.style.backgroundColor = '#6b7280';
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+              }
+            }}
+            title={isChangingTheme ? "Changing theme..." : "Change presentation theme"}
+          >
+            <Palette size={16} className="text-white" />
+          </button>
 
           {/* Template Dropdown */}
           {isEditable && showTemplateDropdown && (
@@ -780,6 +846,15 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           onVoiceoverUpdate={handleVoiceoverUpdate}
         />
       )}
+
+      {/* Theme Picker Panel */}
+      <ThemePicker
+        isOpen={showThemePicker}
+        onClose={() => setShowThemePicker(false)}
+        selectedTheme={currentTheme}
+        onThemeSelect={changeTheme}
+        isChanging={isChangingTheme}
+      />
     </div>
   );
 };

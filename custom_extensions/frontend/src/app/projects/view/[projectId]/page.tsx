@@ -1082,6 +1082,7 @@ export default function ProjectInstanceViewPage() {
               // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
               theme={currentTheme}
+              projectId={projectId}
             />
           </div>
         );
@@ -1150,6 +1151,7 @@ export default function ProjectInstanceViewPage() {
               showFormatInfo={true}
               theme="dark-purple"
               hasVoiceover={true} // Enable voiceover features
+              projectId={projectId}
             />
           </div>
         );
@@ -1267,21 +1269,6 @@ export default function ProjectInstanceViewPage() {
                   </button>
             )}
             
-            {/* Theme button for slide decks */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && (
-              <button
-                onClick={() => setShowThemePicker(true)}
-                disabled={isSaving || isChangingTheme}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                title={t('interface.projectView.changeTheme', 'Change presentation theme')}
-              >
-                <Palette size={16} className="mr-2" />
-                {isChangingTheme 
-                  ? t('interface.projectView.changingTheme', 'Changing...')
-                  : t('interface.projectView.theme', 'Theme')
-                }
-              </button>
-            )}
             {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
@@ -1395,17 +1382,6 @@ export default function ProjectInstanceViewPage() {
             </Suspense>
         </div>
       </div>
-
-      {/* Theme Picker Panel for Slide Decks */}
-      {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && (
-        <ThemePicker
-          isOpen={showThemePicker}
-          onClose={() => setShowThemePicker(false)}
-          selectedTheme={currentTheme}
-          onThemeSelect={changeTheme}
-          isChanging={isChangingTheme}
-        />
-      )}
     </main>
   );
 }
