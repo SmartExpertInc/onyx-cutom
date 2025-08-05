@@ -804,7 +804,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 transition: 'all 0.2s ease',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}
-              onClick={() => setIsVoiceoverPanelOpen(true)}
+              onClick={() => setIsVoiceoverPanelOpen(!isVoiceoverPanelOpen)}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2563eb';
                 e.currentTarget.style.transform = 'scale(1.05)';
@@ -815,7 +815,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
               }}
-              title="Open Voiceover Panel"
+              title={isVoiceoverPanelOpen ? "Close Voiceover Panel" : "Open Voiceover Panel"}
             >
               <Volume2 className="w-4 h-4 text-white" />
             </button>

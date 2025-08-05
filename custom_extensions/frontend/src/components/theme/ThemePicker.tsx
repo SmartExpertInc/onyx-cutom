@@ -59,14 +59,6 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
 
   return (
     <>
-      {/* Backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-25 z-40 transition-opacity duration-300"
-          onClick={onClose}
-        />
-      )}
-      
       {/* Sliding Panel */}
       <div 
         className={`fixed inset-y-0 right-0 w-96 bg-white shadow-2xl z-50 transition-transform duration-300 ease-in-out ${
