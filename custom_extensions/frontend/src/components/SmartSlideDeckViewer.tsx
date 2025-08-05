@@ -494,65 +494,74 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           {componentDeck.slides.map((slide: ComponentBasedSlide) => (
             <div
               key={slide.slideId}
-              className="professional-slide relative"
-              id={`slide-${slide.slideId}`}
               style={{
                 marginBottom: '40px',
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                position: 'relative',
-                transform: 'none', // Prevent any additional transforms
-                transition: 'none', // Prevent slide-specific transitions
+                position: 'relative'
               }}
             >
-              {/* Delete Button - floating in top-right corner */}
+              {/* Delete Button - positioned above the slide */}
               {isEditable && componentDeck.slides.length > 1 && (
-                <button
-                  onClick={() => deleteSlide(slide.slideId)}
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    zIndex: 10,
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ef4444',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#fef2f2';
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                  }}
-                  title="Delete slide"
-                >
-                  <X size={16} />
-                </button>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  marginBottom: '8px'
+                }}>
+                  <button
+                    onClick={() => deleteSlide(slide.slideId)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '50%',
+                      width: '32px',
+                      height: '32px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ef4444',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#fef2f2';
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                    }}
+                    title="Delete slide"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               )}
 
-              {/* Component-based slide content */}
-              <div className="slide-content">
-                <ComponentBasedSlideDeckRenderer
-                  slides={[slide]}
-                  isEditable={isEditable}
-                  onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-                  onTemplateChange={isEditable ? handleTemplateChange : undefined}
-                  theme={currentTheme}
-                />
+              {/* Slide Container */}
+              <div
+                className="professional-slide relative"
+                id={`slide-${slide.slideId}`}
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                  position: 'relative',
+                  transform: 'none', // Prevent any additional transforms
+                  transition: 'none', // Prevent slide-specific transitions
+                }}
+              >
+                {/* Component-based slide content */}
+                <div className="slide-content">
+                  <ComponentBasedSlideDeckRenderer
+                    slides={[slide]}
+                    isEditable={isEditable}
+                    onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+                    onTemplateChange={isEditable ? handleTemplateChange : undefined}
+                    theme={currentTheme}
+                  />
+                </div>
               </div>
             </div>
           ))}
