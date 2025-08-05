@@ -503,6 +503,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             height: '400px',
             backgroundColor: 'white',
             borderLeft: '1px solid #e5e7eb',
+            borderTopLeftRadius: '8px',
+            borderBottomLeftRadius: '8px',
             boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
             zIndex: 30,
             display: 'flex',
