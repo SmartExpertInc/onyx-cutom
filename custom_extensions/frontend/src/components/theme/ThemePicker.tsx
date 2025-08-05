@@ -1,7 +1,7 @@
 // ThemePicker Component
 // Reusable theme picker with sliding panel UI matching the creation flow design
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, Palette } from 'lucide-react';
 import { THEME_OPTIONS, getThemeSvg } from '@/constants/themeConstants';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -27,121 +27,128 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
   isChanging = false
 }) => {
   const { t } = useLanguage();
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  // Close on escape key
+  // Handle escape key to close
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
     }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
   }, [isOpen, onClose]);
 
+  // Handle click outside to close
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
   return (
-    <>
-      {/* Sliding Panel */}
-      <div
-        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        style={{
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-        }}
-      >
+    <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out">
+      <div ref={panelRef} className="h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <Palette className="w-5 h-5 text-blue-600" />
-                         <h2 className="text-xl font-semibold text-gray-900">
-               {t('interface.themePicker.title', 'Presentation Themes')}
-             </h2>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {t('interface.themePicker.title', 'Presentation Themes')}
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {t('interface.themePicker.description', 'Choose a theme to change the visual style of your presentation. Changes will be applied immediately.')}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            disabled={isChanging}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close theme picker"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
-          {/* Description */}
-                     <p className="text-gray-600 text-sm mb-6">
-             {t('interface.themePicker.description', 'Choose a theme to change the visual style of your presentation. Changes will be applied immediately.')}
-           </p>
-
-          {/* Theme Grid */}
-          <div className="space-y-4">
-            {THEME_OPTIONS.map((themeOption) => {
-              const SvgComponent = getThemeSvg(themeOption.id);
-              const isSelected = selectedTheme === themeOption.id;
+        {/* Theme Grid */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="grid grid-cols-2 gap-4">
+            {THEME_OPTIONS.map((theme) => {
+              const isSelected = theme.id === selectedTheme;
+              const ThemeSvgComponent = getThemeSvg(theme.id);
               
               return (
                 <button
-                  key={themeOption.id}
-                  type="button"
-                  onClick={() => onThemeSelect(themeOption.id)}
+                  key={theme.id}
+                  onClick={() => onThemeSelect(theme.id)}
                   disabled={isChanging}
                   className={`
-                    w-full flex flex-col rounded-lg overflow-hidden border-2 transition-all duration-200 p-3 gap-3
+                    relative p-4 rounded-lg border-2 transition-all duration-200
                     ${isSelected 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-blue-500 bg-blue-50 shadow-md' 
+                      : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                     }
                     ${isChanging ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
                 >
-                  {/* Theme Preview */}
-                  <div className="w-full h-24 flex items-center justify-center bg-gray-100 rounded">
-                    <div className="w-full h-full max-w-[214px] max-h-[116px]">
-                      <SvgComponent />
+                  {/* Selected indicator */}
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                     </div>
+                  )}
+
+                  {/* Theme preview */}
+                  <div className="w-full h-32 mb-3 rounded border border-gray-200 overflow-hidden">
+                    <ThemeSvgComponent />
                   </div>
 
-                  {/* Theme Info */}
-                  <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center space-x-2">
-                      <span 
-                        className={`w-4 h-4 flex items-center justify-center text-blue-600 ${
-                          isSelected ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      >
-                        ✓
-                      </span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {themeOption.label}
-                      </span>
-                    </div>
-                    
-                                         {isChanging && isSelected && (
-                       <div className="text-xs text-blue-600">
-                         {t('interface.themePicker.applying', 'Applying...')}
-                       </div>
-                     )}
+                  {/* Theme name */}
+                  <div className="text-center">
+                    <span className={`text-sm font-medium ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+                      {theme.label}
+                    </span>
                   </div>
+
+                  {/* Loading indicator */}
+                  {isChanging && isSelected && (
+                    <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                        <span className="text-sm text-gray-600">
+                          {t('interface.themePicker.applying', 'Applying...')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </button>
               );
             })}
           </div>
+        </div>
 
-          {/* Footer Info */}
-                     <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-             <p className="text-xs text-gray-500">
-               {t('interface.themePicker.footerInfo', 'Theme changes are automatically saved and will be applied to your PDF downloads.')}
-             </p>
-           </div>
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-200 bg-gray-50">
+          <p className="text-xs text-gray-500 text-center">
+            {t('interface.themePicker.footerInfo', 'Theme preferences are saved automatically and will be restored when you return.')}
+          </p>
         </div>
       </div>
-    </>
+    </div>
   );
 };

@@ -874,6 +874,8 @@ export default function ProjectInstanceViewPage() {
   const { currentTheme, changeTheme, isChangingTheme } = useTheme({
     initialTheme: slideDeckData?.theme,
     slideDeck: slideDeckData || undefined,
+    projectId: projectId,
+    enablePersistence: true,
     onThemeChange: (newTheme, updatedDeck) => {
       console.log('🎨 Theme changed:', { newTheme, updatedDeck });
       
@@ -888,6 +890,18 @@ export default function ProjectInstanceViewPage() {
       }
     }
   });
+
+  // Log theme restoration on mount
+  useEffect(() => {
+    if (projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK) {
+      console.log('🎨 Theme system initialized:', {
+        projectId,
+        currentTheme,
+        slideDeckTheme: slideDeckData?.theme,
+        hasSlideDeck: !!slideDeckData
+      });
+    }
+  }, [projectId, currentTheme, slideDeckData, projectInstanceData?.component_name]);
 
   /* --- Send single non-outline item to trash --- */
   const handleMoveToTrash = async () => {

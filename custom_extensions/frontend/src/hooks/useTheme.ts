@@ -1,10 +1,15 @@
 // useTheme Hook
 // Custom hook for managing slide deck theme state and updates
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import { isValidThemeId } from '@/constants/themeConstants';
+import { 
+  saveThemePreference, 
+  loadThemePreference, 
+  getThemeWithFallback 
+} from '@/utils/themePersistence';
 
 interface UseThemeOptions {
   /** Initial theme ID */
@@ -13,6 +18,10 @@ interface UseThemeOptions {
   onThemeChange?: (newTheme: string, updatedDeck?: ComponentBasedSlideDeck) => void;
   /** Current slide deck data */
   slideDeck?: ComponentBasedSlideDeck;
+  /** Project ID for local storage key */
+  projectId?: string;
+  /** Whether to enable local storage persistence */
+  enablePersistence?: boolean;
 }
 
 interface UseThemeReturn {
@@ -29,17 +38,13 @@ interface UseThemeReturn {
 export function useTheme({
   initialTheme,
   onThemeChange,
-  slideDeck
+  slideDeck,
+  projectId,
+  enablePersistence = true
 }: UseThemeOptions): UseThemeReturn {
-  // Determine initial theme from props, deck, or default
+  // Determine initial theme using the utility function
   const resolveInitialTheme = () => {
-    if (initialTheme && isValidThemeId(initialTheme)) {
-      return initialTheme;
-    }
-    if (slideDeck?.theme && isValidThemeId(slideDeck.theme)) {
-      return slideDeck.theme;
-    }
-    return DEFAULT_SLIDE_THEME;
+    return getThemeWithFallback(initialTheme, slideDeck?.theme, enablePersistence ? projectId : undefined);
   };
 
   const [currentTheme, setCurrentTheme] = useState<string>(resolveInitialTheme);
@@ -47,6 +52,19 @@ export function useTheme({
 
   // Get current theme data
   const themeData = getSlideTheme(currentTheme);
+
+  // Effect to handle theme persistence on mount and when slide deck changes
+  useEffect(() => {
+    if (slideDeck?.theme && isValidThemeId(slideDeck.theme)) {
+      // If slide deck has a theme, use it and save to local storage
+      if (slideDeck.theme !== currentTheme) {
+        setCurrentTheme(slideDeck.theme);
+        if (enablePersistence) {
+          saveThemePreference(slideDeck.theme, projectId);
+        }
+      }
+    }
+  }, [slideDeck?.theme, currentTheme, enablePersistence, projectId]);
 
   // Change theme function
   const changeTheme = useCallback((newThemeId: string) => {
@@ -65,6 +83,11 @@ export function useTheme({
       // Update local state
       setCurrentTheme(newThemeId);
 
+      // Save to local storage for persistence
+      if (enablePersistence) {
+        saveThemePreference(newThemeId, projectId);
+      }
+
       // Create updated deck if slide deck is provided
       let updatedDeck: ComponentBasedSlideDeck | undefined;
       if (slideDeck) {
@@ -81,7 +104,8 @@ export function useTheme({
         previousTheme: currentTheme,
         newTheme: newThemeId,
         themeData: getSlideTheme(newThemeId),
-        updatedDeck: updatedDeck ? 'Created' : 'Not provided'
+        updatedDeck: updatedDeck ? 'Created' : 'Not provided',
+        persisted: enablePersistence ? 'Yes' : 'No'
       });
 
     } catch (error) {
@@ -91,7 +115,7 @@ export function useTheme({
     } finally {
       setIsChangingTheme(false);
     }
-  }, [currentTheme, onThemeChange, slideDeck]);
+  }, [currentTheme, onThemeChange, slideDeck, enablePersistence, projectId]);
 
   return {
     currentTheme,
