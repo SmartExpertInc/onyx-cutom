@@ -322,8 +322,32 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemDescriptions([...editingItemDescriptions, index]);
   };
 
+  // Helper function to create semi-transparent version of a color
+  const getSemiTransparentColor = (color: string, opacity: number = 0.1): string => {
+    // Convert hex to rgba if needed
+    if (color.startsWith('#')) {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+    // If it's already rgba, extract and modify
+    if (color.startsWith('rgba')) {
+      const match = color.match(/rgba?\(([^)]+)\)/);
+      if (match) {
+        const parts = match[1].split(',').map(p => p.trim());
+        const r = parts[0];
+        const g = parts[1];
+        const b = parts[2];
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      }
+    }
+    // Fallback to original color
+    return color;
+  };
+
   const PyramidSVG1 = () => {
-    const pyramidFill = contentColor;
+    const pyramidFill = getSemiTransparentColor(accentColor, 0.2);
     const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
@@ -334,7 +358,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const PyramidSVG2 = () => {
-    const pyramidFill = contentColor;
+    const pyramidFill = getSemiTransparentColor(accentColor, 0.15);
     const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
@@ -345,7 +369,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const PyramidSVG3 = () => {
-    const pyramidFill = contentColor;
+    const pyramidFill = getSemiTransparentColor(accentColor, 0.1);
     const textFill = titleColor;
 
     return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
@@ -530,4 +554,4 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   );
 };
 
-export default PyramidTemplate; 
+export default PyramidTemplate;
