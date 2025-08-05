@@ -838,6 +838,14 @@ export const es = {
         saving: 'Guardando...',
         failedToSave: 'No se pudo guardar la configuración del nivel de la lección'
       }
+    },
+
+    // Theme picker translations
+    themePicker: {
+      title: "Temas de Presentación",
+      description: "Elige un tema para cambiar el estilo visual de tu presentación. Los cambios se aplicarán inmediatamente.",
+      applying: "Aplicando...",
+      footerInfo: "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF."
     }
   }
 }; 

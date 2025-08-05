@@ -78,9 +78,9 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2">
             <Palette className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">
-              {t('interface.themes.title', 'Presentation Themes')}
-            </h2>
+                         <h2 className="text-xl font-semibold text-gray-900">
+               {t('interface.themePicker.title', 'Presentation Themes')}
+             </h2>
           </div>
           <button
             onClick={onClose}
@@ -94,9 +94,9 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
         {/* Content */}
         <div className="p-6 overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
           {/* Description */}
-          <p className="text-gray-600 text-sm mb-6">
-            {t('interface.themes.description', 'Choose a theme to change the visual style of your presentation. Changes will be applied immediately.')}
-          </p>
+                     <p className="text-gray-600 text-sm mb-6">
+             {t('interface.themePicker.description', 'Choose a theme to change the visual style of your presentation. Changes will be applied immediately.')}
+           </p>
 
           {/* Theme Grid */}
           <div className="space-y-4">
@@ -141,11 +141,11 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
                       </span>
                     </div>
                     
-                    {isChanging && isSelected && (
-                      <div className="text-xs text-blue-600">
-                        {t('interface.themes.applying', 'Applying...')}
-                      </div>
-                    )}
+                                         {isChanging && isSelected && (
+                       <div className="text-xs text-blue-600">
+                         {t('interface.themePicker.applying', 'Applying...')}
+                       </div>
+                     )}
                   </div>
                 </button>
               );
@@ -153,11 +153,11 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
           </div>
 
           {/* Footer Info */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500">
-              {t('interface.themes.footerInfo', 'Theme changes are automatically saved and will be applied to your PDF downloads.')}
-            </p>
-          </div>
+                     <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+             <p className="text-xs text-gray-500">
+               {t('interface.themePicker.footerInfo', 'Theme changes are automatically saved and will be applied to your PDF downloads.')}
+             </p>
+           </div>
         </div>
       </div>
     </>

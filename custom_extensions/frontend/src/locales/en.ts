@@ -585,7 +585,7 @@ export const en = {
     },
 
     // Theme picker translations
-    themes: {
+    themePicker: {
       title: "Presentation Themes",
       description: "Choose a theme to change the visual style of your presentation. Changes will be applied immediately.",
       applying: "Applying...",
