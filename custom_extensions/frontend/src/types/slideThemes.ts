@@ -118,11 +118,11 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     name: 'Forta',
     colors: {
       backgroundColor: 'rgb(225, 211, 196)',
-      titleColor: 'rgb(0, 102, 79)',
-      subtitleColor: 'rgb(238, 118, 35)',
+      titleColor: 'rgb(238, 118, 35)',
+      subtitleColor: 'rgb(0, 102, 79)',
       contentColor: 'rgb(65,67,73)',
-      accentColor: 'rgb(238, 118, 35)',
-      borderColor: 'rgb(238, 118, 35)'
+      accentColor: 'rgb(0, 102, 79)',
+      borderColor: 'rgb(0, 102, 79)'
     },
     fonts: {
       titleFont: 'Montserrat, sans-serif',
