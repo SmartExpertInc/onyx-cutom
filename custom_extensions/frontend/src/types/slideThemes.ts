@@ -113,7 +113,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       contentSize: '16px'
     }
   },
-  'forta-theme': {
+  'forta': {
     id: 'forta',
     name: 'Forta',
     colors: {
@@ -125,8 +125,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: 'rgb(238, 118, 35)'
     },
     fonts: {
-      titleFont: 'Montserrat, sans-serif',
-      contentFont: 'Montserrat, sans-serif',
+      titleFont: 'Montserrat Bold, sans-serif',
+      contentFont: 'Montserrat Regular, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
