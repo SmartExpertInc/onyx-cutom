@@ -1,5 +1,55 @@
 @import "tailwindcss";
 
+/* Mont Font Family - Used in Chudo Themes */
+@font-face {
+  font-family: 'Mont Regular';
+  src: url('/fonts/fonnts.com-Mont_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mont Bold';
+  src: url('/fonts/fonnts.com-Mont_Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mont Thin';
+  src: url('/fonts/fonnts.com-Mont_Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mont Blanc variants (additional weights if needed) */
+@font-face {
+  font-family: 'Mont Blanc Regular';
+  src: url('/fonts/fonnts.com-Mont_Blanc_Regular_Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mont Blanc Bold';
+  src: url('/fonts/fonnts.com-Mont_Blanc_Bold_Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mont Blanc ExtraBold';
+  src: url('/fonts/fonnts.com-Mont_Blanc_ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -123,6 +173,50 @@ body:has([aria-modal="true"]) [draggable="true"] {
   /* Force remove draggable attribute when modals are present */
   draggable: false !important;
   cursor: default !important;
+}
+
+/* Chudo Theme Font Classes */
+.chudo-theme-title {
+  font-family: 'Mont Bold', 'Mont', sans-serif !important;
+  font-weight: 700;
+}
+
+.chudo-theme-content {
+  font-family: 'Mont Regular', 'Mont', sans-serif !important;
+  font-weight: 400;
+}
+
+.chudo-theme-subtitle {
+  font-family: 'Mont Regular', 'Mont', sans-serif !important;
+  font-weight: 400;
+}
+
+/* Ensure Mont fonts load properly with fallbacks */
+.theme-chudo-theme,
+.theme-chudo-2 {
+  font-family: 'Mont Regular', 'Mont', system-ui, -apple-system, sans-serif;
+}
+
+.theme-chudo-theme h1,
+.theme-chudo-theme h2,
+.theme-chudo-theme h3,
+.theme-chudo-theme .slide-title,
+.theme-chudo-2 h1,
+.theme-chudo-2 h2,
+.theme-chudo-2 h3,
+.theme-chudo-2 .slide-title {
+  font-family: 'Mont Bold', 'Mont', system-ui, -apple-system, sans-serif !important;
+  font-weight: 700;
+}
+
+.theme-chudo-theme p,
+.theme-chudo-theme .slide-content,
+.theme-chudo-theme .slide-subtitle,
+.theme-chudo-2 p,
+.theme-chudo-2 .slide-content,
+.theme-chudo-2 .slide-subtitle {
+  font-family: 'Mont Regular', 'Mont', system-ui, -apple-system, sans-serif !important;
+  font-weight: 400;
 }
 
 /* Base styles for code blocks */
