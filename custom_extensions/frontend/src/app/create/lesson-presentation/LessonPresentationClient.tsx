@@ -1052,7 +1052,7 @@ export default function LessonPresentationClient() {
           {loading && <LoadingAnimation message={t('interface.generate.generatingLessonContent', 'Generating lesson content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
-          {/* Main content display - PresentationPreview instead of textarea */}
+          {/* Main content display - Custom slide titles display matching course outline format */}
           {textareaVisible && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
@@ -1063,12 +1063,43 @@ export default function LessonPresentationClient() {
                   <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
-              <PresentationPreview
-                markdown={content}
-                isEditing={true}
-                onContentChange={(newMarkdown: string) => setContent(newMarkdown)}
-                className="min-h-[70vh]"
-              />
+              
+              {/* Parse and display slide titles in course outline format */}
+              {(() => {
+                const slides = content.split(/(?=\*\*[^*]+\*\*)/g).filter(slide => slide.trim());
+                return slides.map((slideContent, slideIdx) => {
+                  const titleMatch = slideContent.match(/\*\*([^*]+)\*\*/);
+                  const title = titleMatch ? titleMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                  
+                  return (
+                    <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
+                      {/* Left colored bar with index - matching course outline styling */}
+                      <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
+                        <span className="text-white font-semibold text-base select-none">{slideIdx + 1}</span>
+                      </div>
+
+                      {/* Main card - matching course outline styling */}
+                      <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                        {/* Slide title */}
+                        <input
+                          type="text"
+                          value={title}
+                          onChange={(e) => {
+                            const newTitle = e.target.value;
+                            const updatedContent = content.replace(
+                              new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`),
+                              `**${newTitle}**`
+                            );
+                            setContent(updatedContent);
+                          }}
+                          className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
+                          placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
+                        />
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           )}
         </section>
