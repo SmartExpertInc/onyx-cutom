@@ -91,6 +91,7 @@ function InlineEditor({
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
       className={`inline-editor-input ${className}`}
+      type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
@@ -103,8 +104,11 @@ function InlineEditor({
         outline: 'none',
         boxShadow: 'none',
         width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block'
+        display: 'block',
+        lineHeight: '1.2'
       }}
     />
   );
@@ -182,7 +186,7 @@ export const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> =
       }}
     >
       {/* Title Section */}
-      <div style={{ marginBottom: '40px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title}
@@ -194,6 +198,8 @@ export const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> =
               fontWeight: 700,
               fontSize: currentTheme.fonts.titleSize,
               color: tColor,
+              textAlign: 'center',
+              width: '100%',
               fontFamily: currentTheme.fonts.titleFont
             }}
           />
@@ -203,6 +209,7 @@ export const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> =
               fontWeight: 700,
               fontSize: currentTheme.fonts.titleSize,
               color: tColor,
+              textAlign: 'center',
               cursor: isEditable ? 'pointer' : 'default',
               fontFamily: currentTheme.fonts.titleFont
             }}
@@ -214,217 +221,69 @@ export const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> =
         )}
       </div>
 
-      {/* Metrics Section */}
+      {/* Metrics Grid */}
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: '1fr 1fr 1fr', 
-        gap: '30px',
+        gap: '40px',
         flex: 1,
         position: 'relative'
       }}>
-        {/* Top Row */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            color: numColor,
-            marginBottom: '8px',
-            fontFamily: currentTheme.fonts.titleFont
-          }}>
-            {metrics[0]?.number || '01'}
-          </div>
-          <div style={{
-            fontSize: currentTheme.fonts.contentSize,
-            color: txtColor,
-            lineHeight: '1.4',
-            fontFamily: currentTheme.fonts.contentFont
-          }}>
-            {metrics[0]?.text || (isEditable ? 'Click to add text' : '')}
-          </div>
-        </div>
-
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            color: numColor,
-            marginBottom: '8px',
-            fontFamily: currentTheme.fonts.titleFont
-          }}>
-            {metrics[1]?.number || '02'}
-          </div>
-          <div style={{
-            fontSize: currentTheme.fonts.contentSize,
-            color: txtColor,
-            lineHeight: '1.4',
-            fontFamily: currentTheme.fonts.contentFont
-          }}>
-            {metrics[1]?.text || (isEditable ? 'Click to add text' : '')}
-          </div>
-        </div>
-
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            color: numColor,
-            marginBottom: '8px',
-            fontFamily: currentTheme.fonts.titleFont
-          }}>
-            {metrics[2]?.number || '03'}
-          </div>
-          <div style={{
-            fontSize: currentTheme.fonts.contentSize,
-            color: txtColor,
-            lineHeight: '1.4',
-            fontFamily: currentTheme.fonts.contentFont
-          }}>
-            {metrics[2]?.text || (isEditable ? 'Click to add text' : '')}
-          </div>
-        </div>
-
-        {/* Connecting Line - Top */}
+        {/* Connecting Lines */}
         <div style={{
           position: 'absolute',
           top: '50%',
-          left: '10%',
-          right: '10%',
+          left: '0',
+          right: '0',
           height: '2px',
           backgroundColor: numColor,
-          transform: 'translateY(-50%)'
+          opacity: 0.3,
+          zIndex: 1
         }} />
-
-        {/* Bottom Row */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          marginTop: '60px'
-        }}>
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            color: numColor,
-            marginBottom: '8px',
-            fontFamily: currentTheme.fonts.titleFont
-          }}>
-            {metrics[3]?.number || '04'}
-          </div>
-          <div style={{
-            fontSize: currentTheme.fonts.contentSize,
-            color: txtColor,
-            lineHeight: '1.4',
-            fontFamily: currentTheme.fonts.contentFont
-          }}>
-            {metrics[3]?.text || (isEditable ? 'Click to add text' : '')}
-          </div>
-        </div>
-
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          marginTop: '60px'
-        }}>
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            color: numColor,
-            marginBottom: '8px',
-            fontFamily: currentTheme.fonts.titleFont
-          }}>
-            {metrics[4]?.number || '05'}
-          </div>
-          <div style={{
-            fontSize: currentTheme.fonts.contentSize,
-            color: txtColor,
-            lineHeight: '1.4',
-            fontFamily: currentTheme.fonts.contentFont
-          }}>
-            {metrics[4]?.text || (isEditable ? 'Click to add text' : '')}
-          </div>
-        </div>
-
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          marginTop: '60px'
-        }}>
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 700,
-            color: numColor,
-            marginBottom: '8px',
-            fontFamily: currentTheme.fonts.titleFont
-          }}>
-            {metrics[5]?.number || '06'}
-          </div>
-          <div style={{
-            fontSize: currentTheme.fonts.contentSize,
-            color: txtColor,
-            lineHeight: '1.4',
-            fontFamily: currentTheme.fonts.contentFont
-          }}>
-            {metrics[5]?.text || (isEditable ? 'Click to add text' : '')}
-          </div>
-        </div>
-
-        {/* Connecting Line - Bottom */}
+        
         <div style={{
           position: 'absolute',
-          bottom: '30%',
-          left: '10%',
-          right: '10%',
-          height: '2px',
-          backgroundColor: numColor
-        }} />
-
-        {/* Vertical Connecting Lines */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
+          top: '0',
+          bottom: '0',
           left: '50%',
           width: '2px',
-          height: '60px',
           backgroundColor: numColor,
-          transform: 'translateX(-50%)'
+          opacity: 0.3,
+          zIndex: 1
         }} />
-      </div>
 
-      {/* Square Markers */}
-      {[0, 1, 2, 3, 4, 5].map((index) => (
-        <div
-          key={index}
-          style={{
-            position: 'absolute',
-            width: '8px',
-            height: '8px',
-            backgroundColor: numColor,
-            borderRadius: '0',
-            transform: 'translate(-50%, -50%)'
-          }}
-          className={`metric-marker-${index}`}
-        />
-      ))}
+        {metrics.map((metric, index) => (
+          <div key={index} style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            position: 'relative',
+            zIndex: 2
+          }}>
+            {/* Number */}
+            <div style={{
+              fontSize: '32px',
+              fontWeight: 700,
+              color: numColor,
+              marginBottom: '12px',
+              fontFamily: currentTheme.fonts.titleFont
+            }}>
+              {metric.number}
+            </div>
+            
+            {/* Text */}
+            <div style={{
+              fontSize: currentTheme.fonts.contentSize,
+              color: txtColor,
+              lineHeight: '1.4',
+              fontFamily: currentTheme.fonts.contentFont
+            }}>
+              {metric.text || (isEditable ? 'Click to add text' : '')}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

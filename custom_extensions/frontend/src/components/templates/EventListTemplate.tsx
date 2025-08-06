@@ -56,14 +56,6 @@ function InlineEditor({
     }
   }, [value, multiline]);
 
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
   if (multiline) {
     return (
       <textarea
@@ -171,65 +163,206 @@ export const EventListTemplate: React.FC<EventListTemplateProps> = ({
         alignItems: 'center',
         fontFamily: currentTheme.fonts.contentFont,
         position: 'relative',
+        padding: '40px',
+        boxSizing: 'border-box'
       }}
     >
-      {events.map((event, idx) => (
-        <div key={idx} style={{ margin: '48px 0', textAlign: 'center', width: 600, maxWidth: '90%' }}>
-          {/* Date */}
-          {isEditable && editingIdx === idx && editingField === 'date' ? (
-            <InlineEditor
-              initialValue={event.date}
-              onSave={val => handleEventChange(idx, 'date', val)}
-              onCancel={handleEditCancel}
-              multiline={false}
-              placeholder="Enter event date..."
-              className="inline-editor-date"
-              style={{
-                fontWeight: 700,
-                fontSize: 40,
-                color: tColor,
-                textAlign: 'center',
-                marginBottom: 8,
-                width: '100%',
-              }}
-            />
-          ) : (
-            <div
-              style={{ fontWeight: 700, fontSize: 40, color: tColor, marginBottom: 8, cursor: isEditable ? 'pointer' : 'default' }}
-              onClick={() => handleEditStart(idx, 'date')}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {event.date || (isEditable ? 'Click to add date' : '')}
-            </div>
-          )}
-          {/* Description */}
-          {isEditable && editingIdx === idx && editingField === 'description' ? (
-            <InlineEditor
-              initialValue={event.description}
-              onSave={val => handleEventChange(idx, 'description', val)}
-              onCancel={handleEditCancel}
-              multiline={false}
-              placeholder="Enter event description..."
-              className="inline-editor-description"
-              style={{
-                fontWeight: 400,
-                fontSize: 22,
-                color: dColor,
-                textAlign: 'center',
-                width: '100%',
-              }}
-            />
-          ) : (
-            <div
-              style={{ fontWeight: 400, fontSize: 22, color: dColor, cursor: isEditable ? 'pointer' : 'default' }}
-              onClick={() => handleEditStart(idx, 'description')}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {event.description || (isEditable ? 'Click to add description' : '')}
-            </div>
-          )}
+      {/* Decorative Elements */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden'
+      }}>
+        {/* Chevron arrows */}
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          display: 'flex',
+          gap: '4px'
+        }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{
+              width: '8px',
+              height: '8px',
+              backgroundColor: tColor,
+              opacity: 0.3,
+              transform: 'rotate(45deg)'
+            }} />
+          ))}
         </div>
-      ))}
+        
+        {/* Cloud */}
+        <div style={{
+          position: 'absolute',
+          top: '40px',
+          left: '20px',
+          width: '30px',
+          height: '20px',
+          backgroundColor: tColor,
+          borderRadius: '15px',
+          opacity: 0.3
+        }} />
+        
+        {/* WiFi */}
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          width: '24px',
+          height: '16px',
+          border: `2px solid ${tColor}`,
+          borderRadius: '0 0 12px 12px',
+          opacity: 0.3
+        }} />
+        
+        {/* Gears */}
+        <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '20px',
+          width: '20px',
+          height: '20px',
+          border: `2px solid ${tColor}`,
+          borderRadius: '50%',
+          opacity: 0.3
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          left: '30px',
+          width: '12px',
+          height: '12px',
+          border: `2px solid ${tColor}`,
+          borderRadius: '50%',
+          opacity: 0.3
+        }} />
+        
+        {/* Chevron arrows bottom */}
+        <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          right: '20px',
+          display: 'flex',
+          gap: '4px'
+        }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{
+              width: '8px',
+              height: '8px',
+              backgroundColor: tColor,
+              opacity: 0.3,
+              transform: 'rotate(45deg)'
+            }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Events List */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '600px'
+      }}>
+        {events.map((event, idx) => (
+          <div key={idx} style={{ 
+            margin: '24px 0', 
+            textAlign: 'center', 
+            width: '100%',
+            position: 'relative'
+          }}>
+            {/* Separator line (except for first item) */}
+            {idx > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '-12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '60px',
+                height: '1px',
+                backgroundColor: tColor,
+                opacity: 0.3
+              }} />
+            )}
+            
+            {/* Date */}
+            {isEditable && editingIdx === idx && editingField === 'date' ? (
+              <InlineEditor
+                initialValue={event.date}
+                onSave={val => handleEventChange(idx, 'date', val)}
+                onCancel={handleEditCancel}
+                multiline={false}
+                placeholder="Enter event date..."
+                className="inline-editor-date"
+                style={{
+                  fontWeight: 700,
+                  fontSize: 40,
+                  color: tColor,
+                  textAlign: 'center',
+                  marginBottom: 8,
+                  width: '100%',
+                  fontFamily: currentTheme.fonts.titleFont
+                }}
+              />
+            ) : (
+              <div
+                style={{ 
+                  fontWeight: 700, 
+                  fontSize: 40, 
+                  color: tColor, 
+                  marginBottom: 8, 
+                  cursor: isEditable ? 'pointer' : 'default',
+                  fontFamily: currentTheme.fonts.titleFont
+                }}
+                onClick={() => handleEditStart(idx, 'date')}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {event.date || (isEditable ? 'Click to add date' : '')}
+              </div>
+            )}
+            
+            {/* Description */}
+            {isEditable && editingIdx === idx && editingField === 'description' ? (
+              <InlineEditor
+                initialValue={event.description}
+                onSave={val => handleEventChange(idx, 'description', val)}
+                onCancel={handleEditCancel}
+                multiline={false}
+                placeholder="Enter event description..."
+                className="inline-editor-description"
+                style={{
+                  fontWeight: 400,
+                  fontSize: 22,
+                  color: dColor,
+                  textAlign: 'center',
+                  width: '100%',
+                  fontFamily: currentTheme.fonts.contentFont
+                }}
+              />
+            ) : (
+              <div
+                style={{ 
+                  fontWeight: 400, 
+                  fontSize: 22, 
+                  color: dColor, 
+                  cursor: isEditable ? 'pointer' : 'default',
+                  fontFamily: currentTheme.fonts.contentFont
+                }}
+                onClick={() => handleEditStart(idx, 'description')}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {event.description || (isEditable ? 'Click to add description' : '')}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

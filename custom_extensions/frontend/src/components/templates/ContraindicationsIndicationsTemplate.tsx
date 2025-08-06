@@ -91,6 +91,7 @@ function InlineEditor({
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
       className={`inline-editor-input ${className}`}
+      type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
@@ -103,8 +104,11 @@ function InlineEditor({
         outline: 'none',
         boxShadow: 'none',
         width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block'
+        display: 'block',
+        lineHeight: '1.2'
       }}
     />
   );
@@ -261,22 +265,16 @@ export const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsInd
           position: 'absolute',
           bottom: '10px',
           left: '80px',
-          width: '20px',
-          height: '12px',
+          width: '35px',
+          height: '18px',
           backgroundColor: '#f8f9fa',
-          borderRadius: '10px',
+          borderRadius: '17.5px',
           opacity: 0.7
         }} />
       </div>
 
       {/* Title Section */}
-      <div style={{
-        backgroundColor: '#f8f9fa',
-        borderRadius: '8px',
-        padding: '20px',
-        marginBottom: '40px',
-        textAlign: 'center'
-      }}>
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title}
@@ -313,13 +311,12 @@ export const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsInd
 
       {/* Content Section */}
       <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', 
+        display: 'flex', 
         gap: '40px',
         flex: 1
       }}>
         {/* Left Column - Contraindications */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{
             backgroundColor: '#f8f9fa',
             borderRadius: '8px',
@@ -362,26 +359,9 @@ export const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsInd
                   fontSize: currentTheme.fonts.contentSize,
                   color: contraColor,
                   lineHeight: '1.4',
-                  fontFamily: currentTheme.fonts.contentFont,
                   flex: 1
                 }}>
-                  {isEditable && editingContraindications[index] ? (
-                    <InlineEditor
-                      initialValue={item}
-                      onSave={(value) => handleContraindicationSave(index, value)}
-                      onCancel={() => setEditingContraindications(prev => ({ ...prev, [index]: false }))}
-                      multiline={true}
-                      placeholder="Enter contraindication..."
-                      style={{
-                        fontSize: currentTheme.fonts.contentSize,
-                        color: contraColor,
-                        lineHeight: '1.4',
-                        fontFamily: currentTheme.fonts.contentFont
-                      }}
-                    />
-                  ) : (
-                    item || (isEditable ? 'Click to add contraindication' : '')
-                  )}
+                  {item || (isEditable ? 'Click to add contraindication' : '')}
                 </div>
               </div>
             ))}
@@ -389,7 +369,7 @@ export const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsInd
         </div>
 
         {/* Right Column - Indications */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{
             backgroundColor: '#f8f9fa',
             borderRadius: '8px',
@@ -432,26 +412,9 @@ export const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsInd
                   fontSize: currentTheme.fonts.contentSize,
                   color: indColor,
                   lineHeight: '1.4',
-                  fontFamily: currentTheme.fonts.contentFont,
                   flex: 1
                 }}>
-                  {isEditable && editingIndications[index] ? (
-                    <InlineEditor
-                      initialValue={item}
-                      onSave={(value) => handleIndicationSave(index, value)}
-                      onCancel={() => setEditingIndications(prev => ({ ...prev, [index]: false }))}
-                      multiline={true}
-                      placeholder="Enter indication..."
-                      style={{
-                        fontSize: currentTheme.fonts.contentSize,
-                        color: indColor,
-                        lineHeight: '1.4',
-                        fontFamily: currentTheme.fonts.contentFont
-                      }}
-                    />
-                  ) : (
-                    item || (isEditable ? 'Click to add indication' : '')
-                  )}
+                  {item || (isEditable ? 'Click to add indication' : '')}
                 </div>
               </div>
             ))}

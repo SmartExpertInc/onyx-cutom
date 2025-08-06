@@ -91,6 +91,7 @@ function InlineEditor({
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
       className={`inline-editor-input ${className}`}
+      type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
@@ -103,8 +104,11 @@ function InlineEditor({
         outline: 'none',
         boxShadow: 'none',
         width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block'
+        display: 'block',
+        lineHeight: '1.2'
       }}
     />
   );
@@ -421,7 +425,7 @@ export const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
       </div>
 
       {/* Chart Section */}
-      <div style={{ 
+      <div style={{
         flex: 1,
         display: 'flex',
         justifyContent: 'center',

@@ -183,101 +183,117 @@ export const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
         boxSizing: 'border-box'
       }}
     >
-      {/* Title Section */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={false}
-            placeholder="Enter title..."
-            style={{
-              fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
-              textAlign: 'center',
-              width: '100%',
-              fontFamily: currentTheme.fonts.titleFont
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
-              textAlign: 'center',
-              cursor: isEditable ? 'pointer' : 'default',
-              fontFamily: currentTheme.fonts.titleFont
-            }}
-            onClick={() => isEditable && setEditingTitle(true)}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || (isEditable ? 'Click to add title' : '')}
-          </div>
-        )}
-      </div>
-
-      {/* Ideas Section */}
+      {/* Top Section - Text Content */}
       <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', 
-        gap: '40px',
-        flex: 1,
-        marginBottom: '40px'
+        flex: '0 0 auto',
+        backgroundColor: '#f8f9fa',
+        padding: '40px',
+        borderRadius: '8px',
+        marginBottom: '20px'
       }}>
-        {ideas.map((idea, index) => (
-          <div key={index} style={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center'
-          }}>
-            {/* Number */}
-            <div style={{
-              fontSize: '48px',
-              fontWeight: 700,
-              color: tColor,
-              marginBottom: '8px',
-              fontFamily: currentTheme.fonts.titleFont
-            }}>
-              {idea.number}
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={false}
+              placeholder="Enter title..."
+              style={{
+                fontWeight: 700,
+                fontSize: currentTheme.fonts.titleSize,
+                color: tColor,
+                textAlign: 'center',
+                width: '100%',
+                fontFamily: currentTheme.fonts.titleFont
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: currentTheme.fonts.titleSize,
+                color: tColor,
+                textAlign: 'center',
+                cursor: isEditable ? 'pointer' : 'default',
+                fontFamily: currentTheme.fonts.titleFont
+              }}
+              onClick={() => isEditable && setEditingTitle(true)}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || (isEditable ? 'Click to add title' : '')}
             </div>
-            
-            {/* Horizontal Line */}
-            <div style={{
-              width: '100%',
-              height: '2px',
-              backgroundColor: tColor,
-              marginBottom: '16px'
-            }} />
-            
-            {/* Text */}
-            <div style={{
-              fontSize: currentTheme.fonts.contentSize,
-              color: txtColor,
-              lineHeight: '1.4',
-              fontFamily: currentTheme.fonts.contentFont
+          )}
+        </div>
+
+        {/* Ideas Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '40px'
+        }}>
+          {ideas.map((idea, index) => (
+            <div key={index} style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'flex-start'
             }}>
-              {idea.text || (isEditable ? 'Click to add text' : '')}
+              {/* Number and Line */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '12px',
+                width: '100%'
+              }}>
+                <div style={{
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  color: tColor,
+                  marginRight: '12px',
+                  fontFamily: currentTheme.fonts.titleFont
+                }}>
+                  {idea.number}
+                </div>
+                <div style={{
+                  flex: 1,
+                  height: '2px',
+                  backgroundColor: tColor
+                }} />
+              </div>
+              
+              {/* Text */}
+              <div style={{
+                fontSize: currentTheme.fonts.contentSize,
+                color: txtColor,
+                lineHeight: '1.4',
+                fontFamily: currentTheme.fonts.contentFont
+              }}>
+                {idea.text || (isEditable ? 'Click to add text' : '')}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Image Section */}
-      {imageUrl && (
-        <div style={{
-          width: '100%',
-          height: '200px',
-          backgroundImage: `url(${imageUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          borderRadius: '8px',
-          marginTop: 'auto'
-        }} />
-      )}
+      {/* Bottom Section - Image */}
+      <div style={{
+        flex: '1 1 auto',
+        width: '100%',
+        height: '300px',
+        backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        borderRadius: '8px',
+        backgroundColor: imageUrl ? 'transparent' : '#e9ecef',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#6c757d',
+        fontSize: '16px'
+      }}>
+        {!imageUrl && (isEditable ? 'Click to add image' : '')}
+      </div>
     </div>
   );
 };
