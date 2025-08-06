@@ -1066,10 +1066,28 @@ export default function LessonPresentationClient() {
               
               {/* Parse and display slide titles in course outline format */}
               {(() => {
-                const slides = content.split(/(?=\*\*[^*]+\*\*)/g).filter(slide => slide.trim());
+                // Split slides properly - first try by --- separators, then by **Slide X: patterns
+                let slides = [];
+                if (content.includes('---')) {
+                  // Split by --- separators
+                  slides = content.split(/^---\s*$/m).filter(slide => slide.trim());
+                } else {
+                  // Split by **Slide X: patterns
+                  slides = content.split(/(?=\*\*Slide \d+:)/).filter(slide => slide.trim());
+                }
+                
                 return slides.map((slideContent, slideIdx) => {
-                  const titleMatch = slideContent.match(/\*\*([^*]+)\*\*/);
-                  const title = titleMatch ? titleMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                  // Extract slide title properly - look for **Slide X: pattern
+                  const titleMatch = slideContent.match(/\*\*Slide \d+:\s*([^*`\n]+)/);
+                  let title = '';
+                  
+                  if (titleMatch) {
+                    title = titleMatch[1].trim();
+                  } else {
+                    // Fallback: look for any **text** pattern at the start
+                    const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
+                    title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                  }
                   
                   return (
                     <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
@@ -1086,9 +1104,13 @@ export default function LessonPresentationClient() {
                           value={title}
                           onChange={(e) => {
                             const newTitle = e.target.value;
-                            const updatedContent = content.replace(
-                              new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`),
-                              `**${newTitle}**`
+                            // Update the content with new title
+                            const slidePattern = titleMatch 
+                              ? new RegExp(`(\\*\\*Slide ${slideIdx + 1}:\\s*)([^*\`\\n]+)`)
+                              : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
+                            
+                            const updatedContent = content.replace(slidePattern, 
+                              titleMatch ? `$1${newTitle}` : `**${newTitle}**`
                             );
                             setContent(updatedContent);
                           }}
