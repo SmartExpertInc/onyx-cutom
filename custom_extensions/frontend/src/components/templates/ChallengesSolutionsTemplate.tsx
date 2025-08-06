@@ -551,7 +551,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                         startEditingSolution(index);
                       }
                     }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                   >
                     {solution || 'Click to add solution'}
                   </span>
