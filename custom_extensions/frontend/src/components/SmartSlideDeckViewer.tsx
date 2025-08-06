@@ -5,11 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import VoiceoverPanel from './VoiceoverPanel';
-import { ThemePicker } from './theme/ThemePicker';
-import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
-import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
+import { Plus, ChevronDown, X } from 'lucide-react';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -26,12 +23,6 @@ interface SmartSlideDeckViewerProps {
   
   /** Theme ID for the slide deck (optional, uses deck.theme or default) */
   theme?: string;
-  
-  /** Whether to enable voiceover features */
-  hasVoiceover?: boolean;
-
-  /** Project ID for theme persistence */
-  projectId?: string;
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -39,54 +30,18 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   isEditable = false,
   onSave,
   showFormatInfo = false,
-  theme,
-  hasVoiceover = false,
-  projectId
+  theme
 }: SmartSlideDeckViewerProps) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isVoiceoverPanelOpen, setIsVoiceoverPanelOpen] = useState(false);
-  const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
-  const slidesContainerRef = useRef<HTMLDivElement>(null);
   
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Theme picker state
-  const [showThemePicker, setShowThemePicker] = useState(false);
-
-  // Scroll synchronization state
-  const [isScrollingSlidesFromPanel, setIsScrollingSlidesFromPanel] = useState(false);
-  const [isScrollingPanelFromSlides, setIsScrollingPanelFromSlides] = useState(false);
-
-  // Theme management for slide decks
-  const { currentTheme, changeTheme, isChangingTheme } = useTheme({
-    initialTheme: deck?.theme || theme,
-    slideDeck: componentDeck || undefined,
-    projectId: projectId,
-    enablePersistence: true,
-    onThemeChange: (newTheme, updatedDeck) => {
-      console.log('🎨 Theme changed:', { newTheme, updatedDeck });
-      
-      // Update the component deck with new theme
-      if (updatedDeck) {
-        setComponentDeck(updatedDeck);
-        
-        // Call the parent's onSave callback
-        onSave?.(updatedDeck);
-      }
-    }
-  });
   
-  // Get the current theme data
-  const currentThemeData = getSlideTheme(currentTheme || DEFAULT_SLIDE_THEME);
-
-  // Check if any slide has voiceover text
-  const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
-    slide.voiceoverText || slide.props?.voiceoverText
-  );
+  // Get the current theme
+  const currentTheme = getSlideTheme(theme || deck?.theme || DEFAULT_SLIDE_THEME);
 
   // Get available templates
   const availableTemplates = getAllTemplates();
@@ -96,7 +51,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowTemplateDropdown(false);
-        setShowThemePicker(false);
       }
     };
 
@@ -105,15 +59,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // Ensure body scrolling remains enabled
-  useEffect(() => {
-    // Make sure document body scrolling is never disabled by this component
-    if (typeof window !== 'undefined') {
-      document.body.style.overflow = 'auto';
-      document.body.style.pointerEvents = 'auto';
-    }
-  }, [isVoiceoverPanelOpen]);
 
   // Process deck - expect component-based format only
   useEffect(() => {
@@ -158,140 +103,58 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         console.log('✅ Component-based slides loaded with theme:', {
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
-          themeColors: currentThemeData.colors,
+          themeColors: currentTheme.colors,
           templates: deck.slides.map((s: any) => s.templateId)
           });
         
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
-        setError('Failed to process slide deck data.');
+        setError(`Error processing slide deck: ${err instanceof Error ? err.message : 'Unknown error'}`);
       } finally {
         setIsLoading(false);
       }
     };
 
-    processDeck();
-  }, [deck, theme, currentThemeData.colors]);
-
-  // Improved synchronized scrolling with voiceover panel
-  useEffect(() => {
-    if (!isVoiceoverPanelOpen || !slidesContainerRef.current) return;
-
-    const handlePanelScroll = () => {
-      if (isScrollingPanelFromSlides) return; // Prevent circular updates
-      
-      const panelContent = document.querySelector('.panel-content');
-      const slidesContainer = slidesContainerRef.current;
-      
-      if (panelContent && slidesContainer) {
-        setIsScrollingSlidesFromPanel(true);
-        
-        const panelScrollTop = panelContent.scrollTop;
-        const panelScrollHeight = panelContent.scrollHeight;
-        const panelClientHeight = panelContent.clientHeight;
-        const slidesScrollHeight = slidesContainer.scrollHeight;
-        const slidesClientHeight = slidesContainer.clientHeight;
-        
-        // Calculate scroll percentage and apply to slides
-        const scrollPercentage = panelScrollTop / (panelScrollHeight - panelClientHeight);
-        const slidesScrollTop = scrollPercentage * (slidesScrollHeight - slidesClientHeight);
-        
-        slidesContainer.scrollTop = slidesScrollTop;
-        
-        // Reset flag after a short delay
-        setTimeout(() => setIsScrollingSlidesFromPanel(false), 50);
-      }
-    };
-
-    const panelContent = document.querySelector('.panel-content');
-    if (panelContent) {
-      panelContent.addEventListener('scroll', handlePanelScroll);
-      return () => panelContent.removeEventListener('scroll', handlePanelScroll);
+    if (deck) {
+      processDeck();
+    } else {
+      setIsLoading(false);
+      setError('No slide deck provided');
     }
-  }, [isVoiceoverPanelOpen, isScrollingPanelFromSlides]);
+  }, [deck, theme]);
 
-  // Handle slides scroll to sync with panel
-  const handleSlidesScroll = () => {
-    if (!isVoiceoverPanelOpen || isScrollingSlidesFromPanel) return; // Prevent circular updates
-
-    const slidesContainer = slidesContainerRef.current;
-    const panelContent = document.querySelector('.panel-content');
-    
-    if (slidesContainer && panelContent) {
-      setIsScrollingPanelFromSlides(true);
-      
-      const slidesScrollTop = slidesContainer.scrollTop;
-      const slidesScrollHeight = slidesContainer.scrollHeight;
-      const slidesClientHeight = slidesContainer.clientHeight;
-      const panelScrollHeight = panelContent.scrollHeight;
-      const panelClientHeight = panelContent.clientHeight;
-      
-      // Calculate scroll percentage and apply to panel
-      const scrollPercentage = slidesScrollTop / (slidesScrollHeight - slidesClientHeight);
-      const panelScrollTop = scrollPercentage * (panelScrollHeight - panelClientHeight);
-      
-      panelContent.scrollTop = panelScrollTop;
-      
-      // Reset flag after a short delay
-      setTimeout(() => setIsScrollingPanelFromSlides(false), 50);
-    }
-  };
-
+  // Handle slide updates
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
-    if (!componentDeck) return;
-
-    const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
-      slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-    );
-
-    const updatedDeck = {
-      ...componentDeck,
-      slides: updatedSlides
-    };
-
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
+    console.log('🔍 SmartSlideDeckViewer: handleSlideUpdate called with:', updatedSlide);
+    
+    if (componentDeck) {
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...componentDeck,
+        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
+          slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+        )
+      };
+      console.log('🔍 SmartSlideDeckViewer: Updated deck:', updatedDeck);
+      setComponentDeck(updatedDeck);
+      onSave?.(updatedDeck);
+    } else {
+      console.warn('🔍 SmartSlideDeckViewer: componentDeck is null');
+    }
   };
 
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
-    if (!componentDeck) return;
-
-    const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
-      slide.slideId === slideId ? { ...slide, templateId: newTemplateId } : slide
-    );
-
-    const updatedDeck = {
-      ...componentDeck,
-      slides: updatedSlides
-    };
-
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
-  };
-
-  const handleVoiceoverUpdate = async (slideId: string, newVoiceoverText: string) => {
-    if (!componentDeck) return;
-
-    const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
-      slide.slideId === slideId 
-        ? { 
-            ...slide, 
-            voiceoverText: newVoiceoverText,
-            props: {
-              ...slide.props,
-              voiceoverText: newVoiceoverText
-            }
-          }
-        : slide
-    );
-
-    const updatedDeck = {
-      ...componentDeck,
-      slides: updatedSlides
-    };
-
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
+    if (componentDeck) {
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...componentDeck,
+        slides: componentDeck.slides.map((slide: ComponentBasedSlide) => 
+          slide.slideId === slideId 
+            ? { ...slide, templateId: newTemplateId }
+            : slide
+        )
+      };
+      setComponentDeck(updatedDeck);
+      onSave?.(updatedDeck);
+    }
   };
 
   // Add new slide with template selection - FIXED VERSION
@@ -324,7 +187,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       }
     };
 
-    const updatedDeck = {
+    const updatedDeck: ComponentBasedSlideDeck = {
       ...componentDeck,
       slides: [...componentDeck.slides, newSlide as ComponentBasedSlide]
     };
@@ -345,20 +208,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     setShowTemplateDropdown(false);
   };
 
+  // Delete slide
   const deleteSlide = (slideId: string) => {
     if (!componentDeck || componentDeck.slides.length <= 1) return;
 
-    const updatedSlides = componentDeck.slides
-      .filter((slide: ComponentBasedSlide) => slide.slideId !== slideId)
-      .map((slide: ComponentBasedSlide, index: number) => ({
-        ...slide,
-        slideNumber: index + 1
-      }));
-
-    const updatedDeck = {
+    const updatedDeck: ComponentBasedSlideDeck = {
       ...componentDeck,
-      slides: updatedSlides
+      slides: componentDeck.slides.filter((s: ComponentBasedSlide) => s.slideId !== slideId)
     };
+
+    // Update slide numbers
+    updatedDeck.slides.forEach((slide: ComponentBasedSlide, index: number) => {
+      slide.slideNumber = index + 1;
+    });
 
     setComponentDeck(updatedDeck);
     onSave?.(updatedDeck);
@@ -367,8 +229,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div style={{
-        display: 'flex',
+      <div style={{ 
+        display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '400px',
@@ -423,253 +285,65 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
   }
 
-  // Success: Render component-based viewer with right-side menu
+  // Success: Render component-based viewer with fixed-position add button
   return (
-    <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
-      {/* Professional Header */}
-      <div 
-        className="professional-header"
-        style={{
-          width: '100%',
-          position: 'relative',
-          zIndex: 10
-        }}
-      >
-        <div className="header-content">
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: '#111827',
-            margin: 0
-          }}>
-            {componentDeck.lessonTitle || 'Slide Deck'}
-          </h1>
-          <div style={{
-            fontSize: '14px',
-            color: '#6b7280',
-            marginTop: '4px'
-          }}>
-            {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area - Static white container */}
-      <div 
-        className="main-content"
-        style={{
-          width: '100%',
-          position: 'relative',
-          zIndex: 5,
-          backgroundColor: '#f8f9fa',
-          minHeight: 'calc(100vh - 80px)', // Adjust based on header height
-          transformOrigin: 'center center',
-          overflow: 'hidden', // Prevent container scroll
-          display: 'flex',
-          justifyContent: 'flex-end', // Align slides to the right
-          alignItems: 'flex-start', // Align to top
-          pointerEvents: 'auto', // Ensure pointer events work
-          userSelect: 'auto' // Ensure text selection works
-        }}
-      >
-        {/* Slides Container - Scrollable and scalable */}
+    <div className="slide-deck-viewer" style={{ position: 'relative' }}>
+      {/* Fixed Position Add Slide Button - IMPROVED VERSION */}
+      {isEditable && (
         <div 
-          ref={slidesContainerRef}
-          className="slides-container"
-          style={{
-            transform: isVoiceoverPanelOpen ? 'scale(0.7)' : 'scale(1)', // 30% smaller
-            transition: 'transform 0.3s ease-in-out',
-            transformOrigin: 'top right', // Changed to top right to stick to right side
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            overflowY: 'auto', // Make slides scrollable
-            overflowX: 'hidden',
-            pointerEvents: 'auto', // Ensure pointer events are enabled
-            userSelect: 'auto', // Ensure text selection works
-            touchAction: 'auto' // Ensure touch scrolling works on mobile
-          }}
-          onScroll={handleSlidesScroll}
-        >
-          {componentDeck.slides.map((slide: ComponentBasedSlide) => (
-            <div
-              key={slide.slideId}
-              style={{
-                marginBottom: '40px',
-                position: 'relative'
-              }}
-            >
-              {/* Delete Button - positioned above the slide */}
-              {isEditable && componentDeck.slides.length > 1 && (
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  marginBottom: '8px'
-                }}>
-                  <button
-                    onClick={() => deleteSlide(slide.slideId)}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '50%',
-                      width: '32px',
-                      height: '32px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#ef4444',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#fef2f2';
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                    }}
-                    title="Delete slide"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-
-              {/* Slide Container */}
-              <div
-                className="professional-slide relative"
-                id={`slide-${slide.slideId}`}
-                style={{
-                  backgroundColor: 'white',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                  position: 'relative',
-                  transform: 'none', // Prevent any additional transforms
-                  transition: 'none', // Prevent slide-specific transitions
-                }}
-              >
-                {/* Component-based slide content */}
-                <div className="slide-content">
-                  <ComponentBasedSlideDeckRenderer
-                    slides={[slide]}
-                    isEditable={isEditable}
-                    onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
-                    onTemplateChange={isEditable ? handleTemplateChange : undefined}
-                    theme={currentTheme}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Right-side Vertical Panel - Always visible */}
-      {!showThemePicker && (hasAnyVoiceover || !isVoiceoverPanelOpen) && (
-        <div
           ref={dropdownRef}
           style={{
             position: 'fixed',
+            left: '20px',
             top: '50%',
-            right: '0',
-            width: '48px',
-            height: '400px',
-            backgroundColor: 'white',
-            borderLeft: '1px solid #e5e7eb',
-            borderTopLeftRadius: '8px',
-            borderBottomLeftRadius: '8px',
-            boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)',
-            zIndex: 30,
+            transform: 'translateY(-50%)',
+            zIndex: 1000,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingTop: '20px',
-            gap: '16px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            transform: 'translateY(-50%)'
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}
         >
-          {/* Add Slide Button - moved from left side */}
-          {isEditable && (
-            <button
-              onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-              style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#3b82f6',
-                border: 'none',
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = '#2563eb';
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }}
-              title="Add new slide"
-            >
-              <Plus size={16} />
-            </button>
-          )}
-
-          {/* Theme Button */}
+          {/* Main Add Button */}
           <button
-            onClick={() => setShowThemePicker(true)}
-            disabled={isChangingTheme}
+            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
             style={{
-              width: '32px',
-              height: '32px',
-              backgroundColor: isChangingTheme ? '#9ca3af' : '#6b7280',
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              backgroundColor: '#3b82f6',
+              color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: isChangingTheme ? 'not-allowed' : 'pointer',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              opacity: isChangingTheme ? 0.6 : 1
+              marginBottom: '8px'
             }}
-            onMouseEnter={(e) => {
-              if (!isChangingTheme) {
-                e.currentTarget.style.backgroundColor = '#374151';
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-              }
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.backgroundColor = '#2563eb';
+              e.currentTarget.style.transform = 'scale(1.05)';
             }}
-            onMouseLeave={(e) => {
-              if (!isChangingTheme) {
-                e.currentTarget.style.backgroundColor = '#6b7280';
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.backgroundColor = '#3b82f6';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
-            title={isChangingTheme ? "Changing theme..." : "Change presentation theme"}
+            title="Add new slide"
           >
-            <Palette size={16} className="text-white" />
+            <Plus size={24} />
           </button>
 
           {/* Template Dropdown */}
-          {isEditable && showTemplateDropdown && (
+          {showTemplateDropdown && (
             <div
               style={{
                 position: 'absolute',
-                right: '52px',
-                top: '20px',
+                left: '70px',
+                top: '0',
                 backgroundColor: 'white',
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px',
@@ -809,74 +483,121 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               </div>
             </div>
           )}
-
-          {/* Voiceover Button - Only show for video lessons */}
-          {hasAnyVoiceover && (
-            <button
-              style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#3b82f6',
-                border: 'none',
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}
-              onClick={() => setIsVoiceoverPanelOpen(!isVoiceoverPanelOpen)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#2563eb';
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }}
-              title={isVoiceoverPanelOpen ? "Close Voiceover Panel" : "Open Voiceover Panel"}
-            >
-              <Volume2 className="w-4 h-4 text-white" />
-            </button>
-          )}
         </div>
       )}
 
-      {/* Voiceover Panel */}
-      {hasAnyVoiceover && (
-        <VoiceoverPanel
-          isOpen={isVoiceoverPanelOpen}
-          onClose={() => setIsVoiceoverPanelOpen(false)}
-          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
-            slideId: slide.slideId,
-            slideNumber: slide.slideNumber || 0,
-            slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
-            voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
-          }))}
-          currentSlideId={currentSlideId}
-          onSlideSelect={(slideId) => {
-            setCurrentSlideId(slideId);
-            // Scroll to the selected slide
-            const slideElement = document.getElementById(`slide-${slideId}`);
-            if (slideElement && slidesContainerRef.current) {
-              slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }}
-          onVoiceoverUpdate={handleVoiceoverUpdate}
-        />
-      )}
+      {/* Professional Header */}
+      <div className="professional-header">
+        <div className="header-content">
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: '#111827',
+            margin: 0
+          }}>
+            {componentDeck.lessonTitle || 'Slide Deck'}
+          </h1>
+          <div style={{
+            fontSize: '14px',
+            color: '#6b7280',
+            marginTop: '4px'
+          }}>
+            {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+      </div>
 
-      {/* Theme Picker Panel */}
-      <ThemePicker
-        isOpen={showThemePicker}
-        onClose={() => setShowThemePicker(false)}
-        selectedTheme={currentTheme}
-        onThemeSelect={changeTheme}
-        isChanging={isChangingTheme}
-      />
+      {/* Main Content Area - IMPROVED SPACING */}
+      <div className="main-content" style={{ 
+        marginLeft: isEditable ? '100px' : '0',
+        paddingTop: '20px'
+      }}>
+        {/* Slides Container */}
+        <div className="slides-container">
+          {componentDeck.slides.map((slide: ComponentBasedSlide) => (
+            <div
+              key={slide.slideId}
+              className="professional-slide"
+              id={`slide-${slide.slideId}`}
+              style={{
+                marginBottom: '40px',
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              {/* Slide Header with Template Info and Delete Button */}
+              {isEditable && (
+                <div style={{
+                  padding: '12px 16px',
+                  backgroundColor: '#f9fafb',
+                  borderBottom: '1px solid #e5e7eb',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      color: '#6b7280',
+                      backgroundColor: '#e5e7eb',
+                      padding: '4px 8px',
+                      borderRadius: '4px'
+                    }}>
+                      {getTemplate(slide.templateId)?.name || slide.templateId}
+                    </span>
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#9ca3af'
+                    }}>
+                      Slide {slide.slideNumber}
+                    </span>
+                  </div>
+                  {componentDeck.slides.length > 1 && (
+                    <button
+                      onClick={() => deleteSlide(slide.slideId)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        color: '#ef4444',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fef2f2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      title="Delete slide"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Component-based slide content */}
+              <div className="slide-content">
+                <ComponentBasedSlideDeckRenderer
+                  slides={[slide]}
+                  isEditable={isEditable}
+                  onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
+                  onTemplateChange={isEditable ? handleTemplateChange : undefined}
+                  theme={componentDeck.theme}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

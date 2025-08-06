@@ -62,7 +62,6 @@ COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable"
 COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
 COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
 COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
-COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 
@@ -441,6 +440,407 @@ except ImportError:
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
 
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
+
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
     "http://143.198.59.56:3001",
@@ -583,11 +983,6 @@ class ImageBlock(BaseContentBlock):
     alignment: Optional[str] = "center"
     borderRadius: Optional[str] = "8px"
     maxWidth: Optional[str] = "100%"
-    # Layout mode fields for positioning
-    layoutMode: Optional[str] = None  # 'standalone', 'side-by-side-left', 'side-by-side-right', 'inline-left', 'inline-right'
-    layoutPartnerIndex: Optional[int] = None  # Index of the content block to pair with for side-by-side layouts
-    layoutProportion: Optional[str] = None  # '50-50', '60-40', '40-60', '70-30', '30-70'
-    float: Optional[str] = None  # Legacy field for backward compatibility: 'left', 'right'
 
 AnyContentBlockValue = Union[
     HeadlineBlock, ParagraphBlock, BulletListBlock, NumberedListBlock, AlertBlock, SectionBreakBlock, TableBlock, ImageBlock
@@ -634,7 +1029,6 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -644,7 +1038,6 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
-    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
@@ -961,79 +1354,6 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
-{
-  "lessonTitle": "Example Video Lesson with Voiceover",
-  "slides": [
-    {
-      "slideId": "slide_1_intro",
-      "slideNumber": 1,
-      "slideTitle": "Introduction",
-      "templateId": "big-image-left",
-      "voiceoverText": "Welcome to this comprehensive lesson. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This introduction sets the stage for what you're about to learn.",
-      "props": {
-          "title": "Welcome to the Lesson",
-          "subtitle": "This slide introduces the main topic.",
-          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-          "imageAlt": "Descriptive alt text",
-          "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-          "imageSize": "large"
-      }
-    },
-    {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
-      "voiceoverText": "Now let's dive into the core concepts. These fundamental ideas form the foundation of our understanding. We'll explore each concept in detail, ensuring you have a solid grasp before moving forward.",
-      "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
-      }
-    },
-    {
-      "slideId": "slide_3_bullets",
-      "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "voiceoverText": "Here are the key takeaways from our lesson. Each of these points represents a critical insight that you should remember. Let me walk you through each one to ensure you understand their significance.",
-      "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
-        ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
-      }
-    },
-    {
-      "slideId": "slide_4_process",
-      "slideNumber": 4,
-      "slideTitle": "Step-by-Step Process",
-      "templateId": "process-steps",
-      "voiceoverText": "Finally, let's look at the practical implementation. This step-by-step process shows you exactly how to apply what you've learned. Follow along carefully as we go through each step together.",
-      "props": {
-        "title": "Implementation Steps",
-        "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
-        ]
-      }
-    }
-  ],
-  "currentSlideId": "slide_1_intro",
-  "detectedLanguage": "en",
-  "hasVoiceover": true
-}
-"""
-
 async def get_db_pool():
     if DB_POOL is None:
         detail_msg = "Database service not available." # Generic enough for production
@@ -1131,6 +1451,407 @@ except ImportError:
         os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
 
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
@@ -1755,6 +2476,407 @@ except ImportError:
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
 
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
+
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
     "http://143.198.59.56:3001",
@@ -1926,7 +3048,6 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -1936,7 +3057,6 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
-    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
@@ -2357,6 +3477,407 @@ except ImportError:
         os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
 
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
@@ -2999,6 +4520,407 @@ except ImportError:
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
 
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
+
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
     "http://143.198.59.56:3001",
@@ -3170,7 +5092,6 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -3180,7 +5101,6 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
-    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
@@ -3594,6 +5514,407 @@ except ImportError:
         os.makedirs(os.path.dirname(dummy_path), exist_ok=True)
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
+
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
 
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
@@ -4218,6 +6539,407 @@ except ImportError:
         with open(dummy_path, "w") as f: f.write(f"Dummy PDF for {output_filename} using context: {str(context_data)[:200]}")
         return dummy_path
 
+@app.on_event("startup")
+async def startup_event():
+    global DB_POOL
+    logger.info("Custom Backend starting...")
+    if not CUSTOM_PROJECTS_DATABASE_URL:
+        logger.critical("CRITICAL: CUSTOM_PROJECTS_DATABASE_URL env var not set.")
+        return
+    try:
+        DB_POOL = await asyncpg.create_pool(dsn=CUSTOM_PROJECTS_DATABASE_URL, min_size=1, max_size=10,
+                                            init=lambda conn: conn.set_type_codec(
+                                                'jsonb',
+                                                encoder=lambda value: json.dumps(value) if value is not None else None,
+                                                decoder=lambda value: json.loads(value) if value is not None else None,
+                                                schema='pg_catalog',
+                                                format='text'
+                                            ))
+        async with DB_POOL.acquire() as connection:
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    project_name TEXT NOT NULL,
+                    product_type TEXT,
+                    microproduct_type TEXT,
+                    microproduct_name TEXT,
+                    microproduct_content JSONB,
+                    design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_name TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS microproduct_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS design_template_id INTEGER REFERENCES design_templates(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_onyx_user_id ON projects(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_design_template_id ON projects(design_template_id);")
+            logger.info("'projects' table ensured and updated.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS microproduct_pipelines (
+                    id SERIAL PRIMARY KEY,
+                    pipeline_name TEXT NOT NULL,
+                    pipeline_description TEXT,
+                    is_prompts_data_collection BOOLEAN DEFAULT FALSE,
+                    is_prompts_data_formating BOOLEAN DEFAULT FALSE,
+                    prompts_data_collection JSONB,
+                    prompts_data_formating JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
+            logger.info("'microproduct_pipelines' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
+            logger.info("'design_templates' table ensured.")
+
+            # --- Ensure a soft-delete trash table for projects ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS trashed_projects (LIKE projects INCLUDING ALL);
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_trashed_projects_user ON trashed_projects(onyx_user_id);")
+            logger.info("'trashed_projects' table ensured (soft-delete).")
+
+            # --- Ensure user credits table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_credits (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    credits_balance INTEGER NOT NULL DEFAULT 0,
+                    total_credits_used INTEGER NOT NULL DEFAULT 0,
+                    credits_purchased INTEGER NOT NULL DEFAULT 0,
+                    last_purchase_date TIMESTAMP WITH TIME ZONE,
+                    subscription_tier TEXT DEFAULT 'basic',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
+            logger.info("'user_credits' table ensured.")
+
+            # Migration: Populate user_credits table with existing Onyx users
+            try:
+                migrated_count = await migrate_onyx_users_to_credits_table()
+                logger.info(f"Populated user_credits table with {migrated_count} existing Onyx users (100 credits each).")
+            except Exception as e:
+                logger.error(f"Failed to migrate Onyx users to credits table: {e}")
+                logger.info("Migration will be available manually via admin interface.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS project_folders (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    "order" INTEGER DEFAULT 0,
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                );
+            """)
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_onyx_user_id ON project_folders(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_folder_id ON projects(folder_id);")
+            
+            # Add parent_id column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for parent_id column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_parent_id ON project_folders(parent_id);")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add order column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+            
+            # Create index for order column
+            try:
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_order ON project_folders(\"order\");")
+            except Exception as e:
+                # Index might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add quality_tier column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS quality_tier TEXT DEFAULT 'medium';")
+                logger.info("Added quality_tier column to project_folders table")
+                
+                # Update existing folders to have 'medium' tier if they don't have one
+                await connection.execute("UPDATE project_folders SET quality_tier = 'medium' WHERE quality_tier IS NULL;")
+                logger.info("Updated existing folders with default 'medium' tier")
+                
+                # Create index for quality_tier column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_quality_tier ON project_folders(quality_tier);")
+                logger.info("Created index for quality_tier column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding quality_tier column: {e}")
+                    raise e
+            
+            # Add custom_rate column to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS custom_rate INTEGER DEFAULT 200;")
+                logger.info("Added custom_rate column to project_folders table")
+                
+                # Update existing folders to have default custom_rate if they don't have one
+                await connection.execute("UPDATE project_folders SET custom_rate = 200 WHERE custom_rate IS NULL;")
+                logger.info("Updated existing folders with default custom_rate")
+                
+                # Create index for custom_rate column
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_custom_rate ON project_folders(custom_rate);")
+                logger.info("Created index for custom_rate column")
+                
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding custom_rate column: {e}")
+                    raise e
+            
+            # Add order column for project sorting
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_order ON projects(\"order\");")
+
+            # Add completionTime column to projects table (for the new completion time feature)
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level custom rate and quality tier columns
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to projects table")
+                
+                # Create indexes for project-level custom rate and quality tier
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_custom_rate ON projects(custom_rate);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_quality_tier ON projects(quality_tier);")
+                logger.info("Created indexes for project-level custom_rate and quality_tier columns")
+                
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
+                    raise e
+            
+            # Add completionTime column to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add other missing columns to trashed_projects table to match projects table schema
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS \"order\" INTEGER DEFAULT 0;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    raise e
+
+            # Add project-level columns to trashed_projects table
+            try:
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS custom_rate INTEGER;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS quality_tier TEXT;")
+                logger.info("Added custom_rate and quality_tier columns to trashed_projects table")
+            except Exception as e:
+                # Columns might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding project-level columns to trashed_projects: {e}")
+                    raise e
+
+            # CRITICAL FIX: Ensure order and completion_time columns are TEXT type to prevent casting errors
+            try:
+                logger.info("Applying critical fix: Ensuring order and completion_time columns are TEXT type")
+                
+                # Fix projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set projects.order and projects.completion_time to TEXT type")
+                
+                # Fix trashed_projects table - ensure TEXT type
+                await connection.execute("""
+                    ALTER TABLE trashed_projects 
+                    ALTER COLUMN "order" TYPE TEXT,
+                    ALTER COLUMN completion_time TYPE TEXT;
+                """)
+                logger.info("Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type")
+                
+                # Set default values for empty strings
+                await connection.execute("""
+                    UPDATE projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET "order" = '0' WHERE "order" IS NULL OR "order" = '';
+                """)
+                await connection.execute("""
+                    UPDATE trashed_projects 
+                    SET completion_time = '0' WHERE completion_time IS NULL OR completion_time = '';
+                """)
+                logger.info("Successfully set default values for empty order and completion_time fields")
+                
+            except Exception as e:
+                logger.error(f"Error applying critical TEXT type fix: {e}")
+
+            # Final verification - ensure all required columns exist with correct types
+            try:
+                # Verify projects table schema
+                projects_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Projects table schema verification:")
+                for row in projects_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+                # Verify trashed_projects table schema
+                trashed_schema = await connection.fetch("""
+                    SELECT column_name, data_type, is_nullable
+                    FROM information_schema.columns 
+                    WHERE table_name = 'trashed_projects' 
+                    AND column_name IN ('order', 'completion_time', 'source_chat_session_id', 'folder_id')
+                    ORDER BY column_name;
+                """)
+                
+                logger.info("Trashed_projects table schema verification:")
+                for row in trashed_schema:
+                    logger.info(f"  {row['column_name']}: {row['data_type']} (nullable: {row['is_nullable']})")
+                
+            except Exception as e:
+                logger.error(f"Error during schema verification: {e}")
+
+            # Create request analytics table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS request_analytics (
+                    id TEXT PRIMARY KEY,
+                    endpoint TEXT NOT NULL,
+                    method TEXT NOT NULL,
+                    user_id TEXT,
+                    status_code INTEGER NOT NULL,
+                    response_time_ms INTEGER NOT NULL,
+                    request_size_bytes INTEGER,
+                    response_size_bytes INTEGER,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_created_at ON request_analytics(created_at);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_endpoint ON request_analytics(endpoint);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_user_id ON request_analytics(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
+            logger.info("'request_analytics' table ensured.")
+
+            # Add AI parser tracking columns to request_analytics table
+            try:
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_tokens INTEGER;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_model TEXT;")
+                await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS ai_parser_project_name TEXT;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_ai_parser ON request_analytics(is_ai_parser_request);")
+                logger.info("AI parser tracking columns added to request_analytics table.")
+            except Exception as e:
+                logger.warning(f"Error adding AI parser columns (may already exist): {e}")
+
+            # Add is_standalone field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_standalone ON projects(is_standalone);")
+                logger.info("Added is_standalone column to projects table.")
+                
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_standalone BOOLEAN DEFAULT NULL;")
+                logger.info("Added is_standalone column to trashed_projects table.")
+                
+                # For legacy support: Set is_standalone = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: is_standalone field defaults to NULL for existing products.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            logger.info("Database schema migration completed successfully.")
+    except Exception as e:
+        logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
+        DB_POOL = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if DB_POOL:
+        await DB_POOL.close()
+        logger.info("Custom projects DB pool closed.")
+
 effective_origins = list(set(filter(None, [
     "http://localhost:3001",
     "http://143.198.59.56:3001",
@@ -4389,7 +7111,6 @@ class DeckSlide(BaseModel):
     slideTitle: str            
     templateId: str            # Зробити обов'язковим (без Optional)
     props: Dict[str, Any] = Field(default_factory=dict)  # Додати props
-    voiceoverText: Optional[str] = None  # Optional voiceover text for video lessons
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)  # Опціонально для метаданих
     model_config = {"from_attributes": True}
 
@@ -4399,7 +7120,6 @@ class SlideDeckDetails(BaseModel):
     currentSlideId: Optional[str] = None  # To store the active slide from frontend
     lessonNumber: Optional[int] = None    # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
-    hasVoiceover: Optional[bool] = None  # Flag indicating if any slide has voiceover
     theme: Optional[str] = None           # Selected theme for presentation
     model_config = {"from_attributes": True}
 
@@ -4831,17 +7551,17 @@ async def startup_event():
                                                 format='text'
                                             ))
         async with DB_POOL.acquire() as connection:
-            await connection.execute("""
-                CREATE TABLE IF NOT EXISTS design_templates (
-                    id SERIAL PRIMARY KEY,
-                    template_name TEXT NOT NULL UNIQUE,
-                    template_structuring_prompt TEXT NOT NULL,
-                    design_image_path TEXT,
-                    microproduct_type TEXT,
-                    component_name TEXT NOT NULL,
-                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                );
-            """)
+            col_type_row = await connection.fetchrow(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
+            )
+            if col_type_row and col_type_row['data_type'] != 'jsonb':
+                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
+                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
+                logger.info("Successfully altered 'microproduct_content' to JSONB.")
+
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
+            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
 
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS projects (
@@ -4879,18 +7599,17 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_pipelines_name ON microproduct_pipelines(pipeline_name);")
             logger.info("'microproduct_pipelines' table ensured.")
 
-            col_type_row = await connection.fetchrow(
-                "SELECT data_type FROM information_schema.columns "
-                "WHERE table_name = 'projects' AND column_name = 'microproduct_content';"
-            )
-            if col_type_row and col_type_row['data_type'] != 'jsonb':
-                logger.info("Attempting to alter 'microproduct_content' column type to JSONB...")
-                await connection.execute("ALTER TABLE projects ALTER COLUMN microproduct_content TYPE JSONB USING microproduct_content::text::jsonb;")
-                logger.info("Successfully altered 'microproduct_content' to JSONB.")
-
-            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
-            logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
-
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS design_templates (
+                    id SERIAL PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_structuring_prompt TEXT NOT NULL,
+                    design_image_path TEXT,
+                    microproduct_type TEXT,
+                    component_name TEXT NOT NULL,
+                    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
@@ -6596,8 +9315,6 @@ Ensure *all* relevant information from the "Raw text to parse" is included in yo
 Pay close attention to data types: strings should be quoted, numerical values should be numbers, and lists should be arrays. Null values are not permitted for string fields; use an empty string "" instead if text is absent but the field is required according to the example structure.
 Maintain the original language of the input text for all textual content in the JSON.
 
-🚨 SPECIAL INSTRUCTION FOR VIDEO LESSONS: If the target model is SlideDeckDetails and the JSON example contains "voiceoverText" fields, you MUST generate voiceover text for every slide object. Look at the example JSON structure and ensure your output matches it exactly, including all voiceoverText fields and hasVoiceover flag.
-
 Specific Instructions for this Content Type ({target_model.__name__}):
 ---
 {dynamic_instructions}
@@ -6617,7 +9334,7 @@ Return ONLY the JSON object corresponding to the parsed text. Do not include any
 The entire output must be a single, valid JSON object and must include all relevant data found in the input, with textual content in the original language.
     """
     # OpenAI Chat API expects a list of chat messages
-    system_msg = {"role": "system", "content": "You are a JSON parsing expert. You must output ONLY valid JSON in the exact format specified. Do not include any explanations, markdown formatting, or additional text. Your response must be a single, complete JSON object. CRITICAL: If the example JSON contains voiceoverText fields, your output MUST include them for every slide. Match the example structure exactly."}
+    system_msg = {"role": "system", "content": "You are a JSON parsing expert. You must output ONLY valid JSON in the exact format specified. Do not include any explanations, markdown formatting, or additional text. Your response must be a single, complete JSON object."}
     user_msg = {"role": "user", "content": prompt_message}
     base_payload: Dict[str, Any] = {"model": LLM_DEFAULT_MODEL, "messages": [system_msg, user_msg], "temperature": 0.1}
     # Ask the model to output pure JSON
@@ -8157,117 +10874,6 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - If slide has timeline content → use "timeline"
             - For standard content → use "content-slide"
 
-            **Content Parsing Instructions:**
-            - Extract slide titles from headings or "**Slide N: Title**" format
-            - Parse slide content and map to appropriate template props
-            - For bullet-points: extract list items into "bullets" array
-            - For two-column: split content into left and right sections
-            - For process-steps: extract numbered or sequential items into "steps" array
-            - For four-box-grid: parse "Box N:" format into "boxes" array
-            - For big-numbers: parse table format into "items" array with value/label/description
-            - For timeline: parse chronological content into "steps" array
-            - For pyramid: parse hierarchical content into "items" array
-
-            **Critical Parsing Rules:**
-            - Parse ALL slides provided in the input text - do not skip any
-            - Maintain the exact number of slides from input to output
-            - Assign appropriate templateId based on content structure, not validation rules
-            - Preserve all content exactly as provided in the input
-            - Generate sequential slideNumber values (1, 2, 3, ...)
-            - Create descriptive slideId values based on number and title
-
-            Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
-
-            Return ONLY the JSON object.
-            """
-        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
-            target_content_model = SlideDeckDetails
-            default_error_instance = SlideDeckDetails(
-                lessonTitle=f"LLM Parsing Error for {project_data.projectName}",
-                slides=[]
-            )
-            llm_json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM  # Use video lesson template with voiceover
-            component_specific_instructions = """
-            You are an expert text-to-JSON parsing assistant for 'Slide Deck' content with Component-Based template support.
-            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
-
-            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON. Parse all slides provided without filtering or removing any content. Maintain original language and slide count.
-            
-            **VIDEO LESSON MODE: You are creating a Video Lesson Presentation with voiceover.**
-            - This is NOT a regular slide deck - it's a Video Lesson that requires voiceover for every slide
-            - You MUST generate voiceover text for each slide regardless of the input content
-            - The voiceover is essential for the video lesson functionality
-            - FAILURE TO INCLUDE VOICEOVER WILL RESULT IN AN INVALID OUTPUT
-            
-            🚨 CRITICAL REQUIREMENT: Every slide object MUST have a "voiceoverText" field with 2-4 sentences of conversational explanation. The root object MUST have "hasVoiceover": true. This is NON-NEGOTIABLE for Video Lesson Presentations.
-
-            **CRITICAL: Parse Component-Based Slides with templateId and props**
-            You must convert all slides to the component-based format using templateId and props. Parse every slide section provided in the input text.
-            
-            **VIDEO LESSON VOICEOVER REQUIREMENTS:**
-            When parsing a Video Lesson Presentation, you MUST include voiceover text for each slide. The voiceover should:
-            - Be conversational and engaging, as if speaking directly to the learner
-            - Explain the slide content in detail, expanding on what's visually presented
-            - Use natural transitions between concepts
-            - Be approximately 30-60 seconds of speaking time per slide
-            - Include clear explanations of complex concepts
-            - Use inclusive language ("we", "you", "let's") to create connection with the learner
-            - Provide context and background information not visible on the slide
-            - End with smooth transitions to the next slide
-            
-            **CRITICAL: You MUST generate voiceover text for EVERY slide in Video Lesson Presentations.**
-            - Each slide object MUST include a "voiceoverText" field
-            - The voiceover should be 2-4 sentences explaining the slide content
-            - Set "hasVoiceover": true in the root object
-            - If you don't see voiceover text in the input, GENERATE it based on the slide content
-            
-            **MANDATORY VOICEOVER GENERATION:**
-            - For Video Lesson Presentations, you MUST create voiceover text for EVERY slide
-            - Do NOT skip voiceover generation under any circumstances
-            - Generate conversational, engaging voiceover that explains the slide content
-            - Each voiceover should be 2-4 sentences (approximately 30-60 seconds of speaking time)
-            - Use inclusive language ("we", "you", "let's") to create connection with the learner
-            - Provide context and background information not visible on the slide
-            - End with smooth transitions to the next slide
-
-            **Global Fields:**
-            1.  `lessonTitle` (string): Main title of the lesson/presentation.
-                - Look for patterns like "**Course Name** : **Lesson Presentation** : **Title**" or similar
-                - Extract ONLY the title part (the last part after the last "**")
-                - If no clear pattern is found, use the first meaningful title or heading
-            2.  `slides` (array): Ordered list of ALL slide objects in COMPONENT-BASED format.
-            3.  `currentSlideId` (string, optional): ID of the currently active slide (can be null).
-            4.  `lessonNumber` (integer, optional): Sequential number if part of a training plan.
-            5.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk".
-            6.  `hasVoiceover` (boolean, MANDATORY for Video Lessons): For Video Lesson Presentations, you MUST set this to true since every slide will have voiceover text.
-
-            **SLIDE PARSING RULES - PARSE ALL SLIDES:**
-            - Parse every slide section marked by "---" or slide separators in the input text
-            - If input contains 15 slides, output exactly 15 slides in JSON
-            - Do NOT filter or skip slides based on their titles or content
-            - Do NOT remove slides with titles like "Questions", "Thank You", "Further Reading", etc.
-            - Your job is to PARSE, not to validate or filter content
-
-            **Component-Based Slide Object (`slides` array items):**
-            * `slideId` (string): Generate unique identifier like "slide_1_intro", "slide_2_concepts" based on slide number and title.
-            * `slideNumber` (integer): Sequential slide number from input (1, 2, 3, ...).
-            * `slideTitle` (string): Extract descriptive title exactly as provided in the input.
-            * `templateId` (string): Assign appropriate template based on content structure (see template guidelines below).
-            * `props` (object): Template-specific properties containing the actual content from the slide.
-            * `voiceoverText` (string, MANDATORY for Video Lessons): For Video Lesson Presentations, you MUST include conversational voiceover text that explains the slide content in detail. This field is REQUIRED for every slide in video lessons.
-
-            **Template Assignment Guidelines:**
-            Assign templateId based on the content structure of each slide:
-            - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
-            - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "comparison-slide"
-            - If slide has numbered steps → use "process-steps"
-            - If slide has 4 distinct points → use "four-box-grid"
-            - If slide has metrics/statistics → use "big-numbers"
-            - If slide has hierarchical content → use "pyramid"
-            - If slide has timeline content → use "timeline"
-            - For standard content → use "content-slide"
-
             **Available Template IDs and their Props (must match exactly):**
 
             1. **`hero-title-slide`** - Hero opening slides:
@@ -8816,9 +11422,6 @@ Return ONLY the JSON object.
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails.")
-                elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
-                    final_content_for_response = SlideDeckDetails(**db_content_dict)
-                    logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
@@ -8902,8 +11505,6 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_QUIZ:
                     parsed_content_for_response = QuizData(**db_content_json)
                 elif component_name == COMPONENT_NAME_SLIDE_DECK:
-                    parsed_content_for_response = SlideDeckDetails(**db_content_json)
-                elif component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 else:
                     logger.warning(f"Unknown component_name '{component_name}' for project {project_id}. Trying fallbacks.", exc_info=not IS_PRODUCTION)
@@ -12214,22 +14815,6 @@ async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
         return row["id"]
 
 
-# Ensure a design template for Video Lesson Presentation exists, return its ID
-async def _ensure_video_lesson_presentation_template(pool: asyncpg.Pool) -> int:
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_VIDEO_LESSON_PRESENTATION)
-        if row:
-            return row["id"]
-        row = await conn.fetchrow(
-            """
-            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
-            VALUES ($1, $2, $3, $4) RETURNING id;
-            """,
-            "Video Lesson Presentation", DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM, "Video Lesson Presentation", COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
-        )
-        return row["id"]
-
-
 # Ensure a design template for Text Presentation exists, return its ID
 async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
     """Ensure text presentation template exists and return its ID"""
@@ -12277,7 +14862,6 @@ class LessonWizardPreview(BaseModel):
     language: str = "en"
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
-    productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
     theme: Optional[str] = None            # Selected theme for presentation
     # NEW: file context for creation from documents
     fromFiles: Optional[bool] = None
@@ -12296,7 +14880,6 @@ class LessonWizardFinalize(BaseModel):
     aiResponse: str                        # User-edited markdown / plain text
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
-    productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
     theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
@@ -12316,13 +14899,11 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Build wizard request for assistant persona
-    is_video_lesson = payload.productType == "video_lesson_presentation"
     wizard_dict: Dict[str, Any] = {
-        "product": "Video Lesson Slides Deck" if is_video_lesson else "Slides Deck",
+        "product": "Slides Deck",
         "action": "preview",
         "language": payload.language,
         "slidesCount": payload.slidesCount or 5,
-        "generateVoiceover": is_video_lesson,  # Flag to indicate voiceover generation
         "theme": payload.theme or "dark-purple",  # Use selected theme or default
     }
     if payload.outlineProjectId is not None:
@@ -12561,26 +15142,20 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     try:
-        # Determine if this is a video lesson presentation
-        is_video_lesson = payload.productType == "video_lesson_presentation"
-        
-        # Get the appropriate template with retry mechanism
+        # Get the slide deck template with retry mechanism
         max_retries = 3
-        template_id = None
+        slide_deck_template_id = None
         for attempt in range(max_retries):
             try:
-                if is_video_lesson:
-                    template_id = await _ensure_video_lesson_presentation_template(pool)
-                else:
-                    template_id = await _ensure_slide_deck_template(pool)
+                slide_deck_template_id = await _ensure_slide_deck_template(pool)
                 break
             except Exception as e:
                 if attempt == max_retries - 1:
-                    logger.error(f"Failed to get template after {max_retries} attempts: {e}")
+                    logger.error(f"Failed to get slide deck template after {max_retries} attempts: {e}")
                     raise HTTPException(status_code=500, detail="Unable to initialize template")
                 await asyncio.sleep(0.5)  # Brief delay before retry
 
-        if not template_id:
+        if not slide_deck_template_id:
             raise HTTPException(status_code=500, detail="Template initialization failed")
 
         # Get user ID
@@ -12606,7 +15181,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         # Create project data
         project_data = ProjectCreateRequest(
             projectName=project_name,
-            design_template_id=template_id,
+            design_template_id=slide_deck_template_id,
             microProductName=None,
             aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,

@@ -391,78 +391,6 @@ export const en = {
     noFoldersFound: "No folders found.",
     done: "Done",
     
-    // Image Upload Modal
-    imageUpload: {
-      title: "Upload Image",
-      uploadingText: "Uploading...",
-      dragAndDropText: "Drag and drop an image here, or click to browse",
-      chooseFileButton: "Choose File",
-      supportedFormatsText: "Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)"
-    },
-    
-    // Block Settings Modal
-    blockSettings: {
-      customizeContent: "Customize your content",
-      headlineSettings: "Headline Settings",
-      paragraphSettings: "Paragraph Settings", 
-      bulletListSettings: "Bullet List Settings",
-      numberedListSettings: "Numbered List Settings",
-      alertSettings: "Alert Settings",
-      imageSettings: "Image Settings"
-    },
-    
-    // Modal common
-    modal: {
-      customizeContent: "Customize your content"
-    },
-
-    // Image Settings
-    imageSettings: {
-      imagePreview: "Image Preview",
-      preview: "Preview",
-      noImageLoaded: "No image loaded",
-      altText: "Alt Text",
-      forAccessibility: "for accessibility",
-      altTextPlaceholder: "Describe what this image shows...",
-      altTextHelp: "This helps screen readers describe the image to users",
-      caption: "Caption",
-      captionPlaceholder: "Add a caption for this image...",
-      captionHelp: "Captions appear below the image",
-      maxWidth: "Max Width",
-      maxWidthHelp: "Maximum width the image can take up",
-      width: "Width", 
-      widthHelp: "Specific width for the image",
-      height: "Height",
-      heightHelp: "Specific height for the image",
-      borderRadius: "Border Radius",
-      borderRadiusHelp: "Rounds the corners of the image",
-      alignment: "Alignment",
-      alignmentHelp: "How the image is positioned",
-      layoutMode: "Layout Mode",
-      layoutModeHelp: "How the image relates to surrounding content",
-      standalone: "Standalone",
-      sideBySideLeft: "Side-by-side (image left)",
-      sideBySideRight: "Side-by-side (image right)",
-      inlineLeft: "Inline (image left, text wraps)",
-      inlineRight: "Inline (image right, text wraps)",
-      layoutModeDescription: "Side-by-side: Image and content are equal height. Inline: Text flows around the image.",
-      layoutPartner: "Layout Partner",
-      layoutPartnerHelp: "Choose which content block to pair with this image",
-      layoutProportion: "Layout Proportion",
-      layoutProportionHelp: "How much space the image takes up in the layout",
-      layoutPreview: "Layout Preview",
-      image: "Image",
-      content: "Content",
-      textWillWrap: "Text will wrap around the image",
-      space: "Space",
-      selectContentBlock: "Select a content block...",
-      proportionEqual: "50% - 50% (Equal)",
-      proportionImageLarger: "60% - 40% (Image larger)",
-      proportionImageSmaller: "40% - 60% (Image smaller)",
-      proportionImageMuchLarger: "70% - 30% (Image much larger)",
-      proportionImageMuchSmaller: "30% - 70% (Image much smaller)"
-    },
-    
     // Quality tiers
     basic: "Basic",
     interactive: "Interactive", 
@@ -538,6 +466,7 @@ export const en = {
     checkingAuthentication: "Checking authentication...",
 
     // Block settings
+    blockSettings: "Block Settings",
     noSettingsAvailable: "No settings available for this block type.",
     close: "Close",
 

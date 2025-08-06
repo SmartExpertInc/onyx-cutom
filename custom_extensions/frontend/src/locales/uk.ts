@@ -346,78 +346,6 @@ export const uk = {
     noFoldersFound: "Папки не знайдено.",
     done: "Готово",
     
-    // Image Upload Modal
-    imageUpload: {
-      title: "Завантажити зображення",
-      uploadingText: "Завантаження...",
-      dragAndDropText: "Перетягніть зображення сюди або натисніть для вибору",
-      chooseFileButton: "Обрати файл",
-      supportedFormatsText: "Підтримувані формати: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)"
-    },
-    
-    // Block Settings Modal
-    blockSettings: {
-      customizeContent: "Налаштуйте ваш контент",
-      headlineSettings: "Налаштування заголовка",
-      paragraphSettings: "Налаштування абзацу", 
-      bulletListSettings: "Налаштування маркованого списку",
-      numberedListSettings: "Налаштування нумерованого списку",
-      alertSettings: "Налаштування попередження",
-      imageSettings: "Налаштування зображення"
-    },
-    
-    // Modal common
-    modal: {
-      customizeContent: "Налаштуйте ваш контент"
-    },
-
-    // Image Settings
-    imageSettings: {
-      imagePreview: "Попередній перегляд зображення",
-      preview: "Попередній перегляд",
-      noImageLoaded: "Зображення не завантажено",
-      altText: "Альтернативний текст",
-      forAccessibility: "для доступності",
-      altTextPlaceholder: "Опишіть, що показує це зображення...",
-      altTextHelp: "Це допомагає програмам читання з екрана описувати зображення користувачам",
-      caption: "Підпис",
-      captionPlaceholder: "Додайте підпис до зображення...",
-      captionHelp: "Підписи з'являються під зображенням",
-      maxWidth: "Максимальна ширина",
-      maxWidthHelp: "Максимальна ширина, яку може займати зображення",
-      width: "Ширина", 
-      widthHelp: "Конкретна ширина зображення",
-      height: "Висота",
-      heightHelp: "Конкретна висота зображення",
-      borderRadius: "Радіус межі",
-      borderRadiusHelp: "Заокруглює кути зображення",
-      alignment: "Вирівнювання",
-      alignmentHelp: "Як позиціонується зображення",
-      layoutMode: "Режим макета",
-      layoutModeHelp: "Як зображення співвідноситься з навколишнім контентом",
-      standalone: "Окремо",
-      sideBySideLeft: "Поруч (зображення ліворуч)",
-      sideBySideRight: "Поруч (зображення праворуч)",
-      inlineLeft: "Вбудоване (зображення ліворуч, текст обтікає)",
-      inlineRight: "Вбудоване (зображення праворуч, текст обтікає)",
-      layoutModeDescription: "Поруч: Зображення та контент однакової висоти. Вбудоване: Текст обтікає зображення.",
-      layoutPartner: "Партнер по макету",
-      layoutPartnerHelp: "Виберіть, який блок контенту пов'язати з цим зображенням",
-      layoutProportion: "Пропорції макета",
-      layoutProportionHelp: "Скільки місця займає зображення в макеті",
-      layoutPreview: "Попередній перегляд макета",
-      image: "Зображення",
-      content: "Контент",
-      textWillWrap: "Текст буде обтікати зображення",
-      space: "Простір",
-      selectContentBlock: "Виберіть блок контенту...",
-      proportionEqual: "50% - 50% (Рівні)",
-      proportionImageLarger: "60% - 40% (Зображення більше)",
-      proportionImageSmaller: "40% - 60% (Зображення менше)",
-      proportionImageMuchLarger: "70% - 30% (Зображення набагато більше)",
-      proportionImageMuchSmaller: "30% - 70% (Зображення набагато менше)"
-    },
-    
     // Quality tiers
     basic: "Базовий",
     interactive: "Інтерактивний",
@@ -493,6 +421,7 @@ export const uk = {
     checkingAuthentication: "Перевірка аутентифікації...",
 
     // Block settings
+    blockSettings: "Налаштування блоку",
     noSettingsAvailable: "Для цього типу блоку налаштування недоступні.",
     close: "Закрити",
     // Analytics page

@@ -346,78 +346,6 @@ export const ru = {
     noFoldersFound: "Папки не найдены.",
     done: "Готово",
     
-    // Image Upload Modal
-    imageUpload: {
-      title: "Загрузить изображение",
-      uploadingText: "Загрузка...",
-      dragAndDropText: "Перетащите изображение сюда или нажмите для выбора",
-      chooseFileButton: "Выбрать файл",
-      supportedFormatsText: "Поддерживаемые форматы: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)"
-    },
-    
-    // Block Settings Modal
-    blockSettings: {
-      customizeContent: "Настройте ваш контент",
-      headlineSettings: "Настройки заголовка",
-      paragraphSettings: "Настройки абзаца", 
-      bulletListSettings: "Настройки маркированного списка",
-      numberedListSettings: "Настройки нумерованного списка",
-      alertSettings: "Настройки предупреждения",
-      imageSettings: "Настройки изображения"
-    },
-    
-    // Modal common
-    modal: {
-      customizeContent: "Настройте ваш контент"
-    },
-
-    // Image Settings
-    imageSettings: {
-      imagePreview: "Предпросмотр изображения",
-      preview: "Предпросмотр",
-      noImageLoaded: "Изображение не загружено",
-      altText: "Альтернативный текст",
-      forAccessibility: "для доступности",
-      altTextPlaceholder: "Опишите, что показывает это изображение...",
-      altTextHelp: "Это помогает программам чтения с экрана описывать изображение пользователям",
-      caption: "Подпись",
-      captionPlaceholder: "Добавьте подпись к изображению...",
-      captionHelp: "Подписи появляются под изображением",
-      maxWidth: "Максимальная ширина",
-      maxWidthHelp: "Максимальная ширина, которую может занимать изображение",
-      width: "Ширина", 
-      widthHelp: "Конкретная ширина изображения",
-      height: "Высота",
-      heightHelp: "Конкретная высота изображения",
-      borderRadius: "Радиус границы",
-      borderRadiusHelp: "Закругляет углы изображения",
-      alignment: "Выравнивание",
-      alignmentHelp: "Как позиционируется изображение",
-      layoutMode: "Режим макета",
-      layoutModeHelp: "Как изображение соотносится с окружающим контентом",
-      standalone: "Отдельно",
-      sideBySideLeft: "Рядом (изображение слева)",
-      sideBySideRight: "Рядом (изображение справа)",
-      inlineLeft: "Встроенное (изображение слева, текст обтекает)",
-      inlineRight: "Встроенное (изображение справа, текст обтекает)",
-      layoutModeDescription: "Рядом: Изображение и контент одинаковой высоты. Встроенное: Текст обтекает изображение.",
-      layoutPartner: "Партнер по макету",
-      layoutPartnerHelp: "Выберите, какой блок контента связать с этим изображением",
-      layoutProportion: "Пропорции макета",
-      layoutProportionHelp: "Сколько места занимает изображение в макете",
-      layoutPreview: "Предпросмотр макета",
-      image: "Изображение",
-      content: "Контент",
-      textWillWrap: "Текст будет обтекать изображение",
-      space: "Пространство",
-      selectContentBlock: "Выберите блок контента...",
-      proportionEqual: "50% - 50% (Равные)",
-      proportionImageLarger: "60% - 40% (Изображение больше)",
-      proportionImageSmaller: "40% - 60% (Изображение меньше)",
-      proportionImageMuchLarger: "70% - 30% (Изображение намного больше)",
-      proportionImageMuchSmaller: "30% - 70% (Изображение намного меньше)"
-    },
-    
     // Quality tiers
     basic: "Базовый",
     interactive: "Интерактивный",
@@ -493,6 +421,7 @@ export const ru = {
     checkingAuthentication: "Проверка аутентификации...",
 
     // Block settings
+    blockSettings: "Настройки блока",
     noSettingsAvailable: "Для этого типа блока настройки недоступны.",
     close: "Закрыть",
     // Analytics page

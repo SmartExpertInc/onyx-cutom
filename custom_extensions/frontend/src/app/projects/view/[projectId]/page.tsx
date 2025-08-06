@@ -72,7 +72,6 @@ const COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable";
 const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
 const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
 const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
-const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 
@@ -1082,76 +1081,6 @@ export default function ProjectInstanceViewPage() {
               // onAutoSave removed to prevent duplicate save requests
               showFormatInfo={true}
               theme={currentTheme}
-              projectId={projectId}
-            />
-          </div>
-        );
-      case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
-        const videoLessonPresentationData = editableData as ComponentBasedSlideDeck | null;
-        if (!videoLessonPresentationData) {
-          return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noVideoLessonData', 'No video lesson data available')}</div>;
-        }
-        // For video lesson presentations, use the same SmartSlideDeckViewer but with voiceover support
-        return (
-          <div style={{ 
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
-            <SmartSlideDeckViewer
-              deck={videoLessonPresentationData}
-              isEditable={true}
-              onSave={(updatedDeck) => {
-                // Update the editableData state with the new deck and trigger save
-                console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
-                setEditableData(updatedDeck);
-                
-                // Use the updated deck directly for immediate save
-                console.log('🔍 page.tsx: Triggering auto-save with updated video lesson data');
-                // Create a temporary auto-save function that uses the updated deck
-                const tempAutoSave = async () => {
-                  if (!projectId || !projectInstanceData) {
-                    console.log('🔍 page.tsx: Missing required data for auto-save');
-                    return;
-                  }
-                  
-                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-                  if (devUserId && process.env.NODE_ENV === 'development') {
-                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-                  }
-
-                  try {
-                    const payload = { microProductContent: updatedDeck };
-                    console.log('🔍 page.tsx: Sending updated video lesson deck to backend:', JSON.stringify(payload, null, 2));
-                    
-                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
-                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
-                    });
-                    
-                    if (!response.ok) {
-                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
-                      const errorText = await response.text();
-                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
-                    } else {
-                      console.log('🔍 page.tsx: Auto-save successful with updated data');
-                      const responseData = await response.json();
-                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
-                    }
-                  } catch (err: any) {
-                    console.error('🔍 page.tsx: Auto-save error:', err.message);
-                  }
-                };
-                
-                tempAutoSave();
-              }}
-              // onAutoSave removed to prevent duplicate save requests
-              showFormatInfo={true}
-              theme="dark-purple"
-              hasVoiceover={true} // Enable voiceover features
-              projectId={projectId}
             />
           </div>
         );
@@ -1194,7 +1123,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
@@ -1224,32 +1153,6 @@ export default function ProjectInstanceViewPage() {
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* Edit button for editable content types */}
-            {canEditContent && (
-              <button
-                onClick={handleToggleEdit}
-                disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center ${
-                  isEditing 
-                    ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
-                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
-                }`}
-                title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
-              >
-                {isEditing ? (
-                  <>
-                    <Save size={16} className="mr-2" />
-                    {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
-                  </>
-                ) : (
-                  <>
-                    <Edit size={16} className="mr-2" />
-                    {t('interface.projectView.editContent', 'Edit Content')}
-                  </>
-                )}
-              </button>
-            )}
-            
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
                   <button
                     onClick={handlePdfDownload}
@@ -1269,6 +1172,21 @@ export default function ProjectInstanceViewPage() {
                   </button>
             )}
             
+            {/* Theme button for slide decks */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && (
+              <button
+                onClick={() => setShowThemePicker(true)}
+                disabled={isSaving || isChangingTheme}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                title={t('interface.projectView.changeTheme', 'Change presentation theme')}
+              >
+                <Palette size={16} className="mr-2" />
+                {isChangingTheme 
+                  ? t('interface.projectView.changingTheme', 'Changing...')
+                  : t('interface.projectView.theme', 'Theme')
+                }
+              </button>
+            )}
             {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
@@ -1382,6 +1300,17 @@ export default function ProjectInstanceViewPage() {
             </Suspense>
         </div>
       </div>
+
+      {/* Theme Picker Panel for Slide Decks */}
+      {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && (
+        <ThemePicker
+          isOpen={showThemePicker}
+          onClose={() => setShowThemePicker(false)}
+          selectedTheme={currentTheme}
+          onThemeSelect={changeTheme}
+          isChanging={isChangingTheme}
+        />
+      )}
     </main>
   );
 }
