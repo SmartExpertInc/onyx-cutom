@@ -119,10 +119,10 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     colors: {
       backgroundColor: 'rgb(225, 211, 196)',
       titleColor: 'rgb(238, 118, 35)',
-      subtitleColor: 'rgb(0, 102, 79)',
+      subtitleColor: '#00664f',
       contentColor: 'rgb(65,67,73)',
-      accentColor: 'rgb(0, 102, 79)',
-      borderColor: 'rgb(0, 102, 79)'
+      accentColor: '#00664f',
+      borderColor: '#00664f'
     },
     fonts: {
       titleFont: 'Montserrat, sans-serif',
@@ -135,12 +135,12 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     id: 'forta-2',
     name: 'Forta 2',
     colors: {
-      backgroundColor: 'rgb(0, 102, 79)',      // Green background
-      titleColor: 'rgb(238, 118, 35)',         // Orange title (can also be white)
-      subtitleColor: '#ffffff',                // White subtitle
-      contentColor: '#ffffff',                 // White content text
-      accentColor: 'rgb(225, 211, 196)',        // Orange for bullet points
-      borderColor: 'rgb(238, 118, 35)'         // Orange border
+      backgroundColor: 'rgb(0, 102, 79)',      
+      titleColor: 'rgb(238, 118, 35)',         
+      subtitleColor: '#ffffff',              
+      contentColor: '#ffffff',               
+      accentColor: '#e1d3c4',        
+      borderColor: 'rgb(238, 118, 35)'        
     },
     fonts: {
       titleFont: 'Montserrat, sans-serif',
