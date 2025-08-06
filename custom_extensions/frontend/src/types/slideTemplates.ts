@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/types/slideTemplates.ts
 
-import React from 'react';
+import * as React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
 
 // --- Base Template System Types! ---
@@ -219,6 +219,7 @@ export interface EventListTemplateProps extends BaseTemplateProps {
   titleColor?: string;
   descriptionColor?: string;
   backgroundColor?: string;
+  theme?: SlideTheme;
 }
 
 

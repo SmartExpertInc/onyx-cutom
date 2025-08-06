@@ -130,11 +130,12 @@ export const EventListTemplate: React.FC<EventListTemplateProps> = ({
   descriptionColor,
   backgroundColor,
   slideId,
+  theme,
 }) => {
-  const theme = getSlideTheme(DEFAULT_SLIDE_THEME);
-  const tColor = titleColor || theme.colors.titleColor;
-  const dColor = descriptionColor || theme.colors.contentColor;
-  const bgColor = backgroundColor || theme.colors.backgroundColor;
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const tColor = titleColor || currentTheme.colors.titleColor;
+  const dColor = descriptionColor || currentTheme.colors.contentColor;
+  const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
   // Inline editing state
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
@@ -168,7 +169,7 @@ export const EventListTemplate: React.FC<EventListTemplateProps> = ({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        fontFamily: theme.fonts.contentFont,
+        fontFamily: currentTheme.fonts.contentFont,
         position: 'relative',
       }}
     >
