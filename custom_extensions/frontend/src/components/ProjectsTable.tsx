@@ -1492,7 +1492,7 @@ const ProjectCard: React.FC<{
               }}
             >
               {project.designMicroproductType === "Text Presentation"
-                ? t("contentTypes.onePager", "One-Pager")
+                ? t("generate.onePager", "One-Pager")
                 : project.designMicroproductType}
             </div>
           )}
