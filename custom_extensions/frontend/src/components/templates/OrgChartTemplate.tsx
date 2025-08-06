@@ -123,20 +123,7 @@ function InlineEditor({
 
 const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   title = 'Organizational chart',
-  chartData = [
-    { id: 'ceo', title: 'CEO', level: 0 },
-    { id: 'manager1', title: 'Manager 1', level: 1, parentId: 'ceo' },
-    { id: 'manager2', title: 'Manager 2', level: 1, parentId: 'ceo' },
-    { id: 'teamleader1-1', title: 'Team Leader 1', level: 2, parentId: 'manager1' },
-    { id: 'teamleader1-2', title: 'Team Leader 2', level: 2, parentId: 'manager1' },
-    { id: 'teamleader2-1', title: 'Team Leader 1', level: 2, parentId: 'manager2' },
-    { id: 'teamleader2-2', title: 'Team Leader 2', level: 2, parentId: 'manager2' },
-    { id: 'employee1-1', title: 'Employee 1', level: 3, parentId: 'teamleader1-1' },
-    { id: 'employee1-2', title: 'Employee 2', level: 3, parentId: 'teamleader1-1' },
-    { id: 'employee2-1', title: 'Employee 3', level: 3, parentId: 'teamleader2-1' },
-    { id: 'employee2-2', title: 'Employee 4', level: 3, parentId: 'teamleader2-1' },
-    { id: 'employee3-1', title: 'Employee 5', level: 3, parentId: 'teamleader2-2' }
-  ],
+  chartData = [],
   titleColor,
   textColor,
   backgroundColor,
@@ -150,58 +137,39 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   const txtColor = textColor || currentTheme.colors.contentColor;
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
-  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingChartData, setEditingChartData] = useState<{ [key: string]: boolean }>({});
 
   const handleTitleSave = (newTitle: string) => {
-    if (onUpdate) {
-      onUpdate({ title: newTitle });
-    }
+    if (onUpdate) onUpdate({ title: newTitle });
     setEditingTitle(false);
   };
 
-  const handleTitleCancel = () => {
-    setEditingTitle(false);
-  };
+  const handleTitleCancel = () => setEditingTitle(false);
 
   const handleChartDataSave = (id: string, value: string) => {
     if (onUpdate) {
-      const updatedChartData = chartData.map(item => 
-        item.id === id ? { ...item, title: value } : item
-      );
+      const updatedChartData = chartData.map(item => item.id === id ? { ...item, title: value } : item);
       onUpdate({ chartData: updatedChartData });
     }
     setEditingChartData(prev => ({ ...prev, [id]: false }));
   };
 
-  const handleChartDataCancel = (id: string) => {
-    setEditingChartData(prev => ({ ...prev, [id]: false }));
-  };
+  const handleChartDataCancel = (id: string) => setEditingChartData(prev => ({ ...prev, [id]: false }));
 
   const handleChartDataEdit = (id: string) => {
-    if (!isEditable) return;
-    setEditingChartData(prev => ({ ...prev, [id]: true }));
+    if (isEditable) setEditingChartData(prev => ({ ...prev, [id]: true }));
   };
 
-  // Helper function to get children of a node
-  const getChildren = (parentId: string) => {
-    return chartData.filter(item => item.parentId === parentId);
-  };
+  const getChildren = (parentId: string) => chartData.filter(item => item.parentId === parentId);
+  const getRootNodes = () => chartData.filter(item => !item.parentId);
 
-  // Helper function to get root nodes
-  const getRootNodes = () => {
-    return chartData.filter(item => !item.parentId);
-  };
-
-  // Render a node and its children
-  const renderNode = (node: ChartNode, level: number) => {
+  const renderNode = (node: ChartNode) => {
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
-  
+
     return (
-      <div key={node.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-        {/* Node */}
+      <div key={node.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div
           style={{
             padding: '8px 16px',
@@ -215,7 +183,6 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
             zIndex: 1,
           }}
           onClick={() => handleChartDataEdit(node.id)}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {isEditable && editingChartData[node.id] ? (
             <InlineEditor
@@ -244,59 +211,60 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
             </div>
           )}
         </div>
-  
+
         {hasChildren && (
-          <div style={{ position: 'relative', paddingTop: '40px', width: '100%' }}>
-            {/* Вертикальная линия от родителя вниз */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                width: '2px',
-                height: '20px',
-                backgroundColor: txtColor,
-                transform: 'translateX(-50%)',
-                zIndex: 0,
-              }}
-            />
-  
-            {/* Горизонтальная линия, соединяющая всех детей */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                left: '10%',
-                right: '10%',
-                height: '2px',
-                backgroundColor: txtColor,
-                zIndex: 0,
-              }}
-            />
-  
+          <div style={{ paddingTop: '20px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ position: 'relative', height: '20px' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  width: '2px',
+                  height: '20px',
+                  backgroundColor: txtColor,
+                  transform: 'translateX(-50%)',
+                  zIndex: 0,
+                }}
+              />
+            </div>
+
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'space-evenly',
-                marginTop: '20px',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
                 position: 'relative',
-                width: '100%',
+                marginTop: '20px',
+                width: `${children.length * 160}px`,
               }}
             >
-              {children.map((child) => (
-                <div key={child.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                  {/* Вертикальная линия от горизонтали вниз к ребёнку */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-20px',
+                  left: '0',
+                  right: '0',
+                  height: '2px',
+                  backgroundColor: txtColor,
+                  zIndex: 0,
+                }}
+              />
+              {children.map((child, index) => (
+                <div key={child.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', width: '160px' }}>
                   <div
                     style={{
                       position: 'absolute',
                       top: '-20px',
-                      height: '20px',
+                      left: '50%',
                       width: '2px',
+                      height: '20px',
                       backgroundColor: txtColor,
+                      transform: 'translateX(-50%)',
                       zIndex: 0,
                     }}
                   />
-                  {renderNode(child, level + 1)}
+                  {renderNode(child)}
                 </div>
               ))}
             </div>
@@ -304,22 +272,10 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
         )}
       </div>
     );
-  };  
+  };
 
   return (
-    <div
-      style={{
-        background: bgColor,
-        minHeight: 600,
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: currentTheme.fonts.contentFont,
-        position: 'relative',
-        padding: '40px',
-        boxSizing: 'border-box'
-      }}
-    >
-      {/* Title Section */}
+    <div style={{ background: bgColor, minHeight: 600, padding: '40px', boxSizing: 'border-box' }}>
       <div style={{ marginBottom: '40px', textAlign: 'center' }}>
         {isEditable && editingTitle ? (
           <InlineEditor
@@ -348,25 +304,17 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
               fontFamily: currentTheme.fonts.titleFont
             }}
             onClick={() => isEditable && setEditingTitle(true)}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
             {title || (isEditable ? 'Click to add title' : '')}
           </div>
         )}
       </div>
 
-      {/* Chart Section */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        paddingTop: '20px'
-      }}>
-        {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {getRootNodes().map(rootNode => renderNode(rootNode))}
       </div>
     </div>
   );
 };
 
-export default OrgChartTemplate; 
+export default OrgChartTemplate;

@@ -1125,6 +1125,79 @@
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH */
+        /* Six Ideas List Template - EXACT FRONTEND MATCH */
+        .six-ideas-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        
+        .slide-title-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .ideas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px; /* Exact frontend match */
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        
+        .idea-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .idea-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px; /* Exact frontend match */
+            width: 100%;
+        }
+        
+        .idea-number {
+            font-size: 24px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            margin-right: 12px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .idea-line {
+            flex: 1;
+            height: 2px;
+            background-color: var(--title-color);
+        }
+        
+        .idea-text {
+            font-size: 16px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.4;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .image-section {
+            width: 100%;
+            height: 300px; /* Exact frontend match */
+            border-radius: 8px; /* Exact frontend match */
+            overflow: hidden;
+            border: 2px dashed #adb5bd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .image-placeholder {
+            text-align: center;
+        }
+        
         /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
 .timeline {
     min-height: 600px;
@@ -1713,6 +1786,45 @@
                             text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
                             text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
                         ">{{ slide.props.subtitle or 'Click to add subtitle' }}</div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'six-ideas-list' %}
+                <div class="slide">
+                    <div class="six-ideas-container">
+                        <!-- Title Section -->
+                        <div class="slide-title-section">
+                            <h1 class="slide-title">{{ slide.props.title or 'SIX DIFFERENT IDEAS' }}</h1>
+                        </div>
+                        
+                        <!-- Ideas Grid Section -->
+                        <div class="ideas-grid">
+                            {% for idea in slide.props.ideas %}
+                                <div class="idea-item">
+                                    <div class="idea-header">
+                                        <div class="idea-number">{{ idea.number or '01' }}</div>
+                                        <div class="idea-line"></div>
+                                    </div>
+                                    <div class="idea-text">{{ idea.text or 'Click to add text' }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Image Section -->
+                        <div class="image-section">
+                            {% if slide.props.imageUrl %}
+                                <img src="{{ slide.props.imageUrl }}" alt="{{ slide.props.imageAlt or 'Relevant illustration' }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                                <div class="image-placeholder">
+                                    <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">
+                                        AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the ideas' }}"
+                                    </div>
+                                    <div style="font-size: 12px; color: #868e96;">Click to upload image</div>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 

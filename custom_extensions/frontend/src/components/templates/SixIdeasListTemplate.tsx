@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SixIdeasListTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-//here
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -137,7 +138,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
 
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingIdeas, setEditingIdeas] = useState<{ [key: number]: boolean }>({});
+  const [editingIdeas, setEditingIdeas] = useState<{ [key: number]: { number: boolean; text: boolean } }>({});
 
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
@@ -156,16 +157,31 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       updatedIdeas[index] = { ...updatedIdeas[index], [field]: value };
       onUpdate({ ideas: updatedIdeas });
     }
-    setEditingIdeas(prev => ({ ...prev, [index]: false }));
+    setEditingIdeas(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: false } 
+    }));
   };
 
-  const handleIdeaCancel = (index: number) => {
-    setEditingIdeas(prev => ({ ...prev, [index]: false }));
+  const handleIdeaCancel = (index: number, field: 'number' | 'text') => {
+    setEditingIdeas(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: false } 
+    }));
   };
 
-  const handleIdeaEdit = (index: number) => {
+  const handleIdeaEdit = (index: number, field: 'number' | 'text') => {
     if (!isEditable) return;
-    setEditingIdeas(prev => ({ ...prev, [index]: true }));
+    setEditingIdeas(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: true } 
+    }));
+  };
+
+  const handleImageUpload = (newImageUrl: string) => {
+    if (onUpdate) {
+      onUpdate({ imageUrl: newImageUrl });
+    }
   };
 
   return (
@@ -243,15 +259,39 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
                 marginBottom: '12px',
                 width: '100%'
               }}>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: 700,
-                  color: tColor,
-                  marginRight: '12px',
-                  fontFamily: currentTheme.fonts.titleFont
-                }}>
-                  {idea.number}
-                </div>
+                {isEditable && editingIdeas[index]?.number ? (
+                  <InlineEditor
+                    initialValue={idea.number}
+                    onSave={(value) => handleIdeaSave(index, 'number', value)}
+                    onCancel={() => handleIdeaCancel(index, 'number')}
+                    multiline={false}
+                    placeholder="01"
+                    style={{
+                      fontSize: '24px',
+                      fontWeight: 700,
+                      color: tColor,
+                      marginRight: '12px',
+                      fontFamily: currentTheme.fonts.titleFont,
+                      width: 'auto',
+                      minWidth: '40px'
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      fontSize: '24px',
+                      fontWeight: 700,
+                      color: tColor,
+                      marginRight: '12px',
+                      fontFamily: currentTheme.fonts.titleFont,
+                      cursor: isEditable ? 'pointer' : 'default'
+                    }}
+                    onClick={() => handleIdeaEdit(index, 'number')}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {idea.number || (isEditable ? '01' : '')}
+                  </div>
+                )}
                 <div style={{
                   flex: 1,
                   height: '2px',
@@ -260,14 +300,37 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
               </div>
               
               {/* Text */}
-              <div style={{
-                fontSize: currentTheme.fonts.contentSize,
-                color: txtColor,
-                lineHeight: '1.4',
-                fontFamily: currentTheme.fonts.contentFont
-              }}>
-                {idea.text || (isEditable ? 'Click to add text' : '')}
-              </div>
+              {isEditable && editingIdeas[index]?.text ? (
+                <InlineEditor
+                  initialValue={idea.text}
+                  onSave={(value) => handleIdeaSave(index, 'text', value)}
+                  onCancel={() => handleIdeaCancel(index, 'text')}
+                  multiline={true}
+                  placeholder="Click to add text"
+                  style={{
+                    fontSize: currentTheme.fonts.contentSize,
+                    color: txtColor,
+                    lineHeight: '1.4',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    width: '100%'
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    fontSize: currentTheme.fonts.contentSize,
+                    color: txtColor,
+                    lineHeight: '1.4',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    minHeight: '1.4em'
+                  }}
+                  onClick={() => handleIdeaEdit(index, 'text')}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {idea.text || (isEditable ? 'Click to add text' : '')}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -278,50 +341,23 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
         flex: '1 1 auto',
         width: '100%',
         height: '300px',
-        backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
         borderRadius: '8px',
-        backgroundColor: imageUrl ? 'transparent' : '#e9ecef',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#6c757d',
-        fontSize: '16px',
-        border: imageUrl ? 'none' : '2px dashed #adb5bd',
-        cursor: isEditable ? 'pointer' : 'default'
-      }}
-      onClick={() => {
-        if (isEditable && !imageUrl) {
-          // Trigger file upload
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.accept = 'image/*';
-          input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file && onUpdate) {
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                const result = event.target?.result as string;
-                onUpdate({ imageUrl: result });
-              };
-              reader.readAsDataURL(file);
-            }
-          };
-          input.click();
-        }
-      }}
-      className={isEditable ? 'cursor-pointer hover:border-2 hover:border-blue-300' : ''}>
-        {!imageUrl && (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>Image Placeholder</div>
-            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
-              AI Prompt: "{imagePrompt || imageAlt || 'relevant illustration for the ideas'}"
-            </div>
-            <div style={{ fontSize: '12px', color: '#868e96' }}>Click to upload image</div>
-          </div>
-        )}
+        overflow: 'hidden'
+      }}>
+        <ClickableImagePlaceholder
+          imagePath={imageUrl}
+          onImageUploaded={handleImageUpload}
+          size="LARGE"
+          position="CENTER"
+          description="Click to upload image"
+          prompt={imagePrompt || imageAlt || 'relevant illustration for the ideas'}
+          isEditable={isEditable}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '8px'
+          }}
+        />
       </div>
     </div>
   );

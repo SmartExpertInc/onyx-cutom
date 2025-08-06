@@ -803,7 +803,13 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            gap: 20px;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        
+        .slide-title-section {
+            text-align: center;
+            margin-bottom: 40px;
         }
         
         .ideas-grid {
@@ -811,6 +817,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 40px; /* Exact frontend match */
             flex: 1;
+            margin-bottom: 20px;
         }
         
         .idea-item {
@@ -1251,8 +1258,13 @@
                     
                 {% elif slide.templateId == 'six-ideas-list' %}
                     <div class="slide">
-                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                         <div class="six-ideas-container">
+                            <!-- Title Section -->
+                            <div class="slide-title-section">
+                                <h1 class="slide-title">{{ slide.props.title or 'SIX DIFFERENT IDEAS' }}</h1>
+                            </div>
+                            
+                            <!-- Ideas Grid Section -->
                             <div class="ideas-grid">
                                 {% for idea in slide.props.ideas %}
                                     <div class="idea-item">
@@ -1264,6 +1276,8 @@
                                     </div>
                                 {% endfor %}
                             </div>
+                            
+                            <!-- Image Section -->
                             <div class="image-section">
                                 {% if slide.props.imageUrl %}
                                     <img src="{{ slide.props.imageUrl }}" alt="{{ slide.props.imageAlt or 'Relevant illustration' }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">

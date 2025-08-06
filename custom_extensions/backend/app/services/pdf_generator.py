@@ -1060,7 +1060,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             logger.info(f"PDF GEN: Static images absolute path: {static_images_abs_path}")
             
             # List of image path properties to process
-            image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
+            image_props = ['imagePath', 'leftImagePath', 'rightImagePath', 'imageUrl']
             
             for prop_name in image_props:
                 if prop_name in props and props[prop_name]:
