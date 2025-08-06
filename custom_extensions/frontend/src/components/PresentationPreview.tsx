@@ -566,7 +566,7 @@ const SlideDisplay: React.FC<{
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 min-h-[500px] relative overflow-hidden break-words">
+    <div className="bg-white rounded-lg border border-gray-200 min-h-[100px] relative overflow-hidden break-words">
       {/* Slide header */}
       <div className="border-b border-gray-200 p-4 bg-gray-50">
         <div className="flex items-center justify-between">
@@ -578,20 +578,27 @@ const SlideDisplay: React.FC<{
             <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
               {slide.layout}
             </span>
-            <span className="text-sm font-medium text-gray-700">
-              {slide.slideNumber}
-            </span>
+            {isEditing && (
+              <button className="text-sm text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
+                <Edit3 className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Slide content */}
-      <div className="relative">
-        {/* Background images hidden in preview - preserved for finalization */}
-        <div className="relative p-6 space-y-4 break-words overflow-wrap-anywhere">
+      {/* Show only title in preview mode, full content only when editing */}
+      {isEditing ? (
+        <div className="min-h-[400px]">
           {renderSlideContent()}
         </div>
-      </div>
+      ) : (
+        <div className="p-6 text-center">
+          <div className="text-gray-500 text-sm">
+            {slide.parsedContent.length} content blocks
+          </div>
+        </div>
+      )}
     </div>
   );
 };

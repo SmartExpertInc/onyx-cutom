@@ -1154,20 +1154,20 @@ export default function LessonPresentationClient() {
                       key={theme.id}
                       type="button"
                       onClick={() => setSelectedTheme(theme.id)}
-                      className={`flex flex-col rounded-lg overflow-hidden border-2 transition-all p-3 gap-3 ${
+                      className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${
                         isSelected 
-                          ? 'border-blue-500 bg-blue-50 shadow-md' 
-                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                          ? 'bg-[#cee2fd]' 
+                          : ''
                       }`}
                     >
-                      <div className="w-[214px] h-[116px] flex items-center justify-center border border-gray-200 rounded overflow-hidden">
+                      <div className="w-[214px] h-[116px] flex items-center justify-center">
                         <ThemeSvgComponent />
                       </div>
-                      <div className="flex items-center gap-2 px-1">
-                        <span className={`w-4 h-4 flex items-center justify-center text-blue-600 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
-                          ✓
+                      <div className="flex items-center gap-1 px-2">
+                        <span className={`w-4 text-[#20355D] ${isSelected ? '' : 'opacity-0'}`}>
+                          ✔
                         </span>
-                        <span className={`text-sm font-medium select-none ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+                        <span className="text-sm text-[#20355D] font-medium select-none">
                           {theme.label}
                         </span>
                       </div>
@@ -1203,10 +1203,10 @@ export default function LessonPresentationClient() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">AI image model</label>
+                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
                   <div className="relative w-full">
                     <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="flux-fast">Flux Kontext Fast</option><option value="flux-quality">Flux Kontext HQ</option><option value="stable">Stable Diffusion 2.1</option>
+                      <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
@@ -1221,12 +1221,12 @@ export default function LessonPresentationClient() {
             <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
               {/* Credits calculated based on slide count */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>{calculateLessonPresentationCredits(slidesCount)} credits</span>
+              <span>{calculateLessonPresentationCredits(slidesCount)} {t('interface.generate.credits', 'credits')}</span>
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">
                 {/* This can be word count or removed */}
-                {content.split(/\s+/).length} words
+                {content.split(/\s+/).length} {t('interface.generate.words', 'words')}
               </span>
               <button
                 type="button"
