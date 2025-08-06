@@ -345,7 +345,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -392,7 +392,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                           startEditingStepHeading(index);
                         }
                       }}
-                      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                     >
                       {step.heading || 'Click to add heading'}
                     </div>
@@ -430,7 +430,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                           startEditingStepDescription(index);
                         }
                       }}
-                      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                     >
                       {step.description || 'Click to add description'}
                     </div>
