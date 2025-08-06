@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SixIdeasListTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
+//here
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
