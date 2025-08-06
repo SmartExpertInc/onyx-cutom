@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { BigNumbersTemplateProps } from '@/types/slideTemplates';
+import { BigNumbersTemplateProps, BigNumberItem } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { TimelineTemplateProps } from '@/types/slideTemplates';
+import { TimelineTemplateProps, TimelineStep } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;

@@ -2,6 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { OrgChartTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
+interface ChartNode {
+  id: string;
+  title: string;
+  level: number;
+  parentId?: string;
+}
+
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -188,7 +195,7 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   };
 
   // Render a node and its children
-  const renderNode = (node: any, level: number) => {
+  const renderNode = (node: ChartNode, level: number) => {
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
 
