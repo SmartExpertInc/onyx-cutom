@@ -1076,6 +1076,12 @@ export default function LessonPresentationClient() {
                   slides = content.split(/(?=\*\*Slide \d+:)/).filter(slide => slide.trim());
                 }
                 
+                // Filter out slides that don't have proper "Slide X:" pattern (like presentation titles)
+                slides = slides.filter(slideContent => {
+                  const hasSlidePattern = /\*\*Slide \d+:/.test(slideContent);
+                  return hasSlidePattern;
+                });
+                
                 return slides.map((slideContent, slideIdx) => {
                   // Extract slide title properly - look for **Slide X: pattern
                   const titleMatch = slideContent.match(/\*\*Slide \d+:\s*([^*`\n]+)/);
