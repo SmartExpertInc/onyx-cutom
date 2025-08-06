@@ -96,7 +96,7 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere !important'
+          overflowWrap: 'anywhere'
         }}
         rows={1}
       />
@@ -283,7 +283,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     margin: 0,
     alignSelf: 'flex-start',
     lineHeight: 1.6,
-    overflowWrap: 'anywhere !important'
+    overflowWrap: 'anywhere'
   };
 
   return (
@@ -406,7 +406,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 outline: 'none',
                 resize: 'none',
                 overflow: 'hidden',
-                overflowWrap: 'anywhere !important',
+                overflowWrap: 'anywhere',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
@@ -493,7 +493,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 outline: 'none',
                 resize: 'none',
                 overflow: 'hidden',
-                overflowWrap: 'anywhere !important',
+                overflowWrap: 'anywhere',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
