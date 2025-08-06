@@ -18,6 +18,10 @@ import { TimelineTemplate } from './TimelineTemplate';
 import { BigNumbersTemplate } from './BigNumbersTemplate';
 import { PyramidTemplate } from './PyramidTemplate';
 import { EventListTemplate } from './EventListTemplate';
+import { SixIdeasListTemplate } from './SixIdeasListTemplate';
+import { ContraindicationsIndicationsTemplate } from './ContraindicationsIndicationsTemplate';
+import { MetricsAnalyticsTemplate } from './MetricsAnalyticsTemplate';
+import { OrgChartTemplate } from './OrgChartTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -856,6 +860,172 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       },
       titleColor: { type: 'color', label: 'Date Color', default: '#1a2240' },
       descriptionColor: { type: 'color', label: 'Description Color', default: '#222b44' },
+      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+    }
+  },
+
+  'six-ideas-list': {
+    id: 'six-ideas-list',
+    name: 'Six Ideas List',
+    description: 'Two-column layout with six numbered ideas and optional image',
+    category: 'content',
+    icon: '💡',
+    component: SixIdeasListTemplate,
+    defaultProps: {
+      title: 'SIX DIFFERENT IDEAS',
+      ideas: [
+        { number: '01', text: 'Mercury is the smallest planet in the Solar System' },
+        { number: '02', text: 'Venus is the second planet from the Sun' },
+        { number: '03', text: 'Despite being red, Mars is actually a cold place' },
+        { number: '04', text: 'Jupiter is the biggest planet in the Solar System' },
+        { number: '05', text: 'Saturn is composed of hydrogen and helium' },
+        { number: '06', text: 'Neptune is the farthest planet from the Sun' }
+      ],
+      imageUrl: '',
+      imageAlt: '',
+      titleColor: '#1a2240',
+      textColor: '#222b44',
+      backgroundColor: '#fff',
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      ideas: {
+        type: 'array',
+        label: 'Ideas',
+        description: 'List of six ideas with numbers and text',
+        required: true,
+      },
+      imageUrl: { type: 'image', label: 'Background Image' },
+      imageAlt: { type: 'text', label: 'Image Alt Text' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
+      textColor: { type: 'color', label: 'Text Color', default: '#222b44' },
+      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+    }
+  },
+
+  'contraindications-indications': {
+    id: 'contraindications-indications',
+    name: 'Contraindications & Indications',
+    description: 'Two-column medical template with contraindications and indications',
+    category: 'special',
+    icon: '💊',
+    component: ContraindicationsIndicationsTemplate,
+    defaultProps: {
+      title: 'Contraindications and indications',
+      contraindications: [
+        'Describe the things patients should do here',
+        'Describe the things patients should do here',
+        'Describe the things patients should do here',
+        'Describe the things patients should do here',
+        'Describe the things patients should do here'
+      ],
+      indications: [
+        'Describe the things patients shouldn\'t do here',
+        'Describe the things patients shouldn\'t do here',
+        'Describe the things patients shouldn\'t do here',
+        'Describe the things patients shouldn\'t do here',
+        'Describe the things patients shouldn\'t do here'
+      ],
+      titleColor: '#1a2240',
+      contraindicationsColor: '#222b44',
+      indicationsColor: '#222b44',
+      backgroundColor: '#fff',
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      contraindications: {
+        type: 'array',
+        label: 'Contraindications',
+        description: 'List of things patients should not do',
+        required: true,
+      },
+      indications: {
+        type: 'array',
+        label: 'Indications',
+        description: 'List of things patients should do',
+        required: true,
+      },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
+      contraindicationsColor: { type: 'color', label: 'Contraindications Color', default: '#222b44' },
+      indicationsColor: { type: 'color', label: 'Indications Color', default: '#222b44' },
+      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+    }
+  },
+
+  'metrics-analytics': {
+    id: 'metrics-analytics',
+    name: 'Metrics & Analytics',
+    description: 'Six metrics with connecting timeline and numbered layout',
+    category: 'content',
+    icon: '📊',
+    component: MetricsAnalyticsTemplate,
+    defaultProps: {
+      title: 'Metrics and analytics',
+      metrics: [
+        { number: '01', text: 'Key performance indicators (KPIs)' },
+        { number: '02', text: 'Funnel analytics' },
+        { number: '03', text: 'Traffic sources and attribution' },
+        { number: '04', text: 'Customer lifetime value (CLV)' },
+        { number: '05', text: 'A/B testing and experimentation' },
+        { number: '06', text: 'Data visualization' }
+      ],
+      titleColor: '#1a2240',
+      numberColor: '#60a5fa',
+      textColor: '#222b44',
+      backgroundColor: '#fff',
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      metrics: {
+        type: 'array',
+        label: 'Metrics',
+        description: 'List of six metrics with numbers and descriptions',
+        required: true,
+      },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
+      numberColor: { type: 'color', label: 'Number Color', default: '#60a5fa' },
+      textColor: { type: 'color', label: 'Text Color', default: '#222b44' },
+      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+    }
+  },
+
+  'org-chart': {
+    id: 'org-chart',
+    name: 'Organizational Chart',
+    description: 'Hierarchical organizational structure with connecting lines',
+    category: 'layout',
+    icon: '🏢',
+    component: OrgChartTemplate,
+    defaultProps: {
+      title: 'Organizational chart',
+      chartData: [
+        { id: 'ceo', title: 'CEO', level: 0 },
+        { id: 'manager1', title: 'Manager 1', level: 1, parentId: 'ceo' },
+        { id: 'manager2', title: 'Manager 2', level: 1, parentId: 'ceo' },
+        { id: 'teamleader1-1', title: 'Team Leader 1', level: 2, parentId: 'manager1' },
+        { id: 'teamleader1-2', title: 'Team Leader 2', level: 2, parentId: 'manager1' },
+        { id: 'teamleader2-1', title: 'Team Leader 1', level: 2, parentId: 'manager2' },
+        { id: 'teamleader2-2', title: 'Team Leader 2', level: 2, parentId: 'manager2' },
+        { id: 'employee1-1', title: 'Employee 1', level: 3, parentId: 'teamleader1-1' },
+        { id: 'employee1-2', title: 'Employee 2', level: 3, parentId: 'teamleader1-1' },
+        { id: 'employee2-1', title: 'Employee 3', level: 3, parentId: 'teamleader2-1' },
+        { id: 'employee2-2', title: 'Employee 4', level: 3, parentId: 'teamleader2-1' },
+        { id: 'employee3-1', title: 'Employee 5', level: 3, parentId: 'teamleader2-2' }
+      ],
+      titleColor: '#1a2240',
+      textColor: '#222b44',
+      backgroundColor: '#fff',
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      chartData: {
+        type: 'array',
+        label: 'Chart Data',
+        description: 'Hierarchical organizational data with parent-child relationships',
+        required: true,
+      },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
+      textColor: { type: 'color', label: 'Text Color', default: '#222b44' },
       backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
     }
   },

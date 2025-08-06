@@ -1806,3 +1806,11 @@ Before outputting ANY lesson details, verify that:
 // ... existing code ...
 
 - If the prompt contains words like "event", "date", "schedule", "timeline", "calendar", "milestone", "important date", "key date", or "event list", use the event-list template to display a list of events with dates and descriptions.
+
+- If the prompt contains words like "six ideas", "six different", "six concepts", "six points", "six items", "numbered list", "two columns", "ideas list", or "concept list", use the six-ideas-list template to display six numbered ideas in a two-column layout.
+
+- If the prompt contains words like "contraindications", "indications", "medical", "healthcare", "patient", "treatment", "medication", "drug", "therapy", "clinical", "medical advice", "dosage", "side effects", "precautions", "warnings", "should do", "shouldn't do", "do's and don'ts", or "medical guidelines", use the contraindications-indications template to display medical contraindications and indications in two columns.
+
+- If the prompt contains words like "metrics", "analytics", "kpi", "performance", "data", "statistics", "measurement", "tracking", "monitoring", "dashboard", "reporting", "business intelligence", "data analysis", "funnel", "attribution", "clv", "a/b testing", "experimentation", or "data visualization", use the metrics-analytics template to display six key metrics with connecting timeline elements.
+
+- If the prompt contains words like "organizational chart", "org chart", "hierarchy", "structure", "organization", "company structure", "team structure", "reporting structure", "management", "leadership", "ceo", "manager", "employee", "department", "division", "branch", "subsidiary", "corporate structure", or "organizational hierarchy", use the org-chart template to display a hierarchical organizational structure with connecting lines.

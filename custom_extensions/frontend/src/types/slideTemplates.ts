@@ -222,6 +222,60 @@ export interface EventListTemplateProps extends BaseTemplateProps {
   theme?: SlideTheme;
 }
 
+export interface SixIdeasListTemplateProps extends BaseTemplateProps {
+  title: string;
+  ideas: Array<{
+    number: string;
+    text: string;
+  }>;
+  imageUrl?: string;
+  imageAlt?: string;
+  imagePrompt?: string;
+  imagePath?: string;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface ContraindicationsIndicationsTemplateProps extends BaseTemplateProps {
+  title: string;
+  contraindications: string[];
+  indications: string[];
+  titleColor?: string;
+  contraindicationsColor?: string;
+  indicationsColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface MetricsAnalyticsTemplateProps extends BaseTemplateProps {
+  title: string;
+  metrics: Array<{
+    number: string;
+    text: string;
+  }>;
+  titleColor?: string;
+  numberColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface OrgChartTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: Array<{
+    id: string;
+    title: string;
+    level: number;
+    parentId?: string;
+  }>;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
 
 export interface FourBoxGridProps {
   slideId: string;
@@ -308,7 +362,12 @@ export type TemplateId =
   | 'four-box-grid'
   | 'timeline'
   | 'big-numbers'
-  | 'pyramid';
+  | 'pyramid'
+  | 'event-list'
+  | 'six-ideas-list'
+  | 'contraindications-indications'
+  | 'metrics-analytics'
+  | 'org-chart';
 
 export interface TemplatePreview {
   templateId: string;
