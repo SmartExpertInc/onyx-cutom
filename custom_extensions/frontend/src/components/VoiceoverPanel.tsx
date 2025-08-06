@@ -216,7 +216,7 @@ const VoiceoverPanel: React.FC<VoiceoverPanelProps> = ({
                   {/* Voiceover Content */}
                   <div className="space-y-2">
                     {/* Edit Button */}
-                    {!isEditing && hasVoiceover && (
+                    {!isEditing && slide.voiceoverText !== undefined && (
                       <button
                         onClick={() => handleEditVoiceover(slide.slideId, slide.voiceoverText || '')}
                         className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors duration-150"
