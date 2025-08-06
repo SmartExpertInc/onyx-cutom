@@ -317,7 +317,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
                 setEditingTitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
             {title || 'Click to add title'}
           </h1>
@@ -355,7 +355,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
                 setEditingSubtitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
             {subtitle || 'Click to add content'}
           </div>
