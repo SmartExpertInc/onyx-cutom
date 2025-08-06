@@ -7,11 +7,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Custom Mont fonts for Chudo themes - using fallbacks */
-        /* Note: Mont fonts will fall back to system fonts in PDF */
         /* Reset and base styles */
         html, body {
             margin: 0;
@@ -89,46 +87,6 @@
             --accent-color: #60a5fa;
         }
         
-        /* Chudo Theme */
-        .theme-chudo-theme {
-            --bg-color: #ffffff;
-            --title-color: #d01510;
-            --subtitle-color: #3a3a3a;
-            --content-color: #3a3a3a;
-            --accent-color: #ed6c00;
-            --border-color: #d01510;
-        }
-        
-        /* Chudo 2 Theme */
-        .theme-chudo-2 {
-            --bg-color: #ed6c00;
-            --title-color: #ffffff;
-            --subtitle-color: #3a3a3a;
-            --content-color: #ffffff;
-            --accent-color: #d01510;
-            --border-color: #3a3a3a;
-        }
-        
-        /* Forta Theme */
-        .theme-forta {
-            --bg-color: rgb(225, 211, 196);
-            --title-color: rgb(238, 118, 35);
-            --subtitle-color: rgb(0, 102, 79);
-            --content-color: rgb(65,67,73);
-            --accent-color: rgb(0, 102, 79);
-            --border-color: rgb(0, 102, 79);
-        }
-        
-        /* Forta 2 Theme */
-        .theme-forta-2 {
-            --bg-color: rgb(0, 102, 79);
-            --title-color: rgb(238, 118, 35);
-            --subtitle-color: #ffffff;
-            --content-color: #ffffff;
-            --accent-color: rgb(225, 211, 196);
-            --border-color: rgb(238, 118, 35);
-        }
-        
         /* Common slide styles - EXACT FRONTEND MATCH */
         .slide {
             width: 100%;
@@ -186,7 +144,6 @@
         
         /* Big Image Top Template - EXACT FRONTEND MATCH */
         .big-image-top {
-            width: 100%;
             min-height: 600px;
             background-color: var(--bg-color);
             font-family: 'Martel Sans', sans-serif;
@@ -483,31 +440,6 @@
             line-height: 1.2;
             max-width: 1174px; /* Updated to match new slide width */
             word-wrap: break-word;
-        }
-        
-        /* Theme-specific font overrides */
-        .theme-chudo-theme .slide-title,
-        .theme-chudo-2 .slide-title {
-            font-family: 'Mont Bold', 'Arial Black', 'Helvetica Bold', sans-serif;
-            font-weight: 700;
-        }
-        
-        .theme-chudo-theme .content-text,
-        .theme-chudo-2 .content-text {
-            font-family: 'Mont Regular', 'Arial', 'Helvetica', sans-serif;
-            font-weight: 400;
-        }
-        
-        .theme-forta .slide-title,
-        .theme-forta-2 .slide-title {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-        }
-        
-        .theme-forta .content-text,
-        .theme-forta-2 .content-text {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 400;
         }
         
         .slide-subtitle {
@@ -971,7 +903,6 @@
         /* Two Column Template - EXACT FRONTEND MATCH */
         .two-column {
             height: 100%;
-            width: 100%;
             padding: 40px;
             min-height: 600px;
             background-color: var(--bg-color);
@@ -1301,7 +1232,7 @@
     <div class="slide-page">
         <div class="slide-content theme-{{ theme or 'dark-purple' }}">
             {% if slide.templateId == 'title-slide' %}
-                <div class="title-slide theme-{{ theme or 'dark-purple' }}">
+                <div class="title-slide">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     {% if slide.props.subtitle %}
                         <h2 class="slide-subtitle">{{ slide.props.subtitle }}</h2>
@@ -1319,7 +1250,7 @@
                 </div>
                 
             {% elif slide.templateId == 'big-image-left' %}
-                <div class="big-image-left theme-{{ theme or 'dark-purple' }}">
+                <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
                             <img src="{{ slide.props.imagePath }}" 
@@ -1348,7 +1279,7 @@
                 </div>
                 
             {% elif slide.templateId == 'big-image-top' %}
-                <div class="big-image-top theme-{{ theme or 'dark-purple' }}">
+                <div class="big-image-top">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
                             <img src="{{ slide.props.imagePath }}" 
@@ -1377,7 +1308,7 @@
                 </div>
                 
                 {% elif slide.templateId == 'bullet-points' %}
-                <div class="bullet-points theme-{{ theme or 'dark-purple' }}">
+                <div class="bullet-points">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="content-row">
                         <div class="placeholder-container">
@@ -1428,8 +1359,8 @@
                 </div>
                 
                 
-                            {% elif slide.templateId == 'bullet-points-right' %}
-                <div class="bullet-points-right theme-{{ theme or 'dark-purple' }}">
+            {% elif slide.templateId == 'bullet-points-right' %}
+                <div class="bullet-points-right">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     
                     <div class="content-row">
@@ -1490,8 +1421,8 @@
                     </div>
                 </div>
                 
-                            {% elif slide.templateId == 'process-steps' %}
-                <div class="process-steps theme-{{ theme or 'dark-purple' }}">
+            {% elif slide.templateId == 'process-steps' %}
+                <div class="process-steps">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="steps-container">
                         {% for step in slide.props.steps %}
@@ -1503,8 +1434,8 @@
                     </div>
                 </div>
                 
-                            {% elif slide.templateId == 'challenges-solutions' %}
-                <div class="challenges-solutions theme-{{ theme or 'dark-purple' }}">
+            {% elif slide.templateId == 'challenges-solutions' %}
+                <div class="challenges-solutions">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="grid">
                         <div class="callout-box">
@@ -1542,8 +1473,8 @@
                     </div>
                 </div>
                 
-                            {% elif slide.templateId == 'two-column' %}
-                <div class="two-column theme-{{ theme or 'dark-purple' }}">
+            {% elif slide.templateId == 'two-column' %}
+                <div class="two-column">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="two-column-layout">
                         <div class="column">
@@ -1597,7 +1528,7 @@
                 
             {% elif slide.templateId == 'big-numbers' %}
                 <!-- DEBUG: big-numbers template -->
-                <div class="big-numbers theme-{{ theme or 'dark-purple' }}">
+                <div class="big-numbers">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="numbers-grid">
                         {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
@@ -1633,7 +1564,7 @@
                 </div>
                 
             {% elif slide.templateId == 'four-box-grid' %}
-                <div class="four-box-grid theme-{{ theme or 'dark-purple' }}">
+                <div class="four-box-grid">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="grid-container">
                         {% for box in slide.props.boxes %}
@@ -1666,7 +1597,7 @@
             
                 
             {% elif slide.templateId == 'timeline' %}
-                <div class="timeline theme-{{ theme or 'dark-purple' }}">
+                <div class="timeline">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="timeline-container">
                         <div class="timeline-line"></div>
@@ -1734,7 +1665,7 @@
             
                 
             {% elif slide.templateId == 'comparison-slide' %}
-                <div class="slide theme-{{ theme or 'dark-purple' }}">
+                <div class="slide">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     <div class="two-column-layout">
                         <div class="column">
@@ -1749,7 +1680,7 @@
                 </div>
                 
             {% elif slide.templateId == 'content-slide' %}
-                <div class="content-slide theme-{{ theme or 'dark-purple' }}" style="
+                <div class="content-slide" style="
                     background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
                     align-items: {% if slide.props.alignment == 'center' %}center{% elif slide.props.alignment == 'right' %}flex-end{% else %}flex-start{% endif %};
                 ">
@@ -1764,7 +1695,7 @@
                 </div>
                 
             {% elif slide.templateId == 'hero-title-slide' %}
-                <div class="hero-title-slide theme-{{ theme or 'dark-purple' }}" style="
+                <div class="hero-title-slide" style="
                     background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
                     align-items: {% if slide.props.textAlign == 'center' %}center{% elif slide.props.textAlign == 'right' %}flex-end{% else %}flex-start{% endif %};
                 ">
@@ -1786,7 +1717,7 @@
                 </div>
                 
             {% elif slide.templateId == 'pyramid' %}
-                <div class="pyramid-template theme-{{ theme or 'dark-purple' }}">
+                <div class="pyramid-template">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
                     {% if slide.props.subtitle %}
                         <div class="slide-subtitle">{{ slide.props.subtitle }}</div>
