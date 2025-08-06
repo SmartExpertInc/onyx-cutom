@@ -16,6 +16,51 @@ from datetime import datetime
 import base64
 import mimetypes
 
+def load_mont_fonts_base64():
+    """
+    Load Mont font files and convert them to base64 for embedding in PDF templates.
+    Returns a dictionary with base64-encoded font data.
+    """
+    try:
+        # Calculate the path to the fonts directory
+        current_dir = os.path.dirname(__file__)  # app/services/
+        root_dir = os.path.dirname(os.path.dirname(current_dir))  # Go up 2 levels to root
+        fonts_dir = os.path.join(root_dir, 'static', 'fonts')
+        
+        font_data = {}
+        
+        # Define the font files to load
+        font_files = {
+            'mont_regular_base64': 'fonnts.com-Mont_Regular.ttf',
+            'mont_bold_base64': 'fonnts.com-Mont_Bold.ttf',
+            'mont_thin_base64': 'fonnts.com-Mont_Thin.ttf'
+        }
+        
+        for key, filename in font_files.items():
+            font_path = os.path.join(fonts_dir, filename)
+            if os.path.exists(font_path):
+                try:
+                    with open(font_path, 'rb') as font_file:
+                        font_bytes = font_file.read()
+                        font_data[key] = base64.b64encode(font_bytes).decode('utf-8')
+                        logger.info(f"Successfully loaded Mont font: {filename}")
+                except Exception as e:
+                    logger.error(f"Failed to load Mont font {filename}: {e}")
+                    font_data[key] = ""  # Empty string as fallback
+            else:
+                logger.warning(f"Mont font file not found: {font_path}")
+                font_data[key] = ""  # Empty string as fallback
+        
+        return font_data
+        
+    except Exception as e:
+        logger.error(f"Error loading Mont fonts: {e}")
+        return {
+            'mont_regular_base64': "",
+            'mont_bold_base64': "",
+            'mont_thin_base64': ""
+        }
+
 # Attempt to import settings (as before)
 try:
     from app.core.config import settings
@@ -1040,10 +1085,14 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.warning(f"WARNING: 'items' property is not iterable (type: {type(items_value)}), replacing with empty list")
                 safe_slide_data['props']['items'] = []
         
+        # Load Mont fonts for Chudo themes
+        font_data = load_mont_fonts_base64()
+        
         context_data = {
             'slide': safe_slide_data,
             'theme': theme,
-            'slide_height': slide_height
+            'slide_height': slide_height,
+            **font_data  # Include font data in context
         }
         
         # Process presentation slide images (convert imagePath to base64 data URLs)
