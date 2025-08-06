@@ -427,7 +427,8 @@
         .pyramid-template .separator-line {
             position: absolute;
             height: 1px;
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: var(--content-color);
+            opacity: 0.4;
         }
         
         .pyramid-template .separator-line.level-0 {
@@ -476,14 +477,32 @@
         }
         
         .pyramid-path {
-            fill: rgba(255, 255, 255, 0.1);
             stroke-width: 0.5;
         }
         
+        .pyramid-path-1 {
+            fill: var(--accent-color);
+            fill-opacity: 0.2;
+            stroke: var(--accent-color);
+        }
+        
+        .pyramid-path-2 {
+            fill: var(--accent-color);
+            fill-opacity: 0.15;
+            stroke: var(--accent-color);
+        }
+        
+        .pyramid-path-3 {
+            fill: var(--accent-color);
+            fill-opacity: 0.1;
+            stroke: var(--accent-color);
+        }
+        
         .pyramid-text {
-            fill: rgba(255, 255, 255, 0.9);
+            fill: var(--title-color);
             font-size: 12px;
             text-anchor: middle;
+            font-weight: bold;
         }
         
         /* Title styles - EXACT FRONTEND MATCH */
@@ -1783,17 +1802,17 @@
                         <div class="pyramid-container">
                             <!-- Pyramid SVG 1 (Top Triangle) -->
                             <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
-                                <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path pyramid-path-1"/>
                                 <text x="100" y="35" class="pyramid-text">1</text>
                             </svg>
                             <!-- Pyramid SVG 2 (Middle Trapezoid) -->
                             <svg class="pyramid-svg pyramid-svg-2" width="560" height="120" viewBox="33 60 134 60">
-                                <path d="M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <path d="M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z" class="pyramid-path pyramid-path-2"/>
                                 <text x="100" y="95" class="pyramid-text">2</text>
                             </svg>
                             <!-- Pyramid SVG 3 (Bottom Trapezoid) -->
                             <svg class="pyramid-svg pyramid-svg-3" width="560" height="120" viewBox="0 120 200 60">
-                                <path d="M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z" class="pyramid-path" stroke-width="0.5"/>
+                                <path d="M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z" class="pyramid-path pyramid-path-3"/>
                                 <text x="100" y="155" class="pyramid-text">3</text>
                             </svg>
                         </div>
