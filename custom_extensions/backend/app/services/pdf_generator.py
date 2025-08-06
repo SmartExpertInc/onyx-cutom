@@ -16,78 +16,6 @@ from datetime import datetime
 import base64
 import mimetypes
 
-# Enhanced logging configuration for debugging
-# Note: Using getLogger instead of basicConfig to avoid conflicts with main.py
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# Create a separate logger for HTML content debugging
-html_logger = logging.getLogger('pdf_html_debug')
-html_logger.setLevel(logging.INFO)
-
-def load_mont_fonts_base64():
-    """
-    Load Mont font files and convert them to base64 for embedding in PDF templates.
-    Returns a dictionary with base64-encoded font data.
-    """
-    try:
-        # Calculate the path to the fonts directory
-        current_dir = os.path.dirname(__file__)  # app/services/
-        root_dir = os.path.dirname(os.path.dirname(current_dir))  # Go up 2 levels to root
-        fonts_dir = os.path.join(root_dir, 'static', 'fonts')
-        
-        font_data = {}
-        
-        # Define the font files to load
-        font_files = {
-            'mont_regular_base64': 'fonnts.com-Mont_Regular.ttf',
-            'mont_bold_base64': 'fonnts.com-Mont_Bold.ttf',
-            'mont_thin_base64': 'fonnts.com-Mont_Thin.ttf'
-        }
-        
-        for key, filename in font_files.items():
-            font_path = os.path.join(fonts_dir, filename)
-            if os.path.exists(font_path):
-                try:
-                    # Check file size to avoid memory issues
-                    file_size = os.path.getsize(font_path)
-                    if file_size > 10 * 1024 * 1024:  # 10MB limit
-                        logger.warning(f"Font file {filename} is too large ({file_size} bytes), skipping")
-                        font_data[key] = ""
-                        continue
-                    
-                    with open(font_path, 'rb') as font_file:
-                        font_bytes = font_file.read()
-                        base64_data = base64.b64encode(font_bytes).decode('utf-8')
-                        
-                        # Check if base64 data is reasonable size
-                        if len(base64_data) > 5 * 1024 * 1024:  # 5MB base64 limit
-                            logger.warning(f"Base64 font data for {filename} is too large ({len(base64_data)} chars), skipping")
-                            font_data[key] = ""
-                        else:
-                            font_data[key] = base64_data
-                            logger.info(f"Successfully loaded Mont font: {filename} ({len(base64_data)} chars)")
-                except Exception as e:
-                    logger.error(f"Failed to load Mont font {filename}: {e}")
-                    font_data[key] = ""  # Empty string as fallback
-            else:
-                logger.warning(f"Mont font file not found: {font_path}")
-                font_data[key] = ""  # Empty string as fallback
-        
-        # Log summary
-        loaded_count = sum(1 for value in font_data.values() if value)
-        logger.info(f"Font loading complete: {loaded_count}/{len(font_files)} fonts loaded successfully")
-        
-        return font_data
-        
-    except Exception as e:
-        logger.error(f"Error loading Mont fonts: {e}")
-        return {
-            'mont_regular_base64': "",
-            'mont_bold_base64': "",
-            'mont_thin_base64': ""
-        }
-
 # Attempt to import settings (as before)
 try:
     from app.core.config import settings
@@ -106,6 +34,15 @@ except ImportError:
     except ImportError:
         PDF_MERGER_AVAILABLE = False
         logger.warning("PDF merging library not available. Install PyPDF2 or pypdf for slide deck PDF generation.")
+
+# Enhanced logging configuration for debugging
+# Note: Using getLogger instead of basicConfig to avoid conflicts with main.py
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Create a separate logger for HTML content debugging
+html_logger = logging.getLogger('pdf_html_debug')
+html_logger.setLevel(logging.INFO)
 
 PDF_CACHE_DIR = Path("/tmp/pdf_cache")
 PDF_CACHE_DIR.mkdir(exist_ok=True)
@@ -1103,23 +1040,10 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.warning(f"WARNING: 'items' property is not iterable (type: {type(items_value)}), replacing with empty list")
                 safe_slide_data['props']['items'] = []
         
-        # Load Mont fonts for Chudo themes
-        try:
-            font_data = load_mont_fonts_base64()
-            logger.info(f"Font data loaded: {list(font_data.keys())}")
-        except Exception as e:
-            logger.error(f"Failed to load font data: {e}")
-            font_data = {
-                'mont_regular_base64': "",
-                'mont_bold_base64': "",
-                'mont_thin_base64': ""
-            }
-        
         context_data = {
             'slide': safe_slide_data,
             'theme': theme,
-            'slide_height': slide_height,
-            **font_data  # Include font data in context
+            'slide_height': slide_height
         }
         
         # Process presentation slide images (convert imagePath to base64 data URLs)
@@ -1193,32 +1117,9 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             if safe_slide_data.get('props', {}).get('items'):
                 logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
             
-            # Check if template exists
-            template_path = os.path.join(TEMPLATE_DIR, "single_slide_pdf_template.html")
-            if not os.path.exists(template_path):
-                logger.error(f"Template file not found: {template_path}")
-                raise FileNotFoundError(f"Template file not found: {template_path}")
-            
             template = jinja_env.get_template("single_slide_pdf_template.html")
-            logger.info("Template loaded successfully")
-            
-            # Render template with error handling
-            try:
-                html_content = template.render(**context_data)
-                logger.info("Template rendered successfully")
-            except Exception as render_error:
-                logger.error(f"Template rendering failed: {render_error}")
-                # Try rendering without font data
-                context_data_no_fonts = {
-                    'slide': safe_slide_data,
-                    'theme': theme,
-                    'slide_height': slide_height,
-                    'mont_regular_base64': "",
-                    'mont_bold_base64': "",
-                    'mont_thin_base64': ""
-                }
-                html_content = template.render(**context_data_no_fonts)
-                logger.info("Template rendered successfully without font data")
+            html_content = template.render(**context_data)
+            logger.info("Template rendered successfully")
             
             # Log HTML content for debugging
             await log_html_content(html_content, slide_index, template_id)
@@ -1249,24 +1150,14 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         
         # Set content and wait for rendering
         logger.info("Setting HTML content in page")
-        try:
-            await page.setContent(html_content)
-            logger.info("HTML content set successfully")
-        except Exception as e:
-            logger.error(f"Failed to set HTML content: {e}")
-            raise
+        await page.setContent(html_content)
         
         logger.info("Waiting for fonts to load")
-        try:
-            await page.waitForFunction("""
-                () => {
-                    return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-                }
-            """, timeout=PDF_PAGE_TIMEOUT)
-            logger.info("Fonts loaded successfully")
-        except Exception as e:
-            logger.warning(f"Font loading timeout or error: {e}")
-            # Continue anyway, fonts might still work
+        await page.waitForFunction("""
+            () => {
+                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
+            }
+        """, timeout=PDF_PAGE_TIMEOUT)
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
@@ -1279,33 +1170,18 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         await log_browser_console_output(page, slide_index, template_id)
         
         # Generate PDF with exact dimensions
-        try:
-            await page.pdf({
-                'path': output_path,
-                'landscape': False,
-                'printBackground': True,
-                'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
-                'preferCSSPageSize': True,
-                'displayHeaderFooter': False,
-                'omitBackground': False
-            })
-            
-            # Verify PDF was created and has content
-            if os.path.exists(output_path):
-                file_size = os.path.getsize(output_path)
-                if file_size > 0:
-                    logger.info(f"✓ Generated PDF for {slide_info}{template_info}: {output_path} ({file_size} bytes)")
-                    return True
-                else:
-                    logger.error(f"Generated PDF is empty: {output_path}")
-                    return False
-            else:
-                logger.error(f"PDF file was not created: {output_path}")
-                return False
-                
-        except Exception as pdf_error:
-            logger.error(f"PDF generation failed for {slide_info}{template_info}: {pdf_error}")
-            return False
+        await page.pdf({
+            'path': output_path,
+            'landscape': False,
+            'printBackground': True,
+            'margin': {'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'},
+            'preferCSSPageSize': True,
+            'displayHeaderFooter': False,
+            'omitBackground': False
+        })
+        
+        logger.info(f"✓ Generated PDF for {slide_info}{template_info}: {output_path}")
+        return True
         
     except Exception as e:
         logger.error(f"✗ Error generating PDF for {slide_info}{template_info}: {e}", exc_info=True)
@@ -1448,28 +1324,9 @@ async def generate_slide_deck_pdf_with_dynamic_height(
                 await batch_browser.close()
                 # Force garbage collection after each batch
                 gc.collect()
-                # Add a small delay to allow memory cleanup
-                await asyncio.sleep(0.5)
         
         if len(successful_paths) != len(slides_data):
-            failed_count = len(slides_data) - len(successful_paths)
-            logger.error(f"Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully ({failed_count} failed)")
-            
-            # Try to identify which slides failed
-            successful_indices = []
-            for path in successful_paths:
-                # Extract slide index from path
-                filename = os.path.basename(path)
-                if 'slide_' in filename:
-                    try:
-                        index_part = filename.split('slide_')[1].split('_')[0]
-                        successful_indices.append(int(index_part))
-                    except:
-                        pass
-            
-            failed_indices = [i for i in range(len(slides_data)) if i not in successful_indices]
-            logger.error(f"Failed slide indices: {failed_indices}")
-            
+            logger.error(f"Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully")
             # Clean up any generated PDFs
             for path in temp_pdf_paths:
                 try:

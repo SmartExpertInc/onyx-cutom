@@ -9,37 +9,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Mont Font Face Declarations -->
+    <!-- Custom Mont Fonts for Chudo Themes -->
     <style>
-        {% if mont_regular_base64 %}
         @font-face {
             font-family: 'Mont Regular';
-            src: url('data:font/ttf;base64,{{ mont_regular_base64 }}') format('truetype');
+            src: url('/static/fonts/fonnts.com-Mont_Regular.ttf') format('truetype');
             font-weight: 400;
             font-style: normal;
             font-display: swap;
         }
-        {% endif %}
         
-        {% if mont_bold_base64 %}
         @font-face {
             font-family: 'Mont Bold';
-            src: url('data:font/ttf;base64,{{ mont_bold_base64 }}') format('truetype');
+            src: url('/static/fonts/fonnts.com-Mont_Bold.ttf') format('truetype');
             font-weight: 700;
             font-style: normal;
             font-display: swap;
         }
-        {% endif %}
         
-        {% if mont_thin_base64 %}
         @font-face {
             font-family: 'Mont Thin';
-            src: url('data:font/ttf;base64,{{ mont_thin_base64 }}') format('truetype');
+            src: url('/static/fonts/fonnts.com-Mont_Thin.ttf') format('truetype');
             font-weight: 100;
             font-style: normal;
             font-display: swap;
         }
-        {% endif %}
     </style>
     
     <style>
@@ -140,8 +134,8 @@
             --content-color: #3a3a3a;
             --accent-color: #ed6c00;
             --border-color: #d01510;
-            --title-font: 'Mont Bold', 'Montserrat', 'Arial', sans-serif;
-            --content-font: 'Mont Regular', 'Montserrat', 'Arial', sans-serif;
+            --title-font: 'Mont Bold', 'Montserrat', sans-serif;
+            --content-font: 'Mont Regular', 'Montserrat', sans-serif;
             --title-size: 40px;
             --content-size: 16px;
         }
@@ -154,8 +148,8 @@
             --content-color: #ffffff;
             --accent-color: #d01510;
             --border-color: #3a3a3a;
-            --title-font: 'Mont Bold', 'Montserrat', 'Arial', sans-serif;
-            --content-font: 'Mont Regular', 'Montserrat', 'Arial', sans-serif;
+            --title-font: 'Mont Bold', 'Montserrat', sans-serif;
+            --content-font: 'Mont Regular', 'Montserrat', sans-serif;
             --title-size: 40px;
             --content-size: 16px;
         }
@@ -170,6 +164,8 @@
             --border-color: rgb(0, 102, 79);
             --title-font: 'Montserrat', sans-serif;
             --content-font: 'Montserrat', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
         }
         
         /* Forta 2 Theme */

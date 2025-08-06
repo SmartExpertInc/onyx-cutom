@@ -352,6 +352,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -1043,6 +1044,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -1666,6 +1668,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -2269,6 +2272,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -2910,6 +2914,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -3506,6 +3511,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -4129,6 +4135,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -4725,6 +4732,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
