@@ -2252,7 +2252,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'title' | 'created' | 'lastViewed'>('lastViewed');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+      if (typeof window === 'undefined') return 'grid';
+    
+      const saved = localStorage.getItem('projectsViewMode');
+      if (saved === 'grid' || saved === 'list') {
+        return saved;
+      }
+      return 'grid';
+    });
     const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
     const [showBulkActions, setShowBulkActions] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
@@ -2737,6 +2745,10 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [showColumnsDropdown]);
+
+    useEffect(() => {
+      localStorage.setItem('projectsViewMode', viewMode);
+    }, [viewMode]);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
