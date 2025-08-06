@@ -847,9 +847,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { date: 'June 6', description: 'You can insert here the title of the event or a small description' },
         { date: 'July 12', description: 'You can insert here the title of the event or a small description' },
       ],
-      titleColor: '#1a2240',
-      descriptionColor: '#222b44',
-      backgroundColor: '#fff',
+      titleColor: undefined, // Will use theme color
+      descriptionColor: undefined, // Will use theme content color
+      backgroundColor: undefined, // Will use theme background color
     },
     propSchema: {
       events: {
@@ -858,9 +858,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'List of events with date and description',
         required: true,
       },
-      titleColor: { type: 'color', label: 'Date Color', default: '#1a2240' },
-      descriptionColor: { type: 'color', label: 'Description Color', default: '#222b44' },
-      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+      titleColor: { type: 'color', label: 'Date Color', default: undefined },
+      descriptionColor: { type: 'color', label: 'Description Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background', default: undefined },
     }
   },
 
@@ -930,10 +930,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         'Describe the things patients shouldn\'t do here',
         'Describe the things patients shouldn\'t do here'
       ],
-      titleColor: '#1a2240',
-      contraindicationsColor: '#222b44',
-      indicationsColor: '#222b44',
-      backgroundColor: '#fff',
+      titleColor: undefined, // Will use theme color
+      contraindicationsColor: undefined, // Will use theme content color
+      indicationsColor: undefined, // Will use theme content color
+      backgroundColor: undefined, // Will use theme background color
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -949,10 +949,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'List of things patients should do',
         required: true,
       },
-      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
-      contraindicationsColor: { type: 'color', label: 'Contraindications Color', default: '#222b44' },
-      indicationsColor: { type: 'color', label: 'Indications Color', default: '#222b44' },
-      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+      titleColor: { type: 'color', label: 'Title Color', default: undefined },
+      contraindicationsColor: { type: 'color', label: 'Contraindications Color', default: undefined },
+      indicationsColor: { type: 'color', label: 'Indications Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background', default: undefined },
     }
   },
 

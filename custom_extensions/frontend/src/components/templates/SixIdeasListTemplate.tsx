@@ -291,8 +291,30 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
         justifyContent: 'center',
         color: '#6c757d',
         fontSize: '16px',
-        border: imageUrl ? 'none' : '2px dashed #adb5bd'
-      }}>
+        border: imageUrl ? 'none' : '2px dashed #adb5bd',
+        cursor: isEditable ? 'pointer' : 'default'
+      }}
+      onClick={() => {
+        if (isEditable && !imageUrl) {
+          // Trigger file upload
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file && onUpdate) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                const result = event.target?.result as string;
+                onUpdate({ imageUrl: result });
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+          input.click();
+        }
+      }}
+      className={isEditable ? 'cursor-pointer hover:border-2 hover:border-blue-300' : ''}>
         {!imageUrl && (
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>

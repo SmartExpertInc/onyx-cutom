@@ -229,7 +229,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
         flex: 1,
         position: 'relative'
       }}>
-        {/* Connecting Lines */}
+        {/* Connecting Lines - Rectangular Frame */}
         <div style={{
           position: 'absolute',
           top: '50%',
@@ -246,6 +246,54 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
           top: '0',
           bottom: '0',
           left: '50%',
+          width: '2px',
+          backgroundColor: numColor,
+          opacity: 0.3,
+          zIndex: 1
+        }} />
+
+        {/* Top horizontal line connecting top row */}
+        <div style={{
+          position: 'absolute',
+          top: '25%',
+          left: '0',
+          right: '0',
+          height: '2px',
+          backgroundColor: numColor,
+          opacity: 0.3,
+          zIndex: 1
+        }} />
+
+        {/* Bottom horizontal line connecting bottom row */}
+        <div style={{
+          position: 'absolute',
+          top: '75%',
+          left: '0',
+          right: '0',
+          height: '2px',
+          backgroundColor: numColor,
+          opacity: 0.3,
+          zIndex: 1
+        }} />
+
+        {/* Left vertical line connecting left column */}
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          bottom: '0',
+          left: '16.67%',
+          width: '2px',
+          backgroundColor: numColor,
+          opacity: 0.3,
+          zIndex: 1
+        }} />
+
+        {/* Right vertical line connecting right column */}
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          bottom: '0',
+          left: '83.33%',
           width: '2px',
           backgroundColor: numColor,
           opacity: 0.3,
