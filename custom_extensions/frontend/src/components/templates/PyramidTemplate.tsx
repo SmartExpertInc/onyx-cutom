@@ -342,6 +342,17 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
       }
     }
+    // Handle rgb format (e.g., "rgb(0, 102, 79)")
+    if (color.startsWith('rgb(')) {
+      const match = color.match(/rgb\(([^)]+)\)/);
+      if (match) {
+        const parts = match[1].split(',').map(p => p.trim());
+        const r = parts[0];
+        const g = parts[1];
+        const b = parts[2];
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      }
+    }
     // Fallback to original color
     return color;
   };
