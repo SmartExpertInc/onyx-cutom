@@ -464,7 +464,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
                 setEditingSubtitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           >
             {subtitle}
           </p>
@@ -512,7 +512,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
                       startEditingItemHeading(index);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {item.heading || 'Click to add heading'}
                 </div>
@@ -550,7 +550,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
                       startEditingItemDescription(index);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {item.description || 'Click to add description'}
                 </div>
