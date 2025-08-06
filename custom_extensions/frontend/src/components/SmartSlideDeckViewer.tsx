@@ -324,6 +324,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       }
     };
 
+    // Add empty voiceover text for video lesson presentations
+    if (hasAnyVoiceover) {
+      newSlide.voiceoverText = '';
+      if (newSlide.props) {
+        newSlide.props.voiceoverText = '';
+      }
+    }
+
     const updatedDeck = {
       ...componentDeck,
       slides: [...componentDeck.slides, newSlide as ComponentBasedSlide]
@@ -336,6 +344,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       newSlide,
       hasSlideTitle: !!newSlide.slideTitle,
       hasTitleInProps: !!newSlide.props.title,
+      hasVoiceover: hasAnyVoiceover,
+      voiceoverText: newSlide.voiceoverText,
       updatedDeck
     });
 
