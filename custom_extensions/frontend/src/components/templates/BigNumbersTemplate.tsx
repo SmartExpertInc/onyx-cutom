@@ -329,7 +329,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -371,7 +371,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       startEditingItemValue(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {item.value || 'Click to add value'}
                 </div>
@@ -409,7 +409,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       startEditingItemLabel(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {item.label || 'Click to add label'}
                 </div>
@@ -447,7 +447,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       startEditingItemDescription(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {item.description || 'Click to add description'}
                 </div>
