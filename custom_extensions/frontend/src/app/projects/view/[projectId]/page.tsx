@@ -824,7 +824,14 @@ export default function ProjectInstanceViewPage() {
     // Special handling for slide decks
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
-        const theme = slideDeckData?.theme || 'dark-purple';
+        // Use the current theme from the theme picker, not the backend data
+        const theme = currentTheme || slideDeckData?.theme || 'dark-purple';
+        console.log('📄 PDF Download - Theme being sent:', {
+          currentTheme,
+          slideDeckTheme: slideDeckData?.theme,
+          finalTheme: theme,
+          projectId: projectInstanceData.project_id
+        });
         const pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`;
         window.open(pdfUrl, '_blank');
         return;
