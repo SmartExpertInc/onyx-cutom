@@ -282,7 +282,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     margin: 0,
     alignSelf: 'flex-start',
     lineHeight: 1.6,
-    wordWrap: 'anywhere'
+    overflowWrap: 'anywhere'
   };
 
   return (
@@ -405,7 +405,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 outline: 'none',
                 resize: 'none',
                 overflow: 'hidden',
-                wordWrap: 'anywhere',
+                overflowWrap: 'anywhere',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
@@ -492,7 +492,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 outline: 'none',
                 resize: 'none',
                 overflow: 'hidden',
-                wordWrap: 'anywhere',
+                overflowWrap: 'anywhere',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
