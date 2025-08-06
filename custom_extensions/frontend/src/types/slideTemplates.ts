@@ -3,7 +3,7 @@
 import React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
 
-// --- Base Template System Types ---
+// --- Base Template System Types! ---
 
 export interface BaseTemplateProps {
   slideId: string;
