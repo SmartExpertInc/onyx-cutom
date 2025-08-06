@@ -244,6 +244,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -352,6 +356,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -795,6 +800,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -1043,6 +1052,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -1558,6 +1568,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -1666,6 +1680,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -2094,6 +2109,10 @@ AI_AUDIT_PROGRESS = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -2269,6 +2288,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -2802,6 +2822,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -2910,6 +2934,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -3331,6 +3356,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -3506,6 +3535,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -4021,6 +4051,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -4129,6 +4163,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
@@ -4550,6 +4585,10 @@ QUIZ_FINALIZE_TIMESTAMPS: Dict[str, float] = {}
 STATIC_DESIGN_IMAGES_DIR = "static_design_images"
 os.makedirs(STATIC_DESIGN_IMAGES_DIR, exist_ok=True)
 
+# --- Directory for Static Fonts ---
+STATIC_FONTS_DIR = "static/fonts"
+os.makedirs(STATIC_FONTS_DIR, exist_ok=True)
+
 def inspect_list_items_recursively(data_structure: Any, path: str = ""):
     if isinstance(data_structure, dict):
         for key, value in data_structure.items():
@@ -4725,6 +4764,7 @@ async def get_db_pool():
 app = FastAPI(title="Custom Extension Backend")
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
+app.mount("/fonts", StaticFiles(directory=STATIC_FONTS_DIR), name="static_fonts")
 
 @app.middleware("http")
 async def track_request_analytics(request: Request, call_next):
