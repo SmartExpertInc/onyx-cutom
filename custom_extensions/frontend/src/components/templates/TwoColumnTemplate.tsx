@@ -327,7 +327,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -383,7 +383,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   setEditingLeftTitle(true);
                 }
               }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
             >
               {leftTitle || 'Click to add left title'}
             </h2>
@@ -420,7 +420,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   setEditingLeftContent(true);
                 }
               }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
             >
               {leftContent || 'Click to add left content'}
             </p>
@@ -470,7 +470,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   setEditingRightTitle(true);
                 }
               }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
             >
               {rightTitle || 'Click to add right title'}
             </h2>
@@ -507,7 +507,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   setEditingRightContent(true);
                 }
               }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
             >
               {rightContent || 'Click to add right content'}
             </p>
