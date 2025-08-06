@@ -102,15 +102,13 @@ function InlineEditor({
         border: 'none',
         outline: 'none',
         boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block'
+        width: '100%'
       }}
     />
   );
 }
 
-export const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
+const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
   title = 'SIX DIFFERENT IDEAS',
   ideas = [
     { number: '01', text: 'Mercury is the smallest planet in the Solar System' },

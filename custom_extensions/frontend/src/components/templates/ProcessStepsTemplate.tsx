@@ -4,6 +4,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ProcessStepsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
+interface StepItem {
+  title: string;
+  description: string;
+  icon?: string;
+}
+
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -264,7 +270,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
           gap: '32px',
         }}
       >
-        {props.steps?.map((step: any, index: number) => {
+        {props.steps?.map((step: StepItem, index: number) => {
           // Підтримка масиву рядків (як генерує AI)
           const stepDescription = typeof step === 'string' ? step : step.description;
           return (

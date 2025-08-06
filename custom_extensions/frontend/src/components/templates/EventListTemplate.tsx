@@ -114,7 +114,7 @@ function InlineEditor({
   );
 }
 
-export const EventListTemplate: React.FC<EventListTemplateProps> = ({
+const EventListTemplate: React.FC<EventListTemplateProps> = ({
   events = [],
   isEditable = false,
   onUpdate,

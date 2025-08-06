@@ -114,7 +114,7 @@ function InlineEditor({
   );
 }
 
-export const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
+const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
   title = 'Metrics and analytics',
   metrics = [
     { number: '01', text: 'Key performance indicators (KPIs)' },

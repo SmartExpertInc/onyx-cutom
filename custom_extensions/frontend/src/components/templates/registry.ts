@@ -17,11 +17,11 @@ import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 import { TimelineTemplate } from './TimelineTemplate';
 import { BigNumbersTemplate } from './BigNumbersTemplate';
 import { PyramidTemplate } from './PyramidTemplate';
-import { EventListTemplate } from './EventListTemplate';
-import { SixIdeasListTemplate } from './SixIdeasListTemplate';
-import { ContraindicationsIndicationsTemplate } from './ContraindicationsIndicationsTemplate';
-import { MetricsAnalyticsTemplate } from './MetricsAnalyticsTemplate';
-import { OrgChartTemplate } from './OrgChartTemplate';
+import EventListTemplate from './EventListTemplate';
+import SixIdeasListTemplate from './SixIdeasListTemplate';
+import ContraindicationsIndicationsTemplate from './ContraindicationsIndicationsTemplate';
+import MetricsAnalyticsTemplate from './MetricsAnalyticsTemplate';
+import OrgChartTemplate from './OrgChartTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {

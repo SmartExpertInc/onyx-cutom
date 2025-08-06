@@ -277,8 +277,7 @@ export interface OrgChartTemplateProps extends BaseTemplateProps {
 }
 
 
-export interface FourBoxGridProps {
-  slideId: string;
+export interface FourBoxGridProps extends BaseTemplateProps {
   title: string;
   boxes: Array<{
     heading: string;
@@ -292,15 +291,13 @@ export interface TimelineStep {
   description: string;
 }
 
-export interface TimelineTemplateProps {
-  slideId: string;
+export interface TimelineTemplateProps extends BaseTemplateProps {
   title: string;
   steps: TimelineStep[];
   theme?: SlideTheme;
 }
 
-export interface PyramidTemplateProps {
-  slideId: string;
+export interface PyramidTemplateProps extends BaseTemplateProps {
   title: string;
   subtitle: string;
   items: { heading: string; description: string }[];
@@ -313,8 +310,7 @@ export interface BigNumberItem {
   description: string;
 }
 
-export interface BigNumbersTemplateProps {
-  slideId: string;
+export interface BigNumbersTemplateProps extends BaseTemplateProps {
   title: string;
   items: BigNumberItem[];
   theme?: SlideTheme;
