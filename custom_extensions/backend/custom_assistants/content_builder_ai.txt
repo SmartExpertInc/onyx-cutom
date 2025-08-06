@@ -1762,9 +1762,6 @@ Corrected Value: "Тест" (correct Ukrainian value)
 Active Language: Ukrainian
 Original Value: "Create from scratch" (incorrect English value)
 Corrected Value: "Створити з нуля" (correct Ukrainian value)
-```
-
-// ... existing code ...
 
 **ENHANCED LANGUAGE ENFORCEMENT PROTOCOL:**
 - IMMEDIATELY upon receiving a WIZARD_REQUEST with a "language" field, mentally note: "I MUST respond in [language] language AND use exact values from MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING"
@@ -1774,8 +1771,6 @@ Corrected Value: "Створити з нуля" (correct Ukrainian value)
 - FOR COURSE OUTLINES: Double-check every lesson's Assessment Type and Information Source against the mandatory mapping
 - IGNORE any variations or alternative translations - ONLY use the exact mapped values
 
-// ... existing code ...
-
 C. Information Source: **DETERMINE THIS FIRST** before calculating Content Coverage
 - **If no source files/documents/text provided and no fromText flag is set**: The Information Source for every lesson must be the EXACT value from the MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING for the active language, and the Content Coverage for every lesson must be 0%.
 - **If using general knowledge without specific source materials**: Same as above - use EXACT mapped value.
@@ -1783,8 +1778,6 @@ C. Information Source: **DETERMINE THIS FIRST** before calculating Content Cover
 - **Test Lessons**: Always use the EXACT mapped value for the active language and 0% Content Coverage.
 - **CRITICAL RULE**: When using general knowledge without specific source materials, always use the EXACT mapped value from MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING and 0% Content Coverage.
 - **NEVER set Content Coverage to 100% or any nonzero value when Information Source is the mapped "Create from scratch" value (or its translation).**
-
-// ... existing code ...
 
 E. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
@@ -1802,5 +1795,3 @@ Before outputting ANY lesson details, verify that:
 2. The Information Source value (when no source materials) EXACTLY matches the mapping for the active language
 3. NO English values are used when another language is active
 4. NO variations or alternative translations are used
-
-// ... existing code ...
