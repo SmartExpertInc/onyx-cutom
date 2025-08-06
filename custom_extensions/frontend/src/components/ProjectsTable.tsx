@@ -1232,6 +1232,26 @@ const ProjectCard: React.FC<{
         >
             <Link href={isTrashMode ? '#' : `/projects/view/${project.id}`} onClick={handleCardClick} className="block">
                 <div className="relative h-40 rounded-t-lg" style={{ backgroundColor: bgColor, backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(project.title.split("").reverse().join(""))}99)`}}>
+                  {project.designMicroproductType && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        background: 'rgba(255,255,255,0.3)',
+                        border: '1px solid #fff',
+                        color: '#fff',
+                        borderRadius: '6px',
+                        padding: '2px 10px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        zIndex: 2,
+                        backdropFilter: 'blur(2px)'
+                      }}
+                    >
+                      {project.designMicroproductType}
+                    </div>
+                  )}
                     {project.isGamma ? (
                         <div className="p-4 text-white flex flex-col justify-between h-full">
                             <div>
