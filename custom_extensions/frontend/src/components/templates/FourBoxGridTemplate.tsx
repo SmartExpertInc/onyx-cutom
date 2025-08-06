@@ -301,7 +301,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -343,7 +343,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
                       startEditingBoxHeading(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {box.heading || 'Click to add heading'}
                 </div>
@@ -381,7 +381,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
                       startEditingBoxText(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
                   {box.text || 'Click to add text'}
                 </div>
