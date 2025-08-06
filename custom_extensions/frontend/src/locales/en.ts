@@ -54,6 +54,7 @@ export const en = {
     newName: "New Name:",
     generatingPdf: "Generating PDF",
     creatingPdfExport: "Creating PDF export for folder",
+    creatingPresentationPdfExport: "Creating PDF export for presentation",
     checkText: "Check text",
     availabilityText: "Availability text",
     no: "No",

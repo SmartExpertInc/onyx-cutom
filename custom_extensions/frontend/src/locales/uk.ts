@@ -54,6 +54,7 @@ export const uk = {
     newName: "Нова назва:",
     generatingPdf: "Генерація PDF",
     creatingPdfExport: "Створення експорту PDF для папки",
+    creatingPresentationPdfExport: "Створення експорту PDF для презентації",
     checkText: "Текст перевірки",
     availabilityText: "Текст доступності",
     no: "Ні",

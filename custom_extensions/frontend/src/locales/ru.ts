@@ -54,6 +54,7 @@ export const ru = {
     newName: "Новое имя:",
     generatingPdf: "Генерация PDF",
     creatingPdfExport: "Создание экспорта PDF для папки",
+    creatingPresentationPdfExport: "Создание экспорта PDF для презентации",
     checkText: "Текст проверки",
     availabilityText: "Текст доступности",
     no: "Нет",

@@ -54,6 +54,7 @@ export const es = {
     newName: "Nuevo nombre:",
     generatingPdf: "Generando PDF",
     creatingPdfExport: "Creando exportación PDF para carpeta",
+    creatingPresentationPdfExport: "Creando exportación PDF para presentación",
     checkText: "Texto de verificación",
     availabilityText: "Texto de disponibilidad",
     no: "No",

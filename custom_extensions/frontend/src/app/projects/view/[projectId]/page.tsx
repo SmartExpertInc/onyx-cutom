@@ -104,7 +104,7 @@ const PdfExportLoadingModal: React.FC<{
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
         <p className="text-gray-600 text-center mb-4">
-          {t('actions.creatingPdfExport', 'Creating PDF export for')} <span className="font-semibold text-blue-600">"{projectName}"</span>
+          {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
         </p>
         <p className="text-sm text-gray-500 text-center">
           {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
