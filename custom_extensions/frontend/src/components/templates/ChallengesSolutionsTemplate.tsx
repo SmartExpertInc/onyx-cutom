@@ -373,7 +373,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
               setEditingTitle(true);
             }
           }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
         >
           {title || 'Click to add title'}
         </h1>
@@ -416,7 +416,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                     setEditingChallengesTitle(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
                 {challengesTitle || 'Click to add challenges title'}
               </h2>
@@ -461,7 +461,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                         startEditingChallenge(index);
                       }
                     }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                   >
                     {challenge || 'Click to add challenge'}
                   </span>
@@ -506,7 +506,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                     setEditingSolutionsTitle(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
                 {solutionsTitle || 'Click to add solutions title'}
               </h2>
