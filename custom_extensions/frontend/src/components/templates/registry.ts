@@ -17,6 +17,7 @@ import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 import { TimelineTemplate } from './TimelineTemplate';
 import { BigNumbersTemplate } from './BigNumbersTemplate';
 import { PyramidTemplate } from './PyramidTemplate';
+import { EventListTemplate } from './EventListTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -828,6 +829,35 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       subtitle: { type: 'text', label: 'Subtitle' },
       items: { type: 'array', label: 'Pyramid Items' },
     },
+  },
+  'event-list': {
+    id: 'event-list',
+    name: 'Event Dates',
+    description: 'List of event dates with descriptions, visually separated.',
+    category: 'special',
+    icon: '📅',
+    component: EventListTemplate,
+    defaultProps: {
+      events: [
+        { date: 'April 14', description: 'You can insert here the title of the event or a small description' },
+        { date: 'June 6', description: 'You can insert here the title of the event or a small description' },
+        { date: 'July 12', description: 'You can insert here the title of the event or a small description' },
+      ],
+      titleColor: '#1a2240',
+      descriptionColor: '#222b44',
+      backgroundColor: '#fff',
+    },
+    propSchema: {
+      events: {
+        type: 'array',
+        label: 'Events',
+        description: 'List of events with date and description',
+        required: true,
+      },
+      titleColor: { type: 'color', label: 'Date Color', default: '#1a2240' },
+      descriptionColor: { type: 'color', label: 'Description Color', default: '#222b44' },
+      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+    }
   },
 };
 

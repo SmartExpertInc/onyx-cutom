@@ -211,6 +211,16 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
+export interface EventListTemplateProps extends BaseTemplateProps {
+  events: Array<{
+    date: string;
+    description: string;
+  }>;
+  titleColor?: string;
+  descriptionColor?: string;
+  backgroundColor?: string;
+}
+
 
 export interface FourBoxGridProps {
   slideId: string;

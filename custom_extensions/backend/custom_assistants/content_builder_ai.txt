@@ -1804,3 +1804,5 @@ Before outputting ANY lesson details, verify that:
 4. NO variations or alternative translations are used
 
 // ... existing code ...
+
+- If the prompt contains words like "event", "date", "schedule", "timeline", "calendar", "milestone", "important date", "key date", or "event list", use the event-list template to display a list of events with dates and descriptions.
