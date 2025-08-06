@@ -114,7 +114,7 @@ function InlineEditor({
   );
 }
 
-export const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
+const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   title = 'Organizational chart',
   chartData = [
     { id: 'ceo', title: 'CEO', level: 0 },

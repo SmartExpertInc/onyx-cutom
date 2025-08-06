@@ -3,25 +3,25 @@
 import { TemplateRegistry, TemplateComponentInfo, PropDefinition } from '@/types/slideTemplates';
 
 // Template components (will import these after creating them)
-import { TitleSlideTemplate } from './TitleSlideTemplate';
-import { ContentSlideTemplate } from './ContentSlideTemplate';
-import { BigImageLeftTemplate } from './BigImageLeftTemplate';
-import { BulletPointsTemplate } from './BulletPointsTemplate';
-import { BulletPointsRightTemplate } from './BulletPointsRightTemplate';
-import { TwoColumnTemplate } from './TwoColumnTemplate';
-import { ProcessStepsTemplate } from './ProcessStepsTemplate';
-import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
-import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
-import { BigImageTopTemplate } from './BigImageTopTemplate';
-import { FourBoxGridTemplate } from './FourBoxGridTemplate';
-import { TimelineTemplate } from './TimelineTemplate';
-import { BigNumbersTemplate } from './BigNumbersTemplate';
-import { PyramidTemplate } from './PyramidTemplate';
-import { EventListTemplate } from './EventListTemplate';
-import { SixIdeasListTemplate } from './SixIdeasListTemplate';
-import { ContraindicationsIndicationsTemplate } from './ContraindicationsIndicationsTemplate';
-import { MetricsAnalyticsTemplate } from './MetricsAnalyticsTemplate';
-import { OrgChartTemplate } from './OrgChartTemplate';
+import TitleSlideTemplate from './TitleSlideTemplate';
+import ContentSlideTemplate from './ContentSlideTemplate';
+import BigImageLeftTemplate from './BigImageLeftTemplate';
+import BulletPointsTemplate from './BulletPointsTemplate';
+import BulletPointsRightTemplate from './BulletPointsRightTemplate';
+import TwoColumnTemplate from './TwoColumnTemplate';
+import ProcessStepsTemplate from './ProcessStepsTemplate';
+import ChallengesSolutionsTemplate from './ChallengesSolutionsTemplate';
+import HeroTitleSlideTemplate from './HeroTitleSlideTemplate';
+import BigImageTopTemplate from './BigImageTopTemplate';
+import FourBoxGridTemplate from './FourBoxGridTemplate';
+import TimelineTemplate from './TimelineTemplate';
+import BigNumbersTemplate from './BigNumbersTemplate';
+import PyramidTemplate from './PyramidTemplate';
+import EventListTemplate from './EventListTemplate';
+import SixIdeasListTemplate from './SixIdeasListTemplate';
+import ContraindicationsIndicationsTemplate from './ContraindicationsIndicationsTemplate';
+import MetricsAnalyticsTemplate from './MetricsAnalyticsTemplate';
+import OrgChartTemplate from './OrgChartTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
