@@ -28,6 +28,7 @@ import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
+import { createPortal } from 'react-dom';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -88,7 +89,31 @@ const slugify = (text: string | null | undefined): string => {
     .replace(/--+/g, '-');
 }
 
+// PDF Export Loading Modal Component
+const PdfExportLoadingModal: React.FC<{
+  isOpen: boolean;
+  projectName: string;
+}> = ({ isOpen, projectName }) => {
+  const { t } = useLanguage();
+  
+  if (!isOpen) return null;
 
+  return createPortal(
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
+      <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
+        <p className="text-gray-600 text-center mb-4">
+          {t('actions.creatingPdfExport', 'Creating PDF export for')} <span className="font-semibold text-blue-600">"{projectName}"</span>
+        </p>
+        <p className="text-sm text-gray-500 text-center">
+          {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
+        </p>
+      </div>
+    </div>,
+    document.body
+  );
+};
 
 
 export default function ProjectInstanceViewPage() {
@@ -109,6 +134,18 @@ export default function ProjectInstanceViewPage() {
   const [editableData, setEditableData] = useState<MicroProductContentData>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showColumnModal, setShowColumnModal] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState({
+    knowledgeCheck: true,
+    contentAvailability: true,
+    informationSource: true,
+    estCreationTime: true,
+    estCompletionTime: true,
+    qualityTier: false, // Hidden by default
+  });
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
@@ -123,14 +160,6 @@ export default function ProjectInstanceViewPage() {
 
   // Column visibility controls for Training Plan table
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
-  const [columnVisibility, setColumnVisibility] = useState({
-    knowledgeCheck: true,
-    contentAvailability: true,
-    informationSource: true,
-    estCreationTime: true,
-    estCompletionTime: true,
-    qualityTier: false, // Hidden by default
-  });
   const columnDropdownRef = useRef<HTMLDivElement>(null);
 
   // Theme picker state for slide decks
@@ -816,18 +845,50 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-  const handlePdfDownload = () => {
+  const handlePdfDownload = async () => {
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
         return;
     }
     
-    // Special handling for slide decks
-    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
+    // Special handling for slide decks and video lesson presentations  
+    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
+        projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
         const theme = slideDeckData?.theme || 'dark-purple';
-        const pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`;
-        window.open(pdfUrl, '_blank');
+        
+        // Show loading modal
+        setIsExportingPdf(true);
+        
+        try {
+            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`PDF generation failed: ${response.status}`);
+            }
+
+            // Get the blob from the response
+            const blob = await response.blob();
+            
+            // Create a download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+        } finally {
+            // Hide loading modal
+            setIsExportingPdf(false);
+        }
         return;
     }
     
@@ -1382,6 +1443,12 @@ export default function ProjectInstanceViewPage() {
             </Suspense>
         </div>
       </div>
+
+      {/* PDF Export Loading Modal */}
+      <PdfExportLoadingModal 
+        isOpen={isExportingPdf} 
+        projectName={projectInstanceData?.name || 'Presentation'} 
+      />
     </main>
   );
 }
