@@ -184,10 +184,12 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       {/* Top Section - Text Content */}
       <div style={{ 
         flex: '0 0 auto',
-        backgroundColor: '#f8f9fa',
+        backgroundColor: bgColor,
         padding: '40px',
         borderRadius: '8px',
-        marginBottom: '20px'
+        marginBottom: '20px',
+        border: `1px solid ${txtColor}`,
+        opacity: 0.1
       }}>
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -288,9 +290,19 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         color: '#6c757d',
-        fontSize: '16px'
+        fontSize: '16px',
+        border: imageUrl ? 'none' : '2px dashed #adb5bd'
       }}>
-        {!imageUrl && (isEditable ? 'Click to add image' : '')}
+        {!imageUrl && (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🖼️</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>Image Placeholder</div>
+            <div style={{ fontSize: '14px', fontStyle: 'italic', marginBottom: '12px' }}>
+              AI Prompt: "{imagePrompt || imageAlt || 'relevant illustration for the ideas'}"
+            </div>
+            <div style={{ fontSize: '12px', color: '#868e96' }}>Click to upload image</div>
+          </div>
+        )}
       </div>
     </div>
   );

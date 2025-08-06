@@ -883,9 +883,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       ],
       imageUrl: '',
       imageAlt: '',
-      titleColor: '#1a2240',
-      textColor: '#222b44',
-      backgroundColor: '#fff',
+      imagePrompt: '',
+      imagePath: '',
+      titleColor: undefined, // Will use theme color
+      textColor: undefined, // Will use theme content color
+      backgroundColor: undefined, // Will use theme background color
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -897,9 +899,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       },
       imageUrl: { type: 'image', label: 'Background Image' },
       imageAlt: { type: 'text', label: 'Image Alt Text' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
-      textColor: { type: 'color', label: 'Text Color', default: '#222b44' },
-      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+      imagePrompt: { type: 'text', label: 'Image Prompt' },
+      imagePath: { type: 'text', label: 'Image Path' },
+      titleColor: { type: 'color', label: 'Title Color', default: undefined },
+      textColor: { type: 'color', label: 'Text Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background', default: undefined },
     }
   },
 
@@ -969,10 +973,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { number: '05', text: 'A/B testing and experimentation' },
         { number: '06', text: 'Data visualization' }
       ],
-      titleColor: '#1a2240',
-      numberColor: '#60a5fa',
-      textColor: '#222b44',
-      backgroundColor: '#fff',
+      titleColor: undefined, // Will use theme color
+      numberColor: undefined, // Will use theme accent color
+      textColor: undefined, // Will use theme content color
+      backgroundColor: undefined, // Will use theme background color
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -982,10 +986,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'List of six metrics with numbers and descriptions',
         required: true,
       },
-      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
-      numberColor: { type: 'color', label: 'Number Color', default: '#60a5fa' },
-      textColor: { type: 'color', label: 'Text Color', default: '#222b44' },
-      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+      titleColor: { type: 'color', label: 'Title Color', default: undefined },
+      numberColor: { type: 'color', label: 'Number Color', default: undefined },
+      textColor: { type: 'color', label: 'Text Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background', default: undefined },
     }
   },
 
@@ -1012,9 +1016,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { id: 'employee2-2', title: 'Employee 4', level: 3, parentId: 'teamleader2-1' },
         { id: 'employee3-1', title: 'Employee 5', level: 3, parentId: 'teamleader2-2' }
       ],
-      titleColor: '#1a2240',
-      textColor: '#222b44',
-      backgroundColor: '#fff',
+      titleColor: undefined, // Will use theme color
+      textColor: undefined, // Will use theme content color
+      backgroundColor: undefined, // Will use theme background color
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1024,9 +1028,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'Hierarchical organizational data with parent-child relationships',
         required: true,
       },
-      titleColor: { type: 'color', label: 'Title Color', default: '#1a2240' },
-      textColor: { type: 'color', label: 'Text Color', default: '#222b44' },
-      backgroundColor: { type: 'color', label: 'Background', default: '#fff' },
+      titleColor: { type: 'color', label: 'Title Color', default: undefined },
+      textColor: { type: 'color', label: 'Text Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background', default: undefined },
     }
   },
 };

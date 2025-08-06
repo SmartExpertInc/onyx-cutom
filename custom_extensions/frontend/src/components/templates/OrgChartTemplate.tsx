@@ -256,7 +256,8 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
               right: '50%',
               height: '2px',
               backgroundColor: txtColor,
-              transform: 'translateX(-50%)'
+              transform: 'translateX(-50%)',
+              width: `${Math.max(children.length - 1, 1) * 40}px`
             }} />
             
             {/* Vertical line from parent to children */}

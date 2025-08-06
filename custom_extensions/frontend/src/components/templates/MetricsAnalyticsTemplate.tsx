@@ -135,7 +135,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const tColor = titleColor || currentTheme.colors.titleColor;
-  const numColor = numberColor || '#60a5fa';
+  const numColor = numberColor || currentTheme.colors.accentColor;
   const txtColor = textColor || currentTheme.colors.contentColor;
   const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
