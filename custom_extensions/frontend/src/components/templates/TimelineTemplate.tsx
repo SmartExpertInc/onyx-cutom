@@ -1,19 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-export interface TimelineStep {
-  heading: string;
-  description: string;
-}
-
-export interface TimelineTemplateProps {
-  slideId: string;
-  title: string;
-  steps: TimelineStep[];
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
-}
+import { TimelineTemplateProps } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;
