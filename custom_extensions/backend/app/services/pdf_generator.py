@@ -1250,7 +1250,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         # Set content and wait for rendering
         logger.info("Setting HTML content in page")
         try:
-            await page.setContent(html_content, timeout=PDF_PAGE_TIMEOUT)
+            await page.setContent(html_content)
             logger.info("HTML content set successfully")
         except Exception as e:
             logger.error(f"Failed to set HTML content: {e}")
