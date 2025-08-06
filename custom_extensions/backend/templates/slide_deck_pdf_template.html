@@ -863,6 +863,115 @@
         .image-placeholder {
             text-align: center;
         }
+        
+        /* Event List Template Styles */
+        .events-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .event-item {
+            margin: 24px 0;
+            text-align: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .event-separator {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background-color: var(--title-color);
+            opacity: 0.3;
+        }
+        
+        .event-date {
+            font-weight: 700;
+            font-size: 40px;
+            color: var(--title-color);
+            margin-bottom: 8px;
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .event-description {
+            font-weight: 400;
+            font-size: 22px;
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        /* Contraindications and Indications Template Styles */
+        .contraindications-indications-container {
+            display: flex;
+            gap: 40px;
+            flex: 1;
+        }
+        
+        .contraindications-section,
+        .indications-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: #6c757d;
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .section-content {
+            flex: 1;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .list-bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 12px;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        
+        .contraindications-bullet {
+            background-color: #ff6b6b;
+        }
+        
+        .indications-bullet {
+            background-color: #ff6b6b;
+        }
+        
+        .list-text {
+            font-size: 16px;
+            color: var(--content-color);
+            line-height: 1.4;
+            flex: 1;
+            font-family: 'Martel Sans', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -1168,6 +1277,55 @@
                                         <div style="font-size: 12px; color: #868e96;">Click to upload image</div>
                                     </div>
                                 {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'event-list' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Event Dates' }}</h1>
+                        <div class="events-container">
+                            {% for event in slide.props.events %}
+                                <div class="event-item">
+                                    {% if not loop.first %}
+                                        <div class="event-separator"></div>
+                                    {% endif %}
+                                    <div class="event-date">{{ event.date or 'Click to add date' }}</div>
+                                    <div class="event-description">{{ event.description or 'Click to add description' }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                {% elif slide.templateId == 'contraindications-indications' %}
+                    <div class="slide">
+                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                        <div class="contraindications-indications-container">
+                            <div class="contraindications-section">
+                                <div class="section-header contraindications-header">
+                                    <div class="section-title">You shouldn't</div>
+                                </div>
+                                <div class="section-content">
+                                    {% for item in slide.props.contraindications %}
+                                        <div class="list-item">
+                                            <div class="list-bullet contraindications-bullet"></div>
+                                            <div class="list-text">{{ item or 'Click to add contraindication' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="indications-section">
+                                <div class="section-header indications-header">
+                                    <div class="section-title">You should</div>
+                                </div>
+                                <div class="section-content">
+                                    {% for item in slide.props.indications %}
+                                        <div class="list-item">
+                                            <div class="list-bullet indications-bullet"></div>
+                                            <div class="list-text">{{ item or 'Click to add indication' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>

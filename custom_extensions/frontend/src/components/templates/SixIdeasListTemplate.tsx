@@ -184,12 +184,9 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       {/* Top Section - Text Content */}
       <div style={{ 
         flex: '0 0 auto',
-        backgroundColor: bgColor,
         padding: '40px',
         borderRadius: '8px',
-        marginBottom: '20px',
-        border: `1px solid ${txtColor}`,
-        opacity: 0.1
+        marginBottom: '20px'
       }}>
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>

@@ -198,22 +198,25 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   const renderNode = (node: ChartNode, level: number) => {
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
-
+  
     return (
-      <div key={node.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div key={node.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
         {/* Node */}
-        <div style={{
-          padding: '8px 16px',
-          margin: '4px',
-          borderRadius: '4px',
-          backgroundColor: bgColor,
-          border: `2px solid ${txtColor}`,
-          cursor: isEditable ? 'pointer' : 'default',
-          minWidth: '120px',
-          textAlign: 'center'
-        }}
-        onClick={() => handleChartDataEdit(node.id)}
-        className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}>
+        <div
+          style={{
+            padding: '8px 16px',
+            margin: '4px',
+            borderRadius: '4px',
+            backgroundColor: bgColor,
+            border: `2px solid ${txtColor}`,
+            cursor: isEditable ? 'pointer' : 'default',
+            minWidth: '120px',
+            textAlign: 'center',
+            zIndex: 1,
+          }}
+          onClick={() => handleChartDataEdit(node.id)}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+        >
           {isEditable && editingChartData[node.id] ? (
             <InlineEditor
               initialValue={node.title}
@@ -225,65 +228,74 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 fontSize: currentTheme.fonts.contentSize,
                 color: txtColor,
                 fontFamily: currentTheme.fonts.contentFont,
-                textAlign: 'center'
+                textAlign: 'center',
               }}
             />
           ) : (
-            <div style={{
-              fontSize: currentTheme.fonts.contentSize,
-              color: txtColor,
-              fontFamily: currentTheme.fonts.contentFont,
-              fontWeight: 500
-            }}>
+            <div
+              style={{
+                fontSize: currentTheme.fonts.contentSize,
+                color: txtColor,
+                fontFamily: currentTheme.fonts.contentFont,
+                fontWeight: 500,
+              }}
+            >
               {node.title || (isEditable ? 'Click to add title' : '')}
             </div>
           )}
         </div>
-
-        {/* Children */}
+  
         {hasChildren && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: '20px',
-            position: 'relative'
-          }}>
-            {/* Horizontal line connecting children */}
-            <div style={{
-              position: 'absolute',
-              top: '-10px',
-              left: '50%',
-              right: '50%',
-              height: '2px',
-              backgroundColor: txtColor,
-              transform: 'translateX(-50%)',
-              width: `${Math.max(children.length - 1, 1) * 40}px`
-            }} />
-            
-            {/* Vertical line from parent to children */}
-            <div style={{
-              position: 'absolute',
-              top: '-20px',
-              left: '50%',
-              width: '2px',
-              height: '10px',
-              backgroundColor: txtColor,
-              transform: 'translateX(-50%)'
-            }} />
-
-            <div style={{ display: 'flex', gap: '40px' }}>
-              {children.map((child, index) => (
-                <div key={child.id} style={{ position: 'relative' }}>
-                  {/* Vertical line from horizontal line to child */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    left: '50%',
-                    width: '2px',
-                    height: '10px',
-                    backgroundColor: txtColor,
-                    transform: 'translateX(-50%)'
-                  }} />
+          <div style={{ position: 'relative', paddingTop: '40px', width: '100%' }}>
+            {/* Вертикальная линия от родителя вниз */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                width: '2px',
+                height: '20px',
+                backgroundColor: txtColor,
+                transform: 'translateX(-50%)',
+                zIndex: 0,
+              }}
+            />
+  
+            {/* Горизонтальная линия, соединяющая всех детей */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '20px',
+                left: '10%',
+                right: '10%',
+                height: '2px',
+                backgroundColor: txtColor,
+                zIndex: 0,
+              }}
+            />
+  
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-evenly',
+                marginTop: '20px',
+                position: 'relative',
+                width: '100%',
+              }}
+            >
+              {children.map((child) => (
+                <div key={child.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                  {/* Вертикальная линия от горизонтали вниз к ребёнку */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-20px',
+                      height: '20px',
+                      width: '2px',
+                      backgroundColor: txtColor,
+                      zIndex: 0,
+                    }}
+                  />
                   {renderNode(child, level + 1)}
                 </div>
               ))}
@@ -292,7 +304,7 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
         )}
       </div>
     );
-  };
+  };  
 
   return (
     <div
