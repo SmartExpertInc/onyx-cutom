@@ -55,7 +55,9 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       padding: { top: 40, right: 40, bottom: 40, left: 40 }
     }
   );
-  const [currentMode, setCurrentMode] = useState<PositioningMode>(positioningMode);
+  const [currentMode, setCurrentMode] = useState<PositioningMode>(
+    positioningMode === 'template' && isEditable ? 'hybrid' : positioningMode
+  );
 
   // Initialize items from slide if not provided
   useEffect(() => {
@@ -65,6 +67,15 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       setCurrentCanvasConfig(extracted.canvasConfig);
     }
   }, [slide, items, currentMode]);
+
+  // Auto-extract items for editable slides on mount
+  useEffect(() => {
+    if (isEditable && slide && (!currentItems || currentItems.length === 0) && currentMode === 'hybrid') {
+      const extracted = TemplateExtractor.extractItemsFromSlide(slide);
+      setCurrentItems(extracted.items);
+      setCurrentCanvasConfig(extracted.canvasConfig);
+    }
+  }, [isEditable, slide, currentItems, currentMode]);
 
   // Handle items change
   const handleItemsChange = useCallback((newItems: PositionableItem[]) => {
@@ -130,22 +141,26 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
     }
   }, [slide, onSlideUpdate]);
 
-  // Template mode: render traditional template
+  // Template mode: render traditional template (only for non-editable slides)
   if (currentMode === 'template') {
     return (
       <div className="relative">
         {children}
         
-        {/* Mode toggle for editable slides */}
-        {isEditable && (
+        {/* Mode toggle for editable slides - only show if explicitly set to template mode */}
+        {isEditable && slide?.positioningMode === 'template' && (
           <div className="absolute top-4 right-4 z-10">
-            <button
-              onClick={() => handleModeChange('hybrid')}
-              className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors"
-              title="Switch to Positioning Mode"
-            >
-              Enable Positioning
-            </button>
+            <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-3 shadow-lg">
+              <div className="text-xs text-gray-600 mb-2">🎯 Positioning Available</div>
+              <button
+                onClick={() => handleModeChange('hybrid')}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors font-medium"
+                title="Switch to Positioning Mode"
+              >
+                🚀 Enable Positioning
+              </button>
+              <div className="text-xs text-gray-500 mt-1">Drag & drop items freely</div>
+            </div>
           </div>
         )}
       </div>

@@ -83,8 +83,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     );
   }
 
-  // Check if slide has positioning support
-  const hasPositioningSupport = slide.positioningMode && slide.positioningMode !== 'template';
+  // Auto-enable positioning for editable slides by default
+  const shouldUsePositioning = isEditable || slide.positioningMode === 'hybrid' || slide.positioningMode === 'free' || slide.items;
   
   // Render the template component with props and theme
   const TemplateComponent = template.component;
@@ -96,8 +96,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     theme: currentTheme
   };
 
-  // If positioning is enabled, use HybridTemplateBase
-  if (hasPositioningSupport || (isEditable && slide.items)) {
+  // Use HybridTemplateBase for all editable slides (positioning enabled by default)
+  if (shouldUsePositioning) {
     return (
       <div 
         className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} positioning-enabled`}
@@ -108,7 +108,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
           slide={slide}
           items={slide.items}
           canvasConfig={slide.canvasConfig}
-          positioningMode={slide.positioningMode || 'template'}
+          positioningMode={slide.positioningMode || (isEditable ? 'hybrid' : 'template')}
           theme={currentTheme}
           isEditable={isEditable}
           onUpdate={handlePropsUpdate}
