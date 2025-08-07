@@ -30,20 +30,25 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
     // Find all draggable elements in the template
     const draggableSelectors = [
-      '.slide-title',
-      '.slide-subtitle', 
-      '.slide-content',
-      '.bullet-points',
-      '.slide-image',
-      '.image-placeholder',
-      '.process-step',
-      '.big-number',
-      '.pyramid-item',
-      '.timeline-item',
-      '.challenge-item',
-      '.solution-item',
-      '.grid-item',
-      '.quote-content',
+      // Primary elements - titles and headers
+      'h1',
+      'h2', 
+      'h3',
+      
+      // Main content containers - these are the key draggable elements
+      '[class*="-template"] > div:not(:first-child)', // Direct children of template (skip title)
+      
+      // Specific content elements
+      'div[style*="display: flex"]', // Main flex containers
+      'div[style*="flexDirection: row"]', // Row containers
+      'div[style*="flexDirection: column"]', // Column containers
+      
+      // Text content
+      'ul', 
+      'ol', 
+      'p',
+      
+      // Explicit markers
       '[data-draggable="true"]'
     ];
 
@@ -91,9 +96,16 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         if (e.target !== htmlElement && !htmlElement.contains(e.target as Node)) return;
         
         // Don't interfere with text selection or input focus
-        if ((e.target as HTMLElement).isContentEditable || 
-            (e.target as HTMLElement).tagName === 'INPUT' ||
-            (e.target as HTMLElement).tagName === 'TEXTAREA') {
+        const target = e.target as HTMLElement;
+        if (target.isContentEditable || 
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.className.includes('inline-editor') ||
+            target.closest('.inline-editor-title') ||
+            target.closest('.inline-editor-challenges-title') ||
+            target.closest('.inline-editor-challenge') ||
+            target.closest('.inline-editor-solution') ||
+            target.closest('.inline-editor-solutions-title')) {
           return;
         }
 

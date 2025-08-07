@@ -630,14 +630,15 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }} data-draggable="true">
         {/* Left: Clickable Image Placeholder */}
-        <div style={placeholderContainerStyles}>
+        <div style={placeholderContainerStyles} data-draggable="true">
           <ClickableImagePlaceholder
             imagePath={imagePath}
             onImageUploaded={handleImageUploaded}
@@ -650,7 +651,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
           />
         </div>
         {/* Right: Unified bullet points editor */}
-        <div style={bulletsContainerStyles}>
+        <div style={bulletsContainerStyles} data-draggable="true">
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle={bulletStyle}

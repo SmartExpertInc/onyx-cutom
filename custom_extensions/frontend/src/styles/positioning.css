@@ -318,20 +318,16 @@
 }
 
 /* Template element drag enhancements */
-.positioning-enabled-slide .slide-title,
-.positioning-enabled-slide .slide-subtitle,
-.positioning-enabled-slide .slide-content,
-.positioning-enabled-slide .bullet-points,
-.positioning-enabled-slide .slide-image,
-.positioning-enabled-slide .image-placeholder,
-.positioning-enabled-slide .process-step,
-.positioning-enabled-slide .big-number,
-.positioning-enabled-slide .pyramid-item,
-.positioning-enabled-slide .timeline-item,
-.positioning-enabled-slide .challenge-item,
-.positioning-enabled-slide .solution-item,
-.positioning-enabled-slide .grid-item,
-.positioning-enabled-slide .quote-content,
+.positioning-enabled-slide h1,
+.positioning-enabled-slide h2,
+.positioning-enabled-slide h3,
+.positioning-enabled-slide [class*="-template"] > div:not(:first-child),
+.positioning-enabled-slide div[style*="display: flex"],
+.positioning-enabled-slide div[style*="flexDirection: row"],
+.positioning-enabled-slide div[style*="flexDirection: column"],
+.positioning-enabled-slide ul,
+.positioning-enabled-slide ol,
+.positioning-enabled-slide p,
 .positioning-enabled-slide [data-draggable="true"] {
   position: relative;
   transition: transform 0.1s ease-out, box-shadow 0.2s ease;
@@ -340,20 +336,16 @@
 }
 
 /* Hover effects for draggable elements */
-.positioning-enabled-slide .slide-title:hover,
-.positioning-enabled-slide .slide-subtitle:hover,
-.positioning-enabled-slide .slide-content:hover,
-.positioning-enabled-slide .bullet-points:hover,
-.positioning-enabled-slide .slide-image:hover,
-.positioning-enabled-slide .image-placeholder:hover,
-.positioning-enabled-slide .process-step:hover,
-.positioning-enabled-slide .big-number:hover,
-.positioning-enabled-slide .pyramid-item:hover,
-.positioning-enabled-slide .timeline-item:hover,
-.positioning-enabled-slide .challenge-item:hover,
-.positioning-enabled-slide .solution-item:hover,
-.positioning-enabled-slide .grid-item:hover,
-.positioning-enabled-slide .quote-content:hover,
+.positioning-enabled-slide h1:hover,
+.positioning-enabled-slide h2:hover,
+.positioning-enabled-slide h3:hover,
+.positioning-enabled-slide [class*="-template"] > div:not(:first-child):hover,
+.positioning-enabled-slide div[style*="display: flex"]:hover,
+.positioning-enabled-slide div[style*="flexDirection: row"]:hover,
+.positioning-enabled-slide div[style*="flexDirection: column"]:hover,
+.positioning-enabled-slide ul:hover,
+.positioning-enabled-slide ol:hover,
+.positioning-enabled-slide p:hover,
 .positioning-enabled-slide [data-draggable="true"]:hover {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   z-index: 10;
