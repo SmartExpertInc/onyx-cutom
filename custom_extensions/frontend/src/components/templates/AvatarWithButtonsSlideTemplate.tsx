@@ -306,7 +306,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
               style={{
                 ...titleStyles,
                 margin: '0',
-                padding: '0',
+                padding: '8px 12px',
                 border: 'none',
                 outline: 'none',
                 resize: 'none',
@@ -314,7 +314,9 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
               }}
             />
           ) : (

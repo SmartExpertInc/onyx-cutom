@@ -406,7 +406,9 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                 display: 'block',
                 color: 'inherit',
                 margin: '0',
-                padding: '0'
+                padding: '8px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
               }}
             />
           ) : (
@@ -447,7 +449,9 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   color: 'inherit',
                   margin: '0',
                   padding: '0',
-                  fontSize: '1rem'
+                  fontSize: '1rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
                 }}
               />
             ) : (
@@ -486,7 +490,9 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   color: 'inherit',
                   margin: '0',
                   padding: '0',
-                  fontSize: '1rem'
+                  fontSize: '1rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
                 }}
               />
             ) : (
@@ -517,22 +523,21 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
       {/* Right Panel - Image Only */}
       <div style={rightPanelStyles}>
-        {/* Image Placeholder - 50% width of right panel, full height */}
-        <div style={imagePlaceholderStyles}>
-          <ClickableImagePlaceholder
-            imagePath={avatarPath}
-            onImageUploaded={handleAvatarUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload image"
-            prompt="Professional business or beauty industry image"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
+        {/* Image Placeholder - full width of right panel, full height */}
+        <ClickableImagePlaceholder
+          imagePath={avatarPath}
+          onImageUploaded={handleAvatarUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Click to upload image"
+          prompt="Professional business or beauty industry image"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '0'
+          }}
+        />
       </div>
     </div>
   );

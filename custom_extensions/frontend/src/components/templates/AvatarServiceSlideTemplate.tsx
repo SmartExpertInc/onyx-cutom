@@ -308,7 +308,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
               style={{
                 ...titleStyles,
                 margin: '0',
-                padding: '0',
+                padding: '8px 12px',
                 border: 'none',
                 outline: 'none',
                 resize: 'none',
@@ -316,7 +316,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
               }}
             />
           ) : (
@@ -346,7 +348,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                 style={{
                   ...subtitleStyles,
                   margin: '0',
-                  padding: '0',
+                  padding: '8px 12px',
                   border: 'none',
                   outline: 'none',
                   resize: 'none',
@@ -354,7 +356,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
                 }}
               />
             ) : (
@@ -385,7 +389,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                 style={{
                   ...contentStyles,
                   margin: '0',
-                  padding: '0',
+                  padding: '8px 12px',
                   border: 'none',
                   outline: 'none',
                   resize: 'none',
@@ -393,7 +397,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
                 }}
               />
             ) : (

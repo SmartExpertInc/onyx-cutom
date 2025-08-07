@@ -340,7 +340,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
                 style={{
                   ...titleStyles,
                   margin: '0',
-                  padding: '0',
+                  padding: '8px 12px',
                   border: 'none',
                   outline: 'none',
                   resize: 'none',
@@ -348,7 +348,9 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
                 }}
               />
             ) : (
@@ -383,7 +385,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
                     style={{
                       ...checklistItemStyles,
                       margin: '0',
-                      padding: '0',
+                      padding: '8px 12px',
                       border: 'none',
                       outline: 'none',
                       resize: 'none',
@@ -392,7 +394,9 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
-                      flex: '1'
+                      flex: '1',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '4px'
                     }}
                   />
                 ) : (

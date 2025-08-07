@@ -284,8 +284,8 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '623px',
-    height: '562px',
+    width: '744px',
+    height: '714px',
     margin: '0 auto',
     position: 'absolute',
     top: '-246px',
@@ -309,7 +309,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
               style={{
                 ...titleStyles,
                 margin: '0',
-                padding: '0',
+                padding: '8px 12px',
                 border: 'none',
                 outline: 'none',
                 resize: 'none',
@@ -317,7 +317,9 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
               }}
             />
           ) : (
