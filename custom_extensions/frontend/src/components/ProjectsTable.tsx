@@ -65,6 +65,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
             stroke={iconColor}
             strokeLinecap="round"
             strokeLinejoin="round"
+            strokeWidth="1.5"
             d="m17.498 15.498l-.01-10a2 2 0 0 0-2-1.998h-10a2 2 0 0 0-1.995 1.85l-.006.152l.01 10a2 2 0 0 0 2 1.998h10a2 2 0 0 0 1.995-1.85zM7.5 3.5v13.817m10-9.817h-14"
           />
         </svg>
@@ -137,7 +138,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
         <svg
           width={iconSize}
           height={iconSize}
-          viewBox="0 0 16 16"
+          viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
