@@ -92,7 +92,8 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere'
+          overflowWrap: 'anywhere',
+          color: 'inherit'
         }}
       />
     );
@@ -108,17 +109,18 @@ function InlineEditor({
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
+              style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          width: '100%',
+          wordWrap: 'break-word',
+          boxSizing: 'border-box',
+          display: 'block',
+          color: 'inherit'
+        }}
     />
   );
 }
@@ -238,7 +240,8 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   const stepsContainerStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    alignItems: 'center',
+    gap: '16px',
     width: '100%',
     maxWidth: '500px'
   };
@@ -260,25 +263,31 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     minHeight: '60px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: '400px'
   };
 
   const arrowStyles: React.CSSProperties = {
     fontSize: '2rem',
     color: '#ffffff',
     textAlign: 'center',
-    margin: '12px 0',
-    fontWeight: 'bold'
+    margin: '8px 0',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%'
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '300px',
-    height: '300px',
+    width: '400px',
+    height: '400px',
     borderRadius: '50%',
     margin: '0 auto',
     position: 'absolute',
-    bottom: '0',
-    right: '40px',
+    bottom: '-50px',
+    right: '20px',
     zIndex: 3
   };
 
