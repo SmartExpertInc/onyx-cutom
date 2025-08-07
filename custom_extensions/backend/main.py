@@ -13525,6 +13525,8 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         wizard_dict["lessonTitle"] = payload.lessonTitle
     if payload.prompt:
         wizard_dict["prompt"] = payload.prompt
+
+    wizard_dict["importantRules"] = "IMPORTANT: DO NOT CREATE CONCLUSION SLIDES. ONLY CREATE EDUCATIONAL SLIDES. DO NOT CREATE SLIDES WITH TITLES LIKE 'Conclusion', 'Summary', 'Wrap-Up', 'Thank You', 'Further Reading', 'Additional Resources', 'Questions', 'Open Floor for Questions', 'Feedback'. DO NOT MAKE SECOND SLIDE BE A TITLE SLIDE. DO NOT USE 'content-slide' SLIDES"
     
     # Add file context if provided
     if payload.fromFiles:
