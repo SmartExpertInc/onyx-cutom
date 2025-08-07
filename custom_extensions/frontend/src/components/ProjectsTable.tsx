@@ -4380,90 +4380,92 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               {t("interface.sort", "Sort")}
             </button>
 
-            {/* Columns Dropdown */}
-            <div className="relative" data-columns-dropdown>
-              <button
-                onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
-                className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700"
-              >
-                <List size={16} className="text-gray-800" />
-                {t("interface.columns", "Columns")}
-                <ChevronDown size={14} className="text-gray-600" />
-              </button>
+            {/* Columns Dropdown - only show in list view */}
+            {viewMode === "list" && (
+              <div className="relative" data-columns-dropdown>
+                <button
+                  onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
+                  className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700"
+                >
+                  <List size={16} className="text-gray-800" />
+                  {t("interface.columns", "Columns")}
+                  <ChevronDown size={14} className="text-gray-600" />
+                </button>
 
-              {showColumnsDropdown && (
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <div className="p-2">
-                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
-                      {t("interface.showColumns", "Show columns")}
+                {showColumnsDropdown && (
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <div className="p-2">
+                      <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                        {t("interface.showColumns", "Show columns")}
+                      </div>
+                      {[
+                        { key: "title", label: t("interface.title", "Title") },
+                        {
+                          key: "created",
+                          label: t("interface.created", "Created"),
+                        },
+                        {
+                          key: "creator",
+                          label: t("interface.creator", "Creator"),
+                        },
+                        {
+                          key: "numberOfLessons",
+                          label: t(
+                            "interface.numberOfLessonsShort",
+                            "Number of lessons"
+                          ),
+                        },
+                        {
+                          key: "estCreationTime",
+                          label: t(
+                            "interface.estCreationTimeShort",
+                            "Est. creation time"
+                          ),
+                        },
+                        {
+                          key: "estCompletionTime",
+                          label: t(
+                            "interface.estCompletionTimeShort",
+                            "Est. completion time"
+                          ),
+                        },
+                      ].map((column) => (
+                        <label
+                          key={column.key}
+                          className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
+                        >
+                          {columnVisibility[
+                            column.key as keyof ColumnVisibility
+                          ] ? (
+                            <CheckSquare size={16} className="text-blue-600" />
+                          ) : (
+                            <Square size={16} className="text-gray-400" />
+                          )}
+                          <span className="text-sm text-gray-700">
+                            {column.label}
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={
+                              columnVisibility[
+                                column.key as keyof ColumnVisibility
+                              ]
+                            }
+                            onChange={(e) => {
+                              setColumnVisibility((prev) => ({
+                                ...prev,
+                                [column.key]: e.target.checked,
+                              }));
+                            }}
+                            className="sr-only"
+                          />
+                        </label>
+                      ))}
                     </div>
-                    {[
-                      { key: "title", label: t("interface.title", "Title") },
-                      {
-                        key: "created",
-                        label: t("interface.created", "Created"),
-                      },
-                      {
-                        key: "creator",
-                        label: t("interface.creator", "Creator"),
-                      },
-                      {
-                        key: "numberOfLessons",
-                        label: t(
-                          "interface.numberOfLessonsShort",
-                          "Number of lessons"
-                        ),
-                      },
-                      {
-                        key: "estCreationTime",
-                        label: t(
-                          "interface.estCreationTimeShort",
-                          "Est. creation time"
-                        ),
-                      },
-                      {
-                        key: "estCompletionTime",
-                        label: t(
-                          "interface.estCompletionTimeShort",
-                          "Est. completion time"
-                        ),
-                      },
-                    ].map((column) => (
-                      <label
-                        key={column.key}
-                        className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                      >
-                        {columnVisibility[
-                          column.key as keyof ColumnVisibility
-                        ] ? (
-                          <CheckSquare size={16} className="text-blue-600" />
-                        ) : (
-                          <Square size={16} className="text-gray-400" />
-                        )}
-                        <span className="text-sm text-gray-700">
-                          {column.label}
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={
-                            columnVisibility[
-                              column.key as keyof ColumnVisibility
-                            ]
-                          }
-                          onChange={(e) => {
-                            setColumnVisibility((prev) => ({
-                              ...prev,
-                              [column.key]: e.target.checked,
-                            }));
-                          }}
-                          className="sr-only"
-                        />
-                      </label>
-                    ))}
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* PDF Download Button - only show in list view */}
             {viewMode === "list" && (
