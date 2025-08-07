@@ -182,13 +182,13 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
     const hasChildren = children.length > 0;
     
     // Different styles for different levels
-    const getNodeStyle = (level: number) => {
-      const baseStyle = {
+    const getNodeStyle = (level: number): React.CSSProperties => {
+      const baseStyle: React.CSSProperties = {
         padding: '12px 20px',
         margin: '8px',
         borderRadius: '12px',
         cursor: isEditable ? 'pointer' : 'default',
-        textAlign: 'center',
+        textAlign: 'center' as const,
         zIndex: 1,
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         backdropFilter: 'blur(10px)',
