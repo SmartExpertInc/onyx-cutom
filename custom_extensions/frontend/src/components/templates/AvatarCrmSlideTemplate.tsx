@@ -109,18 +109,18 @@ function InlineEditor({
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       placeholder={placeholder}
-              style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          width: '100%',
-          wordWrap: 'break-word',
-          boxSizing: 'border-box',
-          display: 'block',
-          color: 'inherit'
-        }}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        wordWrap: 'break-word',
+        boxSizing: 'border-box',
+        display: 'block',
+        color: 'inherit'
+      }}
     />
   );
 }
@@ -141,7 +141,6 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   isEditable = false
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -197,115 +196,124 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
+    height: '100vh',
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '40px'
+    fontFamily: 'Arial, sans-serif',
+    overflow: 'hidden'
   };
 
-  const contentContainerStyles: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    maxWidth: '1200px',
-    gap: '40px'
-  };
-
-  const leftContentStyles: React.CSSProperties = {
-    flex: '1',
+  // Left Panel - Dark Promotional Section (40% width)
+  const leftPanelStyles: React.CSSProperties = {
+    width: '40%',
+    backgroundColor: '#1a1a1a',
+    color: 'white',
+    padding: '40px',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '24px',
-    position: 'relative',
-    height: '100%'
-  };
-
-  const rightContentStyles: React.CSSProperties = {
-    flex: '1',
-    display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    textAlign: 'center',
+    position: 'relative'
   };
 
-  const titleStyles: React.CSSProperties = {
-    fontSize: '2rem',
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '16px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word',
+  // Right Panel - Light CRM Interface (60% width)
+  const rightPanelStyles: React.CSSProperties = {
+    width: '60%',
+    backgroundColor: '#f8f9fa',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative'
+  };
+
+  // Logo Styles
+  const logoStyles: React.CSSProperties = {
+    fontSize: '3rem',
+    fontWeight: 'bold',
+    color: '#FFD700',
+    marginBottom: '8px',
+    fontFamily: 'Georgia, serif'
+  };
+
+  const logoSubtextStyles: React.CSSProperties = {
+    fontSize: '1rem',
+    color: 'white',
+    marginBottom: '40px',
+    fontWeight: 'normal'
+  };
+
+  // Pink Banner Styles
+  const bannerStyles: React.CSSProperties = {
+    backgroundColor: '#FF1493',
+    color: 'white',
+    padding: '16px 24px',
+    borderRadius: '8px',
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    marginBottom: '32px',
+    textAlign: 'center',
+    width: '100%',
+    maxWidth: '400px'
+  };
+
+  // Checklist Styles
+  const checklistStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    width: '100%',
+    maxWidth: '400px'
+  };
+
+  const checklistItemStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    fontSize: '1rem',
+    color: 'white'
+  };
+
+  const checkmarkStyles: React.CSSProperties = {
+    color: '#FF1493',
+    fontSize: '1.2rem',
     fontWeight: 'bold'
   };
 
-  const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    marginBottom: '16px',
-    lineHeight: '1.6',
-    wordWrap: 'break-word'
-  };
-
-  const contentStyles: React.CSSProperties = {
-    fontSize: '1rem',
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    lineHeight: '1.6',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
-  };
-
-  const placeholderStyles: React.CSSProperties = {
-    width: '623px',
-    height: '562px',
-    margin: '0 auto',
-    position: 'absolute',
-    top: '-246px',
-    zIndex: 3
-  };
-
-  const crmWindowStyles: React.CSSProperties = {
-    backgroundColor: '#ffffff',
-    borderRadius: '12px',
+  // CRM Interface Styles
+  const crmContainerStyles: React.CSSProperties = {
+    flex: '1',
     padding: '24px',
-    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-    width: '450px',
-    maxWidth: '100%',
-    border: '1px solid #e0e0e0'
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'white',
+    margin: '20px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
   };
 
   const crmHeaderStyles: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
-    borderBottom: '2px solid #e0e0e0',
-    paddingBottom: '12px'
+    marginBottom: '8px'
   };
 
   const crmTitleStyles: React.CSSProperties = {
-    fontSize: '1.4rem',
+    fontSize: '1.5rem',
     fontWeight: 'bold',
-    color: '#333333'
+    color: '#333'
   };
 
   const crmCloseStyles: React.CSSProperties = {
-    fontSize: '1.8rem',
-    color: '#666666',
+    fontSize: '1.5rem',
+    color: '#666',
     cursor: 'pointer',
     fontWeight: 'bold'
   };
 
   const crmSubtitleStyles: React.CSSProperties = {
-    fontSize: '1rem',
-    color: '#666666',
-    marginBottom: '20px',
-    lineHeight: '1.4'
+    fontSize: '0.9rem',
+    color: '#666',
+    marginBottom: '20px'
   };
 
   const searchBarStyles: React.CSSProperties = {
@@ -318,10 +326,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     backgroundColor: '#f8f9fa'
   };
 
+  const clientListStyles: React.CSSProperties = {
+    flex: '1'
+  };
+
   const clientItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
+    gap: '12px',
     padding: '12px 0',
     borderBottom: '1px solid #f0f0f0'
   };
@@ -330,11 +342,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     width: '40px',
     height: '40px',
     borderRadius: '50%',
-    backgroundColor: '#e91e63',
+    backgroundColor: '#e0e0e0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#ffffff',
+    color: '#666',
     fontWeight: 'bold',
     fontSize: '1.1rem'
   };
@@ -344,34 +356,47 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const clientNameStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     fontWeight: 'bold',
-    color: '#333333'
+    color: '#333'
   };
 
   const clientEmailStyles: React.CSSProperties = {
-    fontSize: '0.9rem',
-    color: '#666666'
+    fontSize: '0.85rem',
+    color: '#666'
+  };
+
+  // Image Placeholder Styles (50% width of right panel, full height)
+  const imagePlaceholderStyles: React.CSSProperties = {
+    position: 'absolute',
+    right: '0',
+    top: '0',
+    width: '50%',
+    height: '100%',
+    backgroundColor: '#f0f0f0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderLeft: '1px solid #e0e0e0'
   };
 
   return (
     <div style={slideStyles}>
-      <div style={contentContainerStyles}>
-        {/* Left content - Text and Avatar */}
-        <div style={leftContentStyles}>
-          {/* Title */}
+      {/* Left Panel - Dark Promotional Section */}
+      <div style={leftPanelStyles}>
+        {/* Pink Banner */}
+        <div style={bannerStyles}>
           {isEditable && editingTitle ? (
             <InlineEditor
-              initialValue={title || ''}
+              initialValue={title || 'Личное отношение - залог следующих ВИЗИТОВ'}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               multiline={true}
-              placeholder="Enter slide title..."
-              className="inline-editor-title"
+              placeholder="Enter banner text..."
+              className="inline-editor-banner"
               style={{
-                ...titleStyles,
-                margin: '0',
-                padding: '0',
+                ...bannerStyles,
+                background: 'transparent',
                 border: 'none',
                 outline: 'none',
                 resize: 'none',
@@ -379,131 +404,136 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                color: 'inherit',
+                margin: '0',
+                padding: '0'
               }}
             />
           ) : (
-            <h1 
-              style={titleStyles}
+            <div 
               onClick={() => {
                 if (isEditable) {
                   setEditingTitle(true);
                 }
               }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              className={isEditable ? 'cursor-pointer hover:border hover:border-white hover:border-opacity-50' : ''}
             >
               {title || 'Личное отношение - залог следующих ВИЗИТОВ'}
-            </h1>
+            </div>
           )}
-
-          {/* Subtitle */}
-          {subtitle && (
-            isEditable && editingSubtitle ? (
+        </div>
+        
+        {/* Checklist */}
+        <div style={checklistStyles}>
+          <div style={checklistItemStyles}>
+            <span style={checkmarkStyles}>✓</span>
+            {isEditable && editingSubtitle ? (
               <InlineEditor
-                initialValue={subtitle}
+                initialValue={subtitle || 'Помните детали'}
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
-                multiline={true}
-                placeholder="Enter subtitle..."
-                className="inline-editor-subtitle"
+                multiline={false}
+                placeholder="Enter checklist item..."
+                className="inline-editor-checklist"
                 style={{
-                  ...subtitleStyles,
-                  margin: '0',
-                  padding: '0',
+                  background: 'transparent',
                   border: 'none',
                   outline: 'none',
                   resize: 'none',
                   overflow: 'hidden',
                   wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  color: 'inherit',
+                  margin: '0',
+                  padding: '0',
+                  fontSize: '1rem'
                 }}
               />
             ) : (
-              <h2 
-                style={subtitleStyles}
+              <span 
                 onClick={() => {
                   if (isEditable) {
                     setEditingSubtitle(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-white hover:border-opacity-50' : ''}
               >
-                {subtitle}
-              </h2>
-            )
-          )}
-
-          {/* Content */}
-          {content && (
-            isEditable && editingContent ? (
+                {subtitle || 'Помните детали'}
+              </span>
+            )}
+          </div>
+          
+          <div style={checklistItemStyles}>
+            <span style={checkmarkStyles}>✓</span>
+            {isEditable && editingContent ? (
               <InlineEditor
-                initialValue={content}
+                initialValue={content || 'Интересуйтесь'}
                 onSave={handleContentSave}
                 onCancel={handleContentCancel}
-                multiline={true}
-                placeholder="Enter content..."
-                className="inline-editor-content"
+                multiline={false}
+                placeholder="Enter checklist item..."
+                className="inline-editor-checklist"
                 style={{
-                  ...contentStyles,
-                  margin: '0',
-                  padding: '0',
+                  background: 'transparent',
                   border: 'none',
                   outline: 'none',
                   resize: 'none',
                   overflow: 'hidden',
                   wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  color: 'inherit',
+                  margin: '0',
+                  padding: '0',
+                  fontSize: '1rem'
                 }}
               />
             ) : (
-              <p 
-                style={contentStyles}
+              <span 
                 onClick={() => {
                   if (isEditable) {
                     setEditingContent(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-white hover:border-opacity-50' : ''}
               >
-                {content}
-              </p>
-            )
-          )}
-
-          {/* Avatar */}
-          <div style={{ marginTop: '24px' }}>
-            <ClickableImagePlaceholder
-              imagePath={avatarPath}
-              onImageUploaded={handleAvatarUploaded}
-              size="MEDIUM"
-              position="CENTER"
-              description="Click to upload avatar"
-              prompt="Professional headshot with transparent background"
-              style={placeholderStyles}
-            />
+                {content || 'Интересуйтесь'}
+              </span>
+            )}
+          </div>
+          
+          <div style={checklistItemStyles}>
+            <span style={checkmarkStyles}>✓</span>
+            <span>Сохраняйте тёплый контакт</span>
+          </div>
+          
+          <div style={checklistItemStyles}>
+            <span style={checkmarkStyles}>✓</span>
+            <span>Клиент это почувствует</span>
           </div>
         </div>
+      </div>
 
-        {/* Right content - CRM Interface */}
-        <div style={rightContentStyles}>
-          <div style={crmWindowStyles}>
-            <div style={crmHeaderStyles}>
-              <span style={crmTitleStyles}>Clients list</span>
-              <span style={crmCloseStyles}>×</span>
-            </div>
-            <div style={crmSubtitleStyles}>
-              View, add, edit and delete your client's detail
-            </div>
-            <input 
-              type="text" 
-              placeholder="🔍 Name, email or phone" 
-              style={searchBarStyles}
-              readOnly
-            />
+      {/* Right Panel - Light CRM Interface */}
+      <div style={rightPanelStyles}>
+        {/* CRM Interface */}
+        <div style={crmContainerStyles}>
+          <div style={crmHeaderStyles}>
+            <span style={crmTitleStyles}>Clients list</span>
+            <span style={crmCloseStyles}>×</span>
+          </div>
+          <div style={crmSubtitleStyles}>
+            View, add, edit and delete your client's detail
+          </div>
+          <input 
+            type="text" 
+            placeholder="🔍 Name, email or phone" 
+            style={searchBarStyles}
+            readOnly
+          />
+          <div style={clientListStyles}>
             <div style={clientItemStyles}>
               <div style={avatarStyles}>J</div>
               <div style={clientInfoStyles}>
@@ -519,6 +549,23 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Image Placeholder - 50% width of right panel, full height */}
+        <div style={imagePlaceholderStyles}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={handleAvatarUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt="Professional business or beauty industry image"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
         </div>
       </div>
     </div>
