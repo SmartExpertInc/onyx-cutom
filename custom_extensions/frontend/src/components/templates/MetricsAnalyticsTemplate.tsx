@@ -310,25 +310,68 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
             zIndex: 2
           }}>
             {/* Number */}
-            <div style={{
-              fontSize: '32px',
-              fontWeight: 700,
-              color: numColor,
-              marginBottom: '12px',
-              fontFamily: currentTheme.fonts.titleFont
-            }}>
-              {metric.number}
-            </div>
+            {isEditable && editingMetrics[index]?.number ? (
+              <InlineEditor
+                initialValue={metric.number}
+                onSave={(value) => handleMetricSave(index, 'number', value)}
+                onCancel={() => handleMetricCancel(index)}
+                multiline={false}
+                placeholder="Enter number..."
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 700,
+                  color: numColor,
+                  marginBottom: '12px',
+                  fontFamily: currentTheme.fonts.titleFont,
+                  textAlign: 'center'
+                }}
+              />
+            ) : (
+              <div 
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 700,
+                  color: numColor,
+                  marginBottom: '12px',
+                  fontFamily: currentTheme.fonts.titleFont,
+                  cursor: isEditable ? 'pointer' : 'default'
+                }}
+                onClick={() => isEditable && handleMetricEdit(index)}
+              >
+                {metric.number}
+              </div>
+            )}
             
             {/* Text */}
-            <div style={{
-              fontSize: currentTheme.fonts.contentSize,
-              color: txtColor,
-              lineHeight: '1.4',
-              fontFamily: currentTheme.fonts.contentFont
-            }}>
-              {metric.text || (isEditable ? 'Click to add text' : '')}
-            </div>
+            {isEditable && editingMetrics[index]?.text ? (
+              <InlineEditor
+                initialValue={metric.text}
+                onSave={(value) => handleMetricSave(index, 'text', value)}
+                onCancel={() => handleMetricCancel(index)}
+                multiline={true}
+                placeholder="Enter text..."
+                style={{
+                  fontSize: currentTheme.fonts.contentSize,
+                  color: txtColor,
+                  lineHeight: '1.4',
+                  fontFamily: currentTheme.fonts.contentFont,
+                  textAlign: 'center'
+                }}
+              />
+            ) : (
+              <div 
+                style={{
+                  fontSize: currentTheme.fonts.contentSize,
+                  color: txtColor,
+                  lineHeight: '1.4',
+                  fontFamily: currentTheme.fonts.contentFont,
+                  cursor: isEditable ? 'pointer' : 'default'
+                }}
+                onClick={() => isEditable && handleMetricEdit(index)}
+              >
+                {metric.text || (isEditable ? 'Click to add text' : '')}
+              </div>
+            )}
           </div>
         ))}
       </div>

@@ -274,14 +274,30 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                   marginTop: '6px',
                   flexShrink: 0
                 }} />
-                <div style={{
-                  fontSize: currentTheme.fonts.contentSize,
-                  color: contraColor,
-                  lineHeight: '1.4',
-                  flex: 1
-                }}>
-                  {item || (isEditable ? 'Click to add contraindication' : '')}
-                </div>
+                {isEditable && editingContraindications[index] ? (
+                  <InlineEditor
+                    initialValue={item}
+                    onSave={(value) => handleContraindicationSave(index, value)}
+                    onCancel={() => setEditingContraindications(prev => ({ ...prev, [index]: false }))}
+                    multiline={true}
+                    placeholder="Enter contraindication..."
+                    style={{
+                      fontSize: currentTheme.fonts.contentSize,
+                      color: contraColor,
+                      lineHeight: '1.4',
+                      flex: 1
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    fontSize: currentTheme.fonts.contentSize,
+                    color: contraColor,
+                    lineHeight: '1.4',
+                    flex: 1
+                  }}>
+                    {item || (isEditable ? 'Click to add contraindication' : '')}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -327,14 +343,30 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                   marginTop: '6px',
                   flexShrink: 0
                 }} />
-                <div style={{
-                  fontSize: currentTheme.fonts.contentSize,
-                  color: indColor,
-                  lineHeight: '1.4',
-                  flex: 1
-                }}>
-                  {item || (isEditable ? 'Click to add indication' : '')}
-                </div>
+                {isEditable && editingIndications[index] ? (
+                  <InlineEditor
+                    initialValue={item}
+                    onSave={(value) => handleIndicationSave(index, value)}
+                    onCancel={() => setEditingIndications(prev => ({ ...prev, [index]: false }))}
+                    multiline={true}
+                    placeholder="Enter indication..."
+                    style={{
+                      fontSize: currentTheme.fonts.contentSize,
+                      color: indColor,
+                      lineHeight: '1.4',
+                      flex: 1
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    fontSize: currentTheme.fonts.contentSize,
+                    color: indColor,
+                    lineHeight: '1.4',
+                    flex: 1
+                  }}>
+                    {item || (isEditable ? 'Click to add indication' : '')}
+                  </div>
+                )}
               </div>
             ))}
           </div>

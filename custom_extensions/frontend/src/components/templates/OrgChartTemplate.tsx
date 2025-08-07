@@ -123,7 +123,20 @@ function InlineEditor({
 
 const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   title = 'Organizational chart',
-  chartData = [],
+  chartData = [
+    { id: 'ceo', title: 'CEO', level: 0 },
+    { id: 'manager1', title: 'Manager 1', level: 1, parentId: 'ceo' },
+    { id: 'manager2', title: 'Manager 2', level: 1, parentId: 'ceo' },
+    { id: 'teamleader1_1', title: 'Team Leader 1', level: 2, parentId: 'manager1' },
+    { id: 'teamleader2_1', title: 'Team Leader 2', level: 2, parentId: 'manager1' },
+    { id: 'teamleader1_2', title: 'Team Leader 1', level: 2, parentId: 'manager2' },
+    { id: 'teamleader2_2', title: 'Team Leader 2', level: 2, parentId: 'manager2' },
+    { id: 'employee1', title: 'Employee 1', level: 3, parentId: 'teamleader1_1' },
+    { id: 'employee2', title: 'Employee 2', level: 3, parentId: 'teamleader1_1' },
+    { id: 'employee3', title: 'Employee 3', level: 3, parentId: 'teamleader1_2' },
+    { id: 'employee4', title: 'Employee 4', level: 3, parentId: 'teamleader1_2' },
+    { id: 'employee5', title: 'Employee 5', level: 3, parentId: 'teamleader2_2' }
+  ],
   titleColor,
   textColor,
   backgroundColor,
@@ -164,7 +177,7 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   const getChildren = (parentId: string) => chartData.filter(item => item.parentId === parentId);
   const getRootNodes = () => chartData.filter(item => !item.parentId);
 
-  const renderNode = (node: ChartNode) => {
+  const renderNode = (node: ChartNode, level: number) => {
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
 
@@ -175,12 +188,13 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
             padding: '8px 16px',
             margin: '4px',
             borderRadius: '4px',
-            backgroundColor: bgColor,
-            border: `2px solid ${txtColor}`,
+            backgroundColor: 'white',
+            border: `1px solid #333`,
             cursor: isEditable ? 'pointer' : 'default',
             minWidth: '120px',
             textAlign: 'center',
             zIndex: 1,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           }}
           onClick={() => handleChartDataEdit(node.id)}
         >
@@ -192,19 +206,20 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
               multiline={false}
               placeholder="Enter title..."
               style={{
-                fontSize: currentTheme.fonts.contentSize,
-                color: txtColor,
-                fontFamily: currentTheme.fonts.contentFont,
+                fontSize: '14px',
+                color: '#333',
+                fontFamily: 'Arial, sans-serif',
                 textAlign: 'center',
+                fontWeight: '500',
               }}
             />
           ) : (
             <div
               style={{
-                fontSize: currentTheme.fonts.contentSize,
-                color: txtColor,
-                fontFamily: currentTheme.fonts.contentFont,
-                fontWeight: 500,
+                fontSize: '14px',
+                color: '#333',
+                fontFamily: 'Arial, sans-serif',
+                fontWeight: '500',
               }}
             >
               {node.title || (isEditable ? 'Click to add title' : '')}
@@ -214,57 +229,70 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
 
         {hasChildren && (
           <div style={{ paddingTop: '20px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {/* Vertical line from parent to horizontal line */}
             <div style={{ position: 'relative', height: '20px' }}>
               <div
                 style={{
                   position: 'absolute',
                   top: 0,
                   left: '50%',
-                  width: '2px',
+                  width: '1px',
                   height: '20px',
-                  backgroundColor: txtColor,
+                  backgroundColor: '#333',
                   transform: 'translateX(-50%)',
                   zIndex: 0,
                 }}
               />
             </div>
 
+            {/* Horizontal line connecting children */}
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'space-between',
+                justifyContent: 'space-evenly',
                 alignItems: 'flex-start',
                 position: 'relative',
                 marginTop: '20px',
-                width: `${children.length * 160}px`,
+                width: `${Math.max(children.length * 200, 400)}px`,
+                minWidth: '400px',
               }}
             >
+              {/* Horizontal line */}
               <div
                 style={{
                   position: 'absolute',
                   top: '-20px',
                   left: '0',
                   right: '0',
-                  height: '2px',
-                  backgroundColor: txtColor,
+                  height: '1px',
+                  backgroundColor: '#333',
                   zIndex: 0,
                 }}
               />
+              
               {children.map((child, index) => (
-                <div key={child.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', width: '160px' }}>
+                <div key={child.id} style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  position: 'relative', 
+                  flex: 1,
+                  margin: '0 10px'
+                }}>
+                  {/* Vertical line from horizontal to child */}
                   <div
                     style={{
                       position: 'absolute',
                       top: '-20px',
                       left: '50%',
-                      width: '2px',
+                      width: '1px',
                       height: '20px',
-                      backgroundColor: txtColor,
+                      backgroundColor: '#333',
                       transform: 'translateX(-50%)',
                       zIndex: 0,
                     }}
                   />
-                  {renderNode(child)}
+                  {renderNode(child, level + 1)}
                 </div>
               ))}
             </div>
@@ -275,7 +303,13 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   };
 
   return (
-    <div style={{ background: bgColor, minHeight: 600, padding: '40px', boxSizing: 'border-box' }}>
+    <div style={{ 
+      background: 'white', 
+      minHeight: 600, 
+      padding: '40px', 
+      boxSizing: 'border-box',
+      fontFamily: 'Arial, sans-serif'
+    }}>
       <div style={{ marginBottom: '40px', textAlign: 'center' }}>
         {isEditable && editingTitle ? (
           <InlineEditor
@@ -286,22 +320,22 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
             placeholder="Enter title..."
             style={{
               fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
+              fontSize: '24px',
+              color: '#333',
               textAlign: 'center',
               width: '100%',
-              fontFamily: currentTheme.fonts.titleFont
+              fontFamily: 'Arial, sans-serif'
             }}
           />
         ) : (
           <div
             style={{
               fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
+              fontSize: '24px',
+              color: '#333',
               textAlign: 'center',
               cursor: isEditable ? 'pointer' : 'default',
-              fontFamily: currentTheme.fonts.titleFont
+              fontFamily: 'Arial, sans-serif'
             }}
             onClick={() => isEditable && setEditingTitle(true)}
           >
@@ -311,7 +345,7 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        {getRootNodes().map(rootNode => renderNode(rootNode))}
+        {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
       </div>
     </div>
   );
