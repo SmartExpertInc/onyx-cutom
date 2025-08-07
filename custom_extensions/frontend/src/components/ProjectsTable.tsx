@@ -46,296 +46,296 @@ import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
 
 // Helper function to render SVG icons based on designMicroproductType
-const getDesignMicroproductIcon = (type: string): React.ReactElement => {
-  const iconSize = 16;
-  const iconColor = "#fff";
+// const getDesignMicroproductIcon = (type: string): React.ReactElement => {
+//   const iconSize = 16;
+//   const iconColor = "#fff";
 
-  switch (type) {
-    case "Text Presentation":
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill={iconColor}
-            d="M5 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5M5.5 9a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 12.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5M5.5 3a.5.5 0 0 0 0 1H8V3z"
-          />
-          <path
-            fill={iconColor}
-            fillRule="evenodd"
-            d="M14 4.57a.5.5 0 0 0-.024-.235l-.013-.063a1.5 1.5 0 0 0-.18-.434c-.092-.15-.222-.28-.482-.54l-2.59-2.59c-.259-.26-.389-.39-.54-.483a1.5 1.5 0 0 0-.496-.193a.5.5 0 0 0-.235-.024C9.329.004 9.194.004 9.015.004h-2.21c-1.68 0-2.52 0-3.16.327a3.02 3.02 0 0 0-1.31 1.31c-.327.642-.327 1.48-.327 3.16v6.4c0 1.68 0 2.52.327 3.16a3.02 3.02 0 0 0 1.31 1.31c.642.327 1.48.327 3.16.327h2.4c1.68 0 2.52 0 3.16-.327a3.02 3.02 0 0 0 1.31-1.31c.327-.642.327-1.48.327-3.16V4.99c0-.178 0-.313-.005-.425zm-2.91 10.4c-.45.037-1.03.038-1.89.038H6.8c-.857 0-1.44-.001-1.89-.038c-.438-.036-.663-.101-.819-.18a2 2 0 0 1-.874-.874c-.08-.156-.145-.381-.18-.819c-.037-.45-.038-1.03-.038-1.89v-6.4c0-.857.001-1.44.038-1.89c.036-.438.101-.663.18-.819c.192-.376.498-.682.874-.874c.156-.08.381-.145.819-.18c.45-.037 1.03-.038 1.89-.038H9v3.5a.5.5 0 0 0 .5.5H13v6.2c0 .857 0 1.44-.038 1.89c-.035.438-.1.663-.18.82a2 2 0 0 1-.874.873c-.156.08-.38.145-.819.18zM10 1.47l2.59 2.59H10z"
-            clipRule="evenodd"
-          />
-        </svg>
-      );
-    case "Training Plan":
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g fill="none" stroke={iconColor} strokeWidth="1.5">
-            <path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z" />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 15.8L7.143 17L10 14M6 8.8L7.143 10L10 7"
-            />
-            <path strokeLinecap="round" d="M13 9h5m-5 7h5" />
-          </g>
-        </svg>
-      );
-    case "PDF Lesson":
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
-            stroke={iconColor}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M14 2V8H20"
-            stroke={iconColor}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9 15H15"
-            stroke={iconColor}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9 11H15"
-            stroke={iconColor}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9 7H11"
-            stroke={iconColor}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-    case "Video Lesson":
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill={iconColor}
-            d="M13 18.75H6A2.75 2.75 0 0 1 3.25 16V8A2.75 2.75 0 0 1 6 5.25h7A2.75 2.75 0 0 1 15.75 8v8A2.75 2.75 0 0 1 13 18.75Zm-7-12A1.25 1.25 0 0 0 4.75 8v8A1.25 1.25 0 0 0 6 17.25h7A1.25 1.25 0 0 0 14.25 16V8A1.25 1.25 0 0 0 13 6.75Z"
-          />
-          <path
-            fill={iconColor}
-            d="M20 16.75a.79.79 0 0 1-.39-.11l-5-3a.75.75 0 0 1-.36-.64v-2a.75.75 0 0 1 .36-.64l5-3a.74.74 0 0 1 .76 0a.75.75 0 0 1 .38.65v8a.75.75 0 0 1-.38.65a.71.71 0 0 1-.37.09Zm-4.25-4.17l3.5 2.1V9.32l-3.5 2.1Z"
-          />
-        </svg>
-      );
-    case "Interactive Quiz":
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g
-            fill="none"
-            stroke={iconColor}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.5"
-          >
-            <path d="M8.5 7.5c0-1.013.895-2 2-2s2 .82 2 1.833c0 .365-.116.705-.317.991C11.585 9.176 10.5 9.987 10.5 11m0 2.5h.009M8 19.5c1.05.87 2.315 1.424 3.764 1.519c1.141.075 2.333.075 3.473 0a4 4 0 0 0 1.188-.268c.41-.167.614-.25.719-.237c.104.012.255.122.557.342c.533.388 1.204.666 2.2.643c.503-.012.755-.019.867-.208c.113-.19-.027-.452-.308-.977c-.39-.728-.636-1.561-.262-2.229c.643-.954 1.19-2.083 1.27-3.303c.043-.655.043-1.334 0-1.99A6.7 6.7 0 0 0 20.9 10.5" />
-            <path d="M12.237 17.019a6.685 6.685 0 0 0 6.23-6.237c.044-.655.044-1.334 0-1.99a6.685 6.685 0 0 0-6.23-6.236a27 27 0 0 0-3.473 0a6.686 6.686 0 0 0-6.232 6.237a15 15 0 0 0 0 1.99c.08 1.22.627 2.349 1.27 3.302c.374.668.127 1.501-.262 2.23c-.28.524-.42.786-.308.976c.113.19.364.195.868.208c.995.024 1.666-.255 2.199-.643c.302-.22.453-.33.557-.342s.31.07.72.237c.368.15.795.242 1.188.268c1.139.075 2.33.075 3.473 0" />
-          </g>
-        </svg>
-      );
-    case "Assessment":
-      return React.createElement(
-        "svg",
-        {
-          width: iconSize,
-          height: iconSize,
-          viewBox: "0 0 24 24",
-          fill: "none",
-          xmlns: "http://www.w3.org/2000/svg",
-        },
-        React.createElement("path", {
-          d: "M9 11H15",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M9 15H15",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M9 7H15",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M3 5C3 3.9 3.9 3 5 3H19C20.1 3 21 3.9 21 5V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5Z",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        })
-      );
-    case "Case Study":
-      return React.createElement(
-        "svg",
-        {
-          width: iconSize,
-          height: iconSize,
-          viewBox: "0 0 24 24",
-          fill: "none",
-          xmlns: "http://www.w3.org/2000/svg",
-        },
-        React.createElement("path", {
-          d: "M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M14 2V8H20",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M8 13H16",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M8 17H12",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        })
-      );
-    case "Workshop":
-      return React.createElement(
-        "svg",
-        {
-          width: iconSize,
-          height: iconSize,
-          viewBox: "0 0 24 24",
-          fill: "none",
-          xmlns: "http://www.w3.org/2000/svg",
-        },
-        React.createElement("path", {
-          d: "M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("circle", {
-          cx: "9",
-          cy: "7",
-          r: "4",
-          stroke: iconColor,
-          strokeWidth: "2",
-        }),
-        React.createElement("path", {
-          d: "M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        }),
-        React.createElement("path", {
-          d: "M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88",
-          stroke: iconColor,
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-        })
-      );
-    case "Template":
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="none"
-            stroke={iconColor}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.5"
-            d="M12 18v4m-3.5 0l.328-.328c.578-.578.867-.867 1.235-1.02c.367-.152.776-.152 1.594-.152h.686c.818 0 1.226 0 1.594.152c.367.152.656.441 1.234 1.02L15.5 22m-13-10c0 2.828 0 4.243.879 5.121C4.257 18 5.672 18 8.5 18h7c2.828 0 4.243 0 5.121-.879c.879-.878.879-2.293.879-5.121V8c0-2.828 0-4.243-.879-5.121C19.743 2 18.328 2 15.5 2h-7c-2.828 0-4.243 0-5.121.879C2.5 3.757 2.5 5.172 2.5 8zM8 13v-3m4 3V7m4 6v-2"
-          />
-        </svg>
-      );
-    default:
-      // Default icon for unknown types
-      return (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="none"
-            stroke={iconColor}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.5"
-            d="M11.688 3.063a3.5 3.5 0 0 1 1.027.712l5.968 5.97c.3.3.54.647.711 1.026m-7.706-7.708a3.5 3.5 0 0 0-1.448-.313H7.792a3.5 3.5 0 0 0-3.5 3.5v11.5a3.5 3.5 0 0 0 3.5 3.5h8.416a3.5 3.5 0 0 0 3.5-3.5v-5.53c0-.505-.109-.999-.314-1.45m-7.706-7.707V8.77a2 2 0 0 0 2 2h5.706"
-          />
-        </svg>
-      );
-  }
-};
+//   switch (type) {
+//     case "Text Presentation":
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 16 16"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <path
+//             fill={iconColor}
+//             d="M5 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5M5.5 9a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 12.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5M5.5 3a.5.5 0 0 0 0 1H8V3z"
+//           />
+//           <path
+//             fill={iconColor}
+//             fillRule="evenodd"
+//             d="M14 4.57a.5.5 0 0 0-.024-.235l-.013-.063a1.5 1.5 0 0 0-.18-.434c-.092-.15-.222-.28-.482-.54l-2.59-2.59c-.259-.26-.389-.39-.54-.483a1.5 1.5 0 0 0-.496-.193a.5.5 0 0 0-.235-.024C9.329.004 9.194.004 9.015.004h-2.21c-1.68 0-2.52 0-3.16.327a3.02 3.02 0 0 0-1.31 1.31c-.327.642-.327 1.48-.327 3.16v6.4c0 1.68 0 2.52.327 3.16a3.02 3.02 0 0 0 1.31 1.31c.642.327 1.48.327 3.16.327h2.4c1.68 0 2.52 0 3.16-.327a3.02 3.02 0 0 0 1.31-1.31c.327-.642.327-1.48.327-3.16V4.99c0-.178 0-.313-.005-.425zm-2.91 10.4c-.45.037-1.03.038-1.89.038H6.8c-.857 0-1.44-.001-1.89-.038c-.438-.036-.663-.101-.819-.18a2 2 0 0 1-.874-.874c-.08-.156-.145-.381-.18-.819c-.037-.45-.038-1.03-.038-1.89v-6.4c0-.857.001-1.44.038-1.89c.036-.438.101-.663.18-.819c.192-.376.498-.682.874-.874c.156-.08.381-.145.819-.18c.45-.037 1.03-.038 1.89-.038H9v3.5a.5.5 0 0 0 .5.5H13v6.2c0 .857 0 1.44-.038 1.89c-.035.438-.1.663-.18.82a2 2 0 0 1-.874.873c-.156.08-.38.145-.819.18zM10 1.47l2.59 2.59H10z"
+//             clipRule="evenodd"
+//           />
+//         </svg>
+//       );
+//     case "Training Plan":
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 24 24"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <g fill="none" stroke={iconColor} strokeWidth="1.5">
+//             <path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z" />
+//             <path
+//               strokeLinecap="round"
+//               strokeLinejoin="round"
+//               d="M6 15.8L7.143 17L10 14M6 8.8L7.143 10L10 7"
+//             />
+//             <path strokeLinecap="round" d="M13 9h5m-5 7h5" />
+//           </g>
+//         </svg>
+//       );
+//     case "PDF Lesson":
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 24 24"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <path
+//             d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+//             stroke={iconColor}
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//           <path
+//             d="M14 2V8H20"
+//             stroke={iconColor}
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//           <path
+//             d="M9 15H15"
+//             stroke={iconColor}
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//           <path
+//             d="M9 11H15"
+//             stroke={iconColor}
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//           <path
+//             d="M9 7H11"
+//             stroke={iconColor}
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//         </svg>
+//       );
+//     case "Video Lesson":
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 24 24"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <path
+//             fill={iconColor}
+//             d="M13 18.75H6A2.75 2.75 0 0 1 3.25 16V8A2.75 2.75 0 0 1 6 5.25h7A2.75 2.75 0 0 1 15.75 8v8A2.75 2.75 0 0 1 13 18.75Zm-7-12A1.25 1.25 0 0 0 4.75 8v8A1.25 1.25 0 0 0 6 17.25h7A1.25 1.25 0 0 0 14.25 16V8A1.25 1.25 0 0 0 13 6.75Z"
+//           />
+//           <path
+//             fill={iconColor}
+//             d="M20 16.75a.79.79 0 0 1-.39-.11l-5-3a.75.75 0 0 1-.36-.64v-2a.75.75 0 0 1 .36-.64l5-3a.74.74 0 0 1 .76 0a.75.75 0 0 1 .38.65v8a.75.75 0 0 1-.38.65a.71.71 0 0 1-.37.09Zm-4.25-4.17l3.5 2.1V9.32l-3.5 2.1Z"
+//           />
+//         </svg>
+//       );
+//     case "Interactive Quiz":
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 24 24"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <g
+//             fill="none"
+//             stroke={iconColor}
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//             strokeWidth="1.5"
+//           >
+//             <path d="M8.5 7.5c0-1.013.895-2 2-2s2 .82 2 1.833c0 .365-.116.705-.317.991C11.585 9.176 10.5 9.987 10.5 11m0 2.5h.009M8 19.5c1.05.87 2.315 1.424 3.764 1.519c1.141.075 2.333.075 3.473 0a4 4 0 0 0 1.188-.268c.41-.167.614-.25.719-.237c.104.012.255.122.557.342c.533.388 1.204.666 2.2.643c.503-.012.755-.019.867-.208c.113-.19-.027-.452-.308-.977c-.39-.728-.636-1.561-.262-2.229c.643-.954 1.19-2.083 1.27-3.303c.043-.655.043-1.334 0-1.99A6.7 6.7 0 0 0 20.9 10.5" />
+//             <path d="M12.237 17.019a6.685 6.685 0 0 0 6.23-6.237c.044-.655.044-1.334 0-1.99a6.685 6.685 0 0 0-6.23-6.236a27 27 0 0 0-3.473 0a6.686 6.686 0 0 0-6.232 6.237a15 15 0 0 0 0 1.99c.08 1.22.627 2.349 1.27 3.302c.374.668.127 1.501-.262 2.23c-.28.524-.42.786-.308.976c.113.19.364.195.868.208c.995.024 1.666-.255 2.199-.643c.302-.22.453-.33.557-.342s.31.07.72.237c.368.15.795.242 1.188.268c1.139.075 2.33.075 3.473 0" />
+//           </g>
+//         </svg>
+//       );
+//     case "Assessment":
+//       return React.createElement(
+//         "svg",
+//         {
+//           width: iconSize,
+//           height: iconSize,
+//           viewBox: "0 0 24 24",
+//           fill: "none",
+//           xmlns: "http://www.w3.org/2000/svg",
+//         },
+//         React.createElement("path", {
+//           d: "M9 11H15",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M9 15H15",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M9 7H15",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M3 5C3 3.9 3.9 3 5 3H19C20.1 3 21 3.9 21 5V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5Z",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         })
+//       );
+//     case "Case Study":
+//       return React.createElement(
+//         "svg",
+//         {
+//           width: iconSize,
+//           height: iconSize,
+//           viewBox: "0 0 24 24",
+//           fill: "none",
+//           xmlns: "http://www.w3.org/2000/svg",
+//         },
+//         React.createElement("path", {
+//           d: "M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M14 2V8H20",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M8 13H16",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M8 17H12",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         })
+//       );
+//     case "Workshop":
+//       return React.createElement(
+//         "svg",
+//         {
+//           width: iconSize,
+//           height: iconSize,
+//           viewBox: "0 0 24 24",
+//           fill: "none",
+//           xmlns: "http://www.w3.org/2000/svg",
+//         },
+//         React.createElement("path", {
+//           d: "M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("circle", {
+//           cx: "9",
+//           cy: "7",
+//           r: "4",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//         }),
+//         React.createElement("path", {
+//           d: "M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         }),
+//         React.createElement("path", {
+//           d: "M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88",
+//           stroke: iconColor,
+//           strokeWidth: "2",
+//           strokeLinecap: "round",
+//           strokeLinejoin: "round",
+//         })
+//       );
+//     case "Template":
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 24 24"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <path
+//             fill="none"
+//             stroke={iconColor}
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//             strokeWidth="1.5"
+//             d="M12 18v4m-3.5 0l.328-.328c.578-.578.867-.867 1.235-1.02c.367-.152.776-.152 1.594-.152h.686c.818 0 1.226 0 1.594.152c.367.152.656.441 1.234 1.02L15.5 22m-13-10c0 2.828 0 4.243.879 5.121C4.257 18 5.672 18 8.5 18h7c2.828 0 4.243 0 5.121-.879c.879-.878.879-2.293.879-5.121V8c0-2.828 0-4.243-.879-5.121C19.743 2 18.328 2 15.5 2h-7c-2.828 0-4.243 0-5.121.879C2.5 3.757 2.5 5.172 2.5 8zM8 13v-3m4 3V7m4 6v-2"
+//           />
+//         </svg>
+//       );
+//     default:
+//       // Default icon for unknown types
+//       return (
+//         <svg
+//           width={iconSize}
+//           height={iconSize}
+//           viewBox="0 0 24 24"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <path
+//             fill="none"
+//             stroke={iconColor}
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//             strokeWidth="1.5"
+//             d="M11.688 3.063a3.5 3.5 0 0 1 1.027.712l5.968 5.97c.3.3.54.647.711 1.026m-7.706-7.708a3.5 3.5 0 0 0-1.448-.313H7.792a3.5 3.5 0 0 0-3.5 3.5v11.5a3.5 3.5 0 0 0 3.5 3.5h8.416a3.5 3.5 0 0 0 3.5-3.5v-5.53c0-.505-.109-.999-.314-1.45m-7.706-7.707V8.77a2 2 0 0 0 2 2h5.706"
+//           />
+//         </svg>
+//       );
+//   }
+// };
 
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (
@@ -1766,7 +1766,7 @@ const ProjectCard: React.FC<{
             )}99)`,
           }}
         >
-          {project.designMicroproductType && (
+          {/* {project.designMicroproductType && (
             <div
               style={{
                 position: "absolute",
@@ -1786,7 +1786,7 @@ const ProjectCard: React.FC<{
             >
               {getDesignMicroproductIcon(project.designMicroproductType)}
             </div>
-          )}
+          )} */}
           {project.isGamma ? (
             <div className="p-4 text-white flex flex-col justify-between h-full">
               <div>
