@@ -12,6 +12,13 @@
   transition: transform 0.1s ease-out, box-shadow 0.2s ease;
   cursor: move;
   border-radius: 4px;
+  /* Prevent initial flicker by ensuring transform is applied immediately */
+  transform: translate(0px, 0px); /* Default transform to prevent layout shift */
+}
+
+/* Prevent transitions during initial render to avoid flicker */
+.positioning-enabled-slide.initializing [data-draggable="true"] {
+  transition: none !important;
 }
 
 /* Hover effects for draggable elements */

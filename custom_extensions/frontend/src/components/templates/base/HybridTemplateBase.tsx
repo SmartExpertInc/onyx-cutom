@@ -58,6 +58,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   const [currentMode, setCurrentMode] = useState<PositioningMode>(
     positioningMode === 'template' && isEditable ? 'hybrid' : positioningMode
   );
+  const [isInitializing, setIsInitializing] = useState(true);
 
   // Initialize items from slide if not provided
   useEffect(() => {
@@ -76,6 +77,21 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       setCurrentCanvasConfig(extracted.canvasConfig);
     }
   }, [isEditable, slide, currentItems, currentMode]);
+
+  // Handle initialization state to prevent flicker
+  useEffect(() => {
+    if (isEditable) {
+      // Set initializing state
+      setIsInitializing(true);
+      
+      // Remove initializing state after a short delay to allow positions to be applied
+      const timer = setTimeout(() => {
+        setIsInitializing(false);
+      }, 50); // Short delay to ensure positions are applied
+
+      return () => clearTimeout(timer);
+    }
+  }, [isEditable, slide?.slideId, slide?.metadata?.elementPositions]);
 
   // Handle items change
   const handleItemsChange = useCallback((newItems: PositionableItem[]) => {
@@ -172,7 +188,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   // For editable slides: render template with drag-and-drop enabled
   return (
     <div 
-      className="relative positioning-enabled-slide"
+      className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
       style={{
         width: currentCanvasConfig.width,
         height: currentCanvasConfig.height
