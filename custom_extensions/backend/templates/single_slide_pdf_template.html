@@ -10,22 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Mont Font Family - Used in Chudo Themes (Optimized - Only Essential Fonts) */
-        @font-face {
-          font-family: 'Mont Regular';
-          src: url('/fonts/fonnts.com-Mont_Regular.ttf') format('truetype');
-          font-weight: 400;
-          font-style: normal;
-          font-display: block; /* Changed from swap to block for faster PDF rendering */
-        }
-
-        @font-face {
-          font-family: 'Mont Bold';
-          src: url('/fonts/fonnts.com-Mont_Bold.ttf') format('truetype');
-          font-weight: 700;
-          font-style: normal;
-          font-display: block; /* Changed from swap to block for faster PDF rendering */
-        }
+        /* Mont Font Family - Embedded Base64 Fonts for PDF Rendering */
+        {{ embedded_fonts_css|safe }}
         /* Reset and base styles */
         html, body {
             margin: 0;

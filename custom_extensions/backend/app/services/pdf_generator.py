@@ -84,6 +84,98 @@ def shuffle_filter(seq):
 
 jinja_env.filters['shuffle'] = shuffle_filter
 
+# Font embedding functions for PDF generation
+def get_font_as_base64(font_filename: str) -> str:
+    """Convert a font file to base64 data URL for PDF embedding."""
+    try:
+        # Calculate the correct path to fonts from pdf_generator.py location
+        current_dir = os.path.dirname(__file__)  # app/services/
+        root_dir = os.path.dirname(os.path.dirname(current_dir))  # Go up 2 levels to root
+        fonts_dir = os.path.join(root_dir, 'static', 'fonts')
+        font_path = os.path.join(fonts_dir, font_filename)
+        
+        logger.info(f"🔤 Loading font: {font_path}")
+        
+        if os.path.exists(font_path):
+            with open(font_path, 'rb') as font_file:
+                font_data = font_file.read()
+                # Only create base64 if file is reasonable size (< 1MB)
+                if len(font_data) > 1024 * 1024:
+                    logger.warning(f"Font file {font_filename} is large ({len(font_data)} bytes), this may impact PDF generation performance")
+                
+                font_base64 = base64.b64encode(font_data).decode('utf-8')
+                data_url = f"data:font/truetype;base64,{font_base64}"
+                logger.info(f"✅ Font {font_filename} embedded successfully ({len(font_data)} bytes → {len(data_url)} chars)")
+                return data_url
+        else:
+            logger.warning(f"❌ Font file not found: {font_path}")
+            # Try to list available fonts for debugging
+            if os.path.exists(fonts_dir):
+                available_fonts = [f for f in os.listdir(fonts_dir) if f.endswith('.ttf')]
+                logger.info(f"Available fonts in {fonts_dir}: {available_fonts}")
+            return ""
+    except Exception as e:
+        logger.error(f"❌ Failed to load font {font_filename}: {e}", exc_info=True)
+        return ""
+
+def get_embedded_fonts_css() -> str:
+    """Generate CSS with embedded fonts for PDF rendering."""
+    logger.info("🎨 Generating embedded fonts CSS for PDF rendering...")
+    
+    mont_regular_data = get_font_as_base64('fonnts.com-Mont_Regular.ttf')
+    mont_bold_data = get_font_as_base64('fonnts.com-Mont_Bold.ttf')
+    
+    css = ""
+    
+    if mont_regular_data:
+        css += f"""
+        @font-face {{
+          font-family: 'Mont Regular';
+          src: url('{mont_regular_data}') format('truetype');
+          font-weight: 400;
+          font-style: normal;
+          font-display: block;
+        }}
+        """
+    else:
+        # Fallback CSS if font embedding fails
+        css += """
+        @font-face {
+          font-family: 'Mont Regular';
+          src: local('Arial'), local('Helvetica');
+          font-weight: 400;
+          font-style: normal;
+          font-display: block;
+        }
+        """
+        logger.warning("Using fallback font for Mont Regular")
+    
+    if mont_bold_data:
+        css += f"""
+        @font-face {{
+          font-family: 'Mont Bold';
+          src: url('{mont_bold_data}') format('truetype');
+          font-weight: 700;
+          font-style: normal;
+          font-display: block;
+        }}
+        """
+    else:
+        # Fallback CSS if font embedding fails
+        css += """
+        @font-face {
+          font-family: 'Mont Bold';
+          src: local('Arial Bold'), local('Helvetica Bold');
+          font-weight: 700;
+          font-style: normal;
+          font-display: block;
+        }
+        """
+        logger.warning("Using fallback font for Mont Bold")
+    
+    logger.info(f"✅ Embedded fonts CSS generated successfully ({len(css)} characters total)")
+    return css
+
 # Timeout wrapper to prevent 504 Gateway Timeout errors
 def timeout_wrapper(timeout_seconds: int):
     """Decorator to add timeout to async functions to prevent 504 errors."""
@@ -866,7 +958,8 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         context_data = {
             'slide': safe_slide_data,
             'theme': theme,
-            'slide_height': 600  # Start with minimum height
+            'slide_height': 600,  # Start with minimum height
+            'embedded_fonts_css': get_embedded_fonts_css()  # Add embedded fonts CSS
         }
         
         # Render the single slide template
@@ -1086,7 +1179,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         context_data = {
             'slide': safe_slide_data,
             'theme': theme,
-            'slide_height': slide_height
+            'slide_height': slide_height,
+            'embedded_fonts_css': get_embedded_fonts_css()  # Add embedded fonts CSS
         }
         
         # Process presentation slide images (convert imagePath to base64 data URLs)
